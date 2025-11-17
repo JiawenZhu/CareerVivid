@@ -8,6 +8,9 @@
     "activeTab",
     "scripting"
   ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' https://cdn.tailwindcss.com; object-src 'self'"
+  },
   "host_permissions": [
     "*://*.linkedin.com/jobs/view/*",
     "*://*.indeed.com/viewjob*",

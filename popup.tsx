@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { Loader2, LogIn, Rocket } from 'lucide-react';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // FIX: Added a global declaration for the `chrome` object to resolve type errors
 // when the build environment doesn't correctly load the chrome types.
@@ -102,10 +103,12 @@ const Popup: React.FC = () => {
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(
     <React.StrictMode>
-      <ThemeProvider>
-        <AuthProvider>
-            <Popup />
-        </AuthProvider>
-      </ThemeProvider>
+      <ErrorBoundary>
+        <ThemeProvider>
+          <AuthProvider>
+              <Popup />
+          </AuthProvider>
+        </ThemeProvider>
+      </ErrorBoundary>
     </React.StrictMode>
 );

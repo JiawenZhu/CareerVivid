@@ -26,8 +26,8 @@ class ErrorBoundary extends React.Component<Props, State> {
     return { hasError: true, error };
   }
 
-  // FIX: Converted to an arrow function to ensure 'this' is always correctly bound.
-  public componentDidCatch = (error: Error, errorInfo: ErrorInfo) => {
+  // FIX: Reverted to a standard class method. React handles binding 'this' for lifecycle methods.
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log the error to our reporting service
     console.error("Uncaught error:", error, errorInfo);
     reportError(error, { componentStack: errorInfo.componentStack });
@@ -50,8 +50,8 @@ ${errorInfo?.componentStack?.trim() || 'Not available.'}
   };
 
 
-  // FIX: Converted to an arrow function to ensure 'this' is always correctly bound.
-  public render = () => {
+  // FIX: Reverted to a standard class method. React handles binding 'this' for render.
+  public render() {
     if (this.state.hasError) {
       return (
         <div className="flex flex-col items-center justify-center h-screen bg-gray-100 dark:bg-gray-900 p-4">
