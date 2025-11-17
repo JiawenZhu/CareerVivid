@@ -23,16 +23,17 @@ export const trackUsage = async (userId: string, eventType: TrackEventType, meta
       ...metadata,
     });
 
-    // Log to Google Analytics
-    if (analytics) {
+    // Log to Google Analytics, awaiting the promise to ensure it's supported and initialized.
+    const analyticsInstance = await analytics;
+    if (analyticsInstance) {
       if (metadata.tokenUsage) {
-        logEvent(analytics, 'token_usage', {
+        logEvent(analyticsInstance, 'token_usage', {
           category: eventType,
           value: metadata.tokenUsage,
         });
       }
       if (eventType === 'resume_download') {
-        logEvent(analytics, 'resume_download', {
+        logEvent(analyticsInstance, 'resume_download', {
           format: metadata.format,
         });
       }

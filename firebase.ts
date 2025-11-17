@@ -2,7 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
-import { getAnalytics } from 'firebase/analytics';
+import { getAnalytics, isSupported } from 'firebase/analytics';
 import { getFunctions } from 'firebase/functions';
 
 // Your web app's Firebase configuration
@@ -20,7 +20,10 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app); // Initialize Google Analytics and export it
+
+// Conditionally initialize Analytics. It returns a promise.
+const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null);
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
