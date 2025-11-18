@@ -1,9 +1,9 @@
-import React, { ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { reportError } from '../services/errorService';
 import { AlertTriangle, Copy } from 'lucide-react';
 
 interface Props {
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 interface State {
@@ -13,7 +13,7 @@ interface State {
   isCopied: boolean;
 }
 
-class ErrorBoundary extends React.Component<Props, State> {
+class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,
     error: null,
@@ -22,16 +22,12 @@ class ErrorBoundary extends React.Component<Props, State> {
   };
 
   public static getDerivedStateFromError(error: Error): Partial<State> {
-    // Update state so the next render will show the fallback UI.
     return { hasError: true, error };
   }
 
-  // FIX: Converted to an arrow function to ensure `this` is correctly bound and `setState` is accessible.
   public componentDidCatch = (error: Error, errorInfo: ErrorInfo) => {
-    // Log the error to our reporting service
     console.error("Uncaught error:", error, errorInfo);
     reportError(error, { componentStack: errorInfo.componentStack });
-    // Also save errorInfo to state to include in copied details
     this.setState({ errorInfo });
   }
 
@@ -47,10 +43,8 @@ ${errorInfo?.componentStack?.trim() || 'Not available.'}
     navigator.clipboard.writeText(details.trim());
     this.setState({ isCopied: true });
     setTimeout(() => this.setState({ isCopied: false }), 2000);
-  };
+  }
 
-
-  // FIX: Converted to an arrow function to ensure `this` is correctly bound and `this.state` and `this.props` are accessible.
   public render = () => {
     if (this.state.hasError) {
       return (
@@ -91,7 +85,7 @@ ${errorInfo?.componentStack?.trim() || 'Not available.'}
       );
     }
 
-    return this.props.children;
+    return this.props.children || null;
   }
 }
 

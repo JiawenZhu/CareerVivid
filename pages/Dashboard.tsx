@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { useResumes } from '../hooks/useResumes';
 import { ResumeData, PracticeHistoryEntry, JobApplicationData } from '../types';
 import { Edit3, Copy, Trash2, PlusCircle, MoreVertical, FileText, Mic, ExternalLink, Sparkles, BarChart, X, User as UserIcon, Edit, ChevronDown, FolderPlus, Briefcase, GripVertical, LayoutDashboard, Loader2 } from 'lucide-react';
@@ -26,7 +27,7 @@ interface Folder {
 const ResumeCardSkeleton: React.FC = () => (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-soft flex flex-col">
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-            <div className="w-full h-48 bg-gray-200 dark:bg-gray-700 rounded-lg mb-4 animate-pulse"></div>
+            <div className="w-full aspect-[210/297] bg-gray-200 dark:bg-gray-700 rounded-lg mb-4 animate-pulse"></div>
             <div className="h-5 w-3/4 bg-gray-300 dark:bg-gray-700 rounded animate-pulse mb-2"></div>
             <div className="h-4 w-1/2 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
         </div>
@@ -65,6 +66,29 @@ const InterviewHistoryCardSkeleton: React.FC = () => (
 const ResumeCard: React.FC<{ resume: ResumeData; onUpdate: (id: string, data: Partial<ResumeData>) => void; onDuplicate: (id: string) => void; onDelete: (id: string) => void; onDragStart: (e: React.DragEvent<HTMLDivElement>) => void; }> = ({ resume, onUpdate, onDuplicate, onDelete, onDragStart }) => {
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [title, setTitle] = useState(resume.title);
+
+    const previewContainerRef = useRef<HTMLDivElement>(null);
+    const [scale, setScale] = useState(0.2);
+
+    useLayoutEffect(() => {
+        const calculateScale = () => {
+            if (previewContainerRef.current) {
+                const parentWidth = previewContainerRef.current.offsetWidth;
+                const originalWidth = 824; // Base width of the ResumePreview component for styling
+                if (parentWidth > 0) {
+                    setScale(parentWidth / originalWidth);
+                }
+            }
+        };
+
+        calculateScale();
+        const resizeObserver = new ResizeObserver(calculateScale);
+        if (previewContainerRef.current) {
+            resizeObserver.observe(previewContainerRef.current);
+        }
+        
+        return () => resizeObserver.disconnect();
+    }, []);
     
     const navigateToEdit = () => {
       navigate(`/edit/${resume.id}`);
@@ -82,10 +106,20 @@ const ResumeCard: React.FC<{ resume: ResumeData; onUpdate: (id: string, data: Pa
     return (
       <div draggable onDragStart={onDragStart} className="bg-white dark:bg-gray-800 rounded-xl shadow-soft hover:shadow-lg transition-all duration-300 flex flex-col cursor-grab active:cursor-grabbing transform hover:-translate-y-1">
         <div onClick={!isEditingTitle ? navigateToEdit : undefined} className="block p-4 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/40 flex-grow cursor-pointer rounded-t-xl">
-          <div className="w-full h-48 bg-gray-200 dark:bg-gray-700 rounded-lg mb-4 flex justify-center overflow-hidden pointer-events-none">
-             <div className="w-full transform origin-top scale-[0.45]">
-                <ResumePreview resume={resume} template={resume.templateId} />
-             </div>
+          <div ref={previewContainerRef} className="w-full aspect-[210/297] bg-gray-200 dark:bg-gray-700 rounded-lg mb-4 overflow-hidden relative">
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '824px',
+                height: '1165px', // 824 * (297/210)
+                transform: `scale(${scale})`,
+                transformOrigin: 'top left',
+              }}
+            >
+              <ResumePreview resume={resume} template={resume.templateId} />
+            </div>
           </div>
           {isEditingTitle ? (
             <input

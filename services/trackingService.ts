@@ -23,7 +23,7 @@ export const trackUsage = async (userId: string, eventType: TrackEventType, meta
       ...metadata,
     });
 
-    // Log to Google Analytics, awaiting the promise to ensure it's supported and initialized.
+    // Log to Google Analytics
     const analyticsInstance = await analytics;
     if (analyticsInstance) {
       if (metadata.tokenUsage) {

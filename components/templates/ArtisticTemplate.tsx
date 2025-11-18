@@ -25,10 +25,9 @@ export const ArtisticTemplate: React.FC<TemplateProps> = ({ resume, themeColor, 
       <main className="grid grid-cols-3 gap-8">
         <aside className="col-span-1">
           {personalDetails.photo && (
-            <div
-              className="w-40 h-40 rounded-lg shadow-lg mb-6 bg-cover bg-center"
-              style={{ backgroundImage: `url(${personalDetails.photo})` }}
-            ></div>
+            <div className="w-40 h-40 rounded-lg shadow-lg mb-6 overflow-hidden flex items-center justify-center">
+              <img src={personalDetails.photo} alt="Profile" className="w-full h-full object-cover" />
+            </div>
           )}
           <section className="mb-6">
             <h2 className="font-bold text-lg mb-3" style={{...titleStyle, color: secondaryColor}}>CONTACT</h2>

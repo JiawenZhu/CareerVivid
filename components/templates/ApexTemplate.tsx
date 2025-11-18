@@ -31,12 +31,11 @@ export const ApexTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titl
             </div>
             {personalDetails.photo && (
                 <div
-                    className="w-24 h-24 rounded-full border-4 bg-cover bg-center"
-                    style={{
-                        borderColor: 'rgba(255,255,255,0.7)',
-                        backgroundImage: `url(${personalDetails.photo})`
-                    }}
-                ></div>
+                    className="w-24 h-24 rounded-full border-4 overflow-hidden flex items-center justify-center"
+                    style={{ borderColor: 'rgba(255,255,255,0.7)' }}
+                >
+                  <img src={personalDetails.photo} alt="Profile" className="w-full h-full object-cover" />
+                </div>
             )}
         </div>
       </header>

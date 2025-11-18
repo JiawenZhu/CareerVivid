@@ -14,10 +14,9 @@ export const ProfessionalTemplate: React.FC<TemplateProps> = ({ resume, themeCol
     <div className="p-8 bg-white text-gray-800" style={bodyStyle}>
       <header className="flex items-center mb-8">
         {personalDetails.photo && (
-          <div
-            className="w-24 h-24 rounded-full mr-6 shrink-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${personalDetails.photo})` }}
-          ></div>
+          <div className="w-24 h-24 rounded-full mr-6 shrink-0 overflow-hidden flex items-center justify-center">
+            <img src={personalDetails.photo} alt="Profile" className="w-full h-full object-cover" />
+          </div>
         )}
         <div>
           <h1 className="text-4xl font-bold text-gray-900" style={titleStyle}>{personalDetails.firstName} {personalDetails.lastName}</h1>

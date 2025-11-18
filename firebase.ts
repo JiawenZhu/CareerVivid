@@ -20,10 +20,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// Conditionally initialize Analytics. It returns a promise.
 const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null);
-
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);

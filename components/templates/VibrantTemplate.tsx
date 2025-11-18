@@ -13,10 +13,9 @@ export const VibrantTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
     <div className="flex min-h-full bg-white" style={bodyStyle}>
       <aside className="w-1/3 text-white p-8" style={{backgroundColor: themeColor}}>
         {personalDetails.photo && (
-          <div
-            className="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-white bg-cover bg-center"
-            style={{ backgroundImage: `url(${personalDetails.photo})` }}
-          ></div>
+          <div className="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-white overflow-hidden flex items-center justify-center">
+            <img src={personalDetails.photo} alt="Profile" className="w-full h-full object-cover" />
+          </div>
         )}
         <h1 className="text-3xl font-bold text-center" style={titleStyle}>{personalDetails.firstName} {personalDetails.lastName}</h1>
         <p className="text-md text-center mt-1" style={{color: 'rgba(255,255,255,0.8)'}}>{personalDetails.jobTitle}</p>

@@ -23,10 +23,9 @@ export const InfographicTemplate: React.FC<TemplateProps> = ({ resume, themeColo
     <div className="flex min-h-full bg-white" style={bodyStyle}>
       <aside className="w-1/3 bg-gray-100 dark:bg-gray-800 p-6 flex flex-col items-center">
         {personalDetails.photo && (
-          <div
-            className="w-32 h-32 rounded-full mb-4 bg-cover bg-center"
-            style={{ backgroundImage: `url(${personalDetails.photo})` }}
-          ></div>
+          <div className="w-32 h-32 rounded-full mb-4 overflow-hidden flex items-center justify-center">
+            <img src={personalDetails.photo} alt="Profile" className="w-full h-full object-cover" />
+          </div>
         )}
         <h1 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100" style={titleStyle}>{personalDetails.firstName} {personalDetails.lastName}</h1>
         <p className="text-md text-gray-600 dark:text-gray-400 text-center" style={titleStyle}>{personalDetails.jobTitle}</p>

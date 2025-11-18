@@ -13,10 +13,9 @@ export const SydneyTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
     <div className="flex min-h-full bg-white" style={bodyStyle}>
       <aside className="w-1/3 bg-gray-800 text-white p-8">
         {personalDetails.photo && (
-          <div
-            className="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-gray-600 bg-cover bg-center"
-            style={{ backgroundImage: `url(${personalDetails.photo})` }}
-          ></div>
+          <div className="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-gray-600 overflow-hidden flex items-center justify-center">
+            <img src={personalDetails.photo} alt="Profile" className="w-full h-full object-cover" />
+          </div>
         )}
         <section className="mb-8">
           <h2 className="text-xl font-bold border-b-2 pb-2 mb-4" style={{...titleStyle, borderColor: themeColor }}>CONTACT</h2>

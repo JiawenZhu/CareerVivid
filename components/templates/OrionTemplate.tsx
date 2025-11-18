@@ -13,10 +13,9 @@ export const OrionTemplate: React.FC<TemplateProps> = ({ resume, themeColor, tit
     <div className="flex min-h-full bg-white" style={bodyStyle}>
       <aside className="w-1/3 bg-gray-800 text-gray-200 p-8" style={{backgroundImage: 'radial-gradient(circle at top right, rgba(128,128,128,0.1), transparent 70%)'}}>
         {personalDetails.photo && (
-          <div
-            className="w-28 h-28 rounded-full mx-auto mb-6 bg-cover bg-center"
-            style={{ backgroundImage: `url(${personalDetails.photo})` }}
-          ></div>
+          <div className="w-28 h-28 rounded-full mx-auto mb-6 overflow-hidden flex items-center justify-center">
+            <img src={personalDetails.photo} alt="Profile" className="w-full h-full object-cover" />
+          </div>
         )}
         <h1 className="text-3xl font-bold text-white text-center" style={titleStyle}>{personalDetails.firstName} {personalDetails.lastName}</h1>
         <p className="text-md text-gray-400 text-center" style={titleStyle}>{personalDetails.jobTitle}</p>

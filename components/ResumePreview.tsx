@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ResumeData, TemplateId } from '../types';
 import { SydneyTemplate } from './templates/SydneyTemplate';
@@ -42,10 +43,9 @@ interface ResumePreviewProps {
   resume: ResumeData;
   template: TemplateId;
   previewRef?: React.RefObject<HTMLDivElement>;
-  sizeMode?: 'width' | 'height';
 }
 
-const ResumePreview: React.FC<ResumePreviewProps> = ({ resume, template, previewRef, sizeMode = 'width' }) => {
+const ResumePreview: React.FC<ResumePreviewProps> = ({ resume, template, previewRef }) => {
   const renderTemplate = () => {
     const props = { resume, themeColor: resume.themeColor, titleFont: resume.titleFont, bodyFont: resume.bodyFont };
     switch (template) {
@@ -90,10 +90,8 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ resume, template, preview
     }
   };
 
-  const sizeClass = sizeMode === 'width' ? 'w-full' : 'h-full';
-
   return (
-    <div className={`${sizeClass} aspect-[210/297] max-w-full max-h-full bg-white shadow-lg overflow-hidden`} ref={previewRef}>
+    <div className="w-full aspect-[210/297] max-w-full bg-white shadow-lg" ref={previewRef}>
       {renderTemplate()}
     </div>
   );

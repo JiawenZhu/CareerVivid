@@ -3,8 +3,18 @@ import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
 import { Wand2, LayoutTemplate, UploadCloud, Mic, CheckCircle } from 'lucide-react';
 
-const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description: string; }> = ({ icon, title, description }) => (
-    <div className="bg-white dark:bg-gray-800/50 p-6 rounded-lg border border-gray-200 dark:border-gray-700/50">
+const FeatureCard: React.FC<{ 
+    icon: React.ReactNode; 
+    title: string; 
+    description: string;
+    onMouseEnter: () => void;
+    onMouseLeave: () => void; 
+}> = ({ icon, title, description, onMouseEnter, onMouseLeave }) => (
+    <div 
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+        className="bg-white dark:bg-gray-800/50 p-6 rounded-lg border border-gray-200 dark:border-gray-700/50 transition-transform duration-300 transform hover:scale-105 hover:shadow-xl cursor-pointer"
+    >
         <div className="flex items-center justify-center w-12 h-12 bg-primary-100 dark:bg-primary-900/50 text-primary-600 dark:text-primary-400 rounded-lg mb-4">
             {icon}
         </div>
@@ -16,6 +26,7 @@ const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description:
 const LandingPage: React.FC = () => {
     const [typedTitle, setTypedTitle] = useState('');
     const fullTitle = 'Craft Your Future, Faster.';
+    const [hoveredFeature, setHoveredFeature] = useState<string | null>(null);
 
     useEffect(() => {
         setTypedTitle('');
@@ -37,23 +48,29 @@ const LandingPage: React.FC = () => {
             icon: <Wand2 size={24} />,
             title: 'AI-Powered Content',
             description: 'Generate, rewrite, and improve your resume content with cutting-edge AI. From professional summaries to impactful bullet points.',
+            previewUrl: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Fai_content_preview.mp4?alt=media',
         },
         {
             icon: <LayoutTemplate size={24} />,
             title: 'Professional Templates',
             description: 'Choose from a library of stunning, recruiter-approved templates. Customize fonts, colors, and layouts with a single click.',
+            previewUrl: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Ftemplates_preview.mp4?alt=media',
         },
         {
             icon: <UploadCloud size={24} />,
             title: 'Smart Autofill',
             description: 'Import your existing resume from a PDF or text and watch our AI instantly populate your new, structured resume.',
+            previewUrl: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Fautofill_preview.mp4?alt=media',
         },
         {
             icon: <Mic size={24} />,
             title: 'Interview Studio',
             description: 'Hone your interview skills with an AI agent. Get instant, actionable feedback and track your progress.',
+            previewUrl: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Finterview_preview.mp4?alt=media',
         },
     ];
+    
+    const currentPreviewUrl = features.find(f => f.title === hoveredFeature)?.previewUrl;
 
     return (
         <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col font-sans">
@@ -89,7 +106,14 @@ const LandingPage: React.FC = () => {
                             <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">Everything you need to build a resume that opens doors.</p>
                         </div>
                         <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                            {features.map(feature => <FeatureCard key={feature.title} {...feature} />)}
+                            {features.map(feature => (
+                                <FeatureCard 
+                                    key={feature.title} 
+                                    {...feature} 
+                                    onMouseEnter={() => setHoveredFeature(feature.title)}
+                                    onMouseLeave={() => setHoveredFeature(null)}
+                                />
+                            ))}
                         </div>
                     </div>
                 </section>
@@ -135,9 +159,22 @@ const LandingPage: React.FC = () => {
                         </a>
                     </div>
                 </section>
-
             </main>
             <Footer />
+            {/* Preview Overlay */}
+            {hoveredFeature && currentPreviewUrl && (
+                <div className="fixed inset-0 bg-black/60 z-40 flex items-center justify-center p-8 pointer-events-none animate-fade-in backdrop-blur-sm">
+                    <video
+                        key={currentPreviewUrl}
+                        src={currentPreviewUrl}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="rounded-xl shadow-2xl max-w-4xl w-full border-4 border-white/20"
+                    />
+                </div>
+            )}
         </div>
     );
 };

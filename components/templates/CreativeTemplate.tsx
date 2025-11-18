@@ -14,12 +14,11 @@ export const CreativeTemplate: React.FC<TemplateProps> = ({ resume, themeColor, 
       <aside className="w-1/3 text-white p-8 flex flex-col items-center text-center" style={{ backgroundColor: themeColor }}>
         {personalDetails.photo && (
           <div
-            className="w-36 h-36 rounded-full mb-6 border-4 bg-cover bg-center"
-            style={{
-              borderColor: 'rgba(255,255,255,0.5)',
-              backgroundImage: `url(${personalDetails.photo})`,
-            }}
-          ></div>
+            className="w-36 h-36 rounded-full mb-6 border-4 overflow-hidden flex items-center justify-center"
+            style={{ borderColor: 'rgba(255,255,255,0.5)' }}
+          >
+            <img src={personalDetails.photo} alt="Profile" className="w-full h-full object-cover" />
+          </div>
         )}
         <h1 className="text-3xl font-bold" style={titleStyle}>{personalDetails.firstName}</h1>
         <h1 className="text-3xl font-bold" style={titleStyle}>{personalDetails.lastName}</h1>

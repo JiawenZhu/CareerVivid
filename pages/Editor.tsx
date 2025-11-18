@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+
+import React, { useState, useEffect, useCallback, useRef, useMemo, useLayoutEffect } from 'react';
 import { useResumes } from '../hooks/useResumes';
 import { ResumeData, TemplateId, TemplateInfo } from '../types';
 import ResumeForm from '../components/ResumeForm';
@@ -6,17 +7,63 @@ import ResumePreview from '../components/ResumePreview';
 import GoogleTranslateWidget from '../components/GoogleTranslateWidget';
 import ThemeToggle from '../components/ThemeToggle';
 import { TEMPLATES } from '../templates';
-import { FONTS, UI_LANGUAGES, EXPORT_OPTIONS } from '../constants';
+import { createNewResume, FONTS, UI_LANGUAGES, EXPORT_OPTIONS } from '../constants';
 // FIX: Renamed Type to TypeIcon to avoid conflict with @google/genai's Type enum.
 import { ArrowLeft, Download, Eye, Code, Palette, Type as TypeIcon, Check, PlusCircle, LogOut, Loader2, ChevronDown, FileText, Image as ImageIcon, Edit as EditIcon, MoreVertical, Sun, Moon, Sparkles, ChevronLeft, ChevronRight, X as XIcon, Info } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { navigate } from '../App';
 import { trackUsage } from '../services/trackingService';
-import { jsPDF } from 'jspdf';
 import { useTheme } from '../contexts/ThemeContext';
 import AlertModal from '../components/AlertModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import FeedbackModal from '../components/FeedbackModal';
+import { functions } from '../firebase';
+import { httpsCallable } from 'firebase/functions';
+
+// New component for rendering template thumbnails with correct scaling
+const TemplateThumbnail: React.FC<{ resume: ResumeData; template: TemplateInfo; }> = React.memo(({ resume, template }) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [scale, setScale] = useState(0.2); // A reasonable default
+
+    useLayoutEffect(() => {
+        const calculateScale = () => {
+            if (containerRef.current) {
+                const parentWidth = containerRef.current.offsetWidth;
+                const originalWidth = 824; // The "natural" width of the ResumePreview for styling
+                if (parentWidth > 0) {
+                    setScale(parentWidth / originalWidth);
+                }
+            }
+        };
+        calculateScale();
+        const resizeObserver = new ResizeObserver(calculateScale);
+        if (containerRef.current) {
+            resizeObserver.observe(containerRef.current);
+        }
+        return () => resizeObserver.disconnect();
+    }, []);
+
+    const resumeForThumbnail: ResumeData = {
+        ...resume,
+        templateId: template.id,
+        themeColor: template.availableColors[0] || '#000000',
+    };
+
+    return (
+        <div ref={containerRef} className="w-full aspect-[210/297] overflow-hidden bg-gray-200 dark:bg-gray-700 relative group-hover:opacity-90 transition-opacity pointer-events-none">
+            <div style={{
+                position: 'absolute',
+                width: '824px',
+                height: '1165px',
+                transform: `scale(${scale})`,
+                transformOrigin: 'top left',
+            }}>
+                <ResumePreview resume={resumeForThumbnail} template={template.id} />
+            </div>
+        </div>
+    );
+});
+
 
 // Debounce utility to delay function execution
 function debounce<F extends (...args: any[]) => any>(func: F, wait: number): F & { cancel: () => void; } {
@@ -71,6 +118,8 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
 
   // State for the new optimization side panel
   const [optimizationJob, setOptimizationJob] = useState<{title: string, description: string} | null>(null);
+
+  const sampleResumeForPreview = useMemo(() => createNewResume(), []); // For thumbnails
 
 
   useEffect(() => {
@@ -195,9 +244,10 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
     navigate('/new');
   };
 
-    const handleExport = async (optionId: string) => {
+  const handleExport = async (optionId: string) => {
     if (handleGuestAction('download')) return;
     if (!currentUser || !resume) return;
+
     setIsDesktopDownloadMenuOpen(false);
     setIsMobileMoreMenuOpen(false);
     setIsExporting(true);
@@ -205,90 +255,115 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
     const formatName = EXPORT_OPTIONS.find(opt => opt.id === optionId)?.name || optionId;
     setExportProgress(`Generating ${formatName}...`);
 
+    if (optionId === 'pdf') {
+        try {
+            const generatePdfFunc = httpsCallable(functions, 'generateResumePdf');
+            const result: any = await generatePdfFunc({
+                resumeData: resume,
+                templateId: resume.templateId,
+            });
+            
+            // Open the returned signed URL to trigger the download
+            window.open(result.data.url, '_blank');
+            if (currentUser) {
+                trackUsage(currentUser.uid, 'resume_download', { format: 'PDF (Server)' });
+            }
+            if (!isGuestMode) {
+                setIsFeedbackModalOpen(true);
+            }
+        } catch (error) {
+            console.error("Server-side PDF generation failed:", error);
+            setAlertState({ isOpen: true, title: 'Export Failed', message: 'Sorry, something went wrong during the PDF generation. Please try again.' });
+        } finally {
+            setIsExporting(false);
+            setExportProgress('');
+        }
+        return;
+    }
+    
+    // Fallback to client-side image generation for PNGs
+    const elementToCapture = previewRef.current;
+    if (!elementToCapture) {
+        setAlertState({ isOpen: true, title: 'Export Failed', message: 'Could not find the resume preview element.' });
+        setIsExporting(false);
+        return;
+    }
+
+    const imgElement = elementToCapture.querySelector('img[src^="https://firebasestorage.googleapis.com"]') as HTMLImageElement | null;
+    let originalSrc: string | null = null;
+    
+    if (imgElement && imgElement.src) {
+        originalSrc = imgElement.src;
+        try {
+            setExportProgress('Processing images...');
+            const response = await fetch(originalSrc);
+            const blob = await response.blob();
+            const dataUrl = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result as string);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+            imgElement.src = dataUrl;
+        } catch (imgError) {
+            console.warn("Could not pre-fetch profile photo for export, proceeding with useCORS.", imgError);
+        }
+    }
+
     try {
-        if (optionId === 'pdf') {
-            const element = previewRef.current;
-            if (!element) throw new Error("Preview element not found.");
+        const html2canvas = (await import('html2canvas')).default;
+        const canvas = await html2canvas(elementToCapture, { scale: 3, useCORS: true });
+        const aspectRatio = optionId === 'png' ? undefined : optionId;
 
-            // Use html2canvas to capture the preview as an image
-            const canvas = await (await import('html2canvas')).default(element, {
-                scale: 4, // Higher scale for better PDF quality
-                useCORS: true,
-                backgroundColor: '#ffffff',
-            });
-            const imgData = canvas.toDataURL('image/png');
+        if (aspectRatio) {
+            const [w, h] = aspectRatio.split(':').map(Number);
+            const originalWidth = canvas.width;
+            const originalHeight = canvas.height;
+            let newWidth, newHeight, x, y;
 
-            // Create a PDF using jsPDF
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4',
-            });
-            
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save(`${resume.title.replace(/\s/g, '_')}.pdf`);
-        } else {
-            const element = previewRef.current;
-            if (!element) throw new Error("Preview element not found.");
-
-            const canvas = await (await import('html2canvas')).default(element, { scale: 3, useCORS: true });
-            const aspectRatio = optionId === 'png' ? undefined : optionId;
-
-            if (aspectRatio) {
-                const [w, h] = aspectRatio.split(':').map(Number);
-                const originalWidth = canvas.width;
-                const originalHeight = canvas.height;
-                let newWidth, newHeight, x, y;
-
-                if (originalWidth / originalHeight > w / h) {
-                    newHeight = originalHeight;
-                    newWidth = newHeight * w / h;
-                    x = (originalWidth - newWidth) / 2;
-                    y = 0;
-                } else {
-                    newWidth = originalWidth;
-                    newHeight = newWidth * h / w;
-                    x = 0;
-                    y = 0;
-                }
-
-                const croppedCanvas = document.createElement('canvas');
-                croppedCanvas.width = newWidth;
-                croppedCanvas.height = newHeight;
-                const ctx = croppedCanvas.getContext('2d');
-                if (ctx) {
-                    ctx.drawImage(canvas, x, y, newWidth, newHeight, 0, 0, newWidth, newHeight);
-                    const dataUrl = croppedCanvas.toDataURL('image/png');
-                    const link = document.createElement('a');
-                    link.download = `${resume.title.replace(/\s/g, '_')}_${aspectRatio}.png`;
-                    link.href = dataUrl;
-                    link.click();
-                }
+            if (originalWidth / originalHeight > w / h) {
+                newHeight = originalHeight;
+                newWidth = newHeight * w / h;
+                x = (originalWidth - newWidth) / 2;
+                y = 0;
             } else {
-                const dataUrl = canvas.toDataURL('image/png');
+                newWidth = originalWidth;
+                newHeight = newWidth * h / w;
+                x = 0;
+                y = 0;
+            }
+
+            const croppedCanvas = document.createElement('canvas');
+            croppedCanvas.width = newWidth;
+            croppedCanvas.height = newHeight;
+            const ctx = croppedCanvas.getContext('2d');
+            if (ctx) {
+                ctx.drawImage(canvas, x, y, newWidth, newHeight, 0, 0, newWidth, newHeight);
+                const dataUrl = croppedCanvas.toDataURL('image/png');
                 const link = document.createElement('a');
-                link.download = `${resume.title.replace(/\s/g, '_')}.png`;
+                link.download = `${resume.title.replace(/\s/g, '_')}_${aspectRatio.replace(':', 'x')}.png`;
                 link.href = dataUrl;
                 link.click();
             }
+        } else {
+            const dataUrl = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `${resume.title.replace(/\s/g, '_')}.png`;
+            link.href = dataUrl;
+            link.click();
         }
         
         if (currentUser) {
             trackUsage(currentUser.uid, 'resume_download', { format: formatName });
         }
         
-        // Open feedback modal on successful export
-        if (!isGuestMode) {
-            setIsFeedbackModalOpen(true);
-        }
-
     } catch (error) {
-        console.error("Export failed:", error);
-        setAlertState({ isOpen: true, title: 'Export Failed', message: 'Sorry, something went wrong during the export process. Please try again.' });
+        console.error("Image export failed:", error);
+        setAlertState({ isOpen: true, title: 'Image Export Failed', message: 'Sorry, something went wrong. Please try again.' });
     } finally {
+        if (imgElement && originalSrc) {
+            imgElement.src = originalSrc;
+        }
         setIsExporting(false);
         setExportProgress('');
     }
@@ -527,11 +602,7 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
                                             <div className="font-semibold text-gray-700 dark:text-gray-200 text-sm p-2 px-3 text-left border-b border-gray-200 dark:border-gray-700">
                                                 {template.name}
                                             </div>
-                                            <div className="w-full aspect-[3/4] bg-gradient-to-b from-gray-300 to-gray-400 dark:from-gray-600 dark:to-gray-700 flex items-center justify-center transition-opacity duration-300 group-hover:opacity-80 p-2 flex-grow shadow-inner">
-                                                <span className="text-xl font-bold text-white/60 tracking-wider break-all text-center">
-                                                    {template.name}
-                                                </span>
-                                            </div>
+                                            <TemplateThumbnail resume={sampleResumeForPreview} template={template} />
                                         </button>
                                     ))}
                                 </div>
@@ -645,11 +716,7 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
                                         <div className="font-semibold text-gray-700 dark:text-gray-200 text-xs p-1 px-2 text-left border-b border-gray-200 dark:border-gray-700 truncate">
                                             {template.name}
                                         </div>
-                                        <div className="w-full aspect-[3/4] bg-gradient-to-b from-gray-300 to-gray-400 dark:from-gray-600 dark:to-gray-700 flex items-center justify-center transition-opacity duration-300 group-hover:opacity-80 p-1 flex-grow shadow-inner">
-                                            <span className="text-sm font-bold text-white/60 tracking-wide break-all text-center">
-                                                {template.name}
-                                            </span>
-                                        </div>
+                                        <TemplateThumbnail resume={sampleResumeForPreview} template={template} />
                                     </button>
                                 ))}
                             </div>
