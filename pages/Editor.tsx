@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef, useMemo, useLayoutEffect } from 'react';
 import { useResumes } from '../hooks/useResumes';
 import { ResumeData, TemplateId, TemplateInfo } from '../types';
@@ -255,115 +254,74 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
     const formatName = EXPORT_OPTIONS.find(opt => opt.id === optionId)?.name || optionId;
     setExportProgress(`Generating ${formatName}...`);
 
-    if (optionId === 'pdf') {
-        try {
-            const generatePdfFunc = httpsCallable(functions, 'generateResumePdf');
-            const result: any = await generatePdfFunc({
-                resumeData: resume,
-                templateId: resume.templateId,
-            });
-            
-            // Open the returned signed URL to trigger the download
+    try {
+        if (optionId === 'pdf') {
+            setExportProgress('Generating high-quality PDF...');
+            const generatePdf = httpsCallable(functions, 'generateResumePdf');
+            const result: any = await generatePdf({ resumeData: resume, templateId: resume.templateId });
             window.open(result.data.url, '_blank');
-            if (currentUser) {
-                trackUsage(currentUser.uid, 'resume_download', { format: 'PDF (Server)' });
-            }
             if (!isGuestMode) {
                 setIsFeedbackModalOpen(true);
             }
-        } catch (error) {
-            console.error("Server-side PDF generation failed:", error);
-            setAlertState({ isOpen: true, title: 'Export Failed', message: 'Sorry, something went wrong during the PDF generation. Please try again.' });
-        } finally {
-            setIsExporting(false);
-            setExportProgress('');
-        }
-        return;
-    }
-    
-    // Fallback to client-side image generation for PNGs
-    const elementToCapture = previewRef.current;
-    if (!elementToCapture) {
-        setAlertState({ isOpen: true, title: 'Export Failed', message: 'Could not find the resume preview element.' });
-        setIsExporting(false);
-        return;
-    }
+        } else {
+            // Fallback to client-side image generation for non-PDF formats
+            const elementToCapture = previewRef.current;
+            if (!elementToCapture) throw new Error("Preview element not found");
+            
+            const html2canvas = (await import('html2canvas')).default;
+            const canvas = await html2canvas(elementToCapture, { scale: 3, useCORS: true });
 
-    const imgElement = elementToCapture.querySelector('img[src^="https://firebasestorage.googleapis.com"]') as HTMLImageElement | null;
-    let originalSrc: string | null = null;
-    
-    if (imgElement && imgElement.src) {
-        originalSrc = imgElement.src;
-        try {
-            setExportProgress('Processing images...');
-            const response = await fetch(originalSrc);
-            const blob = await response.blob();
-            const dataUrl = await new Promise<string>((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result as string);
-                reader.onerror = reject;
-                reader.readAsDataURL(blob);
-            });
-            imgElement.src = dataUrl;
-        } catch (imgError) {
-            console.warn("Could not pre-fetch profile photo for export, proceeding with useCORS.", imgError);
-        }
-    }
+            const aspectRatio = optionId === 'png' ? undefined : optionId;
+            if (aspectRatio) {
+                const [w, h] = aspectRatio.split(':').map(Number);
+                const originalWidth = canvas.width;
+                const originalHeight = canvas.height;
+                let newWidth, newHeight, x, y;
 
-    try {
-        const html2canvas = (await import('html2canvas')).default;
-        const canvas = await html2canvas(elementToCapture, { scale: 3, useCORS: true });
-        const aspectRatio = optionId === 'png' ? undefined : optionId;
+                if (originalWidth / originalHeight > w / h) {
+                    newHeight = originalHeight;
+                    newWidth = newHeight * w / h;
+                    x = (originalWidth - newWidth) / 2;
+                    y = 0;
+                } else {
+                    newWidth = originalWidth;
+                    newHeight = newWidth * h / w;
+                    x = 0;
+                    y = 0;
+                }
 
-        if (aspectRatio) {
-            const [w, h] = aspectRatio.split(':').map(Number);
-            const originalWidth = canvas.width;
-            const originalHeight = canvas.height;
-            let newWidth, newHeight, x, y;
-
-            if (originalWidth / originalHeight > w / h) {
-                newHeight = originalHeight;
-                newWidth = newHeight * w / h;
-                x = (originalWidth - newWidth) / 2;
-                y = 0;
-            } else {
-                newWidth = originalWidth;
-                newHeight = newWidth * h / w;
-                x = 0;
-                y = 0;
-            }
-
-            const croppedCanvas = document.createElement('canvas');
-            croppedCanvas.width = newWidth;
-            croppedCanvas.height = newHeight;
-            const ctx = croppedCanvas.getContext('2d');
-            if (ctx) {
-                ctx.drawImage(canvas, x, y, newWidth, newHeight, 0, 0, newWidth, newHeight);
-                const dataUrl = croppedCanvas.toDataURL('image/png');
+                const croppedCanvas = document.createElement('canvas');
+                croppedCanvas.width = newWidth;
+                croppedCanvas.height = newHeight;
+                const ctx = croppedCanvas.getContext('2d');
+                if (ctx) {
+                    ctx.drawImage(canvas, x, y, newWidth, newHeight, 0, 0, newWidth, newHeight);
+                    const dataUrl = croppedCanvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.download = `${resume.title.replace(/\s/g, '_')}_${aspectRatio.replace(':', 'x')}.png`;
+                    link.href = dataUrl;
+                    link.click();
+                }
+            } else { // Full PNG
+                const dataUrl = canvas.toDataURL('image/png');
                 const link = document.createElement('a');
-                link.download = `${resume.title.replace(/\s/g, '_')}_${aspectRatio.replace(':', 'x')}.png`;
+                link.download = `${resume.title.replace(/\s/g, '_')}.png`;
                 link.href = dataUrl;
                 link.click();
             }
-        } else {
-            const dataUrl = canvas.toDataURL('image/png');
-            const link = document.createElement('a');
-            link.download = `${resume.title.replace(/\s/g, '_')}.png`;
-            link.href = dataUrl;
-            link.click();
         }
         
         if (currentUser) {
             trackUsage(currentUser.uid, 'resume_download', { format: formatName });
         }
         
-    } catch (error) {
-        console.error("Image export failed:", error);
-        setAlertState({ isOpen: true, title: 'Image Export Failed', message: 'Sorry, something went wrong. Please try again.' });
+    } catch (error: any) {
+        console.error("Export failed:", error);
+        const errorMessage = error.message && error.message.includes("internal")
+            ? "Sorry, something went wrong during the PDF generation. Please ensure backend functions are deployed and try again."
+            : "Sorry, something went wrong during the export process. Please try again.";
+        setAlertState({ isOpen: true, title: 'Export Failed', message: errorMessage });
     } finally {
-        if (imgElement && originalSrc) {
-            imgElement.src = originalSrc;
-        }
         setIsExporting(false);
         setExportProgress('');
     }
@@ -428,332 +386,208 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
       <ConfirmationModal 
         isOpen={isConfirmModalOpen}
         title="Create a New Resume?"
-        message="Are you sure? Any unsaved changes to the current resume will be lost when you leave this page."
+        message="Are you sure? Any unsaved changes to the current resume will be lost."
         onConfirm={handleConfirmNew}
         onCancel={() => setIsConfirmModalOpen(false)}
         confirmText="Create New"
       />
-      <ConfirmationModal
-        isOpen={isSignupPromptOpen}
-        title="Sign Up to Save & Download"
-        message="Create a free account to save your resume and download it in multiple professional formats."
-        onConfirm={() => navigate('/auth')}
-        onCancel={() => setIsSignupPromptOpen(false)}
-        confirmText="Sign Up Now"
-      />
-      <AlertModal 
-        isOpen={alertState.isOpen}
-        title={alertState.title}
-        message={alertState.message}
-        onClose={() => setAlertState({ isOpen: false, title: '', message: '' })}
-      />
-       <FeedbackModal 
-            isOpen={isFeedbackModalOpen}
-            onClose={() => setIsFeedbackModalOpen(false)}
-            onCancel={() => setIsFeedbackModalOpen(false)}
-            onSubmitted={() => setIsFeedbackModalOpen(false)}
-            source="resume_export"
-            context={{
-                resumeId: resume.id,
-                templateId: resume.templateId,
-            }}
-       />
-       <OptimizationPanel />
-
-      <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 z-20 w-full flex-shrink-0">
-        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex-1 flex justify-start items-center gap-2 sm:gap-4 min-w-0">
-              <a href={isGuestMode ? "#/demo" : "#/"} title={isGuestMode ? "Back to Demo" : "Back to Dashboard"} className="flex-shrink-0 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                <ArrowLeft size={24} />
-              </a>
-              <div className="relative inline-grid items-center -ml-2">
-                <span className="font-bold text-lg sm:text-xl invisible whitespace-pre px-2 col-start-1 row-start-1">
-                  {resume.title || ' '}
-                </span>
-                <input 
-                  type="text" 
-                  value={resume.title}
-                  onChange={(e) => handleResumeChange({ title: e.target.value })}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      (e.target as HTMLInputElement).blur();
-                    }
-                  }}
-                  className="font-bold text-lg sm:text-xl text-gray-900 dark:text-gray-100 bg-transparent focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-md px-2 py-1 w-full col-start-1 row-start-1"
-                  disabled={isGuestMode}
-                  style={{ background: 'transparent' }}
-                />
-              </div>
-            </div>
-            
-            {/* --- DESKTOP CENTER CONTROLS --- */}
-            <div className="hidden md:flex flex-shrink-0 justify-center mx-4">
-              <div className="flex items-center gap-1 p-1 bg-gray-200 dark:bg-gray-700 rounded-full">
-                <button onClick={() => setViewMode('edit')} className={`flex items-center gap-1 px-3 py-1.5 text-sm font-semibold rounded-full transition-colors ${viewMode === 'edit' ? 'bg-white dark:bg-gray-800 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'} disabled:cursor-not-allowed disabled:opacity-50`} disabled={isGuestMode}><EditIcon size={14}/><span className="hidden sm:inline">Edit</span></button>
-                <button onClick={() => setViewMode('preview')} className={`flex items-center gap-1 px-3 py-1.5 text-sm font-semibold rounded-full transition-colors ${viewMode === 'preview' ? 'bg-white dark:bg-gray-800 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}><Eye size={14}/><span className="hidden sm:inline">Preview</span></button>
-              </div>
-            </div>
-            
-            <div className="flex-shrink-0 flex justify-end items-center gap-2 sm:gap-4">
-                {/* --- DESKTOP RIGHT CONTROLS --- */}
-                <div className="hidden md:flex items-center gap-2 sm:gap-4">
-                  {isGuestMode ? (
-                      <a href="#/auth" className="flex items-center gap-2 bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg shadow-soft hover:bg-primary-700">
-                          Sign Up to Save & Download
-                      </a>
-                  ) : (
-                    <div className="relative" ref={desktopDownloadMenuRef}>
-                      <button
-                        onClick={() => setIsDesktopDownloadMenuOpen(!isDesktopDownloadMenuOpen)}
-                        disabled={isExporting}
-                        className="flex items-center gap-2 bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg shadow-soft hover:bg-primary-700 transition-colors disabled:bg-primary-300"
-                      >
-                        {isExporting ? <Loader2 size={20} className="animate-spin" /> : <Download size={20} />}
-                        <span>{isExporting ? exportProgress : 'Download'}</span>
-                        {!isExporting && <ChevronDown size={20} className={`transition-transform ${isDesktopDownloadMenuOpen ? 'rotate-180' : ''}`} />}
-                      </button>
-                      {isDesktopDownloadMenuOpen && (
-                        <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-20 border dark:border-gray-700">
-                          <div className="py-1">
-                            {EXPORT_OPTIONS.map(opt => (
-                              <button key={opt.id} onClick={() => handleExport(opt.id)} className="flex items-start text-left w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                <div className="p-2 bg-gray-200 dark:bg-gray-600 rounded-md mr-3">{opt.id === 'pdf' ? <FileText size={20} /> : <ImageIcon size={20} />}</div>
-                                <div>
-                                  <p className="font-semibold">{opt.name}</p>
-                                  <p className="text-xs text-gray-500 dark:text-gray-400">{opt.recommendation}</p>
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  <ThemeToggle />
+       <ConfirmationModal
+            isOpen={isSignupPromptOpen}
+            title="Sign Up to Continue"
+            message="Please sign up or log in to save and download your resume. Your current work will be automatically imported after you sign up!"
+            onConfirm={() => navigate('/auth')}
+            onCancel={() => setIsSignupPromptOpen(false)}
+            confirmText="Sign Up"
+        />
+       <AlertModal 
+            isOpen={alertState.isOpen}
+            title={alertState.title}
+            message={alertState.message}
+            onClose={() => setAlertState({ isOpen: false, title: '', message: '' })}
+        />
+        {isExporting && (
+             <div className="fixed inset-0 bg-black/60 z-[101] flex items-center justify-center">
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg text-center">
+                    <Loader2 className="w-12 h-12 text-primary-500 animate-spin mx-auto" />
+                    <p className="mt-4 font-semibold">{exportProgress}</p>
                 </div>
+            </div>
+        )}
 
-                {/* --- MOBILE RIGHT CONTROLS --- */}
-                <div className="flex md:hidden items-center">
-                    <div className="relative" ref={mobileMoreMenuRef}>
-                        <button onClick={() => setIsMobileMoreMenuOpen(!isMobileMoreMenuOpen)} className="p-2 text-gray-600 dark:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                            <MoreVertical size={24} />
-                        </button>
-                        {isMobileMoreMenuOpen && (
-                            <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-20 border dark:border-gray-700">
-                                <div className="py-2">
-                                  {isGuestMode ? (
-                                    <a href="#/auth" className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm font-semibold text-primary-600 dark:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                        <LogOut size={16} /> Sign Up to Save
-                                    </a>
-                                  ) : (
-                                    <>
-                                       <p className="px-4 pt-1 pb-2 text-xs text-gray-500 dark:text-gray-400">Download</p>
-                                        {EXPORT_OPTIONS.map(opt => (
-                                          <button key={opt.id} onClick={() => handleExport(opt.id)} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50" disabled={isExporting}>
-                                            {isExporting && opt.id === 'pdf' ? <Loader2 size={16} className="animate-spin" /> : (opt.id === 'pdf' ? <FileText size={16} /> : <ImageIcon size={16} />)}
-                                            {opt.name}
-                                          </button>
-                                        ))}
-                                    </>
-                                  )}
-                                    <div className="border-t my-2 border-gray-200 dark:border-gray-600"></div>
-                                    <button onClick={() => { setIsConfirmModalOpen(true); setIsMobileMoreMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50" disabled={isGuestMode}>
-                                        <PlusCircle size={16} /> New Resume
-                                    </button>
-                                    <button onClick={toggleTheme} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                        {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
-                                        Toggle Theme
-                                    </button>
+      <header className="flex-shrink-0 bg-white dark:bg-gray-800/50 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 z-20">
+        <div className="flex items-center justify-between h-16 px-4 sm:px-6">
+          <div className="flex items-center gap-2">
+            <a href="#/" title="Back to Dashboard" className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                <ArrowLeft size={20} />
+            </a>
+            <input type="text" value={resume.title} onChange={e => handleResumeChange({ title: e.target.value })} className="text-lg font-bold bg-transparent focus:outline-none focus:ring-1 focus:ring-primary-500 rounded-md px-2 py-1 -ml-2" />
+          </div>
+          <div className="flex items-center gap-2">
+             {/* Desktop Controls */}
+            <div className="hidden md:flex items-center gap-2 border-r border-gray-300 dark:border-gray-600 pr-2">
+                <button onClick={() => setViewMode('edit')} className={`px-3 py-1.5 text-sm font-semibold rounded-md flex items-center gap-2 ${viewMode === 'edit' ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}><EditIcon size={16}/> Edit</button>
+                <button onClick={() => setViewMode('preview')} className={`px-3 py-1.5 text-sm font-semibold rounded-md flex items-center gap-2 ${viewMode === 'preview' ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}><Eye size={16}/> Preview</button>
+            </div>
+            <div className="hidden md:block relative" ref={desktopDownloadMenuRef}>
+                 <button 
+                    onClick={() => setIsDesktopDownloadMenuOpen(!isDesktopDownloadMenuOpen)} 
+                    className="flex items-center gap-2 bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg shadow-soft hover:bg-primary-700 transition-colors"
+                >
+                    <Download size={18} />
+                    <span>Download</span>
+                    <ChevronDown size={18} />
+                </button>
+                {isDesktopDownloadMenuOpen && (
+                     <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-20 border dark:border-gray-700">
+                         <div className="py-1">
+                            {EXPORT_OPTIONS.map(opt => (
+                                 <button key={opt.id} onClick={() => handleExport(opt.id)} className="w-full text-left flex items-start gap-3 px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                     {opt.id === 'pdf' ? <FileText className="mt-1" /> : <ImageIcon className="mt-1" />}
+                                     <div>
+                                        <p className="font-semibold">{opt.name}</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">{opt.recommendation}</p>
+                                     </div>
+                                 </button>
+                            ))}
+                         </div>
+                     </div>
+                )}
+            </div>
+             <div className="hidden md:flex items-center gap-1">
+                <GoogleTranslateWidget />
+                <ThemeToggle />
+             </div>
+             {/* Mobile Controls */}
+             <div className="md:hidden relative" ref={mobileMoreMenuRef}>
+                <button onClick={() => setIsMobileMoreMenuOpen(!isMobileMoreMenuOpen)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <MoreVertical size={20} />
+                </button>
+                {isMobileMoreMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-20 border dark:border-gray-700">
+                        <div className="py-1">
+                            <p className="px-4 py-2 text-xs text-gray-400">View Mode</p>
+                             <button onClick={() => { setViewMode('edit'); setIsMobileMoreMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"><EditIcon size={16}/> Edit</button>
+                             <button onClick={() => { setViewMode('preview'); setIsMobileMoreMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"><Eye size={16}/> Preview</button>
+                             <div className="border-t my-1 dark:border-gray-600"></div>
+                             <p className="px-4 py-2 text-xs text-gray-400">Download</p>
+                             {EXPORT_OPTIONS.slice(0, 2).map(opt => ( // Only show PDF and PNG for mobile simplicity
+                                <button key={opt.id} onClick={() => handleExport(opt.id)} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    {opt.id === 'pdf' ? <FileText size={16} /> : <ImageIcon size={16} />} {opt.name}
+                                </button>
+                             ))}
+                             <div className="border-t my-1 dark:border-gray-600"></div>
+                             <button onClick={() => { toggleTheme(); setIsMobileMoreMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                {theme === 'light' ? <Moon size={16}/> : <Sun size={16}/>} Toggle Theme
+                            </button>
+                        </div>
+                    </div>
+                )}
+             </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex-grow flex overflow-hidden relative">
+        {/* Editor/Design Panel */}
+        <div className={`
+          flex-shrink-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 
+          overflow-y-auto transition-all duration-300 ease-in-out
+          absolute md:relative h-full z-10 
+          ${isEditorCollapsed ? 'w-0 -translate-x-full md:w-12' : 'w-full md:w-1/2 lg:w-[450px]'}
+          ${viewMode === 'preview' && !isEditorCollapsed && 'w-full md:w-[350px]'}
+        `}>
+          <div className="p-4 flex flex-col h-full">
+            {/* Collapse Toggle */}
+            <button 
+                onClick={() => setIsEditorCollapsed(!isEditorCollapsed)}
+                className="absolute top-1/2 -right-4 translate-y-[-50%] z-20 w-8 h-16 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-r-lg hidden md:flex items-center justify-center"
+                title={editorToggleTitle}
+            >
+                {isEditorCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+            </button>
+            <div className={`transition-opacity duration-200 ${isEditorCollapsed ? 'opacity-0 pointer-events-none md:opacity-100 md:pointer-events-auto' : ''}`}>
+                 {isEditorCollapsed ? (
+                    <div className="flex flex-col items-center gap-6 mt-4">
+                         <button onClick={() => setDesignTab('template')} className={`p-2 rounded-full ${designTab === 'template' ? 'bg-primary-100 text-primary-600' : ''}`}><Code size={20} /></button>
+                         <button onClick={() => setDesignTab('design')} className={`p-2 rounded-full ${designTab === 'design' ? 'bg-primary-100 text-primary-600' : ''}`}><Palette size={20} /></button>
+                    </div>
+                 ) : (
+                    <>
+                        {viewMode === 'edit' ? (
+                            <div className="flex-grow overflow-y-auto pr-2">
+                                <ResumeForm resume={resume} onChange={handleResumeChange} tempPhoto={tempPhoto} setTempPhoto={setTempPhoto} isReadOnly={isGuestMode}/>
+                            </div>
+                        ) : (
+                            <div className="flex-grow">
+                                <div className="flex p-1 bg-gray-100 dark:bg-gray-700 rounded-lg mb-4">
+                                    <button onClick={() => setDesignTab('template')} className={`w-1/2 py-2 text-sm font-semibold rounded-md flex items-center justify-center gap-2 ${designTab === 'template' ? 'bg-white dark:bg-gray-800 shadow-sm' : 'text-gray-600 dark:text-gray-300'}`}><Code size={16}/> Template</button>
+                                    <button onClick={() => setDesignTab('design')} className={`w-1/2 py-2 text-sm font-semibold rounded-md flex items-center justify-center gap-2 ${designTab === 'design' ? 'bg-white dark:bg-gray-800 shadow-sm' : 'text-gray-600 dark:text-gray-300'}`}><Palette size={16}/> Design</button>
                                 </div>
+                                {designTab === 'template' ? (
+                                     <div className="grid grid-cols-2 gap-4">
+                                        {TEMPLATES.map(template => (
+                                            <div key={template.id} onClick={() => handleTemplateSelect(template)} className={`rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${activeTemplate.id === template.id ? 'border-primary-500' : 'border-gray-200 dark:border-gray-600 hover:border-primary-300'}`}>
+                                                <div className="p-2 bg-gray-50 dark:bg-gray-700/50">
+                                                    <h3 className="text-sm font-semibold text-center">{template.name}</h3>
+                                                </div>
+                                                <div className="relative group">
+                                                    <TemplateThumbnail resume={sampleResumeForPreview} template={template} />
+                                                    {isTemplateLoading && activeTemplate.id === template.id && <div className="absolute inset-0 bg-white/70 dark:bg-black/70 flex items-center justify-center"><Loader2 className="animate-spin" /></div>}
+                                                </div>
+                                            </div>
+                                        ))}
+                                     </div>
+                                ) : (
+                                    <div className="space-y-6">
+                                        <div>
+                                            <label className="text-sm font-semibold flex items-center gap-2"><Palette size={16}/> Theme Color</label>
+                                            <div className="flex flex-wrap gap-2 mt-2">
+                                                {activeTemplate.availableColors.map(color => (
+                                                    <button key={color} onClick={() => handleDesignChange({ themeColor: color })} className={`w-8 h-8 rounded-full border-2 ${resume.themeColor === color ? 'border-primary-500' : 'border-transparent'}`} style={{ backgroundColor: color }} />
+                                                ))}
+                                            </div>
+                                        </div>
+                                         <div>
+                                            <label className="text-sm font-semibold flex items-center gap-2"><TypeIcon size={16}/> Title Font</label>
+                                            <select value={resume.titleFont} onChange={e => handleDesignChange({ titleFont: e.target.value })} className="w-full mt-2 p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600">
+                                                {FONTS.map(font => <option key={font} value={font} style={{ fontFamily: font }}>{font}</option>)}
+                                            </select>
+                                        </div>
+                                         <div>
+                                            <label className="text-sm font-semibold flex items-center gap-2"><TypeIcon size={16}/> Body Font</label>
+                                            <select value={resume.bodyFont} onChange={e => handleDesignChange({ bodyFont: e.target.value })} className="w-full mt-2 p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600">
+                                                {FONTS.map(font => <option key={font} value={font} style={{ fontFamily: font }}>{font}</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
-                    </div>
-                </div>
+                    </>
+                 )}
             </div>
           </div>
-        </header>
-        
-        <div className="md:flex-grow md:overflow-hidden md:flex md:flex-row md:min-h-0 md:relative">
-            {/* Desktop Layout */}
-            <div className="hidden md:flex flex-grow overflow-hidden relative">
-                <aside className={`
-                    flex-shrink-0 md:overflow-y-auto transition-all duration-500 ease-in-out
-                    ${(viewMode === 'preview') ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'}
-                    ${isEditorCollapsed ? 'w-0 p-0 overflow-hidden' : (isPreviewCollapsed ? 'w-full' : 'md:w-2/5 lg:w-1/3')}
-                `}>
-                    {viewMode === 'preview' && (
-                        <div className="p-4 sm:p-6">
-                            <div className="flex items-center gap-1 p-1 bg-gray-200 dark:bg-gray-700 rounded-full mb-6">
-                                <button onClick={() => setDesignTab('template')} className={`flex-grow justify-center flex items-center gap-1 px-3 py-1.5 text-sm font-semibold rounded-full transition-colors ${designTab === 'template' ? 'bg-white dark:bg-gray-800 shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}><Palette size={16}/> Template</button>
-                                {/* FIX: Renamed Type to TypeIcon to avoid name collision */}
-                                <button onClick={() => setDesignTab('design')} className={`flex-grow justify-center flex items-center gap-1 px-3 py-1.5 text-sm font-semibold rounded-full transition-colors ${designTab === 'design' ? 'bg-white dark:bg-gray-800 shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}><TypeIcon size={16}/> Design</button>
-                            </div>
-                            {designTab === 'template' && (
-                                <div className="grid grid-cols-3 gap-3 mb-4">
-                                    {TEMPLATES.map(template => (
-                                        <button
-                                            key={template.id}
-                                            onClick={() => handleTemplateSelect(template)}
-                                            className={`group flex flex-col border-2 rounded-lg overflow-hidden transition-all duration-300 transform hover:-translate-y-1 bg-white dark:bg-gray-800 ${
-                                                activeTemplate.id === template.id ? 'border-primary-500 shadow-md' : 'border-gray-200 dark:border-gray-700 hover:border-primary-300'
-                                            }`}
-                                        >
-                                            <div className="font-semibold text-gray-700 dark:text-gray-200 text-sm p-2 px-3 text-left border-b border-gray-200 dark:border-gray-700">
-                                                {template.name}
-                                            </div>
-                                            <TemplateThumbnail resume={sampleResumeForPreview} template={template} />
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                            {designTab === 'design' && ( /* Design Controls */ <div className="space-y-6">
-                                <div>
-                                    <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-3">Theme Color</h3>
-                                    <div className="flex flex-wrap gap-3">
-                                        {activeTemplate.availableColors.map(color => (
-                                            <button
-                                                key={color}
-                                                onClick={() => handleDesignChange({ themeColor: color })}
-                                                className={`w-9 h-9 rounded-full flex items-center justify-center transition-transform transform hover:scale-110 focus:outline-none ${resume.themeColor === color ? 'ring-2 ring-offset-2 ring-primary-500 dark:ring-offset-gray-800' : ''}`}
-                                                style={{ backgroundColor: color }}
-                                                aria-label={`Set theme color to ${color}`}
-                                            >
-                                                {resume.themeColor === color && <Check size={16} className="text-white mix-blend-difference" />}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-3">Typography</h3>
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title Font</label>
-                                            <select value={resume.titleFont} onChange={e => handleDesignChange({ titleFont: e.target.value })} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700">
-                                                {FONTS.map(font => <option key={font} value={font}>{font}</option>)}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Body Font</label>
-                                            <select value={resume.bodyFont} onChange={e => handleDesignChange({ bodyFont: e.target.value })} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700">
-                                                {FONTS.map(font => <option key={font} value={font}>{font}</option>)}
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-3">Resume Language</h3>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">This helps our AI provide suggestions in the correct language.</p>
-                                    <div>
-                                        <select value={resume.language} onChange={e => handleDesignChange({ language: e.target.value })} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700">
-                                            {UI_LANGUAGES.map(lang => <option key={lang} value={lang}>{lang}</option>)}
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>)}
-                        </div>
-                    )}
-                    {viewMode === 'edit' && !isGuestMode && (
-                        <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
-                           <ResumeForm resume={resume} onChange={handleResumeChange} tempPhoto={tempPhoto} setTempPhoto={setTempPhoto} isReadOnly={isGuestMode} />
-                        </div>
-                    )}
-                </aside>
-                <div className={`
-                    p-4 sm:p-8 flex items-start justify-center md:overflow-auto bg-gray-200 dark:bg-gray-950
-                    transition-all duration-500 ease-in-out
-                    ${isPreviewCollapsed ? 'w-0 p-0 overflow-hidden' : (isEditorCollapsed ? 'w-full' : 'flex-grow')}
-                `}>
-                    {isTemplateLoading ? (
-                        <div className="text-center"><Loader2 className="w-12 h-12 text-primary-500 animate-spin" /><p className="dark:text-white mt-2">Applying template...</p></div>
-                    ) : (
-                        <div className="w-full max-w-[824px] shadow-2xl transition-opacity duration-300"><ResumePreview resume={resumeForPreview} template={activeTemplate.id} previewRef={previewRef} /></div>
-                    )}
-                </div>
-                {/* Collapse/Expand Buttons */}
-                <div className={`
-                    hidden md:flex flex-col gap-2 absolute top-1/2 -translate-y-1/2 z-20
-                    transition-all duration-500 ease-in-out
-                    ${isEditorCollapsed ? 'left-0' : (isPreviewCollapsed ? 'right-0' : 'left-1/3')}
-                    ${isEditorCollapsed ? '' : (isPreviewCollapsed ? '' : 'md:left-2/5 lg:left-1/3')}
-                `}>
-                    <button onClick={() => setIsEditorCollapsed(!isEditorCollapsed)} disabled={isPreviewCollapsed} title={editorToggleTitle} className="h-12 w-6 bg-white dark:bg-gray-700 rounded-lg shadow-md border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
-                        {isEditorCollapsed ? <ChevronRight size={20} className="text-gray-600 dark:text-gray-300" /> : <ChevronLeft size={20} className="text-gray-600 dark:text-gray-300" />}
-                    </button>
-                    {viewMode === 'edit' && (
-                        <button onClick={() => setIsPreviewCollapsed(!isPreviewCollapsed)} disabled={isEditorCollapsed} title={isPreviewCollapsed ? 'Show Preview' : 'Hide Preview'} className="h-12 w-6 bg-white dark:bg-gray-700 rounded-lg shadow-md border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
-                            {isPreviewCollapsed ? <ChevronLeft size={20} className="text-gray-600 dark:text-gray-300" /> : <ChevronRight size={20} className="text-gray-600 dark:text-gray-300" />}
-                        </button>
-                    )}
-                </div>
-            </div>
+        </div>
 
-            {/* Mobile Layout */}
-            <div className="flex-grow flex flex-col md:hidden overflow-y-auto">
-                <div className="p-2 bg-gray-200 dark:bg-gray-800/50 flex justify-center border-b border-gray-300 dark:border-gray-700 sticky top-16 z-10">
-                    <div className="flex items-center gap-1 p-1 bg-gray-300 dark:bg-gray-700 rounded-full">
-                        <button onClick={() => setViewMode('edit')} className={`px-4 py-1 text-sm font-semibold rounded-full ${viewMode === 'edit' ? 'bg-white dark:bg-gray-800 shadow' : 'text-gray-600 dark:text-gray-300'} disabled:cursor-not-allowed disabled:opacity-50`} disabled={isGuestMode}>Edit</button>
-                        <button onClick={() => setViewMode('preview')} className={`px-4 py-1 text-sm font-semibold rounded-full ${viewMode === 'preview' ? 'bg-white dark:bg-gray-800 shadow' : 'text-gray-600 dark:text-gray-300'}`}>Preview</button>
-                    </div>
-                </div>
-                {viewMode === 'preview' && (
-                    <div className="p-4 bg-white dark:bg-gray-800 flex-shrink-0">
-                        <div className="flex items-center gap-1 p-1 bg-gray-200 dark:bg-gray-700 rounded-full mb-4">
-                            <button onClick={() => setDesignTab('template')} className={`flex-grow justify-center flex items-center gap-1 px-3 py-1.5 text-sm font-semibold rounded-full ${designTab === 'template' ? 'bg-white dark:bg-gray-800 shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}><Palette size={16}/> Template</button>
-                            {/* FIX: Renamed Type to TypeIcon to avoid name collision */}
-                            <button onClick={() => setDesignTab('design')} className={`flex-grow justify-center flex items-center gap-1 px-3 py-1.5 text-sm font-semibold rounded-full ${designTab === 'design' ? 'bg-white dark:bg-gray-800 shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}><TypeIcon size={16}/> Design</button>
-                        </div>
-                        {designTab === 'template' && (
-                            <div className="flex gap-3 overflow-x-auto pb-3 -mb-3">
-                                {TEMPLATES.map(template => (
-                                    <button
-                                        key={template.id}
-                                        onClick={() => handleTemplateSelect(template)}
-                                        className={`group flex flex-col flex-shrink-0 w-1/3 sm:w-1/4 border-2 rounded-lg overflow-hidden bg-white dark:bg-gray-800 ${
-                                            activeTemplate.id === template.id ? 'border-primary-500' : 'border-gray-200 dark:border-gray-600'
-                                        }`}
-                                    >
-                                        <div className="font-semibold text-gray-700 dark:text-gray-200 text-xs p-1 px-2 text-left border-b border-gray-200 dark:border-gray-700 truncate">
-                                            {template.name}
-                                        </div>
-                                        <TemplateThumbnail resume={sampleResumeForPreview} template={template} />
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                        {designTab === 'design' && ( /* Mobile Design Controls */ <div className="space-y-6">
-                                <div>
-                                    <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-3">Theme Color</h3>
-                                    <div className="flex flex-wrap gap-3">
-                                        {activeTemplate.availableColors.map(color => (
-                                            <button
-                                                key={color}
-                                                onClick={() => handleDesignChange({ themeColor: color })}
-                                                className={`w-9 h-9 rounded-full flex items-center justify-center ${resume.themeColor === color ? 'ring-2 ring-offset-2 ring-primary-500 dark:ring-offset-gray-800' : ''}`}
-                                                style={{ backgroundColor: color }}
-                                            >
-                                                {resume.themeColor === color && <Check size={16} className="text-white mix-blend-difference" />}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                                {/* Other design controls can go here */}
-                            </div>)}
-                    </div>
-                )}
-                {viewMode === 'edit' && !isGuestMode ? (
-                    <div className="p-4 bg-gray-50 dark:bg-gray-900"><ResumeForm resume={resume} onChange={handleResumeChange} tempPhoto={tempPhoto} setTempPhoto={setTempPhoto} isReadOnly={isGuestMode} /></div>
-                ) : (
-                    <div className="p-4 bg-gray-200 dark:bg-gray-950 flex-grow">
-                        {isTemplateLoading ? (
-                            <div className="text-center py-20"><Loader2 className="w-12 h-12 text-primary-500 animate-spin mx-auto" /><p className="dark:text-white mt-2">Applying template...</p></div>
-                        ) : (
-                            <div className="shadow-2xl"><ResumePreview resume={resumeForPreview} template={activeTemplate.id} previewRef={previewRef} /></div>
-                        )}
-                    </div>
-                )}
+        {/* Resume Preview */}
+        <div className={`
+          flex-grow transition-all duration-300 ease-in-out
+          flex items-center justify-center p-4 sm:p-8
+          ${isPreviewCollapsed ? 'w-full' : (isEditorCollapsed ? 'w-full' : 'w-full md:w-1/2 lg:w-auto')}
+        `}>
+           <button 
+                onClick={() => setIsPreviewCollapsed(!isPreviewCollapsed)}
+                className="absolute top-1/2 -left-4 translate-y-[-50%] z-20 w-8 h-16 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-l-lg hidden md:flex items-center justify-center"
+                title={isPreviewCollapsed ? 'Show Preview' : 'Expand Preview'}
+            >
+                {isPreviewCollapsed ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
+            </button>
+             <div className={`transition-transform duration-300 w-full max-w-[824px] ${isPreviewCollapsed ? 'scale-50' : ''}`}>
+               <ResumePreview resume={resumeForPreview} template={resume.templateId} previewRef={previewRef} />
             </div>
         </div>
+        {optimizationJob && <OptimizationPanel />}
+      </div>
     </div>
   );
 };
