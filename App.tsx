@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Dashboard from './pages/Dashboard';
 import Editor from './pages/Editor';
@@ -16,6 +17,7 @@ import AdminDashboardPage from './pages/admin/AdminPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import JobTrackerPage from './pages/JobTrackerPage';
 import DemoPage from './pages/DemoPage';
+import PdfPreviewPage from './pages/PdfPreviewPage';
 
 // Returns path from hash, e.g., #/admin/login -> /admin/login
 const getPathFromHash = () => {
@@ -41,6 +43,15 @@ const App: React.FC = () => {
     onHashChange();
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
+
+  // Special route for PDF generation - bypasses auth checks for speed/simplicity in headless env
+  if (path === '/pdf-preview') {
+    return (
+      <ThemeProvider>
+        <PdfPreviewPage />
+      </ThemeProvider>
+    );
+  }
 
   if (loading || isAdminLoading) {
     return (

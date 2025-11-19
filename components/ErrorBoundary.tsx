@@ -25,7 +25,7 @@ class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
-  public componentDidCatch = (error: Error, errorInfo: ErrorInfo) => {
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
     reportError(error, { componentStack: errorInfo.componentStack });
     this.setState({ errorInfo });
@@ -45,7 +45,7 @@ ${errorInfo?.componentStack?.trim() || 'Not available.'}
     setTimeout(() => this.setState({ isCopied: false }), 2000);
   }
 
-  public render = () => {
+  public render() {
     if (this.state.hasError) {
       return (
         <div className="flex flex-col items-center justify-center h-screen bg-gray-100 dark:bg-gray-900 p-4">

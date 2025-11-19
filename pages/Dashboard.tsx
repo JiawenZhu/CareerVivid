@@ -551,6 +551,7 @@ const Dashboard: React.FC = () => {
   };
   
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: string, type: 'resume' | 'interview' | 'jobApplication' | 'folder') => {
+    e.dataTransfer.setData('application/job-id', JSON.stringify({ id, type }));
     e.dataTransfer.setData('application/json', JSON.stringify({ id, type }));
     if (type !== 'folder') {
       e.stopPropagation();
@@ -655,7 +656,7 @@ const Dashboard: React.FC = () => {
                     <div className="flex justify-between items-center mb-6">
                         <div className="flex items-center gap-3">
                             <GripVertical className="cursor-grab text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"/>
-                            <EditableHeader title={folder.title} onSave={(newTitle) => handleTitleUpdate(folder.id, newTitle)} isEditable={!['resumes', 'interviews', 'jobTracker'].includes(folder.id)} />
+                            <EditableHeader title={folder.title} onSave={(newTitle) => handleTitleUpdate(folder.id, newTitle)} isEditable={true} />
                         </div>
                         {!['resumes', 'interviews'].includes(folder.id) && (
                             <button 

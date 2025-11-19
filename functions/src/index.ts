@@ -17,7 +17,7 @@ const getResumeHtml = (resume: ResumeData, templateId: string): string => {
     let body = '';
     let styles = `
         body { font-family: '${bodyFont}', sans-serif; margin: 0; padding: 0; background: white; color: #1f2937; font-size: 10pt; line-height: 1.5; }
-        .page { width: 210mm; min-height: 297mm; padding: 15mm; box-sizing: border-box; position: relative; }
+        .page { width: 210mm; min-height: 296mm; padding: 15mm; box-sizing: border-box; position: relative; overflow: hidden; }
         h1, h2, h3, h4 { font-family: '${titleFont}', sans-serif; }
         a { color: inherit; text-decoration: none; }
         @page { margin: 0; size: A4; }

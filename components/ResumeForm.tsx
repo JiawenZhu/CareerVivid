@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { ResumeData, PersonalDetails, WebsiteLink, Skill, EmploymentHistory, Education, Language } from '../types';
 import { parseResume, improveSection, parseResumeFromFile, editProfilePhoto } from '../services/geminiService';
 import { LANGUAGE_PROFICIENCY_LEVELS } from '../constants';
-import { PlusCircle, Trash2, Wand2, UploadCloud, User, Briefcase, GraduationCap, Link as LinkIcon, Star, CheckCircle, Loader2, Brush, Languages, Zap } from 'lucide-react';
+import { PlusCircle, Trash2, Wand2, UploadCloud, User, Briefcase, GraduationCap, Link as LinkIcon, Star, CheckCircle, Loader2, Brush, Languages, Zap, ChevronDown, ChevronUp, X, Sparkles } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { storage } from '../firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -36,24 +36,26 @@ const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement> & { label: str
   </div>
 );
 
-const AIImprovementModal: React.FC<{ userId: string; sectionName: string; currentText: string; language: string; onImprove: (newText: string) => void; onClose: () => void; onError: (title: string, message: string) => void }> = ({ userId, sectionName, currentText, language, onImprove, onClose, onError }) => {
+// --- NEW Inline AI Panel ---
+const AIImprovementPanel: React.FC<{
+    userId: string;
+    sectionName: string;
+    currentText: string;
+    language: string;
+    onAccept: (newText: string) => void;
+    onClose: () => void;
+    onError: (title: string, message: string) => void;
+}> = ({ userId, sectionName, currentText, language, onAccept, onClose, onError }) => {
     const [instruction, setInstruction] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [improvedText, setImprovedText] = useState('');
 
-    useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') {
-                onClose();
-            }
-        };
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [onClose]);
-
     const handleGenerate = async () => {
+        if (!instruction.trim()) {
+            onError('Input Required', 'Please provide an instruction for the AI.');
+            return;
+        }
         setIsLoading(true);
-        setImprovedText('');
         try {
             const result = await improveSection(userId, sectionName, currentText, instruction, language);
             setImprovedText(result);
@@ -63,39 +65,61 @@ const AIImprovementModal: React.FC<{ userId: string; sectionName: string; curren
             setIsLoading(false);
         }
     };
-    
-    const handleAccept = () => {
-        onImprove(improvedText);
-        onClose();
-    };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-lg shadow-xl">
-                <h3 className="text-lg font-bold mb-4">Improve {sectionName}</h3>
-                <textarea
-                    value={instruction}
-                    onChange={(e) => setInstruction(e.target.value)}
-                    placeholder={`e.g., "Make this sound more professional" or "Shorten this to 3 sentences"`}
-                    className="w-full p-2 border rounded-md mb-4 bg-white dark:bg-gray-700 dark:border-gray-600"
-                    rows={3}
-                />
-                <button onClick={handleGenerate} disabled={isLoading} className="w-full bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 disabled:bg-primary-300">
-                    {isLoading ? 'Generating...' : 'Generate Improvement'}
+        <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 animate-fade-in shadow-inner">
+            <div className="flex justify-between items-center mb-3">
+                <h4 className="text-sm font-bold flex items-center gap-2 text-primary-600 dark:text-primary-400">
+                    <Wand2 size={16} /> AI Assistant
+                </h4>
+                <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <X size={16} />
                 </button>
-
-                {improvedText && (
-                    <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-700 rounded-md">
-                        <h4 className="font-semibold mb-2">Suggested Text:</h4>
-                        <p className="text-sm">{improvedText}</p>
-                        <div className="flex justify-end gap-2 mt-4">
-                            <button onClick={onClose} className="px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded-md">Cancel</button>
-                            <button onClick={handleAccept} className="px-4 py-2 bg-green-500 text-white rounded-md">Accept</button>
-                        </div>
-                    </div>
-                )}
-                 <button onClick={onClose} className="w-full mt-4 text-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Close</button>
             </div>
+
+            {!improvedText ? (
+                <>
+                    <textarea
+                        value={instruction}
+                        onChange={(e) => setInstruction(e.target.value)}
+                        placeholder={`How should I improve this? (e.g., "Fix grammar", "Make it punchier", "Translate to Spanish")`}
+                        className="w-full p-3 text-sm border border-gray-300 dark:border-gray-600 rounded-md mb-3 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 focus:outline-none resize-none"
+                        rows={2}
+                        autoFocus
+                    />
+                    <div className="flex justify-end">
+                        <button 
+                            onClick={handleGenerate} 
+                            disabled={isLoading || !instruction.trim()} 
+                            className="bg-primary-600 text-white text-sm py-2 px-4 rounded-md hover:bg-primary-700 disabled:bg-primary-300 flex items-center gap-2 transition-colors"
+                        >
+                            {isLoading ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
+                            {isLoading ? 'Generating...' : 'Generate'}
+                        </button>
+                    </div>
+                </>
+            ) : (
+                <div className="space-y-3">
+                     <div className="bg-white dark:bg-gray-700 p-3 rounded-md border border-gray-200 dark:border-gray-600">
+                        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Suggestion:</p>
+                        <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{improvedText}</p>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                        <button 
+                            onClick={() => setImprovedText('')} 
+                            className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors"
+                        >
+                            Try Again
+                        </button>
+                         <button 
+                            onClick={() => onAccept(improvedText)} 
+                            className="px-3 py-1.5 text-sm bg-green-600 text-white hover:bg-green-700 rounded-md flex items-center gap-2 transition-colors"
+                        >
+                            <CheckCircle size={14} /> Apply Change
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
@@ -322,12 +346,39 @@ const AIImageEditModal: React.FC<{
 const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, setTempPhoto, isReadOnly = false }) => {
     const { currentUser, isPremium } = useAuth();
     const [isParsing, setIsParsing] = useState(false);
-    const [modalInfo, setModalInfo] = useState<{ sectionName: string, currentText: string, fieldKey: keyof ResumeData | [keyof ResumeData, number, string] } | null>(null);
+    const [parsingMessageIndex, setParsingMessageIndex] = useState(0);
+    
+    // State for managing which inline AI panel is open
+    const [activeImprovementId, setActiveImprovementId] = useState<string | null>(null);
+
     const [isImageEditModalOpen, setIsImageEditModalOpen] = useState(false);
     const [isPhotoUploading, setIsPhotoUploading] = useState(false);
     const [photoFileName, setPhotoFileName] = useState('No file chosen');
     const photoInputRef = useRef<HTMLInputElement>(null);
     const [alertState, setAlertState] = useState({ isOpen: false, title: '', message: '' });
+
+    // Check if resume has meaningful data to determine default state
+    const hasInitialContent = !!(resume.personalDetails.firstName || resume.professionalSummary || (resume.employmentHistory && resume.employmentHistory.length > 0));
+    const [isImportExpanded, setIsImportExpanded] = useState(!hasInitialContent);
+
+    const parsingMessages = [
+        "Analyzing document structure...",
+        "Identifying professional details...",
+        "Extracting work experience...",
+        "Organizing skills and languages...",
+        "Refining content..."
+    ];
+
+    useEffect(() => {
+        let interval: number;
+        if (isParsing) {
+            setParsingMessageIndex(0);
+            interval = window.setInterval(() => {
+                setParsingMessageIndex(prev => (prev + 1) % parsingMessages.length);
+            }, 1500);
+        }
+        return () => clearInterval(interval);
+    }, [isParsing]);
 
 
     const handleChange = <T,>(field: keyof T, value: any, parentField?: keyof ResumeData) => {
@@ -346,17 +397,20 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
         setIsParsing(true);
         
         try {
+            let parsedData: Partial<ResumeData> | undefined;
             if (file.type === 'text/plain' || file.type === 'text/markdown') {
                 const text = await file.text();
-                const parsedData = await parseResume(currentUser.uid, text, resume.language);
-                onChange(parsedData);
+                parsedData = await parseResume(currentUser.uid, text, resume.language);
             } else if (file.type === 'application/pdf') {
                 const reader = new FileReader();
                 reader.onload = async (event) => {
                     const fileData = event.target?.result as string;
                     try {
-                        const parsedData = await parseResumeFromFile(currentUser.uid, fileData, file.type, resume.language);
-                        onChange(parsedData);
+                        parsedData = await parseResumeFromFile(currentUser.uid, fileData, file.type, resume.language);
+                        if (parsedData) {
+                             onChange(parsedData);
+                             setIsImportExpanded(false); // Auto-collapse on success
+                        }
                     } catch (error) {
                          setAlertState({ isOpen: true, title: 'Parsing Failed', message: error instanceof Error ? error.message : "Failed to parse resume from file." });
                     } finally {
@@ -364,16 +418,19 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                     }
                 };
                 reader.readAsDataURL(file);
+                return; // Reader handles the rest
             } else {
                 throw new Error(`Unsupported file type: ${file.type}. Please upload a .txt, .md, or .pdf file.`);
+            }
+
+            if (parsedData) {
+                onChange(parsedData);
+                setIsImportExpanded(false);
             }
         } catch (error) {
             setAlertState({ isOpen: true, title: 'Parsing Failed', message: error instanceof Error ? error.message : "An unknown error occurred during parsing." });
         } finally {
-            // FileReader is async, so we might need to handle this differently
-            if (file.type !== 'application/pdf') {
-                 setIsParsing(false);
-            }
+             if (file.type !== 'application/pdf') setIsParsing(false);
         }
     };
     
@@ -422,20 +479,11 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
         }
     };
 
-    const handleImprovementRequest = (sectionName: string, currentText: string, fieldKey: keyof ResumeData | [keyof ResumeData, number, string]) => {
-        setModalInfo({ sectionName, currentText, fieldKey });
-    };
-
-    const handleImprovementAccept = (newText: string) => {
-        if (!modalInfo) return;
-        const { fieldKey } = modalInfo;
-        if (Array.isArray(fieldKey)) {
-            const [parentKey, index, childKey] = fieldKey;
-            const newArray = [...(resume[parentKey] as any[])];
-            newArray[index] = { ...newArray[index], [childKey]: newText };
-            onChange({ [parentKey]: newArray } as any);
+    const toggleImprovement = (id: string) => {
+        if (activeImprovementId === id) {
+            setActiveImprovementId(null);
         } else {
-            onChange({ [fieldKey]: newText } as any);
+            setActiveImprovementId(id);
         }
     };
 
@@ -459,65 +507,87 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
     const displayPhoto = tempPhoto || resume.personalDetails.photo;
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
             <AlertModal 
                 isOpen={alertState.isOpen}
                 title={alertState.title}
                 message={alertState.message}
                 onClose={() => setAlertState({ isOpen: false, title: '', message: '' })}
             />
-            <div className="p-4 border-2 border-dashed dark:border-gray-600 rounded-lg text-center min-h-[160px] flex items-center justify-center">
-                <label htmlFor="resume-upload" className={`cursor-pointer text-primary-600 dark:text-primary-400 font-semibold hover:text-primary-800 dark:hover:text-primary-300 ${isReadOnly ? 'cursor-not-allowed opacity-50' : ''}`}>
-                    {isParsing ? (
-                         <div className="flex flex-col items-center justify-center">
-                            <Loader2 className="mx-auto h-12 w-12 text-primary-500 animate-spin" />
-                            <span className="mt-2 block text-sm font-medium text-gray-900 dark:text-gray-100">
-                            Analyzing Resume...
-                            </span>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Please wait a moment.</p>
-                        </div>
-                    ) : (
-                        <>
-                            <UploadCloud className="mx-auto h-12 w-12 text-gray-400" />
-                            <span className="mt-2 block text-sm font-medium text-gray-900 dark:text-gray-100">
-                                Upload or Paste Resume to Autofill
-                            </span>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">.pdf, .txt, .md</p>
-                        </>
-                    )}
-                </label>
-                <input id="resume-upload" type="file" className="sr-only" onChange={handleFileChange} accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" disabled={isParsing || isReadOnly} />
-                <textarea 
-                    className="w-full mt-4 p-2 border dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 disabled:bg-gray-100 dark:disabled:bg-gray-800"
-                    placeholder="Or paste your resume here..."
-                    disabled={isParsing || isReadOnly}
-                    onPaste={async (e) => {
-                        if (!currentUser) return;
-                        setIsParsing(true);
-                        try {
-                            const pastedText = e.clipboardData.getData('text');
-                            const parsedData = await parseResume(currentUser.uid, pastedText, resume.language);
-                            onChange(parsedData);
-                        } catch (error) {
-                            setAlertState({isOpen: true, title: 'Parsing Failed', message: error instanceof Error ? error.message : "Failed to parse pasted resume."});
-                        } finally {
-                            setIsParsing(false);
-                        }
-                    }}
-                ></textarea>
-            </div>
             
-            {modalInfo && currentUser && (
-                <AIImprovementModal
-                    userId={currentUser.uid}
-                    sectionName={modalInfo.sectionName}
-                    currentText={modalInfo.currentText}
-                    language={resume.language}
-                    onImprove={handleImprovementAccept}
-                    onClose={() => setModalInfo(null)}
-                    onError={(title, message) => setAlertState({ isOpen: true, title, message })}
-                />
-            )}
+            {/* Collapsible Import Section */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300">
+                <button 
+                    onClick={() => setIsImportExpanded(!isImportExpanded)}
+                    className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/80 hover:bg-gray-100 dark:hover:bg-gray-700/80 transition-colors"
+                    type="button"
+                >
+                     <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-md transition-colors ${isImportExpanded ? 'bg-primary-100 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400' : 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
+                             <UploadCloud size={20} />
+                        </div>
+                        <div className="text-left">
+                            <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">Import Resume</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Autofill from PDF, TXT, or Markdown</p>
+                        </div>
+                    </div>
+                     {isImportExpanded ? <ChevronUp size={18} className="text-gray-400" /> : <ChevronDown size={18} className="text-gray-400" />}
+                </button>
+                
+                {isImportExpanded && (
+                    <div className="p-6 animate-fade-in bg-white dark:bg-gray-800">
+                        <div className="p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-center min-h-[160px] flex flex-col items-center justify-center bg-gray-50/50 dark:bg-gray-900/30 hover:border-primary-400 dark:hover:border-primary-500 transition-colors group">
+                            <label htmlFor="resume-upload" className={`cursor-pointer flex flex-col items-center justify-center w-full h-full ${isReadOnly ? 'cursor-not-allowed opacity-50' : ''}`}>
+                                {isParsing ? (
+                                    <div className="flex flex-col items-center justify-center">
+                                        <Loader2 className="mx-auto h-10 w-10 text-primary-500 animate-spin mb-3" />
+                                        <span className="block text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                        Analyzing Document...
+                                        </span>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 animate-pulse">{parsingMessages[parsingMessageIndex]}</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <UploadCloud className="h-10 w-10 text-gray-400 group-hover:text-primary-500 transition-colors mb-3" />
+                                        <span className="block text-sm font-semibold text-gray-700 dark:text-gray-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                                            Click to Upload or Drag & Drop
+                                        </span>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Supports .pdf, .txt, .md</p>
+                                    </>
+                                )}
+                            </label>
+                            <input id="resume-upload" type="file" className="sr-only" onChange={handleFileChange} accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" disabled={isParsing || isReadOnly} />
+                            
+                            <div className="w-full flex items-center gap-4 my-4">
+                                <div className="h-px bg-gray-200 dark:bg-gray-700 flex-1"></div>
+                                <span className="text-xs text-gray-400 font-medium uppercase">Or Paste Text</span>
+                                <div className="h-px bg-gray-200 dark:bg-gray-700 flex-1"></div>
+                            </div>
+
+                            <textarea 
+                                className="w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-gray-100 dark:disabled:bg-gray-900 disabled:cursor-not-allowed resize-none"
+                                placeholder="Paste your resume content here..."
+                                rows={3}
+                                disabled={isParsing || isReadOnly}
+                                onPaste={async (e) => {
+                                    if (!currentUser) return;
+                                    setIsParsing(true);
+                                    try {
+                                        const pastedText = e.clipboardData.getData('text');
+                                        const parsedData = await parseResume(currentUser.uid, pastedText, resume.language);
+                                        onChange(parsedData);
+                                        setIsImportExpanded(false); // Collapse after successful paste
+                                    } catch (error) {
+                                        setAlertState({isOpen: true, title: 'Parsing Failed', message: error instanceof Error ? error.message : "Failed to parse pasted resume."});
+                                    } finally {
+                                        setIsParsing(false);
+                                    }
+                                }}
+                            ></textarea>
+                        </div>
+                    </div>
+                )}
+            </div>
             
              {isImageEditModalOpen && displayPhoto && currentUser && (
                 <AIImageEditModal
@@ -612,15 +682,43 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                     disabled={isReadOnly}
                     placeholder="e.g., A creative and analytical Prompt Engineer with over 4 years of experience..."
                 />
-                <button onClick={() => handleImprovementRequest('Professional Summary', resume.professionalSummary, 'professionalSummary')} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><Wand2 size={16}/> Improve with AI</button>
+                 <button 
+                    onClick={() => toggleImprovement('summary')} 
+                    disabled={isReadOnly} 
+                    className="flex items-center gap-2 text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                    <Wand2 size={16}/> Improve with AI
+                    {activeImprovementId === 'summary' ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+                </button>
+                
+                {activeImprovementId === 'summary' && currentUser && (
+                    <AIImprovementPanel
+                        userId={currentUser.uid}
+                        sectionName="Professional Summary"
+                        currentText={resume.professionalSummary}
+                        language={resume.language}
+                        onAccept={(text) => {
+                            handleChange('professionalSummary', text);
+                            setActiveImprovementId(null);
+                        }}
+                        onClose={() => setActiveImprovementId(null)}
+                        onError={(title, message) => setAlertState({ isOpen: true, title, message })}
+                    />
+                )}
             </FormSection>
 
             <FormSection title="Websites & Social Links" icon={<LinkIcon className="text-primary-500" />}>
                 {resume.websites.map((link, index) => (
-                    <div key={link.id} className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2 items-end">
-                        <Input label="Label" value={link.label} onChange={e => handleArrayChange<WebsiteLink>('websites', index, 'label', e.target.value)} disabled={isReadOnly} />
-                        <Input label="URL" value={link.url} onChange={e => handleArrayChange<WebsiteLink>('websites', index, 'url', e.target.value)} disabled={isReadOnly} />
-                        <button onClick={() => removeArrayItem('websites', index)} disabled={isReadOnly} className="p-2 text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"><Trash2 size={20} /></button>
+                    <div key={link.id} className="relative p-5 border dark:border-gray-700 rounded-md mb-6 bg-gray-50/50 dark:bg-gray-800/30 hover:shadow-sm transition-shadow">
+                         <div className="absolute top-4 right-4">
+                             <button onClick={() => removeArrayItem('websites', index)} disabled={isReadOnly} className="p-1 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Delete Entry">
+                                 <Trash2 size={18} />
+                             </button>
+                         </div>
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
+                            <Input label="Label" value={link.label} onChange={e => handleArrayChange<WebsiteLink>('websites', index, 'label', e.target.value)} disabled={isReadOnly} />
+                            <Input label="URL" value={link.url} onChange={e => handleArrayChange<WebsiteLink>('websites', index, 'url', e.target.value)} disabled={isReadOnly} />
+                        </div>
                     </div>
                 ))}
                  <button onClick={() => addArrayItem('websites', { id: crypto.randomUUID(), label: 'Website', url: '' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16}/> Add Link</button>
@@ -628,18 +726,24 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
 
             <FormSection title="Skills" icon={<Star className="text-primary-500" />}>
                  {resume.skills.map((skill, index) => (
-                    <div key={skill.id} className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2 items-end">
-                        <Input label="Skill" value={skill.name} onChange={e => handleArrayChange<Skill>('skills', index, 'name', e.target.value)} disabled={isReadOnly} />
-                        <div>
-                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Level</label>
-                           <select value={skill.level} onChange={e => handleArrayChange<Skill>('skills', index, 'level', e.target.value)} disabled={isReadOnly} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 disabled:bg-gray-100 dark:disabled:bg-gray-800">
-                               <option>Novice</option>
-                               <option>Intermediate</option>
-                               <option>Advanced</option>
-                               <option>Expert</option>
-                           </select>
+                    <div key={skill.id} className="relative p-5 border dark:border-gray-700 rounded-md mb-6 bg-gray-50/50 dark:bg-gray-800/30 hover:shadow-sm transition-shadow">
+                        <div className="absolute top-4 right-4">
+                             <button onClick={() => removeArrayItem('skills', index)} disabled={isReadOnly} className="p-1 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Delete Entry">
+                                 <Trash2 size={18} />
+                             </button>
+                         </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
+                            <Input label="Skill" value={skill.name} onChange={e => handleArrayChange<Skill>('skills', index, 'name', e.target.value)} disabled={isReadOnly} />
+                            <div>
+                               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Level</label>
+                               <select value={skill.level} onChange={e => handleArrayChange<Skill>('skills', index, 'level', e.target.value)} disabled={isReadOnly} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 disabled:bg-gray-100 dark:disabled:bg-gray-800">
+                                   <option>Novice</option>
+                                   <option>Intermediate</option>
+                                   <option>Advanced</option>
+                                   <option>Expert</option>
+                               </select>
+                            </div>
                         </div>
-                        <button onClick={() => removeArrayItem('skills', index)} disabled={isReadOnly} className="p-2 text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"><Trash2 size={20} /></button>
                     </div>
                 ))}
                 <button onClick={() => addArrayItem('skills', { id: crypto.randomUUID(), name: '', level: 'Intermediate' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16}/> Add Skill</button>
@@ -647,15 +751,21 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
             
             <FormSection title="Languages" icon={<Languages className="text-primary-500" />}>
                  {resume.languages.map((lang, index) => (
-                    <div key={lang.id} className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2 items-end">
-                        <Input label="Language" value={lang.name} onChange={e => handleArrayChange<Language>('languages', index, 'name', e.target.value)} disabled={isReadOnly} />
-                        <div>
-                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Proficiency</label>
-                           <select value={lang.level} onChange={e => handleArrayChange<Language>('languages', index, 'level', e.target.value)} disabled={isReadOnly} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 disabled:bg-gray-100 dark:disabled:bg-gray-800">
-                               {LANGUAGE_PROFICIENCY_LEVELS.map(level => <option key={level}>{level}</option>)}
-                           </select>
+                    <div key={lang.id} className="relative p-5 border dark:border-gray-700 rounded-md mb-6 bg-gray-50/50 dark:bg-gray-800/30 hover:shadow-sm transition-shadow">
+                         <div className="absolute top-4 right-4">
+                             <button onClick={() => removeArrayItem('languages', index)} disabled={isReadOnly} className="p-1 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Delete Entry">
+                                 <Trash2 size={18} />
+                             </button>
+                         </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
+                            <Input label="Language" value={lang.name} onChange={e => handleArrayChange<Language>('languages', index, 'name', e.target.value)} disabled={isReadOnly} />
+                            <div>
+                               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Proficiency</label>
+                               <select value={lang.level} onChange={e => handleArrayChange<Language>('languages', index, 'level', e.target.value)} disabled={isReadOnly} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 disabled:bg-gray-100 dark:disabled:bg-gray-800">
+                                   {LANGUAGE_PROFICIENCY_LEVELS.map(level => <option key={level}>{level}</option>)}
+                               </select>
+                            </div>
                         </div>
-                        <button onClick={() => removeArrayItem('languages', index)} disabled={isReadOnly} className="p-2 text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"><Trash2 size={20} /></button>
                     </div>
                 ))}
                 <button onClick={() => addArrayItem('languages', { id: crypto.randomUUID(), name: '', level: 'Intermediate' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16}/> Add Language</button>
@@ -663,26 +773,56 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
 
             <FormSection title="Employment History" icon={<Briefcase className="text-primary-500" />}>
                  {resume.employmentHistory.map((job, index) => (
-                    <div key={job.id} className="p-4 border dark:border-gray-700 rounded-md mb-4">
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div key={job.id} className="relative p-5 border dark:border-gray-700 rounded-md mb-6 bg-gray-50/50 dark:bg-gray-800/30 hover:shadow-sm transition-shadow">
+                         {/* Delete Button - Top Right */}
+                         <div className="absolute top-4 right-4">
+                             <button onClick={() => removeArrayItem('employmentHistory', index)} disabled={isReadOnly} className="p-1 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Delete Entry">
+                                 <Trash2 size={18} />
+                             </button>
+                         </div>
+
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
                              <Input label="Job Title" value={job.jobTitle} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'jobTitle', e.target.value)} disabled={isReadOnly} />
                              <Input label="Employer" value={job.employer} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'employer', e.target.value)} disabled={isReadOnly} />
-                             <Input label="City" value={job.city} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'city', e.target.value)} disabled={isReadOnly} />
-                             <div className="flex gap-4">
-                               <Input label="Start Date" value={job.startDate} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'startDate', e.target.value)} disabled={isReadOnly} />
-                               <Input label="End Date" value={job.endDate} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'endDate', e.target.value)} disabled={isReadOnly} />
-                             </div>
                          </div>
-                         <EditableTextarea 
-                            label="Description" 
-                            value={job.description} 
-                            onChange={value => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'description', value)} 
-                            disabled={isReadOnly}
-                            placeholder="e.g., - Designed and refined a comprehensive library of over 500 prompts for a customer service chatbot..."
-                        />
-                         <div className="flex justify-between">
-                            <button onClick={() => handleImprovementRequest('Job Description', job.description, ['employmentHistory', index, 'description'])} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><Wand2 size={16}/> Improve Description</button>
-                            <button onClick={() => removeArrayItem('employmentHistory', index)} disabled={isReadOnly} className="p-2 text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"><Trash2 size={20} /></button>
+                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+                             <Input label="City" value={job.city} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'city', e.target.value)} disabled={isReadOnly} />
+                             <Input label="Start Date" value={job.startDate} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'startDate', e.target.value)} disabled={isReadOnly} />
+                             <Input label="End Date" value={job.endDate} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'endDate', e.target.value)} disabled={isReadOnly} />
+                         </div>
+                         
+                         <div className="mt-4">
+                             <EditableTextarea 
+                                label="Description" 
+                                value={job.description} 
+                                onChange={value => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'description', value)} 
+                                disabled={isReadOnly}
+                                placeholder="e.g., - Designed and refined a comprehensive library of over 500 prompts for a customer service chatbot..."
+                            />
+                             <div className="mt-2">
+                                <button 
+                                    onClick={() => toggleImprovement(`job-${job.id}`)} 
+                                    disabled={isReadOnly} 
+                                    className="flex items-center gap-2 text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    <Wand2 size={16}/> Improve Description
+                                    {activeImprovementId === `job-${job.id}` ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+                                </button>
+                                {activeImprovementId === `job-${job.id}` && currentUser && (
+                                    <AIImprovementPanel
+                                        userId={currentUser.uid}
+                                        sectionName="Job Description"
+                                        currentText={job.description}
+                                        language={resume.language}
+                                        onAccept={(text) => {
+                                            handleArrayChange<EmploymentHistory>('employmentHistory', index, 'description', text);
+                                            setActiveImprovementId(null);
+                                        }}
+                                        onClose={() => setActiveImprovementId(null)}
+                                        onError={(title, message) => setAlertState({ isOpen: true, title, message })}
+                                    />
+                                )}
+                            </div>
                          </div>
                     </div>
                 ))}
@@ -691,26 +831,32 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
             
             <FormSection title="Education" icon={<GraduationCap className="text-primary-500" />}>
                  {resume.education.map((edu, index) => (
-                    <div key={edu.id} className="p-4 border dark:border-gray-700 rounded-md mb-4">
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div key={edu.id} className="relative p-5 border dark:border-gray-700 rounded-md mb-6 bg-gray-50/50 dark:bg-gray-800/30 hover:shadow-sm transition-shadow">
+                         <div className="absolute top-4 right-4">
+                             <button onClick={() => removeArrayItem('education', index)} disabled={isReadOnly} className="p-1 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Delete Entry">
+                                 <Trash2 size={18} />
+                             </button>
+                         </div>
+
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
                              <Input label="School" value={edu.school} onChange={e => handleArrayChange<Education>('education', index, 'school', e.target.value)} disabled={isReadOnly} />
                              <Input label="Degree" value={edu.degree} onChange={e => handleArrayChange<Education>('education', index, 'degree', e.target.value)} disabled={isReadOnly} />
+                         </div>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
                               <Input label="City" value={edu.city} onChange={e => handleArrayChange<Education>('education', index, 'city', e.target.value)} disabled={isReadOnly} />
-                             <div className="flex gap-4">
-                               <Input label="Start Date" value={edu.startDate} onChange={e => handleArrayChange<Education>('education', index, 'startDate', e.target.value)} disabled={isReadOnly} />
-                               <Input label="End Date" value={edu.endDate} onChange={e => handleArrayChange<Education>('education', index, 'endDate', e.target.value)} disabled={isReadOnly} />
-                             </div>
-                         </div>
-                        <EditableTextarea 
-                            label="Description" 
-                            value={edu.description} 
-                            onChange={value => handleArrayChange<Education>('education', index, 'description', value)} 
-                            disabled={isReadOnly}
-                            placeholder="e.g., Graduated with honors. Relevant coursework included Natural Language Processing..."
-                        />
-                         <div className="flex justify-end">
-                           <button onClick={() => removeArrayItem('education', index)} disabled={isReadOnly} className="p-2 text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"><Trash2 size={20} /></button>
-                         </div>
+                              <Input label="Start Date" value={edu.startDate} onChange={e => handleArrayChange<Education>('education', index, 'startDate', e.target.value)} disabled={isReadOnly} />
+                              <Input label="End Date" value={edu.endDate} onChange={e => handleArrayChange<Education>('education', index, 'endDate', e.target.value)} disabled={isReadOnly} />
+                          </div>
+                        
+                        <div className="mt-4">
+                            <EditableTextarea 
+                                label="Description" 
+                                value={edu.description} 
+                                onChange={value => handleArrayChange<Education>('education', index, 'description', value)} 
+                                disabled={isReadOnly}
+                                placeholder="e.g., Graduated with honors. Relevant coursework included Natural Language Processing..."
+                            />
+                        </div>
                     </div>
                 ))}
                 <button onClick={() => addArrayItem('education', { id: crypto.randomUUID(), school: '', degree: '', city: '', startDate: '', endDate: '', description: '' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16}/> Add Education</button>
