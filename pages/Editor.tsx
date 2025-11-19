@@ -6,9 +6,8 @@ import ResumePreview from '../components/ResumePreview';
 import GoogleTranslateWidget from '../components/GoogleTranslateWidget';
 import ThemeToggle from '../components/ThemeToggle';
 import { TEMPLATES } from '../templates';
-import { createNewResume, FONTS, UI_LANGUAGES, EXPORT_OPTIONS } from '../constants';
-// FIX: Renamed Type to TypeIcon to avoid conflict with @google/genai's Type enum.
-import { ArrowLeft, Download, Eye, Code, Palette, Type as TypeIcon, Check, PlusCircle, LogOut, Loader2, ChevronDown, FileText, Image as ImageIcon, Edit as EditIcon, MoreVertical, Sun, Moon, Sparkles, ChevronLeft, ChevronRight, X as XIcon, Info } from 'lucide-react';
+import { createNewResume, FONTS, EXPORT_OPTIONS } from '../constants';
+import { ArrowLeft, Download, Eye, Code, Palette, Type as TypeIcon, Loader2, ChevronDown, FileText, Image as ImageIcon, Edit as EditIcon, MoreVertical, Sun, Moon, Sparkles, ChevronLeft, ChevronRight, X as XIcon, Info, FileInput, Check } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { navigate } from '../App';
 import { trackUsage } from '../services/trackingService';
@@ -16,8 +15,6 @@ import { useTheme } from '../contexts/ThemeContext';
 import AlertModal from '../components/AlertModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import FeedbackModal from '../components/FeedbackModal';
-import { functions } from '../firebase';
-import { httpsCallable } from 'firebase/functions';
 
 // New component for rendering template thumbnails with correct scaling
 const TemplateThumbnail: React.FC<{ resume: ResumeData; template: TemplateInfo; }> = React.memo(({ resume, template }) => {
@@ -63,30 +60,6 @@ const TemplateThumbnail: React.FC<{ resume: ResumeData; template: TemplateInfo; 
     );
 });
 
-
-// Debounce utility to delay function execution
-function debounce<F extends (...args: any[]) => any>(func: F, wait: number): F & { cancel: () => void; } {
-  let timeoutId: number | null = null;
-  
-  const debounced = function(this: any, ...args: any[]) {
-    if (timeoutId !== null) {
-      clearTimeout(timeoutId);
-    }
-    timeoutId = window.setTimeout(() => {
-      func.apply(this, args);
-    }, wait);
-  } as F & { cancel: () => void; };
-
-  debounced.cancel = () => {
-    if (timeoutId !== null) {
-      clearTimeout(timeoutId);
-    }
-  };
-
-  return debounced;
-}
-
-
 const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
   const { getResumeById, updateResume, isLoading } = useResumes();
   const { currentUser } = useAuth();
@@ -94,16 +67,19 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
   const [resume, setResume] = useState<ResumeData | null>(null);
   const [tempPhoto, setTempPhoto] = useState<string | null>(null);
   const [activeTemplate, setActiveTemplate] = useState<TemplateInfo>(TEMPLATES[0]);
-  const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
+  
+  // Layout State
+  const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit'); // Mobile view mode
+  const [activeTab, setActiveTab] = useState<'content' | 'template' | 'design'>('content'); // Sidebar Tab
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Desktop sidebar toggle
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
+
   const previewRef = useRef<HTMLDivElement>(null);
-  const [designTab, setDesignTab] = useState<'template' | 'design'>('template');
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [isGuestMode, setIsGuestMode] = useState(false);
   const [isTemplateLoading, setIsTemplateLoading] = useState(false);
   const [alertState, setAlertState] = useState({ isOpen: false, title: '', message: '' });
-  const [isEditorCollapsed, setIsEditorCollapsed] = useState(false);
-  const [isPreviewCollapsed, setIsPreviewCollapsed] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [isSignupPromptOpen, setIsSignupPromptOpen] = useState(false);
   
@@ -120,6 +96,13 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
 
   const sampleResumeForPreview = useMemo(() => createNewResume(), []); // For thumbnails
 
+  useEffect(() => {
+    const handleResize = () => {
+        setIsDesktop(window.innerWidth >= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (sessionStorage.getItem('isFirstResume') === 'true') {
@@ -165,14 +148,6 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
       }
     }
   }, [resumeId, getResumeById, isLoading]);
-
-  useEffect(() => {
-    // When switching to preview mode, always ensure both panels are visible for desktop.
-    if (viewMode === 'preview') {
-        setIsPreviewCollapsed(false);
-        setIsEditorCollapsed(false);
-    }
-  }, [viewMode]);
 
   useEffect(() => {
     setTempPhoto(null);
@@ -257,14 +232,47 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
     try {
         if (optionId === 'pdf') {
             setExportProgress('Generating high-quality PDF...');
-            const generatePdf = httpsCallable(functions, 'generateResumePdf');
-            const result: any = await generatePdf({ resumeData: resume, templateId: resume.templateId });
-            window.open(result.data.url, '_blank');
+            
+            const token = await currentUser.getIdToken();
+            const projectId = 'jastalk-firebase'; 
+            const functionUrl = `https://us-central1-${projectId}.cloudfunctions.net/generateResumePdfHttp`;
+            
+            console.log(`Fetching PDF (Stream V2) from: ${functionUrl}`);
+
+            const response = await fetch(functionUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ 
+                    resumeData: resume, 
+                    templateId: resume.templateId 
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Backend Error Response:", errorText);
+                throw new Error(`Backend error (${response.status}): ${errorText}`);
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            const sanitizedTitle = resume.title.replace(/[^a-zA-Z0-9]/g, '_');
+            link.download = `${sanitizedTitle}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
             if (!isGuestMode) {
                 setIsFeedbackModalOpen(true);
             }
+
         } else {
-            // Fallback to client-side image generation for non-PDF formats
             const elementToCapture = previewRef.current;
             if (!elementToCapture) throw new Error("Preview element not found");
             
@@ -316,11 +324,12 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
         }
         
     } catch (error: any) {
-        console.error("Export failed:", error);
-        const errorMessage = error.message && error.message.includes("internal")
-            ? "Sorry, something went wrong during the PDF generation. Please ensure backend functions are deployed and try again."
-            : "Sorry, something went wrong during the export process. Please try again.";
-        setAlertState({ isOpen: true, title: 'Export Failed', message: errorMessage });
+        console.error("Export failed. Full error:", error);
+        setAlertState({ 
+            isOpen: true, 
+            title: 'Export Failed', 
+            message: error.message || "Sorry, something went wrong during the export process. Please try again." 
+        });
     } finally {
         setIsExporting(false);
         setExportProgress('');
@@ -376,10 +385,6 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
     personalDetails: { ...resume.personalDetails, photo: tempPhoto }
   } : resume;
 
-  const editorToggleTitle = viewMode === 'edit'
-    ? (isEditorCollapsed ? 'Show Form' : 'Hide Form')
-    : (isEditorCollapsed ? 'Show Design Controls' : 'Hide Design Controls');
-
   return (
     <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden">
       {showCelebration && <CelebrationAnimation />}
@@ -424,10 +429,7 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
           </div>
           <div className="flex items-center gap-2">
              {/* Desktop Controls */}
-            <div className="hidden md:flex items-center gap-2 border-r border-gray-300 dark:border-gray-600 pr-2">
-                <button onClick={() => setViewMode('edit')} className={`px-3 py-1.5 text-sm font-semibold rounded-md flex items-center gap-2 ${viewMode === 'edit' ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}><EditIcon size={16}/> Edit</button>
-                <button onClick={() => setViewMode('preview')} className={`px-3 py-1.5 text-sm font-semibold rounded-md flex items-center gap-2 ${viewMode === 'preview' ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}><Eye size={16}/> Preview</button>
-            </div>
+             <div className="hidden md:flex items-center gap-2"></div>
             <div className="hidden md:block relative" ref={desktopDownloadMenuRef}>
                  <button 
                     onClick={() => setIsDesktopDownloadMenuOpen(!isDesktopDownloadMenuOpen)} 
@@ -487,103 +489,137 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
         </div>
       </header>
 
-      <div className="flex-grow flex overflow-hidden relative">
-        {/* Editor/Design Panel */}
-        <div className={`
-          flex-shrink-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 
-          overflow-y-auto transition-all duration-300 ease-in-out
-          absolute md:relative h-full z-10 
-          ${isEditorCollapsed ? 'w-0 -translate-x-full md:w-12' : 'w-full md:w-1/2 lg:w-[450px]'}
-          ${viewMode === 'preview' && !isEditorCollapsed && 'w-full md:w-[350px]'}
-        `}>
-          <div className="p-4 flex flex-col h-full">
-            {/* Collapse Toggle */}
-            <button 
-                onClick={() => setIsEditorCollapsed(!isEditorCollapsed)}
-                className="absolute top-1/2 -right-4 translate-y-[-50%] z-20 w-8 h-16 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-r-lg hidden md:flex items-center justify-center"
-                title={editorToggleTitle}
-            >
-                {isEditorCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-            </button>
-            <div className={`transition-opacity duration-200 ${isEditorCollapsed ? 'opacity-0 pointer-events-none md:opacity-100 md:pointer-events-auto' : ''}`}>
-                 {isEditorCollapsed ? (
-                    <div className="flex flex-col items-center gap-6 mt-4">
-                         <button onClick={() => setDesignTab('template')} className={`p-2 rounded-full ${designTab === 'template' ? 'bg-primary-100 text-primary-600' : ''}`}><Code size={20} /></button>
-                         <button onClick={() => setDesignTab('design')} className={`p-2 rounded-full ${designTab === 'design' ? 'bg-primary-100 text-primary-600' : ''}`}><Palette size={20} /></button>
+      <div className="flex-grow flex overflow-hidden relative h-[calc(100vh-64px)]">
+        {/* Sidebar (Content / Template / Design) */}
+        <div 
+            className={`
+                flex-shrink-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 
+                h-full z-20 
+                absolute md:relative
+                transition-all duration-300 ease-in-out
+                ${viewMode === 'edit' ? 'translate-x-0 w-full' : '-translate-x-full w-full'} 
+                md:translate-x-0
+                overflow-hidden
+            `}
+            style={{ width: isDesktop ? (isSidebarOpen ? '450px' : '0px') : '100%' }}
+        >
+          <div className="w-full h-full flex flex-col" style={{ minWidth: '450px' }}>
+             
+             {/* Tab Navigation */}
+             <div className="flex items-center justify-between p-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                 <button onClick={() => setActiveTab('content')} className={`flex-1 py-2 text-sm font-semibold rounded-md flex items-center justify-center gap-2 transition-colors ${activeTab === 'content' ? 'bg-white dark:bg-gray-800 text-primary-600 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
+                     <FileInput size={16} /> Content
+                 </button>
+                 <button onClick={() => setActiveTab('template')} className={`flex-1 py-2 text-sm font-semibold rounded-md flex items-center justify-center gap-2 transition-colors ${activeTab === 'template' ? 'bg-white dark:bg-gray-800 text-primary-600 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
+                     <Code size={16} /> Template
+                 </button>
+                 <button onClick={() => setActiveTab('design')} className={`flex-1 py-2 text-sm font-semibold rounded-md flex items-center justify-center gap-2 transition-colors ${activeTab === 'design' ? 'bg-white dark:bg-gray-800 text-primary-600 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
+                     <Palette size={16} /> Design
+                 </button>
+             </div>
+
+             {/* Sidebar Content Area */}
+             <div className="flex-grow overflow-y-auto p-4 custom-scrollbar">
+                {activeTab === 'content' && (
+                    <div className="animate-fade-in">
+                        <ResumeForm resume={resume} onChange={handleResumeChange} tempPhoto={tempPhoto} setTempPhoto={setTempPhoto} isReadOnly={isGuestMode}/>
                     </div>
-                 ) : (
-                    <>
-                        {viewMode === 'edit' ? (
-                            <div className="flex-grow overflow-y-auto pr-2">
-                                <ResumeForm resume={resume} onChange={handleResumeChange} tempPhoto={tempPhoto} setTempPhoto={setTempPhoto} isReadOnly={isGuestMode}/>
-                            </div>
-                        ) : (
-                            <div className="flex-grow">
-                                <div className="flex p-1 bg-gray-100 dark:bg-gray-700 rounded-lg mb-4">
-                                    <button onClick={() => setDesignTab('template')} className={`w-1/2 py-2 text-sm font-semibold rounded-md flex items-center justify-center gap-2 ${designTab === 'template' ? 'bg-white dark:bg-gray-800 shadow-sm' : 'text-gray-600 dark:text-gray-300'}`}><Code size={16}/> Template</button>
-                                    <button onClick={() => setDesignTab('design')} className={`w-1/2 py-2 text-sm font-semibold rounded-md flex items-center justify-center gap-2 ${designTab === 'design' ? 'bg-white dark:bg-gray-800 shadow-sm' : 'text-gray-600 dark:text-gray-300'}`}><Palette size={16}/> Design</button>
+                )}
+
+                {activeTab === 'template' && (
+                     <div className="grid grid-cols-2 gap-4 animate-fade-in">
+                        {TEMPLATES.map(template => (
+                            <div key={template.id} onClick={() => handleTemplateSelect(template)} className={`rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${activeTemplate.id === template.id ? 'border-primary-500 ring-2 ring-primary-200' : 'border-gray-200 dark:border-gray-600 hover:border-primary-300'}`}>
+                                <div className="p-2 bg-gray-50 dark:bg-gray-700/50 border-b dark:border-gray-600">
+                                    <h3 className="text-sm font-semibold text-center">{template.name}</h3>
                                 </div>
-                                {designTab === 'template' ? (
-                                     <div className="grid grid-cols-2 gap-4">
-                                        {TEMPLATES.map(template => (
-                                            <div key={template.id} onClick={() => handleTemplateSelect(template)} className={`rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${activeTemplate.id === template.id ? 'border-primary-500' : 'border-gray-200 dark:border-gray-600 hover:border-primary-300'}`}>
-                                                <div className="p-2 bg-gray-50 dark:bg-gray-700/50">
-                                                    <h3 className="text-sm font-semibold text-center">{template.name}</h3>
-                                                </div>
-                                                <div className="relative group">
-                                                    <TemplateThumbnail resume={sampleResumeForPreview} template={template} />
-                                                    {isTemplateLoading && activeTemplate.id === template.id && <div className="absolute inset-0 bg-white/70 dark:bg-black/70 flex items-center justify-center"><Loader2 className="animate-spin" /></div>}
-                                                </div>
-                                            </div>
-                                        ))}
-                                     </div>
-                                ) : (
-                                    <div className="space-y-6">
-                                        <div>
-                                            <label className="text-sm font-semibold flex items-center gap-2"><Palette size={16}/> Theme Color</label>
-                                            <div className="flex flex-wrap gap-2 mt-2">
-                                                {activeTemplate.availableColors.map(color => (
-                                                    <button key={color} onClick={() => handleDesignChange({ themeColor: color })} className={`w-8 h-8 rounded-full border-2 ${resume.themeColor === color ? 'border-primary-500' : 'border-transparent'}`} style={{ backgroundColor: color }} />
-                                                ))}
+                                <div className="relative group">
+                                    <TemplateThumbnail resume={sampleResumeForPreview} template={template} />
+                                    {activeTemplate.id === template.id && (
+                                        <div className="absolute inset-0 bg-primary-500/10 flex items-center justify-center">
+                                            <div className="bg-primary-600 text-white rounded-full p-1 shadow-lg">
+                                                <Check size={20} />
                                             </div>
                                         </div>
-                                         <div>
-                                            <label className="text-sm font-semibold flex items-center gap-2"><TypeIcon size={16}/> Title Font</label>
-                                            <select value={resume.titleFont} onChange={e => handleDesignChange({ titleFont: e.target.value })} className="w-full mt-2 p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600">
-                                                {FONTS.map(font => <option key={font} value={font} style={{ fontFamily: font }}>{font}</option>)}
-                                            </select>
-                                        </div>
-                                         <div>
-                                            <label className="text-sm font-semibold flex items-center gap-2"><TypeIcon size={16}/> Body Font</label>
-                                            <select value={resume.bodyFont} onChange={e => handleDesignChange({ bodyFont: e.target.value })} className="w-full mt-2 p-2 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600">
-                                                {FONTS.map(font => <option key={font} value={font} style={{ fontFamily: font }}>{font}</option>)}
-                                            </select>
-                                        </div>
-                                    </div>
-                                )}
+                                    )}
+                                    {isTemplateLoading && activeTemplate.id === template.id && <div className="absolute inset-0 bg-white/70 dark:bg-black/70 flex items-center justify-center"><Loader2 className="animate-spin" /></div>}
+                                </div>
                             </div>
-                        )}
-                    </>
-                 )}
-            </div>
+                        ))}
+                     </div>
+                )}
+
+                {activeTab === 'design' && (
+                    <div className="space-y-8 animate-fade-in">
+                        <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border dark:border-gray-700">
+                            <label className="text-sm font-bold flex items-center gap-2 mb-4"><Palette size={16} className="text-primary-500"/> Theme Color</label>
+                            <div className="flex flex-wrap gap-3">
+                                {activeTemplate.availableColors.map(color => (
+                                    <button 
+                                        key={color} 
+                                        onClick={() => handleDesignChange({ themeColor: color })} 
+                                        className={`w-10 h-10 rounded-full border-2 transition-transform hover:scale-110 ${resume.themeColor === color ? 'border-primary-500 ring-2 ring-primary-200' : 'border-transparent shadow-sm'}`} 
+                                        style={{ backgroundColor: color }} 
+                                        title={color}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                         <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border dark:border-gray-700">
+                            <label className="text-sm font-bold flex items-center gap-2 mb-4"><TypeIcon size={16} className="text-primary-500"/> Typography</label>
+                            <div className="space-y-4">
+                                <div>
+                                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">Headings</span>
+                                    <select value={resume.titleFont} onChange={e => handleDesignChange({ titleFont: e.target.value })} className="w-full p-2.5 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 text-sm focus:ring-2 focus:ring-primary-500">
+                                        {FONTS.map(font => <option key={font} value={font} style={{ fontFamily: font }}>{font}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">Body Text</span>
+                                    <select value={resume.bodyFont} onChange={e => handleDesignChange({ bodyFont: e.target.value })} className="w-full p-2.5 border rounded-md bg-white dark:bg-gray-700 dark:border-gray-600 text-sm focus:ring-2 focus:ring-primary-500">
+                                        {FONTS.map(font => <option key={font} value={font} style={{ fontFamily: font }}>{font}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+             </div>
           </div>
         </div>
 
-        {/* Resume Preview */}
+        {/* Dynamic Toggle Button (Desktop) */}
+        <button 
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className={`
+                hidden md:flex absolute top-1/2 -translate-y-1/2 z-30
+                w-8 h-16 
+                bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
+                items-center justify-center 
+                text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400
+                shadow-md rounded-r-xl
+                transition-all duration-300 ease-in-out
+            `}
+            style={{ left: isDesktop ? (isSidebarOpen ? '450px' : '0px') : '0px' }}
+            title={isSidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
+        >
+            {isSidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+        </button>
+
+        {/* Resume Preview (Right Panel) */}
         <div className={`
-          flex-grow transition-all duration-300 ease-in-out
-          flex items-center justify-center p-4 sm:p-8
-          ${isPreviewCollapsed ? 'w-full' : (isEditorCollapsed ? 'w-full' : 'w-full md:w-1/2 lg:w-auto')}
+            flex-1 h-full bg-gray-100 dark:bg-gray-900/50 relative
+            ${viewMode === 'preview' ? 'block' : 'hidden md:block'}
+            overflow-y-auto custom-scrollbar
         `}>
-           <button 
-                onClick={() => setIsPreviewCollapsed(!isPreviewCollapsed)}
-                className="absolute top-1/2 -left-4 translate-y-[-50%] z-20 w-8 h-16 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-l-lg hidden md:flex items-center justify-center"
-                title={isPreviewCollapsed ? 'Show Preview' : 'Expand Preview'}
-            >
-                {isPreviewCollapsed ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
-            </button>
-             <div className={`transition-transform duration-300 w-full max-w-[824px] ${isPreviewCollapsed ? 'scale-50' : ''}`}>
-               <ResumePreview resume={resumeForPreview} template={resume.templateId} previewRef={previewRef} />
+            {/* 
+                FIX: Removed 'items-center' which centers content vertically and can clip the top.
+                Added 'items-start' and 'min-h-full' to ensure it flows naturally.
+            */}
+           <div className="min-h-full w-full flex justify-center items-start p-8 md:p-12">
+                 <div className="w-full max-w-[210mm] shadow-2xl origin-top transition-all duration-300 bg-white">
+                   <ResumePreview resume={resumeForPreview} template={resume.templateId} previewRef={previewRef} />
+                </div>
             </div>
         </div>
         {optimizationJob && <OptimizationPanel />}
