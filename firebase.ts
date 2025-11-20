@@ -11,7 +11,7 @@ const firebaseConfig = {
     authDomain: "jastalk-firebase.firebaseapp.com",
     databaseURL: "https://jastalk-firebase-default-rtdb.firebaseio.com",
     projectId: "jastalk-firebase",
-    storageBucket: "jastalk-firebase.appspot.com",
+    storageBucket: "jastalk-firebase.firebasestorage.app",
     messagingSenderId: "371634100960",
     appId: "1:371634100960:web:8ef53e663b37e14b9f0e85",
     measurementId: "G-BTZ1F392FM"

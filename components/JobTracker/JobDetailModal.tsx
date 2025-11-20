@@ -33,14 +33,54 @@ const EditableSelect: React.FC<{ label: string; value: string; onChange: (value:
 // --- NEW Enhanced Markdown Renderer ---
 const MarkdownRenderer: React.FC<{ text: string }> = ({ text = '' }) => {
     const renderContent = (content: string) => {
-        const parts = content.split(/(\*\*.*?\*\*)/g);
-        return parts.map((part, i) =>
-            part.startsWith('**') && part.endsWith('**') ? (
-                <strong key={i}>{part.slice(2, -2)}</strong>
-            ) : (
-                part
-            )
-        );
+        // Split content by links [text](url)
+        const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+        const parts = [];
+        let lastIndex = 0;
+        let match;
+
+        while ((match = linkRegex.exec(content)) !== null) {
+            // Text before link
+            if (match.index > lastIndex) {
+                parts.push({ type: 'text', content: content.slice(lastIndex, match.index) });
+            }
+            // The link
+            parts.push({ type: 'link', text: match[1], url: match[2] });
+            lastIndex = linkRegex.lastIndex;
+        }
+        // Remaining text
+        if (lastIndex < content.length) {
+            parts.push({ type: 'text', content: content.slice(lastIndex) });
+        }
+
+        // If no links found, return single text part to process bold
+        if (parts.length === 0) parts.push({ type: 'text', content });
+
+        return parts.map((part, i) => {
+            if (part.type === 'link') {
+                return (
+                    <a 
+                        key={i} 
+                        href={part.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 hover:underline break-words"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {part.text}
+                    </a>
+                );
+            } else {
+                // Process bold (**text**) inside text parts
+                const boldParts = part.content.split(/(\*\*.*?\*\*)/g);
+                return boldParts.map((bp, j) => {
+                    if (bp.startsWith('**') && bp.endsWith('**')) {
+                        return <strong key={`${i}-${j}`}>{bp.slice(2, -2)}</strong>;
+                    }
+                    return <span key={`${i}-${j}`}>{bp}</span>;
+                });
+            }
+        });
     };
 
     const lines = text.split('\n');

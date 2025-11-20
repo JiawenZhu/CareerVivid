@@ -18,6 +18,9 @@ import VerifyEmailPage from './pages/VerifyEmailPage';
 import JobTrackerPage from './pages/JobTrackerPage';
 import DemoPage from './pages/DemoPage';
 import PdfPreviewPage from './pages/PdfPreviewPage';
+import ContactPage from './pages/ContactPage';
+import BlogListPage from './pages/BlogListPage';
+import BlogPostPage from './pages/BlogPostPage';
 
 // Returns path from hash, e.g., #/admin/login -> /admin/login
 const getPathFromHash = () => {
@@ -106,6 +109,13 @@ const App: React.FC = () => {
           content = <JobTrackerPage />;
         } else if (path === '/profile') {
           content = <ProfilePage />;
+        } else if (path === '/contact') {
+          content = <ContactPage />;
+        } else if (path === '/blog') {
+          content = <BlogListPage />;
+        } else if (path.startsWith('/blog/')) {
+          const id = path.split('/')[2];
+          content = <BlogPostPage postId={id} />;
         } else {
           // Default to dashboard for any other path when logged in
           content = <Dashboard />;
@@ -119,6 +129,13 @@ const App: React.FC = () => {
       content = <PricingPage />;
     } else if (path === '/demo') {
       content = <DemoPage />;
+    } else if (path === '/contact') {
+      content = <ContactPage />;
+    } else if (path === '/blog') {
+      content = <BlogListPage />;
+    } else if (path.startsWith('/blog/')) {
+      const id = path.split('/')[2];
+      content = <BlogPostPage postId={id} />;
     } else if (path.startsWith('/edit/guest')) {
       content = <Editor resumeId="guest" />;
     } else {

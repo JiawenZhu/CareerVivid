@@ -21,7 +21,9 @@
     "firebase-admin": "^13.6.0",
     "@sparticuz/chromium": "^141.0.0",
     "puppeteer-core": "^24.30.0",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "uuid": "^13.0.0",
+    "buffer": "^6.0.3"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

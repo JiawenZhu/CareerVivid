@@ -1,7 +1,4 @@
 
-
-
-
 export interface PersonalDetails {
   jobTitle: string;
   photo: string; // URL to image in Firebase Storage
@@ -221,4 +218,28 @@ export interface ResumeMatchAnalysis {
 export interface GenAIBlob {
   data: string; // base64 encoded string
   mimeType: string;
+}
+
+// --- NEW: Contact & Blog Types ---
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: 'unread' | 'read';
+  timestamp: any; // Firestore Timestamp
+}
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug?: string; // Optional URL friendly version
+  excerpt: string;
+  content: string; // Markdown supported
+  author: string;
+  category: string;
+  coverImage: string;
+  publishedAt: any; // Firestore Timestamp
 }

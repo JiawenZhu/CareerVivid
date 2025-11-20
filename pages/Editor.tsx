@@ -71,7 +71,9 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
   // Layout State
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit'); // Mobile view mode
   const [activeTab, setActiveTab] = useState<'content' | 'template' | 'design'>('content'); // Sidebar Tab
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Desktop sidebar toggle
+  
+  // Sidebar Mode: 'closed' (0px) | 'standard' (450px) | 'expanded' (Max Width)
+  const [sidebarMode, setSidebarMode] = useState<'closed' | 'standard' | 'expanded'>('standard');
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
 
   const previewRef = useRef<HTMLDivElement>(null);
@@ -103,6 +105,34 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Automatically revert expanded mode if switching tabs away from Content
+  useEffect(() => {
+      if (activeTab !== 'content' && sidebarMode === 'expanded') {
+          setSidebarMode('standard');
+      }
+  }, [activeTab, sidebarMode]);
+
+  const handleSidebarResize = (direction: 'left' | 'right') => {
+      if (direction === 'left') {
+          // Collapse / Close Logic
+          if (sidebarMode === 'expanded') setSidebarMode('standard');
+          else if (sidebarMode === 'standard') setSidebarMode('closed');
+      } else {
+          // Expand / Open Logic
+          if (sidebarMode === 'closed') setSidebarMode('standard');
+          else if (sidebarMode === 'standard' && activeTab === 'content') setSidebarMode('expanded');
+      }
+  };
+
+  const sidebarWidth = useMemo(() => {
+      if (!isDesktop) return '100%';
+      switch (sidebarMode) {
+          case 'closed': return '0px';
+          case 'expanded': return 'calc(100% - 2rem)'; // Leave 2rem (32px) for the toggle buttons
+          default: return '450px';
+      }
+  }, [isDesktop, sidebarMode]);
 
   useEffect(() => {
     if (sessionStorage.getItem('isFirstResume') === 'true') {
@@ -419,7 +449,7 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
             </div>
         )}
 
-      <header className="flex-shrink-0 bg-white dark:bg-gray-800/50 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 z-20">
+      <header className="relative flex-shrink-0 bg-white dark:bg-gray-800/50 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 z-40">
         <div className="flex items-center justify-between h-16 px-4 sm:px-6">
           <div className="flex items-center gap-2">
             <a href="#/" title="Back to Dashboard" className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -501,7 +531,7 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
                 md:translate-x-0
                 overflow-hidden
             `}
-            style={{ width: isDesktop ? (isSidebarOpen ? '450px' : '0px') : '100%' }}
+            style={{ width: sidebarWidth, minWidth: isDesktop && sidebarMode !== 'closed' ? '450px' : '0' }}
         >
           <div className="w-full h-full flex flex-col" style={{ minWidth: '450px' }}>
              
@@ -588,23 +618,47 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
           </div>
         </div>
 
-        {/* Dynamic Toggle Button (Desktop) */}
-        <button 
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        {/* Desktop Sidebar Toggle Controls */}
+        <div 
             className={`
-                hidden md:flex absolute top-1/2 -translate-y-1/2 z-30
-                w-8 h-16 
-                bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
-                items-center justify-center 
-                text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400
-                shadow-md rounded-r-xl
+                hidden md:flex flex-col absolute top-1/2 -translate-y-1/2 z-30
+                shadow-md rounded-r-xl overflow-hidden border border-l-0 border-gray-200 dark:border-gray-700
                 transition-all duration-300 ease-in-out
             `}
-            style={{ left: isDesktop ? (isSidebarOpen ? '450px' : '0px') : '0px' }}
-            title={isSidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
+            style={{ left: sidebarWidth }}
         >
-            {isSidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-        </button>
+            <button 
+                onClick={() => handleSidebarResize('right')}
+                disabled={sidebarMode === 'expanded' || (sidebarMode === 'standard' && activeTab !== 'content')}
+                className={`
+                   w-8 h-10 flex items-center justify-center
+                   bg-white dark:bg-gray-800 
+                   text-gray-500 dark:text-gray-400
+                   hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400
+                   disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-gray-500
+                   border-b border-gray-200 dark:border-gray-700
+                   transition-colors
+                `}
+                title="Expand Content"
+            >
+                <ChevronRight size={20} />
+            </button>
+            <button 
+                onClick={() => handleSidebarResize('left')}
+                disabled={sidebarMode === 'closed'}
+                className={`
+                   w-8 h-10 flex items-center justify-center
+                   bg-white dark:bg-gray-800 
+                   text-gray-500 dark:text-gray-400
+                   hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400
+                   disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-gray-500
+                   transition-colors
+                `}
+                title="Collapse Sidebar"
+            >
+                <ChevronLeft size={20} />
+            </button>
+        </div>
 
         {/* Resume Preview (Right Panel) */}
         <div className={`

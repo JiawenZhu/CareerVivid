@@ -118,9 +118,9 @@ export const parseResume = async (userId: string, resumeText: string, language: 
         };
 
         try {
-            response = await ai.models.generateContent({ model: 'gemini-2.5-pro', contents, config });
+            response = await ai.models.generateContent({ model: 'gemini-3-pro-preview', contents, config });
         } catch (error) {
-            console.warn("gemini-2.5-pro failed for resume parsing, falling back to gemini-2.5-flash.", error);
+            console.warn("gemini-3-pro-preview failed for resume parsing, falling back to gemini-2.5-flash.", error);
             response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents, config });
         }
 
@@ -162,9 +162,9 @@ export const parseResumeFromFile = async (userId: string, fileData: string, mime
         };
 
         try {
-            response = await ai.models.generateContent({ model: 'gemini-2.5-pro', contents, config });
+            response = await ai.models.generateContent({ model: 'gemini-3-pro-preview', contents, config });
         } catch (error) {
-            console.warn("gemini-2.5-pro failed for file parsing, falling back to gemini-2.5-flash.", error);
+            console.warn("gemini-3-pro-preview failed for file parsing, falling back to gemini-2.5-flash.", error);
             response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents, config });
         }
 
@@ -191,9 +191,38 @@ export const parseResumeFromFile = async (userId: string, fileData: string, mime
 };
 
 
-export const improveSection = async (userId: string, sectionName: string, currentText: string, instruction: string, language: string): Promise<string> => {
+export const improveSection = async (
+    userId: string, 
+    sectionName: string, 
+    currentText: string, 
+    instruction: string, 
+    language: string,
+    contextType: string = 'resume'
+): Promise<string> => {
     try {
-        const prompt = `Rewrite the following "${sectionName}" section for a resume in ${language}. Follow the user's instruction. Return only the improved text, without any additional formatting or explanation.\n\nInstruction: "${instruction}"\n\nCurrent Text:\n---\n${currentText}`;
+        let prompt;
+        
+        if (contextType === 'blog post') {
+            prompt = `Role: You are an expert career coach and professional content writer for a high-quality career blog.
+Task: Rewrite and improve the following "${sectionName}" section.
+
+Instructions:
+1. Tone: Professional, authoritative, inspiring, and actionable. Avoid generic fluff.
+2. Structure: Use Markdown formatting. Use ## for main section headers and ### for subsections. Use bullet points for readability.
+3. Emphasis: Use **bolding** for key concepts.
+4. Links: If the user asks to include links or if you reference external tools/resources, format them as clickable Markdown links: [Link Text](URL).
+5. User Instruction: "${instruction}"
+6. Language: ${language}
+
+Current Content:
+---
+${currentText}
+---
+
+Return only the improved content text.`;
+        } else {
+            prompt = `Rewrite the following "${sectionName}" section for a ${contextType} in ${language}. Follow the user's instruction. Return only the improved text, without any additional formatting or explanation.\n\nInstruction: "${instruction}"\n\nCurrent Text:\n---\n${currentText}`;
+        }
         
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
@@ -276,9 +305,9 @@ export const generateResumeFromPrompt = async (userId: string, prompt: string): 
 
         let response: GenerateContentResponse;
         try {
-             response = await ai.models.generateContent({ model: 'gemini-2.5-pro', contents: fullPrompt, config });
+             response = await ai.models.generateContent({ model: 'gemini-3-pro-preview', contents: fullPrompt, config });
         } catch (error) {
-            console.warn("gemini-2.5-pro failed for resume generation, falling back to gemini-2.5-flash.", error);
+            console.warn("gemini-3-pro-preview failed for resume generation, falling back to gemini-2.5-flash.", error);
             response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: fullPrompt, config });
         }
 
@@ -419,9 +448,9 @@ ${formattedTranscript}
 
         let response: GenerateContentResponse;
         try {
-            response = await ai.models.generateContent({ model: 'gemini-2.5-pro', contents: fullPrompt, config });
+            response = await ai.models.generateContent({ model: 'gemini-3-pro-preview', contents: fullPrompt, config });
         } catch (error) {
-            console.warn("gemini-2.5-pro failed for interview analysis, falling back to gemini-2.5-flash.", error);
+            console.warn("gemini-3-pro-preview failed for interview analysis, falling back to gemini-2.5-flash.", error);
             response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: fullPrompt, config });
         }
 

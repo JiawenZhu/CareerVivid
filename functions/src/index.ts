@@ -3,6 +3,8 @@ import * as admin from "firebase-admin";
 import chromium from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
 import cors from "cors";
+import { v4 as uuidv4 } from 'uuid';
+import { Buffer } from "buffer";
 import { ResumeData } from "./types";
 
 const corsHandler = cors({ origin: true });
@@ -232,6 +234,66 @@ export const generateResumePdfHttp = functions.runWith({ timeoutSeconds: 120, me
                 if (!res.headersSent) {
                     res.status(500).json({ error: "Failed to generate PDF", details: error.message });
                 }
+            }
+        });
+    }
+);
+
+// HTTP Function - Upload Image Proxy (Bypasses CORS)
+export const uploadImageHttp = functions.runWith({ timeoutSeconds: 60, memory: "512MB" }).https.onRequest(
+    async (req, res) => {
+        corsHandler(req, res, async () => {
+            if (req.method !== "POST") {
+                res.status(405).send("Method Not Allowed");
+                return;
+            }
+
+            const authHeader = req.headers.authorization;
+            if (!authHeader || !authHeader.startsWith('Bearer ')) {
+                res.status(401).send('Unauthorized');
+                return;
+            }
+            const idToken = authHeader.split('Bearer ')[1];
+            try {
+                await admin.auth().verifyIdToken(idToken);
+            } catch (e) {
+                console.error("Token verification failed:", e);
+                res.status(401).send('Unauthorized');
+                return;
+            }
+
+            const { image, path, mimeType } = req.body;
+            if (!image || !path || !mimeType) {
+                res.status(400).send("Missing image data, path, or mimeType.");
+                return;
+            }
+
+            try {
+                const bucket = admin.storage().bucket();
+                const file = bucket.file(path);
+                const buffer = Buffer.from(image, 'base64');
+                const token = uuidv4();
+
+                await file.save(buffer, {
+                    metadata: {
+                        contentType: mimeType,
+                        metadata: {
+                            firebaseStorageDownloadTokens: token
+                        }
+                    }
+                });
+
+                // Construct the download URL that matches what the client SDK returns.
+                // Note: We need the bucket name. Admin SDK defaults to the default bucket if not specified,
+                // but it's safer to get it from the bucket object.
+                const bucketName = bucket.name;
+                const downloadUrl = `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodeURIComponent(path)}?alt=media&token=${token}`;
+
+                console.log(`File uploaded successfully to ${path}. URL: ${downloadUrl}`);
+                res.json({ downloadUrl });
+            } catch (error: any) {
+                console.error("Upload Error:", error);
+                res.status(500).json({ error: error.message });
             }
         });
     }

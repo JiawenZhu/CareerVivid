@@ -15,11 +15,13 @@
     "firebase-functions": "^5.0.1",
     "@sparticuz/chromium": "^123.0.0",
     "puppeteer-core": "^22.10.0",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "typescript": "^5.0.0",
-    "@types/cors": "^2.8.17"
+    "@types/cors": "^2.8.17",
+    "@types/uuid": "^9.0.0"
   },
   "private": true,
   "engines": {

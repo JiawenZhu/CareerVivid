@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
@@ -93,54 +94,16 @@ const PricingPage: React.FC = () => {
             navigate('/'); // Go to dashboard if logged in
         }
         return;
-
-        /*
-        // =========================================================================
-        // OLD STRIPE CHECKOUT LOGIC - SAVED FOR LATER USE
-        // =========================================================================
-        if (!stripePromise || !STRIPE_PUBLISHABLE_KEY.startsWith('pk_')) {
-            setError('Stripe has not been configured correctly. Please add your Publishable Key.');
-            return;
-        }
-        if (!priceId || !priceId.startsWith('price_')) {
-            setError('The selected plan has not been configured correctly. Please add your Price ID.');
-            return;
-        }
-        if (!currentUser) {
-            sessionStorage.setItem('selectedPriceId', priceId);
-            window.location.hash = '#/auth';
-            return;
-        }
-        setLoadingPriceId(priceId);
-        try {
-            await trackUsage(currentUser.uid, 'checkout_session_start', { priceId });
-            const createCheckoutSession = httpsCallable(functions, 'createCheckoutSession');
-            const result: any = await createCheckoutSession({ priceId });
-            const sessionId = result.data.id;
-            const stripe = await stripePromise;
-            if (stripe) {
-                const { error } = await stripe.redirectToCheckout({ sessionId });
-                if (error) {
-                    console.error("Stripe redirect error:", error);
-                    setError(error.message || 'Failed to redirect to checkout.');
-                }
-            }
-        } catch (e: any) {
-            console.error("Error creating checkout session:", e);
-            setError(e.message.includes('internal') ? "Could not initiate checkout. Please ensure the backend is configured correctly." : e.message);
-        }
-        setLoadingPriceId(null);
-        */
     };
 
     return (
-        <div className="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col font-sans">
+        <div className="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col font-sans">
             <PublicHeader />
-            <main className="flex-grow pt-16">
-                <div className="max-w-7xl mx-auto py-20 px-4 sm:px-6 lg:px-8">
-                    <div className="text-center">
-                        <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-white">All Features are Currently Free!</h1>
-                        <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">
+            <main className="flex-grow pt-24 pb-16">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center max-w-3xl mx-auto">
+                        <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight">All Features are Currently Free!</h1>
+                        <p className="mt-6 text-xl text-gray-600 dark:text-gray-400">
                             Enjoy unlimited access to all premium features during our beta period. No credit card required.
                         </p>
                     </div>
@@ -149,21 +112,21 @@ const PricingPage: React.FC = () => {
                     
                     <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {pricingPlans.map((plan) => (
-                            <div key={plan.name} className={`rounded-xl p-8 border ${plan.popular ? 'border-primary-500 border-2 relative' : 'border-gray-200 dark:border-gray-700'} bg-white dark:bg-gray-800 shadow-lg flex flex-col transform hover:-translate-y-1 transition-transform`}>
+                            <div key={plan.name} className={`rounded-3xl p-8 border ${plan.popular ? 'border-primary-500 border-2 relative' : 'border-gray-200 dark:border-gray-800'} bg-white dark:bg-gray-900 shadow-lg flex flex-col transform hover:-translate-y-1 transition-transform`}>
                                 {plan.popular && (
                                     <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2">
-                                        <span className="bg-primary-500 text-white text-xs font-semibold px-3 py-1 rounded-full uppercase">Most Popular</span>
+                                        <span className="bg-primary-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Most Popular</span>
                                     </div>
                                 )}
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{plan.name}</h3>
                                 <div className="mt-4">
                                     <span className="text-4xl font-extrabold text-gray-900 dark:text-white">{plan.price}</span>
-                                    <span className="text-base font-medium text-gray-500 dark:text-gray-400"> {plan.duration}</span>
+                                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400 block mt-1"> {plan.duration}</span>
                                 </div>
-                                <ul className="mt-6 space-y-4 text-sm text-gray-600 dark:text-gray-300 flex-grow">
+                                <ul className="mt-8 space-y-4 text-sm text-gray-600 dark:text-gray-300 flex-grow">
                                     {plan.features.map((feature) => (
                                         <li key={feature} className="flex items-start">
-                                            <CheckCircle className="flex-shrink-0 w-5 h-5 text-green-500 mr-2 mt-0.5" />
+                                            <CheckCircle className="flex-shrink-0 w-5 h-5 text-primary-500 mr-3 mt-0.5" />
                                             <span>{feature}</span>
                                         </li>
                                     ))}
@@ -171,7 +134,7 @@ const PricingPage: React.FC = () => {
                                 <button
                                     onClick={() => handleChoosePlan(plan.priceId)}
                                     disabled={loadingPriceId === plan.priceId}
-                                    className={`mt-8 block w-full text-center rounded-lg px-6 py-3 text-sm font-semibold transition-colors disabled:opacity-50 ${plan.popular ? 'bg-primary-600 text-white hover:bg-primary-700' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'}`}>
+                                    className={`mt-8 block w-full text-center rounded-xl px-6 py-3 text-sm font-bold transition-colors disabled:opacity-50 ${plan.popular ? 'bg-primary-600 text-white hover:bg-primary-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
                                     {loadingPriceId === plan.priceId ? <Loader2 className="animate-spin mx-auto" /> : plan.cta}
                                 </button>
                             </div>
