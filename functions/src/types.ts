@@ -52,6 +52,14 @@ export interface Education {
 
 export type TemplateId = string;
 
+export type SharePermission = 'viewer' | 'commenter' | 'editor';
+
+export interface ShareConfig {
+  enabled: boolean;
+  permission: SharePermission;
+  shareId?: string;
+}
+
 export interface ResumeData {
   id: string;
   title: string;
@@ -69,4 +77,5 @@ export interface ResumeData {
   bodyFont: string;
   language: string;
   section?: string;
+  shareConfig?: ShareConfig;
 }

@@ -43,11 +43,13 @@ interface ResumePreviewProps {
   resume: ResumeData;
   template: TemplateId;
   previewRef?: React.RefObject<HTMLDivElement>;
+  onUpdate?: (data: Partial<ResumeData>) => void;
+  onFocus?: (fieldId: string) => void;
 }
 
-const ResumePreview: React.FC<ResumePreviewProps> = ({ resume, template, previewRef }) => {
+const ResumePreview: React.FC<ResumePreviewProps> = ({ resume, template, previewRef, onUpdate, onFocus }) => {
   const renderTemplate = () => {
-    const props = { resume, themeColor: resume.themeColor, titleFont: resume.titleFont, bodyFont: resume.bodyFont };
+    const props = { resume, themeColor: resume.themeColor, titleFont: resume.titleFont, bodyFont: resume.bodyFont, onUpdate, onFocus };
     switch (template) {
       case 'Sydney': return <SydneyTemplate {...props} />;
       case 'Creative': return <CreativeTemplate {...props} />;

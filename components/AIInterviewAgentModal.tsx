@@ -1,11 +1,14 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+
+import React, { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import { GoogleGenAI, Modality, Session, LiveServerMessage } from "@google/genai";
 import { InterviewStatus, TranscriptEntry, InterviewAnalysis, GenAIBlob, PracticeHistoryEntry, Job } from '../types';
 import { analyzeInterviewTranscript } from '../services/geminiService';
 import { Loader2, Mic, StopCircle, X, Download, Bot, User, FileText, BarChart } from 'lucide-react';
 import { usePracticeHistory } from '../hooks/useJobHistory';
-import InterviewReportModal from './InterviewReportModal';
 import { useAuth } from '../contexts/AuthContext';
+
+// Lazy load the report modal
+const InterviewReportModal = React.lazy(() => import('./InterviewReportModal'));
 
 // --- Audio Utility Functions ---
 function encode(bytes: Uint8Array) {
@@ -340,11 +343,11 @@ ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
             const processTranscription = (transcription: { text?: string } | undefined, speaker: 'user' | 'ai') => {
               const endToken = '<END_INTERVIEW>';
-              let text = transcription?.text?.trim();
+              let text = transcription?.text;
               if (text) {
                   if (text.includes(endToken)) {
                       endInterview();
-                      text = text.replace(endToken, '').trim();
+                      text = text.replace(endToken, '');
                   }
                   if (!text) return;
 
@@ -353,11 +356,11 @@ ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
                         if (last?.speaker === speaker && !last.isFinal) {
                             // Append to the last entry if it's the same speaker and not final
                              const newTranscript = [...prev];
-                             newTranscript[newTranscript.length - 1] = { ...last, text: last.text + ' ' + text };
+                             newTranscript[newTranscript.length - 1] = { ...last, text: last.text + text };
                              return newTranscript;
                         } else {
                             // Create a new entry
-                            return [...prev, { speaker, text, isFinal: false, timestamp: Date.now() }];
+                            return [...prev, { speaker, text: text!, isFinal: false, timestamp: Date.now() }];
                         }
                     });
               }
@@ -441,7 +444,11 @@ ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
       timestamp: analysisResult.timestamp,
       interviewHistory: [analysisResult],
     };
-    return <InterviewReportModal jobHistoryEntry={practiceHistoryEntryForReport} onClose={handleClose} isGuestMode={isGuestMode} />;
+    return (
+      <Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="animate-spin" /></div>}>
+        <InterviewReportModal jobHistoryEntry={practiceHistoryEntryForReport} onClose={handleClose} isGuestMode={isGuestMode} />
+      </Suspense>
+    );
   }
 
   return (

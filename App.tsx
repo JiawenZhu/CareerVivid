@@ -1,26 +1,29 @@
 
-import React, { useState, useEffect } from 'react';
-import Dashboard from './pages/Dashboard';
-import Editor from './pages/Editor';
-import GenerationHub from './pages/GenerationHub';
-import InterviewStudio from './pages/InterviewStudio';
-import ProfilePage from './pages/ProfilePage';
-import ChatBot from './components/ChatBot';
+import React, { useState, useEffect, Suspense } from 'react';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { useAuth } from './contexts/AuthContext';
-import AuthPage from './pages/AuthPage';
 import { Loader2 } from 'lucide-react';
-import LandingPage from './pages/LandingPage';
-import PricingPage from './pages/PricingPage';
-import AdminLoginPage from './pages/admin/AdminLoginPage';
-import AdminDashboardPage from './pages/admin/AdminPage';
-import VerifyEmailPage from './pages/VerifyEmailPage';
-import JobTrackerPage from './pages/JobTrackerPage';
-import DemoPage from './pages/DemoPage';
-import PdfPreviewPage from './pages/PdfPreviewPage';
-import ContactPage from './pages/ContactPage';
-import BlogListPage from './pages/BlogListPage';
-import BlogPostPage from './pages/BlogPostPage';
+
+// Lazy load pages to drastically reduce initial JavaScript payload
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const Editor = React.lazy(() => import('./pages/Editor'));
+const GenerationHub = React.lazy(() => import('./pages/GenerationHub'));
+const InterviewStudio = React.lazy(() => import('./pages/InterviewStudio'));
+const ProfilePage = React.lazy(() => import('./pages/ProfilePage'));
+const ChatBot = React.lazy(() => import('./components/ChatBot'));
+const AuthPage = React.lazy(() => import('./pages/AuthPage'));
+const LandingPage = React.lazy(() => import('./pages/LandingPage'));
+const PricingPage = React.lazy(() => import('./pages/PricingPage'));
+const AdminLoginPage = React.lazy(() => import('./pages/admin/AdminLoginPage'));
+const AdminDashboardPage = React.lazy(() => import('./pages/admin/AdminPage'));
+const VerifyEmailPage = React.lazy(() => import('./pages/VerifyEmailPage'));
+const JobTrackerPage = React.lazy(() => import('./pages/JobTrackerPage'));
+const DemoPage = React.lazy(() => import('./pages/DemoPage'));
+const PdfPreviewPage = React.lazy(() => import('./pages/PdfPreviewPage'));
+const ContactPage = React.lazy(() => import('./pages/ContactPage'));
+const BlogListPage = React.lazy(() => import('./pages/BlogListPage'));
+const BlogPostPage = React.lazy(() => import('./pages/BlogPostPage'));
+const PublicResumePage = React.lazy(() => import('./pages/PublicResumePage'));
 
 // Returns path from hash, e.g., #/admin/login -> /admin/login
 const getPathFromHash = () => {
@@ -32,6 +35,12 @@ const getPathFromHash = () => {
 export const navigate = (path: string) => {
   window.location.hash = path;
 };
+
+const LoadingFallback = () => (
+  <div className="flex flex-col justify-center items-center h-screen bg-gray-100 dark:bg-gray-900">
+    <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
+  </div>
+);
 
 const App: React.FC = () => {
   const { currentUser, loading, isAdmin, isAdminLoading, isEmailVerified } = useAuth();
@@ -51,18 +60,26 @@ const App: React.FC = () => {
   if (path === '/pdf-preview') {
     return (
       <ThemeProvider>
-        <PdfPreviewPage />
+        <Suspense fallback={<LoadingFallback />}>
+          <PdfPreviewPage />
+        </Suspense>
       </ThemeProvider>
     );
   }
 
+  // Public Share Route (Accessible without auth)
+  if (path.startsWith('/shared/')) {
+      return (
+          <ThemeProvider>
+              <Suspense fallback={<LoadingFallback />}>
+                  <PublicResumePage />
+              </Suspense>
+          </ThemeProvider>
+      )
+  }
+
   if (loading || isAdminLoading) {
-    return (
-      <div className="flex flex-col justify-center items-center h-screen bg-gray-100 dark:bg-gray-900">
-        <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
-        <p className="dark:text-white mt-4">Loading...</p>
-      </div>
-    );
+    return <LoadingFallback />;
   }
 
   // Admin Routing
@@ -74,14 +91,32 @@ const App: React.FC = () => {
         return null;
       }
       const accessDenied = !!currentUser && !isAdmin;
-      return <ThemeProvider><AdminLoginPage accessDenied={accessDenied} /></ThemeProvider>;
+      return (
+        <ThemeProvider>
+          <Suspense fallback={<LoadingFallback />}>
+            <AdminLoginPage accessDenied={accessDenied} />
+          </Suspense>
+        </ThemeProvider>
+      );
     }
     
     if (currentUser && isAdmin) {
       if (!isEmailVerified && currentUser.providerData[0]?.providerId === 'password') {
-         return <ThemeProvider><VerifyEmailPage /></ThemeProvider>;
+         return (
+            <ThemeProvider>
+              <Suspense fallback={<LoadingFallback />}>
+                <VerifyEmailPage />
+              </Suspense>
+            </ThemeProvider>
+         );
       }
-      return <ThemeProvider><AdminDashboardPage /></ThemeProvider>;
+      return (
+        <ThemeProvider>
+          <Suspense fallback={<LoadingFallback />}>
+            <AdminDashboardPage />
+          </Suspense>
+        </ThemeProvider>
+      );
     } else {
       // If not logged in or not an admin, redirect any other /admin/* route to login
       useEffect(() => navigate('/admin/login'), []);
@@ -147,8 +182,10 @@ const App: React.FC = () => {
   return (
     <ThemeProvider>
       <div className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-200 font-sans">
-        {content}
-        {showChatbot && <ChatBot />}
+        <Suspense fallback={<LoadingFallback />}>
+          {content}
+          {showChatbot && <ChatBot />}
+        </Suspense>
       </div>
     </ThemeProvider>
   );

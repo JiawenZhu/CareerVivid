@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useResumes } from '../hooks/useResumes';
 import { generateResumeFromPrompt } from '../services/geminiService';
@@ -5,6 +6,7 @@ import { CAREER_PATHS, Industry } from '../data/careers';
 import { ArrowRight, Zap, Loader2, ChevronLeft, LayoutDashboard } from 'lucide-react';
 import { navigate } from '../App';
 import { useAuth } from '../contexts/AuthContext';
+import Logo from '../components/Logo';
 
 const loadingMessages = [
     "Analyzing your prompt...",
@@ -217,7 +219,7 @@ const GenerationHub: React.FC = () => {
             ) : (
                 <div className="w-full max-w-4xl mx-auto">
                     <div className="text-center mb-10">
-                        <img src="https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/logo.png?alt=media&token=3d2f7db5-96db-4dce-ba00-43d8976da3a1" alt="CareerVivid Logo" className="h-12 w-12 mx-auto" />
+                        <Logo className="h-12 w-12 mx-auto" />
                         <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-gray-100 mt-4">Create Your Next Resume</h1>
                         <p className="text-lg text-gray-500 dark:text-gray-400 mt-2 max-w-2xl mx-auto">Start with an AI-powered prompt or choose a guided path to generate a professional resume in seconds.</p>
                     </div>

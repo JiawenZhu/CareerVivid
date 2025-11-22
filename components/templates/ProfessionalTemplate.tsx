@@ -2,8 +2,9 @@
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
 import { Mail, Phone, MapPin, Linkedin, Globe } from 'lucide-react';
+import InlineEdit from '../InlineEdit';
 
-export const ProfessionalTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont }) => {
+export const ProfessionalTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont, onFocus }) => {
   const { personalDetails, professionalSummary, employmentHistory, education, skills, websites } = resume;
   
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
@@ -19,8 +20,35 @@ export const ProfessionalTemplate: React.FC<TemplateProps> = ({ resume, themeCol
           </div>
         )}
         <div>
-          <h1 className="text-4xl font-bold text-gray-900" style={titleStyle}>{personalDetails.firstName} {personalDetails.lastName}</h1>
-          <h2 className="text-xl font-medium mt-1" style={{...titleStyle, ...themeColorStyle}}>{personalDetails.jobTitle}</h2>
+          <div className="flex gap-2 items-end">
+              <InlineEdit 
+                value={personalDetails.firstName} 
+                fieldId="personalDetails.firstName" 
+                onFocus={onFocus} 
+                className="text-4xl font-bold text-gray-900"
+                style={titleStyle}
+                tagName="h1"
+                placeholder="First Name"
+              />
+              <InlineEdit 
+                value={personalDetails.lastName} 
+                fieldId="personalDetails.lastName" 
+                onFocus={onFocus} 
+                className="text-4xl font-bold text-gray-900"
+                style={titleStyle}
+                tagName="h1"
+                placeholder="Last Name"
+              />
+          </div>
+          <InlineEdit 
+            value={personalDetails.jobTitle} 
+            fieldId="personalDetails.jobTitle" 
+            onFocus={onFocus} 
+            className="text-xl font-medium mt-1 block"
+            style={{...titleStyle, ...themeColorStyle}}
+            tagName="h2"
+            placeholder="Job Title"
+          />
         </div>
       </header>
 
@@ -28,19 +56,49 @@ export const ProfessionalTemplate: React.FC<TemplateProps> = ({ resume, themeCol
         <main className="col-span-8">
           <section className="mb-6">
             <h3 className="text-lg font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-3" style={titleStyle}>PROFESSIONAL SUMMARY</h3>
-            <p className="text-sm leading-relaxed">{professionalSummary}</p>
+            <InlineEdit 
+                value={professionalSummary} 
+                fieldId="professionalSummary" 
+                onFocus={onFocus} 
+                className="text-sm leading-relaxed block whitespace-pre-wrap"
+                tagName="p"
+                placeholder="Professional Summary..."
+            />
           </section>
 
           <section className="mb-6">
             <h3 className="text-lg font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-3" style={titleStyle}>WORK EXPERIENCE</h3>
-            {employmentHistory.map(job => (
+            {employmentHistory.map((job, index) => (
               <div key={job.id} className="mb-4">
                 <div className="flex justify-between items-baseline">
-                  <h4 className="text-md font-bold" style={titleStyle}>{job.jobTitle}</h4>
-                  <p className="text-sm text-gray-500">{job.startDate} - {job.endDate}</p>
+                  <InlineEdit 
+                    value={job.jobTitle} 
+                    fieldId={`employmentHistory[${index}].jobTitle`} 
+                    onFocus={onFocus} 
+                    className="text-md font-bold block"
+                    style={titleStyle}
+                    tagName="h4"
+                    placeholder="Job Title"
+                  />
+                  <div className="flex gap-1 text-sm text-gray-500">
+                      <InlineEdit value={job.startDate} fieldId={`employmentHistory[${index}].startDate`} onFocus={onFocus} placeholder="Start" />
+                      <span>-</span>
+                      <InlineEdit value={job.endDate} fieldId={`employmentHistory[${index}].endDate`} onFocus={onFocus} placeholder="End" />
+                  </div>
                 </div>
-                <p className="text-sm font-medium text-gray-700">{job.employer}, {job.city}</p>
-                <p className="text-sm mt-2 leading-relaxed whitespace-pre-wrap">{job.description}</p>
+                <div className="flex gap-1 text-sm font-medium text-gray-700">
+                    <InlineEdit value={job.employer} fieldId={`employmentHistory[${index}].employer`} onFocus={onFocus} placeholder="Employer" />
+                    <span>,</span>
+                    <InlineEdit value={job.city} fieldId={`employmentHistory[${index}].city`} onFocus={onFocus} placeholder="City" />
+                </div>
+                <InlineEdit 
+                    value={job.description} 
+                    fieldId={`employmentHistory[${index}].description`} 
+                    onFocus={onFocus} 
+                    className="text-sm mt-2 leading-relaxed whitespace-pre-wrap block"
+                    tagName="p"
+                    placeholder="Description..."
+                />
               </div>
             ))}
           </section>
@@ -50,13 +108,24 @@ export const ProfessionalTemplate: React.FC<TemplateProps> = ({ resume, themeCol
           <section className="mb-6">
             <h3 className="text-lg font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-3" style={titleStyle}>CONTACT</h3>
             <div className="space-y-2 text-sm">
-                {personalDetails.email && <div className="flex items-center"><Mail size={14} className="mr-3 flex-shrink-0 transform translate-y-px" style={themeColorStyle} /><span>{personalDetails.email}</span></div>}
-                {personalDetails.phone && <div className="flex items-center"><Phone size={14} className="mr-3 flex-shrink-0 transform translate-y-px" style={themeColorStyle} /><span>{personalDetails.phone}</span></div>}
-                {personalDetails.address && <div className="flex items-center"><MapPin size={14} className="mr-3 flex-shrink-0 transform translate-y-px" style={themeColorStyle} /><span>{personalDetails.address}</span></div>}
-                {websites.map(site => (
+                <div className="flex items-center">
+                    <Mail size={14} className="mr-3 flex-shrink-0 transform translate-y-px" style={themeColorStyle} />
+                    <InlineEdit value={personalDetails.email} fieldId="personalDetails.email" onFocus={onFocus} placeholder="Email" />
+                </div>
+                <div className="flex items-center">
+                    <Phone size={14} className="mr-3 flex-shrink-0 transform translate-y-px" style={themeColorStyle} />
+                    <InlineEdit value={personalDetails.phone} fieldId="personalDetails.phone" onFocus={onFocus} placeholder="Phone" />
+                </div>
+                <div className="flex items-center">
+                    <MapPin size={14} className="mr-3 flex-shrink-0 transform translate-y-px" style={themeColorStyle} />
+                    <InlineEdit value={personalDetails.address} fieldId="personalDetails.address" onFocus={onFocus} placeholder="Address" />
+                </div>
+                {websites.map((site, index) => (
                     <div key={site.id} className="flex items-center">
                         {site.label.toLowerCase().includes('linkedin') ? <Linkedin size={14} className="mr-3 flex-shrink-0 transform translate-y-px" style={themeColorStyle} /> : <Globe size={14} className="mr-3 flex-shrink-0 transform translate-y-px" style={themeColorStyle} />}
-                        <a href={site.url} target="_blank" rel="noopener noreferrer" className="hover:underline break-all">{site.url}</a>
+                        <a href={site.url} target="_blank" rel="noopener noreferrer" className="hover:underline break-all">
+                            <InlineEdit value={site.label} fieldId={`websites[${index}].label`} onFocus={onFocus} isLink />
+                        </a>
                     </div>
                 ))}
             </div>
@@ -65,19 +134,40 @@ export const ProfessionalTemplate: React.FC<TemplateProps> = ({ resume, themeCol
           <section className="mb-6">
             <h3 className="text-lg font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-3" style={titleStyle}>SKILLS</h3>
             <ul className="space-y-1">
-              {skills.map(skill => (
-                <li key={skill.id} className="text-sm bg-gray-100 rounded-md px-3 py-1 flex items-center">{skill.name}</li>
+              {skills.map((skill, index) => (
+                <li key={skill.id} className="text-sm bg-gray-100 rounded-md px-3 py-1 flex items-center">
+                    <InlineEdit value={skill.name} fieldId={`skills[${index}].name`} onFocus={onFocus} placeholder="Skill" />
+                </li>
               ))}
             </ul>
           </section>
 
           <section>
             <h3 className="text-lg font-bold text-gray-800 border-b-2 border-gray-200 pb-2 mb-3" style={titleStyle}>EDUCATION</h3>
-            {education.map(edu => (
+            {education.map((edu, index) => (
               <div key={edu.id} className="mb-4">
-                <h4 className="text-md font-bold" style={titleStyle}>{edu.degree}</h4>
-                <p className="text-sm font-medium">{edu.school}</p>
-                <p className="text-sm text-gray-500">{edu.startDate} - {edu.endDate}</p>
+                <InlineEdit 
+                    value={edu.degree} 
+                    fieldId={`education[${index}].degree`} 
+                    onFocus={onFocus} 
+                    className="text-md font-bold block"
+                    style={titleStyle}
+                    tagName="h4"
+                    placeholder="Degree"
+                />
+                <InlineEdit 
+                    value={edu.school} 
+                    fieldId={`education[${index}].school`} 
+                    onFocus={onFocus} 
+                    className="text-sm font-medium block"
+                    tagName="p"
+                    placeholder="School"
+                />
+                <div className="flex gap-1 text-sm text-gray-500">
+                    <InlineEdit value={edu.startDate} fieldId={`education[${index}].startDate`} onFocus={onFocus} placeholder="Start" />
+                    <span>-</span>
+                    <InlineEdit value={edu.endDate} fieldId={`education[${index}].endDate`} onFocus={onFocus} placeholder="End" />
+                </div>
               </div>
             ))}
           </section>

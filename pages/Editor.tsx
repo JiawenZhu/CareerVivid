@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useRef, useMemo, useLayoutEffect } from 'react';
 import { useResumes } from '../hooks/useResumes';
 import { ResumeData, TemplateId, TemplateInfo } from '../types';
@@ -7,7 +8,7 @@ import GoogleTranslateWidget from '../components/GoogleTranslateWidget';
 import ThemeToggle from '../components/ThemeToggle';
 import { TEMPLATES } from '../templates';
 import { createNewResume, FONTS, EXPORT_OPTIONS } from '../constants';
-import { ArrowLeft, Download, Eye, Code, Palette, Type as TypeIcon, Loader2, ChevronDown, FileText, Image as ImageIcon, Edit as EditIcon, MoreVertical, Sun, Moon, Sparkles, ChevronLeft, ChevronRight, X as XIcon, Info, FileInput, Check } from 'lucide-react';
+import { ArrowLeft, Download, Eye, Code, Palette, Type as TypeIcon, Loader2, ChevronDown, FileText, Image as ImageIcon, Edit as EditIcon, MoreVertical, Sun, Moon, Sparkles, ChevronLeft, ChevronRight, X as XIcon, Info, FileInput, Check, Share2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { navigate } from '../App';
 import { trackUsage } from '../services/trackingService';
@@ -16,16 +17,15 @@ import AlertModal from '../components/AlertModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import FeedbackModal from '../components/FeedbackModal';
 
-// New component for rendering template thumbnails with correct scaling
 const TemplateThumbnail: React.FC<{ resume: ResumeData; template: TemplateInfo; }> = React.memo(({ resume, template }) => {
     const containerRef = useRef<HTMLDivElement>(null);
-    const [scale, setScale] = useState(0.2); // A reasonable default
+    const [scale, setScale] = useState(0.2);
 
     useLayoutEffect(() => {
         const calculateScale = () => {
             if (containerRef.current) {
                 const parentWidth = containerRef.current.offsetWidth;
-                const originalWidth = 824; // The "natural" width of the ResumePreview for styling
+                const originalWidth = 824; 
                 if (parentWidth > 0) {
                     setScale(parentWidth / originalWidth);
                 }
@@ -60,19 +60,24 @@ const TemplateThumbnail: React.FC<{ resume: ResumeData; template: TemplateInfo; 
     );
 });
 
-const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
-  const { getResumeById, updateResume, isLoading } = useResumes();
+interface EditorProps {
+    resumeId?: string;
+    initialData?: ResumeData;
+    isShared?: boolean;
+    onSharedUpdate?: (data: Partial<ResumeData>) => void;
+}
+
+const Editor: React.FC<EditorProps> = ({ resumeId, initialData, isShared = false, onSharedUpdate }) => {
+  const { getResumeById, updateResume, isLoading: isResumeLoading } = useResumes();
   const { currentUser } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [resume, setResume] = useState<ResumeData | null>(null);
   const [tempPhoto, setTempPhoto] = useState<string | null>(null);
   const [activeTemplate, setActiveTemplate] = useState<TemplateInfo>(TEMPLATES[0]);
   
-  // Layout State
-  const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit'); // Mobile view mode
-  const [activeTab, setActiveTab] = useState<'content' | 'template' | 'design'>('content'); // Sidebar Tab
+  const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
+  const [activeTab, setActiveTab] = useState<'content' | 'template' | 'design'>('content');
   
-  // Sidebar Mode: 'closed' (0px) | 'standard' (450px) | 'expanded' (Max Width)
   const [sidebarMode, setSidebarMode] = useState<'closed' | 'standard' | 'expanded'>('standard');
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
 
@@ -85,7 +90,6 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [isSignupPromptOpen, setIsSignupPromptOpen] = useState(false);
   
-  // State for export functionality
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState('');
   const [isDesktopDownloadMenuOpen, setIsDesktopDownloadMenuOpen] = useState(false);
@@ -93,10 +97,9 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
   const desktopDownloadMenuRef = useRef<HTMLDivElement>(null);
   const mobileMoreMenuRef = useRef<HTMLDivElement>(null);
 
-  // State for the new optimization side panel
   const [optimizationJob, setOptimizationJob] = useState<{title: string, description: string} | null>(null);
 
-  const sampleResumeForPreview = useMemo(() => createNewResume(), []); // For thumbnails
+  const sampleResumeForPreview = useMemo(() => createNewResume(), []); 
 
   useEffect(() => {
     const handleResize = () => {
@@ -106,7 +109,6 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Automatically revert expanded mode if switching tabs away from Content
   useEffect(() => {
       if (activeTab !== 'content' && sidebarMode === 'expanded') {
           setSidebarMode('standard');
@@ -115,11 +117,9 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
 
   const handleSidebarResize = (direction: 'left' | 'right') => {
       if (direction === 'left') {
-          // Collapse / Close Logic
           if (sidebarMode === 'expanded') setSidebarMode('standard');
           else if (sidebarMode === 'standard') setSidebarMode('closed');
       } else {
-          // Expand / Open Logic
           if (sidebarMode === 'closed') setSidebarMode('standard');
           else if (sidebarMode === 'standard' && activeTab === 'content') setSidebarMode('expanded');
       }
@@ -129,27 +129,37 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
       if (!isDesktop) return '100%';
       switch (sidebarMode) {
           case 'closed': return '0px';
-          case 'expanded': return 'calc(100% - 2rem)'; // Leave 2rem (32px) for the toggle buttons
+          case 'expanded': return 'calc(100% - 2rem)';
           default: return '450px';
       }
   }, [isDesktop, sidebarMode]);
 
   useEffect(() => {
-    if (sessionStorage.getItem('isFirstResume') === 'true') {
+    if (!isShared && sessionStorage.getItem('isFirstResume') === 'true') {
         setShowCelebration(true);
         sessionStorage.removeItem('isFirstResume');
         setTimeout(() => {
             setShowCelebration(false);
-        }, 4000); // Celebration lasts 4 seconds
+        }, 4000); 
     }
      const jobDescription = sessionStorage.getItem('jobDescriptionForOptimization');
     const jobTitle = sessionStorage.getItem('jobTitleForOptimization');
     if (jobDescription && jobTitle) {
         setOptimizationJob({ title: jobTitle, description: jobDescription });
     }
-  }, []);
+  }, [isShared]);
 
   useEffect(() => {
+    // Logic for Shared/Public Mode
+    if (isShared && initialData) {
+        setResume(initialData);
+        const initialTemplate = TEMPLATES.find(t => t.id === initialData.templateId) || TEMPLATES[0];
+        setActiveTemplate(initialTemplate);
+        setIsGuestMode(false); 
+        return;
+    }
+
+    // Logic for Guest Mode
     if (resumeId === 'guest') {
         setIsGuestMode(true);
         const guestResumeJson = localStorage.getItem('guestResume');
@@ -158,26 +168,27 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
             setResume(guestResume);
             const initialTemplate = TEMPLATES.find(t => t.id === guestResume.templateId) || TEMPLATES[0];
             setActiveTemplate(initialTemplate);
-            setViewMode('preview'); // Default guests to preview mode
+            setViewMode('preview'); 
         } else {
-            // If guest data is lost, send them back to the demo page
             navigate('/demo');
         }
-        return; // Skip Firestore logic for guests
+        return;
     }
 
+    // Logic for Authenticated User Mode
     setIsGuestMode(false);
-    if (!isLoading) {
+    if (!isResumeLoading && resumeId) {
       const loadedResume = getResumeById(resumeId);
       if (loadedResume) {
         setResume(loadedResume);
         const initialTemplate = TEMPLATES.find(t => t.id === loadedResume.templateId) || TEMPLATES[0];
         setActiveTemplate(initialTemplate);
       } else {
-        navigate('/');
+        // If resume not found in context, user might have refreshed or direct navigated
+        // We rely on the useResumes hook to eventually load data or redirect
       }
     }
-  }, [resumeId, getResumeById, isLoading]);
+  }, [resumeId, getResumeById, isResumeLoading, isShared, initialData]);
 
   useEffect(() => {
     setTempPhoto(null);
@@ -199,7 +210,7 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
   }, []);
 
   const handleGuestAction = (actionType: 'download') => {
-    if (isGuestMode) {
+    if (isGuestMode && !isShared) { // Allow download in shared mode
         setIsSignupPromptOpen(true);
         return true;
     }
@@ -214,19 +225,42 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
       
       const newResumeState = { ...resume, ...updatedData };
       setResume(newResumeState);
-      if (!isGuestMode) {
-        updateResume(resume.id, updatedData);
-      } else {
-        // Also update local storage for guest mode
+
+      if (isShared && onSharedUpdate) {
+          onSharedUpdate(updatedData);
+      } else if (isGuestMode) {
         localStorage.setItem('guestResume', JSON.stringify(newResumeState));
+      } else {
+        updateResume(resume.id, updatedData);
       }
     }
-  }, [resume, updateResume, isGuestMode]);
+  }, [resume, updateResume, isGuestMode, isShared, onSharedUpdate]);
   
   const handleDesignChange = (updatedData: Partial<ResumeData>) => {
     handleResumeChange(updatedData);
   };
   
+  const handleFocusField = useCallback((fieldId: string) => {
+      setActiveTab('content');
+      if (isDesktop && sidebarMode === 'closed') {
+          setSidebarMode('standard');
+      }
+      if (!isDesktop && viewMode === 'preview') {
+          setViewMode('edit');
+      }
+      setTimeout(() => {
+          const element = document.getElementById(fieldId);
+          if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              element.focus();
+              element.classList.add('ring-2', 'ring-primary-500', 'ring-offset-2', 'bg-primary-50', 'dark:bg-primary-900/20');
+              setTimeout(() => {
+                  element.classList.remove('ring-2', 'ring-primary-500', 'ring-offset-2', 'bg-primary-50', 'dark:bg-primary-900/20');
+              }, 2000);
+          }
+      }, 300);
+  }, [isDesktop, sidebarMode, viewMode]);
+
   const handleTemplateSelect = (template: TemplateInfo) => {
     if (activeTemplate.id === template.id) return;
     setIsTemplateLoading(true);
@@ -250,7 +284,7 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
 
   const handleExport = async (optionId: string) => {
     if (handleGuestAction('download')) return;
-    if (!currentUser || !resume) return;
+    if (!resume) return;
 
     setIsDesktopDownloadMenuOpen(false);
     setIsMobileMoreMenuOpen(false);
@@ -260,15 +294,19 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
     setExportProgress(`Generating ${formatName}...`);
 
     try {
-        if (optionId === 'pdf') {
+        // Determine if we should use high-quality backend generation or client-side fallback
+        // Only authenticated users can use backend generation (due to token requirement)
+        // Shared users (public) must use client-side unless we proxy via a public function (not implemented yet)
+        const canUseBackend = currentUser && !isShared; 
+
+        if (optionId === 'pdf' && canUseBackend) {
             setExportProgress('Generating high-quality PDF...');
             
             const token = await currentUser.getIdToken();
             const projectId = 'jastalk-firebase'; 
-            const functionUrl = `https://us-central1-${projectId}.cloudfunctions.net/generateResumePdfHttp`;
+            // Updated to correct region: us-west1
+            const functionUrl = `https://us-west1-${projectId}.cloudfunctions.net/generateResumePdfHttp`;
             
-            console.log(`Fetching PDF (Stream V2) from: ${functionUrl}`);
-
             const response = await fetch(functionUrl, {
                 method: 'POST',
                 headers: {
@@ -282,9 +320,7 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
             });
 
             if (!response.ok) {
-                const errorText = await response.text();
-                console.error("Backend Error Response:", errorText);
-                throw new Error(`Backend error (${response.status}): ${errorText}`);
+                throw new Error(`Backend generation failed.`);
             }
 
             const blob = await response.blob();
@@ -298,54 +334,70 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
 
-            if (!isGuestMode) {
+            if (!isGuestMode && !isShared) {
                 setIsFeedbackModalOpen(true);
             }
 
         } else {
+            // Client-side fallback (used for Guest and Shared view)
             const elementToCapture = previewRef.current;
             if (!elementToCapture) throw new Error("Preview element not found");
             
             const html2canvas = (await import('html2canvas')).default;
             const canvas = await html2canvas(elementToCapture, { scale: 3, useCORS: true });
 
-            const aspectRatio = optionId === 'png' ? undefined : optionId;
-            if (aspectRatio) {
-                const [w, h] = aspectRatio.split(':').map(Number);
-                const originalWidth = canvas.width;
-                const originalHeight = canvas.height;
-                let newWidth, newHeight, x, y;
+            if (optionId === 'pdf') {
+                 const { jsPDF } = await import('jspdf');
+                 const imgData = canvas.toDataURL('image/png');
+                 const pdf = new jsPDF('p', 'mm', 'a4');
+                 const pdfWidth = pdf.internal.pageSize.getWidth();
+                 const pdfHeight = pdf.internal.pageSize.getHeight();
+                 const imgProps = pdf.getImageProperties(imgData);
+                 const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                 
+                 pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+                 const sanitizedTitle = resume.title.replace(/[^a-zA-Z0-9]/g, '_');
+                 pdf.save(`${sanitizedTitle}.pdf`);
+            } else {
+                // Image export logic
+                const aspectRatio = optionId === 'png' ? undefined : optionId;
+                if (aspectRatio) {
+                    const [w, h] = aspectRatio.split(':').map(Number);
+                    const originalWidth = canvas.width;
+                    const originalHeight = canvas.height;
+                    let newWidth, newHeight, x, y;
 
-                if (originalWidth / originalHeight > w / h) {
-                    newHeight = originalHeight;
-                    newWidth = newHeight * w / h;
-                    x = (originalWidth - newWidth) / 2;
-                    y = 0;
-                } else {
-                    newWidth = originalWidth;
-                    newHeight = newWidth * h / w;
-                    x = 0;
-                    y = 0;
-                }
+                    if (originalWidth / originalHeight > w / h) {
+                        newHeight = originalHeight;
+                        newWidth = newHeight * w / h;
+                        x = (originalWidth - newWidth) / 2;
+                        y = 0;
+                    } else {
+                        newWidth = originalWidth;
+                        newHeight = newWidth * h / w;
+                        x = 0;
+                        y = 0;
+                    }
 
-                const croppedCanvas = document.createElement('canvas');
-                croppedCanvas.width = newWidth;
-                croppedCanvas.height = newHeight;
-                const ctx = croppedCanvas.getContext('2d');
-                if (ctx) {
-                    ctx.drawImage(canvas, x, y, newWidth, newHeight, 0, 0, newWidth, newHeight);
-                    const dataUrl = croppedCanvas.toDataURL('image/png');
+                    const croppedCanvas = document.createElement('canvas');
+                    croppedCanvas.width = newWidth;
+                    croppedCanvas.height = newHeight;
+                    const ctx = croppedCanvas.getContext('2d');
+                    if (ctx) {
+                        ctx.drawImage(canvas, x, y, newWidth, newHeight, 0, 0, newWidth, newHeight);
+                        const dataUrl = croppedCanvas.toDataURL('image/png');
+                        const link = document.createElement('a');
+                        link.download = `${resume.title.replace(/\s/g, '_')}_${aspectRatio.replace(':', 'x')}.png`;
+                        link.href = dataUrl;
+                        link.click();
+                    }
+                } else { // Full PNG
+                    const dataUrl = canvas.toDataURL('image/png');
                     const link = document.createElement('a');
-                    link.download = `${resume.title.replace(/\s/g, '_')}_${aspectRatio.replace(':', 'x')}.png`;
+                    link.download = `${resume.title.replace(/\s/g, '_')}.png`;
                     link.href = dataUrl;
                     link.click();
                 }
-            } else { // Full PNG
-                const dataUrl = canvas.toDataURL('image/png');
-                const link = document.createElement('a');
-                link.download = `${resume.title.replace(/\s/g, '_')}.png`;
-                link.href = dataUrl;
-                link.click();
             }
         }
         
@@ -358,7 +410,7 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
         setAlertState({ 
             isOpen: true, 
             title: 'Export Failed', 
-            message: error.message || "Sorry, something went wrong during the export process. Please try again." 
+            message: "Sorry, something went wrong during the export process. Please try again." 
         });
     } finally {
         setIsExporting(false);
@@ -406,9 +458,11 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
         );
     };
 
-  if ((isLoading && !isGuestMode) || !resume) {
+  // Loading state check (ignore loading if in shared or guest mode with data)
+  if (!resume && (!isShared && !isGuestMode)) {
     return <div className="flex justify-center items-center h-screen dark:text-white">Loading Resume...</div>;
   }
+  if (!resume) return null;
   
   const resumeForPreview = tempPhoto ? {
     ...resume,
@@ -452,15 +506,24 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
       <header className="relative flex-shrink-0 bg-white dark:bg-gray-800/50 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 z-40">
         <div className="flex items-center justify-between h-16 px-4 sm:px-6">
           <div className="flex items-center gap-2">
-            <a href="#/" title="Back to Dashboard" className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                <ArrowLeft size={20} />
-            </a>
-            <input type="text" value={resume.title} onChange={e => handleResumeChange({ title: e.target.value })} className="text-lg font-bold bg-transparent focus:outline-none focus:ring-1 focus:ring-primary-500 rounded-md px-2 py-1 -ml-2" />
+            {!isShared && (
+                <a href="#/" title="Back to Dashboard" className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <ArrowLeft size={20} />
+                </a>
+            )}
+            {isShared ? (
+                <div className="flex items-center gap-2">
+                    <div className="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 px-2 py-1 rounded text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+                        <Share2 size={12} /> Shared Editor
+                    </div>
+                    <h1 className="text-lg font-bold text-gray-900 dark:text-white">{resume.title}</h1>
+                </div>
+            ) : (
+                <input type="text" value={resume.title} onChange={e => handleResumeChange({ title: e.target.value })} className="text-lg font-bold bg-transparent focus:outline-none focus:ring-1 focus:ring-primary-500 rounded-md px-2 py-1 -ml-2" />
+            )}
           </div>
           <div className="flex items-center gap-2">
-             {/* Desktop Controls */}
-             <div className="hidden md:flex items-center gap-2"></div>
-            <div className="hidden md:block relative" ref={desktopDownloadMenuRef}>
+             <div className="hidden md:block relative" ref={desktopDownloadMenuRef}>
                  <button 
                     onClick={() => setIsDesktopDownloadMenuOpen(!isDesktopDownloadMenuOpen)} 
                     className="flex items-center gap-2 bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg shadow-soft hover:bg-primary-700 transition-colors"
@@ -489,7 +552,6 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
                 <GoogleTranslateWidget />
                 <ThemeToggle />
              </div>
-             {/* Mobile Controls */}
              <div className="md:hidden relative" ref={mobileMoreMenuRef}>
                 <button onClick={() => setIsMobileMoreMenuOpen(!isMobileMoreMenuOpen)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
                     <MoreVertical size={20} />
@@ -502,7 +564,7 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
                              <button onClick={() => { setViewMode('preview'); setIsMobileMoreMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"><Eye size={16}/> Preview</button>
                              <div className="border-t my-1 dark:border-gray-600"></div>
                              <p className="px-4 py-2 text-xs text-gray-400">Download</p>
-                             {EXPORT_OPTIONS.slice(0, 2).map(opt => ( // Only show PDF and PNG for mobile simplicity
+                             {EXPORT_OPTIONS.slice(0, 2).map(opt => ( 
                                 <button key={opt.id} onClick={() => handleExport(opt.id)} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                     {opt.id === 'pdf' ? <FileText size={16} /> : <ImageIcon size={16} />} {opt.name}
                                 </button>
@@ -520,7 +582,6 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
       </header>
 
       <div className="flex-grow flex overflow-hidden relative h-[calc(100vh-64px)]">
-        {/* Sidebar (Content / Template / Design) */}
         <div 
             className={`
                 flex-shrink-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 
@@ -535,7 +596,6 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
         >
           <div className="w-full h-full flex flex-col" style={{ minWidth: '450px' }}>
              
-             {/* Tab Navigation */}
              <div className="flex items-center justify-between p-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
                  <button onClick={() => setActiveTab('content')} className={`flex-1 py-2 text-sm font-semibold rounded-md flex items-center justify-center gap-2 transition-colors ${activeTab === 'content' ? 'bg-white dark:bg-gray-800 text-primary-600 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
                      <FileInput size={16} /> Content
@@ -548,11 +608,10 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
                  </button>
              </div>
 
-             {/* Sidebar Content Area */}
              <div className="flex-grow overflow-y-auto p-4 custom-scrollbar">
                 {activeTab === 'content' && (
                     <div className="animate-fade-in">
-                        <ResumeForm resume={resume} onChange={handleResumeChange} tempPhoto={tempPhoto} setTempPhoto={setTempPhoto} isReadOnly={isGuestMode}/>
+                        <ResumeForm resume={resume} onChange={handleResumeChange} tempPhoto={tempPhoto} setTempPhoto={setTempPhoto} isReadOnly={isGuestMode && !isShared}/>
                     </div>
                 )}
 
@@ -618,7 +677,6 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
           </div>
         </div>
 
-        {/* Desktop Sidebar Toggle Controls */}
         <div 
             className={`
                 hidden md:flex flex-col absolute top-1/2 -translate-y-1/2 z-30
@@ -660,19 +718,14 @@ const Editor: React.FC<{ resumeId: string; }> = ({ resumeId }) => {
             </button>
         </div>
 
-        {/* Resume Preview (Right Panel) */}
         <div className={`
             flex-1 h-full bg-gray-100 dark:bg-gray-900/50 relative
             ${viewMode === 'preview' ? 'block' : 'hidden md:block'}
             overflow-y-auto custom-scrollbar
         `}>
-            {/* 
-                FIX: Removed 'items-center' which centers content vertically and can clip the top.
-                Added 'items-start' and 'min-h-full' to ensure it flows naturally.
-            */}
            <div className="min-h-full w-full flex justify-center items-start p-8 md:p-12">
                  <div className="w-full max-w-[210mm] shadow-2xl origin-top transition-all duration-300 bg-white">
-                   <ResumePreview resume={resumeForPreview} template={resume.templateId} previewRef={previewRef} />
+                   <ResumePreview resume={resumeForPreview} template={resume.templateId} previewRef={previewRef} onUpdate={handleResumeChange} onFocus={handleFocusField} />
                 </div>
             </div>
         </div>

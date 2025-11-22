@@ -2,8 +2,9 @@
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
 import { Mail, Phone, MapPin } from 'lucide-react';
+import InlineEdit from '../InlineEdit';
 
-export const ApexTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont }) => {
+export const ApexTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont, onFocus }) => {
   const { personalDetails, professionalSummary, employmentHistory, education, skills } = resume;
 
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
@@ -26,8 +27,34 @@ export const ApexTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titl
       <header className="p-8" style={{ backgroundColor: themeColor, color: headerTextColor }}>
         <div className="flex justify-between items-center">
             <div>
-                 <h1 className="text-4xl font-bold" style={titleStyle}>{personalDetails.firstName} {personalDetails.lastName}</h1>
-                 <h2 className="text-xl font-light">{personalDetails.jobTitle}</h2>
+                 <div className="flex gap-2 items-end">
+                    <InlineEdit 
+                        value={personalDetails.firstName} 
+                        fieldId="personalDetails.firstName" 
+                        onFocus={onFocus} 
+                        className="text-4xl font-bold" 
+                        style={titleStyle}
+                        tagName="h1"
+                        placeholder="First Name"
+                    />
+                    <InlineEdit 
+                        value={personalDetails.lastName} 
+                        fieldId="personalDetails.lastName" 
+                        onFocus={onFocus} 
+                        className="text-4xl font-bold" 
+                        style={titleStyle}
+                        tagName="h1"
+                        placeholder="Last Name"
+                    />
+                 </div>
+                 <InlineEdit 
+                    value={personalDetails.jobTitle} 
+                    fieldId="personalDetails.jobTitle" 
+                    onFocus={onFocus} 
+                    className="text-xl font-light block" 
+                    tagName="h2"
+                    placeholder="Job Title"
+                />
             </div>
             {personalDetails.photo && (
                 <div
@@ -42,7 +69,14 @@ export const ApexTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titl
 
       <main className="p-8">
         <section className="mb-6 text-center">
-            <p className="text-md leading-relaxed max-w-3xl mx-auto">{professionalSummary}</p>
+            <InlineEdit 
+                value={professionalSummary} 
+                fieldId="professionalSummary" 
+                onFocus={onFocus} 
+                className="text-md leading-relaxed max-w-3xl mx-auto block whitespace-pre-wrap"
+                tagName="p"
+                placeholder="Summary..."
+            />
         </section>
 
         <div className="grid grid-cols-3 gap-8">
@@ -50,25 +84,51 @@ export const ApexTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titl
                 <section className="mb-6">
                     <h3 className="text-lg font-bold border-b-2 pb-1 mb-2" style={{...titleStyle, borderColor: themeColor}}>Contact</h3>
                      <div className="space-y-2 text-sm">
-                        {personalDetails.email && <div className="flex items-center"><Mail size={14} className="mr-2 flex-shrink-0 transform translate-y-px" /><span>{personalDetails.email}</span></div>}
-                        {personalDetails.phone && <div className="flex items-center"><Phone size={14} className="mr-2 flex-shrink-0 transform translate-y-px" /><span>{personalDetails.phone}</span></div>}
-                        {personalDetails.address && <div className="flex items-center"><MapPin size={14} className="mr-2 flex-shrink-0 transform translate-y-px" /><span>{personalDetails.address}</span></div>}
+                        <div className="flex items-center">
+                            <Mail size={14} className="mr-2 flex-shrink-0 transform translate-y-px" />
+                            <InlineEdit value={personalDetails.email} fieldId="personalDetails.email" onFocus={onFocus} placeholder="Email" />
+                        </div>
+                        <div className="flex items-center">
+                            <Phone size={14} className="mr-2 flex-shrink-0 transform translate-y-px" />
+                            <InlineEdit value={personalDetails.phone} fieldId="personalDetails.phone" onFocus={onFocus} placeholder="Phone" />
+                        </div>
+                        <div className="flex items-center">
+                            <MapPin size={14} className="mr-2 flex-shrink-0 transform translate-y-px" />
+                            <InlineEdit value={personalDetails.address} fieldId="personalDetails.address" onFocus={onFocus} placeholder="Address" />
+                        </div>
                     </div>
                 </section>
                 <section className="mb-6">
                     <h3 className="text-lg font-bold border-b-2 pb-1 mb-2" style={{...titleStyle, borderColor: themeColor}}>Skills</h3>
                      <div className="flex flex-wrap gap-2">
-                        {skills.map(skill => (
-                            <span key={skill.id} className="inline-flex items-center text-xs bg-gray-200 font-semibold px-3 py-1 rounded">{skill.name}</span>
+                        {skills.map((skill, index) => (
+                            <span key={skill.id} className="inline-flex items-center text-xs bg-gray-200 font-semibold px-3 py-1 rounded">
+                                <InlineEdit value={skill.name} fieldId={`skills[${index}].name`} onFocus={onFocus} placeholder="Skill" />
+                            </span>
                         ))}
                     </div>
                 </section>
                  <section>
                     <h3 className="text-lg font-bold border-b-2 pb-1 mb-2" style={{...titleStyle, borderColor: themeColor}}>Education</h3>
-                    {education.map(edu => (
+                    {education.map((edu, index) => (
                         <div key={edu.id} className="mb-2">
-                            <h4 className="font-bold text-sm" style={titleStyle}>{edu.degree}</h4>
-                            <p className="text-xs italic">{edu.school}</p>
+                            <InlineEdit 
+                                value={edu.degree} 
+                                fieldId={`education[${index}].degree`} 
+                                onFocus={onFocus} 
+                                className="font-bold text-sm block" 
+                                style={titleStyle}
+                                tagName="h4"
+                                placeholder="Degree"
+                            />
+                            <InlineEdit 
+                                value={edu.school} 
+                                fieldId={`education[${index}].school`} 
+                                onFocus={onFocus} 
+                                className="text-xs italic block" 
+                                tagName="p"
+                                placeholder="School"
+                            />
                         </div>
                     ))}
                 </section>
@@ -76,14 +136,33 @@ export const ApexTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titl
             <div className="col-span-2">
                 <section>
                     <h3 className="text-lg font-bold border-b-2 pb-1 mb-3" style={{...titleStyle, borderColor: themeColor}}>Experience</h3>
-                     {employmentHistory.map(job => (
+                     {employmentHistory.map((job, index) => (
                         <div key={job.id} className="mb-4">
-                            <h4 className="text-lg font-semibold" style={titleStyle}>{job.jobTitle}</h4>
+                            <InlineEdit 
+                                value={job.jobTitle} 
+                                fieldId={`employmentHistory[${index}].jobTitle`} 
+                                onFocus={onFocus} 
+                                className="text-lg font-semibold block" 
+                                style={titleStyle}
+                                tagName="h4"
+                                placeholder="Job Title"
+                            />
                             <div className="flex justify-between text-sm mb-1">
-                                <span className="font-medium text-gray-700">{job.employer}</span>
-                                <span className="text-gray-500">{job.startDate} - {job.endDate}</span>
+                                <InlineEdit value={job.employer} fieldId={`employmentHistory[${index}].employer`} onFocus={onFocus} placeholder="Employer" className="font-medium text-gray-700" />
+                                <div className="flex gap-1 text-gray-500">
+                                    <InlineEdit value={job.startDate} fieldId={`employmentHistory[${index}].startDate`} onFocus={onFocus} placeholder="Start" />
+                                    <span>-</span>
+                                    <InlineEdit value={job.endDate} fieldId={`employmentHistory[${index}].endDate`} onFocus={onFocus} placeholder="End" />
+                                </div>
                             </div>
-                            <p className="text-sm whitespace-pre-wrap">{job.description}</p>
+                            <InlineEdit 
+                                value={job.description} 
+                                fieldId={`employmentHistory[${index}].description`} 
+                                onFocus={onFocus} 
+                                className="text-sm whitespace-pre-wrap block"
+                                tagName="p"
+                                placeholder="Description..."
+                            />
                         </div>
                     ))}
                 </section>

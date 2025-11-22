@@ -1,11 +1,10 @@
 
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect, Suspense } from 'react';
 import { useResumes } from '../hooks/useResumes';
 import { ResumeData, PracticeHistoryEntry, JobApplicationData } from '../types';
-import { Edit3, Copy, Trash2, PlusCircle, MoreVertical, FileText, Mic, ExternalLink, Sparkles, BarChart, X, User as UserIcon, Edit, ChevronDown, FolderPlus, Briefcase, GripVertical, LayoutDashboard, Loader2 } from 'lucide-react';
+import { Edit3, Copy, Trash2, PlusCircle, Share2, FileText, Mic, ExternalLink, Sparkles, BarChart, X, User as UserIcon, Edit, ChevronDown, FolderPlus, Briefcase, GripVertical, LayoutDashboard, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePracticeHistory } from '../hooks/useJobHistory';
-import InterviewReportModal from '../components/InterviewReportModal';
 import JobDetailModal from '../components/JobTracker/JobDetailModal';
 import { useJobTracker } from '../hooks/useJobTracker';
 import { navigate } from '../App';
@@ -17,6 +16,11 @@ import KanbanBoard from '../components/JobTracker/KanbanBoard';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { trackDemoConversion } from '../services/trackingService';
 import ResumePreview from '../components/ResumePreview';
+import Logo from '../components/Logo';
+import ShareModal from '../components/ShareModal';
+
+// Lazy load modal to optimize dashboard load time
+const InterviewReportModal = React.lazy(() => import('../components/InterviewReportModal'));
 
 interface Folder {
   id: string;
@@ -63,7 +67,7 @@ const InterviewHistoryCardSkeleton: React.FC = () => (
 );
 
 
-const ResumeCard: React.FC<{ resume: ResumeData; onUpdate: (id: string, data: Partial<ResumeData>) => void; onDuplicate: (id: string) => void; onDelete: (id: string) => void; onDragStart: (e: React.DragEvent<HTMLDivElement>) => void; }> = ({ resume, onUpdate, onDuplicate, onDelete, onDragStart }) => {
+const ResumeCard: React.FC<{ resume: ResumeData; onUpdate: (id: string, data: Partial<ResumeData>) => void; onDuplicate: (id: string) => void; onDelete: (id: string) => void; onShare: (resume: ResumeData) => void; onDragStart: (e: React.DragEvent<HTMLDivElement>) => void; }> = ({ resume, onUpdate, onDuplicate, onDelete, onShare, onDragStart }) => {
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [title, setTitle] = useState(resume.title);
 
@@ -148,7 +152,7 @@ const ResumeCard: React.FC<{ resume: ResumeData; onUpdate: (id: string, data: Pa
                 <button onClick={() => onDuplicate(resume.id)} title="Duplicate Resume" className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"><Copy size={16} /></button>
                 <button onClick={() => onDelete(resume.id)} title="Delete Resume" className="p-2 rounded-md hover:bg-red-100 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 transition-colors"><Trash2 size={16} /></button>
             </div>
-            <button title="More Options" className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"><MoreVertical size={16} /></button>
+            <button onClick={() => onShare(resume)} title="Share Resume" className="p-2 rounded-md hover:bg-primary-100 dark:hover:bg-primary-900/30 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"><Share2 size={16} /></button>
         </div>
       </div>
     );
@@ -295,6 +299,7 @@ const Dashboard: React.FC = () => {
   
   const [selectedJobForReport, setSelectedJobForReport] = useState<PracticeHistoryEntry | null>(null);
   const [selectedJobApplication, setSelectedJobApplication] = useState<JobApplicationData | null>(null);
+  const [shareModalResume, setShareModalResume] = useState<ResumeData | null>(null);
 
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: () => {}, confirmText: 'Confirm' });
   
@@ -578,7 +583,7 @@ const Dashboard: React.FC = () => {
             <div className="flex justify-between items-center h-20">
                 <div className="flex items-center gap-4">
                     <a href="#/" className="flex items-center gap-2">
-                        <img src="https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/logo.png?alt=media&token=3d2f7db5-96db-4dce-ba00-43d8976da3a1" alt="CareerVivid Logo" className="h-8 w-8" />
+                        <Logo className="h-8 w-8" />
                         <span className="text-xl font-bold text-gray-900 dark:text-white hidden sm:inline">CareerVivid</span>
                     </a>
                 </div>
@@ -727,7 +732,7 @@ const Dashboard: React.FC = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                             {isLoadingResumes && folder.id === 'resumes'
                                 ? Array.from({ length: 4 }).map((_, i) => <ResumeCardSkeleton key={`resume_skel_${i}`} />)
-                                : resumesInSection.map(resume => <ResumeCard key={resume.id} resume={resume} onUpdate={updateResume} onDuplicate={duplicateResume} onDelete={(id) => confirmItemDelete(id, 'resume')} onDragStart={(e) => handleDragStart(e, resume.id, 'resume')}/>)
+                                : resumesInSection.map(resume => <ResumeCard key={resume.id} resume={resume} onUpdate={updateResume} onDuplicate={duplicateResume} onDelete={(id) => confirmItemDelete(id, 'resume')} onShare={setShareModalResume} onDragStart={(e) => handleDragStart(e, resume.id, 'resume')}/>)
                             }
 
                             {isLoadingHistory && folder.id === 'interviews'
@@ -750,7 +755,9 @@ const Dashboard: React.FC = () => {
         </div>
       </main>
 
-      {selectedJobForReport && <InterviewReportModal jobHistoryEntry={selectedJobForReport} onClose={() => setSelectedJobForReport(null)} />}
+      <Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"><Loader2 className="animate-spin text-white" /></div>}>
+        {selectedJobForReport && <InterviewReportModal jobHistoryEntry={selectedJobForReport} onClose={() => setSelectedJobForReport(null)} />}
+      </Suspense>
       {selectedJobApplication && <JobDetailModal job={selectedJobApplication} onClose={() => setSelectedJobApplication(null)} onUpdate={updateJobApplication} onDelete={(id) => {confirmItemDelete(id, 'job'); setSelectedJobApplication(null);}}/>}
       <ConfirmationModal 
         isOpen={confirmModal.isOpen}
@@ -760,6 +767,15 @@ const Dashboard: React.FC = () => {
         onCancel={closeConfirmModal}
         confirmText={confirmModal.confirmText}
       />
+      
+      {shareModalResume && (
+        <ShareModal
+            isOpen={!!shareModalResume}
+            onClose={() => setShareModalResume(null)}
+            resume={shareModalResume}
+            onUpdate={updateResume}
+        />
+      )}
     </div>
   );
 };

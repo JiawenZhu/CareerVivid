@@ -50,6 +50,14 @@ export interface Education {
   description: string;
 }
 
+export type SharePermission = 'viewer' | 'commenter' | 'editor';
+
+export interface ShareConfig {
+  enabled: boolean;
+  permission: SharePermission;
+  shareId?: string; // Optional unique token if we want to obfuscate IDs later
+}
+
 export interface ResumeData {
   id: string;
   title: string;
@@ -67,6 +75,7 @@ export interface ResumeData {
   bodyFont: string;
   language: string;
   section?: string;
+  shareConfig?: ShareConfig; // New field for sharing settings
 }
 
 export type TemplateId = string;
@@ -82,6 +91,8 @@ export interface TemplateProps {
   themeColor: string;
   titleFont: string;
   bodyFont: string;
+  onUpdate?: (data: Partial<ResumeData>) => void;
+  onFocus?: (fieldId: string) => void;
 }
 
 // --- NEW ---
@@ -242,4 +253,12 @@ export interface BlogPost {
   category: string;
   coverImage: string;
   publishedAt: any; // Firestore Timestamp
+}
+
+export interface Comment {
+    id: string;
+    text: string;
+    userId: string;
+    userName: string;
+    timestamp: any;
 }

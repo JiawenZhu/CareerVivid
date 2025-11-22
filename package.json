@@ -23,7 +23,8 @@
     "puppeteer-core": "^24.30.0",
     "cors": "^2.8.5",
     "uuid": "^13.0.0",
-    "buffer": "^6.0.3"
+    "buffer": "^6.0.3",
+    "@google/generative-ai": "^0.24.1"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

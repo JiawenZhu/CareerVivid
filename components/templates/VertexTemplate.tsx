@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
+import InlineEdit from '../InlineEdit';
 
-export const VertexTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont }) => {
+export const VertexTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont, onFocus }) => {
   const { personalDetails, professionalSummary, employmentHistory, education, skills } = resume;
 
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
@@ -22,25 +23,85 @@ export const VertexTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
     <div className="p-8 bg-white text-gray-800" style={bodyStyle}>
       <header className="mb-6 text-center">
         <div className="inline-block px-8 py-4" style={{ backgroundColor: themeColor, color: headerTextColor }}>
-          <h1 className="text-4xl font-extrabold tracking-widest" style={titleStyle}>{personalDetails.firstName.toUpperCase()} {personalDetails.lastName.toUpperCase()}</h1>
+          <div className="flex justify-center gap-2">
+              <InlineEdit 
+                value={personalDetails.firstName.toUpperCase()} 
+                fieldId="personalDetails.firstName" 
+                onFocus={onFocus} 
+                className="text-4xl font-extrabold tracking-widest" 
+                style={titleStyle}
+                tagName="h1"
+                placeholder="FIRST NAME"
+              />
+              <InlineEdit 
+                value={personalDetails.lastName.toUpperCase()} 
+                fieldId="personalDetails.lastName" 
+                onFocus={onFocus} 
+                className="text-4xl font-extrabold tracking-widest" 
+                style={titleStyle}
+                tagName="h1"
+                placeholder="LAST NAME"
+              />
+          </div>
         </div>
-        <p className="text-lg text-gray-600 mt-4" style={titleStyle}>{personalDetails.jobTitle}</p>
-        <p className="text-sm text-gray-500 mt-2">{personalDetails.email} | {personalDetails.phone}</p>
+        <InlineEdit 
+            value={personalDetails.jobTitle} 
+            fieldId="personalDetails.jobTitle" 
+            onFocus={onFocus} 
+            className="text-lg text-gray-600 mt-4 block" 
+            style={titleStyle}
+            tagName="p"
+            placeholder="Job Title"
+        />
+        <div className="text-sm text-gray-500 mt-2 flex justify-center gap-1">
+            <InlineEdit value={personalDetails.email} fieldId="personalDetails.email" onFocus={onFocus} placeholder="Email" />
+            <span>|</span>
+            <InlineEdit value={personalDetails.phone} fieldId="personalDetails.phone" onFocus={onFocus} placeholder="Phone" />
+        </div>
       </header>
       
       <main className="max-w-3xl mx-auto">
         <section className="mb-6">
           <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2" style={titleStyle}>Summary</h2>
-          <p className="text-sm leading-relaxed">{professionalSummary}</p>
+          <InlineEdit 
+            value={professionalSummary} 
+            fieldId="professionalSummary" 
+            onFocus={onFocus} 
+            className="text-sm leading-relaxed block whitespace-pre-wrap"
+            tagName="p"
+            placeholder="Summary..."
+          />
         </section>
 
         <section className="mb-6">
           <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-3" style={titleStyle}>Experience</h2>
-          {employmentHistory.map(job => (
+          {employmentHistory.map((job, index) => (
             <div key={job.id} className="mb-4">
-              <h3 className="text-lg font-bold" style={titleStyle}>{job.jobTitle}</h3>
-              <p className="text-sm text-gray-600">{job.employer} | {job.startDate} - {job.endDate}</p>
-              <p className="text-sm mt-1 whitespace-pre-wrap">{job.description}</p>
+              <InlineEdit 
+                value={job.jobTitle} 
+                fieldId={`employmentHistory[${index}].jobTitle`} 
+                onFocus={onFocus} 
+                className="text-lg font-bold block" 
+                style={titleStyle}
+                tagName="h3"
+                placeholder="Job Title"
+              />
+              <div className="flex justify-between text-sm text-gray-600">
+                  <InlineEdit value={job.employer} fieldId={`employmentHistory[${index}].employer`} onFocus={onFocus} placeholder="Employer" />
+                  <div className="flex gap-1">
+                      <InlineEdit value={job.startDate} fieldId={`employmentHistory[${index}].startDate`} onFocus={onFocus} placeholder="Start" />
+                      <span>-</span>
+                      <InlineEdit value={job.endDate} fieldId={`employmentHistory[${index}].endDate`} onFocus={onFocus} placeholder="End" />
+                  </div>
+              </div>
+              <InlineEdit 
+                value={job.description} 
+                fieldId={`employmentHistory[${index}].description`} 
+                onFocus={onFocus} 
+                className="text-sm mt-1 whitespace-pre-wrap block"
+                tagName="p"
+                placeholder="Description..."
+              />
             </div>
           ))}
         </section>
@@ -48,17 +109,36 @@ export const VertexTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
         <section className="grid grid-cols-2 gap-6">
             <div>
                 <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2" style={titleStyle}>Education</h2>
-                {education.map(edu => (
+                {education.map((edu, index) => (
                     <div key={edu.id} className="mb-2">
-                    <h3 className="font-bold" style={titleStyle}>{edu.degree}</h3>
-                    <p className="text-sm text-gray-600">{edu.school}</p>
+                    <InlineEdit 
+                        value={edu.degree} 
+                        fieldId={`education[${index}].degree`} 
+                        onFocus={onFocus} 
+                        className="font-bold block" 
+                        style={titleStyle}
+                        tagName="h3"
+                        placeholder="Degree"
+                    />
+                    <InlineEdit 
+                        value={edu.school} 
+                        fieldId={`education[${index}].school`} 
+                        onFocus={onFocus} 
+                        className="text-sm text-gray-600 block" 
+                        tagName="p"
+                        placeholder="School"
+                    />
                     </div>
                 ))}
             </div>
             <div>
                 <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1 mb-2" style={titleStyle}>Skills</h2>
                 <ul className="text-sm space-y-1">
-                    {skills.map(skill => <li key={skill.id}>{skill.name}</li>)}
+                    {skills.map((skill, index) => (
+                        <li key={skill.id}>
+                            <InlineEdit value={skill.name} fieldId={`skills[${index}].name`} onFocus={onFocus} placeholder="Skill" />
+                        </li>
+                    ))}
                 </ul>
             </div>
         </section>

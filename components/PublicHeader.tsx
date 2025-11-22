@@ -3,88 +3,93 @@ import React, { useState } from 'react';
 import { Sun, Moon, Menu, X, ChevronDown, Briefcase, Users, FileText, Zap } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { navigate } from '../App';
+import Logo from './Logo';
 
 const PublicHeader: React.FC = () => {
     const { theme, toggleTheme } = useTheme();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    const NavItem: React.FC<{ name: string; hasDropdown?: boolean; href?: string }> = ({ name, hasDropdown, href }) => (
-        <div className="relative group h-full flex items-center">
-            <button 
-                onClick={() => href && navigate(href.replace('#', ''))}
-                className="flex items-center gap-1 text-sm font-medium transition-colors py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400"
-            >
-                {href ? <a href={href}>{name}</a> : name}
-                {hasDropdown && (
-                    <ChevronDown 
-                        size={14} 
-                        className="transition-transform duration-200 group-hover:rotate-180" 
-                    />
+    const NavItem: React.FC<{ name: string; hasDropdown?: boolean; href?: string }> = ({ name, hasDropdown, href }) => {
+        // Removed 'hover:text-gray-900 dark:hover:text-white' to prevent flashing conflict with group-hover
+        const baseClasses = "flex items-center gap-1 text-sm font-medium transition-colors py-2 text-gray-600 dark:text-gray-300 group-hover:text-primary-600 dark:group-hover:text-primary-400";
+        
+        return (
+            <div className="relative group h-full flex items-center">
+                {href ? (
+                    <a href={href} className={baseClasses}>
+                        {name}
+                        {hasDropdown && <ChevronDown size={14} className="transition-transform duration-200 group-hover:rotate-180" />}
+                    </a>
+                ) : (
+                    <button className={baseClasses}>
+                        {name}
+                        {hasDropdown && <ChevronDown size={14} className="transition-transform duration-200 group-hover:rotate-180" />}
+                    </button>
                 )}
-            </button>
-            
-            {hasDropdown && (
-                // Added pt-4 to create an invisible bridge, preventing mouseleave when moving to dropdown
-                <div className="absolute top-full left-0 w-64 pt-4 hidden group-hover:block animate-in fade-in slide-in-from-top-2 duration-200 z-50">
-                    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-100 dark:border-gray-800 p-2">
-                        {name === 'Use Cases' && (
-                            <>
-                                <a href="#/demo" className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group/item">
-                                    <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-md group-hover/item:bg-blue-100 dark:group-hover/item:bg-blue-900/50">
-                                        <Briefcase size={18} />
-                                    </div>
-                                    <div>
-                                        <div className="font-semibold text-gray-900 dark:text-white text-sm">Professional</div>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">For experienced hires</p>
-                                    </div>
-                                </a>
-                                <a href="#/demo" className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group/item">
-                                    <div className="p-2 bg-purple-50 dark:bg-purple-900/30 text-purple-600 rounded-md group-hover/item:bg-purple-100 dark:group-hover/item:bg-purple-900/50">
-                                        <Zap size={18} />
-                                    </div>
-                                    <div>
-                                        <div className="font-semibold text-gray-900 dark:text-white text-sm">Students</div>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">Internships & grads</p>
-                                    </div>
-                                </a>
-                            </>
-                        )}
-                        {name === 'Resources' && (
-                            <>
-                                <a href="#/blog" className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group/item">
-                                    <div className="p-2 bg-green-50 dark:bg-green-900/30 text-green-600 rounded-md group-hover/item:bg-green-100 dark:group-hover/item:bg-green-900/50">
-                                        <FileText size={18} />
-                                    </div>
-                                    <div>
-                                        <div className="font-semibold text-gray-900 dark:text-white text-sm">Career Blog</div>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">Guides & strategies</p>
-                                    </div>
-                                </a>
-                                <a href="#/interview-studio" className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group/item">
-                                    <div className="p-2 bg-orange-50 dark:bg-orange-900/30 text-orange-600 rounded-md group-hover/item:bg-orange-100 dark:group-hover/item:bg-orange-900/50">
-                                        <Users size={18} />
-                                    </div>
-                                    <div>
-                                        <div className="font-semibold text-gray-900 dark:text-white text-sm">Community</div>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">Join 10k+ members</p>
-                                    </div>
-                                </a>
-                                <a href="#/contact" className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group/item">
-                                    <div className="p-2 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 rounded-md group-hover/item:bg-cyan-100 dark:group-hover/item:bg-cyan-900/50">
-                                        <Users size={18} />
-                                    </div>
-                                    <div>
-                                        <div className="font-semibold text-gray-900 dark:text-white text-sm">Contact Us</div>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">Get in touch</p>
-                                    </div>
-                                </a>
-                            </>
-                        )}
+                
+                {hasDropdown && (
+                    // Added pt-4 to create an invisible bridge, preventing mouseleave when moving to dropdown
+                    <div className="absolute top-full left-0 w-64 pt-4 hidden group-hover:block animate-in fade-in slide-in-from-top-2 duration-200 z-50">
+                        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-100 dark:border-gray-800 p-2">
+                            {name === 'Use Cases' && (
+                                <>
+                                    <a href="#/demo" className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group/item">
+                                        <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-md group-hover/item:bg-blue-100 dark:group-hover/item:bg-blue-900/50">
+                                            <Briefcase size={18} />
+                                        </div>
+                                        <div>
+                                            <div className="font-semibold text-gray-900 dark:text-white text-sm">Professional</div>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">For experienced hires</p>
+                                        </div>
+                                    </a>
+                                    <a href="#/demo" className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group/item">
+                                        <div className="p-2 bg-purple-50 dark:bg-purple-900/30 text-purple-600 rounded-md group-hover/item:bg-purple-100 dark:group-hover/item:bg-purple-900/50">
+                                            <Zap size={18} />
+                                        </div>
+                                        <div>
+                                            <div className="font-semibold text-gray-900 dark:text-white text-sm">Students</div>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">Internships & grads</p>
+                                        </div>
+                                    </a>
+                                </>
+                            )}
+                            {name === 'Resources' && (
+                                <>
+                                    <a href="#/blog" className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group/item">
+                                        <div className="p-2 bg-green-50 dark:bg-green-900/30 text-green-600 rounded-md group-hover/item:bg-green-100 dark:group-hover/item:bg-green-900/50">
+                                            <FileText size={18} />
+                                        </div>
+                                        <div>
+                                            <div className="font-semibold text-gray-900 dark:text-white text-sm">Career Blog</div>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">Guides & strategies</p>
+                                        </div>
+                                    </a>
+                                    <a href="#/interview-studio" className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group/item">
+                                        <div className="p-2 bg-orange-50 dark:bg-orange-900/30 text-orange-600 rounded-md group-hover/item:bg-orange-100 dark:group-hover/item:bg-orange-900/50">
+                                            <Users size={18} />
+                                        </div>
+                                        <div>
+                                            <div className="font-semibold text-gray-900 dark:text-white text-sm">Community</div>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">Join 10k+ members</p>
+                                        </div>
+                                    </a>
+                                    <a href="#/contact" className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group/item">
+                                        <div className="p-2 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 rounded-md group-hover/item:bg-cyan-100 dark:group-hover/item:bg-cyan-900/50">
+                                            <Users size={18} />
+                                        </div>
+                                        <div>
+                                            <div className="font-semibold text-gray-900 dark:text-white text-sm">Contact Us</div>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">Get in touch</p>
+                                        </div>
+                                    </a>
+                                </>
+                            )}
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
-    );
+                )}
+            </div>
+        );
+    };
 
     return (
         <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
@@ -94,7 +99,7 @@ const PublicHeader: React.FC = () => {
                     <a href="#/" className="flex items-center gap-2 group">
                         <div className="relative">
                             <div className="absolute inset-0 bg-primary-500/20 rounded-full blur-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <img src="https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/logo.png?alt=media&token=3d2f7db5-96db-4dce-ba00-43d8976da3a1" alt="CareerVivid Logo" className="h-8 w-8 relative z-10" />
+                            <Logo className="h-8 w-8 relative z-10" />
                         </div>
                         <span className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">CareerVivid</span>
                     </a>

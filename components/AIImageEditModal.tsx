@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Check } from 'lucide-react';
 import { editProfilePhoto } from '../services/geminiService';
 import { uploadImage, dataURLtoBlob } from '../services/storageService';
 
@@ -29,6 +29,7 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
     const [customPrompt, setCustomPrompt] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [newPhoto, setNewPhoto] = useState<string | null>(null);
+    const [activeSelection, setActiveSelection] = useState<'current' | 'new'>('current');
 
      useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -67,6 +68,9 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
         }
         setIsLoading(true);
         setNewPhoto(null);
+        // Reset selection to current while generating to avoid confusion
+        setActiveSelection('current'); 
+        
         try {
             let base64data: string;
             let mimeType: string;
@@ -94,6 +98,8 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
             
             const result = await editProfilePhoto(userId, base64data, mimeType, finalPrompt);
             setNewPhoto(result);
+            // Automatically select the new photo upon success
+            setActiveSelection('new');
 
         } catch (error) {
             console.error(error);
@@ -103,12 +109,32 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
         }
     };
 
+    const getSelectedPhoto = () => {
+        return activeSelection === 'new' ? newPhoto : currentPhoto;
+    };
+
     const handleSaveAndUse = async () => {
-        if (newPhoto && userId) {
+        const targetPhoto = getSelectedPhoto();
+        
+        if (!targetPhoto) {
+             onError("Error", "No image selected.");
+             return;
+        }
+
+        // If it's already a remote URL (and not a blob/data url), we might just pass it back
+        // But to be safe/consistent with the "Save" action implying persistence, 
+        // if it is the "currentPhoto" and it is already a remote URL, we just return it.
+        if (activeSelection === 'current' && targetPhoto.startsWith('http')) {
+            onSave(targetPhoto);
+            onClose();
+            return;
+        }
+
+        if (userId) {
             setIsLoading(true);
-            const blob = dataURLtoBlob(newPhoto);
+            const blob = dataURLtoBlob(targetPhoto);
             if (!blob) {
-                onError("Save Failed", "Could not process the edited photo.");
+                onError("Save Failed", "Could not process the selected photo.");
                 setIsLoading(false);
                 return;
             }
@@ -129,17 +155,19 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
     };
 
     const handleUseTemp = () => {
-        if (newPhoto) {
-            onUseTemp(newPhoto);
+        const targetPhoto = getSelectedPhoto();
+        if (targetPhoto) {
+            onUseTemp(targetPhoto);
             onClose();
         }
     };
     
     const handleDownload = () => {
-        if (newPhoto) {
+        const targetPhoto = getSelectedPhoto();
+        if (targetPhoto) {
             const link = document.createElement('a');
-            link.href = newPhoto;
-            link.download = `ai_edited_image_${Date.now()}.png`;
+            link.href = targetPhoto;
+            link.download = `image_${activeSelection}_${Date.now()}.png`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -154,13 +182,35 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
                 <h3 className="text-lg font-bold mb-4 dark:text-white">Edit Image with AI</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
+                    {/* Current Photo */}
+                    <div 
+                        onClick={() => setActiveSelection('current')}
+                        className={`
+                            cursor-pointer rounded-lg p-1 border-2 transition-all relative
+                            ${activeSelection === 'current' ? 'border-primary-500 ring-2 ring-primary-200 dark:ring-primary-900' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'}
+                        `}
+                    >
                         <p className="text-sm font-semibold mb-2 text-center dark:text-gray-300">Current</p>
                         <div className="relative aspect-square bg-gray-100 dark:bg-gray-700 rounded-md overflow-hidden">
                              <img src={currentPhoto} alt="Current" className="w-full h-full object-contain"/>
+                             {activeSelection === 'current' && (
+                                <div className="absolute top-2 right-2 bg-primary-500 text-white rounded-full p-1 shadow-md">
+                                    <Check size={16} />
+                                </div>
+                             )}
                         </div>
                     </div>
-                    <div>
+
+                    {/* New Photo */}
+                    <div 
+                        onClick={() => newPhoto && setActiveSelection('new')}
+                        className={`
+                            rounded-lg p-1 border-2 transition-all relative
+                            ${newPhoto ? 'cursor-pointer' : 'cursor-default'}
+                            ${activeSelection === 'new' ? 'border-primary-500 ring-2 ring-primary-200 dark:ring-primary-900' : 'border-transparent'}
+                            ${newPhoto && activeSelection !== 'new' ? 'hover:border-gray-300 dark:hover:border-gray-600' : ''}
+                        `}
+                    >
                         <p className="text-sm font-semibold mb-2 text-center dark:text-gray-300">New</p>
                         <div className="relative aspect-square rounded-md bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
                             {isLoading && !newPhoto ? (
@@ -170,6 +220,12 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
                             ) : (
                                 <p className="text-gray-500 dark:text-gray-400 text-sm p-4 text-center">AI generated preview will appear here</p>
                             )}
+                            
+                            {activeSelection === 'new' && newPhoto && (
+                                <div className="absolute top-2 right-2 bg-primary-500 text-white rounded-full p-1 shadow-md">
+                                    <Check size={16} />
+                                </div>
+                             )}
                         </div>
                     </div>
                 </div>
@@ -213,19 +269,16 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
                             {isLoading && <Loader2 className="animate-spin" size={16} />}
                             {isLoading ? 'Generating...' : (newPhoto ? 'Regenerate' : 'Generate')}
                         </button>
-                        {newPhoto && (
-                            <>
-                                <button onClick={handleDownload} disabled={isLoading} className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 disabled:bg-gray-300">
-                                    Download
-                                </button>
-                                <button onClick={handleUseTemp} disabled={isLoading} className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 disabled:bg-blue-300">
-                                    Use Preview
-                                </button>
-                                <button onClick={handleSaveAndUse} disabled={isLoading} className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 disabled:bg-green-300">
-                                    Save & Apply
-                                </button>
-                            </>
-                        )}
+                        
+                        <button onClick={handleDownload} disabled={isLoading} className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 disabled:bg-gray-300">
+                            Download
+                        </button>
+                        <button onClick={handleUseTemp} disabled={isLoading} className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 disabled:bg-blue-300">
+                            Use Preview
+                        </button>
+                        <button onClick={handleSaveAndUse} disabled={isLoading} className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 disabled:bg-green-300">
+                            Save & Apply
+                        </button>
                     </div>
                 </div>
             </div>

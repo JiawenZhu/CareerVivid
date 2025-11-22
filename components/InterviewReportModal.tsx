@@ -1,8 +1,7 @@
+
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { InterviewAnalysis, TranscriptEntry, PracticeHistoryEntry, Job } from '../types';
 import { X, Download, FileText, BarChart, Bot, User, Loader2 } from 'lucide-react';
-import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas';
 import FeedbackModal from './FeedbackModal';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -183,6 +182,10 @@ const InterviewReportModal: React.FC<InterviewReportModalProps> = ({ jobHistoryE
         if (!currentAnalysis) return;
         setIsDownloading(true);
         try {
+            // Dynamic imports to reduce initial bundle size
+            const { jsPDF } = await import('jspdf');
+            const html2canvas = (await import('html2canvas')).default;
+
             const element = printRef.current;
             if (!element) throw new Error("Printable element not found.");
     

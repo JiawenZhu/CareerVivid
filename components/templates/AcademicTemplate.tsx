@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
+import InlineEdit from '../InlineEdit';
 
-export const AcademicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont }) => {
+export const AcademicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont, onFocus }) => {
   const { personalDetails, professionalSummary, employmentHistory, education, skills, websites } = resume;
 
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
@@ -11,43 +12,125 @@ export const AcademicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, 
   return (
     <div className="p-8 bg-white text-gray-900 leading-normal" style={bodyStyle}>
       <header className="text-center border-b pb-4 mb-6">
-        <h1 className="text-3xl font-bold" style={titleStyle}>{personalDetails.firstName} {personalDetails.lastName}</h1>
-        <p className="text-lg" style={{...titleStyle, color: themeColor}}>{personalDetails.jobTitle}</p>
-        <div className="text-sm mt-2">
-          {personalDetails.address} | {personalDetails.email} | {personalDetails.phone}
+        <div className="flex justify-center gap-2">
+            <InlineEdit 
+                value={personalDetails.firstName} 
+                fieldId="personalDetails.firstName" 
+                onFocus={onFocus} 
+                className="text-3xl font-bold" 
+                style={titleStyle}
+                tagName="h1"
+                placeholder="First Name"
+            />
+            <InlineEdit 
+                value={personalDetails.lastName} 
+                fieldId="personalDetails.lastName" 
+                onFocus={onFocus} 
+                className="text-3xl font-bold" 
+                style={titleStyle}
+                tagName="h1"
+                placeholder="Last Name"
+            />
+        </div>
+        <InlineEdit 
+            value={personalDetails.jobTitle} 
+            fieldId="personalDetails.jobTitle" 
+            onFocus={onFocus} 
+            className="text-lg block" 
+            style={{...titleStyle, color: themeColor}}
+            tagName="p"
+            placeholder="Job Title"
+        />
+        <div className="text-sm mt-2 flex justify-center gap-1">
+          <InlineEdit value={personalDetails.address} fieldId="personalDetails.address" onFocus={onFocus} placeholder="Address" />
+          <span>|</span>
+          <InlineEdit value={personalDetails.email} fieldId="personalDetails.email" onFocus={onFocus} placeholder="Email" />
+          <span>|</span>
+          <InlineEdit value={personalDetails.phone} fieldId="personalDetails.phone" onFocus={onFocus} placeholder="Phone" />
         </div>
       </header>
 
       <main>
         <section className="mb-6">
           <h2 className="text-sm font-bold uppercase tracking-widest border-b mb-2 pb-1" style={titleStyle}>Summary</h2>
-          <p className="text-sm">{professionalSummary}</p>
+          <InlineEdit 
+            value={professionalSummary} 
+            fieldId="professionalSummary" 
+            onFocus={onFocus} 
+            className="text-sm block whitespace-pre-wrap"
+            tagName="p"
+            placeholder="Summary..."
+          />
         </section>
 
         <section className="mb-6">
           <h2 className="text-sm font-bold uppercase tracking-widest border-b mb-2 pb-1" style={titleStyle}>Education</h2>
-          {education.map(edu => (
+          {education.map((edu, index) => (
             <div key={edu.id} className="text-sm mb-2">
               <div className="flex justify-between">
-                <p><strong style={titleStyle}>{edu.school}</strong>, {edu.city}</p>
-                <p>{edu.startDate} - {edu.endDate}</p>
+                <div className="flex gap-1">
+                    <InlineEdit value={edu.school} fieldId={`education[${index}].school`} onFocus={onFocus} placeholder="School" style={{fontWeight: 'bold', ...titleStyle}} />
+                    <span>,</span>
+                    <InlineEdit value={edu.city} fieldId={`education[${index}].city`} onFocus={onFocus} placeholder="City" />
+                </div>
+                <div className="flex gap-1">
+                    <InlineEdit value={edu.startDate} fieldId={`education[${index}].startDate`} onFocus={onFocus} placeholder="Start" />
+                    <span>-</span>
+                    <InlineEdit value={edu.endDate} fieldId={`education[${index}].endDate`} onFocus={onFocus} placeholder="End" />
+                </div>
               </div>
-              <p><em>{edu.degree}</em></p>
-              <p className="whitespace-pre-wrap">{edu.description}</p>
+              <InlineEdit 
+                value={edu.degree} 
+                fieldId={`education[${index}].degree`} 
+                onFocus={onFocus} 
+                className="italic block"
+                tagName="p"
+                placeholder="Degree"
+              />
+              <InlineEdit 
+                value={edu.description} 
+                fieldId={`education[${index}].description`} 
+                onFocus={onFocus} 
+                className="whitespace-pre-wrap block"
+                tagName="p"
+                placeholder="Description..."
+              />
             </div>
           ))}
         </section>
         
         <section className="mb-6">
           <h2 className="text-sm font-bold uppercase tracking-widest border-b mb-2 pb-1" style={titleStyle}>Research Experience</h2>
-          {employmentHistory.map(job => (
+          {employmentHistory.map((job, index) => (
             <div key={job.id} className="text-sm mb-2">
               <div className="flex justify-between">
-                <p><strong style={titleStyle}>{job.employer}</strong>, {job.city}</p>
-                <p>{job.startDate} - {job.endDate}</p>
+                <div className="flex gap-1">
+                    <InlineEdit value={job.employer} fieldId={`employmentHistory[${index}].employer`} onFocus={onFocus} placeholder="Employer" style={{fontWeight: 'bold', ...titleStyle}} />
+                    <span>,</span>
+                    <InlineEdit value={job.city} fieldId={`employmentHistory[${index}].city`} onFocus={onFocus} placeholder="City" />
+                </div>
+                <div className="flex gap-1">
+                    <InlineEdit value={job.startDate} fieldId={`employmentHistory[${index}].startDate`} onFocus={onFocus} placeholder="Start" />
+                    <span>-</span>
+                    <InlineEdit value={job.endDate} fieldId={`employmentHistory[${index}].endDate`} onFocus={onFocus} placeholder="End" />
+                </div>
               </div>
-              <p><em>{job.jobTitle}</em></p>
-              <p className="mt-1 whitespace-pre-wrap">{job.description}</p>
+              <InlineEdit 
+                value={job.jobTitle} 
+                fieldId={`employmentHistory[${index}].jobTitle`} 
+                onFocus={onFocus} 
+                className="italic block"
+                tagName="p"
+                placeholder="Job Title"
+              />
+              <InlineEdit 
+                value={job.description} 
+                fieldId={`employmentHistory[${index}].description`} 
+                onFocus={onFocus} 
+                className="mt-1 whitespace-pre-wrap block"
+                tagName="p"
+                placeholder="Description..."
+              />
             </div>
           ))}
         </section>
@@ -55,8 +138,13 @@ export const AcademicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, 
         <section className="mb-6">
           <h2 className="text-sm font-bold uppercase tracking-widest border-b mb-2 pb-1" style={titleStyle}>Skills</h2>
           <div className="text-sm">
-            {skills.map(skill => (
-                <div key={skill.id}><strong>{skill.name}:</strong> {skill.level}</div>
+            {skills.map((skill, index) => (
+                <div key={skill.id} className="flex gap-1">
+                    <strong className="mr-1">
+                        <InlineEdit value={skill.name} fieldId={`skills[${index}].name`} onFocus={onFocus} placeholder="Skill" />:
+                    </strong> 
+                    <span>{skill.level}</span>
+                </div>
             ))}
           </div>
         </section>

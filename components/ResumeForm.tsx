@@ -1,14 +1,16 @@
+
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { ResumeData, PersonalDetails, WebsiteLink, Skill, EmploymentHistory, Education, Language } from '../types';
 import { parseResume, parseResumeFromFile } from '../services/geminiService';
 import { LANGUAGE_PROFICIENCY_LEVELS } from '../constants';
-import { PlusCircle, Trash2, Wand2, UploadCloud, User, Briefcase, GraduationCap, Link as LinkIcon, Star, CheckCircle, Loader2, Brush, Languages, Zap, ChevronDown, ChevronUp } from 'lucide-react';
+import { PlusCircle, Trash2, Wand2, UploadCloud, User, Briefcase, GraduationCap, Link as LinkIcon, Star, CheckCircle, Loader2, Brush, Languages, Zap, ChevronDown, ChevronUp, GripVertical } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { uploadImage, dataURLtoBlob } from '../services/storageService';
 import AlertModal from './AlertModal';
 import EditableTextarea from './EditableTextarea';
 import AIImprovementPanel from './AIImprovementPanel';
 import AIImageEditModal from './AIImageEditModal';
+import MonthYearPicker from './MonthYearPicker';
 
 interface ResumeFormProps {
   resume: ResumeData;
@@ -18,7 +20,6 @@ interface ResumeFormProps {
   isReadOnly?: boolean;
 }
 
-// Reusable Section Component
 const FormSection: React.FC<{ title: string; icon: React.ReactNode; children: React.ReactNode }> = ({ title, icon, children }) => (
   <div className="mb-8 p-6 bg-white dark:bg-gray-800/50 dark:border dark:border-gray-700 rounded-lg shadow-md">
     <div className="flex items-center mb-4">
@@ -29,11 +30,10 @@ const FormSection: React.FC<{ title: string; icon: React.ReactNode; children: Re
   </div>
 );
 
-// Reusable Input Component
-const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement> & { label: string }> = ({ label, ...props }) => (
-  <div className="mb-4">
-    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
-    <input {...props} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800" />
+const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement> & { label: string }> = ({ label, id, ...props }) => (
+  <div className="mb-4" id={id ? `container-${id}` : undefined}>
+    <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
+    <input id={id} {...props} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 transition-colors duration-200" />
   </div>
 );
 
@@ -43,7 +43,6 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
     const [isParsing, setIsParsing] = useState(false);
     const [parsingMessageIndex, setParsingMessageIndex] = useState(0);
     
-    // State for managing which inline AI panel is open
     const [activeImprovementId, setActiveImprovementId] = useState<string | null>(null);
 
     const [isImageEditModalOpen, setIsImageEditModalOpen] = useState(false);
@@ -52,9 +51,11 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
     const photoInputRef = useRef<HTMLInputElement>(null);
     const [alertState, setAlertState] = useState({ isOpen: false, title: '', message: '' });
 
-    // Check if resume has meaningful data to determine default state
     const hasInitialContent = !!(resume.personalDetails.firstName || resume.professionalSummary || (resume.employmentHistory && resume.employmentHistory.length > 0));
     const [isImportExpanded, setIsImportExpanded] = useState(!hasInitialContent);
+
+    const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
+    const [draggedItemType, setDraggedItemType] = useState<keyof ResumeData | null>(null);
 
     const parsingMessages = [
         "Analyzing document structure...",
@@ -96,7 +97,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                 const text = await file.text();
                 const parsedData = await parseResume(currentUser.uid, text, resume.language);
                 onChange(parsedData);
-                setIsImportExpanded(false); // Auto-collapse on success
+                setIsImportExpanded(false); 
             } else if (file.type === 'application/pdf') {
                 const reader = new FileReader();
                 reader.onload = async (event) => {
@@ -104,7 +105,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                     try {
                         const parsedData = await parseResumeFromFile(currentUser.uid, fileData, file.type, resume.language);
                         onChange(parsedData);
-                        setIsImportExpanded(false); // Auto-collapse on success
+                        setIsImportExpanded(false); 
                     } catch (error) {
                          setAlertState({ isOpen: true, title: 'Parsing Failed', message: error instanceof Error ? error.message : "Failed to parse resume from file." });
                     } finally {
@@ -146,13 +147,11 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
             const blob = dataURLtoBlob(tempPhoto);
             if (!blob) throw new Error("Could not convert photo data.");
     
-            // UPDATED: Upload to correct resume_photos path using centralized service
             const path = `users/${currentUser.uid}/resume_photos/${Date.now()}_saved.png`;
             const downloadURL = await uploadImage(blob, path);
             
-            // This updates the resume in Firestore and triggers the Editor to clear the temp photo.
             handleChange('photo', downloadURL, 'personalDetails');
-            setTempPhoto(null); // Clear temp photo after successful save
+            setTempPhoto(null); 
     
         } catch (error: any) {
             console.error("Error saving photo:", error);
@@ -200,6 +199,32 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
         onChange({ [arrayName]: array.filter((_, i) => i !== index) } as Partial<ResumeData>);
     };
 
+    // DnD Handlers
+    const handleDragStart = (e: React.DragEvent, index: number, type: keyof ResumeData) => {
+        setDraggedItemIndex(index);
+        setDraggedItemType(type);
+        e.dataTransfer.effectAllowed = "move";
+    };
+
+    const handleDragOver = (e: React.DragEvent, index: number) => {
+        e.preventDefault(); 
+        if (draggedItemIndex === null || draggedItemIndex === index) return;
+    };
+
+    const handleDrop = (e: React.DragEvent, dropIndex: number, type: keyof ResumeData) => {
+        e.preventDefault();
+        if (draggedItemIndex === null || draggedItemType !== type) return;
+
+        const list = resume[type] as any[];
+        const newList = [...list];
+        const [movedItem] = newList.splice(draggedItemIndex, 1);
+        newList.splice(dropIndex, 0, movedItem);
+
+        onChange({ [type]: newList } as Partial<ResumeData>);
+        setDraggedItemIndex(null);
+        setDraggedItemType(null);
+    };
+
     const displayPhoto = tempPhoto || resume.personalDetails.photo;
 
     return (
@@ -211,7 +236,6 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                 onClose={() => setAlertState({ isOpen: false, title: '', message: '' })}
             />
             
-            {/* Collapsible Import Section */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300">
                 <button 
                     onClick={() => setIsImportExpanded(!isImportExpanded)}
@@ -272,7 +296,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                                         const pastedText = e.clipboardData.getData('text');
                                         const parsedData = await parseResume(currentUser.uid, pastedText, resume.language);
                                         onChange(parsedData);
-                                        setIsImportExpanded(false); // Collapse after successful paste
+                                        setIsImportExpanded(false); 
                                     } catch (error) {
                                         setAlertState({isOpen: true, title: 'Parsing Failed', message: error instanceof Error ? error.message : "Failed to parse pasted resume."});
                                     } finally {
@@ -297,14 +321,13 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                         setTempPhoto(newPhotoDataUrl);
                     }}
                     onError={(title, message) => setAlertState({ isOpen: true, title, message })}
-                    // AI Edited photos also go to the standard resume photos path
                     savePath={`users/${currentUser.uid}/resume_photos/${Date.now()}_edited.png`}
                 />
             )}
 
             <FormSection title="Personal Details" icon={<User className="text-primary-500" />}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input label="Job Title" value={resume.personalDetails.jobTitle} onChange={e => handleChange('jobTitle', e.target.value, 'personalDetails')} disabled={isReadOnly} />
+                  <Input id="personalDetails.jobTitle" label="Job Title" value={resume.personalDetails.jobTitle} onChange={e => handleChange('jobTitle', e.target.value, 'personalDetails')} disabled={isReadOnly} />
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Photo</label>
                     <input id="photo-upload" type="file" onChange={handlePhotoChange} accept="image/*" className="hidden" ref={photoInputRef} disabled={isReadOnly}/>
@@ -359,21 +382,22 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                         </div>
                     )}
                   </div>
-                  <Input label="First Name" value={resume.personalDetails.firstName} onChange={e => handleChange('firstName', e.target.value, 'personalDetails')} disabled={isReadOnly} />
-                  <Input label="Last Name" value={resume.personalDetails.lastName} onChange={e => handleChange('lastName', e.target.value, 'personalDetails')} disabled={isReadOnly} />
-                  <Input label="Email" type="email" value={resume.personalDetails.email} onChange={e => handleChange('email', e.target.value, 'personalDetails')} disabled={isReadOnly} />
-                  <Input label="Phone" value={resume.personalDetails.phone} onChange={e => handleChange('phone', e.target.value, 'personalDetails')} disabled={isReadOnly} />
+                  <Input id="personalDetails.firstName" label="First Name" value={resume.personalDetails.firstName} onChange={e => handleChange('firstName', e.target.value, 'personalDetails')} disabled={isReadOnly} />
+                  <Input id="personalDetails.lastName" label="Last Name" value={resume.personalDetails.lastName} onChange={e => handleChange('lastName', e.target.value, 'personalDetails')} disabled={isReadOnly} />
+                  <Input id="personalDetails.email" label="Email" type="email" value={resume.personalDetails.email} onChange={e => handleChange('email', e.target.value, 'personalDetails')} disabled={isReadOnly} />
+                  <Input id="personalDetails.phone" label="Phone" value={resume.personalDetails.phone} onChange={e => handleChange('phone', e.target.value, 'personalDetails')} disabled={isReadOnly} />
               </div>
-              <Input label="Address" value={resume.personalDetails.address} onChange={e => handleChange('address', e.target.value, 'personalDetails')} disabled={isReadOnly} />
+              <Input id="personalDetails.address" label="Address" value={resume.personalDetails.address} onChange={e => handleChange('address', e.target.value, 'personalDetails')} disabled={isReadOnly} />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                 <Input label="City" value={resume.personalDetails.city} onChange={e => handleChange('city', e.target.value, 'personalDetails')} disabled={isReadOnly} />
-                 <Input label="Postal Code" value={resume.personalDetails.postalCode} onChange={e => handleChange('postalCode', e.target.value, 'personalDetails')} disabled={isReadOnly} />
-                 <Input label="Country" value={resume.personalDetails.country} onChange={e => handleChange('country', e.target.value, 'personalDetails')} disabled={isReadOnly} />
+                 <Input id="personalDetails.city" label="City" value={resume.personalDetails.city} onChange={e => handleChange('city', e.target.value, 'personalDetails')} disabled={isReadOnly} />
+                 <Input id="personalDetails.postalCode" label="Postal Code" value={resume.personalDetails.postalCode} onChange={e => handleChange('postalCode', e.target.value, 'personalDetails')} disabled={isReadOnly} />
+                 <Input id="personalDetails.country" label="Country" value={resume.personalDetails.country} onChange={e => handleChange('country', e.target.value, 'personalDetails')} disabled={isReadOnly} />
               </div>
             </FormSection>
             
             <FormSection title="Professional Summary" icon={<Briefcase className="text-primary-500" />}>
                 <EditableTextarea 
+                    id="professionalSummary"
                     label="Summary" 
                     value={resume.professionalSummary} 
                     onChange={value => handleChange('professionalSummary', value)} 
@@ -414,8 +438,8 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                              </button>
                          </div>
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
-                            <Input label="Label" value={link.label} onChange={e => handleArrayChange<WebsiteLink>('websites', index, 'label', e.target.value)} disabled={isReadOnly} />
-                            <Input label="URL" value={link.url} onChange={e => handleArrayChange<WebsiteLink>('websites', index, 'url', e.target.value)} disabled={isReadOnly} />
+                            <Input id={`websites[${index}].label`} label="Label" value={link.label} onChange={e => handleArrayChange<WebsiteLink>('websites', index, 'label', e.target.value)} disabled={isReadOnly} />
+                            <Input id={`websites[${index}].url`} label="URL" value={link.url} onChange={e => handleArrayChange<WebsiteLink>('websites', index, 'url', e.target.value)} disabled={isReadOnly} />
                         </div>
                     </div>
                 ))}
@@ -424,17 +448,27 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
 
             <FormSection title="Skills" icon={<Star className="text-primary-500" />}>
                  {resume.skills.map((skill, index) => (
-                    <div key={skill.id} className="relative p-5 border dark:border-gray-700 rounded-md mb-4 bg-gray-50/50 dark:bg-gray-800/30 hover:shadow-sm transition-shadow">
+                    <div 
+                        key={skill.id} 
+                        draggable={!isReadOnly}
+                        onDragStart={(e) => handleDragStart(e, index, 'skills')}
+                        onDragOver={(e) => handleDragOver(e, index)}
+                        onDrop={(e) => handleDrop(e, index, 'skills')}
+                        className="relative p-5 border dark:border-gray-700 rounded-md mb-4 bg-gray-50/50 dark:bg-gray-800/30 hover:shadow-sm transition-shadow cursor-default"
+                    >
+                        <div className="absolute top-1/2 -translate-y-1/2 left-2 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600">
+                            <GripVertical size={20} />
+                        </div>
                         <div className="absolute top-4 right-4">
                              <button onClick={() => removeArrayItem('skills', index)} disabled={isReadOnly} className="p-1 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Delete Entry">
                                  <Trash2 size={18} />
                              </button>
                          </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
-                            <Input label="Skill" value={skill.name} onChange={e => handleArrayChange<Skill>('skills', index, 'name', e.target.value)} disabled={isReadOnly} />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8 pl-6">
+                            <Input id={`skills[${index}].name`} label="Skill" value={skill.name} onChange={e => handleArrayChange<Skill>('skills', index, 'name', e.target.value)} disabled={isReadOnly} />
                             <div>
                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Level</label>
-                               <select value={skill.level} onChange={e => handleArrayChange<Skill>('skills', index, 'level', e.target.value)} disabled={isReadOnly} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 disabled:bg-gray-100 dark:disabled:bg-gray-800">
+                               <select id={`skills[${index}].level`} value={skill.level} onChange={e => handleArrayChange<Skill>('skills', index, 'level', e.target.value)} disabled={isReadOnly} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800">
                                    <option>Novice</option>
                                    <option>Intermediate</option>
                                    <option>Advanced</option>
@@ -456,10 +490,10 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                              </button>
                          </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
-                            <Input label="Language" value={lang.name} onChange={e => handleArrayChange<Language>('languages', index, 'name', e.target.value)} disabled={isReadOnly} />
+                            <Input id={`languages[${index}].name`} label="Language" value={lang.name} onChange={e => handleArrayChange<Language>('languages', index, 'name', e.target.value)} disabled={isReadOnly} />
                             <div>
                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Proficiency</label>
-                               <select value={lang.level} onChange={e => handleArrayChange<Language>('languages', index, 'level', e.target.value)} disabled={isReadOnly} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 disabled:bg-gray-100 dark:disabled:bg-gray-800">
+                               <select id={`languages[${index}].level`} value={lang.level} onChange={e => handleArrayChange<Language>('languages', index, 'level', e.target.value)} disabled={isReadOnly} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800">
                                    {LANGUAGE_PROFICIENCY_LEVELS.map(level => <option key={level}>{level}</option>)}
                                </select>
                             </div>
@@ -471,26 +505,36 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
 
             <FormSection title="Employment History" icon={<Briefcase className="text-primary-500" />}>
                  {resume.employmentHistory.map((job, index) => (
-                    <div key={job.id} className="relative p-5 border dark:border-gray-700 rounded-md mb-6 bg-gray-50/50 dark:bg-gray-800/30 hover:shadow-sm transition-shadow">
-                         {/* Delete Button - Top Right */}
+                    <div 
+                        key={job.id} 
+                        draggable={!isReadOnly}
+                        onDragStart={(e) => handleDragStart(e, index, 'employmentHistory')}
+                        onDragOver={(e) => handleDragOver(e, index)}
+                        onDrop={(e) => handleDrop(e, index, 'employmentHistory')}
+                        className="relative p-5 border dark:border-gray-700 rounded-md mb-6 bg-gray-50/50 dark:bg-gray-800/30 hover:shadow-sm transition-shadow cursor-default"
+                    >
+                         <div className="absolute top-1/2 -translate-y-1/2 left-2 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600">
+                            <GripVertical size={20} />
+                        </div>
                          <div className="absolute top-4 right-4">
                              <button onClick={() => removeArrayItem('employmentHistory', index)} disabled={isReadOnly} className="p-1 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Delete Entry">
                                  <Trash2 size={18} />
                              </button>
                          </div>
 
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
-                             <Input label="Job Title" value={job.jobTitle} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'jobTitle', e.target.value)} disabled={isReadOnly} />
-                             <Input label="Employer" value={job.employer} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'employer', e.target.value)} disabled={isReadOnly} />
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8 pl-6">
+                             <Input id={`employmentHistory[${index}].jobTitle`} label="Job Title" value={job.jobTitle} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'jobTitle', e.target.value)} disabled={isReadOnly} />
+                             <Input id={`employmentHistory[${index}].employer`} label="Employer" value={job.employer} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'employer', e.target.value)} disabled={isReadOnly} />
                          </div>
-                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
-                             <Input label="City" value={job.city} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'city', e.target.value)} disabled={isReadOnly} />
-                             <Input label="Start Date" value={job.startDate} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'startDate', e.target.value)} disabled={isReadOnly} />
-                             <Input label="End Date" value={job.endDate} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'endDate', e.target.value)} disabled={isReadOnly} />
+                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2 pl-6 pr-8">
+                             <Input id={`employmentHistory[${index}].city`} label="City" value={job.city} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'city', e.target.value)} disabled={isReadOnly} />
+                             <MonthYearPicker id={`employmentHistory[${index}].startDate`} label="Start Date" value={job.startDate} onChange={v => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'startDate', v)} disabled={isReadOnly} />
+                             <MonthYearPicker id={`employmentHistory[${index}].endDate`} label="End Date" value={job.endDate} onChange={v => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'endDate', v)} disabled={isReadOnly} />
                          </div>
                          
-                         <div className="mt-4">
+                         <div className="mt-4 pl-6 pr-8">
                              <EditableTextarea 
+                                id={`employmentHistory[${index}].description`}
                                 label="Description" 
                                 value={job.description} 
                                 onChange={value => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'description', value)} 
@@ -529,25 +573,36 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
             
             <FormSection title="Education" icon={<GraduationCap className="text-primary-500" />}>
                  {resume.education.map((edu, index) => (
-                    <div key={edu.id} className="relative p-5 border dark:border-gray-700 rounded-md mb-6 bg-gray-50/50 dark:bg-gray-800/30 hover:shadow-sm transition-shadow">
+                    <div 
+                        key={edu.id} 
+                        draggable={!isReadOnly}
+                        onDragStart={(e) => handleDragStart(e, index, 'education')}
+                        onDragOver={(e) => handleDragOver(e, index)}
+                        onDrop={(e) => handleDrop(e, index, 'education')}
+                        className="relative p-5 border dark:border-gray-700 rounded-md mb-6 bg-gray-50/50 dark:bg-gray-800/30 hover:shadow-sm transition-shadow cursor-default"
+                    >
+                         <div className="absolute top-1/2 -translate-y-1/2 left-2 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600">
+                            <GripVertical size={20} />
+                        </div>
                          <div className="absolute top-4 right-4">
                              <button onClick={() => removeArrayItem('education', index)} disabled={isReadOnly} className="p-1 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Delete Entry">
                                  <Trash2 size={18} />
                              </button>
                          </div>
 
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
-                             <Input label="School" value={edu.school} onChange={e => handleArrayChange<Education>('education', index, 'school', e.target.value)} disabled={isReadOnly} />
-                             <Input label="Degree" value={edu.degree} onChange={e => handleArrayChange<Education>('education', index, 'degree', e.target.value)} disabled={isReadOnly} />
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8 pl-6">
+                             <Input id={`education[${index}].school`} label="School" value={edu.school} onChange={e => handleArrayChange<Education>('education', index, 'school', e.target.value)} disabled={isReadOnly} />
+                             <Input id={`education[${index}].degree`} label="Degree" value={edu.degree} onChange={e => handleArrayChange<Education>('education', index, 'degree', e.target.value)} disabled={isReadOnly} />
                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
-                              <Input label="City" value={edu.city} onChange={e => handleArrayChange<Education>('education', index, 'city', e.target.value)} disabled={isReadOnly} />
-                              <Input label="Start Date" value={edu.startDate} onChange={e => handleArrayChange<Education>('education', index, 'startDate', e.target.value)} disabled={isReadOnly} />
-                              <Input label="End Date" value={edu.endDate} onChange={e => handleArrayChange<Education>('education', index, 'endDate', e.target.value)} disabled={isReadOnly} />
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2 pl-6 pr-8">
+                              <Input id={`education[${index}].city`} label="City" value={edu.city} onChange={e => handleArrayChange<Education>('education', index, 'city', e.target.value)} disabled={isReadOnly} />
+                              <MonthYearPicker id={`education[${index}].startDate`} label="Start Date" value={edu.startDate} onChange={v => handleArrayChange<Education>('education', index, 'startDate', v)} disabled={isReadOnly} />
+                              <MonthYearPicker id={`education[${index}].endDate`} label="End Date" value={edu.endDate} onChange={v => handleArrayChange<Education>('education', index, 'endDate', v)} disabled={isReadOnly} />
                           </div>
                         
-                        <div className="mt-4">
+                        <div className="mt-4 pl-6 pr-8">
                             <EditableTextarea 
+                                id={`education[${index}].description`}
                                 label="Description" 
                                 value={edu.description} 
                                 onChange={value => handleArrayChange<Education>('education', index, 'description', value)} 

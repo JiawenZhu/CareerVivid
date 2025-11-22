@@ -1,14 +1,51 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CareerVivid</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Primary Meta Tags -->
+    <title>CareerVivid - AI Powered Resume Builder & Interview Prep</title>
+    <meta name="title" content="CareerVivid - AI Powered Resume Builder & Interview Prep">
+    <meta name="description" content="Create professional resumes, prepare for interviews with AI agents, and track your job applications all in one place. CareerVivid helps you land your dream job faster.">
+    <meta name="keywords" content="resume builder, AI resume, interview practice, mock interview AI, job tracker, career tools, professional cv, resume templates">
+    <meta name="author" content="CareerVivid">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://careervivid.com/">
+    <meta property="og:title" content="CareerVivid - Craft Your Future, Faster.">
+    <meta property="og:description" content="Go from rough draft to job-ready resume in minutes with our intelligent platform. Tailor, optimize, and export professional resumes that stand out.">
+    <meta property="og:image" content="https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Flogo_light_mode.png?alt=media&token=627ec9de-a950-41f7-9138-dd7a33518c55">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://careervivid.com/">
+    <meta property="twitter:title" content="CareerVivid - AI Powered Resume Builder">
+    <meta property="twitter:description" content="Go from rough draft to job-ready resume in minutes. Features AI-powered content generation, interview practice, and job tracking.">
+    <meta property="twitter:image" content="https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Flogo_light_mode.png?alt=media&token=627ec9de-a950-41f7-9138-dd7a33518c55">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@400;700&family=Lato:wght@400;700&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600;700&family=Merriweather:wght@400;700&family=Playfair+Display:wght@400;700&family=Oswald:wght@400;500;700&family=Raleway:wght@400;600;700&family=Poppins:wght@400;500;600;700&family=Nunito+Sans:wght@400;600;700&family=Crimson+Text:wght@400;600;700&family=Source+Sans+Pro:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://firebasestorage.googleapis.com">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link 
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@400;700&family=Lato:wght@400;700&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600;700&family=Merriweather:wght@400;700&family=Playfair+Display:wght@400;700&family=Oswald:wght@400;500;700&family=Raleway:wght@400;600;700&family=Poppins:wght@400;500;600;700&family=Nunito+Sans:wght@400;600;700&family=Crimson+Text:wght@400;600;700&family=Source+Sans+Pro:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap" 
+      rel="stylesheet" 
+      media="print" 
+      onload="this.media='all'"
+    >
+    <noscript>
+      <link 
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@400;700&family=Lato:wght@400;700&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600;700&family=Merriweather:wght@400;700&family=Playfair+Display:wght@400;700&family=Oswald:wght@400;500;700&family=Raleway:wght@400;600;700&family=Poppins:wght@400;500;600;700&family=Nunito+Sans:wght@400;600;700&family=Crimson+Text:wght@400;600;700&family=Source+Sans+Pro:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap" 
+        rel="stylesheet"
+      >
+    </noscript>
+
     <script>
       tailwind.config = {
         darkMode: 'class',
@@ -130,7 +167,9 @@
     "cors": "https://aistudiocdn.com/cors@^2.8.5",
     "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
     "uuid": "https://aistudiocdn.com/uuid@^13.0.0",
-    "buffer": "https://aistudiocdn.com/buffer@^6.0.3"
+    "buffer": "https://aistudiocdn.com/buffer@^6.0.3",
+    "@google/generative-ai": "https://aistudiocdn.com/@google/generative-ai@^0.24.1",
+    "firebase-functions/": "https://aistudiocdn.com/firebase-functions@^7.0.0/"
   }
 }
 </script>

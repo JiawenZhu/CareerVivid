@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
-import { Mail, MapPin, Phone, Send, Loader2, CheckCircle } from 'lucide-react';
+import { Send, Loader2, CheckCircle } from 'lucide-react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -59,43 +59,9 @@ const ContactPage: React.FC = () => {
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-                        {/* Contact Info */}
-                        <div className="bg-gray-50 dark:bg-gray-900 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 h-fit">
-                            <h3 className="text-xl font-bold mb-8">Contact Information</h3>
-                            <div className="space-y-6">
-                                <div className="flex items-start gap-4">
-                                    <div className="p-3 bg-white dark:bg-gray-800 rounded-xl text-primary-600 dark:text-primary-400 shadow-sm border border-gray-100 dark:border-gray-700">
-                                        <Mail size={20} />
-                                    </div>
-                                    <div>
-                                        <p className="font-bold">Email</p>
-                                        <a href="mailto:support@careervivid.com" className="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600">support@careervivid.com</a>
-                                    </div>
-                                </div>
-                                <div className="flex items-start gap-4">
-                                    <div className="p-3 bg-white dark:bg-gray-800 rounded-xl text-primary-600 dark:text-primary-400 shadow-sm border border-gray-100 dark:border-gray-700">
-                                        <MapPin size={20} />
-                                    </div>
-                                    <div>
-                                        <p className="font-bold">Office</p>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">123 Innovation Way, Tech City, TC 90210</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-start gap-4">
-                                    <div className="p-3 bg-white dark:bg-gray-800 rounded-xl text-primary-600 dark:text-primary-400 shadow-sm border border-gray-100 dark:border-gray-700">
-                                        <Phone size={20} />
-                                    </div>
-                                    <div>
-                                        <p className="font-bold">Phone</p>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">+1 (555) 123-4567</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
+                    <div className="max-w-2xl mx-auto">
                         {/* Contact Form */}
-                        <div className="lg:col-span-2 bg-white dark:bg-gray-900 p-8 sm:p-10 rounded-3xl shadow-xl shadow-gray-200/40 dark:shadow-none border border-gray-100 dark:border-gray-800">
+                        <div className="bg-white dark:bg-gray-900 p-8 sm:p-10 rounded-3xl shadow-xl shadow-gray-200/40 dark:shadow-none border border-gray-100 dark:border-gray-800">
                             {success ? (
                                 <div className="flex flex-col items-center justify-center h-full py-12 text-center">
                                     <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-full flex items-center justify-center mb-4">

@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 
 interface EditableTextareaProps {
@@ -6,9 +7,10 @@ interface EditableTextareaProps {
   onChange: (value: string) => void;
   placeholder?: string;
   disabled?: boolean;
+  id?: string;
 }
 
-const EditableTextarea: React.FC<EditableTextareaProps> = ({ label, value, onChange, placeholder, disabled = false }) => {
+const EditableTextarea: React.FC<EditableTextareaProps> = ({ label, value, onChange, placeholder, disabled = false, id }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentValue, setCurrentValue] = useState(value);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -50,10 +52,11 @@ const EditableTextarea: React.FC<EditableTextareaProps> = ({ label, value, onCha
   };
 
   return (
-    <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
+    <div className="mb-4" id={id ? `container-${id}` : undefined}>
+      <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
       {isEditing ? (
         <textarea
+          id={id}
           ref={textareaRef}
           value={currentValue || ''}
           onChange={handleTextareaInput}
@@ -66,8 +69,11 @@ const EditableTextarea: React.FC<EditableTextareaProps> = ({ label, value, onCha
         />
       ) : (
         <div
+          id={id}
+          tabIndex={0}
           onClick={() => !disabled && setIsEditing(true)}
-          className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md min-h-[88px] whitespace-pre-wrap text-gray-900 dark:text-white ${
+          onFocus={() => !disabled && setIsEditing(true)} // Trigger edit on focus (e.g. from preview click)
+          className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md min-h-[88px] whitespace-pre-wrap text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
             !disabled 
             ? 'cursor-text hover:bg-gray-50 dark:hover:bg-gray-700/50' 
             : 'bg-gray-100 dark:bg-gray-800 opacity-70 cursor-not-allowed'

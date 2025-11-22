@@ -1,3 +1,4 @@
+
 import { storage, db, auth } from '../firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -57,7 +58,8 @@ const uploadImageViaFunction = async (file: Blob | Uint8Array | ArrayBuffer, pat
 
     // Hardcoded project ID for Cloud Function URL
     const projectId = 'jastalk-firebase'; 
-    const functionUrl = `https://us-central1-${projectId}.cloudfunctions.net/uploadImageHttp`;
+    // Updated to correct region: us-west1
+    const functionUrl = `https://us-west1-${projectId}.cloudfunctions.net/uploadImageHttp`;
 
     console.log(`[Upload Debug] Attempting server-side upload via: ${functionUrl}`);
 

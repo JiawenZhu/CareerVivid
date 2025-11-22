@@ -11,6 +11,7 @@ import { auth, googleProvider, db } from '../firebase';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { Eye, EyeOff, ArrowLeft, Loader2, Mail, Lock, ChevronRight } from 'lucide-react';
 import { trackUsage } from '../services/trackingService';
+import Logo from '../components/Logo';
 
 const loadingMessages = [
     "Securing your connection...",
@@ -181,7 +182,7 @@ const AuthPage: React.FC = () => {
         <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-800 p-8 sm:p-10">
             
             <div className="text-center mb-10">
-                <img src="https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/logo.png?alt=media&token=3d2f7db5-96db-4dce-ba00-43d8976da3a1" alt="CareerVivid Logo" className="h-10 w-10 mx-auto mb-6" />
+                <Logo className="h-10 w-10 mx-auto mb-6" />
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
                   {isLogin ? 'Welcome back' : 'Create an account'}
                 </h2>
