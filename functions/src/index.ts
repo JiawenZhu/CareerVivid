@@ -96,6 +96,7 @@ const generatePdfBuffer = async (resumeData: ResumeData, templateId: string) => 
 };
 
 export const generateResumePdfHttp = functions
+  .region("us-west1")
   .runWith({
     timeoutSeconds: 120,
     memory: "4GB"
@@ -149,6 +150,7 @@ export const generateResumePdfHttp = functions
 
 // --- LEGACY AI FUNCTION (Updated to 2.5 Flash) ---
 export const generateAIContent = functions
+  .region("us-west1")
   .runWith({
     timeoutSeconds: 60,
     secrets: [geminiApiKey],
@@ -191,7 +193,9 @@ export const generateAIContent = functions
   });
 
 // HTTP Function - Upload Image Proxy (Bypasses CORS)
-export const uploadImageHttp = functions.runWith({ timeoutSeconds: 60, memory: "512MB" }).https.onRequest(
+export const uploadImageHttp = functions
+    .region("us-west1")
+    .runWith({ timeoutSeconds: 60, memory: "512MB" }).https.onRequest(
     async (req, res) => {
         corsHandler(req, res, async () => {
             if (req.method !== "POST") {
@@ -249,7 +253,9 @@ export const uploadImageHttp = functions.runWith({ timeoutSeconds: 60, memory: "
 
 // --- NEW: Public Access Functions ---
 
-export const getPublicResume = functions.runWith({ timeoutSeconds: 60, memory: "256MB" }).https.onRequest(async (req, res) => {
+export const getPublicResume = functions
+    .region("us-west1")
+    .runWith({ timeoutSeconds: 60, memory: "256MB" }).https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
         console.log("getPublicResume called", { query: req.query });
 
@@ -290,7 +296,9 @@ export const getPublicResume = functions.runWith({ timeoutSeconds: 60, memory: "
     });
 });
 
-export const updatePublicResume = functions.runWith({ timeoutSeconds: 60, memory: "256MB" }).https.onRequest(async (req, res) => {
+export const updatePublicResume = functions
+    .region("us-west1")
+    .runWith({ timeoutSeconds: 60, memory: "256MB" }).https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
         if (req.method !== 'POST') {
              res.status(405).send('Method Not Allowed');

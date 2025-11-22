@@ -98,7 +98,7 @@ const PublicResumePage: React.FC = () => {
     const [routeParams, setRouteParams] = useState<{userId: string, resumeId: string} | null>(null);
 
     useEffect(() => {
-        const fetchResume = async () => {
+        const fetchResume = async (retryCount = 0) => {
             const hash = window.location.hash;
             // Remove any query params from the hash path before splitting
             const cleanHash = hash.split('?')[0];
@@ -118,8 +118,8 @@ const PublicResumePage: React.FC = () => {
             try {
                 // Use Cloud Function to bypass client-side security rules for unauthenticated access
                 // Ensure the project ID corresponds to your deployment
-                const projectId = 'jastalk-firebase'; // Check if this matches your project ID
-                // Updated to correct region: us-west1
+                const projectId = 'jastalk-firebase'; 
+                // Explicitly pointing to us-west1
                 const url = `https://us-west1-${projectId}.cloudfunctions.net/getPublicResume?userId=${encodeURIComponent(userId)}&resumeId=${encodeURIComponent(resumeId)}`;
                 
                 const response = await fetch(url);
@@ -131,20 +131,33 @@ const PublicResumePage: React.FC = () => {
                     setError("This resume is private or no longer shared.");
                 } else if (response.status === 404) {
                     setError("Resume not found.");
+                } else if (response.status === 500 && retryCount < 1) {
+                    // Retry once for 500 errors (handling cold starts)
+                    console.warn("Got 500 error, retrying...");
+                    setTimeout(() => fetchResume(retryCount + 1), 1500);
+                    return;
                 } else {
                     // Log specific status for debugging
                     console.error(`Fetch error: ${response.status} ${response.statusText}`);
-                    throw new Error("Failed to fetch resume.");
+                    setError(`Failed to load resume (Status: ${response.status}). The server might be waking up.`);
                 }
             } catch (err: any) {
                 console.error("Error fetching resume:", err);
                 if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
-                    setError("Connection failed. Note to Admin: Ensure 'getPublicResume' Cloud Function has 'allUsers' permission.");
+                    setError("Connection failed. This is likely a CORS issue or the function doesn't have public permissions.");
                 } else {
                     setError("Unable to load resume. Please try again later.");
                 }
             } finally {
-                setLoading(false);
+                if (retryCount === 0 && !resume) {
+                    // Only stop loading if we aren't retrying
+                    // We'll let the retry call handle setLoading(false) eventually
+                    // But wait, if we return early for retry, we skip this.
+                    // Logic adjustment:
+                }
+                if (retryCount >= 1 || (resume || error)) {
+                     setLoading(false);
+                }
             }
         };
 
@@ -198,7 +211,6 @@ const PublicResumePage: React.FC = () => {
         try {
             const projectId = 'jastalk-firebase';
             // Use Cloud Function to update, as client-side rules block unauthorized writes
-            // Updated to correct region: us-west1
             const response = await fetch(`https://us-west1-${projectId}.cloudfunctions.net/updatePublicResume`, {
                 method: 'POST',
                 headers: {
@@ -226,8 +238,9 @@ const PublicResumePage: React.FC = () => {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
                 <PublicHeader />
-                <div className="flex-grow flex items-center justify-center">
+                <div className="flex-grow flex items-center justify-center flex-col gap-3">
                     <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
+                    <p className="text-gray-500 text-sm">Loading secure content...</p>
                 </div>
             </div>
         );
@@ -240,7 +253,7 @@ const PublicResumePage: React.FC = () => {
                 <div className="flex-grow flex flex-col items-center justify-center p-4 text-center">
                     <AlertCircle className="w-16 h-16 text-gray-400 mb-4" />
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Unable to View Resume</h1>
-                    <p className="text-gray-600 dark:text-gray-400">{error || "The link might be expired or incorrect."}</p>
+                    <p className="text-gray-600 dark:text-gray-400 max-w-md">{error}</p>
                 </div>
             </div>
         );
