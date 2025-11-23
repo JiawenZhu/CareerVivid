@@ -9,100 +9,128 @@ import { Buffer } from "buffer";
 import { ResumeData } from "./types";
 import { defineSecret } from "firebase-functions/params";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { TranslationServiceClient } from "@google-cloud/translate";
 
 const corsHandler = cors({ origin: true });
 
-admin.initializeApp();
+// Initialize the database connection
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
 
 const geminiApiKey = defineSecret("GEMINI_API_KEY");
 
+// Export the new Proxy Function if needed
+export { streamGeminiResponse as geminiProxy } from "./geminiProxy";
+
 const getFunctionConfig = () => {
-    try {
-        return functions.config().careervivid || {};
-    } catch (err) {
-        return {};
-    }
+  try {
+    return functions.config().careervivid || {};
+  } catch (err) {
+    return {};
+  }
 };
 
 const functionConfig = getFunctionConfig();
 
 const APP_BASE_URL =
-    process.env.CAREERVIVID_APP_URL ||
-    functionConfig.app_url ||
-    "https://careervivid-371634100960.us-west1.run.app/";
+  process.env.CAREERVIVID_APP_URL ||
+  functionConfig.app_url ||
+  "https://careervivid.app/";
 
 const PDF_PREVIEW_ROUTE =
-    process.env.CAREERVIVID_PDF_ROUTE ||
-    functionConfig.pdf_route ||
-    "/#/pdf-preview";
+  process.env.CAREERVIVID_PDF_ROUTE ||
+  functionConfig.pdf_route ||
+  "/#/pdf-preview";
 
 const PDF_PREVIEW_URL = `${APP_BASE_URL}${PDF_PREVIEW_ROUTE}`;
 
 const waitForPdfStatus = (page: Page, expected: "ready" | "rendered") => {
-    return page.waitForFunction(
-        (status: string) => {
-            const ctx = globalThis as { __PDF_STATUS__?: string };
-            return ctx.__PDF_STATUS__ === status;
-        },
-        { timeout: 30000 },
-        expected
-    );
+  return page.waitForFunction(
+    (status: string) => {
+      const ctx = globalThis as { __PDF_STATUS__?: string };
+      return ctx.__PDF_STATUS__ === status;
+    },
+    { timeout: 30000 },
+    expected
+  );
 };
 
 const injectPreviewPayload = (page: Page, payload: { resumeData: ResumeData; templateId: string }) => {
-    return page.evaluate((data) => {
-        const ctx = globalThis as {
-            __RENDER_PAYLOAD__?: (incoming: typeof data) => void;
-            __PENDING_PAYLOAD__?: typeof data;
-        };
+  return page.evaluate((data) => {
+    const ctx = globalThis as {
+      __RENDER_PAYLOAD__?: (incoming: typeof data) => void;
+      __PENDING_PAYLOAD__?: typeof data;
+    };
 
-        if (typeof ctx.__RENDER_PAYLOAD__ === "function") {
-            ctx.__RENDER_PAYLOAD__(data);
-        } else {
-            ctx.__PENDING_PAYLOAD__ = data;
-        }
-    }, payload);
+    if (typeof ctx.__RENDER_PAYLOAD__ === "function") {
+      ctx.__RENDER_PAYLOAD__(data);
+    } else {
+      ctx.__PENDING_PAYLOAD__ = data;
+    }
+  }, payload);
 };
 
 const generatePdfBuffer = async (resumeData: ResumeData, templateId: string) => {
-    console.log(`Rendering template "${templateId}" via preview page: ${PDF_PREVIEW_URL}`);
+  console.log(`Rendering template "${templateId}" via preview page: ${PDF_PREVIEW_URL}`);
 
-    const executablePath = await chromium.executablePath();
-    const browser = await puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath,
-        headless: chromium.headless,
-        ignoreHTTPSErrors: true,
-    });
+  const executablePath = await chromium.executablePath();
+  const browser = await puppeteer.launch({
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath,
+    headless: chromium.headless,
+    ignoreHTTPSErrors: true,
+  });
 
-    const page = await browser.newPage();
-    await page.goto(PDF_PREVIEW_URL, { waitUntil: "networkidle0" });
-    await page.emulateMediaType("screen");
-    await waitForPdfStatus(page, "ready");
-    await injectPreviewPayload(page, { resumeData, templateId });
-    await waitForPdfStatus(page, "rendered");
-    await new Promise((resolve) => setTimeout(resolve, 200));
+  const page = await browser.newPage();
+  await page.goto(PDF_PREVIEW_URL, { waitUntil: "networkidle0" });
+  await page.emulateMediaType("screen");
+  await waitForPdfStatus(page, "ready");
+  await injectPreviewPayload(page, { resumeData, templateId });
+  await waitForPdfStatus(page, "rendered");
 
-    const pdfBuffer = await page.pdf({
-        format: "A4",
-        printBackground: true,
-        preferCSSPageSize: true,
-        margin: { top: "0", right: "0", bottom: "0", left: "0" },
-    });
+  // Wait for all images to load explicitly
+  await page.evaluate(async () => {
+    await Promise.all(Array.from(document.images).map(img => {
+      if (img.complete) return;
+      return new Promise(resolve => {
+        img.onload = resolve;
+        img.onerror = resolve;
+      });
+    }));
+  });
 
-    await browser.close();
-    return pdfBuffer;
+  await new Promise((resolve) => setTimeout(resolve, 200));
+
+  const pdfBuffer = await page.pdf({
+    format: "A4",
+    printBackground: true,
+    preferCSSPageSize: true,
+    margin: { top: "0", right: "0", bottom: "0", left: "0" },
+  });
+
+  await browser.close();
+  return pdfBuffer;
 };
 
 export const generateResumePdfHttp = functions
-  .region("us-west1")
+  .region('us-west1')
   .runWith({
     timeoutSeconds: 120,
     memory: "4GB"
   })
   .https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
+      // Explicitly handle preflight requests if cors middleware misses it (safety net)
+      if (req.method === 'OPTIONS') {
+        res.set('Access-Control-Allow-Origin', '*');
+        res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        res.status(204).send('');
+        return;
+      }
+
       if (req.method !== "POST") {
         res.status(405).send("Method Not Allowed");
         return;
@@ -150,7 +178,7 @@ export const generateResumePdfHttp = functions
 
 // --- LEGACY AI FUNCTION (Updated to 2.5 Flash) ---
 export const generateAIContent = functions
-  .region("us-west1")
+  .region('us-west1')
   .runWith({
     timeoutSeconds: 60,
     secrets: [geminiApiKey],
@@ -193,153 +221,226 @@ export const generateAIContent = functions
   });
 
 // HTTP Function - Upload Image Proxy (Bypasses CORS)
-export const uploadImageHttp = functions
-    .region("us-west1")
-    .runWith({ timeoutSeconds: 60, memory: "512MB" }).https.onRequest(
-    async (req, res) => {
-        corsHandler(req, res, async () => {
-            if (req.method !== "POST") {
-                res.status(405).send("Method Not Allowed");
-                return;
+export const uploadImageHttp = functions.region('us-west1').runWith({ timeoutSeconds: 60, memory: "512MB" }).https.onRequest(
+  async (req, res) => {
+    corsHandler(req, res, async () => {
+      if (req.method !== "POST") {
+        res.status(405).send("Method Not Allowed");
+        return;
+      }
+
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        res.status(401).send('Unauthorized');
+        return;
+      }
+      const idToken = authHeader.split('Bearer ')[1];
+      try {
+        await admin.auth().verifyIdToken(idToken);
+      } catch (e) {
+        console.error("Token verification failed:", e);
+        res.status(401).send('Unauthorized');
+        return;
+      }
+
+      const { image, path, mimeType } = req.body;
+      if (!image || !path || !mimeType) {
+        res.status(400).send("Missing image data, path, or mimeType.");
+        return;
+      }
+
+      try {
+        const bucket = admin.storage().bucket();
+        const file = bucket.file(path);
+        const buffer = Buffer.from(image, 'base64');
+        const token = uuidv4();
+
+        await file.save(buffer, {
+          metadata: {
+            contentType: mimeType,
+            metadata: {
+              firebaseStorageDownloadTokens: token
             }
-
-            const authHeader = req.headers.authorization;
-            if (!authHeader || !authHeader.startsWith('Bearer ')) {
-                res.status(401).send('Unauthorized');
-                return;
-            }
-            const idToken = authHeader.split('Bearer ')[1];
-            try {
-                await admin.auth().verifyIdToken(idToken);
-            } catch (e) {
-                console.error("Token verification failed:", e);
-                res.status(401).send('Unauthorized');
-                return;
-            }
-
-            const { image, path, mimeType } = req.body;
-            if (!image || !path || !mimeType) {
-                res.status(400).send("Missing image data, path, or mimeType.");
-                return;
-            }
-
-            try {
-                const bucket = admin.storage().bucket();
-                const file = bucket.file(path);
-                const buffer = Buffer.from(image, 'base64');
-                const token = uuidv4();
-
-                await file.save(buffer, {
-                    metadata: {
-                        contentType: mimeType,
-                        metadata: {
-                            firebaseStorageDownloadTokens: token
-                        }
-                    }
-                });
-
-                const bucketName = bucket.name;
-                const downloadUrl = `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodeURIComponent(path)}?alt=media&token=${token}`;
-
-                console.log(`File uploaded successfully to ${path}. URL: ${downloadUrl}`);
-                res.json({ downloadUrl });
-            } catch (error: any) {
-                console.error("Upload Error:", error);
-                res.status(500).json({ error: error.message });
-            }
+          }
         });
-    }
+
+        const bucketName = bucket.name;
+        const downloadUrl = `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodeURIComponent(path)}?alt=media&token=${token}`;
+
+        console.log(`File uploaded successfully to ${path}. URL: ${downloadUrl}`);
+        res.json({ downloadUrl });
+      } catch (error: any) {
+        console.error("Upload Error:", error);
+        res.status(500).json({ error: error.message });
+      }
+    });
+  }
 );
 
 // --- NEW: Public Access Functions ---
 
-export const getPublicResume = functions
-    .region("us-west1")
-    .runWith({ timeoutSeconds: 60, memory: "256MB" }).https.onRequest(async (req, res) => {
+export const getPublicResume = functions.region('us-west1').runWith({ timeoutSeconds: 60, memory: "256MB" }).https.onRequest((req, res) => {
+  console.log("getPublicResume called");
+  try {
+    // WRAP EVERYTHING in CORS. If you don't, it crashes.
     corsHandler(req, res, async () => {
-        console.log("getPublicResume called", { query: req.query });
-
-        if (req.method !== 'GET') {
-             res.status(405).send('Method Not Allowed');
-             return;
-        }
+      console.log("Inside corsHandler");
+      if (req.method === 'OPTIONS') {
+        res.set('Access-Control-Allow-Origin', '*');
+        res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        res.status(204).send('');
+        return;
+      }
+      try {
         const { userId, resumeId } = req.query;
+
+        // Check for missing data
         if (!userId || !resumeId) {
-            console.warn("Missing parameters");
-            res.status(400).send('Missing parameters');
-            return;
+          console.error("Missing parameters");
+          return res.status(400).send({ error: "Missing userId or resumeId" });
         }
 
-        try {
-            const docRef = admin.firestore().collection('users').doc(String(userId)).collection('resumes').doc(String(resumeId));
-            const docSnap = await docRef.get();
-            
-            if (!docSnap.exists) {
-                console.warn("Resume not found");
-                res.status(404).send('Resume not found');
-                return;
-            }
-            
-            const data = docSnap.data();
-            if (!data || !data.shareConfig || !data.shareConfig.enabled) {
-                console.warn("Access denied: Sharing not enabled");
-                res.status(403).send('Access denied');
-                return;
-            }
-            
-            console.log("Success fetching public resume");
-            res.json({ ...data, id: docSnap.id });
-        } catch (error) {
-            console.error("Error in getPublicResume:", error);
-            res.status(500).send('Internal Server Error');
+        console.log(`Fetching resume for User: ${userId}, Resume: ${resumeId}`);
+
+        // Fetch from Firestore
+        const doc = await admin.firestore()
+          .collection("users")
+          .doc(String(userId))
+          .collection("resumes")
+          .doc(String(resumeId))
+          .get();
+
+        if (!doc.exists) {
+          console.error("Resume not found in database");
+          return res.status(404).send({ error: "Resume not found" });
         }
+
+        const data = doc.data();
+
+        // Check if sharing is enabled
+        if (!data || !data.shareConfig || !data.shareConfig.enabled) {
+          console.error("Access denied: Sharing not enabled");
+          return res.status(403).send({ error: "Access denied" });
+        }
+
+        console.log("Resume found successfully");
+
+        // Send the data back
+        return res.status(200).json({ ...data, id: doc.id });
+
+      } catch (error: any) {
+        console.error("CRASH ERROR:", error);
+        return res.status(500).send({ error: error.message });
+      }
     });
+  } catch (outerError: any) {
+    console.error("Outer Error in getPublicResume:", outerError);
+    res.status(500).send({ error: "Internal Server Error (Outer)" });
+  }
 });
 
-export const updatePublicResume = functions
-    .region("us-west1")
-    .runWith({ timeoutSeconds: 60, memory: "256MB" }).https.onRequest(async (req, res) => {
-    corsHandler(req, res, async () => {
-        if (req.method !== 'POST') {
-             res.status(405).send('Method Not Allowed');
-             return;
-        }
-        const { userId, resumeId, data } = req.body;
-        
-        if (!userId || !resumeId || !data) {
-             res.status(400).send('Missing parameters');
-             return;
-        }
+export const updatePublicResume = functions.region('us-west1').runWith({ timeoutSeconds: 60, memory: "256MB" }).https.onRequest(async (req, res) => {
+  corsHandler(req, res, async () => {
+    if (req.method === 'OPTIONS') {
+      res.set('Access-Control-Allow-Origin', '*');
+      res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+      res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      res.status(204).send('');
+      return;
+    }
+    if (req.method !== 'POST') {
+      res.status(405).send('Method Not Allowed');
+      return;
+    }
+    const { userId, resumeId, data } = req.body;
 
-        try {
-            const docRef = admin.firestore().collection('users').doc(String(userId)).collection('resumes').doc(String(resumeId));
-            const docSnap = await docRef.get();
-            
-            if (!docSnap.exists) {
-                 res.status(404).send('Resume not found');
-                 return;
-            }
-            
-            const currentData = docSnap.data();
-            if (!currentData?.shareConfig?.enabled || currentData.shareConfig.permission !== 'editor') {
-                res.status(403).send('Permission denied');
-                return;
-            }
+    if (!userId || !resumeId || !data) {
+      res.status(400).send('Missing parameters');
+      return;
+    }
 
-            const safeUpdate = { ...data };
-            delete safeUpdate.shareConfig;
-            delete safeUpdate.id;
-            delete safeUpdate.userId;
+    try {
+      const docRef = admin.firestore().collection('users').doc(String(userId)).collection('resumes').doc(String(resumeId));
+      const docSnap = await docRef.get();
 
-            await docRef.update({
-                ...safeUpdate,
-                updatedAt: admin.firestore.FieldValue.serverTimestamp()
-            });
-            
-            res.json({ success: true });
-        } catch (error) {
-            console.error(error);
-            res.status(500).send('Internal Server Error');
-        }
-    });
+      if (!docSnap.exists) {
+        res.status(404).send('Resume not found');
+        return;
+      }
+
+      const currentData = docSnap.data();
+      if (!currentData?.shareConfig?.enabled || currentData.shareConfig.permission !== 'editor') {
+        res.status(403).send('Permission denied');
+        return;
+      }
+
+      const safeUpdate = { ...data };
+      delete safeUpdate.shareConfig;
+      delete safeUpdate.id;
+      delete safeUpdate.userId;
+
+      await docRef.update({
+        ...safeUpdate,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+});
+
+// --- Translation Function ---
+export const translateText = functions.region('us-west1').https.onCall(async (data, context) => {
+  // 1. Authentication Check
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'The function must be called while authenticated.'
+    );
+  }
+
+  const { content, targetLanguage, format } = data;
+
+  // 2. Input Validation
+  if (!content || !targetLanguage) {
+    throw new functions.https.HttpsError(
+      'invalid-argument',
+      'The function must be called with "content" and "targetLanguage" arguments.'
+    );
+  }
+
+  try {
+    // 3. Initialize Client
+    const translationClient = new TranslationServiceClient();
+    const projectId = 'jastalk-firebase';
+    const location = 'global';
+
+    // 4. Construct Request
+    const request = {
+      parent: `projects/${projectId}/locations/${location}`,
+      contents: Array.isArray(content) ? content : [content],
+      mimeType: format === 'html' ? 'text/html' : 'text/plain', // Crucial for bold/italics
+      sourceLanguageCode: 'en-US', // Assuming source is English
+      targetLanguageCode: targetLanguage,
+    };
+
+    // 5. Call API
+    const [response] = await translationClient.translateText(request);
+
+    // 6. Return Results
+    return {
+      translations: response.translations?.map(t => t.translatedText) || []
+    };
+
+  } catch (error: any) {
+    console.error("Translation Error:", error);
+    if (error.code === 3 || error.message?.includes('invalid language')) {
+      throw new functions.https.HttpsError('invalid-argument', 'Invalid target language code.');
+    }
+    throw new functions.https.HttpsError('internal', 'Translation failed.', error.message);
+  }
 });

@@ -1,0 +1,29 @@
+
+> careervivid@0.0.0 build
+> vite build
+
+vite v6.4.1 building for production...
+transforming...
+✓ 1778 modules transformed.
+✗ Build failed in 867ms
+error during build:
+[vite:esbuild] Transform failed with 1 error:
+/Users/jiawenzhu/Developer/JasTalk AI Interview Agent/careervivid/components/templates/TimelineTemplate.tsx:61:89: ERROR: Unexpected end of file before a closing "div" tag
+file: /Users/jiawenzhu/Developer/JasTalk AI Interview Agent/careervivid/components/templates/TimelineTemplate.tsx:61:89
+
+Unexpected end of file before a closing "div" tag
+59 |        <main className="px-4">
+60 |          <div className="relative">
+61 |            <div className="absolute top-0 left-1/2 w-0.5 h-full bg-gray-300 -ml-px"></div>
+   |                                                                                           ^
+
+    at failureErrorWithLog (/Users/jiawenzhu/Developer/JasTalk AI Interview Agent/careervivid/node_modules/esbuild/lib/main.js:1467:15)
+    at /Users/jiawenzhu/Developer/JasTalk AI Interview Agent/careervivid/node_modules/esbuild/lib/main.js:736:50
+    at responseCallbacks.<computed> (/Users/jiawenzhu/Developer/JasTalk AI Interview Agent/careervivid/node_modules/esbuild/lib/main.js:603:9)
+    at handleIncomingPacket (/Users/jiawenzhu/Developer/JasTalk AI Interview Agent/careervivid/node_modules/esbuild/lib/main.js:658:12)
+    at Socket.readFromStdout (/Users/jiawenzhu/Developer/JasTalk AI Interview Agent/careervivid/node_modules/esbuild/lib/main.js:581:7)
+    at Socket.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
