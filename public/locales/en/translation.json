@@ -1,0 +1,53 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "download": "Download",
+    "share": "Share",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "nav": {
+    "product": "Product",
+    "pricing": "Pricing",
+    "blog": "Blog",
+    "login": "Log in",
+    "signup": "Sign up free",
+    "dashboard": "Dashboard",
+    "interview_studio": "Interview Studio",
+    "create_new": "Create New"
+  },
+  "dashboard": {
+    "my_resumes": "My Resumes",
+    "interview_sessions": "Interview Studio Sessions",
+    "job_tracker": "Job Application Tracker",
+    "new_folder": "New Folder",
+    "add_folder": "Add New Folder",
+    "drag_drop": "Drag items here to organize them.",
+    "create_resume": "Create a New Resume"
+  },
+  "editor": {
+    "content": "Content",
+    "template": "Template",
+    "design": "Design",
+    "personal_details": "Personal Details",
+    "summary": "Professional Summary",
+    "experience": "Employment History",
+    "education": "Education",
+    "skills": "Skills",
+    "languages": "Languages",
+    "websites": "Websites & Social Links",
+    "translate_resume": "Translate Resume",
+    "ai_improve": "Improve with AI",
+    "download_pdf": "Download PDF"
+  },
+  "landing": {
+    "hero_title": "Craft Your Future, Faster.",
+    "hero_subtitle": "Go from rough draft to job-ready resume in minutes with our intelligent platform.",
+    "start_building": "Start Building Free",
+    "demo": "Try Live Demo"
+  }
+}
