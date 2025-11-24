@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 interface EditableTextareaProps {
   label: string;
@@ -19,8 +19,7 @@ const EditableTextarea: React.FC<EditableTextareaProps> = ({ label, value, onCha
     setCurrentValue(value);
   }, [value]);
 
-  // Use useLayoutEffect to prevent flash when autosizing on mount/edit
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (isEditing && textareaRef.current) {
       // Auto-resize logic
       const textarea = textareaRef.current;

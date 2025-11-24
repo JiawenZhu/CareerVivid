@@ -14,7 +14,7 @@ const getLangFromHash = () => {
   const path = hash.startsWith('#') ? hash.substring(1) : '/';
   const parts = path.split('/').filter(p => p);
   if (parts.length > 0 && supportedCodes.includes(parts[0])) {
-      return parts[0];
+    return parts[0];
   }
   return undefined;
 };
@@ -29,23 +29,22 @@ i18n
     supportedLngs: supportedCodes,
     load: 'languageOnly', // e.g. en-US -> en
     debug: false,
-    
+
     backend: {
       loadPath: '/locales/{{lng}}/translation.json',
     },
 
     detection: {
       order: ['path', 'navigator', 'htmlTag'],
-      lookupFromPathIndex: 0,
-      checkWhitelist: true
+      lookupFromPathIndex: 0
     },
 
     interpolation: {
-      escapeValue: false, 
+      escapeValue: false,
     },
-    
+
     react: {
-        useSuspense: true,
+      useSuspense: true,
     }
   });
 

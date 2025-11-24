@@ -1,7 +1,9 @@
 
+
+
 import { useState, useEffect, useCallback } from 'react';
 import { ResumeData, PersonalDetails } from '../types';
-import { createBlankResume, DEFAULT_SECTION_TITLES, DEFAULT_ICONS } from '../constants';
+import { createBlankResume } from '../constants';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase';
 import { collection, query, onSnapshot, doc, updateDoc, deleteDoc, addDoc, serverTimestamp, orderBy, getDocs, writeBatch } from 'firebase/firestore';
@@ -39,15 +41,6 @@ export const useResumes = () => {
                     personalDetails: {
                         ...blankResume.personalDetails,
                         ...(data.personalDetails || {}),
-                    },
-                    // Ensure new fields exist for old resumes
-                    sectionTitles: {
-                        ...DEFAULT_SECTION_TITLES,
-                        ...(data.sectionTitles || {}),
-                    },
-                    customIcons: {
-                        ...DEFAULT_ICONS,
-                        ...(data.customIcons || {}),
                     },
                     // Also ensure arrays are initialized if missing
                     websites: data.websites || [],
@@ -115,19 +108,20 @@ export const useResumes = () => {
 
     const addAIGeneratedResume = useCallback(async (aiData: Partial<ResumeData>, title: string) => {
         if (!currentUser) return;
-        const blank = createBlankResume();
+        const emptyPersonalDetails: PersonalDetails = {
+            jobTitle: '', photo: '', firstName: '', lastName: '', email: '', phone: '',
+            address: '', city: '', postalCode: '', country: '',
+        };
         const newResume: Omit<ResumeData, 'id' | 'updatedAt'> = {
             title: title || 'AI Generated Resume',
             templateId: 'Modern',
-            personalDetails: { ...blank.personalDetails, ...aiData.personalDetails },
+            personalDetails: { ...emptyPersonalDetails, ...aiData.personalDetails },
             professionalSummary: aiData.professionalSummary || '',
             websites: aiData.websites || [],
             skills: aiData.skills || [],
             employmentHistory: aiData.employmentHistory || [],
             education: aiData.education || [],
             languages: aiData.languages || [],
-            sectionTitles: { ...DEFAULT_SECTION_TITLES },
-            customIcons: { ...DEFAULT_ICONS },
             themeColor: '#000000',
             titleFont: 'Montserrat',
             bodyFont: 'Crimson Text',
@@ -142,31 +136,6 @@ export const useResumes = () => {
             navigate(`/edit/${docRef.id}`);
         } catch (error) {
             console.error("Error adding AI resume:", error);
-        }
-    }, [currentUser]);
-
-    const addTranslatedResume = useCallback(async (resumeData: ResumeData, title: string) => {
-        if (!currentUser) return;
-        try {
-            // Create a deep copy to avoid mutating the original object
-            const dataToSave = JSON.parse(JSON.stringify(resumeData));
-            // Remove ID and updatedAt to create a fresh document
-            delete dataToSave.id;
-            delete dataToSave.updatedAt;
-
-            const newDocPayload = {
-                ...dataToSave,
-                title: title,
-                updatedAt: serverTimestamp(),
-                // Ensure it goes to the main resumes section or preserve section if desired
-                section: 'resumes'
-            };
-
-            const docRef = await addDoc(collection(db, 'users', currentUser.uid, 'resumes'), newDocPayload);
-            navigate(`/edit/${docRef.id}`);
-        } catch (error) {
-            console.error("Error adding translated resume:", error);
-            throw error;
         }
     }, [currentUser]);
 
@@ -258,18 +227,5 @@ export const useResumes = () => {
     }, [currentUser]);
 
 
-    return { 
-        resumes, 
-        isLoading, 
-        getResumeById, 
-        addResume, 
-        updateResume, 
-        deleteResume, 
-        duplicateResume, 
-        addAIGeneratedResume, 
-        addTranslatedResume, 
-        saveAIGeneratedResume, 
-        addBlankResume, 
-        deleteAllResumes 
-    };
+    return { resumes, isLoading, getResumeById, addResume, updateResume, deleteResume, duplicateResume, addAIGeneratedResume, saveAIGeneratedResume, addBlankResume, deleteAllResumes };
 };

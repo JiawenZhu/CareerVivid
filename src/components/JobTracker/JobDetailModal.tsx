@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { JobApplicationData, ApplicationStatus, WorkModel, APPLICATION_STATUSES, WORK_MODELS, ResumeData, ResumeMatchAnalysis } from '../../types';
 import { X, Briefcase, Building, MapPin, Link as LinkIcon, ExternalLink, Trash2, Loader2, Wand2, ChevronDown, Plus, Minus, FileText, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -146,7 +145,7 @@ const EditablePrepSection: React.FC<{
         setCurrentValue(value);
     }, [value]);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (isEditing && textareaRef.current) {
             textareaRef.current.style.height = 'auto';
             textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
@@ -338,7 +337,7 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
         };
     }, [onClose]);
     
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (isEditingDescription && descriptionTextareaRef.current) {
             descriptionTextareaRef.current.style.height = 'auto';
             descriptionTextareaRef.current.style.height = `${descriptionTextareaRef.current.scrollHeight}px`;
@@ -388,6 +387,7 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
     const getResumeContext = (): string => {
         const latestResume = resumes[0];
         if (!latestResume) return "No resume available.";
+        // ... (rest of the function is the same)
         let context = `Name: ${latestResume.personalDetails.firstName} ${latestResume.personalDetails.lastName}\n`;
         context += `Job Title: ${latestResume.personalDetails.jobTitle}\n\nSUMMARY:\n${latestResume.professionalSummary}\n\n`;
         if (latestResume.employmentHistory.length > 0) {

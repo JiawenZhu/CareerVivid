@@ -1,5 +1,4 @@
-
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 export interface AutoResizeTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   value: string;
@@ -40,13 +39,13 @@ const AutoResizeTextarea: React.FC<AutoResizeTextareaProps> = ({
     }
   };
 
-  // Adjust height whenever value changes - using useLayoutEffect to prevent visual flash
-  useLayoutEffect(() => {
+  // Adjust height whenever value changes
+  useEffect(() => {
     adjustHeight();
   }, [value]);
 
   // Adjust height on window resize
-  useLayoutEffect(() => {
+  useEffect(() => {
     window.addEventListener('resize', adjustHeight);
     return () => window.removeEventListener('resize', adjustHeight);
   }, []);

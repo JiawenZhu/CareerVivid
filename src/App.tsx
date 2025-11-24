@@ -3,11 +3,8 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { useAuth } from './contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
-import './i18n'; // Initialize i18n
-import { useTranslation } from 'react-i18next';
-import { SUPPORTED_LANGUAGES } from './constants';
 
-// Lazy load pages
+// Lazy load pages to drastically reduce initial JavaScript payload
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Editor = React.lazy(() => import('./pages/Editor'));
 const GenerationHub = React.lazy(() => import('./pages/GenerationHub'));
@@ -28,54 +25,15 @@ const BlogListPage = React.lazy(() => import('./pages/BlogListPage'));
 const BlogPostPage = React.lazy(() => import('./pages/BlogPostPage'));
 const PublicResumePage = React.lazy(() => import('./pages/PublicResumePage'));
 
-// Returns path from hash, stripping language prefix if present
-// e.g., #/es/dashboard -> /dashboard
+// Returns path from hash, e.g., #/admin/login -> /admin/login
 const getPathFromHash = () => {
     const hash = window.location.hash;
-    let path = hash.startsWith('#') ? hash.substring(1) : '/';
-    
-    // Check for language prefix
-    const parts = path.split('/').filter(p => p);
-    if (parts.length > 0 && SUPPORTED_LANGUAGES.some(l => l.code === parts[0])) {
-        // It has a language prefix
-        path = '/' + parts.slice(1).join('/');
-    } else if (path === '' || path === '/') {
-        path = '/';
-    } else if (!path.startsWith('/')) {
-        path = '/' + path;
-    }
-    
-    return path;
+    return hash.startsWith('#/') ? hash.substring(1) : '/';
 };
 
-// Get language from hash
-const getLangFromHash = () => {
-    const hash = window.location.hash;
-    const path = hash.startsWith('#') ? hash.substring(1) : '/';
-    const parts = path.split('/').filter(p => p);
-    if (parts.length > 0 && SUPPORTED_LANGUAGES.some(l => l.code === parts[0])) {
-        return parts[0];
-    }
-    return null;
-};
-
+// New navigation utility that works with hashes
 export const navigate = (path: string) => {
-    // Preserve current language if not specified in path
-    const currentHash = window.location.hash;
-    const currentLang = getLangFromHash() || 'en'; // Default to en if no prefix
-    
-    if (path.startsWith('/')) {
-        // If path starts with a language code, use it directly
-        const pathParts = path.split('/').filter(p => p);
-        if (pathParts.length > 0 && SUPPORTED_LANGUAGES.some(l => l.code === pathParts[0])) {
-            window.location.hash = path;
-        } else {
-            // Append current lang
-            window.location.hash = `/${currentLang}${path}`;
-        }
-    } else {
-        window.location.hash = `/${currentLang}/${path}`;
-    }
+  window.location.hash = path;
 };
 
 const LoadingFallback = () => (
@@ -87,47 +45,18 @@ const LoadingFallback = () => (
 const App: React.FC = () => {
   const { currentUser, loading, isAdmin, isAdminLoading, isEmailVerified } = useAuth();
   const [path, setPath] = useState(getPathFromHash());
-  const { i18n } = useTranslation();
 
   useEffect(() => {
     const onHashChange = () => {
-      const newPath = getPathFromHash();
-      setPath(newPath);
-      
-      // Sync i18n language with URL
-      const urlLang = getLangFromHash();
-      if (urlLang && urlLang !== i18n.language) {
-          i18n.changeLanguage(urlLang);
-      } else if (!urlLang) {
-          // If no lang in URL, redirect to current i18n lang (or resolved language)
-          const currentHash = window.location.hash.replace('#', '');
-          const cleanPath = currentHash.startsWith('/') ? currentHash : '/' + currentHash;
-          
-          // Ensure we redirect to the language currently loaded in i18n to avoid switching back to 'en' unexpectedly
-          const targetLang = i18n.language || 'en';
-          // Only redirect if it's a supported language, otherwise default to en
-          const safeLang = SUPPORTED_LANGUAGES.some(l => l.code === targetLang) ? targetLang : 'en';
-          
-          window.location.hash = `/${safeLang}${cleanPath}`;
-      }
+      setPath(getPathFromHash());
     };
     window.addEventListener('hashchange', onHashChange);
-    
-    // Initial check
-    const initialLang = getLangFromHash();
-    if (initialLang) {
-        if (initialLang !== i18n.language) i18n.changeLanguage(initialLang);
-    } else {
-        // No lang prefix, trigger hash change logic to redirect
-        onHashChange();
-    }
-
+    // Also set initial path in case hash is already there on load
+    onHashChange();
     return () => window.removeEventListener('hashchange', onHashChange);
-  }, [i18n]);
+  }, []);
 
-  // Handle routes
-  // ... same logic as before but using 'path' which is stripped of lang prefix
-
+  // Special route for PDF generation - bypasses auth checks for speed/simplicity in headless env
   if (path === '/pdf-preview') {
     return (
       <ThemeProvider>
@@ -138,6 +67,7 @@ const App: React.FC = () => {
     );
   }
 
+  // Public Share Route (Accessible without auth)
   if (path.startsWith('/shared/')) {
       return (
           <ThemeProvider>
@@ -155,8 +85,8 @@ const App: React.FC = () => {
   // Admin Routing
   if (path.startsWith('/admin')) {
     if (path === '/admin/login') {
+      // If user is already a logged-in admin, redirect them to dashboard
       if (currentUser && isAdmin) {
-        // Admin logic usually stays on en or specific path, but we'll respect router
         useEffect(() => navigate('/admin'), []);
         return null;
       }
@@ -188,6 +118,7 @@ const App: React.FC = () => {
         </ThemeProvider>
       );
     } else {
+      // If not logged in or not an admin, redirect any other /admin/* route to login
       useEffect(() => navigate('/admin/login'), []);
       return null;
     }
@@ -221,10 +152,12 @@ const App: React.FC = () => {
           const id = path.split('/')[2];
           content = <BlogPostPage postId={id} />;
         } else {
+          // Default to dashboard for any other path when logged in
           content = <Dashboard />;
         }
     }
   } else {
+    // Public routes for logged-out users
     if (path === '/auth') {
       content = <AuthPage />;
     } else if (path === '/pricing') {
@@ -241,6 +174,7 @@ const App: React.FC = () => {
     } else if (path.startsWith('/edit/guest')) {
       content = <Editor resumeId="guest" />;
     } else {
+      // Default to landing page for root and any other path
       content = <LandingPage />;
     }
   }
