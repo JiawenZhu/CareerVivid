@@ -1,11 +1,12 @@
 
+
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
 import { Mail, Phone, MapPin, Linkedin, Globe, GitBranch, Code } from 'lucide-react';
 import InlineEdit from '../InlineEdit';
 
 export const TechnicalTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont, onFocus }) => {
-  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites } = resume;
+  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites, sectionTitles } = resume;
 
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
   const bodyStyle = { fontFamily: `'${bodyFont}', sans-serif` };
@@ -73,7 +74,9 @@ export const TechnicalTemplate: React.FC<TemplateProps> = ({ resume, themeColor,
 
       <main className="mt-6">
         <section className="mb-6">
-          <h3 className="text-lg font-mono-special text-gray-800 mb-2" style={titleStyle}>// SUMMARY</h3>
+          <h3 className="text-lg font-mono-special text-gray-800 mb-2" style={titleStyle}>
+            <InlineEdit value={`// ${sectionTitles?.profile?.toUpperCase() || 'SUMMARY'}`} fieldId="sectionTitles.profile" onFocus={onFocus} />
+          </h3>
           <InlineEdit 
             value={professionalSummary} 
             fieldId="professionalSummary" 
@@ -85,7 +88,9 @@ export const TechnicalTemplate: React.FC<TemplateProps> = ({ resume, themeColor,
         </section>
 
         <section className="mb-6">
-          <h3 className="text-lg font-mono-special text-gray-800 mb-2" style={titleStyle}>// SKILLS</h3>
+           <h3 className="text-lg font-mono-special text-gray-800 mb-2" style={titleStyle}>
+            <InlineEdit value={`// ${sectionTitles?.skills?.toUpperCase() || 'SKILLS'}`} fieldId="sectionTitles.skills" onFocus={onFocus} />
+          </h3>
           <div className="flex flex-wrap gap-x-4 gap-y-2">
             {skills.map((skill, index) => (
               <div key={skill.id} className="flex items-center">
@@ -103,7 +108,9 @@ export const TechnicalTemplate: React.FC<TemplateProps> = ({ resume, themeColor,
         </section>
 
         <section className="mb-6">
-          <h3 className="text-lg font-mono-special text-gray-800 mb-2" style={titleStyle}>// EXPERIENCE</h3>
+          <h3 className="text-lg font-mono-special text-gray-800 mb-2" style={titleStyle}>
+            <InlineEdit value={`// ${sectionTitles?.experience?.toUpperCase() || 'EXPERIENCE'}`} fieldId="sectionTitles.experience" onFocus={onFocus} />
+          </h3>
           {employmentHistory.map((job, index) => (
             <div key={job.id} className="mb-4">
               <div className="flex justify-between items-baseline">
@@ -141,7 +148,9 @@ export const TechnicalTemplate: React.FC<TemplateProps> = ({ resume, themeColor,
         </section>
 
         <section>
-          <h3 className="text-lg font-mono-special text-gray-800 mb-2" style={titleStyle}>// EDUCATION</h3>
+          <h3 className="text-lg font-mono-special text-gray-800 mb-2" style={titleStyle}>
+            <InlineEdit value={`// ${sectionTitles?.education?.toUpperCase() || 'EDUCATION'}`} fieldId="sectionTitles.education" onFocus={onFocus} />
+          </h3>
           {education.map((edu, index) => (
             <div key={edu.id} className="mb-2">
                <div className="flex justify-between items-baseline">

@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
 import InlineEdit from '../InlineEdit';
 
 export const ClassicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont, onFocus }) => {
-  const { personalDetails, professionalSummary, employmentHistory, education, skills } = resume;
+  const { personalDetails, professionalSummary, employmentHistory, education, skills, sectionTitles } = resume;
 
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
   const bodyStyle = { fontFamily: `'${bodyFont}', sans-serif` };
@@ -54,7 +53,14 @@ export const ClassicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
 
       <main>
         <section className="mb-6">
-          <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-2" style={titleStyle}>Summary</h2>
+          <InlineEdit 
+            value={(sectionTitles?.profile || 'Summary').toUpperCase()} 
+            fieldId="sectionTitles.profile" 
+            onFocus={onFocus} 
+            className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-2 block" 
+            tagName="h2" 
+            style={titleStyle}
+          />
           <InlineEdit 
             value={professionalSummary} 
             fieldId="professionalSummary" 
@@ -66,7 +72,14 @@ export const ClassicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
         </section>
 
         <section className="mb-6">
-          <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-3" style={titleStyle}>Experience</h2>
+          <InlineEdit 
+            value={(sectionTitles?.experience || 'Experience').toUpperCase()}
+            fieldId="sectionTitles.experience" 
+            onFocus={onFocus} 
+            className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-3 block" 
+            tagName="h2" 
+            style={titleStyle}
+          />
           {employmentHistory.map((job, index) => (
             <div key={job.id} className="mb-5">
               <div className="flex justify-between items-center">
@@ -103,7 +116,14 @@ export const ClassicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
         </section>
 
         <section className="mb-6">
-          <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-3" style={titleStyle}>Education</h2>
+          <InlineEdit 
+            value={(sectionTitles?.education || 'Education').toUpperCase()} 
+            fieldId="sectionTitles.education" 
+            onFocus={onFocus} 
+            className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-3 block" 
+            tagName="h2" 
+            style={titleStyle}
+          />
           {education.map((edu, index) => (
             <div key={edu.id} className="mb-4">
               <div className="flex justify-between items-center">
@@ -132,7 +152,14 @@ export const ClassicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
         </section>
         
         <section>
-          <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-3" style={titleStyle}>Skills</h2>
+          <InlineEdit 
+            value={(sectionTitles?.skills || 'Skills').toUpperCase()}
+            fieldId="sectionTitles.skills" 
+            onFocus={onFocus} 
+            className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-3 block" 
+            tagName="h2" 
+            style={titleStyle}
+          />
           <div className="text-sm leading-relaxed flex flex-wrap gap-2">
             {skills.map((skill, index) => (
                 <React.Fragment key={skill.id}>

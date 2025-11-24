@@ -1,10 +1,11 @@
 
+
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
 import InlineEdit from '../InlineEdit';
 
 export const WaveTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont, onFocus }) => {
-  const { personalDetails, professionalSummary, employmentHistory, education, skills } = resume;
+  const { personalDetails, professionalSummary, employmentHistory, education, skills, sectionTitles } = resume;
 
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
   const bodyStyle = { fontFamily: `'${bodyFont}', sans-serif` };
@@ -53,7 +54,9 @@ export const WaveTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titl
         <main className="grid grid-cols-3 gap-8">
             <div className="col-span-2">
                 <section className="mb-6">
-                    <h3 className="text-xl font-bold mb-2" style={{...titleStyle, color: themeColor}}>Summary</h3>
+                    <h3 className="text-xl font-bold mb-2" style={{...titleStyle, color: themeColor}}>
+                        <InlineEdit value={sectionTitles?.profile || 'Summary'} fieldId="sectionTitles.profile" onFocus={onFocus} />
+                    </h3>
                     <InlineEdit 
                         value={professionalSummary} 
                         fieldId="professionalSummary" 
@@ -64,7 +67,9 @@ export const WaveTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titl
                     />
                 </section>
                 <section>
-                    <h3 className="text-xl font-bold mb-3" style={{...titleStyle, color: themeColor}}>Experience</h3>
+                    <h3 className="text-xl font-bold mb-3" style={{...titleStyle, color: themeColor}}>
+                        <InlineEdit value={sectionTitles?.experience || 'Experience'} fieldId="sectionTitles.experience" onFocus={onFocus} />
+                    </h3>
                     {employmentHistory.map((job, index) => (
                         <div key={job.id} className="mb-4">
                             <InlineEdit 
@@ -97,7 +102,9 @@ export const WaveTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titl
             </div>
             <aside className="col-span-1">
                  <section className="mb-6">
-                    <h3 className="text-xl font-bold mb-2" style={{...titleStyle, color: themeColor}}>Skills</h3>
+                    <h3 className="text-xl font-bold mb-2" style={{...titleStyle, color: themeColor}}>
+                        <InlineEdit value={sectionTitles?.skills || 'Skills'} fieldId="sectionTitles.skills" onFocus={onFocus} />
+                    </h3>
                     <ul className="text-sm space-y-1 list-disc list-inside">
                         {skills.map((skill, index) => (
                             <li key={skill.id}>
@@ -107,7 +114,9 @@ export const WaveTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titl
                     </ul>
                 </section>
                 <section>
-                    <h3 className="text-xl font-bold mb-2" style={{...titleStyle, color: themeColor}}>Education</h3>
+                    <h3 className="text-xl font-bold mb-2" style={{...titleStyle, color: themeColor}}>
+                        <InlineEdit value={sectionTitles?.education || 'Education'} fieldId="sectionTitles.education" onFocus={onFocus} />
+                    </h3>
                      {education.map((edu, index) => (
                         <div key={edu.id} className="mb-2">
                             <InlineEdit 

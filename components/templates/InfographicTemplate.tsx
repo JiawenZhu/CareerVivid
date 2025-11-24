@@ -1,11 +1,12 @@
 
+
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
 import { Mail, Phone, MapPin, User, Briefcase, GraduationCap, Star } from 'lucide-react';
 import InlineEdit from '../InlineEdit';
 
 export const InfographicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont, onFocus }) => {
-  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites } = resume;
+  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites, sectionTitles } = resume;
   
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
   const bodyStyle = { fontFamily: `'${bodyFont}', sans-serif` };
@@ -88,7 +89,9 @@ export const InfographicTemplate: React.FC<TemplateProps> = ({ resume, themeColo
         <section className="mb-6">
           <div className="flex items-center mb-3">
             <div className="text-white rounded-full p-2 mr-3" style={{backgroundColor: themeColor}}><User size={20} /></div>
-            <h2 className="text-xl font-bold uppercase text-gray-800 dark:text-gray-800" style={titleStyle}>Profile</h2>
+            <h2 className="text-xl font-bold uppercase text-gray-800 dark:text-gray-800" style={titleStyle}>
+                <InlineEdit value={sectionTitles?.profile || 'Profile'} fieldId="sectionTitles.profile" onFocus={onFocus} />
+            </h2>
           </div>
           <InlineEdit 
             value={professionalSummary} 
@@ -103,7 +106,9 @@ export const InfographicTemplate: React.FC<TemplateProps> = ({ resume, themeColo
         <section className="mb-6">
           <div className="flex items-center mb-3">
             <div className="text-white rounded-full p-2 mr-3" style={{backgroundColor: themeColor}}><Briefcase size={20} /></div>
-            <h2 className="text-xl font-bold uppercase text-gray-800 dark:text-gray-800" style={titleStyle}>Experience</h2>
+            <h2 className="text-xl font-bold uppercase text-gray-800 dark:text-gray-800" style={titleStyle}>
+                <InlineEdit value={sectionTitles?.experience || 'Experience'} fieldId="sectionTitles.experience" onFocus={onFocus} />
+            </h2>
           </div>
           {employmentHistory.map((job, index) => (
             <div key={job.id} className="mb-4 pl-10 relative">
@@ -146,7 +151,9 @@ export const InfographicTemplate: React.FC<TemplateProps> = ({ resume, themeColo
         <section>
           <div className="flex items-center mb-3">
             <div className="text-white rounded-full p-2 mr-3" style={{backgroundColor: themeColor}}><GraduationCap size={20} /></div>
-            <h2 className="text-xl font-bold uppercase text-gray-800 dark:text-gray-800" style={titleStyle}>Education</h2>
+            <h2 className="text-xl font-bold uppercase text-gray-800 dark:text-gray-800" style={titleStyle}>
+                <InlineEdit value={sectionTitles?.education || 'Education'} fieldId="sectionTitles.education" onFocus={onFocus} />
+            </h2>
           </div>
           {education.map((edu, index) => (
             <div key={edu.id} className="mb-4 pl-10 relative">

@@ -62,21 +62,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     if (!currentUser) return;
 
+    // We need both the user profile and the admin status to be resolved
+    // before we set global loading to false to prevent UI flashes (e.g. Admin tag popping in).
+    let userProfileLoaded = false;
+    let adminCheckDone = false;
+
+    const tryFinishLoading = () => {
+        if (userProfileLoaded && adminCheckDone) {
+            setLoading(false);
+        }
+    };
+
     // Real-time listener for user profile data (including premium status)
     const userDocRef = doc(db, 'users', currentUser.uid);
     const unsubscribeUser = onSnapshot(userDocRef, (docSnap) => {
       if (docSnap.exists()) {
         const userData = docSnap.data() as UserProfile;
         setUserProfile(userData);
-        
         // TEMP: All features are currently free for all users.
         setIsPremium(true);
-
       } else {
         // Also grant premium to new users whose doc might not exist yet
         setIsPremium(true);
       }
-      setLoading(false);
+      userProfileLoaded = true;
+      tryFinishLoading();
     });
 
     // One-time check for admin status
@@ -91,17 +101,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
              // Attempt self-healing (restore DB record if missing)
              try {
                  const adminDocRef = doc(db, 'admins', currentUser.uid);
-                 const adminDoc = await getDoc(adminDocRef);
-                 if (!adminDoc.exists()) {
-                     // Use setDoc with merge to avoid overwriting if it exists but we got a false negative (unlikely)
-                     // or just to be safe.
-                     await setDoc(adminDocRef, { role: 'admin' }, { merge: true });
-                     console.log("Restored admin record for hardcoded user.");
-                 }
+                 // We blindly set (merge) to ensure the record exists without needing read permissions first if rules are strict
+                 await setDoc(adminDocRef, { role: 'admin', email: currentUser.email }, { merge: true });
              } catch (e) {
                  console.warn("Self-healing admin check failed (likely permissions), but UI access is granted via hardcode.", e);
              }
              setIsAdminLoading(false);
+             adminCheckDone = true;
+             tryFinishLoading();
              return;
         }
 
@@ -114,6 +121,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setIsAdmin(false);
         } finally {
             setIsAdminLoading(false);
+            adminCheckDone = true;
+            tryFinishLoading();
         }
     };
     checkAdmin();

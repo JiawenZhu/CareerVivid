@@ -1,10 +1,11 @@
 
+
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
 import InlineEdit from '../InlineEdit';
 
 export const CrispTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont, onFocus }) => {
-  const { personalDetails, professionalSummary, employmentHistory, education, skills } = resume;
+  const { personalDetails, professionalSummary, employmentHistory, education, skills, sectionTitles } = resume;
 
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
   const bodyStyle = { fontFamily: `'${bodyFont}', sans-serif` };
@@ -52,7 +53,9 @@ export const CrispTemplate: React.FC<TemplateProps> = ({ resume, themeColor, tit
 
       <main>
         <section className="mb-5">
-          <h3 className="text-md font-bold uppercase text-gray-500 tracking-wider mb-2" style={titleStyle}>Summary</h3>
+          <h3 className="text-md font-bold uppercase text-gray-500 tracking-wider mb-2" style={titleStyle}>
+            <InlineEdit value={sectionTitles?.profile || 'Summary'} fieldId="sectionTitles.profile" onFocus={onFocus} />
+          </h3>
           <InlineEdit 
             value={professionalSummary} 
             fieldId="professionalSummary" 
@@ -64,7 +67,9 @@ export const CrispTemplate: React.FC<TemplateProps> = ({ resume, themeColor, tit
         </section>
         
         <section className="mb-5">
-          <h3 className="text-md font-bold uppercase text-gray-500 tracking-wider mb-2" style={titleStyle}>Skills</h3>
+          <h3 className="text-md font-bold uppercase text-gray-500 tracking-wider mb-2" style={titleStyle}>
+            <InlineEdit value={sectionTitles?.skills || 'Skills'} fieldId="sectionTitles.skills" onFocus={onFocus} />
+          </h3>
           <div className="flex flex-wrap gap-2">
             {skills.map((skill, index) => (
               <span key={skill.id} className="inline-flex items-center bg-gray-200 text-gray-800 text-xs font-semibold px-3 py-1 rounded-full">
@@ -75,7 +80,9 @@ export const CrispTemplate: React.FC<TemplateProps> = ({ resume, themeColor, tit
         </section>
 
         <section className="mb-5">
-          <h3 className="text-md font-bold uppercase text-gray-500 tracking-wider mb-3" style={titleStyle}>Work History</h3>
+          <h3 className="text-md font-bold uppercase text-gray-500 tracking-wider mb-3" style={titleStyle}>
+            <InlineEdit value={sectionTitles?.experience || 'Work History'} fieldId="sectionTitles.experience" onFocus={onFocus} />
+          </h3>
           {employmentHistory.map((job, index) => (
             <div key={job.id} className="mb-4">
               <div className="flex justify-between items-baseline">
@@ -114,7 +121,9 @@ export const CrispTemplate: React.FC<TemplateProps> = ({ resume, themeColor, tit
         </section>
 
         <section>
-          <h3 className="text-md font-bold uppercase text-gray-500 tracking-wider mb-3" style={titleStyle}>Education</h3>
+          <h3 className="text-md font-bold uppercase text-gray-500 tracking-wider mb-3" style={titleStyle}>
+            <InlineEdit value={sectionTitles?.education || 'Education'} fieldId="sectionTitles.education" onFocus={onFocus} />
+          </h3>
           {education.map((edu, index) => (
             <div key={edu.id} className="flex justify-between items-baseline">
                 <div>

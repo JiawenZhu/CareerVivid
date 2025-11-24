@@ -1,9 +1,10 @@
 
 
 
+
 import { useState, useEffect, useCallback } from 'react';
 import { ResumeData, PersonalDetails } from '../types';
-import { createBlankResume } from '../constants';
+import { createBlankResume, DEFAULT_ICONS, DEFAULT_SECTION_TITLES } from '../constants';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase';
 import { collection, query, onSnapshot, doc, updateDoc, deleteDoc, addDoc, serverTimestamp, orderBy, getDocs, writeBatch } from 'firebase/firestore';
@@ -41,6 +42,15 @@ export const useResumes = () => {
                     personalDetails: {
                         ...blankResume.personalDetails,
                         ...(data.personalDetails || {}),
+                    },
+                     // Ensure new fields exist for old resumes
+                    sectionTitles: {
+                        ...DEFAULT_SECTION_TITLES,
+                        ...(data.sectionTitles || {}),
+                    },
+                    customIcons: {
+                        ...DEFAULT_ICONS,
+                        ...(data.customIcons || {}),
                     },
                     // Also ensure arrays are initialized if missing
                     websites: data.websites || [],
@@ -108,20 +118,19 @@ export const useResumes = () => {
 
     const addAIGeneratedResume = useCallback(async (aiData: Partial<ResumeData>, title: string) => {
         if (!currentUser) return;
-        const emptyPersonalDetails: PersonalDetails = {
-            jobTitle: '', photo: '', firstName: '', lastName: '', email: '', phone: '',
-            address: '', city: '', postalCode: '', country: '',
-        };
+        const blank = createBlankResume();
         const newResume: Omit<ResumeData, 'id' | 'updatedAt'> = {
             title: title || 'AI Generated Resume',
             templateId: 'Modern',
-            personalDetails: { ...emptyPersonalDetails, ...aiData.personalDetails },
+            personalDetails: { ...blank.personalDetails, ...aiData.personalDetails },
             professionalSummary: aiData.professionalSummary || '',
             websites: aiData.websites || [],
             skills: aiData.skills || [],
             employmentHistory: aiData.employmentHistory || [],
             education: aiData.education || [],
             languages: aiData.languages || [],
+            sectionTitles: { ...DEFAULT_SECTION_TITLES },
+            customIcons: { ...DEFAULT_ICONS },
             themeColor: '#000000',
             titleFont: 'Montserrat',
             bodyFont: 'Crimson Text',

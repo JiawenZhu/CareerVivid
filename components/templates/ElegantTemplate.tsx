@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
 import InlineEdit from '../InlineEdit';
 
 export const ElegantTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont, onFocus }) => {
-  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites } = resume;
+  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites, sectionTitles } = resume;
 
   // Elegant template often looks best with specific serif fonts, so we use the selected ones.
   const titleStyle = { fontFamily: `'${titleFont}', serif` };
@@ -54,7 +53,14 @@ export const ElegantTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
 
       <main>
         <section className="mb-8">
-          <h2 className="text-2xl font-bold text-center mb-4" style={titleStyle}>Summary</h2>
+          <InlineEdit 
+            value={sectionTitles?.profile || 'Summary'} 
+            fieldId="sectionTitles.profile" 
+            onFocus={onFocus} 
+            className="text-2xl font-bold text-center mb-4 block" 
+            tagName="h2" 
+            style={titleStyle}
+          />
           <InlineEdit 
             value={professionalSummary} 
             fieldId="professionalSummary" 
@@ -68,7 +74,14 @@ export const ElegantTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
         <div className="w-24 h-px bg-gray-300 mx-auto my-10"></div>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-bold text-center mb-6" style={titleStyle}>Experience</h2>
+          <InlineEdit 
+            value={sectionTitles?.experience || 'Experience'} 
+            fieldId="sectionTitles.experience" 
+            onFocus={onFocus} 
+            className="text-2xl font-bold text-center mb-6 block" 
+            tagName="h2" 
+            style={titleStyle}
+          />
           {employmentHistory.map((job, index) => (
             <div key={job.id} className="mb-6">
               <InlineEdit 
@@ -108,7 +121,14 @@ export const ElegantTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
 
         <section className="grid grid-cols-2 gap-12">
           <div>
-            <h2 className="text-2xl font-bold text-center mb-6" style={titleStyle}>Education</h2>
+             <InlineEdit 
+                value={sectionTitles?.education || 'Education'} 
+                fieldId="sectionTitles.education" 
+                onFocus={onFocus} 
+                className="text-2xl font-bold text-center mb-6 block" 
+                tagName="h2" 
+                style={titleStyle}
+            />
             {education.map((edu, index) => (
               <div key={edu.id} className="mb-4 text-center">
                 <InlineEdit 
@@ -137,7 +157,14 @@ export const ElegantTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
             ))}
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-center mb-6" style={titleStyle}>Skills</h2>
+            <InlineEdit 
+                value={sectionTitles?.skills || 'Skills'} 
+                fieldId="sectionTitles.skills" 
+                onFocus={onFocus} 
+                className="text-2xl font-bold text-center mb-6 block" 
+                tagName="h2" 
+                style={titleStyle}
+            />
             <ul className="text-center columns-2">
               {skills.map((skill, index) => (
                 <li key={skill.id} className="mb-1 list-none">

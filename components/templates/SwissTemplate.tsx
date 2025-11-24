@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
 import InlineEdit from '../InlineEdit';
 
 export const SwissTemplate: React.FC<TemplateProps> = ({ resume, titleFont, bodyFont, onFocus, themeColor }) => {
-  const { personalDetails, professionalSummary, employmentHistory, education, skills } = resume;
+  const { personalDetails, professionalSummary, employmentHistory, education, skills, sectionTitles } = resume;
 
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
   const bodyStyle = { fontFamily: `'${bodyFont}', 'Helvetica Neue', Helvetica, Arial, sans-serif` };
@@ -46,19 +45,40 @@ export const SwissTemplate: React.FC<TemplateProps> = ({ resume, titleFont, body
       <main className="grid grid-cols-12 gap-x-8 text-sm">
         <aside className="col-span-4">
           <section className="mb-6">
-            <h2 className="font-bold mb-2" style={titleStyle}>Contact</h2>
+            <InlineEdit 
+                value={sectionTitles?.contact || 'Contact'} 
+                fieldId="sectionTitles.contact" 
+                onFocus={onFocus} 
+                className="font-bold mb-2 block" 
+                tagName="h2" 
+                style={titleStyle}
+            />
             <InlineEdit value={personalDetails.email} fieldId="personalDetails.email" onFocus={onFocus} placeholder="Email" className="block" />
             <InlineEdit value={personalDetails.phone} fieldId="personalDetails.phone" onFocus={onFocus} placeholder="Phone" className="block" />
             <InlineEdit value={personalDetails.address} fieldId="personalDetails.address" onFocus={onFocus} placeholder="Address" className="block" />
           </section>
            <section className="mb-6">
-            <h2 className="font-bold mb-2" style={titleStyle}>Skills</h2>
+            <InlineEdit 
+                value={sectionTitles?.skills || 'Skills'}
+                fieldId="sectionTitles.skills" 
+                onFocus={onFocus} 
+                className="font-bold mb-2 block" 
+                tagName="h2" 
+                style={titleStyle}
+            />
             {skills.map((skill, index) => (
                 <InlineEdit key={skill.id} value={skill.name} fieldId={`skills[${index}].name`} onFocus={onFocus} placeholder="Skill" className="block" />
             ))}
           </section>
           <section>
-            <h2 className="font-bold mb-2" style={titleStyle}>Education</h2>
+            <InlineEdit 
+                value={sectionTitles?.education || 'Education'}
+                fieldId="sectionTitles.education" 
+                onFocus={onFocus} 
+                className="font-bold mb-2 block" 
+                tagName="h2" 
+                style={titleStyle}
+            />
             {education.map((edu, index) => (
               <div key={edu.id}>
                 <InlineEdit 
@@ -99,7 +119,14 @@ export const SwissTemplate: React.FC<TemplateProps> = ({ resume, titleFont, body
             />
           </section>
           <section>
-            <h2 className="text-xl font-bold mb-3" style={titleStyle}>Experience</h2>
+            <InlineEdit 
+                value={sectionTitles?.experience || 'Experience'}
+                fieldId="sectionTitles.experience" 
+                onFocus={onFocus} 
+                className="text-xl font-bold mb-3 block" 
+                tagName="h2" 
+                style={titleStyle}
+            />
             {employmentHistory.map((job, index) => (
               <div key={job.id} className="grid grid-cols-4 gap-x-4 mb-4">
                 <div className="col-span-1 text-xs flex flex-col">

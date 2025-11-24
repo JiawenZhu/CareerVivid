@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
-import { Mail, Phone, MapPin, Linkedin, Globe } from 'lucide-react';
 import InlineEdit from '../InlineEdit';
+import IconDisplay from '../IconDisplay';
 
 export const CorporateTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont, onFocus }) => {
-  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites } = resume;
+  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites, sectionTitles, customIcons } = resume;
 
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
   const bodyStyle = { fontFamily: `'${bodyFont}', sans-serif` };
@@ -59,23 +58,30 @@ export const CorporateTemplate: React.FC<TemplateProps> = ({ resume, themeColor,
       <div className="p-8 grid grid-cols-12 gap-8">
         <aside className="col-span-4 border-r pr-8">
           <section className="mb-6">
-            <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{...titleStyle, color: themeColor}}>Contact</h3>
+            <InlineEdit 
+                value={(sectionTitles?.contact || 'Contact').toUpperCase()}
+                fieldId="sectionTitles.contact"
+                onFocus={onFocus}
+                className="text-sm font-bold uppercase tracking-wider mb-3 block"
+                tagName="h3"
+                style={{...titleStyle, color: themeColor}}
+            />
             <div className="space-y-2 text-sm">
               <div className="flex items-center">
-                  <Mail size={14} className="mr-2 flex-shrink-0 transform translate-y-px" />
+                  <IconDisplay iconName={customIcons?.email || 'mail'} size={14} className="mr-2 flex-shrink-0 transform translate-y-px" />
                   <InlineEdit value={personalDetails.email} fieldId="personalDetails.email" onFocus={onFocus} placeholder="Email" />
               </div>
               <div className="flex items-center">
-                  <Phone size={14} className="mr-2 flex-shrink-0 transform translate-y-px" />
+                  <IconDisplay iconName={customIcons?.phone || 'phone'} size={14} className="mr-2 flex-shrink-0 transform translate-y-px" />
                   <InlineEdit value={personalDetails.phone} fieldId="personalDetails.phone" onFocus={onFocus} placeholder="Phone" />
               </div>
               <div className="flex items-center">
-                  <MapPin size={14} className="mr-2 flex-shrink-0 transform translate-y-px" />
+                  <IconDisplay iconName={customIcons?.location || 'map-pin'} size={14} className="mr-2 flex-shrink-0 transform translate-y-px" />
                   <InlineEdit value={personalDetails.address} fieldId="personalDetails.address" onFocus={onFocus} placeholder="Address" />
               </div>
               {websites.map((site, index) => (
                 <div key={site.id} className="flex items-center">
-                  <Globe size={14} className="mr-2 flex-shrink-0 transform translate-y-px" />
+                  <IconDisplay iconName={site.icon || 'globe'} size={14} className="mr-2 flex-shrink-0 transform translate-y-px" />
                   <a href={site.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
                       <InlineEdit value={site.label} fieldId={`websites[${index}].label`} onFocus={onFocus} isLink />
                   </a>
@@ -85,7 +91,14 @@ export const CorporateTemplate: React.FC<TemplateProps> = ({ resume, themeColor,
           </section>
 
           <section className="mb-6">
-            <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{...titleStyle, color: themeColor}}>Education</h3>
+            <InlineEdit 
+                value={(sectionTitles?.education || 'Education').toUpperCase()}
+                fieldId="sectionTitles.education"
+                onFocus={onFocus}
+                className="text-sm font-bold uppercase tracking-wider mb-3 block"
+                tagName="h3"
+                style={{...titleStyle, color: themeColor}}
+            />
             {education.map((edu, index) => (
               <div key={edu.id} className="mb-4">
                 <InlineEdit 
@@ -115,7 +128,14 @@ export const CorporateTemplate: React.FC<TemplateProps> = ({ resume, themeColor,
           </section>
 
           <section>
-            <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{...titleStyle, color: themeColor}}>Skills</h3>
+             <InlineEdit 
+                value={(sectionTitles?.skills || 'Skills').toUpperCase()}
+                fieldId="sectionTitles.skills"
+                onFocus={onFocus}
+                className="text-sm font-bold uppercase tracking-wider mb-3 block"
+                tagName="h3"
+                style={{...titleStyle, color: themeColor}}
+            />
             <div className="flex flex-wrap gap-2">
               {skills.map((skill, index) => (
                 <span key={skill.id} className="inline-flex items-center text-xs font-semibold px-3 py-1 rounded" style={{ backgroundColor: `${themeColor}20`, color: themeColor }}>
@@ -128,7 +148,14 @@ export const CorporateTemplate: React.FC<TemplateProps> = ({ resume, themeColor,
 
         <main className="col-span-8">
           <section className="mb-6">
-            <h3 className="text-lg font-bold uppercase tracking-wider mb-3" style={{...titleStyle, color: themeColor}}>Profile</h3>
+            <InlineEdit 
+                value={(sectionTitles?.profile || 'Profile').toUpperCase()}
+                fieldId="sectionTitles.profile"
+                onFocus={onFocus}
+                className="text-lg font-bold uppercase tracking-wider mb-3 block"
+                tagName="h3"
+                style={{...titleStyle, color: themeColor}}
+            />
             <InlineEdit 
                 value={professionalSummary} 
                 fieldId="professionalSummary" 
@@ -140,7 +167,14 @@ export const CorporateTemplate: React.FC<TemplateProps> = ({ resume, themeColor,
           </section>
 
           <section>
-            <h3 className="text-lg font-bold uppercase tracking-wider mb-3" style={{...titleStyle, color: themeColor}}>Experience</h3>
+            <InlineEdit 
+                value={(sectionTitles?.experience || 'Experience').toUpperCase()}
+                fieldId="sectionTitles.experience"
+                onFocus={onFocus}
+                className="text-lg font-bold uppercase tracking-wider mb-3 block"
+                tagName="h3"
+                style={{...titleStyle, color: themeColor}}
+            />
             {employmentHistory.map((job, index) => (
               <div key={job.id} className="mb-5">
                 <div className="flex justify-between items-baseline">

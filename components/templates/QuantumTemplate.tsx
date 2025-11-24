@@ -1,11 +1,12 @@
 
+
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
 import { Mail, Phone, MapPin, Code } from 'lucide-react';
 import InlineEdit from '../InlineEdit';
 
 export const QuantumTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont, onFocus }) => {
-  const { personalDetails, professionalSummary, employmentHistory, education, skills } = resume;
+  const { personalDetails, professionalSummary, employmentHistory, education, skills, sectionTitles } = resume;
 
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
   const bodyStyle = { fontFamily: `'${bodyFont}', sans-serif` };
@@ -71,7 +72,9 @@ export const QuantumTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
 
       <main className="w-2/3 p-8">
         <section className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-800 mb-2" style={titleStyle}>Profile</h2>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-800 mb-2" style={titleStyle}>
+            <InlineEdit value={sectionTitles?.profile || 'Profile'} fieldId="sectionTitles.profile" onFocus={onFocus} />
+          </h2>
           <InlineEdit 
             value={professionalSummary} 
             fieldId="professionalSummary" 
@@ -83,7 +86,9 @@ export const QuantumTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
         </section>
 
         <section className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-800 mb-3" style={titleStyle}>Work Experience</h2>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-800 mb-3" style={titleStyle}>
+            <InlineEdit value={sectionTitles?.experience || 'Work Experience'} fieldId="sectionTitles.experience" onFocus={onFocus} />
+          </h2>
           {employmentHistory.map((job, index) => (
             <div key={job.id} className="mb-4">
               <InlineEdit 
@@ -116,7 +121,9 @@ export const QuantumTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
         </section>
         
         <section>
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-800 mb-3" style={titleStyle}>Education</h2>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-800 mb-3" style={titleStyle}>
+            <InlineEdit value={sectionTitles?.education || 'Education'} fieldId="sectionTitles.education" onFocus={onFocus} />
+          </h2>
           {education.map((edu, index) => (
             <div key={edu.id}>
               <InlineEdit 

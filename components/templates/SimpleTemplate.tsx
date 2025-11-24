@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
 import InlineEdit from '../InlineEdit';
 
 export const SimpleTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont, onFocus }) => {
-  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites } = resume;
+  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites, sectionTitles } = resume;
 
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif`, color: themeColor };
   const bodyStyle = { fontFamily: `'${bodyFont}', sans-serif` };
@@ -51,7 +50,14 @@ export const SimpleTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
 
       <main>
         <section className="mb-6">
-          <h2 className="text-xl font-semibold border-b pb-1 mb-2" style={titleStyle}>Summary</h2>
+          <InlineEdit 
+            value={sectionTitles?.profile || 'Summary'} 
+            fieldId="sectionTitles.profile" 
+            onFocus={onFocus} 
+            className="text-xl font-semibold border-b pb-1 mb-2 block" 
+            tagName="h2"
+            style={titleStyle}
+          />
           <InlineEdit 
             value={professionalSummary} 
             fieldId="professionalSummary" 
@@ -63,7 +69,14 @@ export const SimpleTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
         </section>
 
         <section className="mb-6">
-          <h2 className="text-xl font-semibold border-b pb-1 mb-2" style={titleStyle}>Work Experience</h2>
+          <InlineEdit 
+            value={sectionTitles?.experience || 'Work Experience'}
+            fieldId="sectionTitles.experience" 
+            onFocus={onFocus} 
+            className="text-xl font-semibold border-b pb-1 mb-2 block" 
+            tagName="h2"
+            style={titleStyle}
+          />
           {employmentHistory.map((job, index) => (
             <div key={job.id} className="mb-4">
               <InlineEdit 
@@ -100,7 +113,14 @@ export const SimpleTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
         </section>
 
         <section className="mb-6">
-          <h2 className="text-xl font-semibold border-b pb-1 mb-2" style={titleStyle}>Education</h2>
+          <InlineEdit 
+            value={sectionTitles?.education || 'Education'} 
+            fieldId="sectionTitles.education" 
+            onFocus={onFocus} 
+            className="text-xl font-semibold border-b pb-1 mb-2 block" 
+            tagName="h2"
+            style={titleStyle}
+          />
           {education.map((edu, index) => (
             <div key={edu.id} className="mb-3">
               <InlineEdit 
@@ -129,7 +149,14 @@ export const SimpleTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold border-b pb-1 mb-2" style={titleStyle}>Skills</h2>
+          <InlineEdit 
+            value={sectionTitles?.skills || 'Skills'}
+            fieldId="sectionTitles.skills" 
+            onFocus={onFocus} 
+            className="text-xl font-semibold border-b pb-1 mb-2 block" 
+            tagName="h2"
+            style={titleStyle}
+          />
           <div className="text-sm flex flex-wrap gap-1">
             {skills.map((skill, index) => (
                 <React.Fragment key={skill.id}>

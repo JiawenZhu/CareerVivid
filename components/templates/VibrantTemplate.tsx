@@ -1,11 +1,12 @@
 
+
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
 import { Mail, Phone, MapPin, Linkedin, Globe, Star } from 'lucide-react';
 import InlineEdit from '../InlineEdit';
 
 export const VibrantTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont, onFocus }) => {
-  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites } = resume;
+  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites, sectionTitles } = resume;
 
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
   const bodyStyle = { fontFamily: `'${bodyFont}', sans-serif` };
@@ -53,7 +54,9 @@ export const VibrantTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
         <hr className="my-6" style={{borderColor: 'rgba(255,255,255,0.3)'}} />
 
         <section className="mb-6">
-          <h2 className="text-lg font-semibold uppercase tracking-wider mb-3" style={titleStyle}>Contact</h2>
+          <h2 className="text-lg font-semibold uppercase tracking-wider mb-3" style={titleStyle}>
+            <InlineEdit value={sectionTitles?.contact || 'Contact'} fieldId="sectionTitles.contact" onFocus={onFocus} />
+          </h2>
           <div className="space-y-2 text-sm">
             <div className="flex items-center break-all">
                 <Mail size={14} className="mr-3 shrink-0 transform translate-y-px" />
@@ -67,7 +70,9 @@ export const VibrantTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold uppercase tracking-wider mb-3" style={titleStyle}>Skills</h2>
+          <h2 className="text-lg font-semibold uppercase tracking-wider mb-3" style={titleStyle}>
+            <InlineEdit value={sectionTitles?.skills || 'Skills'} fieldId="sectionTitles.skills" onFocus={onFocus} />
+          </h2>
           <ul className="space-y-1">
             {skills.map((skill, index) => (
               <li key={skill.id} className="text-sm">
@@ -80,7 +85,9 @@ export const VibrantTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
 
       <main className="w-2/3 p-8">
         <section className="mb-6">
-          <h2 className="text-2xl font-bold border-b-2 pb-2 mb-3" style={{...titleStyle, color: themeColor, borderColor: `${themeColor}40`}}>Summary</h2>
+          <h2 className="text-2xl font-bold border-b-2 pb-2 mb-3" style={{...titleStyle, color: themeColor, borderColor: `${themeColor}40`}}>
+            <InlineEdit value={sectionTitles?.profile || 'Summary'} fieldId="sectionTitles.profile" onFocus={onFocus} />
+          </h2>
           <InlineEdit 
             value={professionalSummary} 
             fieldId="professionalSummary" 
@@ -92,7 +99,9 @@ export const VibrantTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
         </section>
 
         <section className="mb-6">
-          <h2 className="text-2xl font-bold border-b-2 pb-2 mb-3" style={{...titleStyle, color: themeColor, borderColor: `${themeColor}40`}}>Experience</h2>
+          <h2 className="text-2xl font-bold border-b-2 pb-2 mb-3" style={{...titleStyle, color: themeColor, borderColor: `${themeColor}40`}}>
+            <InlineEdit value={sectionTitles?.experience || 'Experience'} fieldId="sectionTitles.experience" onFocus={onFocus} />
+          </h2>
           {employmentHistory.map((job, index) => (
             <div key={job.id} className="mb-4">
               <div className="flex justify-between items-baseline">
@@ -132,7 +141,9 @@ export const VibrantTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
         </section>
         
         <section>
-          <h2 className="text-2xl font-bold border-b-2 pb-2 mb-3" style={{...titleStyle, color: themeColor, borderColor: `${themeColor}40`}}>Education</h2>
+          <h2 className="text-2xl font-bold border-b-2 pb-2 mb-3" style={{...titleStyle, color: themeColor, borderColor: `${themeColor}40`}}>
+            <InlineEdit value={sectionTitles?.education || 'Education'} fieldId="sectionTitles.education" onFocus={onFocus} />
+          </h2>
           {education.map((edu, index) => (
             <div key={edu.id} className="mb-4">
               <InlineEdit 
