@@ -1,10 +1,11 @@
 
+
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
 import InlineEdit from '../InlineEdit';
 
 export const AcademicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont, onFocus }) => {
-  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites } = resume;
+  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites, sectionTitles } = resume;
 
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
   const bodyStyle = { fontFamily: `'${bodyFont}', sans-serif` };
@@ -52,7 +53,9 @@ export const AcademicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, 
 
       <main>
         <section className="mb-6">
-          <h2 className="text-sm font-bold uppercase tracking-widest border-b mb-2 pb-1" style={titleStyle}>Summary</h2>
+          <h2 className="text-sm font-bold uppercase tracking-widest border-b mb-2 pb-1" style={titleStyle}>
+            <InlineEdit value={sectionTitles?.profile || 'Summary'} fieldId="sectionTitles.profile" onFocus={onFocus} />
+          </h2>
           <InlineEdit 
             value={professionalSummary} 
             fieldId="professionalSummary" 
@@ -64,7 +67,9 @@ export const AcademicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, 
         </section>
 
         <section className="mb-6">
-          <h2 className="text-sm font-bold uppercase tracking-widest border-b mb-2 pb-1" style={titleStyle}>Education</h2>
+          <h2 className="text-sm font-bold uppercase tracking-widest border-b mb-2 pb-1" style={titleStyle}>
+            <InlineEdit value={sectionTitles?.education || 'Education'} fieldId="sectionTitles.education" onFocus={onFocus} />
+          </h2>
           {education.map((edu, index) => (
             <div key={edu.id} className="text-sm mb-2">
               <div className="flex justify-between">
@@ -100,7 +105,9 @@ export const AcademicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, 
         </section>
         
         <section className="mb-6">
-          <h2 className="text-sm font-bold uppercase tracking-widest border-b mb-2 pb-1" style={titleStyle}>Research Experience</h2>
+          <h2 className="text-sm font-bold uppercase tracking-widest border-b mb-2 pb-1" style={titleStyle}>
+            <InlineEdit value={sectionTitles?.experience || 'Research Experience'} fieldId="sectionTitles.experience" onFocus={onFocus} />
+          </h2>
           {employmentHistory.map((job, index) => (
             <div key={job.id} className="text-sm mb-2">
               <div className="flex justify-between">
@@ -136,7 +143,9 @@ export const AcademicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, 
         </section>
         
         <section className="mb-6">
-          <h2 className="text-sm font-bold uppercase tracking-widest border-b mb-2 pb-1" style={titleStyle}>Skills</h2>
+          <h2 className="text-sm font-bold uppercase tracking-widest border-b mb-2 pb-1" style={titleStyle}>
+            <InlineEdit value={sectionTitles?.skills || 'Skills'} fieldId="sectionTitles.skills" onFocus={onFocus} />
+          </h2>
           <div className="text-sm">
             {skills.map((skill, index) => (
                 <div key={skill.id} className="flex gap-1">
@@ -151,12 +160,16 @@ export const AcademicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, 
 
         {/* This is a placeholder for sections common in academic CVs */}
         <section className="mb-6">
-          <h2 className="text-sm font-bold uppercase tracking-widest border-b mb-2 pb-1" style={titleStyle}>Publications</h2>
-          <p className="text-sm italic text-gray-500">[This is a placeholder section. Add publications details in the employment/education description field.]</p>
+          <h2 className="text-sm font-bold uppercase tracking-widest border-b mb-2 pb-1" style={titleStyle}>
+            <InlineEdit value={sectionTitles?.publications || 'Publications'} fieldId="sectionTitles.publications" onFocus={onFocus} />
+          </h2>
+          <p className="text-sm italic text-gray-500">[Add publications in the experience/education description fields, or create a new 'experience' item for them.]</p>
         </section>
         
         <section>
-          <h2 className="text-sm font-bold uppercase tracking-widest border-b mb-2 pb-1" style={titleStyle}>References</h2>
+          <h2 className="text-sm font-bold uppercase tracking-widest border-b mb-2 pb-1" style={titleStyle}>
+            <InlineEdit value={sectionTitles?.references || 'References'} fieldId="sectionTitles.references" onFocus={onFocus} />
+          </h2>
           <p className="text-sm italic text-gray-500">Available upon request.</p>
         </section>
       </main>

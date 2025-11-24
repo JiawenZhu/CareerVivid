@@ -252,13 +252,11 @@ export const editProfilePhoto = async (userId: string, base64Image: string, mime
             text: prompt,
         };
 
+        // FIX: Removed unsupported `responseModalities` config for image generation.
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash-image',
             contents: {
                 parts: [imagePart, textPart],
-            },
-            config: {
-                responseModalities: [Modality.IMAGE],
             },
         });
         

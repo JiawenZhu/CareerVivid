@@ -1,4 +1,5 @@
 
+
 export interface PersonalDetails {
   jobTitle: string;
   photo: string; // URL to image in Firebase Storage
@@ -16,6 +17,7 @@ export interface WebsiteLink {
   id: string;
   label: string;
   url: string;
+  icon?: string; // Optional custom icon ID from AVAILABLE_ICONS
 }
 
 export interface Skill {
@@ -58,6 +60,25 @@ export interface ShareConfig {
   shareId?: string; // Optional unique token if we want to obfuscate IDs later
 }
 
+export interface SectionTitles {
+  contact?: string;
+  profile?: string;
+  skills?: string;
+  experience?: string;
+  education?: string;
+  languages?: string;
+  websites?: string;
+  publications?: string;
+  references?: string;
+  experienceAndEducation?: string;
+}
+
+export interface CustomIcons {
+    email?: string;
+    phone?: string;
+    location?: string;
+}
+
 export interface ResumeData {
   id: string;
   title: string;
@@ -75,6 +96,8 @@ export interface ResumeData {
   bodyFont: string;
   language: string;
   section?: string;
+  sectionTitles?: SectionTitles; // Custom section headers
+  customIcons?: CustomIcons; // New field for custom icons
   shareConfig?: ShareConfig; // New field for sharing settings
 }
 

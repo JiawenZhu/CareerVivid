@@ -8,7 +8,8 @@ import { v4 as uuidv4 } from "uuid";
 import { Buffer } from "buffer";
 import { ResumeData } from "./types";
 import { defineSecret } from "firebase-functions/params";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+// FIX: Updated to use the modern, recommended Gemini API client.
+import { GoogleGenAI } from "@google/genai";
 
 const corsHandler = cors({ origin: true });
 
@@ -179,11 +180,13 @@ export const generateAIContent = functions
       }
 
       try {
-        const genAI = new GoogleGenerativeAI(geminiApiKey.value());
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
+        // FIX: Updated Gemini API call to align with current SDK guidelines.
+        const ai = new GoogleGenAI({apiKey: geminiApiKey.value()});
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+        });
+        const text = response.text;
         res.json({ result: text });
       } catch (error: any) {
         console.error("AI Generation Error:", error);

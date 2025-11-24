@@ -1,17 +1,20 @@
 
+
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
 import InlineEdit from '../InlineEdit';
 
 export const HarvardTemplate: React.FC<TemplateProps> = ({ resume, titleFont, bodyFont, onFocus }) => {
-  const { personalDetails, professionalSummary, employmentHistory, education, skills } = resume;
+  const { personalDetails, professionalSummary, employmentHistory, education, skills, sectionTitles } = resume;
 
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
   const bodyStyle = { fontFamily: `'${bodyFont}', sans-serif` };
 
-  const Section: React.FC<{title: string; children: React.ReactNode;}> = ({title, children}) => (
+  const Section: React.FC<{title: string; fieldId: string; children: React.ReactNode;}> = ({title, fieldId, children}) => (
     <section className="mb-4">
-        <h2 className="text-sm font-bold border-b border-black pb-px mb-2" style={titleStyle}>{title.toUpperCase()}</h2>
+        <h2 className="text-sm font-bold border-b border-black pb-px mb-2" style={titleStyle}>
+           <InlineEdit value={title.toUpperCase()} fieldId={`sectionTitles.${fieldId}`} onFocus={onFocus} />
+        </h2>
         {children}
     </section>
   );
@@ -49,7 +52,7 @@ export const HarvardTemplate: React.FC<TemplateProps> = ({ resume, titleFont, bo
       </header>
 
       <main>
-        <Section title="Education">
+        <Section title={sectionTitles?.education || 'Education'} fieldId="education">
           {education.map((edu, index) => (
             <div key={edu.id} className="mb-2">
               <div className="flex justify-between">
@@ -76,7 +79,7 @@ export const HarvardTemplate: React.FC<TemplateProps> = ({ resume, titleFont, bo
           ))}
         </Section>
         
-        <Section title="Experience">
+        <Section title={sectionTitles?.experience || 'Experience'} fieldId="experience">
           {employmentHistory.map((job, index) => (
             <div key={job.id} className="mb-3">
               <div className="flex justify-between">
@@ -105,7 +108,7 @@ export const HarvardTemplate: React.FC<TemplateProps> = ({ resume, titleFont, bo
           ))}
         </Section>
 
-        <Section title="Skills">
+        <Section title={sectionTitles?.skills || 'Skills'} fieldId="skills">
            <div className="text-xs flex flex-wrap gap-1">
                 {skills.map((skill, index) => (
                     <React.Fragment key={skill.id}>

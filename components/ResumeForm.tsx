@@ -1,9 +1,10 @@
 
+
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { ResumeData, PersonalDetails, WebsiteLink, Skill, EmploymentHistory, Education, Language } from '../types';
+import { ResumeData, PersonalDetails, WebsiteLink, Skill, EmploymentHistory, Education, Language, SectionTitles } from '../types';
 import { parseResume, parseResumeFromFile } from '../services/geminiService';
-import { LANGUAGE_PROFICIENCY_LEVELS } from '../constants';
-import { PlusCircle, Trash2, Wand2, UploadCloud, User, Briefcase, GraduationCap, Link as LinkIcon, Star, CheckCircle, Loader2, Brush, Languages, Zap, ChevronDown, ChevronUp, GripVertical } from 'lucide-react';
+import { LANGUAGE_PROFICIENCY_LEVELS, TEMPLATE_SECTIONS, DEFAULT_SECTION_TITLES } from '../constants';
+import { PlusCircle, Trash2, Wand2, UploadCloud, User, Briefcase, GraduationCap, Link as LinkIcon, Star, CheckCircle, Loader2, Brush, Languages, Zap, ChevronDown, ChevronUp, GripVertical, Edit as EditIcon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { uploadImage, dataURLtoBlob } from '../services/storageService';
 import AlertModal from './AlertModal';
@@ -11,6 +12,8 @@ import EditableTextarea from './EditableTextarea';
 import AIImprovementPanel from './AIImprovementPanel';
 import AIImageEditModal from './AIImageEditModal';
 import MonthYearPicker from './MonthYearPicker';
+import IconPicker from './IconPicker';
+import { detectIconFromUrl, createWebsiteLink } from '../utils/iconDetection';
 
 interface ResumeFormProps {
   resume: ResumeData;
@@ -36,6 +39,19 @@ const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement> & { label: str
     <input id={id} {...props} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 transition-colors duration-200" />
   </div>
 );
+
+const SECTION_LABELS: Record<keyof SectionTitles, string> = {
+    contact: 'Contact Section',
+    profile: 'Profile / Summary Section',
+    skills: 'Skills Section',
+    experience: 'Experience Section',
+    education: 'Education Section',
+    languages: 'Languages Section',
+    websites: 'Websites Section',
+    publications: 'Publications Section',
+    references: 'References Section',
+    experienceAndEducation: 'Experience & Education Section'
+};
 
 
 const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, setTempPhoto, isReadOnly = false }) => {
@@ -186,6 +202,14 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
         const array = resume[arrayName] as T[];
         const newArray = [...array];
         newArray[index] = { ...newArray[index], [field]: value };
+
+        // Auto-detect icon when URL or label changes for website links
+        if (arrayName === 'websites' && (field === 'url' || field === 'label')) {
+            const link = newArray[index] as unknown as WebsiteLink;
+            const detectedIcon = detectIconFromUrl(link.url || '', link.label || '');
+            newArray[index] = { ...newArray[index], icon: detectedIcon } as T;
+        }
+
         onChange({ [arrayName]: newArray } as Partial<ResumeData>);
     };
 
@@ -226,6 +250,8 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
     };
 
     const displayPhoto = tempPhoto || resume.personalDetails.photo;
+
+    const sectionsForTemplate = TEMPLATE_SECTIONS[resume.templateId] || [];
 
     return (
         <div className="space-y-6">
@@ -437,14 +463,39 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                                  <Trash2 size={18} />
                              </button>
                          </div>
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
-                            <Input id={`websites[${index}].label`} label="Label" value={link.label} onChange={e => handleArrayChange<WebsiteLink>('websites', index, 'label', e.target.value)} disabled={isReadOnly} />
-                            <Input id={`websites[${index}].url`} label="URL" value={link.url} onChange={e => handleArrayChange<WebsiteLink>('websites', index, 'url', e.target.value)} disabled={isReadOnly} />
+                         <div className="space-y-4 pr-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Input id={`websites[${index}].label`} label="Label" value={link.label} onChange={e => handleArrayChange<WebsiteLink>('websites', index, 'label', e.target.value)} disabled={isReadOnly} />
+                                <Input id={`websites[${index}].url`} label="URL" value={link.url} onChange={e => handleArrayChange<WebsiteLink>('websites', index, 'url', e.target.value)} disabled={isReadOnly} />
+                            </div>
+                            <IconPicker
+                                selectedIcon={link.icon || 'link'}
+                                onSelect={(iconId) => handleArrayChange<WebsiteLink>('websites', index, 'icon', iconId)}
+                                label="Icon"
+                            />
                         </div>
                     </div>
                 ))}
-                 <button onClick={() => addArrayItem('websites', { id: crypto.randomUUID(), label: 'Website', url: '' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16}/> Add Link</button>
+                 <button onClick={() => addArrayItem('websites', createWebsiteLink())} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16}/> Add Link</button>
             </FormSection>
+
+             <FormSection title="Section Titles" icon={<EditIcon className="text-primary-500" />}>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Customize section headers for the current template. Leave blank to use defaults.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {sectionsForTemplate.map(sectionKey => (
+                        <Input
+                            key={sectionKey}
+                            id={`sectionTitles.${sectionKey}`}
+                            label={SECTION_LABELS[sectionKey]}
+                            value={resume.sectionTitles?.[sectionKey] || ''}
+                            onChange={e => handleChange(sectionKey, e.target.value || undefined, 'sectionTitles')}
+                            disabled={isReadOnly}
+                            placeholder={`${DEFAULT_SECTION_TITLES[sectionKey]} (default)`}
+                        />
+                    ))}
+                </div>
+            </FormSection>
+
 
             <FormSection title="Skills" icon={<Star className="text-primary-500" />}>
                  {resume.skills.map((skill, index) => (

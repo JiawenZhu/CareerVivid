@@ -1,11 +1,12 @@
 
+
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import InlineEdit from '../InlineEdit';
 
 export const DynamicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont, onFocus }) => {
-  const { personalDetails, professionalSummary, employmentHistory, education, skills } = resume;
+  const { personalDetails, professionalSummary, employmentHistory, education, skills, sectionTitles } = resume;
 
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
   const bodyStyle = { fontFamily: `'${bodyFont}', sans-serif` };
@@ -17,7 +18,9 @@ export const DynamicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
         <main className="flex gap-8 items-start">
             <div className="w-2/3">
                 <section className="mb-6">
-                    <h3 className="text-xl font-bold mb-2" style={titleStyle}>Summary</h3>
+                    <h3 className="text-xl font-bold mb-2" style={titleStyle}>
+                        <InlineEdit value={sectionTitles?.profile || 'Summary'} fieldId="sectionTitles.profile" onFocus={onFocus} />
+                    </h3>
                     <InlineEdit 
                         value={professionalSummary} 
                         fieldId="professionalSummary" 
@@ -28,7 +31,9 @@ export const DynamicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
                     />
                 </section>
                  <section>
-                    <h3 className="text-xl font-bold mb-3" style={titleStyle}>Experience</h3>
+                    <h3 className="text-xl font-bold mb-3" style={titleStyle}>
+                        <InlineEdit value={sectionTitles?.experience || 'Experience'} fieldId="sectionTitles.experience" onFocus={onFocus} />
+                    </h3>
                     {employmentHistory.map((job, index) => (
                         <div key={job.id} className="mb-4">
                         <InlineEdit 
@@ -94,7 +99,9 @@ export const DynamicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
                 </header>
                 <aside>
                     <section className="mb-6">
-                        <h3 className="text-lg font-bold mb-2 text-right" style={titleStyle}>Contact</h3>
+                        <h3 className="text-lg font-bold mb-2 text-right" style={titleStyle}>
+                            <InlineEdit value={sectionTitles?.contact || 'Contact'} fieldId="sectionTitles.contact" onFocus={onFocus} />
+                        </h3>
                          <div className="space-y-2 text-sm">
                             {personalDetails.email && <div className="flex items-center justify-end"><InlineEdit value={personalDetails.email} fieldId="personalDetails.email" onFocus={onFocus} placeholder="Email" className="text-right" /><Mail size={14} className="ml-2 flex-shrink-0 transform translate-y-px" /></div>}
                             {personalDetails.phone && <div className="flex items-center justify-end"><InlineEdit value={personalDetails.phone} fieldId="personalDetails.phone" onFocus={onFocus} placeholder="Phone" /><Phone size={14} className="ml-2 flex-shrink-0 transform translate-y-px" /></div>}
@@ -102,7 +109,9 @@ export const DynamicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
                         </div>
                     </section>
                     <section className="mb-6 text-right">
-                        <h3 className="text-lg font-bold mb-2" style={titleStyle}>Skills</h3>
+                        <h3 className="text-lg font-bold mb-2" style={titleStyle}>
+                            <InlineEdit value={sectionTitles?.skills || 'Skills'} fieldId="sectionTitles.skills" onFocus={onFocus} />
+                        </h3>
                         <ul className="text-sm space-y-1 flex flex-col items-end">
                             {skills.map((skill, index) => (
                                 <li key={skill.id}>
@@ -112,7 +121,9 @@ export const DynamicTemplate: React.FC<TemplateProps> = ({ resume, themeColor, t
                         </ul>
                     </section>
                     <section className="text-right">
-                        <h3 className="text-lg font-bold mb-2" style={titleStyle}>Education</h3>
+                        <h3 className="text-lg font-bold mb-2" style={titleStyle}>
+                            <InlineEdit value={sectionTitles?.education || 'Education'} fieldId="sectionTitles.education" onFocus={onFocus} />
+                        </h3>
                          {education.map((edu, index) => (
                             <div key={edu.id} className="mb-2">
                             <InlineEdit 

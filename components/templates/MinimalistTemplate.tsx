@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
 import InlineEdit from '../InlineEdit';
 
 export const MinimalistTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont, onFocus }) => {
-  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites } = resume;
+  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites, sectionTitles } = resume;
 
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
   const bodyStyle = { fontFamily: `'${bodyFont}', sans-serif` };
@@ -74,7 +73,14 @@ export const MinimalistTemplate: React.FC<TemplateProps> = ({ resume, themeColor
         <hr className="my-8" />
 
         <section className="mb-8">
-          <h2 className="text-sm font-semibold tracking-widest text-gray-500 text-center mb-6" style={titleStyle}>EXPERIENCE</h2>
+          <InlineEdit 
+            value={(sectionTitles?.experience || 'Experience').toUpperCase()} 
+            fieldId="sectionTitles.experience" 
+            onFocus={onFocus} 
+            className="text-sm font-semibold tracking-widest text-gray-500 text-center mb-6 block" 
+            tagName="h2"
+            style={titleStyle}
+          />
           {employmentHistory.map((job, index) => (
             <div key={job.id} className="grid grid-cols-4 gap-4 mb-5">
               <div className="col-span-1 text-right">
@@ -120,7 +126,14 @@ export const MinimalistTemplate: React.FC<TemplateProps> = ({ resume, themeColor
         
         <section className="grid grid-cols-2 gap-8">
             <div>
-                <h2 className="text-sm font-semibold tracking-widest text-gray-500 text-center mb-6" style={titleStyle}>EDUCATION</h2>
+                <InlineEdit 
+                    value={(sectionTitles?.education || 'Education').toUpperCase()} 
+                    fieldId="sectionTitles.education" 
+                    onFocus={onFocus} 
+                    className="text-sm font-semibold tracking-widest text-gray-500 text-center mb-6 block" 
+                    tagName="h2"
+                    style={titleStyle}
+                />
                  {education.map((edu, index) => (
                     <div key={edu.id} className="text-center mb-4">
                         <InlineEdit 
@@ -149,7 +162,14 @@ export const MinimalistTemplate: React.FC<TemplateProps> = ({ resume, themeColor
                 ))}
             </div>
             <div>
-                 <h2 className="text-sm font-semibold tracking-widest text-gray-500 text-center mb-6" style={titleStyle}>SKILLS</h2>
+                 <InlineEdit 
+                    value={(sectionTitles?.skills || 'Skills').toUpperCase()} 
+                    fieldId="sectionTitles.skills" 
+                    onFocus={onFocus} 
+                    className="text-sm font-semibold tracking-widest text-gray-500 text-center mb-6 block" 
+                    tagName="h2"
+                    style={titleStyle}
+                />
                  <div className="text-center flex flex-wrap justify-center gap-2">
                     {skills.map((skill, index) => (
                         <span key={skill.id} className="inline-flex">

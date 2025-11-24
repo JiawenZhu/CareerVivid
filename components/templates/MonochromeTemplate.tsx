@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
 import InlineEdit from '../InlineEdit';
 
 export const MonochromeTemplate: React.FC<TemplateProps> = ({ resume, titleFont, bodyFont, onFocus }) => {
-  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites } = resume;
+  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites, sectionTitles } = resume;
 
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
   const bodyStyle = { fontFamily: `'${bodyFont}', sans-serif` };
@@ -46,7 +45,14 @@ export const MonochromeTemplate: React.FC<TemplateProps> = ({ resume, titleFont,
       <main className="grid grid-cols-3 gap-8">
         <div className="col-span-2">
           <section className="mb-6">
-            <h2 className="text-xl font-bold tracking-wider mb-3" style={titleStyle}>PROFILE</h2>
+            <InlineEdit 
+                value={(sectionTitles?.profile || 'Profile').toUpperCase()}
+                fieldId="sectionTitles.profile"
+                onFocus={onFocus}
+                className="text-xl font-bold tracking-wider mb-3 block"
+                tagName="h2"
+                style={titleStyle}
+            />
             <InlineEdit 
                 value={professionalSummary} 
                 fieldId="professionalSummary" 
@@ -58,7 +64,14 @@ export const MonochromeTemplate: React.FC<TemplateProps> = ({ resume, titleFont,
           </section>
 
           <section>
-            <h2 className="text-xl font-bold tracking-wider mb-3" style={titleStyle}>EXPERIENCE</h2>
+            <InlineEdit 
+                value={(sectionTitles?.experience || 'Experience').toUpperCase()}
+                fieldId="sectionTitles.experience"
+                onFocus={onFocus}
+                className="text-xl font-bold tracking-wider mb-3 block"
+                tagName="h2"
+                style={titleStyle}
+            />
             {employmentHistory.map((job, index) => (
               <div key={job.id} className="mb-4">
                 <div className="flex justify-between items-baseline">
@@ -100,7 +113,14 @@ export const MonochromeTemplate: React.FC<TemplateProps> = ({ resume, titleFont,
 
         <aside className="col-span-1 pl-8 border-l-2 border-gray-200">
           <section className="mb-6">
-            <h2 className="text-xl font-bold tracking-wider mb-3" style={titleStyle}>CONTACT</h2>
+            <InlineEdit 
+                value={(sectionTitles?.contact || 'Contact').toUpperCase()}
+                fieldId="sectionTitles.contact"
+                onFocus={onFocus}
+                className="text-xl font-bold tracking-wider mb-3 block"
+                tagName="h2"
+                style={titleStyle}
+            />
             <div className="text-sm space-y-1">
               <InlineEdit value={personalDetails.email} fieldId="personalDetails.email" onFocus={onFocus} placeholder="Email" className="block" />
               <InlineEdit value={personalDetails.phone} fieldId="personalDetails.phone" onFocus={onFocus} placeholder="Phone" className="block" />
@@ -114,7 +134,14 @@ export const MonochromeTemplate: React.FC<TemplateProps> = ({ resume, titleFont,
           </section>
 
           <section className="mb-6">
-            <h2 className="text-xl font-bold tracking-wider mb-3" style={titleStyle}>SKILLS</h2>
+            <InlineEdit 
+                value={(sectionTitles?.skills || 'Skills').toUpperCase()}
+                fieldId="sectionTitles.skills"
+                onFocus={onFocus}
+                className="text-xl font-bold tracking-wider mb-3 block"
+                tagName="h2"
+                style={titleStyle}
+            />
             <ul className="text-sm space-y-1">
               {skills.map((skill, index) => (
                 <li key={skill.id}>
@@ -125,7 +152,14 @@ export const MonochromeTemplate: React.FC<TemplateProps> = ({ resume, titleFont,
           </section>
           
           <section>
-            <h2 className="text-xl font-bold tracking-wider mb-3" style={titleStyle}>EDUCATION</h2>
+            <InlineEdit 
+                value={(sectionTitles?.education || 'Education').toUpperCase()}
+                fieldId="sectionTitles.education"
+                onFocus={onFocus}
+                className="text-xl font-bold tracking-wider mb-3 block"
+                tagName="h2"
+                style={titleStyle}
+            />
             {education.map((edu, index) => (
               <div key={edu.id} className="mb-4">
                 <InlineEdit 

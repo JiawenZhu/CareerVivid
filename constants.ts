@@ -1,4 +1,6 @@
-import { ResumeData, PersonalDetails, Skill, EmploymentHistory, Education, WebsiteLink, Language } from './types';
+
+
+import { ResumeData, PersonalDetails, Skill, EmploymentHistory, Education, WebsiteLink, Language, TemplateId, SectionTitles } from './types';
 
 export const DEFAULT_PERSONAL_DETAILS: PersonalDetails = {
     jobTitle: 'Software Developer',
@@ -15,7 +17,7 @@ export const DEFAULT_PERSONAL_DETAILS: PersonalDetails = {
 
 export const DEFAULT_SUMMARY = `A highly skilled and experienced IT professional adept at managing and overseeing complex server infrastructure, ensuring high availability and optimal performance. Proficient in system security and system monitoring. Experienced in implementing disaster recovery plans and conducting regular system audits to ensure compliance with industry standards. Well-versed in a variety of operating systems, including Windows and Linux, and skilled in virtualization technologies, user management, Active Directory administration, Group policy management, IIS, and MSSQL databases. Seeking to leverage my skills and experience in a challenging IT leadership role.`;
 
-export const DEFAULT_WEBSITES: WebsiteLink[] = [{ id: '1', label: 'LinkedIn', url: 'linkedin.com/in/johndoe' }];
+export const DEFAULT_WEBSITES: WebsiteLink[] = [{ id: '1', label: 'LinkedIn', url: 'linkedin.com/in/johndoe', icon: 'linkedin' }];
 
 export const DEFAULT_SKILLS: Skill[] = [
     { id: '1', name: 'System administration', level: 'Expert' },
@@ -52,6 +54,25 @@ export const DEFAULT_EDUCATION: Education[] = [
     }
 ];
 
+export const DEFAULT_SECTION_TITLES: SectionTitles = {
+    contact: 'Contact',
+    profile: 'Profile',
+    skills: 'Skills',
+    experience: 'Experience',
+    education: 'Education',
+    languages: 'Languages',
+    websites: 'Websites & Social Links',
+    publications: 'Publications',
+    references: 'References',
+    experienceAndEducation: 'Experience & Education',
+};
+
+export const DEFAULT_ICONS = {
+    email: 'mail',
+    phone: 'phone',
+    location: 'map-pin'
+};
+
 export const createNewResume = (): ResumeData => {
   const newId = Date.now().toString();
   return {
@@ -70,6 +91,8 @@ export const createNewResume = (): ResumeData => {
     titleFont: 'Montserrat',
     bodyFont: 'Crimson Text',
     language: 'English',
+    sectionTitles: { ...DEFAULT_SECTION_TITLES },
+    customIcons: { ...DEFAULT_ICONS },
   };
 };
 
@@ -102,7 +125,48 @@ export const createBlankResume = (): ResumeData => {
     titleFont: 'Montserrat',
     bodyFont: 'Crimson Text',
     language: 'English',
+    sectionTitles: { ...DEFAULT_SECTION_TITLES },
+    customIcons: { ...DEFAULT_ICONS },
   };
+};
+
+export const TEMPLATE_SECTIONS: Record<TemplateId, Array<keyof SectionTitles>> = {
+  'Modern': ['profile', 'skills', 'experience', 'education'],
+  'Sydney': ['contact', 'skills', 'education', 'profile', 'experience'],
+  'Creative': ['contact', 'skills', 'profile', 'experience', 'education'],
+  'Professional': ['profile', 'experience', 'contact', 'skills', 'education'],
+  'Executive': ['profile', 'experience', 'contact', 'skills', 'education'],
+  'Minimalist': ['experience', 'education', 'skills'],
+  'Elegant': ['profile', 'experience', 'education', 'skills'],
+  'Corporate': ['contact', 'education', 'skills', 'profile', 'experience'],
+  'Technical': ['profile', 'skills', 'experience', 'education'],
+  'Artistic': ['contact', 'skills', 'profile', 'experience', 'education'],
+  'Vibrant': ['profile', 'experience', 'education', 'contact', 'skills'],
+  'Slate': ['contact', 'skills', 'profile', 'experience', 'education'],
+  'Academic': ['profile', 'education', 'experience', 'skills', 'publications', 'references'],
+  'Apex': ['contact', 'skills', 'education', 'experience'],
+  'Bold': ['profile', 'experience', 'skills', 'education'],
+  'Cascade': ['profile', 'experience', 'skills', 'education'],
+  'Chicago': ['profile', 'experience', 'skills', 'education'],
+  'Classic': ['profile', 'experience', 'education', 'skills'],
+  'Compact': ['profile', 'experience', 'skills', 'education'],
+  'Crisp': ['profile', 'skills', 'experience', 'education'],
+  'Dynamic': ['profile', 'experience', 'contact', 'skills', 'education'],
+  'Geometric': ['experience', 'contact', 'skills', 'education'],
+  'Harvard': ['education', 'experience', 'skills'],
+  'Infographic': ['profile', 'experience', 'education'],
+  'Monochrome': ['profile', 'experience', 'contact', 'skills', 'education'],
+  'Orion': ['profile', 'experience', 'education'],
+  'Pinnacle': ['profile', 'experience', 'skills', 'education'],
+  'Quantum': ['profile', 'experience', 'education'],
+  'Serif': ['experience', 'education', 'skills'],
+  'Simple': ['profile', 'experience', 'education', 'skills'],
+  'Spacious': ['contact', 'skills', 'profile', 'experience', 'education'],
+  'Swiss': ['contact', 'skills', 'education', 'experience'],
+  'Timeline': ['experienceAndEducation'],
+  'Vertex': ['profile', 'experience', 'education', 'skills'],
+  'Wave': ['profile', 'experience', 'skills', 'education'],
+  'Zenith': ['profile', 'experience', 'education', 'skills'],
 };
 
 
@@ -117,6 +181,25 @@ export const UI_LANGUAGES = [
 
 export const LANGUAGE_PROFICIENCY_LEVELS = [
     'Native', 'Fluent', 'Proficient', 'Intermediate', 'Basic'
+];
+
+export const AVAILABLE_ICONS = [
+    { id: 'mail', label: 'Email' },
+    { id: 'phone', label: 'Phone' },
+    { id: 'map-pin', label: 'Location' },
+    { id: 'globe', label: 'Website' },
+    { id: 'linkedin', label: 'LinkedIn' },
+    { id: 'github', label: 'GitHub' },
+    { id: 'facebook', label: 'Facebook' },
+    { id: 'twitter', label: 'Twitter/X' },
+    { id: 'instagram', label: 'Instagram' },
+    { id: 'youtube', label: 'YouTube' },
+    { id: 'video', label: 'TikTok' },
+    { id: 'at-sign', label: 'Gmail' },
+    { id: 'briefcase', label: 'Portfolio' },
+    { id: 'send', label: 'Telegram' },
+    { id: 'link', label: 'Link' },
+    { id: 'yahoo', label: 'Yahoo' },
 ];
 
 export const SUPPORTED_TRANSLATE_LANGUAGES = [

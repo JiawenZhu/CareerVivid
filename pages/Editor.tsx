@@ -1,14 +1,14 @@
-
 import React, { useState, useEffect, useCallback, useRef, useMemo, useLayoutEffect } from 'react';
 import { useResumes } from '../hooks/useResumes';
-import { ResumeData, TemplateId, TemplateInfo } from '../types';
+import { ResumeData, TemplateId, TemplateInfo, WebsiteLink } from '../types';
 import ResumeForm from '../components/ResumeForm';
 import ResumePreview from '../components/ResumePreview';
 import GoogleTranslateWidget from '../components/GoogleTranslateWidget';
 import ThemeToggle from '../components/ThemeToggle';
 import { TEMPLATES } from '../templates';
-import { createNewResume, FONTS, EXPORT_OPTIONS } from '../constants';
-import { ArrowLeft, Download, Eye, Code, Palette, Type as TypeIcon, Loader2, ChevronDown, FileText, Image as ImageIcon, Edit as EditIcon, MoreVertical, Sun, Moon, Sparkles, ChevronLeft, ChevronRight, X as XIcon, Info, FileInput, Check, Share2 } from 'lucide-react';
+// FIX: Changed import from SUPPORTED_LANGUAGES to SUPPORTED_TRANSLATE_LANGUAGES to resolve import error.
+import { createNewResume, FONTS, EXPORT_OPTIONS, SUPPORTED_TRANSLATE_LANGUAGES } from '../constants';
+import { ArrowLeft, Download, Eye, Code, Palette, Type as TypeIcon, Loader2, ChevronDown, FileText, Image as ImageIcon, Edit as EditIcon, MoreVertical, Sun, Moon, Sparkles, ChevronLeft, ChevronRight, X as XIcon, Info, FileInput, Check, Share2, Languages, PenTool } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { navigate } from '../App';
 import { trackUsage } from '../services/trackingService';
@@ -16,6 +16,9 @@ import { useTheme } from '../contexts/ThemeContext';
 import AlertModal from '../components/AlertModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import FeedbackModal from '../components/FeedbackModal';
+import { translateResumeContent } from '../services/translationService';
+import { useTranslation } from 'react-i18next';
+import IconPicker from '../components/IconPicker';
 
 const TemplateThumbnail: React.FC<{ resume: ResumeData; template: TemplateInfo; }> = React.memo(({ resume, template }) => {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -71,6 +74,7 @@ const Editor: React.FC<EditorProps> = ({ resumeId, initialData, isShared = false
   const { getResumeById, updateResume, isLoading: isResumeLoading } = useResumes();
   const { currentUser } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { t } = useTranslation();
   const [resume, setResume] = useState<ResumeData | null>(null);
   const [tempPhoto, setTempPhoto] = useState<string | null>(null);
   const [activeTemplate, setActiveTemplate] = useState<TemplateInfo>(TEMPLATES[0]);
@@ -240,6 +244,23 @@ const Editor: React.FC<EditorProps> = ({ resumeId, initialData, isShared = false
     handleResumeChange(updatedData);
   };
   
+  const handleCustomIconChange = (key: 'email' | 'phone' | 'location', iconId: string) => {
+      if (!resume) return;
+      handleResumeChange({
+          customIcons: {
+              ...resume.customIcons,
+              [key]: iconId
+          }
+      });
+  };
+
+  const handleSocialIconChange = (index: number, iconId: string) => {
+      if (!resume) return;
+      const newWebsites = [...resume.websites];
+      newWebsites[index] = { ...newWebsites[index], icon: iconId };
+      handleResumeChange({ websites: newWebsites });
+  };
+
   const handleFocusField = useCallback((fieldId: string) => {
       setActiveTab('content');
       if (isDesktop && sidebarMode === 'closed') {
@@ -529,7 +550,7 @@ const Editor: React.FC<EditorProps> = ({ resumeId, initialData, isShared = false
                     className="flex items-center gap-2 bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg shadow-soft hover:bg-primary-700 transition-colors"
                 >
                     <Download size={18} />
-                    <span>Download</span>
+                    <span>{t('common.download')}</span>
                     <ChevronDown size={18} />
                 </button>
                 {isDesktopDownloadMenuOpen && (
@@ -598,13 +619,13 @@ const Editor: React.FC<EditorProps> = ({ resumeId, initialData, isShared = false
              
              <div className="flex items-center justify-between p-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
                  <button onClick={() => setActiveTab('content')} className={`flex-1 py-2 text-sm font-semibold rounded-md flex items-center justify-center gap-2 transition-colors ${activeTab === 'content' ? 'bg-white dark:bg-gray-800 text-primary-600 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
-                     <FileInput size={16} /> Content
+                     <FileInput size={16} /> {t('editor.content')}
                  </button>
                  <button onClick={() => setActiveTab('template')} className={`flex-1 py-2 text-sm font-semibold rounded-md flex items-center justify-center gap-2 transition-colors ${activeTab === 'template' ? 'bg-white dark:bg-gray-800 text-primary-600 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
-                     <Code size={16} /> Template
+                     <Code size={16} /> {t('editor.template')}
                  </button>
                  <button onClick={() => setActiveTab('design')} className={`flex-1 py-2 text-sm font-semibold rounded-md flex items-center justify-center gap-2 transition-colors ${activeTab === 'design' ? 'bg-white dark:bg-gray-800 text-primary-600 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
-                     <Palette size={16} /> Design
+                     <Palette size={16} /> {t('editor.design')}
                  </button>
              </div>
 
@@ -669,6 +690,26 @@ const Editor: React.FC<EditorProps> = ({ resumeId, initialData, isShared = false
                                         {FONTS.map(font => <option key={font} value={font} style={{ fontFamily: font }}>{font}</option>)}
                                     </select>
                                 </div>
+                            </div>
+                        </div>
+                        <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border dark:border-gray-700">
+                            <label className="text-sm font-bold flex items-center gap-2 mb-4"><PenTool size={16} className="text-primary-500"/> Iconography</label>
+                            <div className="space-y-4">
+                                <IconPicker 
+                                    label="Email Icon" 
+                                    selectedIcon={resume.customIcons?.email || 'mail'} 
+                                    onSelect={(iconId) => handleCustomIconChange('email', iconId)}
+                                />
+                                <IconPicker 
+                                    label="Phone Icon" 
+                                    selectedIcon={resume.customIcons?.phone || 'phone'} 
+                                    onSelect={(iconId) => handleCustomIconChange('phone', iconId)}
+                                />
+                                <IconPicker 
+                                    label="Location Icon" 
+                                    selectedIcon={resume.customIcons?.location || 'map-pin'} 
+                                    onSelect={(iconId) => handleCustomIconChange('location', iconId)}
+                                />
                             </div>
                         </div>
                     </div>

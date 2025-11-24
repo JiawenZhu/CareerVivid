@@ -1,11 +1,12 @@
 
+
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
 import { Mail, Phone, MapPin, Globe, Brush } from 'lucide-react';
 import InlineEdit from '../InlineEdit';
 
 export const ArtisticTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont, onFocus }) => {
-  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites } = resume;
+  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites, sectionTitles } = resume;
 
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
   const bodyStyle = { fontFamily: `'${bodyFont}', sans-serif` };
@@ -55,7 +56,9 @@ export const ArtisticTemplate: React.FC<TemplateProps> = ({ resume, themeColor, 
             </div>
           )}
           <section className="mb-6">
-            <h2 className="font-bold text-lg mb-3" style={{...titleStyle, color: secondaryColor}}>CONTACT</h2>
+            <h2 className="font-bold text-lg mb-3" style={{...titleStyle, color: secondaryColor}}>
+                <InlineEdit value={(sectionTitles?.contact || 'CONTACT').toUpperCase()} fieldId="sectionTitles.contact" onFocus={onFocus} />
+            </h2>
             <div className="space-y-2 text-sm">
               <div className="flex items-center">
                   <Mail size={14} className="mr-2 flex-shrink-0 transform translate-y-px" />
@@ -76,7 +79,9 @@ export const ArtisticTemplate: React.FC<TemplateProps> = ({ resume, themeColor, 
             </div>
           </section>
           <section>
-            <h2 className="font-bold text-lg mb-3" style={{...titleStyle, color: secondaryColor}}>SKILLS</h2>
+            <h2 className="font-bold text-lg mb-3" style={{...titleStyle, color: secondaryColor}}>
+                <InlineEdit value={(sectionTitles?.skills || 'SKILLS').toUpperCase()} fieldId="sectionTitles.skills" onFocus={onFocus} />
+            </h2>
             <ul className="space-y-1">
               {skills.map((skill, index) => (
                 <li key={skill.id} className="text-sm flex items-center">
@@ -90,7 +95,9 @@ export const ArtisticTemplate: React.FC<TemplateProps> = ({ resume, themeColor, 
 
         <div className="col-span-2">
           <section className="mb-6">
-            <h2 className="font-bold text-lg mb-3" style={{...titleStyle, color: themeColor}}>ABOUT ME</h2>
+            <h2 className="font-bold text-lg mb-3" style={{...titleStyle, color: themeColor}}>
+                <InlineEdit value={(sectionTitles?.profile || 'ABOUT ME').toUpperCase()} fieldId="sectionTitles.profile" onFocus={onFocus} />
+            </h2>
             <InlineEdit 
                 value={professionalSummary} 
                 fieldId="professionalSummary" 
@@ -101,7 +108,9 @@ export const ArtisticTemplate: React.FC<TemplateProps> = ({ resume, themeColor, 
             />
           </section>
           <section className="mb-6">
-            <h2 className="font-bold text-lg mb-3" style={{...titleStyle, color: themeColor}}>EXPERIENCE</h2>
+            <h2 className="font-bold text-lg mb-3" style={{...titleStyle, color: themeColor}}>
+                <InlineEdit value={(sectionTitles?.experience || 'EXPERIENCE').toUpperCase()} fieldId="sectionTitles.experience" onFocus={onFocus} />
+            </h2>
             {employmentHistory.map((job, index) => (
               <div key={job.id} className="mb-4">
                 <InlineEdit 
@@ -132,7 +141,9 @@ export const ArtisticTemplate: React.FC<TemplateProps> = ({ resume, themeColor, 
             ))}
           </section>
           <section>
-            <h2 className="font-bold text-lg mb-3" style={{...titleStyle, color: themeColor}}>EDUCATION</h2>
+            <h2 className="font-bold text-lg mb-3" style={{...titleStyle, color: themeColor}}>
+                <InlineEdit value={(sectionTitles?.education || 'EDUCATION').toUpperCase()} fieldId="sectionTitles.education" onFocus={onFocus} />
+            </h2>
             {education.map((edu, index) => (
               <div key={edu.id}>
                 <InlineEdit 

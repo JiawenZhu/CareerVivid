@@ -16,7 +16,7 @@ export interface WebsiteLink {
   id: string;
   label: string;
   url: string;
-  icon?: string; // Icon identifier (e.g., 'linkedin', 'github')
+  icon?: string; // Optional custom icon ID from AVAILABLE_ICONS
 }
 
 export interface Skill {
@@ -60,18 +60,19 @@ export interface ShareConfig {
 }
 
 export interface SectionTitles {
-  summary: string;
-  experience: string;
-  education: string;
-  skills: string;
-  languages: string;
-  contact: string;
+  contact?: string;
+  profile?: string;
+  skills?: string;
+  experience?: string;
+  education?: string;
+  languages?: string;
+  websites?: string;
 }
 
 export interface CustomIcons {
-  email: string;
-  phone: string;
-  location: string;
+    email?: string;
+    phone?: string;
+    location?: string;
 }
 
 export interface ResumeData {
@@ -86,13 +87,13 @@ export interface ResumeData {
   employmentHistory: EmploymentHistory[];
   education: Education[];
   languages: Language[];
-  sectionTitles: SectionTitles; // Editable headers
-  customIcons: CustomIcons; // Base contact icons
   themeColor: string;
   titleFont: string;
   bodyFont: string;
   language: string;
   section?: string;
+  sectionTitles?: SectionTitles; // Custom section headers
+  customIcons?: CustomIcons; // New field for custom icons
   shareConfig?: ShareConfig; // New field for sharing settings
 }
 
@@ -166,10 +167,10 @@ export interface Job {
 export type InterviewStatus = 'idle' | 'connecting' | 'listening' | 'speaking' | 'ended' | 'error' | 'analyzing';
 
 export interface TranscriptEntry {
-    speaker: 'user' | 'ai';
-    text: string;
-    isFinal: boolean;
-    timestamp?: number;
+  speaker: 'user' | 'ai';
+  text: string;
+  isFinal: boolean;
+  timestamp?: number;
 }
 
 export interface InterviewAnalysis {
@@ -204,7 +205,7 @@ export const WORK_MODELS: WorkModel[] = ['On-site', 'Hybrid', 'Remote'];
 export interface JobApplicationData {
   id: string; // Firestore doc ID
   userId: string;
-  
+
   // Core Job Info
   jobTitle: string;
   companyName: string;
@@ -212,14 +213,14 @@ export interface JobApplicationData {
   jobPostURL: string;
   applicationURL?: string;
   jobDescription?: string;
-  
+
   // Tracking Info
   applicationStatus: ApplicationStatus;
   workModel?: WorkModel;
   interviewStage?: string;
   dateApplied?: any; // Firestore Timestamp
   salaryRange?: string;
-  
+
   // Prep Notes
   prep_RoleOverview?: string;
   prep_MyStory?: string;
@@ -230,7 +231,7 @@ export interface JobApplicationData {
   // Timestamps
   createdAt: any;
   updatedAt: any;
-  
+
   // Dashboard organization
   section?: string;
 }
@@ -274,9 +275,9 @@ export interface BlogPost {
 }
 
 export interface Comment {
-    id: string;
-    text: string;
-    userId: string;
-    userName: string;
-    timestamp: any;
+  id: string;
+  text: string;
+  userId: string;
+  userName: string;
+  timestamp: any;
 }

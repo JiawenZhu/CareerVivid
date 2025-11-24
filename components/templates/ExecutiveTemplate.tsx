@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
-import { Mail, Phone, MapPin, Linkedin, Globe } from 'lucide-react';
 import InlineEdit from '../InlineEdit';
+import IconDisplay from '../IconDisplay';
 
 export const ExecutiveTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont, onFocus }) => {
-  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites } = resume;
+  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites, sectionTitles, customIcons } = resume;
 
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
   const bodyStyle = { fontFamily: `'${bodyFont}', sans-serif` };
@@ -48,7 +47,14 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ resume, themeColor,
         <div className="grid grid-cols-3 gap-10">
           <div className="col-span-2">
             <section className="mb-8">
-              <h3 className="text-2xl font-bold text-gray-800 mb-4 border-b-4 pb-2" style={{...titleStyle, borderColor: themeColor}}>SUMMARY</h3>
+              <InlineEdit 
+                value={(sectionTitles?.profile || 'Summary').toUpperCase()}
+                fieldId="sectionTitles.profile"
+                onFocus={onFocus}
+                className="text-2xl font-bold text-gray-800 mb-4 border-b-4 pb-2 block"
+                tagName="h3"
+                style={{...titleStyle, borderColor: themeColor}}
+              />
               <InlineEdit 
                 value={professionalSummary} 
                 fieldId="professionalSummary" 
@@ -60,7 +66,14 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ resume, themeColor,
             </section>
 
             <section className="mb-8">
-              <h3 className="text-2xl font-bold text-gray-800 mb-4 border-b-4 pb-2" style={{...titleStyle, borderColor: themeColor}}>PROFESSIONAL EXPERIENCE</h3>
+              <InlineEdit 
+                value={(sectionTitles?.experience || 'Professional Experience').toUpperCase()}
+                fieldId="sectionTitles.experience"
+                onFocus={onFocus}
+                className="text-2xl font-bold text-gray-800 mb-4 border-b-4 pb-2 block"
+                tagName="h3"
+                style={{...titleStyle, borderColor: themeColor}}
+              />
               {employmentHistory.map((job, index) => (
                 <div key={job.id} className="mb-6">
                   <div className="flex justify-between items-center">
@@ -99,23 +112,30 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ resume, themeColor,
 
           <div className="col-span-1">
             <section className="bg-gray-100 p-6 rounded-lg mb-8">
-              <h3 className="text-xl font-bold text-gray-800 mb-4" style={titleStyle}>CONTACT DETAILS</h3>
+              <InlineEdit 
+                value={(sectionTitles?.contact || 'Contact Details').toUpperCase()}
+                fieldId="sectionTitles.contact"
+                onFocus={onFocus}
+                className="text-xl font-bold text-gray-800 mb-4 block"
+                tagName="h3"
+                style={titleStyle}
+              />
               <div className="space-y-3 text-sm">
                 <div className="flex items-center">
-                    <Mail size={14} className="mr-3 flex-shrink-0 transform translate-y-px" />
+                    <IconDisplay iconName={customIcons?.email || 'mail'} size={14} className="mr-3 flex-shrink-0 transform translate-y-px" />
                     <InlineEdit value={personalDetails.email} fieldId="personalDetails.email" onFocus={onFocus} placeholder="Email" />
                 </div>
                 <div className="flex items-center">
-                    <Phone size={14} className="mr-3 flex-shrink-0 transform translate-y-px" />
+                    <IconDisplay iconName={customIcons?.phone || 'phone'} size={14} className="mr-3 flex-shrink-0 transform translate-y-px" />
                     <InlineEdit value={personalDetails.phone} fieldId="personalDetails.phone" onFocus={onFocus} placeholder="Phone" />
                 </div>
                 <div className="flex items-center">
-                    <MapPin size={14} className="mr-3 flex-shrink-0 transform translate-y-px" />
+                    <IconDisplay iconName={customIcons?.location || 'map-pin'} size={14} className="mr-3 flex-shrink-0 transform translate-y-px" />
                     <InlineEdit value={personalDetails.address} fieldId="personalDetails.address" onFocus={onFocus} placeholder="Address" />
                 </div>
                 {websites.map((site, index) => (
                   <div key={site.id} className="flex items-center">
-                    <Globe size={14} className="mr-3 flex-shrink-0 transform translate-y-px" />
+                    <IconDisplay iconName={site.icon || 'globe'} size={14} className="mr-3 flex-shrink-0 transform translate-y-px" />
                     <a href={site.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
                         <InlineEdit value={site.label} fieldId={`websites[${index}].label`} onFocus={onFocus} isLink />
                     </a>
@@ -125,7 +145,14 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ resume, themeColor,
             </section>
 
             <section className="bg-gray-100 p-6 rounded-lg mb-8">
-              <h3 className="text-xl font-bold text-gray-800 mb-4" style={titleStyle}>KEY SKILLS</h3>
+              <InlineEdit 
+                value={(sectionTitles?.skills || 'Key Skills').toUpperCase()}
+                fieldId="sectionTitles.skills"
+                onFocus={onFocus}
+                className="text-xl font-bold text-gray-800 mb-4 block"
+                tagName="h3"
+                style={titleStyle}
+              />
               <ul className="space-y-2">
                 {skills.map((skill, index) => (
                   <li key={skill.id} className="flex items-center">
@@ -137,7 +164,14 @@ export const ExecutiveTemplate: React.FC<TemplateProps> = ({ resume, themeColor,
             </section>
 
             <section className="bg-gray-100 p-6 rounded-lg">
-              <h3 className="text-xl font-bold text-gray-800 mb-4" style={titleStyle}>EDUCATION</h3>
+              <InlineEdit 
+                value={(sectionTitles?.education || 'Education').toUpperCase()}
+                fieldId="sectionTitles.education"
+                onFocus={onFocus}
+                className="text-xl font-bold text-gray-800 mb-4 block"
+                tagName="h3"
+                style={titleStyle}
+              />
               {education.map((edu, index) => (
                 <div key={edu.id} className="mb-4">
                   <InlineEdit 

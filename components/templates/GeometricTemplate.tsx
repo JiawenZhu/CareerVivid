@@ -1,11 +1,12 @@
 
+
 import React from 'react';
 import { ResumeData, TemplateProps } from '../../types';
 import { Mail, Phone, MapPin, Linkedin, Globe } from 'lucide-react';
 import InlineEdit from '../InlineEdit';
 
 export const GeometricTemplate: React.FC<TemplateProps> = ({ resume, themeColor, titleFont, bodyFont, onFocus }) => {
-  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites } = resume;
+  const { personalDetails, professionalSummary, employmentHistory, education, skills, websites, sectionTitles } = resume;
   
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
   const bodyStyle = { fontFamily: `'${bodyFont}', sans-serif` };
@@ -63,7 +64,9 @@ export const GeometricTemplate: React.FC<TemplateProps> = ({ resume, themeColor,
                     />
                 </section>
                  <section>
-                    <h2 className="text-lg font-bold uppercase tracking-wider mb-3" style={{...titleStyle, color: themeColor}}>Experience</h2>
+                    <h2 className="text-lg font-bold uppercase tracking-wider mb-3" style={{...titleStyle, color: themeColor}}>
+                        <InlineEdit value={sectionTitles?.experience || 'Experience'} fieldId="sectionTitles.experience" onFocus={onFocus} />
+                    </h2>
                     {employmentHistory.map((job, index) => (
                     <div key={job.id} className="mb-5 border-l-4 border-gray-800 pl-4">
                         <div className="flex gap-1 text-xs text-gray-500">
@@ -99,14 +102,18 @@ export const GeometricTemplate: React.FC<TemplateProps> = ({ resume, themeColor,
             </main>
             <aside className="col-span-4">
                  <section className="mb-6">
-                    <h3 className="text-lg font-bold uppercase tracking-wider mb-3" style={{...titleStyle, color: themeColor}}>Contact</h3>
+                    <h3 className="text-lg font-bold uppercase tracking-wider mb-3" style={{...titleStyle, color: themeColor}}>
+                        <InlineEdit value={sectionTitles?.contact || 'Contact'} fieldId="sectionTitles.contact" onFocus={onFocus} />
+                    </h3>
                     <div className="space-y-2 text-sm">
                         {personalDetails.email && <div className="flex items-center"><Mail size={14} className="mr-2 transform translate-y-px" /><InlineEdit value={personalDetails.email} fieldId="personalDetails.email" onFocus={onFocus} placeholder="Email" /></div>}
                         {personalDetails.phone && <div className="flex items-center"><Phone size={14} className="mr-2 transform translate-y-px" /><InlineEdit value={personalDetails.phone} fieldId="personalDetails.phone" onFocus={onFocus} placeholder="Phone" /></div>}
                     </div>
                 </section>
                  <section className="mb-6">
-                    <h3 className="text-lg font-bold uppercase tracking-wider mb-3" style={{...titleStyle, color: themeColor}}>Skills</h3>
+                    <h3 className="text-lg font-bold uppercase tracking-wider mb-3" style={{...titleStyle, color: themeColor}}>
+                        <InlineEdit value={sectionTitles?.skills || 'Skills'} fieldId="sectionTitles.skills" onFocus={onFocus} />
+                    </h3>
                     <div className="flex flex-wrap gap-2">
                     {skills.map((skill, index) => (
                         <span key={skill.id} className="inline-flex items-center text-xs bg-gray-800 text-white font-semibold px-3 py-1">
@@ -116,7 +123,9 @@ export const GeometricTemplate: React.FC<TemplateProps> = ({ resume, themeColor,
                     </div>
                 </section>
                 <section className="mb-6">
-                    <h3 className="text-lg font-bold uppercase tracking-wider mb-3" style={{...titleStyle, color: themeColor}}>Education</h3>
+                    <h3 className="text-lg font-bold uppercase tracking-wider mb-3" style={{...titleStyle, color: themeColor}}>
+                        <InlineEdit value={sectionTitles?.education || 'Education'} fieldId="sectionTitles.education" onFocus={onFocus} />
+                    </h3>
                     {education.map((edu, index) => (
                     <div key={edu.id} className="mb-4">
                         <InlineEdit 
