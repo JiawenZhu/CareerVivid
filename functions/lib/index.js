@@ -67,7 +67,7 @@ const getFunctionConfig = () => {
 const functionConfig = getFunctionConfig();
 const APP_BASE_URL = process.env.CAREERVIVID_APP_URL ||
     functionConfig.app_url ||
-    "https://careervivid-371634100960.us-west1.run.app/";
+    "https://careervivid.app/";
 const PDF_PREVIEW_ROUTE = process.env.CAREERVIVID_PDF_ROUTE ||
     functionConfig.pdf_route ||
     "/#/pdf-preview";
