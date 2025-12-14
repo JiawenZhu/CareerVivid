@@ -4,26 +4,49 @@ import { TrackEventType } from '../types';
 import { logEvent } from 'firebase/analytics';
 
 
+
 interface TrackMetadata {
   tokenUsage?: number;
   [key: string]: any;
 }
 
+const CREDIT_CONSUMING_EVENTS: TrackEventType[] = [
+  'resume_generate_prompt',
+  'resume_suggestion',
+  'interview_analysis',
+  'question_generation',
+  'job_prep_generation',
+  'job_prep_regeneration',
+  'job_parse_description',
+  'resume_match_analysis',
+  'portfolio_generation',
+  'portfolio_refinement',
+  'image_generation',
+  'ai_assistant_query'
+];
+
 export const trackUsage = async (userId: string, eventType: TrackEventType, metadata: TrackMetadata = {}) => {
   if (!userId) {
-    console.warn('trackUsage called without userId');
+    console.error('[TrackUsage] Called without userId! Event:', eventType);
     return;
   }
+  // console.log(`[TrackUsage] Called for ${eventType}, User: ${userId}`);
+
+  // 1. Log to Firestore (Non-blocking / Silenced error)
   try {
-    // Log to Firestore
     await addDoc(collection(db, 'usage_logs'), {
       userId,
       eventType,
       timestamp: serverTimestamp(),
       ...metadata,
     });
+  } catch (error) {
+    // Silently fail logging if permissions/network fail, so we don't block the app features
+    // console.warn("Background logging failed:", error); 
+  }
 
-    // Log to Google Analytics
+  // 2. Log to Google Analytics (Non-blocking)
+  try {
     const analyticsInstance = await analytics;
     if (analyticsInstance) {
       if (metadata.tokenUsage) {
@@ -38,9 +61,18 @@ export const trackUsage = async (userId: string, eventType: TrackEventType, meta
         });
       }
     }
+  } catch (e) { }
 
-  } catch (error) {
-    console.error("Error tracking usage:", error);
+  // 3. Deduct AI Credit (Critical Path)
+  if (CREDIT_CONSUMING_EVENTS.includes(eventType)) {
+    // console.log(`[TrackUsage] Deducting credit for ${eventType}...`);
+    try {
+      const { incrementAIUsage } = await import('./aiUsageService');
+      await incrementAIUsage(userId);
+      // console.log(`[TrackUsage] Credit deducted successfully for ${eventType}`);
+    } catch (err) {
+      console.error(`Failed to deduct credit for ${eventType}:`, err);
+    }
   }
 };
 

@@ -56,16 +56,33 @@ export const streamGeminiResponse = onRequest(
           systemInstruction,
         });
 
-        const result = await model.generateContentStream({ contents });
+        let result;
+        const isImageMode = config?.responseModalities?.includes("IMAGE");
+
+        if (isImageMode) {
+          const response = await model.generateContent({ contents });
+          result = { stream: [], response: Promise.resolve(response.response) }; // Mock stream interface
+        } else {
+          result = await model.generateContentStream({ contents });
+        }
+
         res.setHeader("Content-Type", "text/plain");
         res.setHeader("Transfer-Encoding", "chunked");
 
         let aggregatedText = "";
-        for await (const chunk of result.stream) {
-          const chunkText = chunk.text();
-          if (chunkText) {
-            aggregatedText += chunkText;
-            res.write(chunkText);
+
+        // Handle stream if it exists (for text)
+        if (!isImageMode && result.stream) {
+          for await (const chunk of result.stream) {
+            try {
+              const chunkText = chunk.text();
+              if (chunkText) {
+                aggregatedText += chunkText;
+                res.write(chunkText);
+              }
+            } catch (e) {
+              // Ignore non-text chunks (like images in stream)
+            }
           }
         }
 

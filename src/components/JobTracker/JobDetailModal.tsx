@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { JobApplicationData, ApplicationStatus, WorkModel, APPLICATION_STATUSES, WORK_MODELS, ResumeData, ResumeMatchAnalysis } from '../../types';
 import { X, Briefcase, Building, MapPin, Link as LinkIcon, ExternalLink, Trash2, Loader2, Wand2, ChevronDown, Plus, Minus, FileText, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -6,14 +7,15 @@ import { useResumes } from '../../hooks/useResumes';
 import { generateJobPrepNotes, regenerateJobPrepSection, analyzeResumeMatch } from '../../services/geminiService';
 import ConfirmationModal from '../ConfirmationModal';
 import { navigate } from '../../App';
+import { useAICreditCheck } from '../../hooks/useAICreditCheck';
 
 // Reusable components for the top section
 const EditableField: React.FC<{ label: string; value: string; onChange: (value: string) => void; type?: string; placeholder?: string }> = ({ label, value, onChange, type = 'text', placeholder }) => (
     <div>
         <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">{label}</label>
-        <input 
-            type={type} 
-            value={value || ''} 
+        <input
+            type={type}
+            value={value || ''}
             onChange={e => onChange(e.target.value)}
             placeholder={placeholder}
             className="mt-1 block w-full bg-transparent border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:border-primary-500 transition-colors"
@@ -59,11 +61,11 @@ const MarkdownRenderer: React.FC<{ text: string }> = ({ text = '' }) => {
         return parts.map((part, i) => {
             if (part.type === 'link') {
                 return (
-                    <a 
-                        key={i} 
-                        href={part.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
+                    <a
+                        key={i}
+                        href={part.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 hover:underline break-words"
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -103,20 +105,20 @@ const MarkdownRenderer: React.FC<{ text: string }> = ({ text = '' }) => {
             );
         } else if (/^\d+\.\s/.test(line.trim())) {
             elements.push(
-                 <div key={i} className="flex items-start pl-2 my-2">
+                <div key={i} className="flex items-start pl-2 my-2">
                     <span className="mr-2 font-semibold text-gray-600 dark:text-gray-400">{line.match(/^\d+\./)?.[0]}</span>
                     <span>{renderContent(line.substring(line.indexOf('.') + 2))}</span>
                 </div>
             );
         } else if (line.trim() === '') {
             if (elements.length > 0 && elements[elements.length - 1].props.className !== 'h-2') {
-                 elements.push(<div key={i} className="h-2"></div>);
+                elements.push(<div key={i} className="h-2"></div>);
             }
         } else {
             if (line.trim().startsWith('**') && line.trim().endsWith('**')) {
-                 elements.push(<p key={i} className="font-semibold text-gray-800 dark:text-gray-200 mt-3 mb-1">{renderContent(line)}</p>);
+                elements.push(<p key={i} className="font-semibold text-gray-800 dark:text-gray-200 mt-3 mb-1">{renderContent(line)}</p>);
             } else {
-                 elements.push(<p key={i}>{renderContent(line)}</p>);
+                elements.push(<p key={i}>{renderContent(line)}</p>);
             }
         }
     }
@@ -137,6 +139,7 @@ const EditablePrepSection: React.FC<{
     placeholder?: string;
     onRegenerate: () => void;
 }> = ({ label, value, onChange, placeholder, onRegenerate }) => {
+    const { t } = useTranslation();
     const [isEditing, setIsEditing] = useState(false);
     const [currentValue, setCurrentValue] = useState(value);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -166,7 +169,7 @@ const EditablePrepSection: React.FC<{
             setIsEditing(false);
         }
     };
-    
+
     const handleTextareaInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setCurrentValue(e.target.value);
         e.target.style.height = 'auto';
@@ -181,8 +184,8 @@ const EditablePrepSection: React.FC<{
                     <Wand2 size={18} />
                 </button>
             </div>
-            
-            <div 
+
+            <div
                 className="cursor-pointer group"
                 onClick={() => !isEditing && setIsEditing(true)}
             >
@@ -201,7 +204,7 @@ const EditablePrepSection: React.FC<{
                         {value ? (
                             <MarkdownRenderer text={value} />
                         ) : (
-                             <p className="text-gray-400 italic">{placeholder}</p>
+                            <p className="text-gray-400 italic">{placeholder}</p>
                         )}
                     </div>
                 )}
@@ -217,6 +220,7 @@ const RegenerateModal: React.FC<{
     onClose: () => void;
     onRegenerate: (instruction: string) => Promise<void>;
 }> = ({ sectionName, onClose, onRegenerate }) => {
+    const { t } = useTranslation();
     const [instruction, setInstruction] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -230,19 +234,19 @@ const RegenerateModal: React.FC<{
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-lg shadow-xl">
-                <h3 className="text-lg font-bold mb-4">Regenerate {sectionName}</h3>
+                <h3 className="text-lg font-bold mb-4">{t('job_tracker.modal.regenerate_modal_title', { section: sectionName })}</h3>
                 <textarea
                     value={instruction}
                     onChange={(e) => setInstruction(e.target.value)}
-                    placeholder={`e.g., "Focus on behavioral questions" or "Generate technical questions about Python"`}
+                    placeholder={t('job_tracker.modal.regenerate_placeholder')}
                     className="w-full p-2 border rounded-md mb-4 bg-white dark:bg-gray-700 dark:border-gray-600"
                     rows={3}
                 />
                 <div className="flex justify-end gap-2">
-                    <button onClick={onClose} className="px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded-md">Cancel</button>
+                    <button onClick={onClose} className="px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded-md">{t('common.cancel')}</button>
                     <button onClick={handleGenerate} disabled={isLoading} className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:bg-primary-300 flex items-center gap-2">
                         {isLoading && <Loader2 size={16} className="animate-spin" />}
-                        {isLoading ? 'Regenerating...' : 'Regenerate'}
+                        {isLoading ? t('job_tracker.modal.regenerating') : t('job_tracker.modal.regenerate')}
                     </button>
                 </div>
             </div>
@@ -251,16 +255,20 @@ const RegenerateModal: React.FC<{
 };
 
 interface JobDetailModalProps {
-  job: JobApplicationData;
-  onClose: () => void;
-  onUpdate: (id: string, data: Partial<JobApplicationData>) => void;
-  onDelete: (id: string) => void;
-  highlightGenerateButton?: boolean;
+    job: JobApplicationData;
+    onClose: () => void;
+    onUpdate: (id: string, data: Partial<JobApplicationData>) => void;
+    onDelete: (id: string) => void;
+    highlightGenerateButton?: boolean;
 }
 
 const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate, onDelete, highlightGenerateButton = false }) => {
     const { currentUser } = useAuth();
+    const { t } = useTranslation();
     const { resumes } = useResumes();
+
+    // AI Credit Check Hook
+    const { checkCredit, CreditLimitModal } = useAICreditCheck();
     const [localJob, setLocalJob] = useState(job);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isGeneratingAll, setIsGeneratingAll] = useState(false);
@@ -271,17 +279,25 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
     const [isEditingDescription, setIsEditingDescription] = useState(false);
     const descriptionTextareaRef = useRef<HTMLTextAreaElement>(null);
     const [shouldAnimateButton, setShouldAnimateButton] = useState(highlightGenerateButton);
-    
+
     const [isHighlighting, setIsHighlighting] = useState(false);
     const prepNotesContainerRef = useRef<HTMLDivElement>(null);
     const prevPrepNotesRef = useRef<string | undefined>(job.prep_RoleOverview);
-    
+
     // New state for Resume Match feature
     const { resumes: allResumes } = useResumes();
     const [selectedResumeId, setSelectedResumeId] = useState<string>('');
     const [analysis, setAnalysis] = useState<ResumeMatchAnalysis | null>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analysisError, setAnalysisError] = useState('');
+
+    useEffect(() => {
+        if (selectedResumeId && localJob.matchAnalyses) {
+            setAnalysis(localJob.matchAnalyses[selectedResumeId] || null);
+        } else {
+            setAnalysis(null);
+        }
+    }, [selectedResumeId, localJob.matchAnalyses]);
 
 
     // Sync local state when the job prop from the parent updates.
@@ -303,7 +319,7 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
                 prepNotesContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 setIsHighlighting(true);
             }, 100);
-            
+
             const highlightTimer = setTimeout(() => {
                 setIsHighlighting(false);
             }, 2100); // Duration of animation + buffer
@@ -317,10 +333,10 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
     }, [job.prep_RoleOverview]);
 
     const handleFontSizeChange = (direction: 'increase' | 'decrease') => {
-      setFontSize(currentSize => {
-          if (direction === 'increase') return Math.min(2, currentSize + 1);
-          return Math.max(0, currentSize - 1);
-      });
+        setFontSize(currentSize => {
+            if (direction === 'increase') return Math.min(2, currentSize + 1);
+            return Math.max(0, currentSize - 1);
+        });
     };
     const textSizeClass = ['text-sm', 'text-base', 'text-lg'][fontSize];
 
@@ -336,7 +352,7 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
             document.removeEventListener('keydown', handleKeyDown);
         };
     }, [onClose]);
-    
+
     useEffect(() => {
         if (isEditingDescription && descriptionTextareaRef.current) {
             descriptionTextareaRef.current.style.height = 'auto';
@@ -357,7 +373,7 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
     const handleChange = (field: keyof JobApplicationData, value: any) => {
         setLocalJob(prev => ({ ...prev, [field]: value }));
     };
-    
+
     const handleDateChange = (dateString: string) => {
         if (dateString) {
             const date = new Date(dateString + 'T00:00:00');
@@ -366,7 +382,7 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
             handleChange('dateApplied', null);
         }
     };
-    
+
     const formatDateForInput = (date: any) => {
         if (!date) return '';
         const d = date.toDate ? date.toDate() : new Date(date);
@@ -383,7 +399,7 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
         setIsConfirmDeleteOpen(false);
         onClose();
     };
-    
+
     const getResumeContext = (): string => {
         const latestResume = resumes[0];
         if (!latestResume) return "No resume available.";
@@ -404,6 +420,9 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
 
     const handleGenerateAllPrepNotes = async () => {
         if (!currentUser) return;
+
+        // CHECK CREDIT
+        if (!checkCredit()) return;
         setShouldAnimateButton(false);
         setIsGeneratingAll(true);
         try {
@@ -420,6 +439,9 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
 
     const handleRegenerateSection = async (instruction: string) => {
         if (!currentUser || !regenModalState) return;
+
+        // CHECK CREDIT
+        if (!checkCredit()) return;
         const resumeContext = getResumeContext();
         try {
             const newText = await regenerateJobPrepSection(
@@ -431,10 +453,10 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
             );
             handleChange(regenModalState.section, newText);
         } catch (error) {
-             alert(error instanceof Error ? error.message : "Failed to regenerate section.");
+            alert(error instanceof Error ? error.message : "Failed to regenerate section.");
         }
     };
-    
+
     // --- New Resume Match Functions ---
 
     const formatResumeForAnalysis = (resume: ResumeData): string => {
@@ -458,6 +480,9 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
             return;
         }
 
+        // CHECK CREDIT
+        if (!checkCredit()) return;
+
         const selectedResume = allResumes.find(r => r.id === selectedResumeId);
         if (!selectedResume) {
             setAnalysisError('Could not find the selected resume.');
@@ -472,6 +497,9 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
             const resumeText = formatResumeForAnalysis(selectedResume);
             const result = await analyzeResumeMatch(currentUser.uid, resumeText, localJob.jobDescription);
             setAnalysis(result);
+            // Persist to job
+            const updatedAnalyses = { ...(localJob.matchAnalyses || {}), [selectedResumeId]: result };
+            handleChange('matchAnalyses', updatedAnalyses);
         } catch (error) {
             setAnalysisError(error instanceof Error ? error.message : 'An unknown error occurred during analysis.');
         } finally {
@@ -482,11 +510,17 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
     const handleOptimizeResume = () => {
         sessionStorage.setItem('jobDescriptionForOptimization', job.jobDescription || '');
         sessionStorage.setItem('jobTitleForOptimization', job.jobTitle || '');
+        if (analysis) {
+            sessionStorage.setItem('jobMatchAnalysis', JSON.stringify(analysis));
+        } else {
+            sessionStorage.removeItem('jobMatchAnalysis');
+        }
         navigate(`/edit/${selectedResumeId}`);
     };
 
     return (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+            <CreditLimitModal />
             {regenModalState && (
                 <RegenerateModal
                     sectionName={regenModalState.name}
@@ -497,22 +531,22 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
             {isConfirmDeleteOpen && (
                 <ConfirmationModal
                     isOpen={isConfirmDeleteOpen}
-                    title="Delete Tracked Job"
-                    message="Are you sure you want to delete this tracked job? This action cannot be undone."
+                    title={t('job_tracker.modal.delete_title')}
+                    message={t('job_tracker.modal.delete_confirm')}
                     onConfirm={confirmDelete}
                     onCancel={() => setIsConfirmDeleteOpen(false)}
-                    confirmText="Delete"
+                    confirmText={t('job_tracker.modal.delete_btn')}
                 />
             )}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl w-full max-w-4xl h-[95vh] flex flex-col">
                 <header className="p-4 border-b dark:border-gray-700 flex justify-between items-center flex-shrink-0">
-                     <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-md flex items-center justify-center">
                             <Briefcase size={22} className="text-gray-500 dark:text-gray-400" />
                         </div>
                         <div>
-                             <h2 className="text-xl font-bold">{localJob.jobTitle}</h2>
-                             <p className="text-sm text-gray-500 dark:text-gray-400">{localJob.companyName}</p>
+                            <h2 className="text-xl font-bold">{localJob.jobTitle}</h2>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{localJob.companyName}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -525,36 +559,36 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
                             </button>
                         </div>
                         <button onClick={handleDelete} disabled={isDeleting} className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-full">
-                            {isDeleting ? <Loader2 className="animate-spin"/> : <Trash2 />}
+                            {isDeleting ? <Loader2 className="animate-spin" /> : <Trash2 />}
                         </button>
-                        <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"><X/></button>
+                        <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"><X /></button>
                     </div>
                 </header>
                 <div className="flex-grow overflow-y-auto p-6 sm:p-8 bg-gray-100 dark:bg-gray-900">
                     <div className="p-6 mb-8 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
-                            <EditableField label="Job Title" value={localJob.jobTitle} onChange={v => handleChange('jobTitle', v)} placeholder="e.g., Software Engineer"/>
-                            <EditableField label="Company" value={localJob.companyName} onChange={v => handleChange('companyName', v)} placeholder="e.g., Google"/>
-                            <EditableField label="Location" value={localJob.location || ''} onChange={v => handleChange('location', v)} placeholder="e.g., San Francisco, CA"/>
-                            <EditableField label="Salary Range" value={localJob.salaryRange || ''} onChange={v => handleChange('salaryRange', v)} placeholder="e.g., $120k - $150k"/>
-                            <EditableSelect label="Status" value={localJob.applicationStatus} onChange={v => handleChange('applicationStatus', v as ApplicationStatus)} options={APPLICATION_STATUSES} />
-                            <EditableSelect label="Work Model" value={localJob.workModel || ''} onChange={v => handleChange('workModel', v as WorkModel)} options={WORK_MODELS} />
-                            <EditableField label="Interview Stage" value={localJob.interviewStage || ''} onChange={v => handleChange('interviewStage', v)} placeholder="e.g., Technical Screen"/>
-                            <EditableField label="Date Applied" value={formatDateForInput(localJob.dateApplied)} onChange={handleDateChange} type="date"/>
+                            <EditableField label={t('job_tracker.modal.job_title')} value={localJob.jobTitle} onChange={v => handleChange('jobTitle', v)} placeholder="e.g., Software Engineer" />
+                            <EditableField label={t('job_tracker.modal.company')} value={localJob.companyName} onChange={v => handleChange('companyName', v)} placeholder="e.g., Google" />
+                            <EditableField label={t('job_tracker.modal.location')} value={localJob.location || ''} onChange={v => handleChange('location', v)} placeholder="e.g., San Francisco, CA" />
+                            <EditableField label={t('job_tracker.modal.salary_range')} value={localJob.salaryRange || ''} onChange={v => handleChange('salaryRange', v)} placeholder="e.g., $120k - $150k" />
+                            <EditableSelect label={t('job_tracker.modal.status.label', { defaultValue: 'Status' })} value={localJob.applicationStatus} onChange={v => handleChange('applicationStatus', v as ApplicationStatus)} options={APPLICATION_STATUSES} />
+                            <EditableSelect label={t('job_tracker.modal.work_model')} value={localJob.workModel || ''} onChange={v => handleChange('workModel', v as WorkModel)} options={WORK_MODELS} />
+                            <EditableField label={t('job_tracker.modal.interview_stage')} value={localJob.interviewStage || ''} onChange={v => handleChange('interviewStage', v)} placeholder="e.g., Technical Screen" />
+                            <EditableField label={t('job_tracker.modal.date_applied')} value={formatDateForInput(localJob.dateApplied)} onChange={handleDateChange} type="date" />
                         </div>
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                             <EditableField label="Job Post URL" value={localJob.jobPostURL} onChange={v => handleChange('jobPostURL', v)} />
-                             <EditableField label="Direct Application URL" value={localJob.applicationURL || ''} onChange={v => handleChange('applicationURL', v)} />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <EditableField label={t('job_tracker.modal.job_post_url')} value={localJob.jobPostURL} onChange={v => handleChange('jobPostURL', v)} />
+                            <EditableField label={t('job_tracker.modal.direct_app_url')} value={localJob.applicationURL || ''} onChange={v => handleChange('applicationURL', v)} />
                         </div>
                     </div>
-                    
+
                     {/* Resume Match Section */}
                     <div className="p-6 mb-8 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-                        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Resume Match</h3>
+                        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">{t('job_tracker.modal.resume_match')}</h3>
                         <div className="flex flex-col sm:flex-row items-center gap-4">
-                             <div className="w-full sm:w-1/2">
-                                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Compare with resume:</label>
-                                <select 
+                            <div className="w-full sm:w-1/2">
+                                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{t('job_tracker.modal.compare_resume')}</label>
+                                <select
                                     value={selectedResumeId}
                                     onChange={e => setSelectedResumeId(e.target.value)}
                                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700"
@@ -568,11 +602,11 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
                                 className="w-full sm:w-auto mt-2 sm:mt-6 bg-indigo-600 text-white font-semibold py-2 px-5 rounded-lg shadow-md hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 disabled:bg-indigo-300"
                             >
                                 {isAnalyzing ? <Loader2 className="animate-spin" /> : <Wand2 />}
-                                {isAnalyzing ? 'Analyzing...' : 'Analyze Match'}
+                                {isAnalyzing ? t('job_tracker.modal.analyzing') : t('job_tracker.modal.analyze_match')}
                             </button>
                         </div>
                         {analysisError && <p className="text-red-500 text-sm mt-2">{analysisError}</p>}
-                        
+
                         {analysis && (
                             <div className="mt-6 bg-blue-600/10 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 p-4 rounded-lg">
                                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -582,28 +616,28 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
                                             <span className="text-lg">{Math.round(analysis.matchPercentage)}% Match</span>
                                         </div>
                                         <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2.5 mt-2">
-                                            <div className="bg-blue-500 h-2.5 rounded-full" style={{width: `${analysis.matchPercentage}%`}}></div>
+                                            <div className="bg-blue-500 h-2.5 rounded-full" style={{ width: `${analysis.matchPercentage}%` }}></div>
                                         </div>
                                     </div>
                                     <button
                                         onClick={handleOptimizeResume}
                                         className="flex-shrink-0 bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
                                     >
-                                        Optimize this Resume <ArrowRight size={18} />
+                                        {t('job_tracker.modal.optimize_resume')} <ArrowRight size={18} />
                                     </button>
                                 </div>
                                 <div className="mt-4 text-sm">
                                     <p className="font-semibold mb-2">{analysis.summary}</p>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <h4 className="font-bold text-green-700 dark:text-green-400 flex items-center gap-1"><CheckCircle size={16} /> Matched Keywords</h4>
+                                            <h4 className="font-bold text-green-700 dark:text-green-400 flex items-center gap-1"><CheckCircle size={16} /> {t('job_tracker.modal.matched_keywords')}</h4>
                                             <div className="flex flex-wrap gap-1 mt-1">
                                                 {analysis.matchedKeywords.map(k => <span key={k} className="bg-green-200/50 dark:bg-green-900/40 text-green-800 dark:text-green-300 text-xs px-2 py-0.5 rounded-md">{k}</span>)}
                                             </div>
                                         </div>
                                         <div>
-                                            <h4 className="font-bold text-yellow-700 dark:text-yellow-400 flex items-center gap-1"><XCircle size={16} /> Missing Keywords</h4>
-                                             <div className="flex flex-wrap gap-1 mt-1">
+                                            <h4 className="font-bold text-yellow-700 dark:text-yellow-400 flex items-center gap-1"><XCircle size={16} /> {t('job_tracker.modal.missing_keywords')}</h4>
+                                            <div className="flex flex-wrap gap-1 mt-1">
                                                 {analysis.missingKeywords.map(k => <span key={k} className="bg-yellow-200/50 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300 text-xs px-2 py-0.5 rounded-md">{k}</span>)}
                                             </div>
                                         </div>
@@ -615,12 +649,12 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
 
 
                     {localJob.jobDescription && (
-                       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 mb-8">
+                        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 mb-8">
                             <button
                                 onClick={() => setShowDescription(!showDescription)}
                                 className="w-full flex justify-between items-center"
                             >
-                                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">Job Description</h3>
+                                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">{t('job_tracker.modal.job_description')}</h3>
                                 <ChevronDown className={`transition-transform duration-200 ${showDescription ? 'rotate-180' : ''}`} />
                             </button>
                             {showDescription && (
@@ -652,22 +686,22 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
                     )}
 
                     <div className="text-center mb-8">
-                        <button 
+                        <button
                             onClick={handleGenerateAllPrepNotes}
                             disabled={isGeneratingAll}
                             className={`bg-primary-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:bg-primary-700 transition-colors flex items-center justify-center gap-2 disabled:bg-primary-300 mx-auto ${shouldAnimateButton ? 'animate-gentle-pulse' : ''}`}
                         >
-                            {isGeneratingAll ? <Loader2 className="animate-spin"/> : <Wand2 />}
-                            {isGeneratingAll ? 'Generating...' : 'Generate All Prep Notes with AI'}
+                            {isGeneratingAll ? <Loader2 className="animate-spin" /> : <Wand2 />}
+                            {isGeneratingAll ? t('job_tracker.modal.generating') : t('job_tracker.modal.generate_prep')}
                         </button>
                     </div>
 
                     <div className={`space-y-10 ${textSizeClass} transition-all duration-300 ${isHighlighting ? 'animate-highlight p-4 -m-4 rounded-xl' : ''}`} ref={prepNotesContainerRef}>
-                       <EditablePrepSection label="Company & Role Research" value={localJob.prep_RoleOverview || ''} onChange={v => handleChange('prep_RoleOverview', v)} placeholder="Click to edit, or use AI to generate notes on the company, role, and responsibilities..." onRegenerate={() => setRegenModalState({ section: 'prep_RoleOverview', name: 'Company & Role Research' })} />
-                        <EditablePrepSection label="My Story & Pitch" value={localJob.prep_MyStory || ''} onChange={v => handleChange('prep_MyStory', v)} placeholder="Click to edit, or use AI to craft a compelling story about how your skills align with this job..." onRegenerate={() => setRegenModalState({ section: 'prep_MyStory', name: 'My Story & Pitch' })} />
-                        <EditablePrepSection label="Interview Prep Q&A" value={localJob.prep_InterviewPrep || ''} onChange={v => handleChange('prep_InterviewPrep', v)} placeholder="Click to edit, or use AI to generate practice questions and STAR method answers..." onRegenerate={() => setRegenModalState({ section: 'prep_InterviewPrep', name: 'Interview Prep Q&A' })} />
-                        <EditablePrepSection label="Questions for Them" value={localJob.prep_QuestionsForInterviewer || ''} onChange={v => handleChange('prep_QuestionsForInterviewer', v)} placeholder="Click to edit, or use AI to generate insightful questions to ask your interviewers..." onRegenerate={() => setRegenModalState({ section: 'prep_QuestionsForInterviewer', name: 'Questions for Them' })} />
-                        <EditablePrepSection label="General Notes" value={localJob.notes || ''} onChange={v => handleChange('notes', v)} placeholder="Click to add any other notes, like recruiter names, follow-up dates, etc..." onRegenerate={() => setRegenModalState({ section: 'notes', name: 'General Notes' })} />
+                        <EditablePrepSection label={t('job_tracker.modal.prep_sections.role_research')} value={localJob.prep_RoleOverview || ''} onChange={v => handleChange('prep_RoleOverview', v)} placeholder={t('job_tracker.modal.prep_sections.role_research_ph')} onRegenerate={() => setRegenModalState({ section: 'prep_RoleOverview', name: t('job_tracker.modal.prep_sections.role_research') })} />
+                        <EditablePrepSection label={t('job_tracker.modal.prep_sections.my_story')} value={localJob.prep_MyStory || ''} onChange={v => handleChange('prep_MyStory', v)} placeholder={t('job_tracker.modal.prep_sections.my_story_ph')} onRegenerate={() => setRegenModalState({ section: 'prep_MyStory', name: t('job_tracker.modal.prep_sections.my_story') })} />
+                        <EditablePrepSection label={t('job_tracker.modal.prep_sections.interview_prep')} value={localJob.prep_InterviewPrep || ''} onChange={v => handleChange('prep_InterviewPrep', v)} placeholder={t('job_tracker.modal.prep_sections.interview_prep_ph')} onRegenerate={() => setRegenModalState({ section: 'prep_InterviewPrep', name: t('job_tracker.modal.prep_sections.interview_prep') })} />
+                        <EditablePrepSection label={t('job_tracker.modal.prep_sections.questions_for_them')} value={localJob.prep_QuestionsForInterviewer || ''} onChange={v => handleChange('prep_QuestionsForInterviewer', v)} placeholder={t('job_tracker.modal.prep_sections.questions_for_them_ph')} onRegenerate={() => setRegenModalState({ section: 'prep_QuestionsForInterviewer', name: t('job_tracker.modal.prep_sections.questions_for_them') })} />
+                        <EditablePrepSection label={t('job_tracker.modal.prep_sections.general_notes')} value={localJob.notes || ''} onChange={v => handleChange('notes', v)} placeholder={t('job_tracker.modal.prep_sections.general_notes_ph')} onRegenerate={() => setRegenModalState({ section: 'notes', name: t('job_tracker.modal.prep_sections.general_notes') })} />
                     </div>
                 </div>
             </div>

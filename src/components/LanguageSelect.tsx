@@ -27,13 +27,12 @@ const LanguageSelect: React.FC = () => {
     // Change language in i18next
     (i18n as any).changeLanguage(code);
 
-    // Update URL hash to include new language
-    // Format: #/lang/path or #/path if en (optional, but we will enforce subpath for consistency)
-    const currentHash = window.location.hash.replace('#', '');
+    // Update URL to include new language
+    const currentPath = window.location.pathname;
 
     // Remove existing language prefix if present
-    const parts = currentHash.split('/').filter(p => p);
-    let newPath = currentHash;
+    const parts = currentPath.split('/').filter(p => p);
+    let newPath = currentPath;
 
     if (parts.length > 0 && SUPPORTED_LANGUAGES.some(l => l.code === parts[0])) {
       // Replace existing code
@@ -41,7 +40,7 @@ const LanguageSelect: React.FC = () => {
       newPath = '/' + parts.join('/');
     } else {
       // Prepend code
-      newPath = `/${code}${currentHash.startsWith('/') ? currentHash : '/' + currentHash}`;
+      newPath = `/${code}${currentPath.startsWith('/') ? currentPath : '/' + currentPath}`;
     }
 
     // Normalize: remove double slashes

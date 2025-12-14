@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CAREER_PATHS, Industry } from '../data/careers';
 import { ArrowRight, Mic, Loader2, ChevronLeft, LayoutDashboard } from 'lucide-react';
 import { generateInterviewQuestions } from '../services/geminiService';
@@ -8,12 +9,14 @@ import { Job, PracticeHistoryEntry, ResumeData } from '../types';
 import { navigate } from '../App';
 import { useAuth } from '../contexts/AuthContext';
 import { useResumes } from '../hooks/useResumes';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { useAICreditCheck } from '../hooks/useAICreditCheck';
 
 const formatResumeForContext = (resume: ResumeData): string => {
     let context = `Name: ${resume.personalDetails.firstName} ${resume.personalDetails.lastName}\n`;
     context += `Job Title: ${resume.personalDetails.jobTitle}\n\n`;
     context += `SUMMARY:\n${resume.professionalSummary}\n\n`;
-    
+
     if (resume.employmentHistory.length > 0) {
         context += `EXPERIENCE:\n`;
         resume.employmentHistory.forEach(job => {
@@ -56,8 +59,13 @@ const placeholderPrompts = [
     'Systems design interview for a backend engineer role',
 ];
 
-const InterviewStudio: React.FC = () => {
+interface InterviewStudioProps {
+    jobId?: string;
+}
+
+const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
     const { currentUser } = useAuth();
+    const { t } = useTranslation();
     const [prompt, setPrompt] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -66,6 +74,9 @@ const InterviewStudio: React.FC = () => {
 
     const { practiceHistory, addJob } = usePracticeHistory();
     const { resumes } = useResumes();
+
+    // AI Credit Check Hook
+    const { checkCredit, CreditLimitModal } = useAICreditCheck();
 
     const [interviewState, setInterviewState] = useState<{
         jobId: string;
@@ -102,7 +113,7 @@ const InterviewStudio: React.FC = () => {
         let charIndex = 0;
         let isDeleting = false;
         let timeoutId: number;
-        
+
         const typingSpeed = 100;
         const deletingSpeed = 50;
         const pauseDurations = [2000, 4000, 8000];
@@ -112,7 +123,7 @@ const InterviewStudio: React.FC = () => {
             if (!isMounted) return;
 
             const currentPrompt = placeholderPrompts[promptIndex];
-            
+
             if (isDeleting) {
                 setPlaceholder(currentPrompt.substring(0, charIndex - 1));
                 charIndex--;
@@ -120,7 +131,7 @@ const InterviewStudio: React.FC = () => {
                 setPlaceholder(currentPrompt.substring(0, charIndex + 1));
                 charIndex++;
             }
-            
+
             if (!isDeleting && charIndex === currentPrompt.length) {
                 isDeleting = true;
                 const pause = pauseDurations[pauseIndex % pauseDurations.length];
@@ -146,9 +157,14 @@ const InterviewStudio: React.FC = () => {
 
     const handleStartInterview = async (generationPrompt: string, jobData?: Omit<Job, 'id'>) => {
         if (!generationPrompt.trim() || !currentUser) return;
+
+        // CHECK CREDIT BEFORE STARTING
+        if (!checkCredit()) return;
+
         setIsLoading(true);
         setError('');
         try {
+            // Generate interview questions
             const questions = await generateInterviewQuestions(currentUser.uid, generationPrompt);
             const job: Omit<Job, 'id'> = jobData || {
                 title: generationPrompt,
@@ -158,51 +174,74 @@ const InterviewStudio: React.FC = () => {
                 url: ''
             };
 
-            const existingEntry = practiceHistory.find(entry => entry.job.title === job.title && entry.job.company === job.company);
-            const isFirstTime = !existingEntry || existingEntry.interviewHistory.length === 0;
-            
-            const latestResume = resumes[0];
-            const resumeContext = latestResume ? formatResumeForContext(latestResume) : '';
-
+            // Add job to practice history
             const newJobId = await addJob(job, questions);
-            
-            setInterviewState({
-                jobId: newJobId,
-                prompt: generationPrompt,
-                questions,
-                isFirstTime,
-                resumeContext,
-                jobTitle: job.title,
-                jobCompany: job.company
-            });
-            setIsInterviewModalOpen(true);
+
+            // Get authentication token for microservice (us-west1 region)
+            const functions = getFunctions(undefined, 'us-west1');
+            const getToken = httpsCallable(functions, 'getInterviewAuthToken');
+            const result = await getToken();
+            const { token } = result.data as { token: string };
+
+            // Construct redirect URL to Interview Microservice
+            const baseUrl = 'https://careervivid-371634100960.us-west1.run.app';
+            const targetUrl = `${baseUrl}/#/interview-studio/${newJobId}?token=${token}`;
+
+            // Redirect to external microservice
+            window.location.href = targetUrl;
         } catch (e) {
             setError(e instanceof Error ? e.message : 'An unknown error occurred.');
-        } finally {
             setIsLoading(false);
         }
     };
 
     // Handle "Practice Again" from Dashboard
     useEffect(() => {
-      const practiceJobData = sessionStorage.getItem('practiceJob');
-      if (practiceJobData) {
-          sessionStorage.removeItem('practiceJob');
-          try {
-            const jobEntry: PracticeHistoryEntry = JSON.parse(practiceJobData);
-            const jobData = {
-                title: jobEntry.job.title,
-                company: jobEntry.job.company || 'Custom Practice',
-                location: jobEntry.job.location,
-                description: jobEntry.job.description || jobEntry.job.title,
-                url: jobEntry.job.url,
-            };
-            handleStartInterview(jobData.description, jobData);
-          } catch(e) {
-            console.error("Failed to parse practice job data", e);
-          }
-      }
+        const practiceJobData = sessionStorage.getItem('practiceJob');
+        if (practiceJobData) {
+            sessionStorage.removeItem('practiceJob');
+            try {
+                const jobEntry: PracticeHistoryEntry = JSON.parse(practiceJobData);
+                const jobData = {
+                    title: jobEntry.job.title,
+                    company: jobEntry.job.company || 'Custom Practice',
+                    location: jobEntry.job.location,
+                    description: jobEntry.job.description || jobEntry.job.title,
+                    url: jobEntry.job.url,
+                };
+                handleStartInterview(jobData.description, jobData);
+            } catch (e) {
+                console.error("Failed to parse practice job data", e);
+            }
+        }
     }, []);
+
+    // Handle Deep Linking from Email
+    useEffect(() => {
+        if (jobId && !isLoading && practiceHistory.length > 0) {
+            const foundJob = practiceHistory.find(h => h.id === jobId);
+            if (foundJob) {
+                // Auto-start the interview
+                const startSavedInterview = async () => {
+                    setIsLoading(true);
+                    try {
+                        const functions = getFunctions(undefined, 'us-west1');
+                        const getToken = httpsCallable(functions, 'getInterviewAuthToken');
+                        const result = await getToken();
+                        const { token } = result.data as { token: string };
+
+                        const baseUrl = 'https://careervivid-371634100960.us-west1.run.app';
+                        const targetUrl = `${baseUrl}/#/interview-studio/${jobId}?token=${token}`;
+                        window.location.href = targetUrl;
+                    } catch (e) {
+                        setError("Failed to start scheduled interview. Please try again.");
+                        setIsLoading(false);
+                    }
+                };
+                startSavedInterview();
+            }
+        }
+    }, [jobId, practiceHistory, isLoading]);
 
     const handlePromptSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -214,7 +253,7 @@ const InterviewStudio: React.FC = () => {
         const fullPrompt = `A mock interview for the role of '${roleName}' in the '${industryName}' industry.`;
         const jobData = {
             title: roleName,
-            company: 'CareerVivid', // Use CareerVivid as the placeholder company name
+            company: 'CareerVivid',
             location: '',
             description: fullPrompt,
             url: ''
@@ -227,9 +266,9 @@ const InterviewStudio: React.FC = () => {
             return (
                 <div>
                     <button onClick={() => setSelectedIndustry(null)} className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 mb-4 font-semibold">
-                        <ChevronLeft size={18} /> Back to Industries
+                        <ChevronLeft size={18} /> {t('interview_studio.back_to_industries')}
                     </button>
-                    <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">Select a Role in {selectedIndustry.name}</h2>
+                    <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">{t('interview_studio.select_role', { industry: selectedIndustry.name })}</h2>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                         {selectedIndustry.roles.map(role => (
                             <button
@@ -248,7 +287,7 @@ const InterviewStudio: React.FC = () => {
 
         return (
             <div>
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">Or, select a career path</h2>
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">{t('interview_studio.select_career')}</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                     {CAREER_PATHS.map(industry => (
                         <button
@@ -267,23 +306,24 @@ const InterviewStudio: React.FC = () => {
 
     return (
         <>
+            <CreditLimitModal />
             <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 relative">
                 <div className="absolute top-6 right-6">
                     <a
-                        href="#/"
+                        href="/"
                         className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded-lg shadow-soft border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
                         <LayoutDashboard size={20} />
-                        Dashboard
+                        {t('nav.dashboard')}
                     </a>
                 </div>
                 {isLoading && !isInterviewModalOpen ? (
                     <div className="text-center">
                         <Loader2 className="w-16 h-16 text-primary-500 animate-spin mx-auto" />
-                        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mt-6">Preparing your interview...</h1>
+                        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mt-6">{t('interview_studio.preparing')}</h1>
                         <div className="h-6 mt-2">
                             <p key={loadingMessageIndex} className="text-gray-500 dark:text-gray-400 animate-fade-in">
-                                {loadingMessages[loadingMessageIndex]}
+                                {t(`interview_studio.loading_${loadingMessageIndex + 1}`)}
                             </p>
                         </div>
                     </div>
@@ -291,12 +331,12 @@ const InterviewStudio: React.FC = () => {
                     <div className="w-full max-w-4xl mx-auto">
                         <div className="text-center mb-10">
                             <Mic className="w-12 h-12 mx-auto text-indigo-500" />
-                            <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-gray-100 mt-4">Interview Studio</h1>
-                            <p className="text-lg text-gray-500 dark:text-gray-400 mt-2 max-w-2xl mx-auto">Prepare for your next interview with an AI-powered mock session.</p>
+                            <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-gray-100 mt-4">{t('interview_studio.title')}</h1>
+                            <p className="text-lg text-gray-500 dark:text-gray-400 mt-2 max-w-2xl mx-auto">{t('interview_studio.subtitle')}</p>
                         </div>
 
                         <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mb-10">
-                            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">Start your mock interview</h2>
+                            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">{t('interview_studio.start_title')}</h2>
                             <form onSubmit={handlePromptSubmit} className="flex flex-col sm:flex-row gap-4">
                                 <input
                                     type="text"
@@ -310,7 +350,7 @@ const InterviewStudio: React.FC = () => {
                                     className="flex-shrink-0 bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-soft hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 disabled:bg-indigo-300"
                                     disabled={!prompt.trim() || isLoading}
                                 >
-                                    Start Interview <ArrowRight size={20} />
+                                    {t('interview_studio.start_btn')} <ArrowRight size={20} />
                                 </button>
                             </form>
                         </div>

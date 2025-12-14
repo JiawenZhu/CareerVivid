@@ -9,7 +9,7 @@ interface FeedbackModalProps {
   onClose: () => void;
   onSubmitted?: () => void;
   onCancel?: () => void;
-  source: 'resume_export' | 'interview';
+  source: 'resume_export' | 'interview' | 'editor';
   context?: Record<string, any>;
 }
 
@@ -80,7 +80,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, onSubmit
       setIsLoading(false);
     }
   };
-  
+
   const handleCancel = () => {
     if (onCancel) onCancel();
     onClose();
@@ -92,7 +92,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, onSubmit
     <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
       <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md shadow-xl relative">
         <button onClick={handleCancel} className="absolute top-3 right-3 p-1 rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
-            <X size={20} />
+          <X size={20} />
         </button>
 
         {isSuccess ? (
@@ -105,15 +105,14 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, onSubmit
           <>
             <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-white">How was your experience?</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Your feedback is valuable to us.</p>
-            
+
             <div className="flex justify-center items-center gap-2 mb-4">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button key={star} onClick={() => setRating(star)} className="focus:outline-none">
                   <Star
                     size={36}
-                    className={`transition-colors ${
-                      star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300 dark:text-gray-600'
-                    }`}
+                    className={`transition-colors ${star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300 dark:text-gray-600'
+                      }`}
                   />
                 </button>
               ))}
@@ -126,7 +125,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, onSubmit
               rows={4}
               className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 focus:outline-none"
             />
-            
+
             {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
 
             <div className="flex justify-end gap-3 mt-6">

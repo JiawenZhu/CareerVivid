@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
 import { BlogPost } from '../types';
@@ -37,11 +38,11 @@ const MarkdownRenderer: React.FC<{ text: string }> = ({ text = '' }) => {
         return parts.map((part, i) => {
             if (part.type === 'link') {
                 return (
-                    <a 
-                        key={i} 
-                        href={part.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
+                    <a
+                        key={i}
+                        href={part.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 hover:underline break-words"
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -79,16 +80,16 @@ const MarkdownRenderer: React.FC<{ text: string }> = ({ text = '' }) => {
                 </li>
             );
         } else if (/^\d+\.\s/.test(line.trim())) {
-             elements.push(
-                 <div key={i} className="flex items-start mb-2 text-gray-700 dark:text-gray-300">
+            elements.push(
+                <div key={i} className="flex items-start mb-2 text-gray-700 dark:text-gray-300">
                     <span className="mr-2 font-semibold">{line.match(/^\d+\./)?.[0]}</span>
                     <span>{renderContent(line.substring(line.indexOf('.') + 2))}</span>
                 </div>
             );
         } else if (line.trim() === '') {
-             elements.push(<div key={i} className="h-4"></div>);
+            elements.push(<div key={i} className="h-4"></div>);
         } else {
-             elements.push(<p key={i} className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4 text-lg">{renderContent(line)}</p>);
+            elements.push(<p key={i} className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4 text-lg">{renderContent(line)}</p>);
         }
     }
 
@@ -96,6 +97,7 @@ const MarkdownRenderer: React.FC<{ text: string }> = ({ text = '' }) => {
 };
 
 const BlogPostPage: React.FC<{ postId: string }> = ({ postId }) => {
+    const { t } = useTranslation();
     const [post, setPost] = useState<BlogPost | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -130,15 +132,15 @@ const BlogPostPage: React.FC<{ postId: string }> = ({ postId }) => {
             <div className="min-h-screen bg-white dark:bg-gray-950 flex flex-col">
                 <PublicHeader />
                 <div className="flex-grow flex flex-col items-center justify-center">
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Post not found</h1>
-                    <button onClick={() => navigate('/blog')} className="text-primary-600 hover:underline">Back to Blog</button>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{t('blog.post_not_found')}</h1>
+                    <button onClick={() => navigate('/blog')} className="text-primary-600 hover:underline">{t('blog.back_to_blog')}</button>
                 </div>
             </div>
         );
     }
 
     // Handle legacy data where content might be stored as 'body'
-    const displayContent = post.content || (post as any).body || 'No content available for this post.';
+    const displayContent = post.content || (post as any).body || t('blog.no_content');
 
     return (
         <div className="bg-white dark:bg-gray-950 min-h-screen flex flex-col font-sans">
@@ -147,7 +149,7 @@ const BlogPostPage: React.FC<{ postId: string }> = ({ postId }) => {
                 <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Breadcrumb */}
                     <button onClick={() => navigate('/blog')} className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white mb-8 transition-colors">
-                        <ArrowLeft size={16} /> Back to Articles
+                        <ArrowLeft size={16} /> {t('blog.back_to_articles')}
                     </button>
 
                     {/* Header */}
@@ -160,13 +162,13 @@ const BlogPostPage: React.FC<{ postId: string }> = ({ postId }) => {
                         </h1>
                         <div className="flex items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-400">
                             <div className="flex items-center gap-2">
-                                <User size={16} /> {post.author || 'Team'}
+                                <User size={16} /> {post.author || t('blog.team')}
                             </div>
                             <div className="flex items-center gap-2">
-                                <Calendar size={16} /> 
-                                {post.publishedAt?.toDate 
-                                    ? post.publishedAt.toDate().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) 
-                                    : 'Recently'}
+                                <Calendar size={16} />
+                                {post.publishedAt?.toDate
+                                    ? post.publishedAt.toDate().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+                                    : t('blog.recently')}
                             </div>
                         </div>
                     </header>
@@ -181,10 +183,10 @@ const BlogPostPage: React.FC<{ postId: string }> = ({ postId }) => {
                     {/* Content */}
                     <div className="max-w-3xl mx-auto">
                         <MarkdownRenderer text={displayContent} />
-                        
+
                         {/* Share */}
                         <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-800">
-                            <p className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Share this article</p>
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white mb-4">{t('blog.share_article')}</p>
                             <div className="flex gap-4">
                                 <button className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-900/30 dark:hover:text-blue-400 transition-colors">
                                     <Twitter size={20} />

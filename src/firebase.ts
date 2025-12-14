@@ -24,7 +24,8 @@ const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
-const functions = getFunctions(app);
+const functions = getFunctions(app, 'us-west1'); // Set region to match Cloud Functions deployment
 const googleProvider = new GoogleAuthProvider();
+
 
 export { auth, db, storage, googleProvider, analytics, functions };

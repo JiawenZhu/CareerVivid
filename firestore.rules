@@ -11,9 +11,31 @@ service cloud.firestore {
       allow read: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Allow users to access their own data only, OR if they are an admin
+    // ✅ Allow authenticated users to query /users collection for username lookups
+    // This is needed for portfolio editor to resolve usernames to UIDs
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && (request.auth.uid == userId || request.auth.token.admin == true);
+    }
+
+    // ✅ DEBUG: Allow any authenticated user to read ANY portfolio
+    // This is temporarily permissive to debug the access issue
+    match /users/{userId}/portfolios/{portfolioId} {
+      allow read: if request.auth != null;  // Any logged-in user can read
+      allow write: if request.auth != null && (request.auth.uid == userId || request.auth.token.admin == true);
+    }
+
+    // Allow users to access their own subcollections only, OR if they are an admin
     match /users/{userId}/{document=**} {
       allow read, write: if request.auth != null && (request.auth.uid == userId || request.auth.token.admin == true);
+    }
+
+    // ✅ Allow public access to comments and annotations for shared resumes
+    match /users/{userId}/resumes/{resumeId}/comments/{commentId} {
+      allow read, write: if true;
+    }
+    match /users/{userId}/resumes/{resumeId}/annotations/{annotationId} {
+      allow read, write: if true;
     }
 
     // ✅ FIX: Allow anyone (public) to READ blog posts
@@ -21,6 +43,17 @@ service cloud.firestore {
     match /blog_posts/{postId} {
       allow read: if true;
       allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+
+    // ✅ Allow authenticated users to create usage logs
+    match /usage_logs/{logId} {
+      allow create: if request.auth != null;
+    }
+
+    // ✅ Allow public access to shared portfolios
+    match /public_portfolios/{portfolioId} {
+      allow read: if true;
+      allow write: if request.auth != null;
     }
   }
 }

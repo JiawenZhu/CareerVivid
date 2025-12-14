@@ -54,19 +54,19 @@ export const DEFAULT_EDUCATION: Education[] = [
 ];
 
 export const DEFAULT_SECTION_TITLES = {
-    contact: 'Contact',
-    profile: 'Profile',
-    skills: 'Skills',
-    experience: 'Experience',
-    education: 'Education',
-    languages: 'Languages',
-    websites: 'Websites & Social Links'
+  contact: 'Contact',
+  profile: 'Profile',
+  skills: 'Skills',
+  experience: 'Experience',
+  education: 'Education',
+  languages: 'Languages',
+  websites: 'Websites & Social Links'
 };
 
 export const DEFAULT_ICONS = {
-    email: 'mail',
-    phone: 'phone',
-    location: 'map-pin'
+  email: 'mail',
+  phone: 'phone',
+  location: 'map-pin'
 };
 
 export const createNewResume = (): ResumeData => {
@@ -141,22 +141,22 @@ export const LANGUAGE_PROFICIENCY_LEVELS = [
 ];
 
 export const AVAILABLE_ICONS = [
-    { id: 'mail', label: 'Email' },
-    { id: 'phone', label: 'Phone' },
-    { id: 'map-pin', label: 'Location' },
-    { id: 'globe', label: 'Website' },
-    { id: 'linkedin', label: 'LinkedIn' },
-    { id: 'github', label: 'GitHub' },
-    { id: 'facebook', label: 'Facebook' },
-    { id: 'twitter', label: 'Twitter/X' },
-    { id: 'instagram', label: 'Instagram' },
-    { id: 'youtube', label: 'YouTube' },
-    { id: 'video', label: 'TikTok' },
-    { id: 'at-sign', label: 'Gmail' },
-    { id: 'briefcase', label: 'Portfolio' },
-    { id: 'send', label: 'Telegram' },
-    { id: 'link', label: 'Link' },
-    { id: 'yahoo', label: 'Yahoo' },
+  { id: 'mail', label: 'Email' },
+  { id: 'phone', label: 'Phone' },
+  { id: 'map-pin', label: 'Location' },
+  { id: 'globe', label: 'Website' },
+  { id: 'linkedin', label: 'LinkedIn' },
+  { id: 'github', label: 'GitHub' },
+  { id: 'facebook', label: 'Facebook' },
+  { id: 'twitter', label: 'Twitter/X' },
+  { id: 'instagram', label: 'Instagram' },
+  { id: 'youtube', label: 'YouTube' },
+  { id: 'video', label: 'TikTok' },
+  { id: 'at-sign', label: 'Gmail' },
+  { id: 'briefcase', label: 'Portfolio' },
+  { id: 'send', label: 'Telegram' },
+  { id: 'link', label: 'Link' },
+  { id: 'yahoo', label: 'Yahoo' },
 ];
 
 export const SUPPORTED_LANGUAGES = [
@@ -166,6 +166,7 @@ export const SUPPORTED_LANGUAGES = [
   { code: 'de', name: 'German', nativeName: 'Deutsch' },
   { code: 'zh', name: 'Chinese', nativeName: '中文' },
   { code: 'ja', name: 'Japanese', nativeName: '日本語' },
+  { code: 'ko', name: 'Korean', nativeName: '한국어' },
 ];
 
 export const SUPPORTED_TRANSLATE_LANGUAGES = [

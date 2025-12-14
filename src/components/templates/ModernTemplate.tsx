@@ -60,6 +60,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
             <a key={site.id} href={site.url} target="_blank" rel="noopener noreferrer" className="hover:opacity-80 flex items-center gap-1">
               <IconDisplay iconName={site.icon || 'globe'} size={12} />
               <InlineEdit value={site.label} fieldId={`websites[${index}].label`} onFocus={onFocus} isLink />
+              {site.showUrl && <span className="text-gray-500 ml-1">{site.url}</span>}
             </a>
           ))}
         </div>

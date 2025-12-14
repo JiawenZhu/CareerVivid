@@ -5,9 +5,9 @@ import { ResumeData } from '../types';
 
 export const translateResumeContent = async (resume: ResumeData, targetLang: string): Promise<ResumeData> => {
     const translateText = httpsCallable(functions, 'translateText');
-    
+
     const textToTranslate: Record<string, string> = {};
-    
+
     // Helper to add text if it exists
     const add = (key: string, text: string) => {
         if (text && text.trim().length > 0) {
@@ -50,7 +50,7 @@ export const translateResumeContent = async (resume: ResumeData, targetLang: str
     // Apply translations back to a clone of the resume
     const newResume = JSON.parse(JSON.stringify(resume));
     newResume.language = targetLang;
-    
+
     // Update fields
     if (translations.jobTitle) newResume.personalDetails.jobTitle = translations.jobTitle;
     if (translations.summary) newResume.professionalSummary = translations.summary;
@@ -75,4 +75,15 @@ export const translateResumeContent = async (resume: ResumeData, targetLang: str
     });
 
     return newResume;
+};
+
+export const duplicateAndTranslateResume = async (resumeId: string, targetLanguage: string): Promise<string> => {
+    const duplicateAndTranslate = httpsCallable(functions, 'duplicateAndTranslateResume');
+
+    const result: any = await duplicateAndTranslate({
+        resumeId,
+        targetLanguage
+    });
+
+    return result.data.newResumeId;
 };

@@ -23,6 +23,19 @@ const geminiApiKey = defineSecret("GEMINI_API_KEY");
 // Export the new Proxy Function if needed
 export { streamGeminiResponse as geminiProxy } from "./geminiProxy";
 
+// Export Stripe payment functions
+export { createCheckoutSession, stripeWebhook, cancelSubscription, applyDiscount } from "./stripe";
+
+// Export Admin functions
+export { grantAcademicPartnerRole } from "./admin";
+
+// Export Triggers
+export * from './scheduled';
+export * from './email';
+export * from './stripe';
+export { onUserCreated } from "./triggers";
+export { onEmailRequestCreated } from "./email";
+
 const getFunctionConfig = () => {
   try {
     return functions.config().careervivid || {};
@@ -144,11 +157,51 @@ export const generateResumePdfHttp = functions
         return;
       }
       const idToken = authHeader.split('Bearer ')[1];
+      // Verify ID token
+      let userId: string;
       try {
-        await admin.auth().verifyIdToken(idToken);
+        const decodedToken = await admin.auth().verifyIdToken(idToken);
+        userId = decodedToken.uid;
       } catch (e) {
         console.error("Token verification failed:", e);
         res.status(401).send('Unauthorized');
+        return;
+      }
+
+      // Check if user has premium access for PDF generation
+      const userDoc = await admin.firestore().collection('users').doc(userId).get();
+      const userData = userDoc.data();
+
+      // Allow PDF export if:
+      // 1. User has valid sprint plan (not expired)
+      // 2. User has active monthly subscription  
+      // 3. User has legacy premium flag (backward compatibility)
+
+      let isPremium = false;
+
+      if (userData) {
+        const plan = userData.plan || 'free';
+
+        // Check sprint plan (with safe timestamp handling)
+        const isSprintValid = plan === 'pro_sprint' && userData.expiresAt
+          ? (typeof userData.expiresAt.toMillis === 'function' ? userData.expiresAt.toMillis() : userData.expiresAt._seconds * 1000) > Date.now()
+          : false;
+
+        // Check monthly subscription
+        const isMonthlyActive = plan === 'pro_monthly' &&
+          (userData.stripeSubscriptionStatus === 'active' || userData.stripeSubscriptionStatus === 'trialing');
+
+        // Check legacy premium flag
+        const hasLegacyPremium = userData.promotions?.isPremium === true;
+
+        isPremium = isSprintValid || isMonthlyActive || hasLegacyPremium;
+      }
+
+      if (!isPremium) {
+        res.status(403).json({
+          error: 'PDF export is a premium feature. Please upgrade to The 7-Day Sprint or Pro Monthly plan.',
+          upgradeUrl: '/pricing'
+        });
         return;
       }
 
@@ -324,10 +377,42 @@ export const getPublicResume = functions.region('us-west1').runWith({ timeoutSec
           return res.status(403).send({ error: "Access denied" });
         }
 
-        console.log("Resume found successfully");
+        // Fetch owner's subscription status
+        let ownerIsPremium = false;
+        try {
+          const ownerDoc = await admin.firestore()
+            .collection("users")
+            .doc(String(userId))
+            .get();
 
-        // Send the data back
-        return res.status(200).json({ ...data, id: doc.id });
+          if (ownerDoc.exists) {
+            const ownerData = ownerDoc.data();
+
+            // Check pro_sprint plan validity
+            const isSprintValid = ownerData?.plan === 'pro_sprint' && ownerData?.expiresAt
+              ? ownerData.expiresAt.toMillis() > Date.now()
+              : false;
+
+            // Check pro_monthly subscription status
+            const isMonthlyActive = ownerData?.plan === 'pro_monthly' &&
+              (ownerData?.stripeSubscriptionStatus === 'active' ||
+                ownerData?.stripeSubscriptionStatus === 'trialing');
+
+            // Check legacy premium flag (backward compatibility)
+            const hasLegacyPremium = ownerData?.promotions?.isPremium === true;
+
+            // Owner is premium if they have any valid premium status
+            ownerIsPremium = isSprintValid || isMonthlyActive || hasLegacyPremium;
+          }
+        } catch (ownerError) {
+          console.error("Error fetching owner premium status:", ownerError);
+          // Continue with ownerIsPremium = false if fetch fails
+        }
+
+        console.log("Resume found successfully, ownerIsPremium:", ownerIsPremium);
+
+        // Send the data back with ownerIsPremium flag
+        return res.status(200).json({ ...data, id: doc.id, ownerIsPremium });
 
       } catch (error: any) {
         console.error("CRASH ERROR:", error);
@@ -442,5 +527,36 @@ export const translateText = functions.region('us-west1').https.onCall(async (da
       throw new functions.https.HttpsError('invalid-argument', 'Invalid target language code.');
     }
     throw new functions.https.HttpsError('internal', 'Translation failed.', error.message);
+  }
+});
+
+// Export duplicateAndTranslateResume
+export { duplicateAndTranslateResume } from './duplicateAndTranslateResume';
+
+/**
+ * Generate a secure custom authentication token for Interview Microservice handoff.
+ * This allows users to be securely redirected to the external Interview Studio service.
+ */
+export const getInterviewAuthToken = functions.region('us-west1').https.onCall(async (data, context) => {
+  // Verify user authentication
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      "unauthenticated",
+      "User must be logged in to generate an interview token"
+    );
+  }
+
+  try {
+    // Generate custom token using the user's UID
+    const token = await admin.auth().createCustomToken(context.auth.uid);
+
+    // Return token object
+    return { token };
+  } catch (error) {
+    console.error("Error creating custom token:", error);
+    throw new functions.https.HttpsError(
+      "internal",
+      "Failed to generate authentication token"
+    );
   }
 });

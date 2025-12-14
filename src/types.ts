@@ -17,6 +17,7 @@ export interface WebsiteLink {
   label: string;
   url: string;
   icon?: string; // Optional custom icon ID from AVAILABLE_ICONS
+  showUrl?: boolean; // Toggle to show full URL on resume
 }
 
 export interface Skill {
@@ -70,9 +71,9 @@ export interface SectionTitles {
 }
 
 export interface CustomIcons {
-    email?: string;
-    phone?: string;
-    location?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
 }
 
 export interface ResumeData {
@@ -127,16 +128,36 @@ export interface EmailPreferences {
 export interface UserProfile {
   uid: string;
   email: string;
+  displayName?: string; // Added for admin display
   createdAt: any; // Firestore timestamp
   status: 'active' | 'suspended';
   // Stripe-related fields
-  stripeId?: string;
-  stripeSubscriptionStatus?: 'active' | 'trialing' | 'past_due' | 'canceled' | 'unpaid' | null;
+  stripeCustomerId?: string; // Renamed from stripeId for clarity
+  stripeSubscriptionId?: string; // Added for subscription tracking
+  stripeSubscriptionStatus?: 'active' | 'trialing' | 'past_due' | 'canceled' | 'unpaid' | 'active_canceling' | null;
+  // Plan and limits
+  plan?: 'free' | 'pro_sprint' | 'pro_monthly';
+  resumeLimit?: number; // 2 (free), 8 (sprint), or 15 (monthly)
+  expiresAt?: any; // Firestore Timestamp - for sprint plan
   promotions: {
     isPremium?: boolean;
     tokenCredits?: number;
   };
   emailPreferences?: EmailPreferences;
+  updatedAt?: any; // Added for tracking when plan changes
+
+  // Academic Partner Fields
+  role?: 'user' | 'admin' | 'academic_partner';
+  referralCode?: string; // For partners: their unique code
+  referredBy?: string; // For students: code they used
+  academicPartnerId?: string; // For students: ID of their professor
+
+  // AI Usage Tracking
+  aiUsage?: {
+    count: number;        // Current month's usage (0-10 for free users)
+    lastResetDate: any;   // Firestore Timestamp - when counter was last reset
+    monthlyLimit: number; // 10 for free, -1 for premium (unlimited)
+  };
 }
 
 export type TrackEventType =
@@ -150,7 +171,9 @@ export type TrackEventType =
   | 'job_prep_generation'
   | 'job_prep_regeneration'
   | 'job_parse_description'
-  | 'resume_match_analysis';
+  | 'resume_match_analysis'
+  | 'portfolio_generation'
+  | 'portfolio_refinement';
 
 
 // --- Interview Studio Types ---
@@ -227,6 +250,7 @@ export interface JobApplicationData {
   prep_InterviewPrep?: string;
   prep_QuestionsForInterviewer?: string;
   notes?: string;
+  matchAnalyses?: Record<string, ResumeMatchAnalysis>; // Persist analysis results per resume
 
   // Timestamps
   createdAt: any;
@@ -272,6 +296,7 @@ export interface BlogPost {
   category: string;
   coverImage: string;
   publishedAt: any; // Firestore Timestamp
+  readTime?: string;
 }
 
 export interface Comment {

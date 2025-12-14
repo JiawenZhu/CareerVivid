@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useResumes } from '../hooks/useResumes';
-import { generateResumeFromPrompt } from '../services/geminiService';
+import { generateResumeFromPrompt, parseResume } from '../services/geminiService';
 import { CAREER_PATHS, Industry } from '../data/careers';
-import { ArrowRight, Zap, Loader2, ChevronLeft, LayoutDashboard } from 'lucide-react';
+import { ArrowRight, Zap, Loader2, ChevronLeft, LayoutDashboard, UploadCloud } from 'lucide-react';
 import { navigate } from '../App';
 import { useAuth } from '../contexts/AuthContext';
 import Logo from '../components/Logo';
+import ResumeImport from '../components/ResumeImport';
 
 const loadingMessages = [
     "Analyzing your prompt...",
@@ -32,6 +33,7 @@ const GenerationHub: React.FC = () => {
     const { currentUser } = useAuth();
     const { resumes, addAIGeneratedResume } = useResumes();
     const [prompt, setPrompt] = useState('');
+    const [isFileImport, setIsFileImport] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
@@ -39,7 +41,7 @@ const GenerationHub: React.FC = () => {
 
     const [selectedIndustry, setSelectedIndustry] = useState<Industry | null>(null);
 
-     useEffect(() => {
+    useEffect(() => {
         let interval: number;
         if (isLoading) {
             setLoadingMessageIndex(0); // Reset on start
@@ -62,7 +64,7 @@ const GenerationHub: React.FC = () => {
         let charIndex = 0;
         let isDeleting = false;
         let timeoutId: number;
-        
+
         const typingSpeed = 100;
         const deletingSpeed = 50;
         const pauseDurations = [2000, 4000, 8000];
@@ -72,7 +74,7 @@ const GenerationHub: React.FC = () => {
             if (!isMounted) return;
 
             const currentPrompt = placeholderPrompts[promptIndex];
-            
+
             if (isDeleting) {
                 // Deleting
                 setPlaceholder(currentPrompt.substring(0, charIndex - 1));
@@ -82,7 +84,7 @@ const GenerationHub: React.FC = () => {
                 setPlaceholder(currentPrompt.substring(0, charIndex + 1));
                 charIndex++;
             }
-            
+
             if (!isDeleting && charIndex === currentPrompt.length) {
                 // Finished typing, start pause before deleting
                 isDeleting = true;
@@ -109,9 +111,9 @@ const GenerationHub: React.FC = () => {
         };
     }, []);
 
-    const handleGenerate = async (generationPrompt: string) => {
-        if (!generationPrompt.trim() || !currentUser) return;
-        
+    const handleGenerate = async (inputContent: string) => {
+        if (!inputContent.trim() || !currentUser) return;
+
         if (resumes.length === 0) {
             sessionStorage.setItem('isFirstResume', 'true');
         } else {
@@ -121,7 +123,16 @@ const GenerationHub: React.FC = () => {
         setIsLoading(true);
         setError('');
         try {
-            const aiData = await generateResumeFromPrompt(currentUser.uid, generationPrompt);
+            let aiData;
+
+            if (isFileImport) {
+                // If the content came from a file import, we parse it as a resume
+                // The inputContent is the extracted text
+                aiData = await parseResume(currentUser.uid, inputContent, 'English'); // Default to English for now
+            } else {
+                // Otherwise treat it as a prompt
+                aiData = await generateResumeFromPrompt(currentUser.uid, inputContent);
+            }
 
             // Defensive check to ensure the AI returns a valid object with the required nested structure.
             if (!aiData || typeof aiData !== 'object' || !aiData.personalDetails) {
@@ -138,9 +149,35 @@ const GenerationHub: React.FC = () => {
         }
     };
 
-    const handlePromptSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+    const handlePromptSubmit = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         handleGenerate(prompt);
+    };
+
+    const handleFileProcessed = (text: string) => {
+        setIsFileImport(true);
+        // We could auto-submit here, but let's let the user review the extracted text if they want?
+        // Proposal: Auto-submit for better "magic" feeling if it's a file drop.
+        handleGenerate(text);
+    };
+
+    const handleTextChange = (text: string) => {
+        setPrompt(text);
+        if (isFileImport) setIsFileImport(false); // Reset if user starts typing (switch back to prompt mode?)
+        // Actually, if they edit the imported text, it becomes a "prompt" to generate?
+        // Or should we just stick to "if it was a file, it's a parse"?
+        // Safe bet: If they edit, treat as Prompt? 
+        // No, if they import a resume text, they might want to parse it.
+        // But `parseResume` expects resume text, `generateResumeFromPrompt` expects instructions.
+        // It's ambiguous.
+        // Let's assume: If `isFileImport` was true, we keep it true unless they clear it?
+        // Or simple heuristic: Text > 500 chars = likely resume?
+        // For now, let's keep `setIsFileImport(false)` on manual edit to be safe, creating a "Prompt" flow.
+        // BUT if they paste a resume, they want it parsed!
+        // So we really need a distinct "Parse" vs "Generate" action or intelligent detection.
+        // Given the ambiguity, let's rely on the BUTTON label or source.
+        // If file dropped -> handleFileProcessed -> Auto Generate (Parse).
+        // If typed -> User clicks "Generate".
     };
 
     const handleRoleSelect = (roleName: string) => {
@@ -195,10 +232,10 @@ const GenerationHub: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 relative">
-             {resumes.length > 0 && (
+            {resumes.length > 0 && (
                 <div className="absolute top-6 right-6">
                     <a
-                        href="#/"
+                        href="/"
                         className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded-lg shadow-soft border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
                         <LayoutDashboard size={20} />
@@ -225,23 +262,26 @@ const GenerationHub: React.FC = () => {
                     </div>
 
                     <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mb-10">
-                        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">Start with a prompt</h2>
-                        <form onSubmit={handlePromptSubmit} className="flex flex-col sm:flex-row gap-4">
-                            <input
-                                type="text"
+                        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">Generate or Import Your Resume</h2>
+                        <div className="flex flex-col gap-4">
+                            <ResumeImport
                                 value={prompt}
-                                onChange={(e) => setPrompt(e.target.value)}
+                                onChange={handleTextChange}
+                                onFileProcessed={handleFileProcessed}
                                 placeholder={placeholder}
-                                className="flex-grow w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none transition-shadow"
-                            />
-                            <button
-                                type="submit"
-                                className="flex-shrink-0 bg-primary-600 text-white font-semibold py-3 px-6 rounded-lg shadow-soft hover:bg-primary-700 transition-colors flex items-center justify-center gap-2 disabled:bg-primary-300"
-                                disabled={!prompt.trim()}
+                                className="bg-transparent"
+                                variant="modern"
                             >
-                                Generate Resume <ArrowRight size={20} />
-                            </button>
-                        </form>
+                                <button
+                                    onClick={() => handlePromptSubmit()}
+                                    className="bg-primary-600 text-white p-3 rounded-lg shadow-soft hover:bg-primary-700 transition-colors flex items-center justify-center disabled:bg-primary-300 disabled:cursor-not-allowed"
+                                    disabled={!prompt.trim()}
+                                    title={isFileImport ? "Import & Parse" : "Generate Resume"}
+                                >
+                                    <ArrowRight size={20} />
+                                </button>
+                            </ResumeImport>
+                        </div>
                     </div>
 
                     {renderContent()}

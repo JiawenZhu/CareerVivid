@@ -1,32 +1,33 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { JobApplicationData, ApplicationStatus, APPLICATION_STATUSES } from '../../types';
 import JobCard from './JobCard';
 
 interface KanbanBoardProps {
-  applications: JobApplicationData[];
-  onCardClick: (job: JobApplicationData) => void;
-  onUpdateApplication: (id: string, data: Partial<JobApplicationData>) => void;
+    applications: JobApplicationData[];
+    onCardClick: (job: JobApplicationData) => void;
+    onUpdateApplication: (id: string, data: Partial<JobApplicationData>) => void;
 }
 
 const STATUS_COLORS: Record<ApplicationStatus, string> = {
-  'To Apply': 'bg-gray-500',
-  'Applied': 'bg-blue-500',
-  'Interviewing': 'bg-yellow-500',
-  'Offered': 'bg-green-500',
-  'Rejected': 'bg-red-500',
+    'To Apply': 'bg-gray-500',
+    'Applied': 'bg-blue-500',
+    'Interviewing': 'bg-yellow-500',
+    'Offered': 'bg-green-500',
+    'Rejected': 'bg-red-500',
 };
 
 const KanbanColumn: React.FC<{
-  status: ApplicationStatus;
-  applications: JobApplicationData[];
-  onCardClick: (job: JobApplicationData) => void;
-  onUpdateApplication: (id: string, data: Partial<JobApplicationData>) => void;
-  onDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
-  onDrop: (e: React.DragEvent<HTMLDivElement>) => void;
-  onDragLeave: (e: React.DragEvent<HTMLDivElement>) => void;
-  isDragOver: boolean;
+    status: ApplicationStatus;
+    applications: JobApplicationData[];
+    onCardClick: (job: JobApplicationData) => void;
+    onUpdateApplication: (id: string, data: Partial<JobApplicationData>) => void;
+    onDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
+    onDrop: (e: React.DragEvent<HTMLDivElement>) => void;
+    onDragLeave: (e: React.DragEvent<HTMLDivElement>) => void;
+    isDragOver: boolean;
 }> = ({ status, applications, onCardClick, onUpdateApplication, onDragOver, onDrop, onDragLeave, isDragOver }) => (
-    <div 
+    <div
         className={`flex-1 min-w-[300px] bg-gray-100 dark:bg-gray-800/50 rounded-lg p-4 transition-colors ${isDragOver ? 'bg-primary-100 dark:bg-primary-900/30' : ''}`}
         onDragOver={onDragOver}
         onDrop={onDrop}
@@ -39,10 +40,10 @@ const KanbanColumn: React.FC<{
         </div>
         <div className="space-y-4">
             {applications.map(app => (
-                <JobCard 
-                    key={app.id} 
-                    job={app} 
-                    onClick={() => onCardClick(app)} 
+                <JobCard
+                    key={app.id}
+                    job={app}
+                    onClick={() => onCardClick(app)}
                     onUpdate={(id, data) => onUpdateApplication(id, data)}
                 />
             ))}
@@ -52,6 +53,7 @@ const KanbanColumn: React.FC<{
 
 
 const KanbanBoard: React.FC<KanbanBoardProps> = ({ applications, onCardClick, onUpdateApplication }) => {
+    const { t } = useTranslation();
     const [dragOverColumn, setDragOverColumn] = useState<ApplicationStatus | null>(null);
 
     const handleDragStart = (e: React.DragEvent<HTMLDivElement>, job: JobApplicationData) => {
@@ -70,7 +72,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ applications, onCardClick, on
     return (
         <div className="flex gap-6 overflow-x-auto pb-4">
             {APPLICATION_STATUSES.map(status => (
-                <KanbanColumn 
+                <KanbanColumn
                     key={status}
                     status={status}
                     applications={applications.filter(app => app.applicationStatus === status)}

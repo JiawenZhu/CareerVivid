@@ -6,7 +6,7 @@ import { ResumeData, PersonalDetails } from '../types';
 import { createBlankResume } from '../constants';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase';
-import { collection, query, onSnapshot, doc, updateDoc, deleteDoc, addDoc, serverTimestamp, orderBy, getDocs, writeBatch } from 'firebase/firestore';
+import { collection, query, onSnapshot, doc, updateDoc, deleteDoc, addDoc, serverTimestamp, orderBy, getDocs, writeBatch, getDoc } from 'firebase/firestore';
 import { navigate } from '../App';
 
 export const useResumes = () => {
@@ -62,7 +62,7 @@ export const useResumes = () => {
 
         return () => unsubscribe();
     }, [currentUser]);
-    
+
     const getResumeById = useCallback((id: string): ResumeData | undefined => {
         return resumes.find(r => r.id === id);
     }, [resumes]);
@@ -74,6 +74,19 @@ export const useResumes = () => {
     const addBlankResume = useCallback(async () => {
         if (!currentUser) return;
         try {
+            // Check resume limit before creating
+            const userDocRef = doc(db, 'users', currentUser.uid);
+            const userDoc = await getDoc(userDocRef);
+            const userData = userDoc.data();
+
+            // Backward compatibility: Legacy premium users (promotions.isPremium) get unlimited resumes
+            const hasLegacyPremium = userData?.promotions?.isPremium === true;
+            const resumeLimit = hasLegacyPremium ? 999 : (userData?.resumeLimit || 2);
+
+            if (resumes.length >= resumeLimit) {
+                throw new Error('RESUME_LIMIT_REACHED');
+            }
+
             const newResumeData = createBlankResume();
 
             // Pre-fill with user's profile data
@@ -88,7 +101,7 @@ export const useResumes = () => {
             if (currentUser.photoURL) {
                 newResumeData.personalDetails.photo = currentUser.photoURL;
             }
-            
+
             if (newResumeData.personalDetails.firstName) {
                 newResumeData.title = `${newResumeData.personalDetails.firstName}'s Resume`;
             }
@@ -101,56 +114,88 @@ export const useResumes = () => {
                 updatedAt: serverTimestamp(),
             });
             navigate(`/edit/${docRef.id}`);
-        } catch (error) {
-            console.error("Error adding blank resume:", error);
+        } catch (error: any) {
+            if (error.message === 'RESUME_LIMIT_REACHED') {
+                alert('You have reached your resume storage limit. Please upgrade your plan to create more resumes.');
+            } else {
+                console.error("Error adding blank resume:", error);
+            }
         }
-    }, [currentUser]);
+    }, [currentUser, resumes.length]);
 
     const addAIGeneratedResume = useCallback(async (aiData: Partial<ResumeData>, title: string) => {
         if (!currentUser) return;
-        const emptyPersonalDetails: PersonalDetails = {
-            jobTitle: '', photo: '', firstName: '', lastName: '', email: '', phone: '',
-            address: '', city: '', postalCode: '', country: '',
-        };
-        const newResume: Omit<ResumeData, 'id' | 'updatedAt'> = {
-            title: title || 'AI Generated Resume',
-            templateId: 'Modern',
-            personalDetails: { ...emptyPersonalDetails, ...aiData.personalDetails },
-            professionalSummary: aiData.professionalSummary || '',
-            websites: aiData.websites || [],
-            skills: aiData.skills || [],
-            employmentHistory: aiData.employmentHistory || [],
-            education: aiData.education || [],
-            languages: aiData.languages || [],
-            themeColor: '#000000',
-            titleFont: 'Montserrat',
-            bodyFont: 'Crimson Text',
-            language: 'English',
-            section: 'resumes',
-        };
         try {
+            // Check resume limit
+            const userDocRef = doc(db, 'users', currentUser.uid);
+            const userDoc = await getDoc(userDocRef);
+            const userData = userDoc.data();
+            const resumeLimit = userData?.resumeLimit || 2;
+
+            if (resumes.length >= resumeLimit) {
+                throw new Error('RESUME_LIMIT_REACHED');
+            }
+
+            const emptyPersonalDetails: PersonalDetails = {
+                jobTitle: '', photo: '', firstName: '', lastName: '', email: '', phone: '',
+                address: '', city: '', postalCode: '', country: '',
+            };
+            const newResume: Omit<ResumeData, 'id' | 'updatedAt'> = {
+                title: title || 'AI Generated Resume',
+                templateId: 'Modern',
+                personalDetails: { ...emptyPersonalDetails, ...aiData.personalDetails },
+                professionalSummary: aiData.professionalSummary || '',
+                websites: aiData.websites || [],
+                skills: aiData.skills || [],
+                employmentHistory: aiData.employmentHistory || [],
+                education: aiData.education || [],
+                languages: aiData.languages || [],
+                themeColor: '#000000',
+                titleFont: 'Montserrat',
+                bodyFont: 'Crimson Text',
+                language: 'English',
+                section: 'resumes',
+            };
             const docRef = await addDoc(collection(db, 'users', currentUser.uid, 'resumes'), {
                 ...newResume,
                 updatedAt: serverTimestamp(),
             });
             navigate(`/edit/${docRef.id}`);
-        } catch (error) {
-            console.error("Error adding AI resume:", error);
+        } catch (error: any) {
+            if (error.message === 'RESUME_LIMIT_REACHED') {
+                alert('You have reached your resume storage limit. Please upgrade your plan to create more resumes.');
+            } else {
+                console.error("Error adding AI resume:", error);
+            }
         }
-    }, [currentUser]);
+    }, [currentUser, resumes.length]);
 
     const saveAIGeneratedResume = useCallback(async (resumeData: ResumeData) => {
         if (!currentUser) return;
         try {
+            // Check resume limit
+            const userDocRef = doc(db, 'users', currentUser.uid);
+            const userDoc = await getDoc(userDocRef);
+            const userData = userDoc.data();
+            const resumeLimit = userData?.resumeLimit || 2;
+
+            if (resumes.length >= resumeLimit) {
+                throw new Error('RESUME_LIMIT_REACHED');
+            }
+
             const { id, ...dataToSave } = resumeData;
             await addDoc(collection(db, 'users', currentUser.uid, 'resumes'), {
                 ...dataToSave,
                 updatedAt: serverTimestamp(),
             });
-        } catch (error) {
-            console.error("Error saving AI resume:", error);
+        } catch (error: any) {
+            if (error.message === 'RESUME_LIMIT_REACHED') {
+                alert('You have reached your resume storage limit. Please upgrade your plan to create more resumes.');
+            } else {
+                console.error("Error saving AI resume:", error);
+            }
         }
-    }, [currentUser]);
+    }, [currentUser, resumes.length]);
 
     const updateResume = useCallback(async (id: string, updatedData: Partial<ResumeData>) => {
         if (!currentUser) return;
@@ -158,11 +203,11 @@ export const useResumes = () => {
             // Create a deep, serializable copy of the data to prevent circular reference errors from the Firestore SDK.
             // This also implicitly removes any fields that are not JSON-serializable (like functions or undefined).
             const cleanData = JSON.parse(JSON.stringify(updatedData));
-    
+
             // The 'id' and 'updatedAt' fields are managed outside the document data and should not be in the update payload.
             delete cleanData.id;
             delete cleanData.updatedAt;
-    
+
             const resumeRef = doc(db, 'users', currentUser.uid, 'resumes', id);
             await updateDoc(resumeRef, {
                 ...cleanData,
@@ -185,30 +230,44 @@ export const useResumes = () => {
             if (resumes.length === 1) {
                 navigate('/new');
             } else {
-                 navigate('/');
+                navigate('/');
             }
         } catch (error) {
             console.error("Error deleting resume:", error);
         }
     }, [currentUser, resumes.length]);
-    
+
     const duplicateResume = useCallback(async (id: string) => {
         if (!currentUser) return;
         const originalResume = getResumeById(id);
         if (originalResume) {
-            const { id: originalId, ...resumeToCopy } = originalResume;
             try {
+                // Check resume limit
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                const userDoc = await getDoc(userDocRef);
+                const userData = userDoc.data();
+                const resumeLimit = userData?.resumeLimit || 2;
+
+                if (resumes.length >= resumeLimit) {
+                    throw new Error('RESUME_LIMIT_REACHED');
+                }
+
+                const { id: originalId, ...resumeToCopy } = originalResume;
                 const docRef = await addDoc(collection(db, 'users', currentUser.uid, 'resumes'), {
                     ...resumeToCopy,
                     title: `${originalResume.title} (Copy)`,
                     updatedAt: serverTimestamp()
                 });
                 navigate(`/edit/${docRef.id}`);
-            } catch (error) {
-                console.error("Error duplicating resume:", error);
+            } catch (error: any) {
+                if (error.message === 'RESUME_LIMIT_REACHED') {
+                    alert('You have reached your resume storage limit. Please upgrade your plan to create more resumes.');
+                } else {
+                    console.error("Error duplicating resume:", error);
+                }
             }
         }
-    }, [currentUser, getResumeById]);
+    }, [currentUser, getResumeById, resumes.length]);
 
     const deleteAllResumes = useCallback(async () => {
         if (!currentUser) return;

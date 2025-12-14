@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { useJobTracker } from '../hooks/useJobTracker';
 import { JobApplicationData } from '../types';
@@ -11,22 +12,23 @@ import { navigate } from '../App';
 
 const JobTrackerPage: React.FC = () => {
     const { currentUser } = useAuth();
+    const { t } = useTranslation();
     const { jobApplications, isLoading, addJobApplication, updateJobApplication, deleteJobApplication } = useJobTracker();
 
     const [selectedJob, setSelectedJob] = useState<JobApplicationData | null>(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [highlightForNewJob, setHighlightForNewJob] = useState(false);
-    
+
     const handleCardClick = (job: JobApplicationData) => {
         setSelectedJob(job);
         setHighlightForNewJob(false); // Don't highlight when clicking existing cards
     };
-    
+
     const handleCloseDetailModal = () => {
         setSelectedJob(null);
         setHighlightForNewJob(false);
     };
-    
+
     const handleJobAdded = async (jobData: Omit<JobApplicationData, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => {
         setIsAddModalOpen(false);
         if (!currentUser) return;
@@ -54,24 +56,24 @@ const JobTrackerPage: React.FC = () => {
 
     return (
         <div className="bg-gray-100 dark:bg-gray-900 min-h-screen">
-             <header className="bg-white dark:bg-gray-800 shadow-sm dark:border-b dark:border-gray-700">
+            <header className="bg-white dark:bg-gray-800 shadow-sm dark:border-b dark:border-gray-700">
                 <div className="max-w-full mx-auto py-4 px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-4">
-                            <a href="#/" title="Back to Dashboard" className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <a href="/" title={t('nav.dashboard')} className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
                                 <ArrowLeft size={24} />
                             </a>
                             <div>
-                                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Job Application Tracker</h1>
-                                <p className="text-gray-500 dark:text-gray-400 mt-1">Organize and manage your job application pipeline.</p>
+                                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{t('job_tracker.title')}</h1>
+                                <p className="text-gray-500 dark:text-gray-400 mt-1">{t('job_tracker.subtitle')}</p>
                             </div>
                         </div>
-                         <button
+                        <button
                             onClick={() => setIsAddModalOpen(true)}
                             className="flex items-center gap-2 bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-primary-700 transition-colors"
                         >
                             <PlusCircle size={20} />
-                            Track New Job
+                            {t('job_tracker.track_new')}
                         </button>
                     </div>
                 </div>
@@ -80,13 +82,13 @@ const JobTrackerPage: React.FC = () => {
             <main className="py-10">
                 <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
                     {isLoading ? (
-                        <p className="text-center text-gray-500 dark:text-gray-400">Loading applications...</p>
+                        <p className="text-center text-gray-500 dark:text-gray-400">{t('job_tracker.loading')}</p>
                     ) : (
                         <>
                             <StatusOverview applications={jobApplications} />
                             <div className="mt-8">
-                                <KanbanBoard 
-                                    applications={jobApplications} 
+                                <KanbanBoard
+                                    applications={jobApplications}
                                     onCardClick={handleCardClick}
                                     onUpdateApplication={updateJobApplication}
                                 />
@@ -97,16 +99,16 @@ const JobTrackerPage: React.FC = () => {
             </main>
 
             {isAddModalOpen && (
-                <AddJobModal 
-                    onClose={() => setIsAddModalOpen(false)} 
+                <AddJobModal
+                    onClose={() => setIsAddModalOpen(false)}
                     onJobAdded={handleJobAdded}
                 />
             )}
-            
+
             {selectedJob && (
-                <JobDetailModal 
-                    job={jobApplications.find(j => j.id === selectedJob.id) || selectedJob} 
-                    onClose={handleCloseDetailModal} 
+                <JobDetailModal
+                    job={jobApplications.find(j => j.id === selectedJob.id) || selectedJob}
+                    onClose={handleCloseDetailModal}
                     onUpdate={updateJobApplication}
                     onDelete={deleteJobApplication}
                     highlightGenerateButton={highlightForNewJob}

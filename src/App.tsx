@@ -13,9 +13,11 @@ const ProfilePage = React.lazy(() => import('./pages/ProfilePage'));
 const ChatBot = React.lazy(() => import('./components/ChatBot'));
 const AuthPage = React.lazy(() => import('./pages/AuthPage'));
 const LandingPage = React.lazy(() => import('./pages/LandingPage'));
+const TechLandingPage = React.lazy(() => import('./pages/TechLandingPage'));
 const PricingPage = React.lazy(() => import('./pages/PricingPage'));
 const AdminLoginPage = React.lazy(() => import('./pages/admin/AdminLoginPage'));
 const AdminDashboardPage = React.lazy(() => import('./pages/admin/AdminPage'));
+const AcademicPartnerDashboard = React.lazy(() => import('./pages/academic/AcademicPartnerDashboard'));
 const VerifyEmailPage = React.lazy(() => import('./pages/VerifyEmailPage'));
 const JobTrackerPage = React.lazy(() => import('./pages/JobTrackerPage'));
 const DemoPage = React.lazy(() => import('./pages/DemoPage'));
@@ -24,16 +26,65 @@ const ContactPage = React.lazy(() => import('./pages/ContactPage'));
 const BlogListPage = React.lazy(() => import('./pages/BlogListPage'));
 const BlogPostPage = React.lazy(() => import('./pages/BlogPostPage'));
 const PublicResumePage = React.lazy(() => import('./pages/PublicResumePage'));
+const SubscriptionPage = React.lazy(() => import('./pages/SubscriptionPage'));
+const PortfolioHub = React.lazy(() => import('./features/portfolio/pages/PortfolioHub'));
+const PortfolioEditor = React.lazy(() => import('./features/portfolio/pages/PortfolioEditor'));
+const PortfolioBuilderPage = React.lazy(() => import('./pages/PortfolioBuilderPage'));
+const PublicPortfolioPage = React.lazy(() => import('./features/portfolio/pages/PublicPortfolioPage'));
 
-// Returns path from hash, e.g., #/admin/login -> /admin/login
-const getPathFromHash = () => {
-    const hash = window.location.hash;
-    return hash.startsWith('#/') ? hash.substring(1) : '/';
+import { SUPPORTED_LANGUAGES } from './constants';
+import i18n from './i18n';
+
+// Returns path from pathname, stripping language prefix if present
+// e.g., /zh/contact -> /contact
+// e.g., /contact -> /contact
+const getPathFromUrl = () => {
+  let path = window.location.pathname;
+
+  // Remove leading slash for splitting
+  if (path.startsWith('/')) path = path.substring(1);
+
+  const parts = path.split('/');
+
+  // Check if first part is a supported language code
+  if (parts.length > 0 && SUPPORTED_LANGUAGES.some(l => l.code === parts[0])) {
+    // It's a language prefix, remove it to get the actual route
+    const langCode = parts[0];
+    // Sync i18n if it differs (this handles direct URL access)
+    if (i18n.language !== langCode) {
+      i18n.changeLanguage(langCode);
+    }
+    return '/' + parts.slice(1).join('/');
+  }
+
+  // No language prefix, return as is (with leading slash)
+  return '/' + path;
 };
 
-// New navigation utility that works with hashes
+// Navigation utility that uses History API and preserves language
 export const navigate = (path: string) => {
-  window.location.hash = path;
+  // If path already starts with a language code, use it as is
+  const parts = path.split('/').filter(p => p);
+  if (parts.length > 0 && SUPPORTED_LANGUAGES.some(l => l.code === parts[0])) {
+    window.history.pushState({}, '', path);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    return;
+  }
+
+  // Otherwise, prepend current language (normalized to 2-letter code)
+  // i18n.language might be 'en-US', we need just 'en'
+  const rawLang = i18n.language || 'en';
+  const currentLang = rawLang.substring(0, 2);
+
+  // Verify it's a supported language, fallback to 'en' if not
+  const normalizedLang = SUPPORTED_LANGUAGES.some(l => l.code === currentLang) ? currentLang : 'en';
+
+  // Ensure path starts with /
+  const cleanPath = path.startsWith('/') ? path : '/' + path;
+  const fullPath = `/${normalizedLang}${cleanPath}`;
+
+  window.history.pushState({}, '', fullPath);
+  window.dispatchEvent(new PopStateEvent('popstate'));
 };
 
 const LoadingFallback = () => (
@@ -43,17 +94,17 @@ const LoadingFallback = () => (
 );
 
 const App: React.FC = () => {
-  const { currentUser, loading, isAdmin, isAdminLoading, isEmailVerified } = useAuth();
-  const [path, setPath] = useState(getPathFromHash());
+  const { currentUser, userProfile, loading, isAdmin, isAdminLoading, isEmailVerified } = useAuth();
+  const [path, setPath] = useState(getPathFromUrl());
 
   useEffect(() => {
-    const onHashChange = () => {
-      setPath(getPathFromHash());
+    const onPathChange = () => {
+      setPath(getPathFromUrl());
     };
-    window.addEventListener('hashchange', onHashChange);
-    // Also set initial path in case hash is already there on load
-    onHashChange();
-    return () => window.removeEventListener('hashchange', onHashChange);
+    window.addEventListener('popstate', onPathChange);
+    // Also set initial path on load
+    onPathChange();
+    return () => window.removeEventListener('popstate', onPathChange);
   }, []);
 
   // Special route for PDF generation - bypasses auth checks for speed/simplicity in headless env
@@ -69,13 +120,31 @@ const App: React.FC = () => {
 
   // Public Share Route (Accessible without auth)
   if (path.startsWith('/shared/')) {
-      return (
-          <ThemeProvider>
-              <Suspense fallback={<LoadingFallback />}>
-                  <PublicResumePage />
-              </Suspense>
-          </ThemeProvider>
-      )
+    return (
+      <ThemeProvider>
+        <Suspense fallback={<LoadingFallback />}>
+          <PublicResumePage />
+        </Suspense>
+      </ThemeProvider>
+    )
+  }
+
+  // Portfolio Routing Helper
+  // Supports: /portfolio/edit/ID, /portfolio/USERNAME/edit/ID
+  const isPortfolioEditorRoute = /^\/portfolio\/([^/]+\/)?edit\//.test(path);
+
+  // Supports: /portfolio/ID, /portfolio/USERNAME/ID
+  // Must exclude Editor routes
+  const isPublicPortfolioRoute = path.startsWith('/portfolio/') && !isPortfolioEditorRoute;
+
+  if (isPublicPortfolioRoute) {
+    return (
+      <ThemeProvider>
+        <Suspense fallback={<LoadingFallback />}>
+          <PublicPortfolioPage />
+        </Suspense>
+      </ThemeProvider>
+    );
   }
 
   if (loading || isAdminLoading) {
@@ -99,16 +168,16 @@ const App: React.FC = () => {
         </ThemeProvider>
       );
     }
-    
+
     if (currentUser && isAdmin) {
       if (!isEmailVerified && currentUser.providerData[0]?.providerId === 'password') {
-         return (
-            <ThemeProvider>
-              <Suspense fallback={<LoadingFallback />}>
-                <VerifyEmailPage />
-              </Suspense>
-            </ThemeProvider>
-         );
+        return (
+          <ThemeProvider>
+            <Suspense fallback={<LoadingFallback />}>
+              <VerifyEmailPage />
+            </Suspense>
+          </ThemeProvider>
+        );
       }
       return (
         <ThemeProvider>
@@ -127,34 +196,52 @@ const App: React.FC = () => {
   // User and Public Routing
   let content;
   let showChatbot = false;
-  
+
   if (currentUser) {
-     if (!isEmailVerified && currentUser.providerData[0]?.providerId === 'password') {
-        content = <VerifyEmailPage />;
-     } else {
-        showChatbot = true;
-        if (path.startsWith('/edit/')) {
-          const id = path.split('/')[2];
-          content = <Editor resumeId={id} />;
-        } else if (path === '/new') {
-          content = <GenerationHub />;
-        } else if (path === '/interview-studio') {
-          content = <InterviewStudio />;
-        } else if (path === '/tracker') {
-          content = <JobTrackerPage />;
-        } else if (path === '/profile') {
-          content = <ProfilePage />;
-        } else if (path === '/contact') {
-          content = <ContactPage />;
-        } else if (path === '/blog') {
-          content = <BlogListPage />;
-        } else if (path.startsWith('/blog/')) {
-          const id = path.split('/')[2];
-          content = <BlogPostPage postId={id} />;
+    if (!isEmailVerified && currentUser.providerData[0]?.providerId === 'password') {
+      content = <VerifyEmailPage />;
+    } else {
+      showChatbot = true;
+      if (path.startsWith('/edit/')) {
+        const id = path.split('/')[2];
+        content = <Editor resumeId={id} />;
+      } else if (path === '/new') {
+        content = <GenerationHub />;
+      } else if (path === '/portfolio') {
+        content = <PortfolioHub />;
+      } else if (isPortfolioEditorRoute) {
+        content = <PortfolioEditor />;
+      } else if (path === '/portfolio-builder') {
+        content = <PortfolioBuilderPage />;
+      } else if (path.startsWith('/interview-studio')) {
+        const parts = path.split('/');
+        const jobId = parts[2]; // /interview-studio/JOB_ID
+        content = <InterviewStudio jobId={jobId} />;
+      } else if (path === '/tracker') {
+        content = <JobTrackerPage />;
+      } else if (path === '/profile') {
+        content = <ProfilePage />;
+      } else if (path === '/subscription') {
+        content = <SubscriptionPage />;
+      } else if (path === '/contact') {
+        content = <ContactPage />;
+      } else if (path === '/blog') {
+        content = <BlogListPage />;
+      } else if (path.startsWith('/blog/')) {
+        const id = path.split('/')[2];
+        content = <BlogPostPage postId={id} />;
+      } else if (path === '/academic-partner') {
+        // Simple role check for now
+        if (userProfile?.role === 'academic_partner' || isAdmin) {
+          content = <AcademicPartnerDashboard />;
         } else {
-          // Default to dashboard for any other path when logged in
-          content = <Dashboard />;
+          useEffect(() => navigate('/'), []);
+          return null;
         }
+      } else {
+        // Default to dashboard for any other path when logged in
+        content = <Dashboard />;
+      }
     }
   } else {
     // Public routes for logged-out users
@@ -173,6 +260,8 @@ const App: React.FC = () => {
       content = <BlogPostPage postId={id} />;
     } else if (path.startsWith('/edit/guest')) {
       content = <Editor resumeId="guest" />;
+    } else if (path === '/tech-preview') {
+      content = <TechLandingPage />;
     } else {
       // Default to landing page for root and any other path
       content = <LandingPage />;

@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { ResumeData, PersonalDetails, WebsiteLink, Skill, EmploymentHistory, Education, Language } from '../types';
-import { parseResume, parseResumeFromFile } from '../services/geminiService';
+import { parseResume } from '../services/geminiService';
 import { LANGUAGE_PROFICIENCY_LEVELS } from '../constants';
 import { PlusCircle, Trash2, Wand2, UploadCloud, User, Briefcase, GraduationCap, Link as LinkIcon, Star, CheckCircle, Loader2, Brush, Languages, Zap, ChevronDown, ChevronUp, GripVertical, Edit as EditIcon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -12,7 +12,10 @@ import AIImprovementPanel from './AIImprovementPanel';
 import AIImageEditModal from './AIImageEditModal';
 import MonthYearPicker from './MonthYearPicker';
 import IconPicker from './IconPicker';
-import { detectIconFromUrl, createWebsiteLink } from '../utils/iconDetection';
+import { detectIconFromUrl, createWebsiteLink, getLabelFromIcon } from '../utils/iconDetection';
+import { useTranslation } from 'react-i18next';
+import ResumeImport from './ResumeImport';
+import { useAICreditCheck } from '../hooks/useAICreditCheck';
 
 interface ResumeFormProps {
     resume: ResumeData;
@@ -42,6 +45,7 @@ const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement> & { label: str
 
 const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, setTempPhoto, isReadOnly = false }) => {
     const { currentUser, isPremium } = useAuth();
+    const { t } = useTranslation();
     const [isParsing, setIsParsing] = useState(false);
     const [parsingMessageIndex, setParsingMessageIndex] = useState(0);
 
@@ -53,8 +57,12 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
     const photoInputRef = useRef<HTMLInputElement>(null);
     const [alertState, setAlertState] = useState({ isOpen: false, title: '', message: '' });
 
+    // AI Credit Check Hook
+    const { checkCredit, CreditLimitModal } = useAICreditCheck();
+
     const hasInitialContent = !!(resume.personalDetails.firstName || resume.professionalSummary || (resume.employmentHistory && resume.employmentHistory.length > 0));
-    const [isImportExpanded, setIsImportExpanded] = useState(!hasInitialContent);
+    const [isImportExpanded, setIsImportExpanded] = useState(false);
+    const [importText, setImportText] = useState('');
 
     const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
     const [draggedItemType, setDraggedItemType] = useState<keyof ResumeData | null>(null);
@@ -88,42 +96,18 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
         }
     };
 
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file || !currentUser) return;
-
+    const handleImportText = async (text: string) => {
+        if (!currentUser) return;
         setIsParsing(true);
-
         try {
-            if (file.type === 'text/plain' || file.type === 'text/markdown') {
-                const text = await file.text();
-                const parsedData = await parseResume(currentUser.uid, text, resume.language);
-                onChange(parsedData);
-                setIsImportExpanded(false);
-            } else if (file.type === 'application/pdf') {
-                const reader = new FileReader();
-                reader.onload = async (event) => {
-                    const fileData = event.target?.result as string;
-                    try {
-                        const parsedData = await parseResumeFromFile(currentUser.uid, fileData, file.type, resume.language);
-                        onChange(parsedData);
-                        setIsImportExpanded(false);
-                    } catch (error) {
-                        setAlertState({ isOpen: true, title: 'Parsing Failed', message: error instanceof Error ? error.message : "Failed to parse resume from file." });
-                    } finally {
-                        setIsParsing(false);
-                    }
-                };
-                reader.readAsDataURL(file);
-            } else {
-                throw new Error(`Unsupported file type: ${file.type}. Please upload a .txt, .md, or .pdf file.`);
-            }
+            const parsedData = await parseResume(currentUser.uid, text, resume.language);
+            onChange(parsedData);
+            setIsImportExpanded(false);
+            setAlertState({ isOpen: true, title: t('common.success'), message: "Resume imported successfully!" });
+            setImportText(''); // Clear text after successful import
         } catch (error) {
-            setAlertState({ isOpen: true, title: 'Parsing Failed', message: error instanceof Error ? error.message : "An unknown error occurred during parsing." });
-            setIsParsing(false);
-        }
-
-        if (file.type !== 'application/pdf') {
+            setAlertState({ isOpen: true, title: 'Parsing Failed', message: error instanceof Error ? error.message : "Failed to parse resume." });
+        } finally {
             setIsParsing(false);
         }
     };
@@ -190,10 +174,22 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
         newArray[index] = { ...newArray[index], [field]: value };
 
         // Auto-detect icon when URL or label changes for website links
-        if (arrayName === 'websites' && (field === 'url' || field === 'label')) {
-            const link = newArray[index] as unknown as WebsiteLink;
-            const detectedIcon = detectIconFromUrl(link.url || '', link.label || '');
-            newArray[index] = { ...newArray[index], icon: detectedIcon } as T;
+        if (arrayName === 'websites') {
+            if (field === 'url' || field === 'label') {
+                const link = newArray[index] as unknown as WebsiteLink;
+                const detectedIcon = detectIconFromUrl(link.url || '', link.label || '');
+                newArray[index] = { ...newArray[index], icon: detectedIcon } as T;
+            } else if (field === 'icon') {
+                // Auto-fill label when icon is selected manually
+                const link = newArray[index] as unknown as WebsiteLink;
+                // Only update if label is empty or matches a default/generic name to avoid overwriting custom labels
+                // For now, we'll just update it if it's empty or if we want to be aggressive as per user request
+                // "when user click on a icon, it will show responsive label names" -> implies direct update
+                const newLabel = getLabelFromIcon(value);
+                if (newLabel) {
+                    newArray[index] = { ...newArray[index], label: newLabel } as T;
+                }
+            }
         }
 
         onChange({ [arrayName]: newArray } as Partial<ResumeData>);
@@ -239,6 +235,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
 
     return (
         <div className="space-y-6">
+            <CreditLimitModal />
             <AlertModal
                 isOpen={alertState.isOpen}
                 title={alertState.title}
@@ -257,8 +254,8 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                             <UploadCloud size={20} />
                         </div>
                         <div className="text-left">
-                            <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">Import Resume</h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Autofill from PDF, TXT, or Markdown</p>
+                            <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">{t('resume_form.import_resume')}</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{t('resume_form.autofill_desc')}</p>
                         </div>
                     </div>
                     {isImportExpanded ? <ChevronUp size={18} className="text-gray-400" /> : <ChevronDown size={18} className="text-gray-400" />}
@@ -266,55 +263,22 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
 
                 {isImportExpanded && (
                     <div className="p-6 animate-fade-in bg-white dark:bg-gray-800">
-                        <div className="p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-center min-h-[160px] flex flex-col items-center justify-center bg-gray-50/50 dark:bg-gray-900/30 hover:border-primary-400 dark:hover:border-primary-500 transition-colors group">
-                            <label htmlFor="resume-upload" className={`cursor-pointer flex flex-col items-center justify-center w-full h-full ${isReadOnly ? 'cursor-not-allowed opacity-50' : ''}`}>
-                                {isParsing ? (
-                                    <div className="flex flex-col items-center justify-center">
-                                        <Loader2 className="mx-auto h-10 w-10 text-primary-500 animate-spin mb-3" />
-                                        <span className="block text-sm font-semibold text-gray-900 dark:text-gray-100">
-                                            Analyzing Document...
-                                        </span>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 animate-pulse">{parsingMessages[parsingMessageIndex]}</p>
-                                    </div>
-                                ) : (
-                                    <>
-                                        <UploadCloud className="h-10 w-10 text-gray-400 group-hover:text-primary-500 transition-colors mb-3" />
-                                        <span className="block text-sm font-semibold text-gray-700 dark:text-gray-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                                            Click to Upload or Drag & Drop
-                                        </span>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Supports .pdf, .txt, .md</p>
-                                    </>
-                                )}
-                            </label>
-                            <input id="resume-upload" type="file" className="sr-only" onChange={handleFileChange} accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" disabled={isParsing || isReadOnly} />
-
-                            <div className="w-full flex items-center gap-4 my-4">
-                                <div className="h-px bg-gray-200 dark:bg-gray-700 flex-1"></div>
-                                <span className="text-xs text-gray-400 font-medium uppercase">Or Paste Text</span>
-                                <div className="h-px bg-gray-200 dark:bg-gray-700 flex-1"></div>
-                            </div>
-
-                            <textarea
-                                className="w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-gray-100 dark:disabled:bg-gray-900 disabled:cursor-not-allowed resize-none"
-                                placeholder="Paste your resume content here..."
-                                rows={3}
-                                disabled={isParsing || isReadOnly}
-                                onPaste={async (e) => {
-                                    if (!currentUser) return;
-                                    setIsParsing(true);
-                                    try {
-                                        const pastedText = e.clipboardData.getData('text');
-                                        const parsedData = await parseResume(currentUser.uid, pastedText, resume.language);
-                                        onChange(parsedData);
-                                        setIsImportExpanded(false);
-                                    } catch (error) {
-                                        setAlertState({ isOpen: true, title: 'Parsing Failed', message: error instanceof Error ? error.message : "Failed to parse pasted resume." });
-                                    } finally {
-                                        setIsParsing(false);
-                                    }
-                                }}
-                            ></textarea>
-                        </div>
+                        <ResumeImport
+                            onFileProcessed={handleImportText} // Auto-import on file drop
+                            value={importText}
+                            onChange={setImportText}
+                            isReadOnly={isReadOnly}
+                            variant="classic"
+                        >
+                            <button
+                                onClick={() => handleImportText(importText)}
+                                disabled={!importText.trim() || isParsing}
+                                className="bg-primary-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                            >
+                                {isParsing ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
+                                {t('resume_form.import_button', 'Import')}
+                            </button>
+                        </ResumeImport>
                     </div>
                 )}
             </div>
@@ -335,11 +299,11 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                 />
             )}
 
-            <FormSection title="Personal Details" icon={<User className="text-primary-500" />}>
+            <FormSection title={t('resume_form.personal_details')} icon={<User className="text-primary-500" />}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input id="personalDetails.jobTitle" label="Job Title" value={resume.personalDetails.jobTitle} onChange={e => handleChange('jobTitle', e.target.value, 'personalDetails')} disabled={isReadOnly} />
+                    <Input id="personalDetails.jobTitle" label={t('resume_form.job_title')} value={resume.personalDetails.jobTitle} onChange={e => handleChange('jobTitle', e.target.value, 'personalDetails')} disabled={isReadOnly} />
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Photo</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('resume_form.photo')}</label>
                         <input id="photo-upload" type="file" onChange={handlePhotoChange} accept="image/*" className="hidden" ref={photoInputRef} disabled={isReadOnly} />
 
                         <div className="flex items-center gap-4">
@@ -355,7 +319,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                             ) : (
                                 <div className="flex items-center">
                                     <label htmlFor="photo-upload" className={`cursor-pointer bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-3 py-2 text-sm rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 ${isReadOnly ? 'cursor-not-allowed opacity-50' : ''}`}>
-                                        {displayPhoto ? 'Change' : 'Choose File'}
+                                        {displayPhoto ? t('resume_form.change') : t('resume_form.choose_file')}
                                     </label>
                                     {!displayPhoto && (
                                         <span className="ml-3 text-sm text-gray-500 dark:text-gray-400 max-w-[150px] truncate">{photoFileName}</span>
@@ -368,47 +332,47 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                             <div className="mt-2 flex flex-wrap items-center gap-4">
                                 {isPremium ? (
                                     <button onClick={() => setIsImageEditModalOpen(true)} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                                        <Brush size={16} /> Edit with AI
+                                        <Brush size={16} /> {t('resume_form.edit_ai')}
                                     </button>
                                 ) : (
                                     <div className="group relative">
                                         <button disabled className="flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500 cursor-not-allowed">
-                                            <Brush size={16} /> Edit with AI
+                                            <Brush size={16} /> {t('resume_form.edit_ai')}
                                         </button>
                                         <div className="absolute bottom-full mb-2 hidden group-hover:block w-48 text-center bg-gray-800 text-white text-xs rounded-md p-2">
                                             <Zap size={16} className="mx-auto mb-1 text-yellow-400" />
-                                            This is a premium feature. <a href="#/pricing" className="underline font-bold">Upgrade now</a> to unlock.
+                                            {t('resume_form.premium_feature')} <a href="/pricing" className="underline font-bold">{t('resume_form.upgrade_unlock')}</a>
                                         </div>
                                     </div>
                                 )}
                                 {tempPhoto && (
                                     <button onClick={handleSaveTempPhoto} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                                        <CheckCircle size={16} /> Save to Profile
+                                        <CheckCircle size={16} /> {t('resume_form.save_profile')}
                                     </button>
                                 )}
                                 <button onClick={handleRemovePhoto} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                                    <Trash2 size={16} /> Remove
+                                    <Trash2 size={16} /> {t('resume_form.remove')}
                                 </button>
                             </div>
                         )}
                     </div>
-                    <Input id="personalDetails.firstName" label="First Name" value={resume.personalDetails.firstName} onChange={e => handleChange('firstName', e.target.value, 'personalDetails')} disabled={isReadOnly} />
-                    <Input id="personalDetails.lastName" label="Last Name" value={resume.personalDetails.lastName} onChange={e => handleChange('lastName', e.target.value, 'personalDetails')} disabled={isReadOnly} />
-                    <Input id="personalDetails.email" label="Email" type="email" value={resume.personalDetails.email} onChange={e => handleChange('email', e.target.value, 'personalDetails')} disabled={isReadOnly} />
-                    <Input id="personalDetails.phone" label="Phone" value={resume.personalDetails.phone} onChange={e => handleChange('phone', e.target.value, 'personalDetails')} disabled={isReadOnly} />
+                    <Input id="personalDetails.firstName" label={t('resume_form.first_name')} value={resume.personalDetails.firstName} onChange={e => handleChange('firstName', e.target.value, 'personalDetails')} disabled={isReadOnly} />
+                    <Input id="personalDetails.lastName" label={t('resume_form.last_name')} value={resume.personalDetails.lastName} onChange={e => handleChange('lastName', e.target.value, 'personalDetails')} disabled={isReadOnly} />
+                    <Input id="personalDetails.email" label={t('resume_form.email')} type="email" value={resume.personalDetails.email} onChange={e => handleChange('email', e.target.value, 'personalDetails')} disabled={isReadOnly} />
+                    <Input id="personalDetails.phone" label={t('resume_form.phone')} value={resume.personalDetails.phone} onChange={e => handleChange('phone', e.target.value, 'personalDetails')} disabled={isReadOnly} />
                 </div>
-                <Input id="personalDetails.address" label="Address" value={resume.personalDetails.address} onChange={e => handleChange('address', e.target.value, 'personalDetails')} disabled={isReadOnly} />
+                <Input id="personalDetails.address" label={t('resume_form.address')} value={resume.personalDetails.address} onChange={e => handleChange('address', e.target.value, 'personalDetails')} disabled={isReadOnly} />
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Input id="personalDetails.city" label="City" value={resume.personalDetails.city} onChange={e => handleChange('city', e.target.value, 'personalDetails')} disabled={isReadOnly} />
-                    <Input id="personalDetails.postalCode" label="Postal Code" value={resume.personalDetails.postalCode} onChange={e => handleChange('postalCode', e.target.value, 'personalDetails')} disabled={isReadOnly} />
-                    <Input id="personalDetails.country" label="Country" value={resume.personalDetails.country} onChange={e => handleChange('country', e.target.value, 'personalDetails')} disabled={isReadOnly} />
+                    <Input id="personalDetails.city" label={t('resume_form.city')} value={resume.personalDetails.city} onChange={e => handleChange('city', e.target.value, 'personalDetails')} disabled={isReadOnly} />
+                    <Input id="personalDetails.postalCode" label={t('resume_form.postal_code')} value={resume.personalDetails.postalCode} onChange={e => handleChange('postalCode', e.target.value, 'personalDetails')} disabled={isReadOnly} />
+                    <Input id="personalDetails.country" label={t('resume_form.country')} value={resume.personalDetails.country} onChange={e => handleChange('country', e.target.value, 'personalDetails')} disabled={isReadOnly} />
                 </div>
             </FormSection>
 
-            <FormSection title="Professional Summary" icon={<Briefcase className="text-primary-500" />}>
+            <FormSection title={t('resume_form.professional_summary')} icon={<Briefcase className="text-primary-500" />}>
                 <EditableTextarea
                     id="professionalSummary"
-                    label="Summary"
+                    label={t('resume_form.summary')}
                     value={resume.professionalSummary}
                     onChange={value => handleChange('professionalSummary', value)}
                     disabled={isReadOnly}
@@ -419,7 +383,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                     disabled={isReadOnly}
                     className="flex items-center gap-2 text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                    <Wand2 size={16} /> Improve with AI
+                    <Wand2 size={16} /> {t('resume_form.improve_ai')}
                     {activeImprovementId === 'summary' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
 
@@ -439,7 +403,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                 )}
             </FormSection>
 
-            <FormSection title="Websites & Social Links" icon={<LinkIcon className="text-primary-500" />}>
+            <FormSection title={t('resume_form.websites')} icon={<LinkIcon className="text-primary-500" />}>
                 {resume.websites.map((link, index) => (
                     <div key={link.id} className="relative p-5 border dark:border-gray-700 rounded-md mb-4 bg-gray-50/50 dark:bg-gray-800/30 hover:shadow-sm transition-shadow">
                         <div className="absolute top-4 right-4">
@@ -449,9 +413,24 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                         </div>
                         <div className="space-y-4 pr-8">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <Input id={`websites[${index}].label`} label="Label" value={link.label} onChange={e => handleArrayChange<WebsiteLink>('websites', index, 'label', e.target.value)} disabled={isReadOnly} />
-                                <Input id={`websites[${index}].url`} label="URL" value={link.url} onChange={e => handleArrayChange<WebsiteLink>('websites', index, 'url', e.target.value)} disabled={isReadOnly} />
+                                <Input id={`websites[${index}].label`} label={t('resume_form.label')} value={link.label} onChange={e => handleArrayChange<WebsiteLink>('websites', index, 'label', e.target.value)} disabled={isReadOnly} />
+                                <Input id={`websites[${index}].url`} label={t('resume_form.url')} value={link.url} onChange={e => handleArrayChange<WebsiteLink>('websites', index, 'url', e.target.value)} disabled={isReadOnly} />
                             </div>
+
+                            <div className="flex items-center gap-2 mb-2">
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        className="sr-only peer"
+                                        checked={link.showUrl || false}
+                                        onChange={(e) => handleArrayChange<WebsiteLink>('websites', index, 'showUrl', e.target.checked)}
+                                        disabled={isReadOnly}
+                                    />
+                                    <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
+                                    <span className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">{t('resume_form.show_url')}</span>
+                                </label>
+                            </div>
+
                             <IconPicker
                                 selectedIcon={link.icon || 'link'}
                                 onSelect={(iconId) => handleArrayChange<WebsiteLink>('websites', index, 'icon', iconId)}
@@ -460,11 +439,11 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                         </div>
                     </div>
                 ))}
-                <button onClick={() => addArrayItem('websites', createWebsiteLink())} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16} /> Add Link</button>
+                <button onClick={() => addArrayItem('websites', createWebsiteLink())} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16} /> {t('resume_form.add_link')}</button>
             </FormSection>
 
-            <FormSection title="Section Titles" icon={<EditIcon className="text-primary-500" />}>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Customize section headers that appear in your resume. Leave blank to use defaults.</p>
+            <FormSection title={t('resume_form.section_titles')} icon={<EditIcon className="text-primary-500" />}>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{t('resume_form.customize_sections')}</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Input
                         id="sectionTitles.profile"
@@ -525,7 +504,9 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                 </div>
             </FormSection>
 
-            <FormSection title="Skills" icon={<Star className="text-primary-500" />}>
+
+
+            <FormSection title={t('resume_form.skills')} icon={<Star className="text-primary-500" />}>
                 {resume.skills.map((skill, index) => (
                     <div
                         key={skill.id}
@@ -544,9 +525,9 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                             </button>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8 pl-6">
-                            <Input id={`skills[${index}].name`} label="Skill" value={skill.name} onChange={e => handleArrayChange<Skill>('skills', index, 'name', e.target.value)} disabled={isReadOnly} />
+                            <Input id={`skills[${index}].name`} label={t('resume_form.skill')} value={skill.name} onChange={e => handleArrayChange<Skill>('skills', index, 'name', e.target.value)} disabled={isReadOnly} />
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Level</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('resume_form.level')}</label>
                                 <select id={`skills[${index}].level`} value={skill.level} onChange={e => handleArrayChange<Skill>('skills', index, 'level', e.target.value)} disabled={isReadOnly} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800">
                                     <option>Novice</option>
                                     <option>Intermediate</option>
@@ -557,10 +538,10 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                         </div>
                     </div>
                 ))}
-                <button onClick={() => addArrayItem('skills', { id: crypto.randomUUID(), name: '', level: 'Intermediate' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16} /> Add Skill</button>
+                <button onClick={() => addArrayItem('skills', { id: crypto.randomUUID(), name: '', level: 'Intermediate' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16} /> {t('resume_form.add_skill')}</button>
             </FormSection>
 
-            <FormSection title="Languages" icon={<Languages className="text-primary-500" />}>
+            <FormSection title={t('resume_form.languages')} icon={<Languages className="text-primary-500" />}>
                 {resume.languages.map((lang, index) => (
                     <div key={lang.id} className="relative p-5 border dark:border-gray-700 rounded-md mb-4 bg-gray-50/50 dark:bg-gray-800/30 hover:shadow-sm transition-shadow">
                         <div className="absolute top-4 right-4">
@@ -569,9 +550,9 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                             </button>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
-                            <Input id={`languages[${index}].name`} label="Language" value={lang.name} onChange={e => handleArrayChange<Language>('languages', index, 'name', e.target.value)} disabled={isReadOnly} />
+                            <Input id={`languages[${index}].name`} label={t('resume_form.language')} value={lang.name} onChange={e => handleArrayChange<Language>('languages', index, 'name', e.target.value)} disabled={isReadOnly} />
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Proficiency</label>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('resume_form.proficiency')}</label>
                                 <select id={`languages[${index}].level`} value={lang.level} onChange={e => handleArrayChange<Language>('languages', index, 'level', e.target.value)} disabled={isReadOnly} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800">
                                     {LANGUAGE_PROFICIENCY_LEVELS.map(level => <option key={level}>{level}</option>)}
                                 </select>
@@ -579,10 +560,10 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                         </div>
                     </div>
                 ))}
-                <button onClick={() => addArrayItem('languages', { id: crypto.randomUUID(), name: '', level: 'Intermediate' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16} /> Add Language</button>
+                <button onClick={() => addArrayItem('languages', { id: crypto.randomUUID(), name: '', level: 'Intermediate' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16} /> {t('resume_form.add_language')}</button>
             </FormSection>
 
-            <FormSection title="Employment History" icon={<Briefcase className="text-primary-500" />}>
+            <FormSection title={t('resume_form.employment_history')} icon={<Briefcase className="text-primary-500" />}>
                 {resume.employmentHistory.map((job, index) => (
                     <div
                         key={job.id}
@@ -602,19 +583,19 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8 pl-6">
-                            <Input id={`employmentHistory[${index}].jobTitle`} label="Job Title" value={job.jobTitle} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'jobTitle', e.target.value)} disabled={isReadOnly} />
-                            <Input id={`employmentHistory[${index}].employer`} label="Employer" value={job.employer} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'employer', e.target.value)} disabled={isReadOnly} />
+                            <Input id={`employmentHistory[${index}].jobTitle`} label={t('resume_form.job_title')} value={job.jobTitle} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'jobTitle', e.target.value)} disabled={isReadOnly} />
+                            <Input id={`employmentHistory[${index}].employer`} label={t('resume_form.employer')} value={job.employer} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'employer', e.target.value)} disabled={isReadOnly} />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2 pl-6 pr-8">
-                            <Input id={`employmentHistory[${index}].city`} label="City" value={job.city} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'city', e.target.value)} disabled={isReadOnly} />
-                            <MonthYearPicker id={`employmentHistory[${index}].startDate`} label="Start Date" value={job.startDate} onChange={v => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'startDate', v)} disabled={isReadOnly} />
-                            <MonthYearPicker id={`employmentHistory[${index}].endDate`} label="End Date" value={job.endDate} onChange={v => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'endDate', v)} disabled={isReadOnly} />
+                            <Input id={`employmentHistory[${index}].city`} label={t('resume_form.city')} value={job.city} onChange={e => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'city', e.target.value)} disabled={isReadOnly} />
+                            <MonthYearPicker id={`employmentHistory[${index}].startDate`} label={t('resume_form.start_date')} value={job.startDate} onChange={v => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'startDate', v)} disabled={isReadOnly} />
+                            <MonthYearPicker id={`employmentHistory[${index}].endDate`} label={t('resume_form.end_date')} value={job.endDate} onChange={v => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'endDate', v)} disabled={isReadOnly} />
                         </div>
 
                         <div className="mt-4 pl-6 pr-8">
                             <EditableTextarea
                                 id={`employmentHistory[${index}].description`}
-                                label="Description"
+                                label={t('resume_form.description')}
                                 value={job.description}
                                 onChange={value => handleArrayChange<EmploymentHistory>('employmentHistory', index, 'description', value)}
                                 disabled={isReadOnly}
@@ -626,7 +607,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                                     disabled={isReadOnly}
                                     className="flex items-center gap-2 text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 >
-                                    <Wand2 size={16} /> Improve Description
+                                    <Wand2 size={16} /> {t('resume_form.improve_desc')}
                                     {activeImprovementId === `job-${job.id}` ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                                 </button>
                                 {activeImprovementId === `job-${job.id}` && currentUser && (
@@ -647,10 +628,10 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                         </div>
                     </div>
                 ))}
-                <button onClick={() => addArrayItem('employmentHistory', { id: crypto.randomUUID(), jobTitle: '', employer: '', city: '', startDate: '', endDate: '', description: '' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16} /> Add Employment</button>
+                <button onClick={() => addArrayItem('employmentHistory', { id: crypto.randomUUID(), jobTitle: '', employer: '', city: '', startDate: '', endDate: '', description: '' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16} /> {t('resume_form.add_employment')}</button>
             </FormSection>
 
-            <FormSection title="Education" icon={<GraduationCap className="text-primary-500" />}>
+            <FormSection title={t('resume_form.education')} icon={<GraduationCap className="text-primary-500" />}>
                 {resume.education.map((edu, index) => (
                     <div
                         key={edu.id}
@@ -670,19 +651,19 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8 pl-6">
-                            <Input id={`education[${index}].school`} label="School" value={edu.school} onChange={e => handleArrayChange<Education>('education', index, 'school', e.target.value)} disabled={isReadOnly} />
-                            <Input id={`education[${index}].degree`} label="Degree" value={edu.degree} onChange={e => handleArrayChange<Education>('education', index, 'degree', e.target.value)} disabled={isReadOnly} />
+                            <Input id={`education[${index}].school`} label={t('resume_form.school')} value={edu.school} onChange={e => handleArrayChange<Education>('education', index, 'school', e.target.value)} disabled={isReadOnly} />
+                            <Input id={`education[${index}].degree`} label={t('resume_form.degree')} value={edu.degree} onChange={e => handleArrayChange<Education>('education', index, 'degree', e.target.value)} disabled={isReadOnly} />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2 pl-6 pr-8">
-                            <Input id={`education[${index}].city`} label="City" value={edu.city} onChange={e => handleArrayChange<Education>('education', index, 'city', e.target.value)} disabled={isReadOnly} />
-                            <MonthYearPicker id={`education[${index}].startDate`} label="Start Date" value={edu.startDate} onChange={v => handleArrayChange<Education>('education', index, 'startDate', v)} disabled={isReadOnly} />
-                            <MonthYearPicker id={`education[${index}].endDate`} label="End Date" value={edu.endDate} onChange={v => handleArrayChange<Education>('education', index, 'endDate', v)} disabled={isReadOnly} />
+                            <Input id={`education[${index}].city`} label={t('resume_form.city')} value={edu.city} onChange={e => handleArrayChange<Education>('education', index, 'city', e.target.value)} disabled={isReadOnly} />
+                            <MonthYearPicker id={`education[${index}].startDate`} label={t('resume_form.start_date')} value={edu.startDate} onChange={v => handleArrayChange<Education>('education', index, 'startDate', v)} disabled={isReadOnly} />
+                            <MonthYearPicker id={`education[${index}].endDate`} label={t('resume_form.end_date')} value={edu.endDate} onChange={v => handleArrayChange<Education>('education', index, 'endDate', v)} disabled={isReadOnly} />
                         </div>
 
                         <div className="mt-4 pl-6 pr-8">
                             <EditableTextarea
                                 id={`education[${index}].description`}
-                                label="Description"
+                                label={t('resume_form.description')}
                                 value={edu.description}
                                 onChange={value => handleArrayChange<Education>('education', index, 'description', value)}
                                 disabled={isReadOnly}
@@ -691,9 +672,9 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                         </div>
                     </div>
                 ))}
-                <button onClick={() => addArrayItem('education', { id: crypto.randomUUID(), school: '', degree: '', city: '', startDate: '', endDate: '', description: '' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16} /> Add Education</button>
+                <button onClick={() => addArrayItem('education', { id: crypto.randomUUID(), school: '', degree: '', city: '', startDate: '', endDate: '', description: '' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16} /> {t('resume_form.add_education')}</button>
             </FormSection>
-        </div>
+        </div >
     );
 };
 

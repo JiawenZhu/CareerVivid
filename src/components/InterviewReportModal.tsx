@@ -358,7 +358,7 @@ const InterviewReportModal: React.FC<InterviewReportModalProps> = ({ jobHistoryE
 
                     <footer className="p-4 border-t dark:border-gray-700 flex justify-end gap-3 flex-shrink-0">
                         {isGuestMode ? (
-                            <a href="#/auth" className="bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-primary-700">
+                            <a href="/auth" className="bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-primary-700">
                                 Sign Up to Save & Download Report
                             </a>
                         ) : (

@@ -7,11 +7,10 @@ import { SUPPORTED_LANGUAGES } from './constants';
 
 const supportedCodes = SUPPORTED_LANGUAGES.map(l => l.code);
 
-// Helper to get language from hash before i18n init
-const getLangFromHash = () => {
+// Helper to get language from URL path before i18n init
+const getLangFromPath = () => {
   if (typeof window === 'undefined') return undefined;
-  const hash = window.location.hash;
-  const path = hash.startsWith('#') ? hash.substring(1) : '/';
+  const path = window.location.pathname;
   const parts = path.split('/').filter(p => p);
   if (parts.length > 0 && supportedCodes.includes(parts[0])) {
     return parts[0];
@@ -24,14 +23,17 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    lng: getLangFromHash(), // Prioritize URL hash language
+    lng: getLangFromPath(), // Prioritize URL path language
     fallbackLng: 'en',
     supportedLngs: supportedCodes,
     load: 'languageOnly', // e.g. en-US -> en
     debug: false,
 
+    ns: ['translation'],
+    defaultNS: 'translation',
+
     backend: {
-      loadPath: '/locales/{{lng}}/translation.json',
+      loadPath: '/locales/{{lng}}/translation.json?v=' + new Date().getTime(),
     },
 
     detection: {
@@ -44,7 +46,7 @@ i18n
     },
 
     react: {
-      useSuspense: true,
+      useSuspense: false, // Disable suspense to prevent loading issues
     }
   });
 

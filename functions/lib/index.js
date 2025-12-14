@@ -32,11 +32,14 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.translateText = exports.updatePublicResume = exports.getPublicResume = exports.uploadImageHttp = exports.generateAIContent = exports.generateResumePdfHttp = exports.geminiProxy = void 0;
+exports.getInterviewAuthToken = exports.duplicateAndTranslateResume = exports.translateText = exports.updatePublicResume = exports.getPublicResume = exports.uploadImageHttp = exports.generateAIContent = exports.generateResumePdfHttp = exports.ssr = exports.onEmailRequestCreated = exports.onUserCreated = exports.grantAcademicPartnerRole = exports.applyDiscount = exports.cancelSubscription = exports.stripeWebhook = exports.createCheckoutSession = exports.geminiProxy = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 const chromium_1 = __importDefault(require("@sparticuz/chromium"));
@@ -56,6 +59,25 @@ const geminiApiKey = (0, params_1.defineSecret)("GEMINI_API_KEY");
 // Export the new Proxy Function if needed
 var geminiProxy_1 = require("./geminiProxy");
 Object.defineProperty(exports, "geminiProxy", { enumerable: true, get: function () { return geminiProxy_1.streamGeminiResponse; } });
+// Export Stripe payment functions
+var stripe_1 = require("./stripe");
+Object.defineProperty(exports, "createCheckoutSession", { enumerable: true, get: function () { return stripe_1.createCheckoutSession; } });
+Object.defineProperty(exports, "stripeWebhook", { enumerable: true, get: function () { return stripe_1.stripeWebhook; } });
+Object.defineProperty(exports, "cancelSubscription", { enumerable: true, get: function () { return stripe_1.cancelSubscription; } });
+Object.defineProperty(exports, "applyDiscount", { enumerable: true, get: function () { return stripe_1.applyDiscount; } });
+// Export Admin functions
+var admin_1 = require("./admin");
+Object.defineProperty(exports, "grantAcademicPartnerRole", { enumerable: true, get: function () { return admin_1.grantAcademicPartnerRole; } });
+// Export Triggers
+__exportStar(require("./scheduled"), exports);
+__exportStar(require("./email"), exports);
+__exportStar(require("./stripe"), exports);
+var triggers_1 = require("./triggers");
+Object.defineProperty(exports, "onUserCreated", { enumerable: true, get: function () { return triggers_1.onUserCreated; } });
+var email_1 = require("./email");
+Object.defineProperty(exports, "onEmailRequestCreated", { enumerable: true, get: function () { return email_1.onEmailRequestCreated; } });
+var ssr_1 = require("./ssr");
+Object.defineProperty(exports, "ssr", { enumerable: true, get: function () { return ssr_1.ssr; } });
 const getFunctionConfig = () => {
     try {
         return functions.config().careervivid || {};
@@ -153,12 +175,43 @@ exports.generateResumePdfHttp = functions
             return;
         }
         const idToken = authHeader.split('Bearer ')[1];
+        // Verify ID token
+        let userId;
         try {
-            await admin.auth().verifyIdToken(idToken);
+            const decodedToken = await admin.auth().verifyIdToken(idToken);
+            userId = decodedToken.uid;
         }
         catch (e) {
             console.error("Token verification failed:", e);
             res.status(401).send('Unauthorized');
+            return;
+        }
+        // Check if user has premium access for PDF generation
+        const userDoc = await admin.firestore().collection('users').doc(userId).get();
+        const userData = userDoc.data();
+        // Allow PDF export if:
+        // 1. User has valid sprint plan (not expired)
+        // 2. User has active monthly subscription  
+        // 3. User has legacy premium flag (backward compatibility)
+        let isPremium = false;
+        if (userData) {
+            const plan = userData.plan || 'free';
+            // Check sprint plan (with safe timestamp handling)
+            const isSprintValid = plan === 'pro_sprint' && userData.expiresAt
+                ? (typeof userData.expiresAt.toMillis === 'function' ? userData.expiresAt.toMillis() : userData.expiresAt._seconds * 1000) > Date.now()
+                : false;
+            // Check monthly subscription
+            const isMonthlyActive = plan === 'pro_monthly' &&
+                (userData.stripeSubscriptionStatus === 'active' || userData.stripeSubscriptionStatus === 'trialing');
+            // Check legacy premium flag
+            const hasLegacyPremium = userData.promotions?.isPremium === true;
+            isPremium = isSprintValid || isMonthlyActive || hasLegacyPremium;
+        }
+        if (!isPremium) {
+            res.status(403).json({
+                error: 'PDF export is a premium feature. Please upgrade to The 7-Day Sprint or Pro Monthly plan.',
+                upgradeUrl: '/pricing'
+            });
             return;
         }
         const { resumeData, templateId } = req.body;
@@ -312,9 +365,36 @@ exports.getPublicResume = functions.region('us-west1').runWith({ timeoutSeconds:
                     console.error("Access denied: Sharing not enabled");
                     return res.status(403).send({ error: "Access denied" });
                 }
-                console.log("Resume found successfully");
-                // Send the data back
-                return res.status(200).json(Object.assign(Object.assign({}, data), { id: doc.id }));
+                // Fetch owner's subscription status
+                let ownerIsPremium = false;
+                try {
+                    const ownerDoc = await admin.firestore()
+                        .collection("users")
+                        .doc(String(userId))
+                        .get();
+                    if (ownerDoc.exists) {
+                        const ownerData = ownerDoc.data();
+                        // Check pro_sprint plan validity
+                        const isSprintValid = ownerData?.plan === 'pro_sprint' && ownerData?.expiresAt
+                            ? ownerData.expiresAt.toMillis() > Date.now()
+                            : false;
+                        // Check pro_monthly subscription status
+                        const isMonthlyActive = ownerData?.plan === 'pro_monthly' &&
+                            (ownerData?.stripeSubscriptionStatus === 'active' ||
+                                ownerData?.stripeSubscriptionStatus === 'trialing');
+                        // Check legacy premium flag (backward compatibility)
+                        const hasLegacyPremium = ownerData?.promotions?.isPremium === true;
+                        // Owner is premium if they have any valid premium status
+                        ownerIsPremium = isSprintValid || isMonthlyActive || hasLegacyPremium;
+                    }
+                }
+                catch (ownerError) {
+                    console.error("Error fetching owner premium status:", ownerError);
+                    // Continue with ownerIsPremium = false if fetch fails
+                }
+                console.log("Resume found successfully, ownerIsPremium:", ownerIsPremium);
+                // Send the data back with ownerIsPremium flag
+                return res.status(200).json({ ...data, id: doc.id, ownerIsPremium });
             }
             catch (error) {
                 console.error("CRASH ERROR:", error);
@@ -329,7 +409,6 @@ exports.getPublicResume = functions.region('us-west1').runWith({ timeoutSeconds:
 });
 exports.updatePublicResume = functions.region('us-west1').runWith({ timeoutSeconds: 60, memory: "256MB" }).https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
-        var _a;
         if (req.method === 'OPTIONS') {
             res.set('Access-Control-Allow-Origin', '*');
             res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -354,15 +433,18 @@ exports.updatePublicResume = functions.region('us-west1').runWith({ timeoutSecon
                 return;
             }
             const currentData = docSnap.data();
-            if (!((_a = currentData === null || currentData === void 0 ? void 0 : currentData.shareConfig) === null || _a === void 0 ? void 0 : _a.enabled) || currentData.shareConfig.permission !== 'editor') {
+            if (!currentData?.shareConfig?.enabled || currentData.shareConfig.permission !== 'editor') {
                 res.status(403).send('Permission denied');
                 return;
             }
-            const safeUpdate = Object.assign({}, data);
+            const safeUpdate = { ...data };
             delete safeUpdate.shareConfig;
             delete safeUpdate.id;
             delete safeUpdate.userId;
-            await docRef.update(Object.assign(Object.assign({}, safeUpdate), { updatedAt: admin.firestore.FieldValue.serverTimestamp() }));
+            await docRef.update({
+                ...safeUpdate,
+                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            });
             res.json({ success: true });
         }
         catch (error) {
@@ -373,7 +455,6 @@ exports.updatePublicResume = functions.region('us-west1').runWith({ timeoutSecon
 });
 // --- Translation Function ---
 exports.translateText = functions.region('us-west1').https.onCall(async (data, context) => {
-    var _a, _b;
     // 1. Authentication Check
     if (!context.auth) {
         throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
@@ -400,15 +481,38 @@ exports.translateText = functions.region('us-west1').https.onCall(async (data, c
         const [response] = await translationClient.translateText(request);
         // 6. Return Results
         return {
-            translations: ((_a = response.translations) === null || _a === void 0 ? void 0 : _a.map(t => t.translatedText)) || []
+            translations: response.translations?.map(t => t.translatedText) || []
         };
     }
     catch (error) {
         console.error("Translation Error:", error);
-        if (error.code === 3 || ((_b = error.message) === null || _b === void 0 ? void 0 : _b.includes('invalid language'))) {
+        if (error.code === 3 || error.message?.includes('invalid language')) {
             throw new functions.https.HttpsError('invalid-argument', 'Invalid target language code.');
         }
         throw new functions.https.HttpsError('internal', 'Translation failed.', error.message);
+    }
+});
+// Export duplicateAndTranslateResume
+var duplicateAndTranslateResume_1 = require("./duplicateAndTranslateResume");
+Object.defineProperty(exports, "duplicateAndTranslateResume", { enumerable: true, get: function () { return duplicateAndTranslateResume_1.duplicateAndTranslateResume; } });
+/**
+ * Generate a secure custom authentication token for Interview Microservice handoff.
+ * This allows users to be securely redirected to the external Interview Studio service.
+ */
+exports.getInterviewAuthToken = functions.region('us-west1').https.onCall(async (data, context) => {
+    // Verify user authentication
+    if (!context.auth) {
+        throw new functions.https.HttpsError("unauthenticated", "User must be logged in to generate an interview token");
+    }
+    try {
+        // Generate custom token using the user's UID
+        const token = await admin.auth().createCustomToken(context.auth.uid);
+        // Return token object
+        return { token };
+    }
+    catch (error) {
+        console.error("Error creating custom token:", error);
+        throw new functions.https.HttpsError("internal", "Failed to generate authentication token");
     }
 });
 //# sourceMappingURL=index.js.map

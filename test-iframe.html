@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test iFrame Parameters</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .test-section {
+            margin-bottom: 40px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .url {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>iFrame URL Parameter Test</h1>
+
+        <div class="test-section">
+            <h2>Test 1: Preview Mode (viewMode=preview)</h2>
+            <div class="url">
+                <iframe
+                    src="https://careervivid.app/#/shared/n95XpkySLMhwcHcpKTOpFAqrOPi2/LzGz1L9pieZO9eeLWUIP?viewMode=preview"></iframe>
+            </div>
+
+            <div class="test-section">
+                <h2>Test 2: Template Tab (viewMode=edit&activeTab=template)</h2>
+                <div class="url">
+                    https://careervivid.app/#/shared/n95XpkySLMhwcHcpKTOpFAqrOPi2/LzGz1L9pieZO9eeLWUIP?viewMode=edit&activeTab=template
+                </div>
+                <iframe
+                    src="https://careervivid.app/#/shared/n95XpkySLMhwcHcpKTOpFAqrOPi2/LzGz1L9pieZO9eeLWUIP?viewMode=edit&activeTab=template"></iframe>
+            </div>
+
+            <div class="test-section">
+                <h2>Test 3: Default (no parameters)</h2>
+                <div class="url">https://careervivid.app/#/shared/n95XpkySLMhwcHcpKTOpFAqrOPi2/LzGz1L9pieZO9eeLWUIP
+                </div>
+                <iframe
+                    src="https://careervivid.app/#/shared/n95XpkySLMhwcHcpKTOpFAqrOPi2/LzGz1L9pieZO9eeLWUIP"></iframe>
+            </div>
+        </div>
+</body>
+
+</html>

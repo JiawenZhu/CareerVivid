@@ -1,88 +1,25 @@
-
-import React, { useState, useEffect, useRef, useLayoutEffect, Suspense } from 'react';
-import { ResumeData, SharePermission } from '../types';
-import { Loader2, AlertCircle, Download, MessageSquare, Send, User, X } from 'lucide-react';
+import React, { useEffect, useState, useRef, Suspense, useLayoutEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { Download, MessageSquare, PenTool, Loader2, AlertCircle, LayoutDashboard, User as UserIcon, LogOut, User, X, Send } from 'lucide-react';
+import { ResumeData } from '../types';
 import ResumePreview from '../components/ResumePreview';
 import PublicHeader from '../components/PublicHeader';
+import AdvancedAnnotationCanvas from '../components/AdvancedAnnotationCanvas';
+import { AnnotationObject, getLatestAnnotation } from '../services/annotationService';
+import { useAuth } from '../contexts/AuthContext';
+import Logo from '../components/Logo';
+import ThemeToggle from '../components/ThemeToggle';
+import { navigate } from '../App';
+import { addComment, subscribeToComments, Comment } from '../services/commentService';
+import { subscribeToAnnotations } from '../services/annotationService';
+import Toast from '../components/Toast';
+import CommentsPanel from '../components/CommentsPanel';
+import { playNotificationSound } from '../utils/notificationSound';
 
 // Lazy load the Editor to keep initial bundle size small for viewers
 const Editor = React.lazy(() => import('./Editor'));
 
-const CommentsPanel: React.FC<{ 
-    isOpen: boolean; 
-    onClose: () => void; 
-    resumeId: string; 
-    ownerId: string 
-}> = ({ isOpen, onClose, resumeId, ownerId }) => {
-    const [comment, setComment] = useState('');
-    const [comments, setComments] = useState<Array<{text: string, date: Date, user: string}>>([]); // Mock comments for now
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!comment.trim()) return;
-        
-        // In a real app, we would save to a subcollection 'comments' in Firestore
-        const newComment = {
-            text: comment,
-            date: new Date(),
-            user: 'Guest Visitor' 
-        };
-        setComments([newComment, ...comments]);
-        setComment('');
-    };
-
-    if (!isOpen) return null;
-
-    return (
-        <div className="fixed inset-y-0 right-0 w-80 bg-white dark:bg-gray-800 shadow-2xl z-50 flex flex-col border-l border-gray-200 dark:border-gray-700 animate-in slide-in-from-right duration-300">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
-                    <MessageSquare size={18}/> Comments
-                </h3>
-                <button onClick={onClose} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
-                    <X size={20} />
-                </button>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {comments.length === 0 ? (
-                    <p className="text-center text-gray-500 dark:text-gray-400 text-sm italic mt-10">No comments yet. Be the first to leave feedback!</p>
-                ) : (
-                    comments.map((c, i) => (
-                        <div key={i} className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
-                            <div className="flex justify-between items-center mb-1">
-                                <span className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1">
-                                    <User size={12}/> {c.user}
-                                </span>
-                                <span className="text-xs text-gray-400">{c.date.toLocaleTimeString()}</span>
-                            </div>
-                            <p className="text-sm text-gray-800 dark:text-gray-200">{c.text}</p>
-                        </div>
-                    ))
-                )}
-            </div>
-
-            <form onSubmit={handleSubmit} className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                <div className="relative">
-                    <textarea
-                        value={comment}
-                        onChange={(e) => setComment(e.target.value)}
-                        placeholder="Add a comment..."
-                        className="w-full p-3 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 focus:outline-none text-sm resize-none"
-                        rows={3}
-                    />
-                    <button 
-                        type="submit" 
-                        disabled={!comment.trim()}
-                        className="absolute bottom-3 right-3 p-1.5 bg-primary-600 text-white rounded-full hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-                    >
-                        <Send size={14} />
-                    </button>
-                </div>
-            </form>
-        </div>
-    );
-};
 
 const PublicResumePage: React.FC = () => {
     const [resume, setResume] = useState<ResumeData | null>(null);
@@ -91,55 +28,141 @@ const PublicResumePage: React.FC = () => {
     const [scale, setScale] = useState(0.2);
     const [isExporting, setIsExporting] = useState(false);
     const [showComments, setShowComments] = useState(false);
-    
+    const [showAnnotations, setShowAnnotations] = useState(false);
+    const [latestAnnotationUrl, setLatestAnnotationUrl] = useState<string | null>(null);
+    const [latestAnnotationObjects, setLatestAnnotationObjects] = useState<AnnotationObject[]>([]);
+    const [ownerIsPremium, setOwnerIsPremium] = useState(false);
+    const [isPreviewBlurred, setIsPreviewBlurred] = useState(false);
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
+    const [comments, setComments] = useState<Comment[]>([]);
+    const isInitialLoadRef = useRef(true);
+
     const previewContainerRef = useRef<HTMLDivElement>(null);
     const previewRef = useRef<HTMLDivElement>(null);
-    
-    const [routeParams, setRouteParams] = useState<{userId: string, resumeId: string} | null>(null);
+    const blurOverlayRef = useRef<HTMLDivElement>(null);
+
+    const [routeParams, setRouteParams] = useState<{ userId: string, resumeId: string } | null>(null);
+    const { currentUser, isPremium, isAdmin, logOut } = useAuth();
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+    const userMenuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+                setIsUserMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const AuthenticatedHeader = () => (
+        <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 shadow-sm sticky top-0 z-40 h-20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex justify-between items-center">
+                <div className="flex items-center gap-4">
+                    <a href="/dashboard" className="flex items-center gap-2">
+                        <Logo className="h-8 w-8" />
+                        <span className="text-xl font-bold text-gray-900 dark:text-white hidden sm:inline">CareerVivid</span>
+                    </a>
+                </div>
+                <div className="flex items-center gap-2 md:gap-4">
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="hidden md:flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors mr-2"
+                    >
+                        <LayoutDashboard size={18} />
+                        Back to Dashboard
+                    </button>
+
+
+
+                    <ThemeToggle />
+
+                    <div className="relative" ref={userMenuRef}>
+                        <button
+                            onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                            className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 ring-2 ring-transparent hover:ring-primary-500 transition-all"
+                        >
+                            {currentUser?.photoURL ? (
+                                <img src={currentUser.photoURL} alt="User" className="w-full h-full rounded-full object-cover" />
+                            ) : (
+                                <UserIcon size={20} />
+                            )}
+                        </button>
+
+                        {isUserMenuOpen && (
+                            <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50 border border-gray-100 dark:border-gray-700 py-1 animate-in fade-in zoom-in-95 duration-200">
+                                <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{currentUser?.displayName || 'User'}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{currentUser?.email}</p>
+                                </div>
+
+                                <div className="py-1">
+                                    <button onClick={() => navigate('/dashboard')} className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                        <LayoutDashboard size={16} /> Dashboard
+                                    </button>
+                                    <button onClick={() => navigate('/profile')} className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                        <User size={16} /> Profile
+                                    </button>
+                                    <button onClick={logOut} className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10">
+                                        <LogOut size={16} /> Sign Out
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </header>
+    );
 
     useEffect(() => {
         const fetchResume = async (retryCount = 0) => {
-            const hash = window.location.hash;
-            // Remove any query params from the hash path before splitting
-            const cleanHash = hash.split('?')[0];
-            const parts = cleanHash.split('/');
-            
-            // Expected: ["#", "shared", "userId", "resumeId"]
-            if (parts.length < 4) {
+            const path = window.location.pathname;
+            const cleanPath = path.split('?')[0];
+            const parts = cleanPath.split('/').filter(p => p !== '');
+
+            // Expected: ["shared", "userId", "resumeId"] or ["en", "shared", "userId", "resumeId"]
+            // Find index of 'shared' to handle language prefix
+            const sharedIndex = parts.indexOf('shared');
+            if (sharedIndex === -1 || parts.length < sharedIndex + 3) {
                 setError("Invalid link format.");
                 setLoading(false);
                 return;
             }
-            
-            const userId = parts[2];
-            const resumeId = parts[3];
+
+            const userId = parts[sharedIndex + 1];
+            const resumeId = parts[sharedIndex + 2];
             setRouteParams({ userId, resumeId });
 
             try {
-                // Use Cloud Function to bypass client-side security rules for unauthenticated access
-                // Ensure the project ID corresponds to your deployment
-                const projectId = 'jastalk-firebase'; 
-                // Explicitly pointing to us-west1
+                const projectId = 'jastalk-firebase';
                 const url = `https://us-west1-${projectId}.cloudfunctions.net/getPublicResume?userId=${encodeURIComponent(userId)}&resumeId=${encodeURIComponent(resumeId)}`;
-                
+
                 const response = await fetch(url);
-                
+
                 if (response.ok) {
-                    const data = await response.json() as ResumeData;
+                    const data = await response.json() as ResumeData & { ownerIsPremium?: boolean };
                     setResume(data);
+                    setOwnerIsPremium(data.ownerIsPremium || false);
+                    setLoading(false);
                 } else if (response.status === 403) {
                     setError("This resume is private or no longer shared.");
+                    setLoading(false);
                 } else if (response.status === 404) {
                     setError("Resume not found.");
+                    setLoading(false);
                 } else if (response.status === 500 && retryCount < 1) {
                     // Retry once for 500 errors (handling cold starts)
                     console.warn("Got 500 error, retrying...");
                     setTimeout(() => fetchResume(retryCount + 1), 1500);
-                    return;
+                    // Don't set loading to false - let the retry handle it
                 } else {
-                    // Log specific status for debugging
                     console.error(`Fetch error: ${response.status} ${response.statusText}`);
                     setError(`Failed to load resume (Status: ${response.status}). The server might be waking up.`);
+                    setLoading(false);
                 }
             } catch (err: any) {
                 console.error("Error fetching resume:", err);
@@ -148,21 +171,59 @@ const PublicResumePage: React.FC = () => {
                 } else {
                     setError("Unable to load resume. Please try again later.");
                 }
-            } finally {
-                if (retryCount === 0 && !resume) {
-                    // Only stop loading if we aren't retrying
-                    // We'll let the retry call handle setLoading(false) eventually
-                    // But wait, if we return early for retry, we skip this.
-                    // Logic adjustment:
-                }
-                if (retryCount >= 1 || (resume || error)) {
-                     setLoading(false);
-                }
+                setLoading(false);
             }
         };
 
         fetchResume();
     }, []);
+
+    // Real-time Comments and Annotations Subscriptions
+    useEffect(() => {
+        if (!resume || !routeParams) return;
+
+        // Subscribe to comments
+        const unsubscribeComments = subscribeToComments(routeParams.userId, routeParams.resumeId, (newComments) => {
+            if (!isInitialLoadRef.current && newComments.length > comments.length) {
+                const latestComment = newComments[0];
+                // Only show toast if current user is the resume owner AND the comment is from someone else
+                const isOwner = currentUser && currentUser.uid === routeParams.userId;
+                if (isOwner && latestComment.userId !== currentUser.uid) {
+                    setToastMessage(`New feedback received from ${latestComment.author}`);
+                    playNotificationSound();
+                }
+            }
+            setComments(newComments);
+        });
+
+        // Subscribe to annotations
+        const unsubscribeAnnotations = subscribeToAnnotations(routeParams.userId, routeParams.resumeId, (annotation) => {
+            if (annotation) {
+                const hadAnnotationBefore = !!latestAnnotationUrl;
+                setLatestAnnotationUrl(annotation.imageUrl);
+                if (annotation.objects) {
+                    setLatestAnnotationObjects(annotation.objects);
+                }
+
+                // Show toast only if current user is the resume owner AND this is a new annotation (not initial load)
+                const isOwner = currentUser && currentUser.uid === routeParams.userId;
+                if (isOwner && !isInitialLoadRef.current && !hadAnnotationBefore) {
+                    setToastMessage(`New annotation received from ${annotation.author || 'Reviewer'}`);
+                    playNotificationSound();
+                }
+            }
+        });
+
+        // Mark initial load as complete after a short delay
+        setTimeout(() => {
+            isInitialLoadRef.current = false;
+        }, 1000);
+
+        return () => {
+            unsubscribeComments();
+            unsubscribeAnnotations();
+        };
+    }, [resume, routeParams, comments.length, latestAnnotationUrl, showComments, showAnnotations]);
 
     useLayoutEffect(() => {
         const calculateScale = () => {
@@ -179,19 +240,62 @@ const PublicResumePage: React.FC = () => {
             calculateScale();
             window.addEventListener('resize', calculateScale);
         }
-        
+
         return () => window.removeEventListener('resize', calculateScale);
     }, [resume]);
 
+    // Anti-Screenshot Protection
+    useEffect(() => {
+        const handleScreenshot = (e: KeyboardEvent) => {
+            // ESC key to dismiss blur
+            if (e.key === 'Escape' || e.code === 'Escape') {
+                setIsPreviewBlurred(false);
+                if (blurOverlayRef.current) {
+                    blurOverlayRef.current.style.display = 'none';
+                }
+                return;
+            }
+
+            // Mac: Cmd+Shift+ANY key (screenshot shortcuts)
+            if (e.metaKey && e.shiftKey) {
+                if (blurOverlayRef.current) {
+                    blurOverlayRef.current.style.display = 'flex';
+                }
+                setIsPreviewBlurred(true);
+            }
+
+            // Windows: PrintScreen
+            if (e.key === 'PrintScreen' || e.code === 'PrintScreen') {
+                if (blurOverlayRef.current) {
+                    blurOverlayRef.current.style.display = 'flex';
+                }
+                setIsPreviewBlurred(true);
+            }
+        };
+
+        window.addEventListener('keydown', handleScreenshot);
+        return () => window.removeEventListener('keydown', handleScreenshot);
+    }, []);
+
     const handleDownload = async () => {
         if (!resume || !previewRef.current) return;
+
+        // Check download permission
+        const viewerIsPremium = currentUser && (isPremium || isAdmin);
+        const canDownload = ownerIsPremium || viewerIsPremium;
+
+        if (!canDownload) {
+            alert('Download requires a premium subscription. Please upgrade to download this resume.');
+            return;
+        }
+
         setIsExporting(true);
         try {
             const html2canvas = (await import('html2canvas')).default;
             const canvas = await html2canvas(previewRef.current, { scale: 2, useCORS: true });
             const dataUrl = canvas.toDataURL('image/png');
             const link = document.createElement('a');
-            link.download = `${resume.title.replace(/\s/g, '_')}.png`; 
+            link.download = `${resume.title.replace(/\s/g, '_')}.png`;
             link.href = dataUrl;
             link.click();
         } catch (err) {
@@ -237,7 +341,7 @@ const PublicResumePage: React.FC = () => {
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
-                <PublicHeader />
+                {currentUser ? <AuthenticatedHeader /> : <PublicHeader />}
                 <div className="flex-grow flex items-center justify-center flex-col gap-3">
                     <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
                     <p className="text-gray-500 text-sm">Loading secure content...</p>
@@ -249,7 +353,7 @@ const PublicResumePage: React.FC = () => {
     if (error || !resume || !routeParams) {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
-                <PublicHeader />
+                {currentUser ? <AuthenticatedHeader /> : <PublicHeader />}
                 <div className="flex-grow flex flex-col items-center justify-center p-4 text-center">
                     <AlertCircle className="w-16 h-16 text-gray-400 mb-4" />
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Unable to View Resume</h1>
@@ -261,14 +365,26 @@ const PublicResumePage: React.FC = () => {
 
     const permission = resume.shareConfig?.permission || 'viewer';
 
+    // Calculate download permission
+    const viewerIsPremium = currentUser && (isPremium || isAdmin);
+    const canDownload = ownerIsPremium || viewerIsPremium;
+
     // --- EDITOR MODE ---
     if (permission === 'editor') {
+        // Extract query params for initial view state
+        const queryPart = window.location.search.substring(1);
+        const params = new URLSearchParams(queryPart);
+        const initialViewMode = (params.get('viewMode') as 'edit' | 'preview') || 'edit';
+        const initialActiveTab = (params.get('activeTab') as 'content' | 'template' | 'design' | 'comments') || 'content';
+
         return (
-            <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin"/></div>}>
-                <Editor 
-                    initialData={resume} 
-                    isShared={true} 
-                    onSharedUpdate={handleSharedUpdate} 
+            <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin" /></div>}>
+                <Editor
+                    initialData={resume}
+                    isShared={true}
+                    onSharedUpdate={handleSharedUpdate}
+                    initialViewMode={initialViewMode}
+                    initialActiveTab={initialActiveTab}
                 />
             </Suspense>
         );
@@ -277,10 +393,10 @@ const PublicResumePage: React.FC = () => {
     // --- VIEWER / COMMENTER MODE ---
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-950 flex flex-col font-sans relative overflow-hidden">
-            <PublicHeader />
-            
+            {currentUser ? <AuthenticatedHeader /> : <PublicHeader />}
+
             {/* Toolbar */}
-            <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 pt-24 pb-4 px-4 shadow-sm sticky top-0 z-30">
+            <div className={`bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 pb-4 px-4 shadow-sm sticky z-30 ${currentUser ? 'top-20 pt-4' : 'top-0 pt-24'}`}>
                 <div className="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div>
                         <h1 className="text-xl font-bold text-gray-900 dark:text-white truncate max-w-md">{resume.title}</h1>
@@ -289,8 +405,18 @@ const PublicResumePage: React.FC = () => {
                         </p>
                     </div>
                     <div className="flex gap-3">
+                        {['commenter', 'editor'].includes(permission) && (
+                            <button
+                                onClick={() => setShowAnnotations(!showAnnotations)}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-colors ${showAnnotations ? 'bg-purple-50 border-purple-200 text-purple-700 dark:bg-purple-900/20 dark:border-purple-800 dark:text-purple-400' : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                            >
+                                <PenTool size={18} />
+                                <span className="font-medium">Markup</span>
+                            </button>
+                        )}
+
                         {permission === 'commenter' && (
-                            <button 
+                            <button
                                 onClick={() => setShowComments(!showComments)}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-colors ${showComments ? 'bg-primary-50 border-primary-200 text-primary-700 dark:bg-primary-900/20 dark:border-primary-800 dark:text-primary-400' : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
                             >
@@ -298,13 +424,17 @@ const PublicResumePage: React.FC = () => {
                                 <span className="font-medium">Comments</span>
                             </button>
                         )}
-                        <button 
+                        <button
                             onClick={handleDownload}
-                            disabled={isExporting}
-                            className="flex items-center gap-2 bg-primary-600 text-white font-semibold py-2 px-6 rounded-full hover:bg-primary-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
+                            disabled={isExporting || !canDownload}
+                            className={`flex items-center gap-2 font-semibold py-2 px-6 rounded-full transition-all shadow-lg ${canDownload
+                                ? 'bg-primary-600 text-white hover:bg-primary-700 hover:shadow-xl'
+                                : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                                } disabled:opacity-70`}
+                            title={!canDownload ? 'Premium subscription required for download' : ''}
                         >
                             {isExporting ? <Loader2 className="animate-spin" size={18} /> : <Download size={18} />}
-                            {isExporting ? 'Processing...' : 'Download'}
+                            {isExporting ? 'Processing...' : canDownload ? 'Download' : 'Download (Premium)'}
                         </button>
                     </div>
                 </div>
@@ -313,31 +443,99 @@ const PublicResumePage: React.FC = () => {
             {/* Content */}
             <main className="flex-grow p-4 sm:p-8 overflow-y-auto relative" ref={previewContainerRef}>
                 <div className={`max-w-5xl mx-auto flex justify-center transition-all duration-300 ${showComments ? 'mr-[320px]' : ''}`}>
-                    <div 
-                        className="bg-white shadow-2xl rounded-sm overflow-hidden transition-transform origin-top"
-                        style={{ 
+                    <div
+                        className="bg-white shadow-2xl rounded-sm overflow-hidden transition-transform origin-top relative"
+                        style={{
                             width: '824px',
                             minHeight: '1165px',
                             transform: `scale(${scale})`,
                             marginBottom: `-${(1 - scale) * 1165}px`
                         }}
                     >
-                        <ResumePreview 
-                            resume={resume} 
-                            template={resume.templateId} 
+                        <ResumePreview
+                            resume={resume}
+                            template={resume.templateId}
                             previewRef={previewRef}
                         />
+
+                        {/* Annotation Layer */}
+                        {showAnnotations && (
+                            permission === 'commenter' ? (
+                                <AdvancedAnnotationCanvas
+                                    resumeId={routeParams.resumeId}
+                                    ownerId={routeParams.userId}
+                                    currentUser={currentUser}
+                                    width={824}
+                                    height={1165}
+                                    onSave={(url, objects) => {
+                                        setLatestAnnotationUrl(url);
+                                        setLatestAnnotationObjects(objects);
+                                    }}
+                                    initialImage={latestAnnotationUrl}
+                                    initialObjects={latestAnnotationObjects}
+                                />
+                            ) : (
+                                latestAnnotationUrl && (
+                                    <AdvancedAnnotationCanvas
+                                        resumeId={routeParams.resumeId}
+                                        ownerId={routeParams.userId}
+                                        currentUser={currentUser}
+                                        width={824}
+                                        height={1165}
+                                        initialImage={latestAnnotationUrl}
+                                        initialObjects={latestAnnotationObjects}
+                                        isReadOnly={true}
+                                    />
+                                )
+                            )
+                        )}
+
+                        {/* Anti-Screenshot Blur Overlay */}
+                        <div
+                            ref={blurOverlayRef}
+                            className="absolute inset-0 backdrop-blur-3xl bg-white/40 dark:bg-gray-900/40 z-50 items-center justify-center"
+                            style={{ display: isPreviewBlurred ? 'flex' : 'none' }}
+                        >
+                            <div className="text-center max-w-md mx-auto px-6 py-8 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700">
+                                <div className="mb-4">
+                                    <svg className="w-16 h-16 mx-auto text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                                    Content Protected
+                                </h3>
+                                <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+                                    Screenshots are disabled to protect resume content. Please use the Download button to save this resume.
+                                </p>
+                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                                    <kbd className="px-2 py-1 text-sm font-semibold text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded shadow-sm">
+                                        ESC
+                                    </kbd>
+                                    <span className="text-sm text-gray-600 dark:text-gray-400">to dismiss</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
 
             {/* Comment Sidebar for Commenter Role */}
             {permission === 'commenter' && (
-                <CommentsPanel 
-                    isOpen={showComments} 
-                    onClose={() => setShowComments(false)} 
+                <CommentsPanel
+                    isOpen={showComments}
+                    onClose={() => setShowComments(false)}
                     resumeId={routeParams.resumeId}
                     ownerId={routeParams.userId}
+                    currentUser={currentUser}
+                />
+            )}
+
+            {/* Toast Notification */}
+            {toastMessage && (
+                <Toast
+                    message={toastMessage}
+                    onClose={() => setToastMessage(null)}
                 />
             )}
         </div>

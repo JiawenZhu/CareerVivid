@@ -1,14 +1,15 @@
-
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
 import { BlogPost } from '../types';
 import { collection, query, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Loader2, Calendar, ArrowRight, AlertCircle } from 'lucide-react';
+import { Loader2, Calendar, ArrowRight, AlertCircle, Clock } from 'lucide-react';
 import { navigate } from '../App';
 
 const BlogListPage: React.FC = () => {
+    const { t } = useTranslation();
     const [posts, setPosts] = useState<BlogPost[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -17,13 +18,13 @@ const BlogListPage: React.FC = () => {
     useEffect(() => {
         const postsCol = collection(db, 'blog_posts');
         const q = query(postsCol);
-        
+
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const postsData = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
             } as BlogPost));
-            
+
             // Robust Client-side sort
             postsData.sort((a, b) => {
                 // Handle Firestore Timestamp, JS Date, string, or null/undefined
@@ -51,7 +52,7 @@ const BlogListPage: React.FC = () => {
             }
             setLoading(false);
         });
-        
+
         return () => unsubscribe();
     }, []);
 
@@ -65,9 +66,9 @@ const BlogListPage: React.FC = () => {
             <main className="flex-grow pt-24 pb-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center max-w-3xl mx-auto mb-16">
-                        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight">Career Insights & Advice</h1>
-                        <p className="text-lg text-gray-600 dark:text-gray-400">
-                            Expert tips on resume building, interview prep, and landing your dream job in tech and beyond.
+                        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-6">{t('blog.title')}</h1>
+                        <p className="text-xl text-gray-600 dark:text-gray-400">
+                            {t('blog.subtitle')}
                         </p>
                     </div>
 
@@ -77,11 +78,10 @@ const BlogListPage: React.FC = () => {
                             <button
                                 key={cat}
                                 onClick={() => setActiveCategory(cat)}
-                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                                    activeCategory === cat 
-                                    ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900' 
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${activeCategory === cat
+                                    ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900'
                                     : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                                }`}
+                                    }`}
                             >
                                 {cat}
                             </button>
@@ -100,49 +100,57 @@ const BlogListPage: React.FC = () => {
                         </div>
                     ) : filteredPosts.length === 0 ? (
                         <div className="text-center py-20 text-gray-500 dark:text-gray-400">
-                            No posts found. Check back soon!
+                            {t('blog.no_posts_found')}
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {filteredPosts.map(post => (
-                                <article 
-                                    key={post.id} 
+                                <article
+                                    key={post.id}
                                     onClick={() => navigate(`/blog/${post.id}`)}
                                     className="group bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer hover:-translate-y-1"
                                 >
                                     <div className="relative aspect-video overflow-hidden bg-gray-200 dark:bg-gray-800">
                                         {post.coverImage ? (
-                                            <img 
-                                                src={post.coverImage} 
-                                                alt={post.title} 
-                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                                            <img
+                                                src={post.coverImage}
+                                                alt={post.title}
+                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                             />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
+                                            <div className="w-full h-full flex items-center justify-center text-gray-400">{t('blog.no_image')}</div>
                                         )}
                                         <div className="absolute top-4 left-4 bg-white/90 dark:bg-black/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-gray-900 dark:text-white">
                                             {post.category || 'General'}
                                         </div>
                                     </div>
                                     <div className="p-6 flex flex-col flex-grow">
-                                        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-3">
-                                            <Calendar size={14} />
-                                            {post.publishedAt?.toDate 
-                                                ? post.publishedAt.toDate().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
-                                                : 'Recently'}
+                                        <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
+                                            <span className="flex items-center gap-1">
+                                                <Calendar size={14} />
+                                                {t('blog.published')}: {post.publishedAt?.toDate
+                                                    ? post.publishedAt.toDate().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+                                                    : t('blog.recently')}
+                                            </span>
+                                            {post.readTime && (
+                                                <span className="flex items-center gap-1">
+                                                    <Clock size={14} />
+                                                    {post.readTime} {t('blog.min_read')}
+                                                </span>
+                                            )}
                                         </div>
-                                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                                            {post.title || 'Untitled Post'}
+                                        <h2 className="text-xl font-bold mb-3 text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2">
+                                            {post.title || t('blog.untitled_post')}
                                         </h2>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 mb-6 flex-grow">
-                                            {post.excerpt || (post as any).summary || 'No summary available.'}
+                                        <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3 flex-grow">
+                                            {post.excerpt || (post as any).summary || t('blog.no_summary_available')}
                                         </p>
                                         <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100 dark:border-gray-800">
                                             <div className="text-xs font-medium text-gray-900 dark:text-white">
-                                                By {post.author || 'Team'}
+                                                By {post.author || t('blog.team')}
                                             </div>
                                             <div className="text-primary-600 dark:text-primary-400 text-sm font-semibold flex items-center gap-1">
-                                                Read More <ArrowRight size={16} />
+                                                {t('blog.read_more')} <ArrowRight size={16} />
                                             </div>
                                         </div>
                                     </div>

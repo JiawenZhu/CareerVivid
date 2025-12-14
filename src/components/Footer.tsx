@@ -12,9 +12,9 @@ const Footer: React.FC = () => {
                         <span className="text-xl font-bold text-gray-900 dark:text-white">CareerVivid</span>
                     </div>
                     <div className="flex gap-6 text-gray-500 dark:text-gray-400">
-                        <a href="#/" className="hover:text-primary-500 transition-colors">Features</a>
-                        <a href="#/pricing" className="hover:text-primary-500 transition-colors">Pricing</a>
-                        <a href="mailto:support@careervivid.com" className="hover:text-primary-500 transition-colors">Contact</a>
+                        <a href="/" className="hover:text-primary-500 transition-colors">Features</a>
+                        <a href="/pricing" className="hover:text-primary-500 transition-colors">Pricing</a>
+                        <a href="/contact" className="hover:text-primary-500 transition-colors">Help Center</a>
                     </div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                         © {new Date().getFullYear()} CareerVivid. All rights reserved.

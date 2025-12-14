@@ -18,6 +18,7 @@ const AIImprovementPanel: React.FC<AIImprovementPanelProps> = ({ userId, section
     const [instruction, setInstruction] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [improvedText, setImprovedText] = useState('');
+    const [explanation, setExplanation] = useState('');
 
     const handleGenerate = async () => {
         if (!instruction.trim()) {
@@ -26,8 +27,9 @@ const AIImprovementPanel: React.FC<AIImprovementPanelProps> = ({ userId, section
         }
         setIsLoading(true);
         try {
-            const result = await improveSection(userId, sectionName, currentText, instruction, language, contextType);
-            setImprovedText(result);
+            const { improvedContent, explanation } = await improveSection(userId, sectionName, currentText, instruction, language, contextType);
+            setImprovedText(improvedContent);
+            setExplanation(explanation);
         } catch (error) {
             onError('AI Improvement Failed', error instanceof Error ? error.message : 'An unknown error occurred.');
         } finally {
@@ -57,9 +59,9 @@ const AIImprovementPanel: React.FC<AIImprovementPanelProps> = ({ userId, section
                         autoFocus
                     />
                     <div className="flex justify-end">
-                        <button 
-                            onClick={handleGenerate} 
-                            disabled={isLoading || !instruction.trim()} 
+                        <button
+                            onClick={handleGenerate}
+                            disabled={isLoading || !instruction.trim()}
                             className="bg-primary-600 text-white text-sm py-2 px-4 rounded-md hover:bg-primary-700 disabled:bg-primary-300 flex items-center gap-2 transition-colors"
                         >
                             {isLoading ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
@@ -69,19 +71,30 @@ const AIImprovementPanel: React.FC<AIImprovementPanelProps> = ({ userId, section
                 </>
             ) : (
                 <div className="space-y-3">
-                     <div className="bg-white dark:bg-gray-700 p-3 rounded-md border border-gray-200 dark:border-gray-600">
+                    <div className="bg-white dark:bg-gray-700 p-3 rounded-md border border-gray-200 dark:border-gray-600">
                         <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Suggestion:</p>
                         <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{improvedText}</p>
+
+                        {explanation && (
+                            <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-600">
+                                <p className="text-xs font-semibold text-indigo-400 dark:text-indigo-300 mb-0.5 flex items-center gap-1">
+                                    <Sparkles size={10} /> Why this helps:
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 italic leading-relaxed">
+                                    {explanation}
+                                </p>
+                            </div>
+                        )}
                     </div>
                     <div className="flex justify-end gap-2">
-                        <button 
-                            onClick={() => setImprovedText('')} 
+                        <button
+                            onClick={() => { setImprovedText(''); setExplanation(''); }}
                             className="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors"
                         >
                             Try Again
                         </button>
-                         <button 
-                            onClick={() => onAccept(improvedText)} 
+                        <button
+                            onClick={() => onAccept(improvedText)}
                             className="px-3 py-1.5 text-sm bg-green-600 text-white hover:bg-green-700 rounded-md flex items-center gap-2 transition-colors"
                         >
                             <CheckCircle size={14} /> Apply Change

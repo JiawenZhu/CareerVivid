@@ -1,11 +1,4 @@
 "use strict";
-var __asyncValues = (this && this.__asyncValues) || function (o) {
-    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-    var m = o[Symbol.asyncIterator], i;
-    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
-    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
-    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -26,8 +19,6 @@ exports.streamGeminiResponse = (0, https_1.onRequest)({
     invoker: "public",
 }, async (req, res) => {
     corsHandler(req, res, async () => {
-        var _a, e_1, _b, _c;
-        var _d, _e, _f;
         res.setHeader("Access-Control-Allow-Origin", "*");
         if (req.method === "OPTIONS") {
             res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -39,9 +30,9 @@ exports.streamGeminiResponse = (0, https_1.onRequest)({
             res.status(405).send("Method Not Allowed");
             return;
         }
-        const payload = (_f = (_e = (_d = req.body) === null || _d === void 0 ? void 0 : _d.data) !== null && _e !== void 0 ? _e : req.body) !== null && _f !== void 0 ? _f : {};
+        const payload = req.body?.data ?? req.body ?? {};
         let { modelName = "gemini-2.5-flash", contents, config, systemInstruction, } = payload;
-        if (!systemInstruction && (config === null || config === void 0 ? void 0 : config.systemInstruction)) {
+        if (!systemInstruction && config?.systemInstruction) {
             systemInstruction = config.systemInstruction;
             delete config.systemInstruction;
         }
@@ -56,28 +47,32 @@ exports.streamGeminiResponse = (0, https_1.onRequest)({
                 generationConfig: config,
                 systemInstruction,
             });
-            const result = await model.generateContentStream({ contents });
+            let result;
+            const isImageMode = config?.responseModalities?.includes("IMAGE");
+            if (isImageMode) {
+                const response = await model.generateContent({ contents });
+                result = { stream: [], response: Promise.resolve(response.response) }; // Mock stream interface
+            }
+            else {
+                result = await model.generateContentStream({ contents });
+            }
             res.setHeader("Content-Type", "text/plain");
             res.setHeader("Transfer-Encoding", "chunked");
             let aggregatedText = "";
-            try {
-                for (var _g = true, _h = __asyncValues(result.stream), _j; _j = await _h.next(), _a = _j.done, !_a; _g = true) {
-                    _c = _j.value;
-                    _g = false;
-                    const chunk = _c;
-                    const chunkText = chunk.text();
-                    if (chunkText) {
-                        aggregatedText += chunkText;
-                        res.write(chunkText);
+            // Handle stream if it exists (for text)
+            if (!isImageMode && result.stream) {
+                for await (const chunk of result.stream) {
+                    try {
+                        const chunkText = chunk.text();
+                        if (chunkText) {
+                            aggregatedText += chunkText;
+                            res.write(chunkText);
+                        }
+                    }
+                    catch (e) {
+                        // Ignore non-text chunks (like images in stream)
                     }
                 }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (!_g && !_a && (_b = _h.return)) await _b.call(_h);
-                }
-                finally { if (e_1) throw e_1.error; }
             }
             const finalResponse = await result.response;
             const jsonResponse = typeof finalResponse.toJSON === "function"

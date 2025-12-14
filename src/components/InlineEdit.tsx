@@ -6,44 +6,47 @@ interface InlineEditProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onFoc
   value: string;
   onFocus?: (fieldId: string) => void;
   fieldId?: string;
-  tagName?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span' | 'div' | 'li';
+  tagName?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span' | 'div' | 'li' | 'a';
   placeholder?: string;
   multiline?: boolean;
   isLink?: boolean;
+  href?: string;
+  target?: string;
+  rel?: string;
 }
 
-const InlineEdit: React.FC<InlineEditProps> = ({ 
-  value, 
-  onFocus, 
-  fieldId, 
-  className, 
-  tagName: Tag = 'span', 
+const InlineEdit: React.FC<InlineEditProps> = ({
+  value,
+  onFocus,
+  fieldId,
+  className,
+  tagName: Tag = 'span',
   placeholder,
   style,
   multiline,
   isLink,
-  ...props 
+  ...props
 }) => {
-  
+
   const handleClick = (e: React.MouseEvent) => {
     if (isLink) {
-        // Do nothing on click if it's a link, let the parent <a> tag handle it
-        return;
+      // Do nothing on click if it's a link, let the parent <a> tag handle it
+      return;
     }
     // If we have a fieldId and onFocus handler, use the Deep Link strategy
     if (onFocus && fieldId) {
-        e.stopPropagation();
-        onFocus(fieldId);
-        return;
+      e.stopPropagation();
+      onFocus(fieldId);
+      return;
     }
   };
 
   const handleEditClick = (e: React.MouseEvent) => {
-      e.preventDefault(); // Prevent link navigation
-      e.stopPropagation();
-      if (onFocus && fieldId) {
-          onFocus(fieldId);
-      }
+    e.preventDefault(); // Prevent link navigation
+    e.stopPropagation();
+    if (onFocus && fieldId) {
+      onFocus(fieldId);
+    }
   }
 
   return (
@@ -55,15 +58,15 @@ const InlineEdit: React.FC<InlineEditProps> = ({
       {...props}
     >
       {value || <span className="opacity-50 italic">{placeholder || 'Click to edit'}</span>}
-      
+
       {isLink && onFocus && (
-          <button
-            onClick={handleEditClick}
-            className="absolute -top-2 -right-2 bg-primary-600 text-white p-1 rounded-full shadow-md opacity-0 group-hover/edit:opacity-100 transition-opacity z-10 hover:scale-110"
-            title="Edit Link"
-          >
-              <Edit2 size={10} />
-          </button>
+        <button
+          onClick={handleEditClick}
+          className="absolute -top-2 -right-2 bg-primary-600 text-white p-1 rounded-full shadow-md opacity-0 group-hover/edit:opacity-100 transition-opacity z-10 hover:scale-110"
+          title="Edit Link"
+        >
+          <Edit2 size={10} />
+        </button>
       )}
     </Tag>
   );
