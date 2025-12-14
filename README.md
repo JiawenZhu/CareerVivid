@@ -1,42 +1,78 @@
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+  <img src="public/assets/resume-banner.png" alt="CareerVivid Banner" width="100%" />
+  
+  # CareerVivid
+  
+  **Your AI-Powered Career Assistant**
+  
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  [![Status](https://img.shields.io/badge/Status-Active-success.svg)]()
 </div>
 
-# Run and deploy your AI Studio app
+## About
 
-This contains everything you need to run your app locally.
+**CareerVivid** is the ultimate AI-powered career development platform designed to bridge the gap between talent and opportunity. We believe that everyone deserves a fulfilling career, and we provide the cutting-edge tools to help you get there.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1jYbT9jkePYHe8ZQQq9YUKPCo7d6Qr5rI
+Our platform empowers job seekers to land their dream roles faster with advanced AI technology, combining a state-of-the-art **Resume Builder**, a **Real-Time AI Interview Coach**, and a **Portfolio Creator** into one seamless experience.
 
-## Run Locally
+## Features
 
-**Prerequisites:**  Node.js
+### 🚀 AI Resume Builder
+Create professional, ATS-optimized resumes that pass the screening bots in minutes.
+- **Smart Templates**: Choose from a variety of professional designs.
+- **AI Content Generation**: Get intelligent suggestions for summary and bullet points.
+- **Real-time Preview**: See changes instantly as you type.
 
+### 🎙️ AI Interview Coach
+Practice with a real-time AI voice assistant that simulates actual interviews.
+- **Mock Interviews**: Tailored questions based on your target role.
+- **Instant Compassionate Feedback**: Get actionable insights on your answers, tone, and pacing.
+- **Confidence Building**: Reduce anxiety by practicing in a safe environment.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### 🌐 Personal Portfolio
+Instantly generate a beautiful personal website from your resume to showcase your projects.
+- **One-Click Generation**: No coding required.
+- **Customizable**: Updates automatically with your resume.
+- **Shareable URL**: Stand out to recruiters with a professional link.
 
-## App Introduction
+### 📊 Job Tracker
+Organize your entire job search in one dashboard.
+- **Status Tracking**: Keep tabs on Applied, Interviewing, and Offer stages.
+- **Statistics**: Visualize your progress and conversion rates.
 
-## Option 1: Short & Punchy (750 characters limit friendly)
-**CareerVivid** is your all-in-one AI career assistant. Build a professional, ATS-friendly resume in minutes with our smart builder. Prepare for interviews with our real-time AI Coach that simulates actua interviews and gives instant feedback. Showcase your work with a stunning personal portfolio website. Track your job applications and land your dream job faster. Start for free today!
+## Getting Started
 
-## Option 2: Feature-Focused (Good for Business Profile)
-**CareerVivid** empowers job seekers to land their dream roles faster with advanced AI technology.
-*   **AI Resume Builder:** Create professional, ATS-optimized resumes that pass the screening bots.
-*   **AI Interview Coach:** Practice with a real-time AI voice assistant that simulates interviews and provides instant feedback on your answers and delivery.
-*   **Personal Portfolio:** Instantly generate a beautiful personal website from your resume to showcase your projects.
-*   **Job Tracker:** Organize your entire job search in one dashboard.
-Join thousands of professionals upgrading their careers with CareerVivid.
+Follow these steps to set up the project locally on your machine.
 
-## Option 3: Benefit-Driven (Persuasive)
-Stop struggling with resume formatting and interview anxiety. **CareerVivid** gives you the tools to stand out in a competitive job market. Our AI-powered platform helps you craft the perfect resume, practice confident interview answers, and present a professional personal brand online. Whether you are a student, a career changer, or an experienced professional, CareerVivid is your partner in career success.
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v16 or higher)
+- [npm](https://www.npmjs.com/)
 
-## Option 4: "About Us" Style (Longer)
-Welcome to **CareerVivid**, the ultimate AI-powered career development platform designed to bridge the gap between talent and opportunity. We believe that everyone deserves a fulfilling career, and we provide the cutting-edge tools to help you get there.
+### Installation
 
-Our platform combines a state-of-the-art **Resume Builder** that ensures your application gets noticed, a **Real-Time AI Interview Coach** that builds your confidence through mock interviews, and a **Portfolio Creator** that turns your experience into a stunning visual showcase. With integrated job tracking and multi-language support, CareerVivid supports you at every step of your journey—from application to offer letter.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Jastalk/CareerVivid.git
+   cd careervivid
+   ```
 
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Configure Environment**
+   Create a `.env.local` file in the root directory and add your Gemini API Key:
+   ```env
+   GEMINI_API_KEY=your_api_key_here
+   ```
+
+4. **Run the App**
+   Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
