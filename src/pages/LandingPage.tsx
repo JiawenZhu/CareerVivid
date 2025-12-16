@@ -5,9 +5,20 @@ import Footer from '../components/Footer';
 import HeroVideo from '../components/HeroVideo';
 import { navigate } from '../App';
 import { ArrowRight, CheckCircle2, Wand2, LayoutTemplate, Mic, Globe, Star, Loader2 } from 'lucide-react';
+import { subscribeToLandingPageSettings, DEFAULT_LANDING_PAGE_SETTINGS } from '../services/systemSettingsService';
 
 const LandingPage: React.FC = () => {
     const { t, ready } = useTranslation();
+    const [resumeSuffix, setResumeSuffix] = React.useState(DEFAULT_LANDING_PAGE_SETTINGS.featuredResumeSuffix);
+
+    React.useEffect(() => {
+        const unsubscribe = subscribeToLandingPageSettings((settings) => {
+            if (settings?.featuredResumeSuffix) {
+                setResumeSuffix(settings.featuredResumeSuffix);
+            }
+        });
+        return () => unsubscribe();
+    }, []);
 
     // Show loading state while i18n is initializing
     if (!ready) {
@@ -34,7 +45,7 @@ const LandingPage: React.FC = () => {
                                 </div>
                                 <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-[1.1] mb-6">
                                     {t('landing.hero_title_1')} <br className="hidden lg:block" />
-                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600 dark:from-primary-400 dark:to-purple-400">{t('landing.hero_title_2')}</span> <br className="hidden lg:block" />
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-blue-600 dark:from-primary-400 dark:to-blue-400">{t('landing.hero_title_2')}</span> <br className="hidden lg:block" />
                                     {t('landing.hero_title_3')}
                                 </h1>
                                 <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed max-w-lg">
@@ -90,7 +101,7 @@ const LandingPage: React.FC = () => {
                                         className="rounded-xl w-full lg:hidden"
                                     />
                                     <iframe
-                                        src="https://careervivid.app/#/shared/n95XpkySLMhwcHcpKTOpFAqrOPi2/LzGz1L9pieZO9eeLWUIP?viewMode=edit&activeTab=template"
+                                        src={`https://careervivid.app/${resumeSuffix}?viewMode=edit&activeTab=template`}
                                         className="w-full h-[500px] rounded-xl hidden lg:block border-0 bg-gray-50"
                                         title="Resume Builder Feature"
                                     />

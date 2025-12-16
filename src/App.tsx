@@ -31,6 +31,12 @@ const PortfolioHub = React.lazy(() => import('./features/portfolio/pages/Portfol
 const PortfolioEditor = React.lazy(() => import('./features/portfolio/pages/PortfolioEditor'));
 const PortfolioBuilderPage = React.lazy(() => import('./pages/PortfolioBuilderPage'));
 const PublicPortfolioPage = React.lazy(() => import('./features/portfolio/pages/PublicPortfolioPage'));
+const PartnerLandingPage = React.lazy(() => import('./pages/partners/PartnerLandingPage'));
+const AcademicPartnerPage = React.lazy(() => import('./pages/partners/AcademicPartnerPage'));
+const BusinessPartnerPage = React.lazy(() => import('./pages/partners/BusinessPartnerPage'));
+const StudentAmbassadorPage = React.lazy(() => import('./pages/partners/StudentAmbassadorPage'));
+const PartnerApplicationPage = React.lazy(() => import('./pages/partners/PartnerApplicationPage'));
+const PolicyPage = React.lazy(() => import('./pages/PolicyPage'));
 
 import { SUPPORTED_LANGUAGES } from './constants';
 import i18n from './i18n';
@@ -104,6 +110,14 @@ const App: React.FC = () => {
     window.addEventListener('popstate', onPathChange);
     // Also set initial path on load
     onPathChange();
+
+    // Check for legacy hash-based shared links (e.g., /#/shared/...) and redirect to history mode
+    if (window.location.hash && window.location.hash.startsWith('#/shared/')) {
+      const hashPath = window.location.hash.substring(1); // remove '#'
+      window.history.replaceState(null, '', hashPath);
+      setPath(getPathFromUrl()); // Update state to trigger re-render
+    }
+
     return () => window.removeEventListener('popstate', onPathChange);
   }, []);
 
@@ -225,6 +239,8 @@ const App: React.FC = () => {
         content = <SubscriptionPage />;
       } else if (path === '/contact') {
         content = <ContactPage />;
+      } else if (path === '/policy') {
+        content = <PolicyPage />;
       } else if (path === '/blog') {
         content = <BlogListPage />;
       } else if (path.startsWith('/blog/')) {
@@ -253,6 +269,8 @@ const App: React.FC = () => {
       content = <DemoPage />;
     } else if (path === '/contact') {
       content = <ContactPage />;
+    } else if (path === '/policy') {
+      content = <PolicyPage />;
     } else if (path === '/blog') {
       content = <BlogListPage />;
     } else if (path.startsWith('/blog/')) {
@@ -262,6 +280,16 @@ const App: React.FC = () => {
       content = <Editor resumeId="guest" />;
     } else if (path === '/tech-preview') {
       content = <TechLandingPage />;
+    } else if (path === '/partners') {
+      content = <PartnerLandingPage />;
+    } else if (path === '/partners/academic') {
+      content = <AcademicPartnerPage />;
+    } else if (path === '/partners/business') {
+      content = <BusinessPartnerPage />;
+    } else if (path === '/partners/students') {
+      content = <StudentAmbassadorPage />;
+    } else if (path === '/partners/apply') {
+      content = <PartnerApplicationPage />;
     } else {
       // Default to landing page for root and any other path
       content = <LandingPage />;

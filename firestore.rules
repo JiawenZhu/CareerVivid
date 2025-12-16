@@ -55,5 +55,16 @@ service cloud.firestore {
       allow read: if true;
       allow write: if request.auth != null;
     }
+
+    // ✅ Allow public submission of partner applications
+    match /partner_applications/{applicationId} {
+      allow create: if true;
+      allow read, write: if request.auth != null && request.auth.token.admin == true;
+    }
+
+    // ✅ Allow anyone to write to demo analytics
+    match /analytics/demo_page_events {
+      allow read, write: if true;
+    }
   }
 }

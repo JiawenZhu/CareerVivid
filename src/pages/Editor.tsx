@@ -250,6 +250,16 @@ const Editor: React.FC<EditorProps> = ({
 
     useEffect(() => { setTempPhoto(null); }, [resumeId]);
 
+    // Auto-correct theme color if invalid for current template
+    useEffect(() => {
+        if (resume && activeTemplate && !activeTemplate.availableColors.includes(resume.themeColor)) {
+            // Only update if the current color is strictly NOT in the list
+            // This prevents "Creative" (Teal) from being black
+            const defaultColor = activeTemplate.availableColors[0];
+            handleResumeChange({ themeColor: defaultColor });
+        }
+    }, [activeTemplate, resume?.themeColor]);
+
     // Feedback & Annotations Logic
     useEffect(() => {
         if (!resume || !resume.id || !currentUser || isShared || isGuestMode) {

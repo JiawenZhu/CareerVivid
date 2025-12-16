@@ -202,7 +202,7 @@ const ProfilePage: React.FC = () => {
             {isDeleteModalOpen && <DeleteConfirmationModal />}
             <header className="bg-white dark:bg-gray-800 shadow-sm dark:border-b dark:border-gray-700">
                 <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex items-center gap-4">
-                    <a href="/" title="Back to Dashboard" className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <a href="/dashboard" title="Back to Dashboard" className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
                         <ArrowLeft size={24} />
                     </a>
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{t('profile.title')}</h1>

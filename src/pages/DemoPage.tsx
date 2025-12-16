@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { generateResumeFromPrompt, generateDemoInterviewQuestions } from '../services/geminiService';
 import { Loader2, Mic, Wand2, ArrowLeft, Search, Briefcase, ChevronRight } from 'lucide-react';
 import { navigate } from '../App';
-import AIInterviewAgentModal from '../components/AIInterviewAgentModal';
 import { createBlankResume } from '../constants';
+import { auth, db } from '../firebase';
+import { signInAnonymously } from 'firebase/auth';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { CAREER_PATHS } from '../data/careers';
 import { trackDemoEvent } from '../services/trackingService';
 import DemoResumeInfoModal from '../components/DemoResumeInfoModal';
@@ -53,16 +56,6 @@ const DemoPage: React.FC = () => {
     const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
     const [selectedRoleForResume, setSelectedRoleForResume] = useState('');
 
-    const [interviewState, setInterviewState] = useState<{
-        jobId: string;
-        prompt: string;
-        questions: string[];
-        isFirstTime: boolean;
-        resumeContext: string;
-        jobTitle: string;
-        jobCompany: string;
-    } | null>(null);
-
     const isLoading = isGeneratingResume || isPreparingInterview;
 
     useEffect(() => {
@@ -82,6 +75,22 @@ const DemoPage: React.FC = () => {
         }
         return () => clearInterval(interval);
     }, [isGeneratingResume, isPreparingInterview]);
+
+    if (isLoading) {
+        const messages = isGeneratingResume ? resumeLoadingMessages : interviewLoadingMessages;
+        const loadingText = isGeneratingResume ? 'Generating your resume preview...' : 'Preparing your interview...';
+        return (
+            <div className="fixed inset-0 bg-white dark:bg-gray-950 z-50 flex flex-col items-center justify-center text-center p-4">
+                <Loader2 className="w-16 h-16 text-primary-600 animate-spin mx-auto mb-8" />
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">{loadingText}</h1>
+                <div className="h-6 mt-4">
+                    <p key={loadingMessageIndex} className="text-gray-500 dark:text-gray-400 animate-fade-in font-medium">
+                        {messages[loadingMessageIndex]}
+                    </p>
+                </div>
+            </div>
+        )
+    }
 
     const handleGenerateResume = async (name: string, experience: string) => {
         if (!experience.trim() || !selectedRoleForResume.trim()) return;
@@ -137,38 +146,59 @@ const DemoPage: React.FC = () => {
         setIsPreparingInterview(true);
         setError('');
         try {
+            // 1. Ensure User is Authenticated (Anonymous)
+            let user = auth.currentUser;
+            if (!user) {
+                const userCred = await signInAnonymously(auth);
+                user = userCred.user;
+            }
+
+            if (!user) throw new Error("Authentication failed");
+
+            // 2. Create Job Entry in Firestore
+            // We do this manually instead of using hooks to ensure immediate availability without re-renders
+            const jobId = `demo_${Date.now()}`;
+            const jobData = {
+                title: title,
+                company: 'CareerVivid Demo',
+                location: 'Remote',
+                description: prompt,
+                url: '',
+                id: jobId
+            };
+
+            // Using the same structure as usePracticeHistory
+            const historyRef = doc(db, 'users', user.uid, 'practiceHistory', jobId);
+
+            // Generate initial questions just to have them (optional, but good for consistency)
             const questions = await generateDemoInterviewQuestions(prompt);
-            setInterviewState({
-                jobId: 'guest_interview',
-                prompt: prompt,
-                questions,
-                isFirstTime: true,
-                resumeContext: 'This is a demo session. No resume context is available.',
-                jobTitle: title,
-                jobCompany: 'CareerVivid',
+
+            await setDoc(historyRef, {
+                job: jobData,
+                questions: questions,
+                timestamp: serverTimestamp(),
+                interviewHistory: [],
+                section: 'interviews',
             });
+
+            // 3. Get Auth Token for Microservice
+            const functions = getFunctions(undefined, 'us-west1');
+            const getToken = httpsCallable(functions, 'getInterviewAuthToken');
+            const result = await getToken();
+            const { token } = result.data as { token: string };
+
+            // 4. Redirect to External Interview Studio
+            const baseUrl = 'https://careervivid-371634100960.us-west1.run.app';
+            const targetUrl = `${baseUrl}/#/interview-studio/${jobId}?token=${token}`;
+
+            window.location.href = targetUrl;
+
         } catch (e) {
+            console.error("Interview start error:", e);
             setError(e instanceof Error ? e.message : 'An unknown error occurred.');
-        } finally {
             setIsPreparingInterview(false);
         }
     };
-
-    if (isLoading && !interviewState) {
-        const messages = isGeneratingResume ? resumeLoadingMessages : interviewLoadingMessages;
-        const loadingText = isGeneratingResume ? 'Generating your resume preview...' : 'Preparing your interview...';
-        return (
-            <div className="fixed inset-0 bg-white dark:bg-gray-950 z-50 flex flex-col items-center justify-center text-center p-4">
-                <Loader2 className="w-16 h-16 text-primary-600 animate-spin mx-auto mb-8" />
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">{loadingText}</h1>
-                <div className="h-6 mt-4">
-                    <p key={loadingMessageIndex} className="text-gray-500 dark:text-gray-400 animate-fade-in font-medium">
-                        {messages[loadingMessageIndex]}
-                    </p>
-                </div>
-            </div>
-        )
-    }
 
     // Filter logic
     const filteredCategories = ALL_DEMO_PATHS.map(cat => ({
@@ -294,19 +324,7 @@ const DemoPage: React.FC = () => {
                 roleName={selectedRoleForResume}
                 isLoading={isGeneratingResume}
             />
-            {interviewState && (
-                <AIInterviewAgentModal
-                    jobId={interviewState.jobId}
-                    interviewPrompt={interviewState.prompt}
-                    questions={interviewState.questions}
-                    isFirstTime={interviewState.isFirstTime}
-                    resumeContext={interviewState.resumeContext}
-                    jobTitle={interviewState.jobTitle}
-                    jobCompany={interviewState.jobCompany}
-                    onClose={() => setInterviewState(null)}
-                    isGuestMode={true}
-                />
-            )}
+            {/* Removed AIInterviewAgentModal from here as it's no longer used */}
         </>
     );
 };

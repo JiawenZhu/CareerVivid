@@ -290,20 +290,79 @@ const PublicResumePage: React.FC = () => {
         }
 
         setIsExporting(true);
+        let downloadSuccessful = false;
+
+        // Attempt Backend PDF Generation (High Quality) for ALL users
+        // Condition: Owner must be premium (checked by Cloud Function)
+        // Authenticated users send token (for drafts/verification)
+        // Unauthenticated users send userId/resumeId (Cloud Function verifies DB data)
         try {
-            const html2canvas = (await import('html2canvas')).default;
-            const canvas = await html2canvas(previewRef.current, { scale: 2, useCORS: true });
-            const dataUrl = canvas.toDataURL('image/png');
-            const link = document.createElement('a');
-            link.download = `${resume.title.replace(/\s/g, '_')}.png`;
-            link.href = dataUrl;
-            link.click();
-        } catch (err) {
-            console.error("Download failed:", err);
-            alert("Failed to download. Please try again.");
-        } finally {
-            setIsExporting(false);
+            const projectId = 'jastalk-firebase';
+            const functionUrl = `https://us-west1-${projectId}.cloudfunctions.net/generateResumePdfHttp`;
+
+            let headers: HeadersInit = { 'Content-Type': 'application/json' };
+            let body: any = {};
+
+            if (currentUser && (isPremium || isAdmin)) {
+                // Scenario 1: Authenticated Premium User (e.g., Owner)
+                // Behavior: Send Token + ResumeData (allows draft printing)
+                const token = await currentUser.getIdToken();
+                headers['Authorization'] = `Bearer ${token}`;
+                body = { resumeData: resume, templateId: resume.templateId };
+            } else {
+                // Scenario 2: Public Visitor / Non-Premium Viewer
+                // Behavior: Send userId + resumeId. Backend verifies Owner Premium status + DB data.
+                if (!routeParams) throw new Error("Missing route params for public download");
+                body = { userId: routeParams.userId, resumeId: routeParams.resumeId };
+            }
+
+            const response = await fetch(functionUrl, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(body)
+            });
+
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${resume.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                downloadSuccessful = true;
+            } else {
+                console.warn("Backend PDF generation failed (likely non-premium owner), falling back to client-side.", response.status);
+            }
+        } catch (backendError) {
+            console.error("Backend PDF generation error:", backendError);
         }
+
+        // Fallback: Client-side Generation (if backend unavailable or user not eligible)
+        if (!downloadSuccessful) {
+            try {
+                const html2canvas = (await import('html2canvas')).default;
+                // Use higher scale for better PDF quality (matches Editor.tsx fallback)
+                const canvas = await html2canvas(previewRef.current, { scale: 3, useCORS: true });
+
+                const { jsPDF } = await import('jspdf');
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const imgProps = pdf.getImageProperties(imgData);
+                const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+                pdf.save(`${resume.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+                downloadSuccessful = true;
+            } catch (err) {
+                console.error("Download failed:", err);
+                alert("Failed to download. Please try again.");
+            }
+        }
+
+        setIsExporting(false);
     };
 
     const handleSharedUpdate = async (updatedData: Partial<ResumeData>) => {

@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getInterviewAuthToken = exports.duplicateAndTranslateResume = exports.translateText = exports.updatePublicResume = exports.getPublicResume = exports.uploadImageHttp = exports.generateAIContent = exports.generateResumePdfHttp = exports.ssr = exports.onEmailRequestCreated = exports.onUserCreated = exports.grantAcademicPartnerRole = exports.applyDiscount = exports.cancelSubscription = exports.stripeWebhook = exports.createCheckoutSession = exports.geminiProxy = void 0;
+exports.getInterviewAuthToken = exports.duplicateAndTranslateResume = exports.translateText = exports.updatePublicResume = exports.getPublicResume = exports.uploadImageHttp = exports.generateAIContent = exports.generateResumePdfHttp = exports.onEmailRequestCreated = exports.onUserCreated = exports.grantAcademicPartnerRole = exports.applyDiscount = exports.cancelSubscription = exports.stripeWebhook = exports.createCheckoutSession = exports.geminiProxy = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 const chromium_1 = __importDefault(require("@sparticuz/chromium"));
@@ -76,8 +76,6 @@ var triggers_1 = require("./triggers");
 Object.defineProperty(exports, "onUserCreated", { enumerable: true, get: function () { return triggers_1.onUserCreated; } });
 var email_1 = require("./email");
 Object.defineProperty(exports, "onEmailRequestCreated", { enumerable: true, get: function () { return email_1.onEmailRequestCreated; } });
-var ssr_1 = require("./ssr");
-Object.defineProperty(exports, "ssr", { enumerable: true, get: function () { return ssr_1.ssr; } });
 const getFunctionConfig = () => {
     try {
         return functions.config().careervivid || {};
@@ -92,7 +90,7 @@ const APP_BASE_URL = process.env.CAREERVIVID_APP_URL ||
     "https://careervivid.app/";
 const PDF_PREVIEW_ROUTE = process.env.CAREERVIVID_PDF_ROUTE ||
     functionConfig.pdf_route ||
-    "/#/pdf-preview";
+    "/pdf-preview";
 const PDF_PREVIEW_URL = `${APP_BASE_URL}${PDF_PREVIEW_ROUTE}`;
 const waitForPdfStatus = (page, expected) => {
     return page.waitForFunction((status) => {
@@ -168,61 +166,98 @@ exports.generateResumePdfHttp = functions
             res.status(405).send("Method Not Allowed");
             return;
         }
-        console.log("START: generateResumePdfHttp [STREAMING MODE V2]");
+        console.log("START: generateResumePdfHttp [STREAMING MODE V3 - HYBRID AUTH]");
+        let userId = null;
+        let resumeDataToUse = null;
+        let templateIdToUse = null;
+        let isPublicAccess = false;
         const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            res.status(401).send('Unauthorized');
+        // Case 1: Authenticated Request (Editor Mode)
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            const idToken = authHeader.split('Bearer ')[1];
+            try {
+                const decodedToken = await admin.auth().verifyIdToken(idToken);
+                userId = decodedToken.uid;
+                resumeDataToUse = req.body.resumeData; // Use provided data (allows drafts)
+                templateIdToUse = req.body.templateId;
+            }
+            catch (e) {
+                console.error("Token verification failed:", e);
+                res.status(401).send('Unauthorized');
+                return;
+            }
+        }
+        // Case 2: Unauthenticated Request (Public Shared Page)
+        else {
+            const bodyUserId = req.body.userId;
+            const bodyResumeId = req.body.resumeId;
+            if (!bodyUserId || !bodyResumeId) {
+                res.status(401).send('Unauthorized: No token and missing public context.');
+                return;
+            }
+            console.log(`Public PDF Request for User: ${bodyUserId}, Resume: ${bodyResumeId}`);
+            isPublicAccess = true;
+            userId = bodyUserId;
+            // SECURITY: For public requests, we MUST fetch from DB. 
+            // We cannot trust req.body.resumeData from an unauthenticated source.
+            try {
+                const doc = await admin.firestore()
+                    .collection("users")
+                    .doc(String(userId))
+                    .collection("resumes")
+                    .doc(String(bodyResumeId))
+                    .get();
+                if (!doc.exists) {
+                    res.status(404).send('Resume not found');
+                    return;
+                }
+                const fetchedData = doc.data();
+                // Verify Permissions
+                if (!fetchedData.shareConfig?.enabled) {
+                    res.status(403).send('Resume is not shared publicly.');
+                    return;
+                }
+                resumeDataToUse = { ...fetchedData, id: doc.id };
+                templateIdToUse = fetchedData.templateId;
+            }
+            catch (err) {
+                console.error("Error fetching public resume:", err);
+                res.status(500).send("Failed to verify public resume.");
+                return;
+            }
+        }
+        if (!userId || !resumeDataToUse || !templateIdToUse) {
+            res.status(400).send("Invalid Request Data");
             return;
         }
-        const idToken = authHeader.split('Bearer ')[1];
-        // Verify ID token
-        let userId;
-        try {
-            const decodedToken = await admin.auth().verifyIdToken(idToken);
-            userId = decodedToken.uid;
-        }
-        catch (e) {
-            console.error("Token verification failed:", e);
-            res.status(401).send('Unauthorized');
-            return;
-        }
-        // Check if user has premium access for PDF generation
+        // Check Premium Status (Common for both paths)
         const userDoc = await admin.firestore().collection('users').doc(userId).get();
         const userData = userDoc.data();
-        // Allow PDF export if:
-        // 1. User has valid sprint plan (not expired)
-        // 2. User has active monthly subscription  
-        // 3. User has legacy premium flag (backward compatibility)
         let isPremium = false;
         if (userData) {
             const plan = userData.plan || 'free';
-            // Check sprint plan (with safe timestamp handling)
             const isSprintValid = plan === 'pro_sprint' && userData.expiresAt
                 ? (typeof userData.expiresAt.toMillis === 'function' ? userData.expiresAt.toMillis() : userData.expiresAt._seconds * 1000) > Date.now()
                 : false;
-            // Check monthly subscription
             const isMonthlyActive = plan === 'pro_monthly' &&
                 (userData.stripeSubscriptionStatus === 'active' || userData.stripeSubscriptionStatus === 'trialing');
-            // Check legacy premium flag
             const hasLegacyPremium = userData.promotions?.isPremium === true;
             isPremium = isSprintValid || isMonthlyActive || hasLegacyPremium;
         }
         if (!isPremium) {
+            // If public access, we don't show upgrade URL, just deny
             res.status(403).json({
-                error: 'PDF export is a premium feature. Please upgrade to The 7-Day Sprint or Pro Monthly plan.',
-                upgradeUrl: '/pricing'
+                error: isPublicAccess
+                    ? 'The owner of this resume does not have a premium subscription required for high-quality PDF downloads.'
+                    : 'PDF export is a premium feature. Please upgrade.',
+                upgradeUrl: isPublicAccess ? undefined : '/pricing'
             });
             return;
         }
-        const { resumeData, templateId } = req.body;
-        if (!resumeData || !templateId) {
-            res.status(400).send("Missing resume data or template ID.");
-            return;
-        }
         try {
-            const pdfBuffer = await generatePdfBuffer(resumeData, templateId);
+            const pdfBuffer = await generatePdfBuffer(resumeDataToUse, templateIdToUse);
             res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `attachment; filename="resume_${resumeData.id}.pdf"`);
+            res.setHeader('Content-Disposition', `attachment; filename="resume_${resumeDataToUse.id}.pdf"`);
             res.setHeader('Content-Length', pdfBuffer.length);
             res.send(pdfBuffer);
         }

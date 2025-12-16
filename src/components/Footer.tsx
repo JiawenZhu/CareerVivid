@@ -1,6 +1,7 @@
 
 import React from 'react';
 import Logo from './Logo';
+import { navigate } from '../App';
 
 const Footer: React.FC = () => {
     return (
@@ -12,9 +13,10 @@ const Footer: React.FC = () => {
                         <span className="text-xl font-bold text-gray-900 dark:text-white">CareerVivid</span>
                     </div>
                     <div className="flex gap-6 text-gray-500 dark:text-gray-400">
-                        <a href="/" className="hover:text-primary-500 transition-colors">Features</a>
-                        <a href="/pricing" className="hover:text-primary-500 transition-colors">Pricing</a>
-                        <a href="/contact" className="hover:text-primary-500 transition-colors">Help Center</a>
+                        <button onClick={() => navigate('/')} className="hover:text-primary-500 transition-colors">Features</button>
+                        <button onClick={() => navigate('/pricing')} className="hover:text-primary-500 transition-colors">Pricing</button>
+                        <button onClick={() => navigate('/contact')} className="hover:text-primary-500 transition-colors">Help Center</button>
+                        <button onClick={() => navigate('/policy')} className="hover:text-primary-500 transition-colors">Policy</button>
                     </div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                         © {new Date().getFullYear()} CareerVivid. All rights reserved.

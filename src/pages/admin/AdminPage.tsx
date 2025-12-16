@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-    Shield, User, BarChart, Mail, FileText, MessageSquare, AlertTriangle
+    Shield, User, Users, BarChart, Mail, FileText, MessageSquare, AlertTriangle
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useUsers, useUsageLogs } from './hooks';
@@ -11,15 +11,21 @@ import BlogManagement from './components/BlogManagement';
 import FeedbackManagement from './components/FeedbackManagement';
 import ErrorManagement from './components/ErrorManagement';
 import EmailTool from './components/EmailTool';
+import PartnerApplicationManagement from './components/PartnerApplicationManagement';
+import LandingPageManagement from './components/LandingPageManagement';
+import { Layout } from 'lucide-react';
 
 const AdminDashboardPage: React.FC = () => {
     const { logOut } = useAuth();
     const { users, loading: usersLoading } = useUsers();
     const { logs, loading: logsLoading } = useUsageLogs();
-    const [activeTab, setActiveTab] = useState('users');
+    const [currentTab, setCurrentTab] = useState(() => {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('tab') || 'feedback';
+    });
 
     const renderTabContent = () => {
-        switch (activeTab) {
+        switch (currentTab) {
             case 'users': return <UserManagement users={users} logs={logs} loading={usersLoading || logsLoading} />;
             case 'analytics': return <Analytics />;
             case 'messages': return <MessagesManagement />;
@@ -27,6 +33,8 @@ const AdminDashboardPage: React.FC = () => {
             case 'feedback': return <FeedbackManagement />;
             case 'error_reports': return <ErrorManagement />;
             case 'tools': return <EmailTool />;
+            case 'partners': return <PartnerApplicationManagement />;
+            case 'landing': return <LandingPageManagement />;
             default: return null;
         }
     };
@@ -50,13 +58,22 @@ const AdminDashboardPage: React.FC = () => {
                         { id: 'feedback', label: 'Feedback', icon: MessageSquare },
                         { id: 'error_reports', label: 'Errors', icon: AlertTriangle },
                         { id: 'tools', label: 'Tools', icon: Mail },
+                        { id: 'partners', label: 'Partners', icon: Users },
+                        { id: 'landing', label: 'Landing Page', icon: Layout },
                     ].map(tab => (
                         <button
                             key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`py-3 px-1 text-sm font-semibold flex items-center gap-2 whitespace-nowrap ${activeTab === tab.id ? 'border-b-2 border-primary-500 text-primary-600' : 'text-gray-500'}`}
+                            onClick={() => {
+                                setCurrentTab(tab.id);
+                                // Update URL without reloading
+                                const newUrl = new URL(window.location.href);
+                                newUrl.searchParams.set('tab', tab.id);
+                                window.history.pushState({}, '', newUrl);
+                            }}
+                            className={`py-3 px-1 text-sm font-semibold flex items-center gap-2 whitespace-nowrap ${currentTab === tab.id ? 'border-b-2 border-primary-500 text-primary-600' : 'text-gray-500'}`}
                         >
-                            <tab.icon size={16} /> {tab.label}
+                            <tab.icon size={16} />
+                            {tab.label}
                         </button>
                     ))}
                 </nav>

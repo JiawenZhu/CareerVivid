@@ -8,6 +8,7 @@ const minimalistColors = ['#000000', '#555555', '#888888', '#aaaaaa'];
 const techColors = ['#007acc', '#005f9e', '#333333', '#f0db4f', '#43853d'];
 const slateColors = ['#4a5568', '#718096', '#2d3748', '#a0aec0'];
 const boldColors = ['#ff4757', '#e84118', '#3c40c6', '#000000'];
+const vibrantColors = ['#000000', '#1abc9c', '#e74c3c', '#f1c40f'];
 
 
 export const TEMPLATES: TemplateInfo[] = [
@@ -21,7 +22,7 @@ export const TEMPLATES: TemplateInfo[] = [
   { id: 'Corporate', name: 'Corporate', availableColors: corporateColors },
   { id: 'Technical', name: 'Technical', availableColors: techColors },
   { id: 'Artistic', name: 'Artistic', availableColors: ['#e74c3c', '#00bcd4', '#ff9800'] },
-  { id: 'Vibrant', name: 'Vibrant', availableColors: creativeColors },
+  { id: 'Vibrant', name: 'Vibrant', availableColors: vibrantColors },
   { id: 'Slate', name: 'Slate', availableColors: slateColors },
   { id: 'Academic', name: 'Academic', availableColors: corporateColors },
   { id: 'Apex', name: 'Apex', availableColors: professionalColors },

@@ -63,6 +63,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
     const hasInitialContent = !!(resume.personalDetails.firstName || resume.professionalSummary || (resume.employmentHistory && resume.employmentHistory.length > 0));
     const [isImportExpanded, setIsImportExpanded] = useState(false);
     const [importText, setImportText] = useState('');
+    const [importSuccess, setImportSuccess] = useState(false);
 
     const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
     const [draggedItemType, setDraggedItemType] = useState<keyof ResumeData | null>(null);
@@ -103,8 +104,16 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
             const parsedData = await parseResume(currentUser.uid, text, resume.language);
             onChange(parsedData);
             setIsImportExpanded(false);
-            setAlertState({ isOpen: true, title: t('common.success'), message: "Resume imported successfully!" });
+
+            // Inline success feedback
+            setImportSuccess(true);
             setImportText(''); // Clear text after successful import
+
+            // Auto-dismiss success message
+            setTimeout(() => {
+                setImportSuccess(false);
+            }, 3000);
+
         } catch (error) {
             setAlertState({ isOpen: true, title: 'Parsing Failed', message: error instanceof Error ? error.message : "Failed to parse resume." });
         } finally {
@@ -255,7 +264,13 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                         </div>
                         <div className="text-left">
                             <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">{t('resume_form.import_resume')}</h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{t('resume_form.autofill_desc')}</p>
+                            {importSuccess ? (
+                                <p className="text-xs text-green-600 dark:text-green-400 font-bold flex items-center gap-1 animate-in fade-in duration-300">
+                                    <CheckCircle size={12} /> {t('resume_form.import_success', 'Imported successfully!')}
+                                </p>
+                            ) : (
+                                <p className="text-xs text-gray-500 dark:text-gray-400">{t('resume_form.autofill_desc')}</p>
+                            )}
                         </div>
                     </div>
                     {isImportExpanded ? <ChevronUp size={18} className="text-gray-400" /> : <ChevronDown size={18} className="text-gray-400" />}
@@ -669,6 +684,30 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                                 disabled={isReadOnly}
                                 placeholder="e.g., Graduated with honors. Relevant coursework included Natural Language Processing..."
                             />
+                            <div className="mt-2">
+                                <button
+                                    onClick={() => toggleImprovement(`edu-${edu.id}`)}
+                                    disabled={isReadOnly}
+                                    className="flex items-center gap-2 text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    <Wand2 size={16} /> {t('resume_form.improve_desc')}
+                                    {activeImprovementId === `edu-${edu.id}` ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                </button>
+                                {activeImprovementId === `edu-${edu.id}` && currentUser && (
+                                    <AIImprovementPanel
+                                        userId={currentUser.uid}
+                                        sectionName="Education Description"
+                                        currentText={edu.description}
+                                        language={resume.language}
+                                        onAccept={(text) => {
+                                            handleArrayChange<Education>('education', index, 'description', text);
+                                            setActiveImprovementId(null);
+                                        }}
+                                        onClose={() => setActiveImprovementId(null)}
+                                        onError={(title, message) => setAlertState({ isOpen: true, title, message })}
+                                    />
+                                )}
+                            </div>
                         </div>
                     </div>
                 ))}

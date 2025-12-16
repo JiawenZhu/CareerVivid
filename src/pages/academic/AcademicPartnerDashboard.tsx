@@ -4,6 +4,7 @@ import { db } from '../../firebase';
 import { collection, query, where, getDocs, doc, updateDoc, Timestamp } from 'firebase/firestore';
 import { Copy, Check, Users, Shield, ExternalLink, Calendar, Search, ArrowLeft } from 'lucide-react';
 import { UserProfile } from '../../types';
+import AcademicPartnerOnboarding from './components/AcademicPartnerOnboarding';
 
 const AcademicPartnerDashboard: React.FC = () => {
     const { userProfile, loading } = useAuth();
@@ -107,6 +108,9 @@ const AcademicPartnerDashboard: React.FC = () => {
                         <p className="text-gray-500 dark:text-gray-400">Manage your student licenses and track usage.</p>
                     </div>
                 </div>
+
+                {/* Onboarding Guide */}
+                <AcademicPartnerOnboarding />
 
                 {/* Referral Card */}
                 <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">

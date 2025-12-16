@@ -111,6 +111,7 @@ const PublicHeader: React.FC = () => {
                     <nav className="hidden md:flex items-center gap-8 h-full">
                         <NavItem name={t('nav.product')} href="/" />
                         <NavItem name={t('nav.use_cases')} hasDropdown />
+                        <NavItem name="Partners" href="/partners" />
                         <NavItem name={t('nav.pricing')} href="/pricing" />
                         <NavItem name={t('nav.blog')} href="/blog" />
                         <NavItem name={t('nav.resources')} hasDropdown />

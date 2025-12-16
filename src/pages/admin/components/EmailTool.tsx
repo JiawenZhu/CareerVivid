@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { db } from '../../../firebase';
 import { collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
-import { Send, Loader2, CheckCircle, AlertCircle, Wand2, FileText, User, Users, Plus, Trash2, Save } from 'lucide-react';
+import { Send, Loader2, CheckCircle, AlertCircle, Wand2, FileText, User, Users, Plus, Trash2, Save, Code } from 'lucide-react';
 import { useUsers } from '../hooks';
 import { EMAIL_TEMPLATES as SYSTEM_TEMPLATES, EmailTemplate } from './EmailTemplates';
 import AIImprovementPanel from '../../../components/AIImprovementPanel';
@@ -32,8 +32,21 @@ export default function EmailTool() {
     const [aiActive, setAiActive] = useState(false);
     const [alertState, setAlertState] = useState<{ isOpen: boolean, title: string, message: string }>({ isOpen: false, title: '', message: '' });
 
-    // Fetch Custom Templates
+    // Fetch Custom Templates & Handle URL Params and LocalStorage
     useEffect(() => {
+        // Handle URL Params for deep linking
+        const searchParams = new URLSearchParams(window.location.search);
+        const urlTo = searchParams.get('to');
+        const urlTemplateId = searchParams.get('templateId');
+
+        // Set 'To' field: URL param has priority over local storage
+        if (urlTo) {
+            setTo(urlTo);
+        } else {
+            const savedEmail = localStorage.getItem('last_admin_email_to');
+            if (savedEmail) setTo(savedEmail);
+        }
+
         const q = query(collection(db, 'email_templates'), orderBy('createdAt', 'desc'));
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const temps = snapshot.docs.map(doc => ({
@@ -42,6 +55,23 @@ export default function EmailTool() {
             } as EmailTemplate));
             setCustomTemplates(temps);
             setTemplatesLoading(false);
+
+            // Apply Template if requested via URL
+            if (urlTemplateId) {
+                // Check System Templates first
+                const systemTemplate = SYSTEM_TEMPLATES.find(t => t.id === urlTemplateId);
+                if (systemTemplate) {
+                    setSubject(systemTemplate.subject);
+                    setMessage(systemTemplate.html);
+                } else {
+                    // Check Custom Templates
+                    const customTemplate = temps.find(t => t.id === urlTemplateId);
+                    if (customTemplate) {
+                        setSubject(customTemplate.subject);
+                        setMessage(customTemplate.html);
+                    }
+                }
+            }
         }, (error) => {
             console.error("Error fetching templates:", error);
             setTemplatesLoading(false);
@@ -49,10 +79,15 @@ export default function EmailTool() {
         return () => unsubscribe();
     }, []);
 
-    // Filter users for autocomplete
     const filteredUsers = useMemo(() => {
         if (!to || sendToAll) return [];
         const lowerTerm = to.toLowerCase();
+
+        // Support for :all command
+        if (lowerTerm === ':all') {
+            return users;
+        }
+
         return users.filter(u => {
             // Defensive checks for null/undefined fields
             const emailMatch = u.email && typeof u.email === 'string' && u.email.toLowerCase().includes(lowerTerm);
@@ -102,6 +137,8 @@ export default function EmailTool() {
                     ...emailData,
                     to: to
                 });
+                // Update local storage with latest email
+                localStorage.setItem('last_admin_email_to', to);
                 setStatus({ type: 'success', msg: `Email queued for ${to}` });
             }
 
@@ -160,6 +197,24 @@ export default function EmailTool() {
         }
         setSubject(template.subject);
         setMessage(template.html);
+    };
+
+    const handleFormatHTML = () => {
+        if (!message) return;
+        let formatted = message;
+        // 1. Collapse multiple spaces to single (optional, maybe risky for pre tags, but good for messy html)
+        // formatted = formatted.replace(/\s+/g, ' '); 
+
+        // 2. Add newlines BEFORE block opening tags
+        formatted = formatted.replace(/(<(div|ul|ol|li|h[1-6]|p|blockquote|br|table|tr)[^>]*>)/gi, '\n$1');
+
+        // 3. Add newlines AFTER block closing tags
+        formatted = formatted.replace(/(<\/(div|ul|ol|li|h[1-6]|p|blockquote|table|tr)>)/gi, '$1\n');
+
+        // 4. Clean up double newlines
+        formatted = formatted.replace(/\n\s*\n/g, '\n');
+
+        setMessage(formatted.trim());
     };
 
     return (
@@ -244,13 +299,23 @@ export default function EmailTool() {
                         <div>
                             <div className="flex justify-between items-center mb-1">
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Message (HTML/Text)</label>
-                                <button
-                                    type="button"
-                                    onClick={() => setAiActive(!aiActive)}
-                                    className="text-xs flex items-center gap-1 text-primary-600 dark:text-primary-400 hover:text-primary-700 font-medium"
-                                >
-                                    <Wand2 size={12} /> {aiActive ? 'Close AI' : 'Edit with AI'}
-                                </button>
+                                <div className="flex gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={handleFormatHTML}
+                                        className="text-xs flex items-center gap-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 font-medium transition-colors"
+                                        title="Pretty format HTML"
+                                    >
+                                        <Code size={12} /> Format HTML
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setAiActive(!aiActive)}
+                                        className="text-xs flex items-center gap-1 text-primary-600 dark:text-primary-400 hover:text-primary-700 font-medium transition-colors"
+                                    >
+                                        <Wand2 size={12} /> {aiActive ? 'Close AI' : 'Edit with AI'}
+                                    </button>
+                                </div>
                             </div>
 
                             <AutoResizeTextarea
@@ -259,7 +324,7 @@ export default function EmailTool() {
                                 onChange={(e) => setMessage(e.target.value)}
                                 placeholder="Type your message here..."
                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono text-sm"
-                                minHeight={200}
+                                minHeight={300}
                             />
 
                             {/* AI Panel */}

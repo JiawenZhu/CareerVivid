@@ -47,7 +47,9 @@ interface ResumePreviewProps {
   onFocus?: (fieldId: string) => void;
 }
 
-const ResumePreview: React.FC<ResumePreviewProps> = ({ resume, template, previewRef, onUpdate, onFocus }) => {
+// Wrapped in React.memo to prevent unnecessary re-renders when props haven't changed.
+// This is crucial for performance as the resume preview can be expensive to render.
+const ResumePreview: React.FC<ResumePreviewProps> = React.memo(({ resume, template, previewRef, onUpdate, onFocus }) => {
   const renderTemplate = () => {
     const props = { resume, themeColor: resume.themeColor, titleFont: resume.titleFont, bodyFont: resume.bodyFont, onUpdate, onFocus };
     switch (template) {
@@ -97,6 +99,6 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ resume, template, preview
       {renderTemplate()}
     </div>
   );
-};
+});
 
 export default ResumePreview;

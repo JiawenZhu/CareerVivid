@@ -19,10 +19,10 @@ const ShareResumeModal: React.FC<ShareResumeModalProps> = ({ isOpen, onClose, re
   });
   const [copied, setCopied] = useState(false);
 
-  // Construct the share URL. Using a hash router approach for simplicity with existing routing.
-  // Format: base/#/shared/<userId>/<resumeId>
+  // Construct the share URL. Using history router approach.
+  // Format: base/shared/<userId>/<resumeId>
   const shareUrl = currentUser
-    ? `${window.location.origin}/#/shared/${currentUser.uid}/${resume.id}`
+    ? `${window.location.origin}/shared/${currentUser.uid}/${resume.id}`
     : '';
 
   useEffect(() => {
