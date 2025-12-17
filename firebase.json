@@ -8,6 +8,10 @@
     ],
     "rewrites": [
       {
+        "source": "/_next/**",
+        "destination": "/nextjs/_next/**"
+      },
+      {
         "source": "/en/pricing",
         "destination": "/nextjs/en/pricing.html"
       },
