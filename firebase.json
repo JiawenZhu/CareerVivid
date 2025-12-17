@@ -72,11 +72,23 @@
         "destination": "/nextjs/en.html"
       },
       {
+        "source": "/en/",
+        "destination": "/nextjs/en.html"
+      },
+      {
         "source": "/zh",
         "destination": "/nextjs/zh.html"
       },
       {
+        "source": "/zh/",
+        "destination": "/nextjs/zh.html"
+      },
+      {
         "source": "/es",
+        "destination": "/nextjs/es.html"
+      },
+      {
+        "source": "/es/",
         "destination": "/nextjs/es.html"
       },
       {
