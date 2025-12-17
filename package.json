@@ -5,8 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "build:vite": "vite build",
+    "build:next": "cd ../careervivid-next && npm run build",
+    "build:copy": "rm -rf dist/nextjs && mkdir -p dist/nextjs && cp -r ../careervivid-next/out/* dist/nextjs/",
+    "build": "npm run build:vite && npm run build:next && npm run build:copy",
+    "lint": "eslint",
     "preview": "vite preview",
     "translate-locales": "node scripts/translate_locales.js"
   },

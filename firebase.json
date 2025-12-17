@@ -8,6 +8,30 @@
     ],
     "rewrites": [
       {
+        "source": "/en",
+        "destination": "/nextjs/en.html"
+      },
+      {
+        "source": "/en/**",
+        "destination": "/nextjs/en/**"
+      },
+      {
+        "source": "/zh",
+        "destination": "/nextjs/zh.html"
+      },
+      {
+        "source": "/zh/**",
+        "destination": "/nextjs/zh/**"
+      },
+      {
+        "source": "/es",
+        "destination": "/nextjs/es.html"
+      },
+      {
+        "source": "/es/**",
+        "destination": "/nextjs/es/**"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
