@@ -594,7 +594,7 @@ const Editor: React.FC<EditorProps> = ({
                 isOpen={isSignupPromptOpen}
                 title={t('editor.signup_prompt_title')}
                 message={t('editor.signup_prompt_msg')}
-                onConfirm={() => navigate('/auth')}
+                onConfirm={() => navigate('/signup')}
                 onCancel={() => setIsSignupPromptOpen(false)}
                 confirmText={t('auth.sign_up_free')}
             />

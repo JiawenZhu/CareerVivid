@@ -89,7 +89,7 @@ const AcademicPartnerDashboard: React.FC = () => {
         s.uid.includes(searchTerm)
     );
 
-    const referralLink = `https://careervivid.app/auth?ref=${userProfile.referralCode || 'ERROR_NO_CODE'}`;
+    const referralLink = `https://careervivid.app/signup?ref=${userProfile.referralCode || 'ERROR_NO_CODE'}`;
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-8">

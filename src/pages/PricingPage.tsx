@@ -92,7 +92,7 @@ const PricingPage: React.FC = () => {
 
         // Check if user is logged in
         if (!currentUser) {
-            navigate('/auth');
+            navigate('/signup');
             return;
         }
 

@@ -12,6 +12,8 @@ const InterviewStudio = React.lazy(() => import('./pages/InterviewStudio'));
 const ProfilePage = React.lazy(() => import('./pages/ProfilePage'));
 const ChatBot = React.lazy(() => import('./components/ChatBot'));
 const AuthPage = React.lazy(() => import('./pages/AuthPage'));
+const SignInPage = React.lazy(() => import('./pages/SignInPage'));
+const SignUpPage = React.lazy(() => import('./pages/SignUpPage'));
 const LandingPage = React.lazy(() => import('./pages/LandingPage'));
 const TechLandingPage = React.lazy(() => import('./pages/TechLandingPage'));
 const PricingPage = React.lazy(() => import('./pages/PricingPage'));
@@ -274,8 +276,14 @@ const App: React.FC = () => {
     }
   } else {
     // Public routes for logged-out users
-    if (path === '/auth') {
-      content = <AuthPage />;
+    if (path === '/signin') {
+      content = <SignInPage />;
+    } else if (path === '/signup') {
+      content = <SignUpPage />;
+    } else if (path === '/auth') {
+      // Redirect old auth route to signin
+      window.location.href = '/signin';
+      content = <SignInPage />;
     } else if (path === '/pricing') {
       content = <PricingPage />;
     } else if (path === '/demo') {

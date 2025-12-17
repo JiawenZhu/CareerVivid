@@ -16,6 +16,7 @@ const ResumePreview = React.lazy(() => import('../components/ResumePreview'));
 
 const BusinessPartnerDashboard: React.FC = () => {
     const { currentUser, userProfile, logOut } = useAuth();
+    const referralLink = `https://careervivid.app/signup?ref=${userProfile?.referralCode || 'ERROR_NO_CODE'}`;
     const [activeTab, setActiveTab] = useState<'jobs' | 'applicants'>('jobs');
     const [jobs, setJobs] = useState<JobPosting[]>([]);
     const [applications, setApplications] = useState<JobApplication[]>([]);
@@ -35,7 +36,7 @@ const BusinessPartnerDashboard: React.FC = () => {
 
     useEffect(() => {
         if (!currentUser) {
-            navigate('/auth');
+            navigate('/signin');
             return;
         }
 

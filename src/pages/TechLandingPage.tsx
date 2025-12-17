@@ -57,7 +57,7 @@ const TechLandingPage: React.FC = () => {
                             Go from rough draft to job-ready resume in minutes with our intelligent platform. Tailor, optimize, and export professional resumes that stand out.
                         </p>
                         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <button onClick={() => navigate('/auth')} className="w-full sm:w-auto px-8 py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full font-bold text-lg transition-all transform hover:scale-105 hover:shadow-2xl flex items-center justify-center gap-2">
+                            <button onClick={() => navigate('/signup')} className="w-full sm:w-auto px-8 py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full font-bold text-lg transition-all transform hover:scale-105 hover:shadow-2xl flex items-center justify-center gap-2">
                                 Start Building Free <ArrowRight size={18} />
                             </button>
                             <button onClick={() => navigate('/demo')} className="w-full sm:w-auto px-8 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-full font-bold text-lg transition-all transform hover:scale-105 hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -200,7 +200,7 @@ const TechLandingPage: React.FC = () => {
                             Stop wrestling with formatting and start building a resume that gets you hired. Join thousands of professionals today.
                         </p>
                         <div className="flex flex-col sm:flex-row justify-center gap-4">
-                            <button onClick={() => navigate('/auth')} className="px-8 py-4 bg-white text-gray-900 rounded-full font-bold text-lg hover:bg-gray-100 transition-colors">
+                            <button onClick={() => navigate('/signup')} className="px-8 py-4 bg-white text-gray-900 rounded-full font-bold text-lg hover:bg-gray-100 transition-colors">
                                 Create My Resume
                             </button>
                             <div className="flex items-center justify-center gap-2 text-gray-400 text-sm mt-4 sm:mt-0 sm:ml-6">

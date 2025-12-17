@@ -52,11 +52,8 @@ const LandingPage: React.FC = () => {
                                     {t('landing.hero_subtitle')}
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-4 mb-10">
-                                    <button onClick={() => navigate('/auth')} className="px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-full font-bold text-lg transition-all transform hover:scale-105 shadow-lg hover:shadow-primary-500/25 flex items-center justify-center gap-2">
-                                        {t('landing.cta_build')} <ArrowRight size={18} />
-                                    </button>
-                                    <button onClick={() => navigate('/demo')} className="px-8 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-full font-bold text-lg transition-all transform hover:scale-105 hover:bg-gray-50 dark:hover:bg-gray-700">
-                                        {t('landing.cta_demo')}
+                                    <button onClick={() => navigate('/signup')} className="px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-full font-bold text-lg transition-all transform hover:scale-105 shadow-lg hover:shadow-primary-500/25 flex items-center justify-center gap-2">
+                                        {t('landing.get_started')} <ArrowRight size={20} />
                                     </button>
                                 </div>
                                 <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">

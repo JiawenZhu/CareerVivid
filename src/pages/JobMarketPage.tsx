@@ -273,7 +273,7 @@ const JobMarketPage: React.FC = () => {
     const handleAddToTracker = async (job: JobPosting, e?: React.MouseEvent) => {
         e?.stopPropagation();
         if (!currentUser) {
-            navigate('/auth');
+            navigate('/signin');
             return;
         }
 
@@ -317,7 +317,7 @@ const JobMarketPage: React.FC = () => {
     const handleApplyClick = (job: JobPosting, e?: React.MouseEvent) => {
         e?.stopPropagation();
         if (!currentUser) {
-            navigate('/auth');
+            navigate('/signin');
             return;
         }
         setApplyingJob(job);

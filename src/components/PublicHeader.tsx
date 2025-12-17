@@ -129,10 +129,10 @@ const PublicHeader: React.FC = () => {
                         </div>
 
                         <div className="hidden md:flex items-center gap-3">
-                            <a href="/auth" className="text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors px-3 py-2">
+                            <a href="/signin" className="text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors px-3 py-2">
                                 {t('nav.login')}
                             </a>
-                            <a href="/auth" className="px-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full font-semibold text-sm hover:bg-gray-800 dark:hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
+                            <a href="/signup" className="px-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full font-semibold text-sm hover:bg-gray-800 dark:hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
                                 {t('nav.signup')}
                             </a>
                         </div>
@@ -164,10 +164,10 @@ const PublicHeader: React.FC = () => {
                             <div className="mb-2">
                                 <LanguageSelect />
                             </div>
-                            <a href="/auth" onClick={() => setIsMenuOpen(false)} className="w-full text-center py-3 text-gray-900 dark:text-white font-semibold border border-gray-200 dark:border-gray-700 rounded-lg">
+                            <a href="/signin" onClick={() => setIsMenuOpen(false)} className="w-full text-center py-3 text-gray-900 dark:text-white font-semibold border border-gray-200 dark:border-gray-700 rounded-lg">
                                 {t('nav.login')}
                             </a>
-                            <a href="/auth" onClick={() => setIsMenuOpen(false)} className="w-full text-center py-3 bg-primary-600 text-white rounded-lg font-semibold">
+                            <a href="/signup" onClick={() => setIsMenuOpen(false)} className="w-full text-center py-3 bg-primary-600 text-white rounded-lg font-semibold">
                                 {t('nav.signup')}
                             </a>
                         </div>

@@ -41,7 +41,7 @@ const SubscriptionPage: React.FC = () => {
     // Redirect if not logged in
     useEffect(() => {
         if (!currentUser) {
-            navigate('/auth');
+            navigate('/signin');
         }
     }, [currentUser]);
 
