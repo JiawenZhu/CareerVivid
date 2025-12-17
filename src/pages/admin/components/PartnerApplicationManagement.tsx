@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../../firebase';
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, getDocs } from 'firebase/firestore';
 import { Check, X, Trash2, ExternalLink, Loader2, Building2, GraduationCap, Users, Mail } from 'lucide-react';
 
 interface PartnerApplication {
@@ -36,9 +36,55 @@ const PartnerApplicationManagement: React.FC = () => {
     const handleStatusUpdate = async (id: string, newStatus: 'approved' | 'rejected') => {
         if (!window.confirm(`Are you sure you want to mark this application as ${newStatus}?`)) return;
         try {
+            // Update application status
             await updateDoc(doc(db, 'partner_applications', id), {
                 status: newStatus
             });
+
+            // If approved, add the role to the user's roles array
+            if (newStatus === 'approved') {
+                const app = applications.find(a => a.id === id);
+                if (app) {
+                    // Find user by email
+                    const usersRef = collection(db, 'users');
+                    const usersSnapshot = await getDocs(usersRef);
+
+                    const userDoc = usersSnapshot.docs.find(doc => doc.data().email === app.email);
+                    if (userDoc) {
+                        const userData = userDoc.data();
+                        let roleToAdd: 'academic_partner' | 'business_partner' | undefined;
+
+                        if (app.type === 'academic') {
+                            roleToAdd = 'academic_partner';
+                        } else if (app.type === 'business') {
+                            roleToAdd = 'business_partner';
+                        }
+
+                        if (roleToAdd) {
+                            // Get current roles array or create from legacy role field
+                            let currentRoles = userData.roles || [];
+                            if (!currentRoles.length && userData.role && userData.role !== 'user') {
+                                // Migrate from old single role to roles array
+                                currentRoles = [userData.role];
+                            }
+
+                            // Add new role if not already present
+                            if (!currentRoles.includes(roleToAdd)) {
+                                currentRoles.push(roleToAdd);
+                            }
+
+                            await updateDoc(doc(db, 'users', userDoc.id), {
+                                roles: currentRoles,
+                                role: roleToAdd // Also update legacy field for backward compatibility
+                            });
+                            console.log(`Updated user ${userDoc.id} - added ${roleToAdd} to roles array`);
+                            alert(`Successfully approved and added ${roleToAdd} role`);
+                        }
+                    } else {
+                        alert('Approved application, but user account not found. User may need to sign up first.');
+                    }
+                }
+            }
         } catch (error) {
             console.error("Error updating status:", error);
             alert("Failed to update status");

@@ -40,6 +40,18 @@ Organize your entire job search in one dashboard.
 - **Status Tracking**: Keep tabs on Applied, Interviewing, and Offer stages.
 - **Statistics**: Visualize your progress and conversion rates.
 
+### 🤝 Business Partner Integration
+A dedicated portal for HR professionals and Recruiters.
+- **Job Management**: Create, publish, and manage job postings.
+- **Applicant Tracking System (ATS)**: Review candidates, analyze resume matches with AI, and track status.
+- **Status Sync**: HR updates (e.g., Shortlisted, Interviewing) automatically sync to the candidate's personal Job Tracker.
+
+### 🏢 Job Marketplace
+A centralized hub for connecting talent with opportunity.
+- **Smart Matching**: Find jobs that match your skills.
+- **Direct Apply**: Apply to jobs directly with your CareerVivid profile and resumes.
+- **Tracker Integration**: One-click addition of jobs to your personal tracker.
+
 ## Getting Started
 
 Follow these steps to set up the project locally on your machine.

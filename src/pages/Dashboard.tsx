@@ -806,6 +806,9 @@ const Dashboard: React.FC = () => {
                                             <button onClick={() => { navigate('/interview-studio'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                 <Mic size={16} /> {t('dashboard.interview_practice')}
                                             </button>
+                                            <button onClick={() => { navigate('/job-market'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                <Briefcase size={16} /> Find Jobs (Professional)
+                                            </button>
                                             <button onClick={() => { navigate('/tracker'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                 <Briefcase size={16} /> {t('dashboard.track_new_job')}
                                             </button>
@@ -846,7 +849,8 @@ const Dashboard: React.FC = () => {
                                                     </div>
                                                 )}
                                             </a>
-                                            {userProfile?.role === 'academic_partner' && <a href="/academic-partner" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.academic_partner')}</a>}
+                                            {(userProfile?.roles?.includes('academic_partner') || userProfile?.role === 'academic_partner') && <a href="/academic-partner" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.academic_partner')}</a>}
+                                            {(userProfile?.roles?.includes('business_partner') || userProfile?.role === 'business_partner') && <a href="/business-partner/dashboard" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Business Partner</a>}
                                             {isAdmin && <a href="/admin" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.admin')}</a>}
                                             <button onClick={logOut} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.sign_out')}</button>
                                         </div>

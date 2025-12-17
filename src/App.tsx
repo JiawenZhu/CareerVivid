@@ -37,6 +37,10 @@ const BusinessPartnerPage = React.lazy(() => import('./pages/partners/BusinessPa
 const StudentAmbassadorPage = React.lazy(() => import('./pages/partners/StudentAmbassadorPage'));
 const PartnerApplicationPage = React.lazy(() => import('./pages/partners/PartnerApplicationPage'));
 const PolicyPage = React.lazy(() => import('./pages/PolicyPage'));
+const HRPartnerPage = React.lazy(() => import('./pages/partners/HRPartnerPage'));
+const BusinessPartnerDashboard = React.lazy(() => import('./pages/BusinessPartnerDashboard'));
+const JobPostingEditor = React.lazy(() => import('./pages/JobPostingEditor'));
+const JobMarketPage = React.lazy(() => import('./pages/JobMarketPage'));
 
 import { SUPPORTED_LANGUAGES } from './constants';
 import i18n from './i18n';
@@ -241,6 +245,15 @@ const App: React.FC = () => {
         content = <ContactPage />;
       } else if (path === '/policy') {
         content = <PolicyPage />;
+      } else if (path === '/business-partner/dashboard') {
+        content = <BusinessPartnerDashboard />;
+      } else if (path.toLowerCase() === '/jobmarket' || path === '/job-market') {
+        content = <JobMarketPage />;
+      } else if (path === '/business-partner/jobs/new') {
+        content = <JobPostingEditor />;
+      } else if (path.startsWith('/business-partner/jobs/') && path.endsWith('/edit')) {
+        const jobId = path.split('/')[3]; // Extract job ID from /business-partner/jobs/:jobId/edit
+        content = <JobPostingEditor jobId={jobId} />;
       } else if (path === '/blog') {
         content = <BlogListPage />;
       } else if (path.startsWith('/blog/')) {
@@ -288,6 +301,8 @@ const App: React.FC = () => {
       content = <BusinessPartnerPage />;
     } else if (path === '/partners/students') {
       content = <StudentAmbassadorPage />;
+    } else if (path === '/partners/hiring') {
+      content = <HRPartnerPage />;
     } else if (path === '/partners/apply') {
       content = <PartnerApplicationPage />;
     } else {

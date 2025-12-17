@@ -146,8 +146,9 @@ export interface UserProfile {
   emailPreferences?: EmailPreferences;
   updatedAt?: any; // Added for tracking when plan changes
 
-  // Academic Partner Fields
-  role?: 'user' | 'admin' | 'academic_partner';
+  // Partner Fields
+  role?: 'user' | 'admin' | 'academic_partner' | 'business_partner'; // Deprecated - kept for backward compatibility
+  roles?: ('admin' | 'academic_partner' | 'business_partner')[]; // New: Users can have multiple roles
   referralCode?: string; // For partners: their unique code
   referredBy?: string; // For students: code they used
   academicPartnerId?: string; // For students: ID of their professor
@@ -232,6 +233,7 @@ export interface JobApplicationData {
   // Core Job Info
   jobTitle: string;
   companyName: string;
+  jobPostingId?: string; // Link to original job posting for sync
   location?: string;
   jobPostURL: string;
   applicationURL?: string;
@@ -305,4 +307,82 @@ export interface Comment {
   userId: string;
   userName: string;
   timestamp: any;
+}
+
+// --- HR Partner Job Platform Types ---
+
+export type JobLocationType = 'remote' | 'hybrid' | 'onsite';
+export type JobEmploymentType = 'full-time' | 'part-time' | 'contract' | 'internship';
+export type JobPostingStatus = 'draft' | 'published' | 'closed';
+export type JobApplicationStatus = 'submitted' | 'reviewing' | 'shortlisted' | 'interviewing' | 'rejected' | 'accepted';
+
+export interface JobPosting {
+  id: string;
+  hrUserId: string; // Creator's UID
+  companyName: string;
+  companyLogo?: string;
+  jobTitle: string;
+  department: string;
+  location: string;
+  locationType: JobLocationType;
+  employmentType: JobEmploymentType;
+
+  // Job Details
+  description: string;
+  responsibilities: string[];
+  requirements: string[];
+  niceToHave: string[];
+
+  // Compensation
+  salaryMin?: number;
+  salaryMax?: number;
+  salaryCurrency: string;
+  benefits: string[];
+
+  // Application Settings
+  applicationDeadline?: any; // Firestore Timestamp
+  maxApplications?: number;
+  status: JobPostingStatus;
+
+  // Metadata
+  createdAt: any; // Firestore Timestamp
+  updatedAt: any; // Firestore Timestamp
+  publishedAt?: any; // Firestore Timestamp
+  viewCount: number;
+  applicationCount: number;
+}
+
+export interface StatusHistoryEntry {
+  status: JobApplicationStatus;
+  timestamp: any; // Firestore Timestamp
+  note?: string;
+}
+
+export interface CustomAnswer {
+  questionId: string;
+  answer: string;
+}
+
+export interface JobApplication {
+  id: string;
+  jobPostingId: string;
+  applicantUserId: string;
+  resumeId: string; // Which resume they submitted
+
+  // Application Data
+  coverLetter?: string;
+  customAnswers?: CustomAnswer[];
+
+  // Status Tracking
+  status: JobApplicationStatus;
+  statusHistory: StatusHistoryEntry[];
+
+  // HR Notes
+  hrNotes?: string;
+  rating?: number; // 1-5 stars
+  matchAnalysis?: ResumeMatchAnalysis; // Verification of match percentage
+
+  // Metadata
+  appliedAt: any; // Firestore Timestamp
+  lastUpdated: any; // Firestore Timestamp
 }

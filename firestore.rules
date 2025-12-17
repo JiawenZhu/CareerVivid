@@ -1,70 +1,144 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // ✅ Global Admin Access (Allows admins to access EVERYTHING)
+    
+    // --- Helper Functions ---
+    
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+    
+    function isBusinessPartner() {
+      // Check if user has business_partner role (handling both legacy 'role' string and new 'roles' array)
+      let userData = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      return (userData.keys().hasAny(['role']) && userData.role == 'business_partner') || 
+             (userData.keys().hasAny(['roles']) && userData.roles.hasAny(['business_partner']));
+    }
+    
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // --- Rules ---
+
+    // Global Admin Access
     match /{document=**} {
-      allow read, write: if request.auth != null && request.auth.token.admin == true;
+      allow read, write: if isAdmin();
     }
 
-    // Allow users to check their own admin status (even if custom claim is missing)
-    match /admins/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // ✅ Allow authenticated users to query /users collection for username lookups
-    // This is needed for portfolio editor to resolve usernames to UIDs
+    // User Management
     match /users/{userId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && (request.auth.uid == userId || request.auth.token.admin == true);
+      allow write: if isOwner(userId) || isAdmin();
+      
+      // Allow users to manage their own subcollections
+      match /{document=**} {
+        allow read: if isOwner(userId) || isAdmin() || isBusinessPartner();
+        allow write: if isOwner(userId) || isAdmin();
+      }
+
+      // Allow Business Partners to update job tracker status
+      match /jobTracker/{trackerId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow write: if isOwner(userId) || isAdmin();
+        allow update: if isBusinessPartner(); 
+      }
+      
+      // Specifically helpful for public access logic if needed, but handled by sub-collections below
+      match /portfolios/{portfolioId} {
+        allow read: if request.auth != null; // Authenticated users can read portfolios (for verification/viewing)
+        allow write: if isOwner(userId) || isAdmin();
+      }
+      
+      // Public Resume Comments/Annotations
+      match /resumes/{resumeId}/comments/{commentId} {
+        allow read, write: if true;
+      }
+      match /resumes/{resumeId}/annotations/{annotationId} {
+        allow read, write: if true;
+      }
+    }
+    
+    // Admins Collection (Self-read)
+    match /admins/{userId} {
+      allow read: if isOwner(userId);
     }
 
-    // ✅ DEBUG: Allow any authenticated user to read ANY portfolio
-    // This is temporarily permissive to debug the access issue
-    match /users/{userId}/portfolios/{portfolioId} {
-      allow read: if request.auth != null;  // Any logged-in user can read
-      allow write: if request.auth != null && (request.auth.uid == userId || request.auth.token.admin == true);
-    }
-
-    // Allow users to access their own subcollections only, OR if they are an admin
-    match /users/{userId}/{document=**} {
-      allow read, write: if request.auth != null && (request.auth.uid == userId || request.auth.token.admin == true);
-    }
-
-    // ✅ Allow public access to comments and annotations for shared resumes
-    match /users/{userId}/resumes/{resumeId}/comments/{commentId} {
-      allow read, write: if true;
-    }
-    match /users/{userId}/resumes/{resumeId}/annotations/{annotationId} {
-      allow read, write: if true;
-    }
-
-    // ✅ FIX: Allow anyone (public) to READ blog posts
-    // But only allow authenticated admins to WRITE/EDIT them
+    // Blog Posts (Public Read, Admin Write)
     match /blog_posts/{postId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.token.admin == true;
+      allow write: if isAdmin();
     }
 
-    // ✅ Allow authenticated users to create usage logs
+    // Usage Logs
     match /usage_logs/{logId} {
       allow create: if request.auth != null;
     }
 
-    // ✅ Allow public access to shared portfolios
+    // Public Portfolios
     match /public_portfolios/{portfolioId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if request.auth != null; // Authenticated users can publish
     }
 
-    // ✅ Allow public submission of partner applications
+    // Partner Applications (Public Submit, Admin Manage)
     match /partner_applications/{applicationId} {
-      allow create: if true;
-      allow read, write: if request.auth != null && request.auth.token.admin == true;
+      allow create: if true; // Public submission
+      allow read, write: if isAdmin();
+      allow update: if isAdmin();
     }
 
-    // ✅ Allow anyone to write to demo analytics
+    // Demo Analytics
     match /analytics/demo_page_events {
       allow read, write: if true;
+    }
+    
+    // --- Job Platform Rules ---
+    
+    // Job Postings
+    match /jobPostings/{jobId} {
+      // Read: Public if published, Owner/Admin if draft
+      allow read: if resource.data.status == 'published' || 
+                    (request.auth != null && resource.data.hrUserId == request.auth.uid) || 
+                    isAdmin();
+      
+      // Create: Must be Business Partner and assign self as owner
+      allow create: if request.auth != null && 
+                      isBusinessPartner() && 
+                      request.resource.data.hrUserId == request.auth.uid;
+      
+      // Update/Delete: Only Owner or Admin
+      allow update, delete: if (request.auth != null && resource.data.hrUserId == request.auth.uid) || 
+                               isAdmin();
+    }
+    
+    // Job Applications
+    match /jobApplications/{applicationId} {
+      // Read: Applicant OR HR Partner (Owner of the Job) OR Admin
+      allow read: if request.auth != null && (
+        resource.data.applicantUserId == request.auth.uid || 
+        get(/databases/$(database)/documents/jobPostings/$(resource.data.jobPostingId)).data.hrUserId == request.auth.uid ||
+        isAdmin()
+      );
+      
+      // Create: Authenticated Users (Applicants)
+      // Must be applying for themselves
+      allow create: if request.auth != null && 
+                       request.resource.data.applicantUserId == request.auth.uid;
+      
+      // Update: HR Partner (for status/notes) OR Admin
+      // Applicant generally shouldn't update after submission except maybe withdrawing (delete)
+      allow update: if request.auth != null && (
+        get(/databases/$(database)/documents/jobPostings/$(resource.data.jobPostingId)).data.hrUserId == request.auth.uid ||
+        isAdmin()
+      );
+      
+      // Delete: Admin or Applicant (Withdraw) or HR (Archive)
+      allow delete: if request.auth != null && (
+        resource.data.applicantUserId == request.auth.uid ||
+        get(/databases/$(database)/documents/jobPostings/$(resource.data.jobPostingId)).data.hrUserId == request.auth.uid ||
+        isAdmin()
+      );
     }
   }
 }
