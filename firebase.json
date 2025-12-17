@@ -8,26 +8,6 @@
     ],
     "rewrites": [
       {
-        "source": "/pricing",
-        "destination": "/nextjs/en/pricing.html"
-      },
-      {
-        "source": "/contact",
-        "destination": "/nextjs/en/contact.html"
-      },
-      {
-        "source": "/signin",
-        "destination": "/nextjs/en/signin.html"
-      },
-      {
-        "source": "/signup",
-        "destination": "/nextjs/en/signup.html"
-      },
-      {
-        "source": "/blog",
-        "destination": "/nextjs/en/blog.html"
-      },
-      {
         "source": "/en/pricing",
         "destination": "/nextjs/en/pricing.html"
       },
