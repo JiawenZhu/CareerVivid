@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendPracticeEmails = void 0;
+exports.cleanupUsageLogs = exports.cleanupJobSearchCache = exports.sendPracticeEmails = void 0;
 const scheduler_1 = require("firebase-functions/v2/scheduler");
 const admin = __importStar(require("firebase-admin"));
 const params_1 = require("firebase-functions/params");
@@ -96,7 +96,8 @@ exports.sendPracticeEmails = (0, scheduler_1.onSchedule)({
     timeZone: "America/Los_Angeles",
     secrets: [geminiApiKey],
     timeoutSeconds: 540,
-    memory: "512MiB"
+    memory: "512MiB",
+    region: "us-west1"
 }, async (event) => {
     const now = admin.firestore.Timestamp.now();
     try {
@@ -182,6 +183,82 @@ exports.sendPracticeEmails = (0, scheduler_1.onSchedule)({
     }
     catch (error) {
         console.error("Error in sendPracticeEmails job:", error);
+    }
+});
+// Scheduled cleanup for job search cache
+// Runs daily and deletes cache entries not accessed in 14 days
+exports.cleanupJobSearchCache = (0, scheduler_1.onSchedule)({
+    schedule: "every 24 hours",
+    timeZone: "America/Los_Angeles",
+    timeoutSeconds: 300,
+    memory: "256MiB",
+    region: "us-west1"
+}, async (event) => {
+    console.log("[cleanupJobSearchCache] Starting cache cleanup...");
+    try {
+        const twoWeeksAgo = admin.firestore.Timestamp.fromDate(new Date(Date.now() - 14 * 24 * 60 * 60 * 1000));
+        // Query for stale entries
+        const staleEntriesSnapshot = await db.collection('jobSearchCache')
+            .where('lastAccessedAt', '<', twoWeeksAgo)
+            .get();
+        if (staleEntriesSnapshot.empty) {
+            console.log("[cleanupJobSearchCache] No stale cache entries found.");
+            return;
+        }
+        // Batch delete (Firestore batches are limited to 500 operations)
+        const batchSize = 500;
+        let deletedCount = 0;
+        for (let i = 0; i < staleEntriesSnapshot.docs.length; i += batchSize) {
+            const batch = db.batch();
+            const chunk = staleEntriesSnapshot.docs.slice(i, i + batchSize);
+            chunk.forEach(doc => {
+                batch.delete(doc.ref);
+            });
+            await batch.commit();
+            deletedCount += chunk.length;
+        }
+        console.log(`[cleanupJobSearchCache] Deleted ${deletedCount} stale cache entries.`);
+    }
+    catch (error) {
+        console.error("[cleanupJobSearchCache] Error during cleanup:", error);
+    }
+});
+// Scheduled cleanup for usage logs (login, activity, error logs)
+// Runs daily and deletes logs older than 14 days
+exports.cleanupUsageLogs = (0, scheduler_1.onSchedule)({
+    schedule: "every 24 hours",
+    timeZone: "America/Los_Angeles",
+    timeoutSeconds: 300,
+    memory: "256MiB",
+    region: "us-west1"
+}, async (event) => {
+    console.log("[cleanupUsageLogs] Starting usage logs cleanup...");
+    try {
+        const twoWeeksAgo = admin.firestore.Timestamp.fromDate(new Date(Date.now() - 14 * 24 * 60 * 60 * 1000));
+        // Query for old logs
+        const oldLogsSnapshot = await db.collection('usage_logs')
+            .where('timestamp', '<', twoWeeksAgo)
+            .get();
+        if (oldLogsSnapshot.empty) {
+            console.log("[cleanupUsageLogs] No old logs found.");
+            return;
+        }
+        // Batch delete (Firestore batches are limited to 500 operations)
+        const batchSize = 500;
+        let deletedCount = 0;
+        for (let i = 0; i < oldLogsSnapshot.docs.length; i += batchSize) {
+            const batch = db.batch();
+            const chunk = oldLogsSnapshot.docs.slice(i, i + batchSize);
+            chunk.forEach(doc => {
+                batch.delete(doc.ref);
+            });
+            await batch.commit();
+            deletedCount += chunk.length;
+        }
+        console.log(`[cleanupUsageLogs] Deleted ${deletedCount} old usage logs.`);
+    }
+    catch (error) {
+        console.error("[cleanupUsageLogs] Error during cleanup:", error);
     }
 });
 //# sourceMappingURL=scheduled.js.map

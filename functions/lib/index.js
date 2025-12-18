@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getInterviewAuthToken = exports.duplicateAndTranslateResume = exports.translateText = exports.updatePublicResume = exports.getPublicResume = exports.uploadImageHttp = exports.generateAIContent = exports.generateResumePdfHttp = exports.onEmailRequestCreated = exports.onUserCreated = exports.grantAcademicPartnerRole = exports.applyDiscount = exports.cancelSubscription = exports.stripeWebhook = exports.createCheckoutSession = exports.geminiProxy = void 0;
+exports.getInterviewAuthToken = exports.duplicateAndTranslateResume = exports.translateText = exports.updatePublicResume = exports.getPublicResume = exports.uploadImageHttp = exports.generateAIContent = exports.generateResumePdfHttp = exports.onEmailRequestCreated = exports.onUserCreated = exports.searchJobs = exports.grantAcademicPartnerRole = exports.applyDiscount = exports.cancelSubscription = exports.stripeWebhook = exports.createCheckoutSession = exports.geminiProxy = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 const chromium_1 = __importDefault(require("@sparticuz/chromium"));
@@ -71,6 +71,8 @@ Object.defineProperty(exports, "grantAcademicPartnerRole", { enumerable: true, g
 // Export Triggers
 __exportStar(require("./scheduled"), exports);
 __exportStar(require("./email"), exports);
+var jobs_1 = require("./jobs");
+Object.defineProperty(exports, "searchJobs", { enumerable: true, get: function () { return jobs_1.searchJobsCallable; } });
 __exportStar(require("./stripe"), exports);
 var triggers_1 = require("./triggers");
 Object.defineProperty(exports, "onUserCreated", { enumerable: true, get: function () { return triggers_1.onUserCreated; } });

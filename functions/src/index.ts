@@ -32,6 +32,7 @@ export { grantAcademicPartnerRole } from "./admin";
 // Export Triggers
 export * from './scheduled';
 export * from './email';
+export { searchJobsCallable as searchJobs } from "./jobs";
 export * from './stripe';
 export { onUserCreated } from "./triggers";
 export { onEmailRequestCreated } from "./email";

@@ -48,9 +48,19 @@ A dedicated portal for HR professionals and Recruiters.
 
 ### 🏢 Job Marketplace
 A centralized hub for connecting talent with opportunity.
-- **Smart Matching**: Find jobs that match your skills.
+- **AI-Powered Job Search**: Search for jobs using Gemini Grounding with real-time web results.
+- **Smart Search & Caching**: Intelligent job indexing allows searching across all cached jobs by company, title, or location.
 - **Direct Apply**: Apply to jobs directly with your CareerVivid profile and resumes.
 - **Tracker Integration**: One-click addition of jobs to your personal tracker.
+- **Mock Interview**: Launch AI-powered mock interviews tailored to specific job postings.
+
+## Recent Updates
+
+### December 2024
+- **JobMarketPage Refactoring**: Modular architecture with extracted components, hooks, and utilities (1040 → ~400 lines)
+- **Smart Job Search**: Indexed job search across cached results with multi-field querying
+- **Job Caching System**: 2-week TTL cache with automatic cleanup for faster job searches
+- **Firestore Optimization**: Composite indexes for efficient job queries
 
 ## Getting Started
 

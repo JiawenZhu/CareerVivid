@@ -1,5 +1,6 @@
 import { collection, addDoc, updateDoc, doc, getDoc, getDocs, query, where, orderBy, Timestamp, deleteDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { httpsCallable } from 'firebase/functions';
+import { db, functions } from '../firebase';
 import { JobPosting } from '../types';
 
 /**
@@ -128,5 +129,71 @@ export const incrementJobViewCount = async (id: string): Promise<void> => {
         await updateDoc(jobRef, {
             viewCount: currentCount + 1,
         });
+    }
+};
+
+/**
+ * Search jobs using Gemini Grounding API
+ */
+export const searchGoogleJobs = async (query: string, location: string, pageToken?: string) => {
+    const searchJobsFn = httpsCallable(functions, 'searchJobs');
+    try {
+        const result = await searchJobsFn({ query, location, pageToken });
+        const data = result.data as { jobs: any[], nextPageToken?: string, totalSize?: string, error?: string, cached?: boolean };
+
+        // Map API jobs to JobPosting format with source: 'google'
+        const mappedJobs = (data.jobs || []).map(job => ({
+            id: job.id || `google-${Math.random().toString(36).substr(2, 9)}`,
+            jobTitle: job.title || job.jobTitle || 'Untitled Position',
+            companyName: job.company || job.companyName || 'Unknown Company',
+            location: job.location || 'Remote',
+            locationType: 'On-site',
+            description: job.description || '',
+            employmentType: 'Full-time',
+            salaryMin: undefined,
+            salaryMax: undefined,
+            salaryCurrency: 'USD',
+            applyUrl: job.url || job.applyUrl || '',
+            source: 'google' as const,
+            status: 'published' as const,
+        })) as unknown as JobPosting[];
+
+        return { jobs: mappedJobs, nextPageToken: data.nextPageToken, totalSize: data.totalSize, error: data.error, cached: data.cached };
+    } catch (error) {
+        console.error("Error calling searchJobs function:", error);
+        throw error;
+    }
+};
+
+/**
+ * Smart search across all cached jobs (searches by company, title, location)
+ */
+export const smartSearchCachedJobs = async (searchTerm: string, location?: string) => {
+    const smartSearchFn = httpsCallable(functions, 'smartSearchJobs');
+    try {
+        const result = await smartSearchFn({ searchTerm, location });
+        const data = result.data as { jobs: any[], source?: string };
+
+        // Map to JobPosting format
+        const mappedJobs = (data.jobs || []).map(job => ({
+            id: job.id || `cached-${Math.random().toString(36).substr(2, 9)}`,
+            jobTitle: job.title || 'Untitled Position',
+            companyName: job.company || 'Unknown Company',
+            location: job.location || 'Remote',
+            locationType: 'On-site',
+            description: job.description || '',
+            employmentType: 'Full-time',
+            salaryMin: undefined,
+            salaryMax: undefined,
+            salaryCurrency: 'USD',
+            applyUrl: job.url || '',
+            source: 'google' as const,  // These came from Gemini originally
+            status: 'published' as const,
+        })) as unknown as JobPosting[];
+
+        return { jobs: mappedJobs, source: data.source || 'smart_search' };
+    } catch (error) {
+        console.error("Error calling smartSearchJobs function:", error);
+        throw error;
     }
 };

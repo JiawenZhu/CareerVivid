@@ -350,6 +350,10 @@ export interface JobPosting {
   publishedAt?: any; // Firestore Timestamp
   viewCount: number;
   applicationCount: number;
+
+  // Integration
+  source?: 'internal' | 'google';
+  applyUrl?: string;
 }
 
 export interface StatusHistoryEntry {

@@ -11,7 +11,9 @@
     "logs": "firebase functions:log"
   },
   "dependencies": {
+    "@google-cloud/talent": "^7.1.1",
     "@google-cloud/translate": "^9.3.0",
+    "@google/genai": "^1.34.0",
     "@google/generative-ai": "^0.24.1",
     "@sparticuz/chromium": "^123.0.0",
     "compression": "^1.8.1",

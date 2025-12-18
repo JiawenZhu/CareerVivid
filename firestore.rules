@@ -140,5 +140,19 @@ service cloud.firestore {
         isAdmin()
       );
     }
+    
+    // --- Job Search Cache ---
+    // Public cached job search results (read by all, written only by Cloud Functions)
+    match /jobSearchCache/{queryHash} {
+      allow read: if true;  // Public read for cached job data
+      allow write: if false; // Only Cloud Functions (admin SDK) can write
+    }
+    
+    // --- Indexed Cached Jobs (for smart search) ---
+    // Individual job documents with searchable fields
+    match /cachedJobs/{jobId} {
+      allow read: if true;  // Public read for smart search
+      allow write: if false; // Only Cloud Functions (admin SDK) can write
+    }
   }
 }
