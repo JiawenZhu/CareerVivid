@@ -50,7 +50,7 @@ TypeScript
 
 import { GoogleGenAI } from "@google/genai";
 
-const GEMINI_MODEL = 'gemini-2.0-flash'; // Fast and good at JSON
+const GEMINI_MODEL = 'gemini-3-flash'; // Fast and good at JSON
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const SYSTEM_INSTRUCTION = `

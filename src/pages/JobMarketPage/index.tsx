@@ -10,7 +10,7 @@ import { submitApplication, getApplicationsForUser } from '../../services/applic
 import { JobPosting, WorkModel } from '../../types';
 import { navigate } from '../../App';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { Loader2, Briefcase, ArrowRight, X, FileText, Send, HelpCircle, LayoutDashboard, Search, Filter, MapPin, Building2, DollarSign, Clock, ExternalLink, PlusCircle, CheckCircle2, Mic } from 'lucide-react';
+import { Loader2, Briefcase, ArrowRight, X, FileText, Send, HelpCircle, LayoutDashboard, Search, Filter, MapPin, Building2, DollarSign, Clock, ExternalLink, PlusCircle, CheckCircle2, Mic, RefreshCw } from 'lucide-react';
 import { SmartDescription } from './components/SmartDescription';
 import { HighlightLegend } from './components/HighlightLegend';
 import { JobCard } from './components/JobCard';
@@ -171,6 +171,50 @@ const JobMarketPage: React.FC = () => {
             console.error("Load More Failed", error);
         } finally {
             setIsLoadingMore(false);
+        }
+    };
+
+    const handleRefresh = async () => {
+        if (isSearching) return;
+
+        const term = searchQuery.term.trim();
+        const loc = searchQuery.location.trim();
+
+        // Filter local partner jobs
+        if (!term && !loc) {
+            setJobs(originalPartnerJobs);
+        } else {
+            const lowerTerm = term.toLowerCase();
+            const lowerLoc = loc.toLowerCase();
+
+            const filtered = originalPartnerJobs.filter(job => {
+                const matchTerm = !term ||
+                    job.jobTitle.toLowerCase().includes(lowerTerm) ||
+                    job.companyName.toLowerCase().includes(lowerTerm) ||
+                    job.description.toLowerCase().includes(lowerTerm);
+                const matchLoc = !loc ||
+                    job.location.toLowerCase().includes(lowerLoc);
+                return matchTerm && matchLoc;
+            });
+            setJobs(filtered);
+        }
+
+        // Force a fresh search by clearing google jobs and re-fetching
+        setIsSearching(true);
+        setGoogleJobs([]);
+        setPageToken(undefined);
+
+        try {
+            // Add a timestamp to bypass cache
+            const result = await searchGoogleJobs(term, loc);
+            if (result.jobs) {
+                setGoogleJobs(result.jobs);
+                setPageToken(result.nextPageToken);
+            }
+        } catch (error) {
+            console.error("Refresh Search Failed", error);
+        } finally {
+            setIsSearching(false);
         }
     };
 
@@ -387,6 +431,14 @@ const JobMarketPage: React.FC = () => {
                             </form>
 
                             <div className="flex gap-2 hidden md:flex">
+                                <button
+                                    onClick={handleRefresh}
+                                    disabled={isSearching}
+                                    className="p-2.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    title="Refresh Search"
+                                >
+                                    <RefreshCw className={`w-6 h-6 ${isSearching ? 'animate-spin' : ''}`} />
+                                </button>
                                 <button
                                     onClick={() => navigate('/dashboard')}
                                     className="p-2.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"

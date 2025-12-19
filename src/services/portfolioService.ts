@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { trackUsage } from './trackingService';
 
-const GEMINI_MODEL = 'gemini-2.0-flash-exp';
+const GEMINI_MODEL = 'gemini-3-flash';
 const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || (window as any)?.ENV?.VITE_GOOGLE_API_KEY;
 
 if (!apiKey) {

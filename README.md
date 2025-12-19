@@ -61,6 +61,9 @@ A centralized hub for connecting talent with opportunity.
 - **Smart Job Search**: Indexed job search across cached results with multi-field querying
 - **Job Caching System**: 2-week TTL cache with automatic cleanup for faster job searches
 - **Firestore Optimization**: Composite indexes for efficient job queries
+- **LLM Standardization**: Unified model usage to **Gemini 3 Flash** across frontend and backend for better performance and consistency
+- **Refresh Search**: Added automated refresh capability to force fresh job results and bypass cache
+- **Job Link Validation**: Implemented server-side URL validation with automated fallbacks to prevent 404/broken application links
 
 ## Getting Started
 

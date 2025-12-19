@@ -9,7 +9,7 @@ if (!apiKey) {
 }
 
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
-const GEMINI_MODEL = 'gemini-2.0-flash-exp';
+const GEMINI_MODEL = 'gemini-3-flash';
 
 const REFINEMENT_INSTRUCTION = `
 You are an expert Frontend Developer and UI/UX Designer.

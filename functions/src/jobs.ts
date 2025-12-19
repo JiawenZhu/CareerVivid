@@ -89,6 +89,77 @@ const normalizeQuery = (query: string, location: string): string => {
     return normalized || 'default';   // Fallback if empty
 };
 
+// Helper to validate a single URL with HEAD request
+const validateJobUrl = async (url: string): Promise<boolean> => {
+    if (!url || url.length < 10 || url.includes('[')) return false;
+
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
+
+        const response = await fetch(url, {
+            method: 'HEAD',
+            redirect: 'follow',
+            signal: controller.signal,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (compatible; CareerVivid/1.0; +https://careervivid.app)'
+            }
+        });
+
+        clearTimeout(timeoutId);
+        return response.ok; // 2xx status codes
+    } catch (error) {
+        return false;
+    }
+};
+
+// Helper to generate fallback URL for a company
+const generateFallbackUrl = (company: string, title: string): string => {
+    const searchQuery = encodeURIComponent(`${company} careers ${title} apply`);
+    return `https://www.google.com/search?q=${searchQuery}`;
+};
+
+// Helper to validate and fix job URLs in parallel
+const validateAndFixJobUrls = async (jobs: Job[]): Promise<Job[]> => {
+    console.log(`[validateAndFixJobUrls] Validating ${jobs.length} job URLs...`);
+
+    const validationResults = await Promise.allSettled(
+        jobs.map(async (job) => {
+            const isValid = await validateJobUrl(job.url);
+            return { job, isValid };
+        })
+    );
+
+    let validCount = 0;
+    let fixedCount = 0;
+
+    const validatedJobs = validationResults.map((result, index) => {
+        if (result.status === 'fulfilled') {
+            if (result.value.isValid) {
+                validCount++;
+                return result.value.job;
+            } else {
+                fixedCount++;
+                // Replace with fallback URL
+                return {
+                    ...result.value.job,
+                    url: generateFallbackUrl(result.value.job.company, result.value.job.title)
+                };
+            }
+        } else {
+            fixedCount++;
+            // Promise rejected, use fallback
+            return {
+                ...jobs[index],
+                url: generateFallbackUrl(jobs[index].company, jobs[index].title)
+            };
+        }
+    });
+
+    console.log(`[validateAndFixJobUrls] Validation complete: ${validCount} valid, ${fixedCount} fixed with fallback`);
+    return validatedJobs;
+};
+
 // onCall version for frontend httpsCallable consumption
 export const searchJobsCallable = functions.region('us-west1').runWith({
     secrets: [geminiApiKey],
@@ -202,10 +273,14 @@ URL: [The direct application link or specific job posting page]
             }
         });
 
-        console.log(`[searchJobsCallable] Returning ${jobs.length} jobs.`);
+        console.log(`[searchJobsCallable] Parsed ${jobs.length} jobs, validating URLs...`);
+
+        // Validate and fix job URLs before caching
+        const validatedJobs = await validateAndFixJobUrls(jobs);
+        console.log(`[searchJobsCallable] Returning ${validatedJobs.length} validated jobs.`);
 
         // Save to cache (async, don't block response)
-        if (jobs.length > 0) {
+        if (validatedJobs.length > 0) {
             const twoWeeksFromNow = admin.firestore.Timestamp.fromDate(
                 new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
             );
@@ -214,16 +289,16 @@ URL: [The direct application link or specific job posting page]
             cacheRef.set({
                 query,
                 location,
-                jobs,
+                jobs: validatedJobs,
                 createdAt: admin.firestore.FieldValue.serverTimestamp(),
                 lastAccessedAt: admin.firestore.FieldValue.serverTimestamp(),
                 expiresAt: twoWeeksFromNow,
             }).catch(err => console.warn('Failed to save to cache:', err));
-            console.log(`[searchJobsCallable] Saved ${jobs.length} jobs to cache for "${queryHash}"`);
+            console.log(`[searchJobsCallable] Saved ${validatedJobs.length} jobs to cache for "${queryHash}"`);
 
             // 2. Index individual jobs for smart search
             const batch = db.batch();
-            jobs.forEach(job => {
+            validatedJobs.forEach(job => {
                 const jobId = generateJobId(job);
                 const jobRef = db.collection('cachedJobs').doc(jobId);
                 batch.set(jobRef, {
@@ -241,7 +316,7 @@ URL: [The direct application link or specific job posting page]
             }).catch(err => console.warn('Failed to index jobs:', err));
         }
 
-        return { jobs, cached: false };
+        return { jobs: validatedJobs, cached: false };
 
     } catch (error: any) {
         console.error("Gemini Search Exception:", error);
@@ -349,8 +424,12 @@ URL: [The direct application link or specific job posting page]
                 }
             });
 
+            // Validate and fix job URLs before caching
+            console.log(`[searchJobs] Parsed ${jobs.length} jobs, validating URLs...`);
+            const validatedJobs = await validateAndFixJobUrls(jobs);
+
             // Save to cache and index jobs
-            if (jobs.length > 0) {
+            if (validatedJobs.length > 0) {
                 const twoWeeksFromNow = admin.firestore.Timestamp.fromDate(
                     new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
                 );
@@ -359,7 +438,7 @@ URL: [The direct application link or specific job posting page]
                 cacheRef.set({
                     query,
                     location,
-                    jobs,
+                    jobs: validatedJobs,
                     createdAt: admin.firestore.FieldValue.serverTimestamp(),
                     lastAccessedAt: admin.firestore.FieldValue.serverTimestamp(),
                     expiresAt: twoWeeksFromNow,
@@ -367,7 +446,7 @@ URL: [The direct application link or specific job posting page]
 
                 // 2. Index individual jobs for smart search
                 const batch = db.batch();
-                jobs.forEach(job => {
+                validatedJobs.forEach(job => {
                     const jobId = generateJobId(job);
                     const jobRef = db.collection('cachedJobs').doc(jobId);
                     batch.set(jobRef, {
@@ -383,8 +462,8 @@ URL: [The direct application link or specific job posting page]
                 batch.commit().catch(err => console.warn('Failed to index jobs:', err));
             }
 
-            console.log(`[searchJobs] found ${jobs.length} jobs.`);
-            res.json({ result: { jobs, cached: false } });
+            console.log(`[searchJobs] found ${validatedJobs.length} validated jobs.`);
+            res.json({ result: { jobs: validatedJobs, cached: false } });
 
         } catch (error: any) {
             console.error("Gemini Job Search Error:", error);

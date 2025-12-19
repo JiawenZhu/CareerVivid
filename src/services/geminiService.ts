@@ -251,7 +251,7 @@ export const parseResume = async (userId: string, resumeText: string, language: 
             responseSchema: resumeSchema
         };
 
-        const result = await callGeminiProxy({ modelName: 'gemini-3-pro-preview', contents, config })
+        const result = await callGeminiProxy({ modelName: 'gemini-3-flash', contents, config })
             .catch(() => callGeminiProxy({ modelName: 'gemini-2.5-flash', contents, config }));
 
         const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
@@ -289,7 +289,7 @@ export const parseResumeFromFile = async (userId: string, fileData: string, mime
             responseSchema: resumeSchema
         };
 
-        const result = await callGeminiProxy({ modelName: 'gemini-3-pro-preview', contents, config })
+        const result = await callGeminiProxy({ modelName: 'gemini-3-flash', contents, config })
             .catch(() => callGeminiProxy({ modelName: 'gemini-2.5-flash', contents, config }));
 
         const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
@@ -439,7 +439,7 @@ export const generateResumeFromPrompt = async (userId: string, prompt: string): 
             responseSchema: generationSchema
         };
 
-        const result = await callGeminiProxy({ modelName: 'gemini-3-pro-preview', contents: fullPrompt, config })
+        const result = await callGeminiProxy({ modelName: 'gemini-3-flash', contents: fullPrompt, config })
             .catch(() => callGeminiProxy({ modelName: 'gemini-2.5-flash', contents: fullPrompt, config }));
 
         const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
@@ -565,7 +565,7 @@ Your entire response MUST be a valid JSON object that conforms to the provided s
             },
         };
 
-        const result = await callGeminiProxy({ modelName: 'gemini-3-pro-preview', contents: fullPrompt, config })
+        const result = await callGeminiProxy({ modelName: 'gemini-3-flash', contents: fullPrompt, config })
             .catch(() => callGeminiProxy({ modelName: 'gemini-2.5-flash', contents: fullPrompt, config }));
 
         const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;

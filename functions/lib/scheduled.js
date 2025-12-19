@@ -59,7 +59,7 @@ function getFrequencyDays(freq) {
 }
 async function generateSmartTopic(baseRole, apiKey) {
     const genAI = new generative_ai_1.GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3-flash" });
     try {
         const result = await model.generateContent(`Generate a specific, engaging interview topic or scenario for a ${baseRole}. Return ONLY the topic title, nothing else. Example: "System Design for High Scale", "Crisis Management Scenario". Keep it short.`);
         return result.response.text().trim().replace(/^"|"$/g, '') || baseRole;
@@ -71,7 +71,7 @@ async function generateSmartTopic(baseRole, apiKey) {
 }
 async function generateQuestions(topic, apiKey) {
     const genAI = new generative_ai_1.GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3-flash" });
     try {
         const prompt = `Generate 5 challenging interview questions for: "${topic}". Return ONLY the questions as a JSON array of strings. Do not use markdown code blocks.`;
         const result = await model.generateContent(prompt);

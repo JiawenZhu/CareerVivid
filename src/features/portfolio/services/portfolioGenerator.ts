@@ -93,7 +93,7 @@ export const generatePortfolioFromPrompt = async (prompt: string, userId: string
         console.log('[Portfolio] Generating with AI, prompt:', prompt);
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-exp',
+            model: 'gemini-3-flash',
             contents: { parts: [{ text: `User request: "${prompt}". Generate a complete portfolio JSON following the schema exactly.` }] },
             config: {
                 systemInstruction: SYSTEM_INSTRUCTION,
