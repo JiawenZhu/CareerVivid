@@ -199,3 +199,220 @@ export const onPartnerApplicationUpdated = functions.region('us-west1').firestor
         }
         return null;
     });
+
+/**
+ * Trigger: On Application Created
+ * Automatically analyze resume match when a new application is submitted
+ * This runs in the background and saves the analysis result to the application document
+ */
+export const onApplicationCreated = functions
+    .region('us-west1')
+    .runWith({
+        timeoutSeconds: 120, // AI analysis can take time
+        memory: '512MB'
+    })
+    .firestore
+    .document('jobApplications/{applicationId}')
+    .onCreate(async (snap, context) => {
+        const application = snap.data();
+        const applicationId = context.params.applicationId;
+
+        console.log(`[AutoMatch] New application ${applicationId} - starting match analysis`);
+
+        try {
+            // 1. Get job posting details
+            const jobDoc = await admin.firestore()
+                .collection('jobPostings')
+                .doc(application.jobPostingId)
+                .get();
+
+            if (!jobDoc.exists) {
+                console.warn(`[AutoMatch] Job ${application.jobPostingId} not found, skipping analysis`);
+                return null;
+            }
+
+            const job = jobDoc.data()!;
+
+            // 2. Get the resume
+            const resumeDoc = await admin.firestore()
+                .collection('users')
+                .doc(application.applicantUserId)
+                .collection('resumes')
+                .doc(application.resumeId)
+                .get();
+
+            if (!resumeDoc.exists) {
+                console.warn(`[AutoMatch] Resume ${application.resumeId} not found, skipping analysis`);
+                return null;
+            }
+
+            const resume = resumeDoc.data()!;
+
+            // 3. Format resume text for analysis
+            const resumeText = formatResumeForAnalysis(resume);
+
+            // 4. Format job description
+            const jobDescription = [
+                `Job Title: ${job.jobTitle || 'Unknown'}`,
+                `Company: ${job.companyName || 'Unknown'}`,
+                `Description: ${job.description || ''}`,
+                `Requirements: ${(job.requirements || []).join(', ')}`,
+                `Responsibilities: ${(job.responsibilities || []).join(', ')}`,
+                `Nice to Have: ${(job.niceToHave || []).join(', ')}`
+            ].join('\n');
+
+            // 5. Call Gemini for match analysis
+            const analysis = await analyzeResumeMatchServerSide(resumeText, jobDescription);
+
+            // 6. Save analysis result to the application document
+            await admin.firestore()
+                .collection('jobApplications')
+                .doc(applicationId)
+                .update({
+                    matchAnalysis: analysis,
+                    lastUpdated: admin.firestore.FieldValue.serverTimestamp()
+                });
+
+            console.log(`[AutoMatch] ✅ Analysis complete for ${applicationId}: ${analysis.matchPercentage}% match`);
+
+        } catch (error) {
+            console.error(`[AutoMatch] ❌ Failed to analyze application ${applicationId}:`, error);
+            // Don't throw - we don't want to retry on AI failures
+        }
+
+        return null;
+    });
+
+/**
+ * Format resume data into text for AI analysis
+ */
+function formatResumeForAnalysis(resume: any): string {
+    const parts: string[] = [];
+
+    // Personal info
+    if (resume.personalDetails) {
+        const pd = resume.personalDetails;
+        if (pd.jobTitle) parts.push(`Current Role: ${pd.jobTitle}`);
+        if (pd.firstName && pd.lastName) parts.push(`Name: ${pd.firstName} ${pd.lastName}`);
+    }
+
+    // Professional summary
+    if (resume.professionalSummary) {
+        parts.push(`Summary: ${resume.professionalSummary}`);
+    }
+
+    // Skills
+    if (resume.skills && resume.skills.length > 0) {
+        const skillNames = resume.skills.map((s: any) => s.name || s).join(', ');
+        parts.push(`Skills: ${skillNames}`);
+    }
+
+    // Employment history
+    if (resume.employmentHistory && resume.employmentHistory.length > 0) {
+        parts.push('Work Experience:');
+        for (const job of resume.employmentHistory) {
+            const jobLine = `- ${job.jobTitle || 'Role'} at ${job.employer || 'Company'} (${job.startDate || ''} - ${job.endDate || 'Present'})`;
+            parts.push(jobLine);
+            if (job.description) {
+                parts.push(`  ${job.description.substring(0, 500)}`);
+            }
+        }
+    }
+
+    // Education
+    if (resume.education && resume.education.length > 0) {
+        parts.push('Education:');
+        for (const edu of resume.education) {
+            parts.push(`- ${edu.degree || 'Degree'} at ${edu.school || 'School'} (${edu.startDate || ''} - ${edu.endDate || ''})`);
+        }
+    }
+
+    // Languages
+    if (resume.languages && resume.languages.length > 0) {
+        const langs = resume.languages.map((l: any) => l.name || l).join(', ');
+        parts.push(`Languages: ${langs}`);
+    }
+
+    return parts.join('\n');
+}
+
+/**
+ * Server-side resume match analysis using Gemini
+ * Uses the Functions environment's API key
+ */
+async function analyzeResumeMatchServerSide(resumeText: string, jobDescription: string): Promise<{
+    totalKeywords: number;
+    matchedKeywords: string[];
+    missingKeywords: string[];
+    matchPercentage: number;
+    summary: string;
+}> {
+    // Import Gemini AI
+    const { GoogleGenerativeAI } = await import('@google/generative-ai');
+
+    // Get API key from environment
+    const apiKey = process.env.GEMINI_API_KEY || functions.config().gemini?.api_key;
+
+    if (!apiKey) {
+        console.error('[AutoMatch] GEMINI_API_KEY not configured');
+        // Return a default result instead of failing
+        return {
+            totalKeywords: 0,
+            matchedKeywords: [],
+            missingKeywords: [],
+            matchPercentage: 0,
+            summary: 'Auto-analysis unavailable - API key not configured'
+        };
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+    const prompt = `You are an expert recruiter analyzing a job application.
+
+**Job Description:**
+${jobDescription}
+
+**Resume:**
+${resumeText}
+
+Analyze the match between this resume and the job description. Return your analysis as JSON with exactly this structure:
+{
+    "totalKeywords": <number of key requirements/skills from job>,
+    "matchedKeywords": [<list of requirements/skills the candidate HAS>],
+    "missingKeywords": [<list of requirements/skills the candidate is MISSING>],
+    "matchPercentage": <0-100 percentage match>,
+    "summary": "<2-3 sentence summary of the match quality>"
+}
+
+Only return valid JSON, no markdown or extra text.`;
+
+    try {
+        const result = await model.generateContent(prompt);
+        const responseText = result.response.text().trim();
+
+        // Parse JSON from response (handle markdown code blocks)
+        let jsonStr = responseText;
+        if (jsonStr.startsWith('```json')) {
+            jsonStr = jsonStr.slice(7);
+        }
+        if (jsonStr.startsWith('```')) {
+            jsonStr = jsonStr.slice(3);
+        }
+        if (jsonStr.endsWith('```')) {
+            jsonStr = jsonStr.slice(0, -3);
+        }
+
+        const analysis = JSON.parse(jsonStr.trim());
+        return analysis;
+    } catch (error) {
+        console.error('[AutoMatch] Gemini API error:', error);
+        return {
+            totalKeywords: 0,
+            matchedKeywords: [],
+            missingKeywords: [],
+            matchPercentage: 0,
+            summary: 'Auto-analysis failed'
+        };
+    }
+}

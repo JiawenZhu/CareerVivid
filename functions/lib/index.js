@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getInterviewAuthToken = exports.duplicateAndTranslateResume = exports.translateText = exports.updatePublicResume = exports.getPublicResume = exports.uploadImageHttp = exports.generateAIContent = exports.generateResumePdfHttp = exports.onEmailRequestCreated = exports.onPartnerApplicationUpdated = exports.onUserCreated = exports.jobs = exports.grantAcademicPartnerRole = exports.applyDiscount = exports.cancelSubscription = exports.stripeWebhook = exports.createCheckoutSession = exports.geminiProxy = void 0;
+exports.getInterviewAuthToken = exports.duplicateAndTranslateResume = exports.translateText = exports.updatePublicResume = exports.getPublicResume = exports.uploadImageHttp = exports.generateAIContent = exports.generateResumePdfHttp = exports.onEmailRequestCreated = exports.onApplicationCreated = exports.onPartnerApplicationUpdated = exports.onUserCreated = exports.jobs = exports.grantAcademicPartnerRole = exports.applyDiscount = exports.cancelSubscription = exports.stripeWebhook = exports.createCheckoutSession = exports.geminiProxy = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 const chromium_1 = __importDefault(require("@sparticuz/chromium"));
@@ -76,6 +76,7 @@ __exportStar(require("./stripe"), exports);
 var triggers_1 = require("./triggers");
 Object.defineProperty(exports, "onUserCreated", { enumerable: true, get: function () { return triggers_1.onUserCreated; } });
 Object.defineProperty(exports, "onPartnerApplicationUpdated", { enumerable: true, get: function () { return triggers_1.onPartnerApplicationUpdated; } });
+Object.defineProperty(exports, "onApplicationCreated", { enumerable: true, get: function () { return triggers_1.onApplicationCreated; } });
 var email_1 = require("./email");
 Object.defineProperty(exports, "onEmailRequestCreated", { enumerable: true, get: function () { return email_1.onEmailRequestCreated; } });
 const getFunctionConfig = () => {

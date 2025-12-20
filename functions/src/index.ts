@@ -34,7 +34,7 @@ export * from './scheduled';
 export * from './email';
 export * as jobs from "./jobs";
 export * from './stripe';
-export { onUserCreated, onPartnerApplicationUpdated } from "./triggers";
+export { onUserCreated, onPartnerApplicationUpdated, onApplicationCreated } from "./triggers";
 export { onEmailRequestCreated } from "./email";
 
 const getFunctionConfig = () => {

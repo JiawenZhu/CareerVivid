@@ -320,7 +320,41 @@ export interface Comment {
 export type JobLocationType = 'remote' | 'hybrid' | 'onsite';
 export type JobEmploymentType = 'full-time' | 'part-time' | 'contract' | 'internship';
 export type JobPostingStatus = 'draft' | 'published' | 'closed';
-export type JobApplicationStatus = 'submitted' | 'reviewing' | 'shortlisted' | 'interviewing' | 'rejected' | 'accepted';
+export type JobApplicationStatus = 'new' | 'screening' | 'phone_screen' | 'interview' | 'final_round' | 'offer' | 'hired' | 'rejected' | 'withdrawn';
+
+// Pipeline Stage Configuration
+export interface PipelineStage {
+  id: string;
+  name: string;
+  order: number;
+  color: string; // Tailwind color name (e.g., 'blue', 'green', 'red')
+  isTerminal?: boolean; // If true, candidates can't be moved from this stage
+  isCustom?: boolean; // If true, this is a user-created custom stage
+}
+
+// Default pipeline stages
+export const DEFAULT_PIPELINE_STAGES: PipelineStage[] = [
+  { id: 'new', name: 'New', order: 0, color: 'blue' },
+  { id: 'screening', name: 'Screening', order: 1, color: 'purple' },
+  { id: 'phone_screen', name: 'Phone Screen', order: 2, color: 'indigo' },
+  { id: 'interview', name: 'Interview', order: 3, color: 'orange' },
+  { id: 'final_round', name: 'Final Round', order: 4, color: 'pink' },
+  { id: 'offer', name: 'Offer', order: 5, color: 'emerald' },
+  { id: 'hired', name: 'Hired', order: 6, color: 'green', isTerminal: true },
+  { id: 'rejected', name: 'Rejected', order: 7, color: 'red', isTerminal: true },
+];
+
+// Pipeline customization settings
+export type PipelineBackgroundTheme = 'none' | 'gradient' | 'geometric' | 'mountains' | 'abstract' | 'particles' | 'custom';
+
+export interface PipelineSettings {
+  customStages?: PipelineStage[];
+  backgroundTheme: PipelineBackgroundTheme;
+  customBackgroundUrl?: string; // Custom uploaded background
+  columnTransparency: number; // 0-100, percentage of transparency
+  createdAt?: any; // Firestore Timestamp
+  updatedAt?: any; // Firestore Timestamp
+}
 
 export interface JobPosting {
   id: string;

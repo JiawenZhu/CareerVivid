@@ -15,7 +15,7 @@ export const submitApplication = async (
     const now = Timestamp.now();
 
     const statusHistory: StatusHistoryEntry[] = [{
-        status: 'submitted',
+        status: 'new',
         timestamp: now,
         note: 'Application submitted'
     }];
@@ -25,7 +25,7 @@ export const submitApplication = async (
         applicantUserId: userId,
         resumeId,
         coverLetter,
-        status: 'submitted',
+        status: 'new',
         statusHistory,
         appliedAt: now,
         lastUpdated: now,
@@ -136,17 +136,20 @@ export const updateApplicationStatus = async (
 
                 // Map HR status to User Tracker status
                 switch (newStatus) {
-                    case 'interviewing':
-                    case 'shortlisted':
+                    case 'phone_screen':
+                    case 'interview':
+                    case 'final_round':
                         mappedStatus = 'Interviewing';
                         break;
                     case 'rejected':
+                    case 'withdrawn':
                         mappedStatus = 'Rejected';
                         break;
-                    case 'accepted':
+                    case 'offer':
+                    case 'hired':
                         mappedStatus = 'Offered';
                         break;
-                    // 'submitted' and 'reviewing' usually map to 'Applied' or 'To Apply'
+                    // 'new', 'screening' map to 'Applied'
                     // but we generally don't revert status backwards automatically unless explicit
                 }
 

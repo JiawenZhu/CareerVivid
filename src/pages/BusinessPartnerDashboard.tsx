@@ -13,11 +13,12 @@ import { Loader2 } from 'lucide-react';
 
 // Lazy load ResumePreview to avoid bloat
 const ResumePreview = React.lazy(() => import('../components/ResumePreview'));
+const CandidatePipeline = React.lazy(() => import('../components/hr/CandidatePipeline'));
 
 const BusinessPartnerDashboard: React.FC = () => {
     const { currentUser, userProfile, logOut } = useAuth();
     const referralLink = `https://careervivid.app/signup?ref=${userProfile?.referralCode || 'ERROR_NO_CODE'}`;
-    const [activeTab, setActiveTab] = useState<'jobs' | 'applicants'>('jobs');
+    const [activeTab, setActiveTab] = useState<'jobs' | 'pipeline' | 'applicants'>('jobs');
     const [jobs, setJobs] = useState<JobPosting[]>([]);
     const [applications, setApplications] = useState<JobApplication[]>([]);
     const [loading, setLoading] = useState(true);
@@ -344,18 +345,27 @@ const BusinessPartnerDashboard: React.FC = () => {
                                 Job Management
                             </button>
                             <button
+                                onClick={() => setActiveTab('pipeline')}
+                                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'pipeline'
+                                    ? 'border-purple-600 text-purple-600'
+                                    : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                    }`}
+                            >
+                                Candidate Pipeline
+                            </button>
+                            <button
                                 onClick={() => setActiveTab('applicants')}
                                 className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'applicants'
                                     ? 'border-purple-600 text-purple-600'
                                     : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                                     }`}
                             >
-                                Applicant Tracking
+                                Applicant List
                             </button>
                         </nav>
                     </div>
 
-                    <div className="p-6">
+                    <div className={activeTab === 'pipeline' ? 'p-2' : 'p-6'}>
                         {activeTab === 'jobs' ? (
                             <div>
                                 {/* Create New Job Button */}
@@ -435,8 +445,28 @@ const BusinessPartnerDashboard: React.FC = () => {
                                     </div>
                                 )}
                             </div>
+                        ) : activeTab === 'pipeline' ? (
+                            // Candidate Pipeline Tab
+                            <div>
+                                {applications.length === 0 ? (
+                                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                                        <Users className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                                        <p>No applications yet. Applications will appear in your pipeline once candidates apply.</p>
+                                    </div>
+                                ) : (
+                                    <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="animate-spin" /></div>}>
+                                        <CandidatePipeline
+                                            applications={applications}
+                                            candidateNames={applicantNames}
+                                            onViewResume={handleViewResume}
+                                            onUpdateStatus={handleUpdateStatus}
+                                            userId={currentUser?.uid || ''}
+                                        />
+                                    </Suspense>
+                                )}
+                            </div>
                         ) : (
-                            // Applicant Tracking Tab
+                            // Applicant List Tab
                             <div>
                                 {applications.length === 0 ? (
                                     <div className="text-center py-12 text-gray-500 dark:text-gray-400">
@@ -624,7 +654,7 @@ const BusinessPartnerDashboard: React.FC = () => {
                                         Reject
                                     </button>
                                     <button
-                                        onClick={() => { handleUpdateStatus(viewingApp.id, 'interviewing'); setSelectedResume(null); }}
+                                        onClick={() => { handleUpdateStatus(viewingApp.id, 'interview'); setSelectedResume(null); }}
                                         className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
                                     >
                                         Shortlist for Interview
