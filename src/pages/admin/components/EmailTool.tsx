@@ -113,8 +113,8 @@ export default function EmailTool() {
             const emailData = {
                 message: {
                     subject: subject,
-                    html: message.replace(/\n/g, '<br>'),
-                    text: message
+                    html: message.replace(/\n/g, '<br>').replace(/\[USER_EMAIL\]/g, to),
+                    text: message.replace(/\[USER_EMAIL\]/g, to)
                 },
                 createdAt: serverTimestamp()
             };

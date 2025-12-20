@@ -7,7 +7,7 @@
     "dev": "vite",
     "build:vite": "vite build",
     "build:next": "cd ../careervivid-next && npm run build",
-    "build:copy": "rm -rf dist/nextjs && mkdir -p dist/nextjs && cp -r ../careervivid-next/out/* dist/nextjs/",
+    "build:copy": "rm -rf dist/nextjs && mkdir -p dist/nextjs && cp -r ../careervivid-next/out/* dist/nextjs/ && cp -r dist/nextjs/_next dist/_next",
     "build": "npm run build:vite && npm run build:next && npm run build:copy",
     "lint": "eslint",
     "preview": "vite preview",

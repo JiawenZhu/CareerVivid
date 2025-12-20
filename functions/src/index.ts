@@ -32,9 +32,9 @@ export { grantAcademicPartnerRole } from "./admin";
 // Export Triggers
 export * from './scheduled';
 export * from './email';
-export { searchJobsCallable as searchJobs } from "./jobs";
+export * as jobs from "./jobs";
 export * from './stripe';
-export { onUserCreated } from "./triggers";
+export { onUserCreated, onPartnerApplicationUpdated } from "./triggers";
 export { onEmailRequestCreated } from "./email";
 
 const getFunctionConfig = () => {

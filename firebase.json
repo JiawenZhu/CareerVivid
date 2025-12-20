@@ -8,8 +8,36 @@
     ],
     "rewrites": [
       {
+        "source": "/en/shared/**",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/zh/shared/**",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/es/shared/**",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/en/demo",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/zh/demo",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/es/demo",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/_next/static/**",
+        "destination": "/nextjs/_next/static/:splat"
+      },
+      {
         "source": "/_next/**",
-        "destination": "/nextjs/_next/**"
+        "destination": "/nextjs/_next/:splat"
       },
       {
         "source": "/en/pricing",

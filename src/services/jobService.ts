@@ -135,10 +135,10 @@ export const incrementJobViewCount = async (id: string): Promise<void> => {
 /**
  * Search jobs using Gemini Grounding API
  */
-export const searchGoogleJobs = async (query: string, location: string, pageToken?: string) => {
-    const searchJobsFn = httpsCallable(functions, 'searchJobs');
+export const searchGoogleJobs = async (query: string, location: string, jobCount: number = 10, pageToken?: string, bypassCache: boolean = false) => {
+    const searchJobsFn = httpsCallable(functions, 'jobs-searchJobsCallable');
     try {
-        const result = await searchJobsFn({ query, location, pageToken });
+        const result = await searchJobsFn({ query, location, jobCount, pageToken, bypassCache });
         const data = result.data as { jobs: any[], nextPageToken?: string, totalSize?: string, error?: string, cached?: boolean };
 
         // Map API jobs to JobPosting format with source: 'google'
@@ -147,9 +147,9 @@ export const searchGoogleJobs = async (query: string, location: string, pageToke
             jobTitle: job.title || job.jobTitle || 'Untitled Position',
             companyName: job.company || job.companyName || 'Unknown Company',
             location: job.location || 'Remote',
-            locationType: 'On-site',
+            locationType: 'On-site' as const,
             description: job.description || '',
-            employmentType: 'Full-time',
+            employmentType: 'Full-time' as const,
             salaryMin: undefined,
             salaryMax: undefined,
             salaryCurrency: 'USD',
@@ -160,7 +160,7 @@ export const searchGoogleJobs = async (query: string, location: string, pageToke
 
         return { jobs: mappedJobs, nextPageToken: data.nextPageToken, totalSize: data.totalSize, error: data.error, cached: data.cached };
     } catch (error) {
-        console.error("Error calling searchJobs function:", error);
+        console.error("Error calling searchJobsCallable function:", error);
         throw error;
     }
 };

@@ -236,6 +236,7 @@ const UserManagement: React.FC<{ logs: any[], users: UserProfile[], loading: boo
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Promotions</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expires At</th>
                             <th onClick={() => handleSort('createdAt')} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
                                 <div className="flex items-center gap-2">Registered At <SortIndicator column="createdAt" /></div>
                             </th>
@@ -295,6 +296,44 @@ const UserManagement: React.FC<{ logs: any[], users: UserProfile[], loading: boo
                                         />
                                         <span className="ml-2">Premium</span>
                                     </label>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                    {(() => {
+                                        const now = Date.now();
+                                        const expiresAtMillis = user.expiresAt?.toMillis ? user.expiresAt.toMillis() : null;
+
+                                        if (!expiresAtMillis) {
+                                            // No expiration date
+                                            if (user.promotions?.isPremium) {
+                                                return <span className="text-green-600 dark:text-green-400 font-medium">Permanent</span>;
+                                            }
+                                            return <span className="text-gray-400">-</span>;
+                                        }
+
+                                        const isExpired = expiresAtMillis < now;
+                                        const expirationDate = new Date(expiresAtMillis);
+                                        const formattedDate = expirationDate.toLocaleDateString('en-US', {
+                                            month: 'short',
+                                            day: 'numeric',
+                                            year: 'numeric'
+                                        });
+
+                                        return (
+                                            <div className="flex flex-col">
+                                                <span className={isExpired ? 'text-red-600 dark:text-red-400 font-medium' : 'text-blue-600 dark:text-blue-400 font-medium'}>
+                                                    {formattedDate}
+                                                </span>
+                                                {isExpired && (
+                                                    <span className="text-xs text-red-500">Expired</span>
+                                                )}
+                                                {!isExpired && (
+                                                    <span className="text-xs text-gray-500">
+                                                        {Math.ceil((expiresAtMillis - now) / (1000 * 60 * 60 * 24))} days left
+                                                    </span>
+                                                )}
+                                            </div>
+                                        );
+                                    })()}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                     {user.createdAt?.toDate().toLocaleString() || 'N/A'}

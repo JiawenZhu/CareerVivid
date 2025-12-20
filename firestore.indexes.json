@@ -1,4 +1,19 @@
 {
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "jobPostings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "hrUserId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
   "fieldOverrides": []
 }

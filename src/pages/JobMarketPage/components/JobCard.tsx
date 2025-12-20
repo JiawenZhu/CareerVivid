@@ -2,7 +2,7 @@ import React from 'react';
 import { JobPosting } from '../../../types';
 import {
     Loader2, Building2, MapPin, DollarSign, Clock,
-    PlusCircle, CheckCircle2, ExternalLink, Mic
+    PlusCircle, CheckCircle2, ExternalLink, Mic, Trash2
 } from 'lucide-react';
 
 interface JobCardProps {
@@ -11,6 +11,7 @@ interface JobCardProps {
     onAddToTracker: (job: JobPosting, e?: React.MouseEvent) => void;
     onApply: (job: JobPosting, e?: React.MouseEvent) => void;
     onMockInterview: (job: JobPosting, e?: React.MouseEvent) => void;
+    onDelete?: (jobId: string, e: React.MouseEvent) => void;
     isAdding: boolean;
     isAdded: boolean;
     isApplied: boolean;
@@ -19,14 +20,28 @@ interface JobCardProps {
 }
 
 export const JobCard: React.FC<JobCardProps> = ({
-    job, onSelect, onAddToTracker, onApply, onMockInterview,
+    job, onSelect, onAddToTracker, onApply, onMockInterview, onDelete,
     isAdding, isAdded, isApplied, formatSalary, getTimeAgo
 }) => {
     return (
         <div
             onClick={() => onSelect(job)}
-            className={`bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer ${job.source !== 'google' ? 'border-indigo-100 dark:border-indigo-900 ring-1 ring-indigo-500/10' : ''}`}
+            className={`group relative bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer ${job.source !== 'google' ? 'border-indigo-100 dark:border-indigo-900 ring-1 ring-indigo-500/10' : ''}`}
         >
+            {/* Delete Button - Positioned top-left to avoid overlap with badges and action buttons */}
+            {onDelete && (
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(job.id || '', e);
+                    }}
+                    className="absolute top-2 left-2 p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                    title="Remove from results"
+                >
+                    <Trash2 size={14} />
+                </button>
+            )}
+
             <div className="flex flex-col md:flex-row justify-between gap-6">
                 <div className="flex-1">
                     <div className="flex items-start justify-between">
@@ -97,7 +112,8 @@ export const JobCard: React.FC<JobCardProps> = ({
                         )}
                     </button>
 
-                    {job.source === 'google' && job.applyUrl ? (
+                    {/* Show "Apply Externally" if job has an external apply URL, otherwise show "Apply Now" for partner jobs */}
+                    {job.applyUrl ? (
                         <a
                             href={job.applyUrl}
                             target="_blank"

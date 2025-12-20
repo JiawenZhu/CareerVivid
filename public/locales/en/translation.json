@@ -509,5 +509,18 @@
     "story_rec": "Perfect for sharing on mobile stories.",
     "portrait": "Portrait Image (4:5)",
     "portrait_rec": "Optimized for social media feeds."
+  },
+  "errors": {
+    "404_title": "Page Not Found",
+    "404_message": "The page you're looking for doesn't exist or has been moved.",
+    "403_title": "Access Denied",
+    "403_message": "You don't have permission to access this page.",
+    "required_role": "Required Role",
+    "go_home": "Go to Home",
+    "go_back": "Go Back",
+    "quick_links": "Quick Links",
+    "need_access": "Need Access?",
+    "contact_support": "If you believe you should have access to this page, please contact our support team.",
+    "contact_us": "Contact Us"
   }
 }

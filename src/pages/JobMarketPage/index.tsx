@@ -10,11 +10,12 @@ import { submitApplication, getApplicationsForUser } from '../../services/applic
 import { JobPosting, WorkModel } from '../../types';
 import { navigate } from '../../App';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { Loader2, Briefcase, ArrowRight, X, FileText, Send, HelpCircle, LayoutDashboard, Search, Filter, MapPin, Building2, DollarSign, Clock, ExternalLink, PlusCircle, CheckCircle2, Mic, RefreshCw } from 'lucide-react';
+import { Loader2, Briefcase, ArrowRight, X, FileText, Send, HelpCircle, LayoutDashboard, Search, Filter, MapPin, Building2, DollarSign, Clock, ExternalLink, PlusCircle, CheckCircle2, Mic, RefreshCw, Trash2 } from 'lucide-react';
 import { SmartDescription } from './components/SmartDescription';
 import { HighlightLegend } from './components/HighlightLegend';
 import { JobCard } from './components/JobCard';
 import { formatSalary, getTimeAgo } from './utils/jobFormatters';
+import { getUserJobHistory, deleteUserJob } from '../../services/jobHistoryService';
 
 
 const JobMarketPage: React.FC = () => {
@@ -29,6 +30,8 @@ const JobMarketPage: React.FC = () => {
     const [originalPartnerJobs, setOriginalPartnerJobs] = useState<JobPosting[]>([]); // Source of truth
     const [jobs, setJobs] = useState<JobPosting[]>([]); // Displayed partner jobs (filtered)
     const [googleJobs, setGoogleJobs] = useState<JobPosting[]>([]);
+    const [savedJobs, setSavedJobs] = useState<JobPosting[]>([]); // User's saved job history
+    const [jobCount, setJobCount] = useState<number>(10); // Number of jobs to search (5-20)
 
     // Status States
     const [isLoading, setIsLoading] = useState(true); // Initial load
@@ -107,10 +110,48 @@ const JobMarketPage: React.FC = () => {
         fetchUserApps();
     }, [currentUser]);
 
+    // Load user's saved job history
+    useEffect(() => {
+        const loadJobHistory = async () => {
+            if (currentUser) {
+                try {
+                    const history = await getUserJobHistory(currentUser.uid);
+                    setSavedJobs(history);
+                    console.log(`Loaded ${history.length} saved jobs for user`);
+                } catch (error) {
+                    console.error("Error loading job history:", error);
+                }
+            }
+        };
+        loadJobHistory();
+    }, [currentUser]);
+
     // --- Search Logic ---
+
+    const handleDeleteJob = async (jobId: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!currentUser) return;
+
+        try {
+            const success = await deleteUserJob(currentUser.uid, jobId);
+            if (success) {
+                // Update local state
+                setSavedJobs(prev => prev.filter(j => j.id !== jobId));
+                console.log(`Job ${jobId} deleted successfully`);
+            }
+        } catch (error) {
+            console.error("Failed to delete job", error);
+        }
+    };
 
     const handleSearch = async (e?: React.FormEvent) => {
         e?.preventDefault();
+
+        // Check AI Credits
+        if (!checkCredit()) {
+            console.warn("Insufficient AI credits for search");
+            return;
+        }
 
         const term = searchQuery.term.trim();
         const loc = searchQuery.location.trim();
@@ -135,34 +176,33 @@ const JobMarketPage: React.FC = () => {
         }
 
         // 2. Fetch Google Jobs
-        // Only fetch if there's a query to search, or if we want to show suggestions?
-        // Let's assume blank search means standard partner list + maybe blank google jobs or trending?
-        // Google Talent API works best with a query.
-
         setIsSearching(true);
         setGoogleJobs([]);
         setPageToken(undefined);
         setHasPerformedSearch(true);
 
         try {
-            const result = await searchGoogleJobs(term, loc);
+            const result = await searchGoogleJobs(term, loc, jobCount);
             if (result.jobs) {
                 setGoogleJobs(result.jobs);
                 setPageToken(result.nextPageToken);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Google Job Search Failed", error);
+            // Show error to user
+            const errorMessage = error?.message || 'Failed to search jobs. Please try again.';
+            alert(`Search Error: ${errorMessage}`);
         } finally {
             setIsSearching(false);
         }
     };
 
     const handleLoadMore = async () => {
-        if (!pageToken || isLoadingMore) return;
+        if (!pageToken || isLoadingMore || !checkCredit()) return;
 
         setIsLoadingMore(true);
         try {
-            const result = await searchGoogleJobs(searchQuery.term, searchQuery.location, pageToken);
+            const result = await searchGoogleJobs(searchQuery.term, searchQuery.location, jobCount, pageToken);
             if (result.jobs) {
                 setGoogleJobs(prev => [...prev, ...result.jobs]);
                 setPageToken(result.nextPageToken);
@@ -175,7 +215,7 @@ const JobMarketPage: React.FC = () => {
     };
 
     const handleRefresh = async () => {
-        if (isSearching) return;
+        if (isSearching || !checkCredit()) return;
 
         const term = searchQuery.term.trim();
         const loc = searchQuery.location.trim();
@@ -205,8 +245,8 @@ const JobMarketPage: React.FC = () => {
         setPageToken(undefined);
 
         try {
-            // Add a timestamp to bypass cache
-            const result = await searchGoogleJobs(term, loc);
+            // Force a fresh search by bypassing cache
+            const result = await searchGoogleJobs(term, loc, jobCount, undefined, true);
             if (result.jobs) {
                 setGoogleJobs(result.jobs);
                 setPageToken(result.nextPageToken);
@@ -421,11 +461,26 @@ const JobMarketPage: React.FC = () => {
                                         </div>
                                     </div>
 
+                                    <div className="flex bg-white dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden items-center shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 transition-shadow px-3">
+                                        <div className="text-[10px] font-semibold uppercase text-gray-500 dark:text-gray-400 mr-2">Results</div>
+                                        <select
+                                            value={jobCount}
+                                            onChange={(e) => setJobCount(Number(e.target.value))}
+                                            className="bg-transparent border-none text-sm font-medium text-gray-900 dark:text-white focus:ring-0 py-2"
+                                        >
+                                            <option value={5}>5</option>
+                                            <option value={10}>10</option>
+                                            <option value={15}>15</option>
+                                            <option value={20}>20</option>
+                                        </select>
+                                    </div>
+
                                     <button
                                         type="submit"
-                                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-all active:scale-95 whitespace-nowrap"
+                                        disabled={isSearching}
+                                        className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-all active:scale-95 whitespace-nowrap flex items-center gap-2"
                                     >
-                                        Find Jobs
+                                        {isSearching ? <Loader2 size={18} className="animate-spin" /> : 'Find Jobs'}
                                     </button>
                                 </div>
                             </form>
@@ -459,10 +514,91 @@ const JobMarketPage: React.FC = () => {
                     </div>
                 ) : (
                     <div className="space-y-10">
-                        {/* Section 1: Partner Jobs (Always Top or Mixed?) User asked for Partner Top */}
+                        {/* Section 1: New Search Results (Google Jobs) - Show First */}
+                        {isSearching ? (
+                            <div className="flex flex-col items-center justify-center py-12 space-y-3">
+                                <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
+                                <p className="text-gray-500">Searching across the web...</p>
+                            </div>
+                        ) : googleJobs.length > 0 ? (
+                            <div className="space-y-4">
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                    <Search size={20} className="text-indigo-600" /> New Search Results
+                                </h2>
+                                <div className="grid gap-4">
+                                    {googleJobs.map((job, idx) => (
+                                        <JobCard
+                                            key={`google-${job.id}-${idx}`}
+                                            job={job}
+                                            onSelect={setSelectedJob}
+                                            onAddToTracker={handleAddToTracker}
+                                            onApply={handleApplyClick}
+                                            onMockInterview={handleMockInterview}
+                                            onDelete={handleDeleteJob}
+                                            isAdding={addingToTracker === job.id}
+                                            isAdded={addedJobs.has(job.id)}
+                                            isApplied={false}
+                                            formatSalary={formatSalary}
+                                            getTimeAgo={getTimeAgo}
+                                        />
+                                    ))}
+                                </div>
+                                {pageToken && (
+                                    <div className="flex justify-center pt-8">
+                                        <button
+                                            onClick={handleLoadMore}
+                                            disabled={isSearching}
+                                            className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                        >
+                                            {isSearching ? (
+                                                <>
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                    Loading...
+                                                </>
+                                            ) : (
+                                                'Load More'
+                                            )}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ) : null}
+
+                        {/* Section 2: Saved Job History */}
+                        {savedJobs.length > 0 && (
+                            <div className="space-y-4">
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 border-t border-gray-200 dark:border-gray-700 pt-8">
+                                    <Clock size={20} className="text-indigo-600" /> Your Saved Search History
+                                </h2>
+                                <div className="grid gap-4">
+                                    {savedJobs.map((job) => (
+                                        <JobCard
+                                            key={`saved-${job.id}`}
+                                            job={job}
+                                            onSelect={setSelectedJob}
+                                            onAddToTracker={handleAddToTracker}
+                                            onApply={handleApplyClick}
+                                            onMockInterview={handleMockInterview}
+                                            onDelete={handleDeleteJob}
+                                            isAdding={addingToTracker === job.id}
+                                            isAdded={addedJobs.has(job.id)}
+                                            isApplied={userApplications.has(job.id)}
+                                            formatSalary={formatSalary}
+                                            getTimeAgo={getTimeAgo}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Section 3: Partner Jobs */}
                         {jobs.length > 0 && (
                             <div className="space-y-4">
-                                {(googleJobs.length > 0 || hasPerformedSearch) && <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2"><Briefcase size={20} className="text-indigo-600" /> Featured Opportunities</h2>}
+                                {(googleJobs.length > 0 || hasPerformedSearch || savedJobs.length > 0) && (
+                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 border-t border-gray-200 dark:border-gray-700 pt-8">
+                                        <Briefcase size={20} className="text-indigo-600" /> Featured Opportunities
+                                    </h2>
+                                )}
                                 <div className="grid gap-4">
                                     {jobs.map((job) => (
                                         <JobCard
@@ -482,48 +618,7 @@ const JobMarketPage: React.FC = () => {
                                 </div>
                             </div>
                         )}
-
-                        {/* Section 2: Google Jobs */}
-                        {isSearching ? (
-                            <div className="flex flex-col items-center justify-center py-12 space-y-3">
-                                <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
-                                <p className="text-gray-500">Searching across the web...</p>
-                            </div>
-                        ) : googleJobs.length > 0 ? (
-                            <div className="space-y-4">
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white border-t border-gray-200 dark:border-gray-700 pt-8 mt-4">
-                                    Jobs from the Web
-                                </h2>
-                                <div className="grid gap-4">
-                                    {googleJobs.map((job, idx) => (
-                                        <JobCard
-                                            key={`${job.id}-${idx}`} // Use combined key just in case
-                                            job={job}
-                                            onSelect={setSelectedJob}
-                                            onAddToTracker={handleAddToTracker}
-                                            onApply={handleApplyClick}
-                                            onMockInterview={handleMockInterview}
-                                            isAdding={addingToTracker === job.id}
-                                            isAdded={addedJobs.has(job.id)}
-                                            isApplied={false} // External jobs not tracked as 'Applied' automatically
-                                            formatSalary={formatSalary}
-                                            getTimeAgo={getTimeAgo}
-                                        />
-                                    ))}
-                                </div>
-                                {pageToken && (
-                                    <div className="flex justify-center pt-8">
-                                        <button
-                                            onClick={handleLoadMore}
-                                            disabled={isLoadingMore}
-                                            className="px-6 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-full font-semibold text-gray-700 dark:text-gray-200 shadow-sm hover:shadow-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-all flex items-center gap-2"
-                                        >
-                                            {isLoadingMore ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Load More Jobs'}
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        ) : hasPerformedSearch && jobs.length === 0 && (
+                        {hasPerformedSearch && jobs.length === 0 && googleJobs.length === 0 && (
                             <div className="text-center py-20 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
                                 <div className="bg-gray-100 dark:bg-gray-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <Search className="w-8 h-8 text-gray-400" />

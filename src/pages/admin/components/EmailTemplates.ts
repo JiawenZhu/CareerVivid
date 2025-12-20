@@ -92,19 +92,107 @@ export const EMAIL_TEMPLATES: EmailTemplate[] = [
     {
         id: 'welcome_business_general',
         name: 'Welcome Business Partner (General)',
-        subject: 'Welcome to the CareerVivid Business Partner Program! 🤝',
-        html: `<h2>Welcome, Partner!</h2>
-<p>Hello,</p>
-<p>We are thrilled to welcome your organization to the <strong>CareerVivid Business Partner Program</strong>.</p>
-<p>We look forward to collaborating with you to connect with top emerging talent.</p>
-<p>As a next step, we'd love to schedule a quick onboarding call to understand your specific needs.</p>
-<p>Briefly, here is what you can expect:</p>
-<ul>
-    <li>Access to our curated talent pool</li>
-    <li>Employer branding opportunities</li>
-    <li>Priority support</li>
-</ul>
-<p>Your dedicated dashboard is ready for you to explore:</p><p><a href="https://careervivid.app/partners/business" style="display:inline-block; padding:10px 20px; background-color:#4CAF50; color:white; text-decoration:none; border-radius:5px; font-weight:bold;">Launch Business Portal</a></p><p>Thank you for your commitment to fostering the next generation of successful professionals.</p><p>Sincerely,</p><p>The CareerVivid Partnership Team</p>`
+        subject: 'Welcome to CareerVivid Business Partner Program! 🤝',
+        html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0; padding:0; font-family: 'Arial Black', Arial, sans-serif; background-color:#FFE951;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FFE951; padding:40px 20px;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background-color:#000000; border:6px solid #000000; box-shadow: 12px 12px 0 rgba(0,0,0,1);">
+                    <!-- Neo-Brutalist Header -->
+                    <tr>
+                        <td style="background-color:#FF6B6B; padding:40px 30px; text-align:center; border-bottom:6px solid #000000;">
+                            <h1 style="color:#000000; margin:0; font-size:36px; font-weight:900; text-transform:uppercase; letter-spacing:2px;">WELCOME!</h1>
+                            <p style="color:#000000; margin:10px 0 0 0; font-size:18px; font-weight:700;">Business Partner Program</p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Main Content -->
+                    <tr>
+                        <td style="padding:40px 30px; background-color:#FFFFFF;">
+                            <div style="background-color:#00D9FF; padding:20px; border:4px solid #000000; box-shadow: 6px 6px 0 rgba(0,0,0,1); margin-bottom:30px;">
+                                <h2 style="color:#000000; font-size:24px; margin:0; font-weight:900; text-transform:uppercase;">CONGRATS!</h2>
+                            </div>
+                            
+                            <p style="color:#000000; font-size:16px; line-height:1.6; margin:0 0 20px 0; font-weight:600;">
+                                You're now part of the <strong style="background-color:#FFE951; padding:2px 6px;">CareerVivid Business Partner Program</strong>. Let's connect you with top talent! 🚀
+                            </p>
+                            
+                            <!-- Credentials Box - Neo-Brutalist Style -->
+                            <div style="background-color:#B4F8C8; border:5px solid #000000; padding:24px; box-shadow: 8px 8px 0 rgba(0,0,0,1); margin:30px 0;">
+                                <h3 style="color:#000000; font-size:20px; margin:0 0 20px 0; font-weight:900; text-transform:uppercase;">🔑 LOGIN INFO</h3>
+                                
+                                <div style="background-color:#FFFFFF; border:3px solid #000000; padding:16px; margin-bottom:12px;">
+                                    <strong style="color:#000000; font-size:12px; text-transform:uppercase; letter-spacing:1px; font-weight:900;">EMAIL:</strong>
+                                    <p style="margin:8px 0 0 0; color:#000000; font-size:16px; font-weight:700; font-family:monospace;">[USER_EMAIL]</p>
+                                </div>
+                                
+                                <div style="background-color:#FFFFFF; border:3px solid #000000; padding:16px;">
+                                    <strong style="color:#000000; font-size:12px; text-transform:uppercase; letter-spacing:1px; font-weight:900;">PASSWORD:</strong>
+                                    <p style="margin:8px 0 0 0; color:#000000; font-size:16px; font-family:monospace; font-weight:900;">careervivid123456</p>
+                                </div>
+                                
+                                <div style="background-color:#FF6B6B; border:3px solid #000000; padding:12px; margin-top:16px;">
+                                    <p style="color:#000000; font-size:13px; margin:0; font-weight:700;">
+                                        ⚠️ CHANGE PASSWORD AFTER FIRST LOGIN!
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <!-- Features List -->
+                            <div style="background-color:#FFE951; border:4px solid #000000; padding:24px; box-shadow: 6px 6px 0 rgba(0,0,0,1); margin:30px 0;">
+                                <h3 style="color:#000000; font-size:20px; margin:0 0 16px 0; font-weight:900; text-transform:uppercase;">WHAT YOU GET:</h3>
+                                <ul style="color:#000000; font-size:15px; line-height:1.8; margin:0; padding-left:20px; font-weight:700;">
+                                    <li>Post job opportunities</li>
+                                    <li>Access talent pool</li>
+                                    <li>Track applications</li>
+                                    <li>Build employer brand</li>
+                                    <li>Priority support</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- CTA Button -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin:30px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="https://careervivid.app/business-partner/dashboard" style="display:inline-block; background-color:#00D9FF; color:#000000; text-decoration:none; padding:18px 40px; border:5px solid #000000; font-weight:900; font-size:18px; text-transform:uppercase; box-shadow: 6px 6px 0 rgba(0,0,0,1); letter-spacing:1px;">
+                                            START NOW →
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <p style="color:#000000; font-size:15px; line-height:1.6; margin:30px 0 20px 0; font-weight:600;">
+                                Need help? Just reply to this email. Our team is ready! 💪
+                            </p>
+                            
+                            <p style="color:#000000; font-size:15px; line-height:1.6; margin:0; font-weight:600;">
+                                Let's build the future together!
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color:#000000; padding:30px; text-align:center;">
+                            <p style="color:#FFE951; font-size:16px; margin:0 0 12px 0; font-weight:900; text-transform:uppercase;">CareerVivid Team</p>
+                            <p style="color:#FFFFFF; font-size:13px; margin:0; font-weight:700;">
+                                <a href="https://careervivid.app/contact" style="color:#00D9FF; text-decoration:none; font-weight:900;">HELP CENTER</a>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>`
     },
     {
         id: 'welcome_business_hiring',

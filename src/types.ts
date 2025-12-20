@@ -149,9 +149,15 @@ export interface UserProfile {
   // Partner Fields
   role?: 'user' | 'admin' | 'academic_partner' | 'business_partner'; // Deprecated - kept for backward compatibility
   roles?: ('admin' | 'academic_partner' | 'business_partner')[]; // New: Users can have multiple roles
-  referralCode?: string; // For partners: their unique code
+  referralCode?: string; // For partners: their unique code OR for premium users: their personal referral code
   referredBy?: string; // For students: code they used
+  referredByUid?: string; // UID of user who referred this user
   academicPartnerId?: string; // For students: ID of their professor
+  referralStats?: {
+    totalReferred: number;      // Count of successful referrals
+    maxReferrals: number;        // Maximum allowed (5 for premium users)
+    referredUsers: string[];     // UIDs of referred users
+  };
 
   // AI Usage Tracking
   aiUsage?: {

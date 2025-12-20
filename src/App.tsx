@@ -43,6 +43,10 @@ const HRPartnerPage = React.lazy(() => import('./pages/partners/HRPartnerPage'))
 const BusinessPartnerDashboard = React.lazy(() => import('./pages/BusinessPartnerDashboard'));
 const JobPostingEditor = React.lazy(() => import('./pages/JobPostingEditor'));
 const JobMarketPage = React.lazy(() => import('./pages/JobMarketPage'));
+const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'));
+const PermissionDeniedPage = React.lazy(() => import('./pages/PermissionDeniedPage'));
+const ReferralLandingPage = React.lazy(() => import('./pages/ReferralLandingPage'));
+const ReferralPage = React.lazy(() => import('./pages/ReferralPage'));
 
 import { SUPPORTED_LANGUAGES } from './constants';
 import i18n from './i18n';
@@ -207,9 +211,14 @@ const App: React.FC = () => {
         </ThemeProvider>
       );
     } else {
-      // If not logged in or not an admin, redirect any other /admin/* route to login
-      useEffect(() => navigate('/admin/login'), []);
-      return null;
+      // If not logged in or not an admin, show permission denied
+      return (
+        <ThemeProvider>
+          <Suspense fallback={<LoadingFallback />}>
+            <PermissionDeniedPage requiredRole="Administrator" message="You need administrator privileges to access this page." />
+          </Suspense>
+        </ThemeProvider>
+      );
     }
   }
 
@@ -241,6 +250,8 @@ const App: React.FC = () => {
         content = <JobTrackerPage />;
       } else if (path === '/profile') {
         content = <ProfilePage />;
+      } else if (path === '/referrals') {
+        content = <ReferralPage />;
       } else if (path === '/subscription') {
         content = <SubscriptionPage />;
       } else if (path === '/contact') {
@@ -266,8 +277,7 @@ const App: React.FC = () => {
         if (userProfile?.role === 'academic_partner' || isAdmin) {
           content = <AcademicPartnerDashboard />;
         } else {
-          useEffect(() => navigate('/'), []);
-          return null;
+          content = <PermissionDeniedPage requiredRole="Academic Partner" message="This page is only accessible to academic partners." />;
         }
       } else {
         // Default to dashboard for any other path when logged in
@@ -292,6 +302,8 @@ const App: React.FC = () => {
       content = <ContactPage />;
     } else if (path === '/policy') {
       content = <PolicyPage />;
+    } else if (path === '/referral') {
+      content = <ReferralLandingPage />;
     } else if (path === '/blog') {
       content = <BlogListPage />;
     } else if (path.startsWith('/blog/')) {
@@ -313,9 +325,12 @@ const App: React.FC = () => {
       content = <HRPartnerPage />;
     } else if (path === '/partners/apply') {
       content = <PartnerApplicationPage />;
-    } else {
-      // Default to landing page for root and any other path
+    } else if (path === '/' || path === '') {
+      // Root path shows landing page
       content = <LandingPage />;
+    } else {
+      // Unknown routes show 404
+      content = <NotFoundPage />;
     }
   }
 

@@ -148,6 +148,16 @@ service cloud.firestore {
       allow write: if false; // Only Cloud Functions (admin SDK) can write
     }
     
+    // --- Referral Codes ---
+    // Premium users can create their own referral codes
+    match /referralCodes/{code} {
+      allow read: if request.auth != null; // Any authenticated user can read
+      allow create: if request.auth != null && 
+                      request.resource.data.userId == request.auth.uid; // Can only create for self
+      allow update: if request.auth != null; // Allow updates for tracking referrals
+      allow delete: if isAdmin(); // Only admins can delete
+    }
+    
     // --- Indexed Cached Jobs (for smart search) ---
     // Individual job documents with searchable fields
     match /cachedJobs/{jobId} {

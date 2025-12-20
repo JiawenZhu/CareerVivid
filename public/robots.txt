@@ -1,4 +1,17 @@
+# Allow all crawlers
 User-agent: *
 Allow: /
 
+# Disallow admin and private pages
+Disallow: /admin/
+Disallow: /edit/
+Disallow: /new
+Disallow: /tracker
+Disallow: /profile
+Disallow: /subscription
+Disallow: /portfolio/*/edit/
+Disallow: /interview-studio/
+Disallow: /business-partner/
+
+# Sitemap location
 Sitemap: https://careervivid.app/sitemap.xml

@@ -13,11 +13,16 @@ interface PartnerApplication {
     message: string;
     status: 'pending' | 'approved' | 'rejected';
     createdAt: any;
+    accountCreated?: boolean;
+    accountCreatedAt?: any;
+    createdUserId?: string;
+    accountCreationMessage?: string;
 }
 
 const PartnerApplicationManagement: React.FC = () => {
     const [applications, setApplications] = useState<PartnerApplication[]>([]);
     const [loading, setLoading] = useState(true);
+    const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
 
     useEffect(() => {
         const q = query(collection(db, 'partner_applications'), orderBy('createdAt', 'desc'));
@@ -33,57 +38,20 @@ const PartnerApplicationManagement: React.FC = () => {
         return () => unsubscribe();
     }, []);
 
-    const handleStatusUpdate = async (id: string, newStatus: 'approved' | 'rejected') => {
-        if (!window.confirm(`Are you sure you want to mark this application as ${newStatus}?`)) return;
+    const handleStatusUpdate = async (id: string, newStatus: 'approved' | 'rejected' | 'pending') => {
         try {
             // Update application status
+            // The backend trigger 'onPartnerApplicationUpdated' will handle role assignment and account creation
             await updateDoc(doc(db, 'partner_applications', id), {
                 status: newStatus
             });
 
-            // If approved, add the role to the user's roles array
+            // Update local state
+            setApplications(apps => apps.map(a => a.id === id ? { ...a, status: newStatus } : a));
+            setUpdatingStatusId(null);
+
             if (newStatus === 'approved') {
-                const app = applications.find(a => a.id === id);
-                if (app) {
-                    // Find user by email
-                    const usersRef = collection(db, 'users');
-                    const usersSnapshot = await getDocs(usersRef);
-
-                    const userDoc = usersSnapshot.docs.find(doc => doc.data().email === app.email);
-                    if (userDoc) {
-                        const userData = userDoc.data();
-                        let roleToAdd: 'academic_partner' | 'business_partner' | undefined;
-
-                        if (app.type === 'academic') {
-                            roleToAdd = 'academic_partner';
-                        } else if (app.type === 'business') {
-                            roleToAdd = 'business_partner';
-                        }
-
-                        if (roleToAdd) {
-                            // Get current roles array or create from legacy role field
-                            let currentRoles = userData.roles || [];
-                            if (!currentRoles.length && userData.role && userData.role !== 'user') {
-                                // Migrate from old single role to roles array
-                                currentRoles = [userData.role];
-                            }
-
-                            // Add new role if not already present
-                            if (!currentRoles.includes(roleToAdd)) {
-                                currentRoles.push(roleToAdd);
-                            }
-
-                            await updateDoc(doc(db, 'users', userDoc.id), {
-                                roles: currentRoles,
-                                role: roleToAdd // Also update legacy field for backward compatibility
-                            });
-                            console.log(`Updated user ${userDoc.id} - added ${roleToAdd} to roles array`);
-                            alert(`Successfully approved and added ${roleToAdd} role`);
-                        }
-                    } else {
-                        alert('Approved application, but user account not found. User may need to sign up first.');
-                    }
-                }
+                // Status message will update via listener when backend trigger completes
             }
         } catch (error) {
             console.error("Error updating status:", error);
@@ -190,12 +158,41 @@ const PartnerApplicationManagement: React.FC = () => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
-                                            ${app.status === 'approved' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
-                                                app.status === 'rejected' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' :
-                                                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'}`}>
-                                            {app.status}
-                                        </span>
+                                        <div>
+                                            {updatingStatusId === app.id ? (
+                                                <select
+                                                    value={app.status}
+                                                    onChange={(e) => handleStatusUpdate(app.id, e.target.value as 'approved' | 'rejected' | 'pending')}
+                                                    onBlur={() => setUpdatingStatusId(null)}
+                                                    className="text-xs p-1 px-2 border rounded bg-white dark:bg-gray-800 dark:border-gray-700"
+                                                    autoFocus
+                                                >
+                                                    <option value="pending">Pending</option>
+                                                    <option value="approved">Approved</option>
+                                                    <option value="rejected">Rejected</option>
+                                                </select>
+                                            ) : (
+                                                <div onClick={() => setUpdatingStatusId(app.id)} className="cursor-pointer hover:opacity-80">
+                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
+                                                        ${app.status === 'approved' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
+                                                            app.status === 'rejected' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' :
+                                                                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'}`}>
+                                                        {app.status}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {app.status === 'approved' && app.accountCreationMessage && (
+                                                <div className="mt-1 text-xs">
+                                                    {app.accountCreated ? (
+                                                        <span className="text-green-600 dark:text-green-400">{app.accountCreationMessage}</span>
+                                                    ) : (
+                                                        <span className="text-red-600 dark:text-red-400" title={app.accountCreationMessage}>
+                                                            {app.accountCreationMessage}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-2">
@@ -206,24 +203,6 @@ const PartnerApplicationManagement: React.FC = () => {
                                             >
                                                 <Mail size={16} />
                                             </button>
-                                            {app.status === 'pending' && (
-                                                <>
-                                                    <button
-                                                        onClick={() => handleStatusUpdate(app.id, 'approved')}
-                                                        className="p-1.5 bg-green-50 text-green-600 hover:bg-green-100 rounded-md transition-colors"
-                                                        title="Approve"
-                                                    >
-                                                        <Check size={16} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleStatusUpdate(app.id, 'rejected')}
-                                                        className="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-md transition-colors"
-                                                        title="Reject"
-                                                    >
-                                                        <X size={16} />
-                                                    </button>
-                                                </>
-                                            )}
                                             <button
                                                 onClick={() => handleDelete(app.id)}
                                                 className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-gray-100 rounded-md transition-colors"

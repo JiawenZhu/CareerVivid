@@ -849,6 +849,7 @@ const Dashboard: React.FC = () => {
                                                     </div>
                                                 )}
                                             </a>
+                                            {isPremium && <a href="/referrals" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Referrals</a>}
                                             {(userProfile?.roles?.includes('academic_partner') || userProfile?.role === 'academic_partner') && <a href="/academic-partner" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.academic_partner')}</a>}
                                             {(userProfile?.roles?.includes('business_partner') || userProfile?.role === 'business_partner') && <a href="/business-partner/dashboard" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Business Partner</a>}
                                             {isAdmin && <a href="/admin" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.admin')}</a>}
