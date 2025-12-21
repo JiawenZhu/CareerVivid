@@ -24,6 +24,24 @@ const CandidateCard: React.FC<CandidateCardProps> = ({
     matchScore
 }) => {
     const [showActions, setShowActions] = React.useState(false);
+    const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setShowActions(false);
+            }
+        };
+
+        if (showActions) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showActions]);
 
     const formatDate = (timestamp: any) => {
         if (!timestamp) return 'N/A';
@@ -64,7 +82,8 @@ const CandidateCard: React.FC<CandidateCardProps> = ({
         <div
             draggable
             onDragStart={onDragStart}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-all group"
+            onDoubleClick={onViewResume}
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-all group select-none"
         >
             {/* Header */}
             <div className="flex items-start justify-between mb-2">
@@ -83,7 +102,7 @@ const CandidateCard: React.FC<CandidateCardProps> = ({
                         )}
                     </div>
                 </div>
-                <div className="relative">
+                <div className="relative" ref={dropdownRef}>
                     <button
                         onClick={() => setShowActions(!showActions)}
                         className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -166,6 +185,8 @@ interface PipelineColumnProps {
     onDrop: (e: React.DragEvent, stageId: string) => void;
     isDropTarget: boolean;
     transparency: number; // 0-100
+    onEmailAction: (app: JobApplication) => void;
+    onScheduleAction: (app: JobApplication) => void; // NEW
     onEditStage?: (stageId: string) => void;
     onRemoveStage?: (stageId: string) => void;
 }
@@ -180,6 +201,8 @@ const PipelineColumn: React.FC<PipelineColumnProps> = ({
     onDrop,
     isDropTarget,
     transparency,
+    onEmailAction,
+    onScheduleAction,
     onEditStage,
     onRemoveStage
 }) => {
@@ -207,9 +230,13 @@ const PipelineColumn: React.FC<PipelineColumnProps> = ({
             }
         } else if (action === 'reject') {
             onUpdateStatus(app.id, 'rejected');
+        } else if (action === 'email') {
+            onEmailAction(app);
+        } else if (action === 'schedule') {
+            onScheduleAction(app);
         }
-        // TODO: email and schedule actions
     };
+
 
     return (
         <div
@@ -264,14 +291,16 @@ const PipelineColumn: React.FC<PipelineColumnProps> = ({
 interface CandidatePipelineProps {
     applications: JobApplication[];
     candidateNames: Record<string, string>;
+    candidateEmails: Record<string, string>; // NEW
     onViewResume: (app: JobApplication) => void;
     onUpdateStatus: (appId: string, newStatus: JobApplicationStatus) => void;
-    userId: string; // NEW: For loading/saving settings
+    userId: string;
 }
 
 const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
     applications,
     candidateNames,
+    candidateEmails,
     onViewResume,
     onUpdateStatus,
     userId
@@ -280,8 +309,8 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
     const [showSettings, setShowSettings] = useState(false);
     const [backgroundTheme, setBackgroundTheme] = useState<PipelineBackgroundTheme>('none');
     const [customStages, setCustomStages] = useState<PipelineStage[]>(DEFAULT_PIPELINE_STAGES);
-    const [columnTransparency, setColumnTransparency] = useState(0); // NEW
-    const [customBackgroundUrl, setCustomBackgroundUrl] = useState<string | undefined>(); // NEW
+    const [columnTransparency, setColumnTransparency] = useState(0);
+    const [customBackgroundUrl, setCustomBackgroundUrl] = useState<string | undefined>();
 
     // Load settings on mount
     useEffect(() => {
@@ -469,6 +498,67 @@ const CandidatePipeline: React.FC<CandidatePipelineProps> = ({
                         onDrop={handleDrop}
                         isDropTarget={dropTargetStage === stage.id}
                         transparency={columnTransparency}
+                        onEmailAction={(app) => {
+                            // Direct mailto: link with template
+                            const candidateName = candidateNames[app.applicantUserId] || 'Candidate';
+                            const candidateEmail = candidateEmails[app.applicantUserId];
+
+                            if (!candidateEmail) {
+                                alert('No email found for this candidate');
+                                return;
+                            }
+
+                            const subject = encodeURIComponent('Interview Invitation');
+                            const body = encodeURIComponent(
+                                `Dear ${candidateName},\n\n` +
+                                `We are pleased to invite you for an interview for the position you applied for.\n\n` +
+                                `We look forward to speaking with you.\n\n` +
+                                `Best regards`
+                            );
+
+                            // User requested "same thing as google calendar" - using Gmail web link
+                            // This is more reliable than mailto: which depends on local client config
+                            const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1` +
+                                `&to=${encodeURIComponent(candidateEmail)}` +
+                                `&su=${subject}` +
+                                `&body=${body}`;
+
+                            console.log('Opening Gmail web client:', gmailUrl);
+
+                            // Open in new tab like the calendar integration
+                            window.open(gmailUrl, '_blank');
+                        }}
+                        onScheduleAction={(app) => {
+                            // Direct Google Calendar link
+                            const candidateName = candidateNames[app.applicantUserId] || 'Candidate';
+                            const candidateEmail = candidateEmails[app.applicantUserId];
+
+                            if (!candidateEmail) {
+                                alert('No email found for this candidate');
+                                return;
+                            }
+
+                            // Format: YYYYMMDDTHHMMSS
+                            const now = new Date();
+                            const tomorrow = new Date(now);
+                            tomorrow.setDate(tomorrow.getDate() + 1);
+                            tomorrow.setHours(10, 0, 0, 0); // 10 AM tomorrow
+
+                            const endTime = new Date(tomorrow);
+                            endTime.setHours(11, 0, 0, 0); // 11 AM (1 hour)
+
+                            const formatDate = (date: Date) => {
+                                return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+                            };
+
+                            const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE` +
+                                `&text=${encodeURIComponent(`Interview with ${candidateName}`)}` +
+                                `&dates=${formatDate(tomorrow)}/${formatDate(endTime)}` +
+                                `&details=${encodeURIComponent(`Interview scheduled via CareerVivid`)}` +
+                                `&add=${encodeURIComponent(candidateEmail)}`;
+
+                            window.open(calendarUrl, '_blank');
+                        }}
                     />
                 ))}
             </div>

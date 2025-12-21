@@ -1,8 +1,8 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { navigate } from '../App';
-import { Plus, Edit2, Trash2, Eye, BarChart3, Briefcase, Users, Calendar, DollarSign, MapPin, Clock, Star, X, Check, FileText, CheckCircle, XCircle, Wand2, ArrowRight, ChevronUp, ChevronDown } from 'lucide-react';
-import { JobPosting, JobApplication, ResumeData, JobApplicationStatus, ResumeMatchAnalysis } from '../types';
+import { Plus, Edit2, Trash2, Eye, BarChart3, Briefcase, Users, Calendar, DollarSign, MapPin, Clock, Star, X, Check, FileText, CheckCircle, XCircle, Wand2, ArrowRight, ChevronUp, ChevronDown, Mail } from 'lucide-react';
+import { JobPosting, JobApplication, ResumeData, JobApplicationStatus, ResumeMatchAnalysis, DEFAULT_PIPELINE_STAGES } from '../types';
 import { getJobPostingsByHR, deleteJobPosting, publishJobPosting } from '../services/jobService';
 import { getApplicationsForJob, updateApplicationStatus, saveMatchAnalysis } from '../services/applicationService';
 import { analyzeResumeMatch } from '../services/geminiService';
@@ -24,6 +24,7 @@ const BusinessPartnerDashboard: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [applicantNames, setApplicantNames] = useState<Record<string, string>>({});
+    const [applicantEmails, setApplicantEmails] = useState<Record<string, string>>({});
 
     // Modals
     const [selectedResume, setSelectedResume] = useState<ResumeData | null>(null);
@@ -68,8 +69,9 @@ const BusinessPartnerDashboard: React.FC = () => {
             allApps.sort((a, b) => b.appliedAt.toMillis() - a.appliedAt.toMillis());
             setApplications(allApps);
 
-            // Fetch Applicant Names
+            // Fetch Applicant Names and Emails
             const names: Record<string, string> = {};
+            const emails: Record<string, string> = {};
             const uniqueUserIds = Array.from(new Set(allApps.map(app => app.applicantUserId)));
 
             await Promise.all(uniqueUserIds.map(async (uid) => {
@@ -78,15 +80,19 @@ const BusinessPartnerDashboard: React.FC = () => {
                     if (userDoc.exists()) {
                         const data = userDoc.data();
                         names[uid] = data.displayName || data.email || 'Unknown User';
+                        emails[uid] = data.email || '';
                     } else {
                         names[uid] = 'Unknown User';
+                        emails[uid] = '';
                     }
                 } catch (e) {
                     console.error("Error fetching user", uid, e);
                     names[uid] = 'Error loading user';
+                    emails[uid] = '';
                 }
             }));
             setApplicantNames(names);
+            setApplicantEmails(emails);
 
         } catch (error) {
             console.error('Error loading dashboard data:', error);
@@ -207,6 +213,70 @@ const BusinessPartnerDashboard: React.FC = () => {
         const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
         return date.toLocaleDateString();
     };
+
+    // --- Action Handlers for Modal ---
+    const handleSendEmail = (app: JobApplication) => {
+        const candidateName = applicantNames[app.applicantUserId] || 'Candidate';
+        const candidateEmail = applicantEmails[app.applicantUserId];
+
+        if (!candidateEmail) {
+            alert('No email found for this candidate');
+            return;
+        }
+
+        const subject = encodeURIComponent('Interview Invitation');
+        const body = encodeURIComponent(
+            `Dear ${candidateName},\n\n` +
+            `We are pleased to invite you for an interview for the position you applied for.\n\n` +
+            `We look forward to speaking with you.\n\n` +
+            `Best regards`
+        );
+
+        // Standard Gmail web interface
+        const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(candidateEmail)}&su=${subject}&body=${body}`;
+        window.open(gmailUrl, '_blank');
+    };
+
+    const handleSchedule = (app: JobApplication) => {
+        const candidateName = applicantNames[app.applicantUserId] || 'Candidate';
+        const candidateEmail = applicantEmails[app.applicantUserId];
+
+        const title = encodeURIComponent(`Interview with ${candidateName}`);
+        const details = encodeURIComponent(`Interview for position. Candidate: ${candidateName}`);
+        const attendee = candidateEmail ? `&add=${encodeURIComponent(candidateEmail)}` : '';
+
+        const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}${attendee}`;
+        window.open(calendarUrl, '_blank');
+    };
+
+    // Keyboard Navigation for Resume Modal
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (!selectedResume || !viewingApp) return;
+
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                const currentIndex = applications.findIndex(app => app.id === viewingApp.id);
+                if (currentIndex === -1) return;
+
+                let nextIndex = currentIndex;
+                if (e.key === 'ArrowLeft') {
+                    // Previous
+                    nextIndex = Math.max(0, currentIndex - 1);
+                } else if (e.key === 'ArrowRight') {
+                    // Next
+                    nextIndex = Math.min(applications.length - 1, currentIndex + 1);
+                }
+
+                if (nextIndex !== currentIndex) {
+                    handleViewResume(applications[nextIndex]);
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [selectedResume, viewingApp, applications]);
+
 
     const getStatusBadge = (status: string) => {
         const colors = {
@@ -458,6 +528,7 @@ const BusinessPartnerDashboard: React.FC = () => {
                                         <CandidatePipeline
                                             applications={applications}
                                             candidateNames={applicantNames}
+                                            candidateEmails={applicantEmails}
                                             onViewResume={handleViewResume}
                                             onUpdateStatus={handleUpdateStatus}
                                             userId={currentUser?.uid || ''}
@@ -555,8 +626,8 @@ const BusinessPartnerDashboard: React.FC = () => {
 
             {/* Resume Viewer Modal */}
             {selectedResume && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-5xl h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-gray-900 w-full h-full flex flex-col shadow-2xl overflow-hidden">
                         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
                             <div>
                                 <h2 className="text-lg font-bold text-gray-900 dark:text-white">
@@ -653,12 +724,45 @@ const BusinessPartnerDashboard: React.FC = () => {
                                     >
                                         Reject
                                     </button>
+
                                     <button
-                                        onClick={() => { handleUpdateStatus(viewingApp.id, 'interview'); setSelectedResume(null); }}
-                                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                                        onClick={() => handleSendEmail(viewingApp)}
+                                        className="flex items-center gap-2 px-4 py-2 border border-blue-200 text-blue-700 rounded-lg hover:bg-blue-50 dark:border-blue-800 dark:text-blue-300 dark:hover:bg-blue-900/30 transition-colors"
+                                        title="Send Email via Gmail"
                                     >
-                                        Shortlist for Interview
+                                        <Mail size={18} />
+                                        Send Email
                                     </button>
+
+                                    <button
+                                        onClick={() => handleSchedule(viewingApp)}
+                                        className="flex items-center gap-2 px-4 py-2 border border-orange-200 text-orange-700 rounded-lg hover:bg-orange-50 dark:border-orange-800 dark:text-orange-300 dark:hover:bg-orange-900/30 transition-colors"
+                                        title="Schedule Interview"
+                                    >
+                                        <Calendar size={18} />
+                                        Schedule
+                                    </button>
+                                    {(() => {
+                                        // Dynamic Stage Calculation
+                                        const currentStatus = viewingApp.status === 'submitted' ? 'new' : viewingApp.status;
+                                        const currentIndex = DEFAULT_PIPELINE_STAGES.findIndex(s => s.id === currentStatus);
+                                        const nextStage = currentIndex !== -1 && currentIndex < DEFAULT_PIPELINE_STAGES.length - 1
+                                            ? DEFAULT_PIPELINE_STAGES[currentIndex + 1]
+                                            : null;
+
+                                        // Only show button if there is a next stage that is not "Rejected" (since we have a reject button)
+                                        if (nextStage && nextStage.id !== 'rejected') {
+                                            return (
+                                                <button
+                                                    onClick={() => { handleUpdateStatus(viewingApp.id, nextStage.id as JobApplicationStatus); setSelectedResume(null); }}
+                                                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                                                >
+                                                    Move to {nextStage.name}
+                                                </button>
+                                            );
+                                        }
+                                        return null;
+                                    })()}
                                 </>
                             )}
                         </div>

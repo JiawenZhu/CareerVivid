@@ -38,15 +38,8 @@ export const submitApplication = async (
 
     const docRef = await addDoc(applicationsRef, cleanData);
 
-    // Increment application count on job posting
-    const jobRef = doc(db, 'jobPostings', jobId);
-    const jobSnap = await getDoc(jobRef);
-    if (jobSnap.exists()) {
-        const currentCount = jobSnap.data().applicationCount || 0;
-        await updateDoc(jobRef, {
-            applicationCount: currentCount + 1,
-        });
-    }
+    // Note: applicationCount should be calculated on-read or via Cloud Function
+    // Users don't have permission to update job postings
 
     return docRef.id;
 };
