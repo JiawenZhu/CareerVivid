@@ -93,7 +93,7 @@ export const generatePortfolioFromPrompt = async (prompt: string, userId: string
         console.log('[Portfolio] Generating with AI, prompt:', prompt);
 
         const response = await ai.models.generateContent({
-            model: 'gemini-3-flash',
+            model: 'gemini-2.5-flash',
             contents: { parts: [{ text: `User request: "${prompt}". Generate a complete portfolio JSON following the schema exactly.` }] },
             config: {
                 systemInstruction: SYSTEM_INSTRUCTION,
@@ -140,6 +140,26 @@ export const generatePortfolioFromPrompt = async (prompt: string, userId: string
             ...aiData
         };
 
+        // Check if this is a link-in-bio template and add default linkInBio data
+        const isLinkInBio = aiData.templateId?.startsWith('linktree_');
+        if (isLinkInBio) {
+            portfolioData.mode = 'linkinbio';
+            portfolioData.linkInBio = {
+                links: [
+                    { id: '1', label: 'My Website', url: 'https://example.com', icon: 'Globe', variant: 'primary', enabled: true, order: 1 },
+                    { id: '2', label: 'GitHub', url: 'https://github.com', icon: 'Github', variant: 'secondary', enabled: true, order: 2 },
+                    { id: '3', label: 'LinkedIn', url: 'https://linkedin.com', icon: 'Linkedin', variant: 'outline', enabled: true, order: 3 },
+                ],
+                showSocial: true,
+                showEmail: true,
+                profileImage: aiData.hero?.avatarUrl || '',
+                displayName: aiData.hero?.headline || 'Your Name',
+                bio: aiData.about || 'Add your bio here',
+                backgroundColor: aiData.theme?.darkMode ? '#0f1117' : '#ffffff',
+                buttonLayout: aiData.templateId === 'linktree_bento' ? 'grid' : 'stack'
+            };
+        }
+
         console.log('[Portfolio] Final portfolio data:', portfolioData);
         return portfolioData;
     } catch (error) {
@@ -154,7 +174,7 @@ export const generatePortfolioFromPrompt = async (prompt: string, userId: string
 function generateFallbackPortfolio(prompt: string, userId: string): PortfolioData {
     const lowerPrompt = prompt.toLowerCase();
 
-    let templateId: 'minimalist' | 'visual' | 'corporate' = 'minimalist';
+    let templateId: PortfolioData['templateId'] = 'minimalist';
     if (lowerPrompt.includes('designer') || lowerPrompt.includes('creative')) {
         templateId = 'visual';
     } else if (lowerPrompt.includes('manager') || lowerPrompt.includes('executive')) {
@@ -163,7 +183,7 @@ function generateFallbackPortfolio(prompt: string, userId: string): PortfolioDat
 
     const now = Date.now();
 
-    return {
+    const baseData: PortfolioData = {
         id: crypto.randomUUID(),
         userId,
         title: `${prompt} Portfolio`,
@@ -196,5 +216,27 @@ function generateFallbackPortfolio(prompt: string, userId: string): PortfolioDat
         createdAt: now,
         updatedAt: now
     };
+
+    // If it's a link-in-bio template, add linkInBio data
+    const isLinkInBio = templateId.toString().startsWith('linktree_');
+    if (isLinkInBio) {
+        baseData.mode = 'linkinbio';
+        baseData.linkInBio = {
+            links: [
+                { id: '1', label: 'My Website', url: 'https://example.com', icon: 'Globe', variant: 'primary', enabled: true, order: 1 },
+                { id: '2', label: 'GitHub', url: 'https://github.com', icon: 'Github', variant: 'secondary', enabled: true, order: 2 },
+                { id: '3', label: 'LinkedIn', url: 'https://linkedin.com', icon: 'Linkedin', variant: 'outline', enabled: true, order: 3 },
+            ],
+            showSocial: true,
+            showEmail: true,
+            profileImage: '',
+            displayName: 'Your Name',
+            bio: `Passionate about ${prompt}`,
+            backgroundColor: baseData.theme.darkMode ? '#0f1117' : '#ffffff',
+            buttonLayout: String(templateId) === 'linktree_bento' ? 'grid' : 'stack'
+        };
+    }
+
+    return baseData;
 }
 

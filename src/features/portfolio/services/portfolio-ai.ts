@@ -9,7 +9,7 @@ if (!apiKey) {
 }
 
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
-const GEMINI_MODEL = 'gemini-3-flash';
+const GEMINI_MODEL = 'gemini-1.5-flash';
 
 const REFINEMENT_INSTRUCTION = `
 You are an expert Frontend Developer and UI/UX Designer.
@@ -27,7 +27,13 @@ RULES:
 5. If the user asks to ADD BUTTONS, use the 'hero.buttons' array. Each button has { id, label, url, variant ('primary'|'secondary'|'outline'|'ghost'), style?: { backgroundColor: '...', color: '...' } }.
    - Example: "Add a red button" -> style: { backgroundColor: 'red', color: 'white' }.
 6. If the user asks for ANIMATIONS (e.g., "fade in", "slide up"), set 'theme.animations' = { enabled: true, type: 'fade'|'slide'|'zoom', duration: 'normal' }.
-7. If the user changes FONTS, set 'theme.fontFamily' (e.g., 'Inter', 'Playfair Display', 'Fira Code').
+7. If the user asks for COOL EFFECTS (Matrix, Confetti, Tilt, Typewriter, Spin), set 'linkInBio.customStyle.effects':
+   - "Confetti on click" -> { confetti: true }
+   - "Matrix rain" -> { matrix: true }
+   - "Typewriter name" -> { typewriter: true }
+   - "Tilt buttons" -> { tilt: true }
+   - "Spin avatar on hover" -> { spinAvatar: true }
+8. If the user changes FONTS, set 'theme.fontFamily' (e.g., 'Inter', 'Playfair Display', 'Fira Code').
 8. If the user asks for CUSTOM STYLING, you can provide 'theme.customCss' or 'style' props on buttons.
 `;
 
@@ -55,14 +61,42 @@ export async function refinePortfolio(
 
         prompt += `\nReturn the updated JSON:`;
 
-        const response = await ai.models.generateContent({
-            model: GEMINI_MODEL,
-            contents: { parts: [{ text: prompt }] },
-            config: {
-                systemInstruction: REFINEMENT_INSTRUCTION,
-                responseMimeType: "application/json"
-            },
-        });
+        const generate = async (modelName: string) => {
+            return await ai.models.generateContent({
+                model: modelName,
+                contents: { parts: [{ text: prompt }] },
+                config: {
+                    systemInstruction: REFINEMENT_INSTRUCTION,
+                    responseMimeType: "application/json"
+                },
+            });
+        };
+
+        let response;
+        const modelsToTry = [
+            'gemini-3.0-flash',     // Newest Flash (if available)
+            'gemini-2.5-flash',     // Current Standard GA
+            'gemini-2.5-pro',       // Current Pro GA
+            'gemini-2.0-flash',     // Previous Stable
+            'gemini-1.5-flash-002'  // Long Term Support (if active)
+        ];
+
+        let lastError;
+        for (const model of modelsToTry) {
+            try {
+                // console.log(`Attempting refinement with ${model}...`);
+                response = await generate(model);
+                break; // Success!
+            } catch (e: any) {
+                console.warn(`${model} failed:`, e.message);
+                lastError = e;
+                continue; // Try next
+            }
+        }
+
+        if (!response) {
+            throw new Error(`All Gemini models failed. Last error: ${lastError?.message || 'Unknown'}`);
+        }
 
         const tokenUsage = response.usageMetadata?.totalTokenCount || 0;
         if (currentData.userId) {

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { navigate } from '../App';
-import { Plus, Edit2, Trash2, Eye, BarChart3, Briefcase, Users, Calendar, DollarSign, MapPin, Clock, Star, X, Check, FileText, CheckCircle, XCircle, Wand2, ArrowRight, ChevronUp, ChevronDown, Mail } from 'lucide-react';
-import { JobPosting, JobApplication, ResumeData, JobApplicationStatus, ResumeMatchAnalysis, DEFAULT_PIPELINE_STAGES } from '../types';
+import { Plus, Edit2, Trash2, Eye, BarChart3, Briefcase, Users, Calendar, DollarSign, MapPin, Clock, Star, X, Check, FileText, CheckCircle, XCircle, Wand2, ArrowRight, ChevronUp, ChevronDown, Mail, Code2 } from 'lucide-react';
+import { JobPosting, JobApplication, ResumeData, JobApplicationStatus, ResumeMatchAnalysis, DEFAULT_PIPELINE_STAGES, CompanyProfile } from '../types';
 import { getJobPostingsByHR, deleteJobPosting, publishJobPosting } from '../services/jobService';
 import { getApplicationsForJob, updateApplicationStatus, saveMatchAnalysis } from '../services/applicationService';
 import { analyzeResumeMatch } from '../services/geminiService';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import Logo from '../components/Logo';
 import { Loader2 } from 'lucide-react';
@@ -14,11 +14,13 @@ import { Loader2 } from 'lucide-react';
 // Lazy load ResumePreview to avoid bloat
 const ResumePreview = React.lazy(() => import('../components/ResumePreview'));
 const CandidatePipeline = React.lazy(() => import('../components/hr/CandidatePipeline'));
+const EmbedWidgetGenerator = React.lazy(() => import('../components/hr/EmbedWidgetGenerator'));
 
 const BusinessPartnerDashboard: React.FC = () => {
     const { currentUser, userProfile, logOut } = useAuth();
     const referralLink = `https://careervivid.app/signup?ref=${userProfile?.referralCode || 'ERROR_NO_CODE'}`;
-    const [activeTab, setActiveTab] = useState<'jobs' | 'pipeline' | 'applicants'>('jobs');
+    const [activeTab, setActiveTab] = useState<'jobs' | 'pipeline' | 'applicants' | 'embed'>('jobs');
+    const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null);
     const [jobs, setJobs] = useState<JobPosting[]>([]);
     const [applications, setApplications] = useState<JobApplication[]>([]);
     const [loading, setLoading] = useState(true);
@@ -93,6 +95,16 @@ const BusinessPartnerDashboard: React.FC = () => {
             }));
             setApplicantNames(names);
             setApplicantEmails(emails);
+
+            // Load Company Profile
+            try {
+                const profileSnap = await getDoc(doc(db, 'companyProfiles', currentUser.uid));
+                if (profileSnap.exists()) {
+                    setCompanyProfile({ id: profileSnap.id, ...profileSnap.data() } as CompanyProfile);
+                }
+            } catch (e) {
+                console.error('Error loading company profile:', e);
+            }
 
         } catch (error) {
             console.error('Error loading dashboard data:', error);
@@ -432,6 +444,16 @@ const BusinessPartnerDashboard: React.FC = () => {
                             >
                                 Applicant List
                             </button>
+                            <button
+                                onClick={() => setActiveTab('embed')}
+                                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'embed'
+                                    ? 'border-purple-600 text-purple-600'
+                                    : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                    }`}
+                            >
+                                <Code2 size={16} className="inline mr-1" />
+                                Embed Widget
+                            </button>
                         </nav>
                     </div>
 
@@ -515,6 +537,43 @@ const BusinessPartnerDashboard: React.FC = () => {
                                     </div>
                                 )}
                             </div>
+                        ) : activeTab === 'embed' ? (
+                            // Embed Widget Tab
+                            <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="animate-spin" /></div>}>
+                                <EmbedWidgetGenerator
+                                    companyProfile={companyProfile}
+                                    onSaveProfile={async (updates) => {
+                                        if (!currentUser) return;
+                                        try {
+                                            const profileRef = doc(db, 'companyProfiles', updates.slug || currentUser.uid);
+
+                                            // Structure the data correctly
+                                            const profileData: any = {
+                                                hrUserId: currentUser.uid,
+                                                companyName: jobs[0]?.companyName || 'My Company',
+                                                slug: updates.slug || jobs[0]?.companyName?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'company',
+                                            };
+
+                                            // Save branding data under 'branding' object
+                                            if (updates.theme || updates.primaryColor || updates.fontFamily) {
+                                                profileData.branding = {
+                                                    theme: updates.theme || 'creative',
+                                                    primaryColor: updates.primaryColor || '#7c3aed',
+                                                    fontFamily: updates.fontFamily || 'system-ui',
+                                                };
+                                            }
+
+                                            await setDoc(profileRef, profileData, { merge: true });
+
+                                            // Reload profile
+                                            await loadData();
+                                        } catch (error) {
+                                            console.error('Error saving profile:', error);
+                                            alert('Failed to save company profile. Please try again.');
+                                        }
+                                    }}
+                                />
+                            </Suspense>
                         ) : activeTab === 'pipeline' ? (
                             // Candidate Pipeline Tab
                             <div>

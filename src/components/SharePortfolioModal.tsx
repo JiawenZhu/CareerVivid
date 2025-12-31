@@ -25,9 +25,11 @@ const SharePortfolioModal: React.FC<SharePortfolioModalProps> = ({
     const [copied, setCopied] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    // Construct the share URL.
-    const username = currentUser?.email?.split('@')[0] || 'user';
-    const shareUrl = `${window.location.origin}/#/portfolio/${username}/${portfolioId}`;
+    // Construct the share URL using headline as slug if available
+    const userSlug = portfolioData?.hero?.headline
+        ? portfolioData.hero.headline.replace(/[^\w\s-]/g, '').replace(/\s+/g, '')
+        : (currentUser?.email?.split('@')[0] || 'user');
+    const shareUrl = `${window.location.origin}/portfolio/${userSlug}/${portfolioId}`;
 
     // Check initial public status
     useEffect(() => {
@@ -56,24 +58,39 @@ const SharePortfolioModal: React.FC<SharePortfolioModalProps> = ({
                 // Ideally, we should fetch private data then copy. 
                 // BUT, if we are in Editor, we have 'portfolioData'. 
 
-                const username = currentUser?.email?.split('@')[0] || 'user';
+                // Use headline as username/slug if available (from hero section), otherwise fallback to email prefix
+                const userSlug = portfolioData?.hero?.headline
+                    ? portfolioData.hero.headline.replace(/\s+/g, '') // Basic slugify: remove spaces
+                    : (currentUser?.email?.split('@')[0] || 'user');
 
                 if (portfolioData) {
+                    // Sanitize data to remove undefined values (Firestore doesn't like them)
+                    const sanitizedData = JSON.parse(JSON.stringify(portfolioData));
+
                     await setDoc(doc(db, 'public_portfolios', portfolioId), {
-                        ...portfolioData,
+                        ...sanitizedData,
                         updatedAt: new Date(),
                         templateId: portfolioData.templateId || 'minimalist',
-                        username: username // Save username for public URL routing
+                        username: userSlug, // Save slug for public URL routing
+                        attachedResumeId: portfolioData.attachedResumeId || null // Explicitly handle potential undefined
                     });
                 } else if (currentUser) {
                     // Fetch from private and publish (Dashboard scenario)
                     const privateRef = doc(db, 'users', currentUser.uid, 'portfolios', portfolioId);
                     const privateSnap = await getDoc(privateRef);
+
+                    const username = currentUser?.email?.split('@')[0] || 'user';
+
                     if (privateSnap.exists()) {
+                        const data = privateSnap.data();
+                        // Sanitize data from fetching
+                        const sanitizedData = JSON.parse(JSON.stringify(data));
+
                         await setDoc(doc(db, 'public_portfolios', portfolioId), {
-                            ...privateSnap.data(),
+                            ...sanitizedData,
                             updatedAt: new Date(),
-                            username: username
+                            username: username,
+                            attachedResumeId: data.attachedResumeId || null // Explicitly handle potential undefined
                         });
                     } else {
                         alert("Could not find portfolio data to publish.");

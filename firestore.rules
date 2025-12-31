@@ -81,6 +81,14 @@ service cloud.firestore {
       allow write: if request.auth != null; // Authenticated users can publish
     }
 
+    // User Themes (Custom Saved Themes)
+    match /user_themes/{themeId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
     // Partner Applications (Public Submit, Admin Manage)
     match /partner_applications/{applicationId} {
       allow create: if true; // Public submission
@@ -101,6 +109,21 @@ service cloud.firestore {
       allow read: if resource.data.status == 'published' || 
                     (request.auth != null && resource.data.hrUserId == request.auth.uid) || 
                     isAdmin();
+      
+      // Create: Must be Business Partner and assign self as owner
+      allow create: if request.auth != null && 
+                      isBusinessPartner() && 
+                      request.resource.data.hrUserId == request.auth.uid;
+      
+      // Update/Delete: Only Owner or Admin
+      allow update, delete: if (request.auth != null && resource.data.hrUserId == request.auth.uid) || 
+                               isAdmin();
+    }
+    
+    // Company Profiles (for public job board branding)
+    match /companyProfiles/{profileId} {
+      // Read: Public access for public job board pages
+      allow read: if true;
       
       // Create: Must be Business Partner and assign self as owner
       allow create: if request.auth != null && 

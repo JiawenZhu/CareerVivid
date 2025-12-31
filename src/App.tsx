@@ -121,8 +121,8 @@ const App: React.FC = () => {
     // Also set initial path on load
     onPathChange();
 
-    // Check for legacy hash-based shared links (e.g., /#/shared/...) and redirect to history mode
-    if (window.location.hash && window.location.hash.startsWith('#/shared/')) {
+    // Check for legacy hash-based shared links (e.g., /#/shared/ or /#/portfolio/) and redirect to history mode
+    if (window.location.hash && (window.location.hash.startsWith('#/shared/') || window.location.hash.startsWith('#/portfolio/'))) {
       const hashPath = window.location.hash.substring(1); // remove '#'
       window.history.replaceState(null, '', hashPath);
       setPath(getPathFromUrl()); // Update state to trigger re-render

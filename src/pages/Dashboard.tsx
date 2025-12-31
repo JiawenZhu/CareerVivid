@@ -1,10 +1,9 @@
-
-import React, { useState, useEffect, useRef, useLayoutEffect, Suspense } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useResumes } from '../hooks/useResumes';
 import { usePortfolios } from '../hooks/usePortfolios';
-import { ResumeData, PracticeHistoryEntry, JobApplicationData } from '../types';
+import { ResumeData, PracticeHistoryEntry, JobApplicationData, Folder } from '../types';
 import { PortfolioData } from '../features/portfolio/types/portfolio';
-import { Edit3, Copy, Trash2, PlusCircle, Share2, FileText, Mic, ExternalLink, Sparkles, BarChart, X, User as UserIcon, Edit, ChevronDown, FolderPlus, Briefcase, GripVertical, LayoutDashboard, Loader2, Globe } from 'lucide-react';
+import { PlusCircle, FileText, Mic, Briefcase, GripVertical, LayoutDashboard, Loader2, Globe, Plus, User as UserIcon, LogOut, ChevronDown, FolderPlus, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePracticeHistory } from '../hooks/useJobHistory';
 import JobDetailModal from '../components/JobTracker/JobDetailModal';
@@ -17,286 +16,24 @@ import StatusOverview from '../components/JobTracker/StatusOverview';
 import KanbanBoard from '../components/JobTracker/KanbanBoard';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { trackDemoConversion } from '../services/trackingService';
-import ResumePreview from '../components/ResumePreview';
 import PortfolioCard from '../components/PortfolioCard';
 import Logo from '../components/Logo';
 import ShareResumeModal from '../components/ShareResumeModal';
 import SharePortfolioModal from '../components/SharePortfolioModal';
+import FolderReorderModal from '../components/FolderReorderModal';
 import { useTranslation } from 'react-i18next';
 import LanguageSelect from '../components/LanguageSelect';
 import AIUsageProgressBar from '../components/AIUsageProgressBar';
 
+// Extracted Components
+import ResumeCard from '../components/Dashboard/ResumeCard';
+import InterviewHistoryCard from '../components/Dashboard/InterviewHistoryCard';
+import JobApplicationCard from '../components/Dashboard/JobApplicationCard';
+import EditableHeader from '../components/Dashboard/EditableHeader';
+import { ResumeCardSkeleton, InterviewHistoryCardSkeleton } from '../components/Dashboard/DashboardSkeletons';
+
 // Lazy load modal to optimize dashboard load time
 const InterviewReportModal = React.lazy(() => import('../components/InterviewReportModal'));
-
-interface Folder {
-    id: string;
-    title: string;
-    order: number;
-}
-
-const ResumeCardSkeleton: React.FC = () => (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-soft flex flex-col">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-            <div className="w-full aspect-[210/297] bg-gray-200 dark:bg-gray-700 rounded-lg mb-4 animate-pulse"></div>
-            <div className="h-5 w-3/4 bg-gray-300 dark:bg-gray-700 rounded animate-pulse mb-2"></div>
-            <div className="h-4 w-1/2 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-        </div>
-        <div className="p-2 flex justify-between items-center bg-gray-50 dark:bg-gray-800/50 rounded-b-xl">
-            <div className="flex gap-1">
-                <div className="w-8 h-8 bg-gray-300 dark:bg-gray-700 rounded-md animate-pulse"></div>
-                <div className="w-8 h-8 bg-gray-300 dark:bg-gray-700 rounded-md animate-pulse"></div>
-                <div className="w-8 h-8 bg-gray-300 dark:bg-gray-700 rounded-md animate-pulse"></div>
-            </div>
-            <div className="w-8 h-8 bg-gray-300 dark:bg-gray-700 rounded-md animate-pulse"></div>
-        </div>
-    </div>
-);
-
-const InterviewHistoryCardSkeleton: React.FC = () => (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-soft p-4 animate-pulse">
-        <div className="flex justify-between items-start mb-2">
-            <div>
-                <div className="h-5 w-40 bg-gray-300 dark:bg-gray-700 rounded mb-2"></div>
-                <div className="h-4 w-24 bg-gray-300 dark:bg-gray-700 rounded"></div>
-            </div>
-            <div className="h-5 w-20 bg-gray-300 dark:bg-gray-700 rounded-full"></div>
-        </div>
-        <div className="h-3 w-32 bg-gray-300 dark:bg-gray-700 rounded mb-4"></div>
-        <div className="mt-auto flex justify-between items-center">
-            <div className="w-9 h-9 bg-gray-300 dark:bg-gray-700 rounded-full"></div>
-            <div className="flex gap-2">
-                <div className="h-9 w-32 bg-gray-300 dark:bg-gray-700 rounded-md"></div>
-                <div className="h-9 w-24 bg-gray-300 dark:bg-gray-700 rounded-md"></div>
-            </div>
-        </div>
-    </div>
-);
-
-
-const ResumeCard: React.FC<{ resume: ResumeData; onUpdate: (id: string, data: Partial<ResumeData>) => void; onDuplicate: (id: string) => void; onDelete: (id: string) => void; onShare: (resume: ResumeData) => void; onDragStart: (e: React.DragEvent<HTMLDivElement>) => void; }> = ({ resume, onUpdate, onDuplicate, onDelete, onShare, onDragStart }) => {
-    const [isEditingTitle, setIsEditingTitle] = useState(false);
-    const [title, setTitle] = useState(resume.title);
-
-    const previewContainerRef = useRef<HTMLDivElement>(null);
-    const [scale, setScale] = useState(0.2);
-
-    useLayoutEffect(() => {
-        const calculateScale = () => {
-            if (previewContainerRef.current) {
-                const parentWidth = previewContainerRef.current.offsetWidth;
-                const originalWidth = 824; // Base width of the ResumePreview component for styling
-                if (parentWidth > 0) {
-                    setScale(parentWidth / originalWidth);
-                }
-            }
-        };
-
-        calculateScale();
-        const resizeObserver = new ResizeObserver(calculateScale);
-        if (previewContainerRef.current) {
-            resizeObserver.observe(previewContainerRef.current);
-        }
-
-        return () => resizeObserver.disconnect();
-    }, []);
-
-    const navigateToEdit = () => {
-        navigate(`/edit/${resume.id}`);
-    };
-
-    const handleTitleSave = () => {
-        if (title.trim() === '') {
-            setTitle(resume.title); // reset if empty
-        } else {
-            onUpdate(resume.id, { title });
-        }
-        setIsEditingTitle(false);
-    };
-
-    return (
-        <div draggable onDragStart={onDragStart} className="bg-white dark:bg-gray-800 rounded-xl shadow-soft hover:shadow-lg transition-all duration-300 flex flex-col cursor-grab active:cursor-grabbing transform hover:-translate-y-1">
-            <div onClick={!isEditingTitle ? navigateToEdit : undefined} className="block p-4 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/40 flex-grow cursor-pointer rounded-t-xl">
-                <div ref={previewContainerRef} className="w-full aspect-[210/297] bg-gray-200 dark:bg-gray-700 rounded-lg mb-4 overflow-hidden relative">
-                    <div
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: '824px',
-                            height: '1165px', // 824 * (297/210)
-                            transform: `scale(${scale})`,
-                            transformOrigin: 'top left',
-                        }}
-                    >
-                        <ResumePreview resume={resume} template={resume.templateId} />
-                    </div>
-                </div>
-                {isEditingTitle ? (
-                    <input
-                        type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        onBlur={handleTitleSave}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleTitleSave();
-                            if (e.key === 'Escape') {
-                                setTitle(resume.title);
-                                setIsEditingTitle(false);
-                            }
-                        }}
-                        autoFocus
-                        className="font-bold text-lg text-gray-800 dark:text-gray-100 truncate w-full border rounded-md px-2 py-0.5 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary-500 focus:outline-none"
-                    />
-                ) : (
-                    <h3 onDoubleClick={(e) => { e.stopPropagation(); setIsEditingTitle(true); }} className="font-bold text-lg text-gray-800 dark:text-gray-100 truncate" title="Double-click to rename">{resume.title}</h3>
-                )}
-                <p className="text-sm text-gray-500 dark:text-gray-400">Updated {new Date(resume.updatedAt).toLocaleString()}</p>
-            </div>
-            <div className="p-2 flex justify-between items-center bg-gray-50 dark:bg-gray-800/50 rounded-b-xl">
-                <div className="flex gap-1">
-                    <button onClick={navigateToEdit} title="Edit Resume" className="p-2 block rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"><Edit3 size={16} /></button>
-                    <button onClick={() => onDuplicate(resume.id)} title="Duplicate Resume" className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"><Copy size={16} /></button>
-                    <button onClick={() => onDelete(resume.id)} title="Delete Resume" className="p-2 rounded-md hover:bg-red-100 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 transition-colors"><Trash2 size={16} /></button>
-                </div>
-                <button onClick={() => onShare(resume)} title="Share Resume" className="p-2 rounded-md hover:bg-primary-100 dark:hover:bg-primary-900/30 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"><Share2 size={16} /></button>
-            </div>
-        </div>
-    );
-};
-
-const InterviewHistoryCard: React.FC<{ entry: PracticeHistoryEntry; onShowReport: (entry: PracticeHistoryEntry) => void; onDelete: (id: string) => void; onDragStart: (e: React.DragEvent<HTMLDivElement>) => void; }> = ({ entry, onShowReport, onDelete, onDragStart }) => {
-    const handlePracticeAgain = () => {
-        sessionStorage.setItem('practiceJob', JSON.stringify(entry));
-        navigate('/interview-studio');
-    };
-
-    const formatDate = (timestamp: any) => {
-        if (!timestamp) return 'N/A';
-        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-        return date.toLocaleDateString();
-    };
-
-    return (
-        <div draggable onDragStart={onDragStart} className="bg-white dark:bg-gray-800 rounded-xl shadow-soft hover:shadow-lg transition-all duration-300 flex flex-col p-4 relative group cursor-grab active:cursor-grabbing transform hover:-translate-y-1">
-            <div className="flex justify-between items-start mb-2">
-                <div>
-                    <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100 flex items-center">
-                        {entry.job.title}
-                        {entry.job.url && <a href={entry.job.url} target="_blank" rel="noopener noreferrer" className="ml-2 text-gray-400 hover:text-primary-500"><ExternalLink size={16} /></a>}
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">{entry.job.company}</p>
-                </div>
-                {entry.interviewHistory?.length > 0 && (
-                    <div className="bg-primary-100 text-primary-800 dark:bg-primary-900/50 dark:text-primary-300 text-xs font-semibold px-2.5 py-1 rounded-full">
-                        {entry.interviewHistory.length} practice{entry.interviewHistory.length > 1 ? 's' : ''}
-                    </div>
-                )}
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Last activity: {formatDate(entry.timestamp)}</p>
-
-            <div className="mt-auto flex justify-between items-center">
-                <button
-                    onClick={() => onDelete(entry.id)}
-                    className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                    title="Delete this history entry"
-                >
-                    <Trash2 size={18} />
-                </button>
-                <div className="flex gap-2">
-                    <button
-                        onClick={handlePracticeAgain}
-                        className="flex items-center gap-2 text-sm font-semibold bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-2 rounded-lg transition-colors"
-                    >
-                        <Sparkles size={16} /> Practice Again
-                    </button>
-                    <button
-                        onClick={() => onShowReport(entry)}
-                        disabled={!entry.interviewHistory || entry.interviewHistory.length === 0}
-                        className="flex items-center gap-2 text-sm font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-900/80 px-3 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        <BarChart size={16} /> Report
-                    </button>
-                </div>
-            </div>
-        </div>
-    )
-}
-
-const JobApplicationCard: React.FC<{ job: JobApplicationData; onClick: () => void; onDelete: (id: string) => void; onDragStart: (e: React.DragEvent<HTMLDivElement>) => void; }> = ({ job, onClick, onDelete, onDragStart }) => (
-    <div draggable onDragStart={onDragStart} onClick={onClick} className="bg-white dark:bg-gray-800 rounded-xl shadow-soft hover:shadow-lg transition-all duration-300 flex flex-col p-4 relative group cursor-pointer transform hover:-translate-y-1">
-        <div className="flex justify-between items-start mb-2">
-            <div>
-                <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">{job.jobTitle}</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">{job.companyName}</p>
-            </div>
-            <div className="bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 text-xs font-semibold px-2.5 py-1 rounded-full">
-                {job.applicationStatus}
-            </div>
-        </div>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Updated: {job.updatedAt?.toDate().toLocaleDateString()}</p>
-        <div className="mt-auto flex justify-end">
-            <button
-                onClick={(e) => { e.stopPropagation(); onDelete(job.id); }}
-                className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-600 dark:hover:text-red-400 transition-opacity opacity-0 group-hover:opacity-100"
-                title="Delete this job application"
-            >
-                <Trash2 size={18} />
-            </button>
-        </div>
-    </div>
-);
-
-const EditableHeader: React.FC<{ title: string; onSave: (newTitle: string) => void; isEditable: boolean }> = ({ title: initialTitle, onSave, isEditable }) => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [title, setTitle] = useState(initialTitle);
-
-    useEffect(() => {
-        setTitle(initialTitle);
-    }, [initialTitle]);
-
-    const handleSave = () => {
-        if (title.trim() && title.trim() !== initialTitle) {
-            onSave(title.trim());
-        } else {
-            setTitle(initialTitle);
-        }
-        setIsEditing(false);
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') handleSave();
-        if (e.key === 'Escape') {
-            setTitle(initialTitle);
-            setIsEditing(false);
-        }
-    };
-
-    if (isEditing && isEditable) {
-        return (
-            <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                onBlur={handleSave}
-                onKeyDown={handleKeyDown}
-                autoFocus
-                className="text-2xl font-bold text-gray-800 dark:text-gray-100 bg-transparent border-b-2 border-primary-500 focus:outline-none"
-            />
-        );
-    }
-
-    return (
-        <h2
-            onDoubleClick={() => isEditable && setIsEditing(true)}
-            className={`text-2xl font-bold text-gray-800 dark:text-gray-100 ${isEditable ? 'cursor-text' : ''}`}
-            title={isEditable ? "Double-click to rename" : ""}
-        >
-            {title}
-        </h2>
-    );
-};
-
 
 const Dashboard: React.FC = () => {
     const { resumes, isLoading: isLoadingResumes, deleteResume, duplicateResume, updateResume, addBlankResume, saveAIGeneratedResume } = useResumes();
@@ -321,6 +58,12 @@ const Dashboard: React.FC = () => {
     const [folders, setFolders] = useState<Folder[]>([]);
     const [jobTrackerShowPreview, setJobTrackerShowPreview] = useState(true);
     const [dragOverSection, setDragOverSection] = useState<{ id: string, position: 'top' | 'bottom' | 'middle' } | null>(null);
+    const [isFolderReorderModalOpen, setIsFolderReorderModalOpen] = useState(false);
+
+    // Long Press Logic
+    const [longPressState, setLongPressState] = useState<{ id: string, count: number } | null>(null);
+    const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const longPressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     // Upgrade Guide State (Steps 1 & 2)
     const [upgradeStep, setUpgradeStep] = useState(() => {
@@ -924,7 +667,75 @@ const Dashboard: React.FC = () => {
                         >
                             <div className="flex justify-between items-center mb-6">
                                 <div className="flex items-center gap-3">
-                                    <GripVertical className="cursor-grab text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" />
+                                    <div
+                                        className="cursor-grab text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 relative group"
+                                        onMouseDown={(e) => {
+                                            // Start Press
+                                            if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+                                            if (longPressIntervalRef.current) clearInterval(longPressIntervalRef.current);
+
+                                            setLongPressState({ id: folder.id, count: 3 });
+
+                                            longPressIntervalRef.current = setInterval(() => {
+                                                setLongPressState(prev => {
+                                                    if (!prev || prev.count <= 1) return prev;
+                                                    return { ...prev, count: prev.count - 1 };
+                                                });
+                                            }, 1000);
+
+                                            longPressTimerRef.current = setTimeout(() => {
+                                                setIsFolderReorderModalOpen(true);
+                                                // Reset after triggering
+                                                if (longPressIntervalRef.current) clearInterval(longPressIntervalRef.current);
+                                                setLongPressState(null);
+                                            }, 3000);
+                                        }}
+                                        onMouseUp={() => {
+                                            if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+                                            if (longPressIntervalRef.current) clearInterval(longPressIntervalRef.current);
+                                            setLongPressState(null);
+                                        }}
+                                        onMouseLeave={() => {
+                                            if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+                                            if (longPressIntervalRef.current) clearInterval(longPressIntervalRef.current);
+                                            setLongPressState(null);
+                                        }}
+                                        onTouchStart={() => {
+                                            if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+                                            if (longPressIntervalRef.current) clearInterval(longPressIntervalRef.current);
+
+                                            setLongPressState({ id: folder.id, count: 3 });
+
+                                            longPressIntervalRef.current = setInterval(() => {
+                                                setLongPressState(prev => {
+                                                    if (!prev || prev.count <= 1) return prev;
+                                                    return { ...prev, count: prev.count - 1 };
+                                                });
+                                            }, 1000);
+
+                                            longPressTimerRef.current = setTimeout(() => {
+                                                setIsFolderReorderModalOpen(true);
+                                                if (longPressIntervalRef.current) clearInterval(longPressIntervalRef.current);
+                                                setLongPressState(null);
+                                            }, 3000);
+                                        }}
+                                        onTouchEnd={() => {
+                                            if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+                                            if (longPressIntervalRef.current) clearInterval(longPressIntervalRef.current);
+                                            setLongPressState(null);
+                                        }}
+                                    >
+                                        <GripVertical size={24} />
+
+                                        {/* Countdown Tooltip */}
+                                        <div
+                                            className={`absolute -top-10 left-1/2 -translate-x-1/2 bg-black/90 dark:bg-white/90 text-white dark:text-gray-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl whitespace-nowrap pointer-events-none transition-all duration-200 z-50 ${longPressState?.id === folder.id ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-2'
+                                                }`}
+                                        >
+                                            Hold to Reorder... {longPressState?.id === folder.id ? longPressState.count : 3}
+                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-t-black/90 dark:border-t-white/90"></div>
+                                        </div>
+                                    </div>
                                     <EditableHeader title={folder.title} onSave={(newTitle) => handleTitleUpdate(folder.id, newTitle)} isEditable={true} />
                                 </div>
                                 {!['resumes', 'interviews'].includes(folder.id) && (
@@ -1056,6 +867,13 @@ const Dashboard: React.FC = () => {
                     portfolioData={shareModalPortfolio}
                 />
             )}
+
+            <FolderReorderModal
+                isOpen={isFolderReorderModalOpen}
+                onClose={() => setIsFolderReorderModalOpen(false)}
+                folders={folders}
+                onSave={saveFolders}
+            />
         </div>
     );
 };

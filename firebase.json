@@ -124,6 +124,14 @@
         "destination": "/nextjs/es.html"
       },
       {
+        "source": "/j/*",
+        "destination": "/nextjs/j/demo.html"
+      },
+      {
+        "source": "/j/*/*",
+        "destination": "/nextjs/j/demo/sample.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

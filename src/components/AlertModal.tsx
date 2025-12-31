@@ -1,4 +1,6 @@
 import React, { useEffect } from 'react';
+import ReactDOM from 'react-dom';
+import { AlertCircle, X } from 'lucide-react';
 
 interface AlertModalProps {
   isOpen: boolean;
@@ -21,9 +23,9 @@ const AlertModal: React.FC<AlertModalProps> = ({ isOpen, onClose, title, message
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-sm shadow-xl">
+  return ReactDOM.createPortal(
+    <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-sm shadow-xl relative z-[10000]">
         <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">{title}</h3>
         <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">{message}</p>
         <div className="flex justify-end">
@@ -32,7 +34,8 @@ const AlertModal: React.FC<AlertModalProps> = ({ isOpen, onClose, title, message
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

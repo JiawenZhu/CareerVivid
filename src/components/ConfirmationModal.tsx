@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { AlertTriangle, AlertCircle, Info } from 'lucide-react';
+import ReactDOM from 'react-dom';
+import { AlertTriangle, X } from 'lucide-react';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -44,7 +45,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     switch (variant) {
       case 'danger':
         return {
-          icon: <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />,
+          icon: <X className="w-6 h-6 text-red-600 dark:text-red-400" />,
           btn: 'bg-red-600 hover:bg-red-700 focus:ring-red-500',
           bgIcon: 'bg-red-100 dark:bg-red-900/30'
         };
@@ -56,7 +57,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         };
       default:
         return {
-          icon: <Info className="w-6 h-6 text-primary-600 dark:text-primary-400" />,
+          icon: <X className="w-6 h-6 text-primary-600 dark:text-primary-400" />,
           btn: 'bg-primary-600 hover:bg-primary-700 focus:ring-primary-500',
           bgIcon: 'bg-primary-100 dark:bg-primary-900/30'
         };
@@ -65,15 +66,14 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 
   const styles = getVariantStyles();
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 min-w-[320px]">
-      {/* Backdrop with Blur */}
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
-        onClick={onCancel}
-      />
-
-      <div className="relative bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md shadow-2xl border border-gray-100 dark:border-gray-700 transform transition-all scale-100 opacity-100">
+  return ReactDOM.createPortal(
+    <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-sm shadow-xl relative z-[10000]">
+        <div className="absolute top-4 right-4">
+          <button onClick={onCancel} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+            <X size={20} />
+          </button>
+        </div>
         <div className="flex gap-4">
           <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${styles.bgIcon}`}>
             {styles.icon}
@@ -104,7 +104,8 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

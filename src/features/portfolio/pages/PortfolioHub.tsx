@@ -28,6 +28,33 @@ import { useAICreditCheck } from '../../../hooks/useAICreditCheck';
 // Define Categories
 const PORTFOLIO_CATEGORIES = [
     {
+        id: 'linkinbio',
+        name: '🔗 Link in Bio',
+        description: 'Simple, shareable pages perfect for social media bios (Instagram, TikTok, etc.)',
+        templates: [
+            // Structural Templates
+            'linktree_minimal',
+            'linktree_corporate',
+            'linktree_bento',
+
+            // Visual Themes (Mapped to linktree_visual)
+            'sunset_surf',
+            'neon_nights',
+            'papercut',
+            'foliage',
+            'wavy_bakery',
+            'jagged_run',
+            'abstract_fluid',
+            'mineral'
+        ]
+    },
+    {
+        id: 'nfc_cards',
+        name: 'Digital Business Cards',
+        description: 'Horizontal, mobile-first cards optimized for NFC sharing.',
+        templates: ['card_minimal', 'card_photo', 'card_modern']
+    },
+    {
         id: 'tech',
         name: 'Technology',
         description: 'For software engineers, product managers, and data scientists.',
@@ -76,24 +103,60 @@ const PortfolioHub: React.FC = () => {
         try {
             let promptToUse = '';
             let templateIdToUse = '';
+            let specificThemeId = ''; // NEW: Handle specific visual themes
 
             if (type === 'template') {
                 templateIdToUse = param;
                 promptToUse = `Create a portfolio for a professional using the ${param} style`;
+
+                // Map visual themes to the master template
+                const visualThemes = ['sunset_surf', 'neon_nights', 'papercut', 'foliage', 'wavy_bakery', 'jagged_run', 'abstract_fluid', 'mineral'];
+                if (visualThemes.includes(param)) {
+                    templateIdToUse = 'linktree_visual';
+                    specificThemeId = param;
+                }
             } else {
                 promptToUse = param;
             }
 
-            console.log('[PortfolioHub] Creating portfolio...', { promptToUse, templateIdToUse });
+            console.log('[PortfolioHub] Creating portfolio...', { promptToUse, templateIdToUse, specificThemeId });
 
             const generatedData = await generatePortfolioFromPrompt(promptToUse, currentUser.uid);
 
             if (templateIdToUse) {
                 generatedData.templateId = templateIdToUse as any;
+
+                // If it's a Link in Bio template (including visual themes), force mode
+                if (['linktree_minimal', 'linktree_visual', 'linktree_corporate', 'linktree_bento'].includes(templateIdToUse)) {
+                    generatedData.mode = 'linkinbio';
+                    generatedData.linkInBio = {
+                        links: [],
+                        showSocial: true,
+                        showEmail: true,
+                        displayName: generatedData.hero.headline || currentUser.displayName || 'My Links',
+                        bio: generatedData.about || 'Welcome to my links page.',
+                        profileImage: generatedData.hero.avatarUrl || currentUser.photoURL,
+                        buttonLayout: 'stack',
+                        themeId: specificThemeId || 'air' // Apply specific theme if selected
+                    };
+
+                    // Also ensure hero fields are compatible
+                    generatedData.hero.headline = generatedData.linkInBio.displayName;
+                }
+
+                // NEW: Business Card Setup
+                if (['card_minimal', 'card_photo', 'card_modern'].includes(templateIdToUse)) {
+                    generatedData.mode = 'business_card';
+                    generatedData.businessCard = {
+                        orientation: 'horizontal'
+                    };
+                }
             }
 
             const portfolioId = await createPortfolio(generatedData);
             const username = currentUser.email?.split('@')[0] || 'user';
+
+            // Navigate to edit page
             navigate(`/portfolio/${username}/edit/${portfolioId}`);
         } catch (error) {
             console.error('[PortfolioHub] Error creating portfolio:', error);
@@ -135,7 +198,12 @@ const PortfolioHub: React.FC = () => {
                             // We can use a helper map if we had detailed metadata. 
                             // For now, let's map ID to readable name crudely or better, move metadata export to index.ts.
                             // Doing a simple mapping for now to match strict types.
-                            const formattedName = tplId.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                            // Helper to format name: remove 'linktree_' prefix and capitalize
+                            const formattedName = tplId
+                                .replace('linktree_', '')
+                                .split('_')
+                                .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+                                .join(' ');
 
                             return (
                                 <button
@@ -163,7 +231,7 @@ const PortfolioHub: React.FC = () => {
 
         return (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6 font-heading">Or, select a career path</h2>
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6 font-heading">Explore Design Templates</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {PORTFOLIO_CATEGORIES.map(category => (
                         <button

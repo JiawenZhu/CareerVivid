@@ -81,25 +81,25 @@ const ReferralLandingPage: React.FC = () => {
     ];
 
     return (
-        <div className="bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950 min-h-screen flex flex-col font-sans">
+        <div className="bg-gray-50 dark:bg-gray-950 min-h-screen flex flex-col font-sans">
             <PublicHeader />
 
             <main className="flex-grow">
                 {/* Hero Section */}
                 <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
                     <div className="text-center">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-100 to-yellow-50 dark:from-yellow-900/30 dark:to-yellow-800/20 rounded-full mb-6">
-                            <Gift className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
-                            <span className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800 rounded-full mb-6 shadow-sm">
+                            <Gift className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                            <span className="text-sm font-semibold text-purple-700 dark:text-purple-300">
                                 Limited Time Offer
                             </span>
                         </div>
 
-                        <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-white mb-6">
-                            Get <span className="bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">Free AI Credits</span>
+                        <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                            Get <span className="text-indigo-600 dark:text-indigo-400">Free AI Credits</span>
                         </h1>
-                        <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-12 max-w-3xl mx-auto">
-                            Sign up with a referral code and unlock premium features to accelerate your job search
+                        <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 mb-12 max-w-3xl mx-auto">
+                            Sign up with a referral code and unlock premium features to accelerate your job search.
                         </p>
 
                         {/* Referral Code Input */}
@@ -113,10 +113,10 @@ const ReferralLandingPage: React.FC = () => {
                                     value={referralCode}
                                     onChange={handleCodeChange}
                                     placeholder="e.g., q9MYCaKn"
-                                    className="w-full px-4 py-4 pr-12 text-lg font-mono border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-800 dark:text-white transition-all"
+                                    className="w-full px-4 py-4 pr-12 text-lg font-mono bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400 transition-all outline-none"
                                 />
                                 <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                                    {isValidating && <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />}
+                                    {isValidating && <Loader2 className="w-5 h-5 text-indigo-400 animate-spin" />}
                                     {!isValidating && validationStatus === 'valid' && (
                                         <CheckCircle2 className="w-5 h-5 text-green-500" />
                                     )}
@@ -144,8 +144,8 @@ const ReferralLandingPage: React.FC = () => {
                             onClick={handleSignUp}
                             disabled={validationStatus !== 'valid'}
                             className={`inline-flex items-center gap-2 px-8 py-4 text-lg font-bold rounded-xl transition-all transform hover:scale-105 ${validationStatus === 'valid'
-                                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg hover:shadow-xl'
-                                : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                                ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30'
+                                : 'bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed'
                                 }`}
                         >
                             <Sparkles className="w-5 h-5" />
@@ -165,16 +165,18 @@ const ReferralLandingPage: React.FC = () => {
 
                 {/* Benefits Section */}
                 <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                    <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
+                    <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12 tracking-tight">
                         What You'll Get
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {benefits.map((benefit, index) => (
                             <div
                                 key={index}
-                                className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow"
+                                className="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800 hover:border-indigo-200 dark:hover:border-indigo-800 hover:shadow-lg transition-all"
                             >
-                                <div className="mb-4">{benefit.icon}</div>
+                                <div className="mb-4">
+                                    {benefit.icon}
+                                </div>
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
                                     {benefit.title}
                                 </h3>
@@ -188,7 +190,7 @@ const ReferralLandingPage: React.FC = () => {
 
                 {/* How It Works */}
                 <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                    <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
+                    <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12 tracking-tight">
                         How It Works
                     </h2>
                     <div className="space-y-6">
@@ -198,15 +200,15 @@ const ReferralLandingPage: React.FC = () => {
                             { step: 3, title: 'Get Instant Credits', desc: 'AI credits are automatically added to your account' },
                             { step: 4, title: 'Start Building', desc: 'Use credits to create your perfect resume with AI' }
                         ].map((item) => (
-                            <div key={item.step} className="flex items-start gap-4">
-                                <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-full flex items-center justify-center font-bold">
+                            <div key={item.step} className="flex flex-col items-center text-center gap-4">
+                                <div className="flex-shrink-0 w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center font-bold text-lg border border-indigo-100 dark:border-indigo-800 shadow-sm">
                                     {item.step}
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
                                         {item.title}
                                     </h3>
-                                    <p className="text-gray-600 dark:text-gray-400">
+                                    <p className="text-gray-600 dark:text-gray-400 max-w-sm mx-auto">
                                         {item.desc}
                                     </p>
                                 </div>

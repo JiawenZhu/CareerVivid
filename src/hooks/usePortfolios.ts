@@ -40,6 +40,8 @@ export const usePortfolios = () => {
                     title: data.title || 'Untitled Portfolio',
                     templateId: data.templateId || 'minimalist',
                     section: data.section || 'portfolios', // Default to 'portfolios' folder
+                    mode: data.mode || 'portfolio', // Default to portfolio mode
+                    linkInBio: data.linkInBio, // Include linkInBio data if present
                     hero: data.hero || { headline: '', subheadline: '', ctaPrimaryLabel: '', ctaPrimaryUrl: '', ctaSecondaryLabel: '', ctaSecondaryUrl: '' },
                     about: data.about || '',
                     timeline: data.timeline || [],

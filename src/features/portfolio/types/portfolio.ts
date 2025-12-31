@@ -6,6 +6,25 @@ import {
     PersonalDetails
 } from '../../../types';
 
+// Link-in-Bio Button (Linktree-style)
+export interface LinkInBioButton {
+    id: string;
+    label: string;
+    url: string;
+    icon?: string; // lucide icon name or emoji
+    variant: 'primary' | 'secondary' | 'outline' | 'ghost' | 'custom';
+    style?: {
+        backgroundColor?: string;
+        textColor?: string;
+        borderColor?: string;
+        borderRadius?: string;
+    };
+    thumbnail?: string; // Optional thumbnail for visual buttons
+    enabled: boolean; // Allow hiding buttons without deleting
+    clicks?: number; // Analytics
+    order?: number; // Explicit ordering
+}
+
 export interface PortfolioProject {
     id: string;
     title: string;
@@ -46,10 +65,60 @@ export interface PortfolioData {
     | 'ux_folio' | 'creative_dark'
     | 'legal_trust' | 'writer_editorial'
     | 'medical_care' | 'academic_research'
-    | 'bento_personal' | 'executive_brief';
+    | 'bento_personal' | 'executive_brief'
+    | 'bento_personal' | 'executive_brief'
+    | 'linktree_minimal' | 'linktree_visual' | 'linktree_corporate' | 'linktree_bento'
+    | 'card_minimal' | 'card_photo' | 'card_modern';
     section?: string; // For folder organization in dashboard
 
-    // Web-specific sections
+    // Mode: portfolio (default), linkinbio, or business_card (NEW)
+    mode?: 'portfolio' | 'linkinbio' | 'business_card';
+
+    // Business Card Configuration (when mode = 'business_card')
+    businessCard?: {
+        orientation: 'horizontal' | 'vertical'; // Default horizontal
+        themeId?: string;
+    };
+
+    // Link-in-Bio Configuration (when mode = 'linkinbio')
+    linkInBio?: {
+        links: LinkInBioButton[];
+        showSocial: boolean;
+        showEmail: boolean;
+        profileImage?: string;
+        displayName: string;
+        bio: string;
+        backgroundColor?: string;
+        themeId?: string; // New: ID of the selected theme (e.g., 'air', 'twilight')
+        customTheme?: any; // New: Allow for fully custom theme overrides in the future
+        buttonLayout?: 'stack' | 'grid'; // Stack for classic Linktree, grid for bento
+        customStyle?: {
+            backgroundOverride?: string;
+            buttonColor?: string;
+            buttonTextColor?: string;
+            fontFamily?: string;
+            buttonShape?: 'pill' | 'rounded' | 'sharp' | 'soft-shadow' | 'hard-shadow';
+            buttonAlignment?: 'center' | 'left'; // Text alignment
+            // Profile Specific
+            profileFontFamily?: string;
+            profileTitleColor?: string;
+            profileTextColor?: string;
+            effects?: {
+                confetti?: boolean;
+                matrix?: boolean;
+                typewriter?: boolean;
+                tilt?: boolean;
+                tilt?: boolean;
+                spinAvatar?: boolean;
+            };
+            enableSnow?: boolean;
+        };
+        settings?: {
+            removeBranding?: boolean;
+        };
+    };
+
+    // Web-specific sections (portfolio mode)
     hero: PortfolioHero;
     about: string; // Mapped from Resume Summary
 
@@ -64,6 +133,8 @@ export interface PortfolioData {
     // Footer / Contact
     socialLinks: WebsiteLink[];
     contactEmail: string;
+    phone?: string; // New field for Business Cards
+    location?: string; // New field for Business Cards
 
     theme: {
         primaryColor: string;

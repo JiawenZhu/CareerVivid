@@ -1,31 +1,70 @@
+// General Templates
 import MinimalTemplate from './MinimalTemplate';
-import VisualTemplate from './VisualTemplate';
-import CorporateTemplate from './CorporateTemplate';
+import VisualTemplate from './VisualTemplate'; import CorporateTemplate from './CorporateTemplate';
+
+// Technology Templates
 import DevTerminal from './general/Gen_Dev_Terminal';
-import UXFolio from './creative/Creative_UX';
-import LegalTrust from './professional/Prof_Legal';
-import MedicalCare from './MedicalCare';
 import SaaSModern from './SaaSModern';
+
+// Creative Templates
+import UXFolio from './creative/Creative_UX';
 import CreativeDark from './CreativeDark';
+
+// Professional Templates
+import LegalTrust from './professional/Prof_Legal';
 import WriterEditorial from './WriterEditorial';
-import AcademicResearch from './AcademicResearch';
-import BentoPersonal from './BentoPersonal';
 import ExecutiveBrief from './ExecutiveBrief';
 
+// Specialist Templates
+import MedicalCare from './MedicalCare';
+import AcademicResearch from './AcademicResearch';
+import BentoPersonal from './BentoPersonal';
+
+// Link-in-Bio Templates (NEW)
+import LinkTreeMinimal from './linkinbio/LinkTreeMinimal';
+import LinkTreeVisual from './linkinbio/LinkTreeVisual';
+import LinkTreeCorporate from './linkinbio/LinkTreeCorporate';
+import LinkTreeBento from './linkinbio/LinkTreeBento';
+
+// NFC Card Templates
+import CardMinimal from './nfc/CardMinimal';
+import CardPhoto from './nfc/CardPhoto';
+import CardModern from './nfc/CardModern';
+
 export const TEMPLATES = {
+    // General
     minimalist: MinimalTemplate,
     visual: VisualTemplate,
     corporate: CorporateTemplate,
+
+    // Technology
     dev_terminal: DevTerminal,
-    ux_folio: UXFolio,
-    legal_trust: LegalTrust,
-    medical_care: MedicalCare,
     saas_modern: SaaSModern,
+
+    // Creative
+    ux_folio: UXFolio,
     creative_dark: CreativeDark,
+
+    // Professional
+    legal_trust: LegalTrust,
     writer_editorial: WriterEditorial,
+    executive_brief: ExecutiveBrief,
+
+    // Specialist
+    medical_care: MedicalCare,
     academic_research: AcademicResearch,
     bento_personal: BentoPersonal,
-    executive_brief: ExecutiveBrief
+
+    // Link-in-Bio (NEW)
+    linktree_minimal: LinkTreeMinimal,
+    linktree_visual: LinkTreeVisual,
+    linktree_corporate: LinkTreeCorporate,
+    linktree_bento: LinkTreeBento,
+
+    // NFC Business Cards (NEW)
+    card_minimal: CardMinimal,
+    card_photo: CardPhoto,
+    card_modern: CardModern,
 };
 
 export type TemplateId = keyof typeof TEMPLATES;

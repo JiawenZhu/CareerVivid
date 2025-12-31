@@ -277,6 +277,12 @@ export interface ResumeMatchAnalysis {
 }
 
 
+export interface Folder {
+  id: string;
+  title: string;
+  order: number;
+}
+
 export interface GenAIBlob {
   data: string; // base64 encoded string
   mimeType: string;
@@ -394,6 +400,42 @@ export interface JobPosting {
   // Integration
   source?: 'internal' | 'google';
   applyUrl?: string;
+
+  // Public Job Board
+  companySlug?: string; // URL-friendly company identifier (e.g., "turbo-ai")
+  seoDescription?: string; // Custom meta description for public page
+  ogImage?: string; // Custom Open Graph image URL
+}
+
+// --- Public Job Board & Embed Types ---
+
+export type EmbedWidgetTheme = 'minimalist' | 'executive' | 'creative';
+export type EmbedWidgetMode = 'inline' | 'floating';
+export type EmbedFontFamily = 'inter' | 'roboto' | 'outfit' | 'system';
+
+export interface CompanyProfile {
+  id: string;
+  hrUserId: string; // Owner's UID
+  slug: string; // Unique, URL-friendly (e.g., "turbo-ai")
+  companyName: string;
+  logo?: string;
+
+  // Branding
+  primaryColor: string; // Hex color (e.g., "#7c3aed")
+  secondaryColor?: string;
+  fontFamily: EmbedFontFamily;
+  theme: EmbedWidgetTheme;
+  customCss?: string; // Advanced: custom CSS overrides
+
+  // Public Page Settings
+  showSalary: boolean; // Whether to display salary ranges
+  showBenefits: boolean;
+  heroImage?: string; // Banner image for public job board
+  tagline?: string; // Company tagline
+
+  // Metadata
+  createdAt: any; // Firestore Timestamp
+  updatedAt: any;
 }
 
 export interface StatusHistoryEntry {

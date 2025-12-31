@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Loader2, Check } from 'lucide-react';
+import { Loader2, Check, Upload } from 'lucide-react';
 import { editProfilePhoto } from '../services/geminiService';
 import { uploadImage, dataURLtoBlob } from '../services/storageService';
 
@@ -15,12 +15,12 @@ interface AIImageEditModalProps {
     savePath?: string; // Optional custom storage path
 }
 
-const AIImageEditModal: React.FC<AIImageEditModalProps> = ({ 
-    userId, 
-    currentPhoto, 
-    onSave, 
-    onUseTemp, 
-    onClose, 
+const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
+    userId,
+    currentPhoto,
+    onSave,
+    onUseTemp,
+    onClose,
     onError,
     promptOptions,
     savePath
@@ -30,8 +30,15 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
     const [isLoading, setIsLoading] = useState(false);
     const [newPhoto, setNewPhoto] = useState<string | null>(null);
     const [activeSelection, setActiveSelection] = useState<'current' | 'new'>('current');
+    const [previewPhoto, setPreviewPhoto] = useState<string>(currentPhoto);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
-     useEffect(() => {
+    // Update preview when prop changes
+    useEffect(() => {
+        setPreviewPhoto(currentPhoto);
+    }, [currentPhoto]);
+
+    useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {
                 onClose();
@@ -60,6 +67,20 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
         );
     };
 
+    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewPhoto(reader.result as string);
+                // Reset errors or new photo state if needed
+                setNewPhoto(null);
+                setActiveSelection('current');
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleGenerate = async () => {
         const finalPrompt = [...selectedPrompts, customPrompt].filter(Boolean).join(', ');
         if (!finalPrompt) {
@@ -69,33 +90,50 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
         setIsLoading(true);
         setNewPhoto(null);
         // Reset selection to current while generating to avoid confusion
-        setActiveSelection('current'); 
-        
+        setActiveSelection('current');
+
         try {
             let base64data: string;
             let mimeType: string;
 
-            if (currentPhoto.startsWith('data:')) {
-                const parts = currentPhoto.split(',');
+            if (previewPhoto && previewPhoto.startsWith('data:')) {
+                const parts = previewPhoto.split(',');
                 const mimeMatch = parts[0].match(/:(.*?);/);
                 if (!mimeMatch) throw new Error('Invalid data URL.');
                 mimeType = mimeMatch[1];
                 base64data = parts[1];
-            } else {
+            } else if (previewPhoto && previewPhoto.trim().length > 0) {
                 // Handle cross-origin issues with proxy or fetch configuration if needed.
                 // For Firebase Storage images, ensure CORS is configured.
-                const response = await fetch(currentPhoto, { mode: 'cors' });
-                if (!response.ok) throw new Error('Failed to fetch current photo for editing.');
-                const blob = await response.blob();
-                mimeType = blob.type;
-                base64data = await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(blob);
-                });
+                try {
+                    const response = await fetch(previewPhoto, { mode: 'cors' });
+                    if (!response.ok) {
+                        // If 404 or other error, throw specific error
+                        throw new Error(`Failed to load image (Status: ${response.status})`);
+                    }
+                    const blob = await response.blob();
+                    if (!blob.type.startsWith('image/')) {
+                        throw new Error('Url returned non-image data.');
+                    }
+                    mimeType = blob.type;
+                    base64data = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(blob);
+                    });
+                } catch (err: any) {
+                    console.error("Image fetch failed:", err);
+                    throw new Error('Could not access the original image. It may be a broken link or blocked. Please upload a specific image to edit.');
+                }
+            } else {
+                // No image provided (empty string)
+                // We cannot "edit" nothing with this specific function usually, 
+                // UNLESS editProfilePhoto supports generation.
+                // Throwing error for now to be safe, asking user to upload.
+                throw new Error('No source image found to edit. Please upload an initial image first.');
             }
-            
+
             const result = await editProfilePhoto(userId, base64data, mimeType, finalPrompt);
             setNewPhoto(result);
             // Automatically select the new photo upon success
@@ -115,10 +153,10 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
 
     const handleSaveAndUse = async () => {
         const targetPhoto = getSelectedPhoto();
-        
+
         if (!targetPhoto) {
-             onError("Error", "No image selected.");
-             return;
+            onError("Error", "No image selected.");
+            return;
         }
 
         // If it's already a remote URL (and not a blob/data url), we might just pass it back
@@ -142,7 +180,7 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
                 // Default path updated to resume_photos to match new architecture
                 const path = savePath || `users/${userId}/resume_photos/${Date.now()}_edited.png`;
                 const downloadURL = await uploadImage(blob, path);
-                
+
                 onSave(downloadURL);
                 onClose();
             } catch (error: any) {
@@ -161,7 +199,7 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
             onClose();
         }
     };
-    
+
     const handleDownload = () => {
         const targetPhoto = getSelectedPhoto();
         if (targetPhoto) {
@@ -173,17 +211,17 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
             document.body.removeChild(link);
         }
     };
-    
+
     const finalPrompt = [...selectedPrompts, customPrompt].filter(Boolean).join(', ');
 
     const modalContent = (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
             <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl shadow-xl max-h-[90vh] overflow-y-auto relative">
                 <h3 className="text-lg font-bold mb-4 dark:text-white">Edit Image with AI</h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     {/* Current Photo */}
-                    <div 
+                    <div
                         onClick={() => setActiveSelection('current')}
                         className={`
                             cursor-pointer rounded-lg p-1 border-2 transition-all relative
@@ -191,18 +229,42 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
                         `}
                     >
                         <p className="text-sm font-semibold mb-2 text-center dark:text-gray-300">Current</p>
-                        <div className="relative aspect-square bg-gray-100 dark:bg-gray-700 rounded-md overflow-hidden">
-                             <img src={currentPhoto} alt="Current" className="w-full h-full object-contain"/>
-                             {activeSelection === 'current' && (
+                        <div className="relative aspect-square bg-gray-100 dark:bg-gray-700 rounded-md overflow-hidden group">
+                            <img src={previewPhoto} alt="Current" className="w-full h-full object-contain" onError={() => {
+                                // If image fails, maybe show a fallback or just let the user use the upload button
+                            }} />
+
+                            {/* Overlay Upload Button */}
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        fileInputRef.current?.click();
+                                    }}
+                                    className="px-3 py-1.5 bg-white text-gray-900 rounded-full text-xs font-bold hover:bg-gray-100 flex items-center gap-2"
+                                >
+                                    <Upload size={12} /> Upload New
+                                </button>
+                            </div>
+
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                className="hidden"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                            />
+
+                            {activeSelection === 'current' && (
                                 <div className="absolute top-2 right-2 bg-primary-500 text-white rounded-full p-1 shadow-md">
                                     <Check size={16} />
                                 </div>
-                             )}
+                            )}
                         </div>
                     </div>
 
                     {/* New Photo */}
-                    <div 
+                    <div
                         onClick={() => newPhoto && setActiveSelection('new')}
                         className={`
                             rounded-lg p-1 border-2 transition-all relative
@@ -216,16 +278,16 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
                             {isLoading && !newPhoto ? (
                                 <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
                             ) : newPhoto ? (
-                                <img src={newPhoto} alt="Generated" className="w-full h-full object-contain"/>
+                                <img src={newPhoto} alt="Generated" className="w-full h-full object-contain" />
                             ) : (
                                 <p className="text-gray-500 dark:text-gray-400 text-sm p-4 text-center">AI generated preview will appear here</p>
                             )}
-                            
+
                             {activeSelection === 'new' && newPhoto && (
                                 <div className="absolute top-2 right-2 bg-primary-500 text-white rounded-full p-1 shadow-md">
                                     <Check size={16} />
                                 </div>
-                             )}
+                            )}
                         </div>
                     </div>
                 </div>
@@ -239,11 +301,10 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
                                 <button
                                     key={p}
                                     onClick={() => handlePromptToggle(p)}
-                                    className={`text-xs px-2 py-1 rounded-md transition-colors disabled:opacity-50 text-left ${
-                                        isSelected 
-                                        ? 'bg-primary-600 text-white' 
+                                    className={`text-xs px-2 py-1 rounded-md transition-colors disabled:opacity-50 text-left ${isSelected
+                                        ? 'bg-primary-600 text-white'
                                         : 'bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-500'
-                                    }`}
+                                        }`}
                                     disabled={isLoading}
                                 >
                                     {p}
@@ -252,7 +313,7 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
                         })}
                     </div>
                 </div>
-                
+
                 <textarea
                     value={customPrompt}
                     onChange={(e) => setCustomPrompt(e.target.value)}
@@ -261,15 +322,15 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
                     rows={2}
                     disabled={isLoading}
                 />
-                
+
                 <div className="flex justify-between items-center">
                     <button onClick={onClose} className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Close</button>
                     <div className="flex flex-wrap justify-end gap-2">
-                         <button onClick={handleGenerate} disabled={isLoading || !finalPrompt} className="bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 disabled:bg-primary-300 flex items-center gap-2">
+                        <button onClick={handleGenerate} disabled={isLoading || !finalPrompt} className="bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 disabled:bg-primary-300 flex items-center gap-2">
                             {isLoading && <Loader2 className="animate-spin" size={16} />}
                             {isLoading ? 'Generating...' : (newPhoto ? 'Regenerate' : 'Generate')}
                         </button>
-                        
+
                         <button onClick={handleDownload} disabled={isLoading} className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 disabled:bg-gray-300">
                             Download
                         </button>

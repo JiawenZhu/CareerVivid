@@ -9,6 +9,7 @@ interface PortfolioPreviewProps {
     isMobile: boolean;
     onFocusField: (fieldId: string) => void;
     onUpdate: (updates: Partial<PortfolioData> | any) => void;
+    onClosePreview?: () => void;
 }
 
 const PortfolioPreview: React.FC<PortfolioPreviewProps> = ({
@@ -17,7 +18,8 @@ const PortfolioPreview: React.FC<PortfolioPreviewProps> = ({
     viewMode,
     isMobile,
     onFocusField,
-    onUpdate
+    onUpdate,
+    onClosePreview
 }) => {
 
     // Memoize template to avoid unnecessary lookups, though object lookup is fast
@@ -42,8 +44,14 @@ const PortfolioPreview: React.FC<PortfolioPreviewProps> = ({
             >
                 {/* Browser Address Bar */}
                 <div className="h-8 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center px-4 shrink-0 gap-2">
-                    <div className="flex gap-1.5">
-                        <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+                    <div className="flex gap-1.5 group/traffic">
+                        <button
+                            onClick={onClosePreview}
+                            className="w-2.5 h-2.5 rounded-full bg-red-400 hover:scale-125 hover:bg-red-500 transition-all cursor-pointer flex items-center justify-center group/close"
+                            title="Close Preview"
+                        >
+                            <span className="opacity-0 group-hover/close:opacity-100 text-[8px] leading-none text-red-900 font-bold">×</span>
+                        </button>
                         <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
                         <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
                     </div>

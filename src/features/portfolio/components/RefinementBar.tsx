@@ -8,12 +8,14 @@ interface RefinementBarProps {
 }
 
 const SUGGESTIONS = [
+    "Add confetti celebration on click",
+    "Make avatar spin on hover",
+    "Add matrix rain background effect",
+    "Add typewriter typing effect",
+    "Add 3D tilt effect to buttons",
     "Switch to dark mode",
     "Add a 'Hire Me' button",
-    "Change font to Inter",
-    "Add a 'Contact' section",
-    "Make the page fade in",
-    "Add a blue 'Subscribe' button"
+    "Change font to Inter"
 ];
 
 export const RefinementBar: React.FC<RefinementBarProps> = ({ onRefine, onClose, isLoading }) => {

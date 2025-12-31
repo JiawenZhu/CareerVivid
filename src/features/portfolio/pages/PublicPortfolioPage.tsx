@@ -148,11 +148,14 @@ const PublicPortfolioPage: React.FC = () => {
             </Suspense>
 
             {/* Simple footer or badge */}
-            <div className="fixed bottom-4 right-4 z-50">
-                <a href="/" className="bg-black text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:scale-105 transition-transform flex items-center gap-2">
-                    <span>Build your own with CareerVivid</span>
-                </a>
-            </div>
+            {/* Simple footer or badge - Hidden if removeBranding is set */}
+            {!portfolioData.linkInBio?.settings?.removeBranding && (
+                <div className="fixed bottom-4 right-4 z-50">
+                    <a href="/" className="bg-black text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:scale-105 transition-transform flex items-center gap-2">
+                        <span>Build your own with CareerVivid</span>
+                    </a>
+                </div>
+            )}
         </div>
     );
 };

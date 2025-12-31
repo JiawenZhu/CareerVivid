@@ -8,17 +8,19 @@ import { getUserIdFromUsername } from '../../../services/userService';
 // Types and Services
 import { PortfolioData } from '../types/portfolio';
 import { useResumes } from '../../../hooks/useResumes';
+import { usePortfolios } from '../../../hooks/usePortfolios';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { uploadImage } from '../../../services/storageService';
-import { refinePortfolio } from '../services/portfolio-ai';
+import { applyThemeToBusinessCard, ExtractedTheme } from '../services/portfolioThemeService';
+
 import { useAICreditCheck } from '../../../hooks/useAICreditCheck';
 
 // Components
 import PortfolioHeader from '../components/editor/PortfolioHeader';
 import PortfolioSidebar from '../components/editor/PortfolioSidebar';
 import PortfolioPreview from '../components/editor/PortfolioPreview';
-import { RefinementBar } from '../components/RefinementBar';
+
 import AIImageEditModal from '../../../components/AIImageEditModal';
 import SharePortfolioModal from '../../../components/SharePortfolioModal';
 
@@ -47,6 +49,7 @@ const PortfolioEditor: React.FC = () => {
     const { currentUser, isPremium, isAdmin } = useAuth();
     const { theme, toggleTheme } = useTheme();
     const { resumes } = useResumes();
+    const { portfolios } = usePortfolios();
 
     // AI Credit Check Hook
     const { checkCredit, CreditLimitModal } = useAICreditCheck();
@@ -55,11 +58,10 @@ const PortfolioEditor: React.FC = () => {
     const [username, setUsername] = useState<string | null>(getDataFromUrl().username);
     const [ownerUid, setOwnerUid] = useState<string | null>(null);
     const [activeDevice, setActiveDevice] = useState<'desktop' | 'mobile'>('desktop');
-    const [activeSection, setActiveSection] = useState<'hero' | 'timeline' | 'stack' | 'projects' | 'components' | 'design' | 'settings'>('hero');
+    const [activeSection, setActiveSection] = useState<'hero' | 'timeline' | 'stack' | 'projects' | 'components' | 'design' | 'settings' | 'links'>('hero');
     const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [isRefinementBarVisible, setIsRefinementBarVisible] = useState(true);
-    const [isRefining, setIsRefining] = useState(false);
+
 
     // Mobile Responsive State
     const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
@@ -105,6 +107,15 @@ const PortfolioEditor: React.FC = () => {
 
             // If username is present in URL, resolve it to UID
             if (username) {
+                // OPTIMIZATION: If username matches current user's email prefix, use current UID
+                // This prevents looking up other users if we are simply editing our own portfolio
+                const currentUsername = currentUser.email?.split('@')[0];
+                if (username === currentUsername) {
+                    console.log('[Editor] Username matches current user. Using current UID:', currentUser.uid);
+                    setOwnerUid(currentUser.uid);
+                    return;
+                }
+
                 console.log('[Editor] Resolving username to UID:', username);
                 const resolvedUid = await getUserIdFromUsername(username);
                 if (resolvedUid) {
@@ -126,12 +137,24 @@ const PortfolioEditor: React.FC = () => {
     // Helper to hydrate data
     const hydratePortfolioData = (docSnap: any, ownerUid: string): PortfolioData => {
         const data = docSnap.data();
+        const templateId = data.templateId || 'minimalist';
+
+        // Infer mode from templateId if not explicitly set
+        let mode = data.mode;
+        if (!mode && ['linktree_minimal', 'linktree_visual', 'linktree_corporate', 'linktree_bento'].includes(templateId)) {
+            mode = 'linkinbio';
+        }
+
+        console.log('[Editor] Hydrating Data. Mode:', mode, 'Template:', templateId, 'Has LinkInBio:', !!data.linkInBio, 'Theme:', data.linkInBio?.themeId);
+
         return {
             id: docSnap.id,
             userId: data.userId || ownerUid,
             title: data.title || 'Untitled Portfolio',
-            templateId: data.templateId || 'minimalist',
+            templateId: templateId,
             section: data.section || 'portfolios',
+            mode: mode || 'portfolio',
+            linkInBio: data.linkInBio, // Include linkInBio data if present
             hero: data.hero || { headline: '', subheadline: '', ctaPrimaryLabel: '', ctaPrimaryUrl: '', ctaSecondaryLabel: '', ctaSecondaryUrl: '' },
             about: data.about || '',
             timeline: data.timeline || [],
@@ -148,7 +171,7 @@ const PortfolioEditor: React.FC = () => {
                 projects: 'Featured Projects',
                 contact: 'Contact'
             },
-            attachedResumeId: data.attachedResumeId,
+            attachedResumeId: data.attachedResumeId || null,
             updatedAt: data.updatedAt || Date.now(),
             createdAt: data.createdAt || Date.now()
         };
@@ -158,6 +181,9 @@ const PortfolioEditor: React.FC = () => {
     useEffect(() => {
         if (!id || !currentUser || !ownerUid) return;
 
+        // Clear previous state to avoid stale data
+        setPortfolioData(null);
+
         setIsLoading(true);
         console.log('[Editor] Setting up Firestore subscription for:', id, 'owned by:', ownerUid);
 
@@ -166,15 +192,26 @@ const PortfolioEditor: React.FC = () => {
         // 1. Initial Fetch with getDoc (Fall-safe)
         getDoc(portfolioRef).then((docSnap) => {
             if (docSnap.exists()) {
-                console.log('[Editor] Initial getDoc success. Hydrating state...');
+                console.log('[Editor] Initial getDoc success.');
                 const hydratedData = hydratePortfolioData(docSnap, ownerUid);
                 setPortfolioData(hydratedData);
 
-                // URL Normalization (same logic)
+                // URL Normalization: Use Headline as Slug if available
                 const currentPath = window.location.pathname;
-                const portfolioOwnerUsername = username || (currentUser.email?.split('@')[0] || 'user');
-                if (currentPath.match(/\/portfolio\/edit\/[^/]+$/)) {
-                    const newPath = `/portfolio/${portfolioOwnerUsername}/edit/${hydratedData.id}`;
+                const baseSlug = hydratedData.hero?.headline?.replace(/[^\w\s-]/g, '').replace(/\s+/g, '') || currentUser.email?.split('@')[0] || 'user';
+                const portfolioSlug = encodeURIComponent(baseSlug);
+
+                // Check if we need to rewrite the URL (either old format OR slug mismatch)
+                const match = currentPath.match(/\/portfolio\/([^/]+)\/edit\/([^/]+)/);
+                if (match) {
+                    const currentSlug = match[1];
+                    if (currentSlug !== portfolioSlug) {
+                        const newPath = `/portfolio/${portfolioSlug}/edit/${hydratedData.id}`;
+                        window.history.replaceState(null, '', newPath);
+                    }
+                } else if (currentPath.match(/\/portfolio\/edit\/[^/]+$/)) {
+                    // Upgrade old URL format
+                    const newPath = `/portfolio/${portfolioSlug}/edit/${hydratedData.id}`;
                     window.history.replaceState(null, '', newPath);
                 }
             } else {
@@ -189,6 +226,16 @@ const PortfolioEditor: React.FC = () => {
             console.log('[Editor] onSnapshot fired. Exists:', docSnap.exists());
             if (docSnap.exists()) {
                 const hydratedData = hydratePortfolioData(docSnap, ownerUid);
+
+                // Auto-enable "Remove Branding" for Premium users if not set
+                if (isPremium && hydratedData.linkInBio) {
+                    if (!hydratedData.linkInBio.settings) {
+                        hydratedData.linkInBio.settings = { removeBranding: true };
+                    } else if (hydratedData.linkInBio.settings.removeBranding === undefined) {
+                        hydratedData.linkInBio.settings.removeBranding = true;
+                    }
+                }
+
                 setPortfolioData(hydratedData);
                 setIsLoading(false);
             } else {
@@ -201,7 +248,7 @@ const PortfolioEditor: React.FC = () => {
         });
 
         return () => unsubscribe();
-    }, [id, currentUser, ownerUid, username]);
+    }, [id, currentUser, ownerUid, username, isPremium]);
 
     // Updates
     const handleUpdate = async (updates: Partial<PortfolioData>) => {
@@ -228,30 +275,22 @@ const PortfolioEditor: React.FC = () => {
         handleUpdate({ [section]: sectionData });
     };
 
-    // AI Refinement
-    const handleRefine = async (prompt: string) => {
+    // Import Theme from Portfolio (for business cards)
+    const handleImportTheme = (extractedTheme: ExtractedTheme) => {
         if (!portfolioData) return;
-
-        // CHECK CREDIT
-        if (!checkCredit()) return;
-
-        setIsRefining(true);
-        try {
-            const updatedData = await refinePortfolio(portfolioData, prompt);
-            handleUpdate(updatedData);
-        } catch (error) {
-            console.error("Refinement failed:", error);
-            alert("Failed to refine portfolio. Please try again.");
-        } finally {
-            setIsRefining(false);
-        }
+        const themeUpdates = applyThemeToBusinessCard(portfolioData, extractedTheme);
+        handleUpdate(themeUpdates);
     };
+
+
 
     // Image Upload
     const handleImageUploadTrigger = (field: string) => {
         setActiveAIImageField(field);
         setTimeout(() => fileInputRef.current?.click(), 100);
     };
+
+
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0] && activeAIImageField && portfolioData && currentUser) {
@@ -263,7 +302,18 @@ const PortfolioEditor: React.FC = () => {
 
                 // Update specific field
                 const fieldParts = activeAIImageField.split('.');
-                if (fieldParts.length === 2 && fieldParts[0] === 'hero') {
+
+                if (fieldParts[0] === 'linkInBio' && fieldParts[1] === 'links') {
+                    // linkInBio.links.0.url
+                    const idx = parseInt(fieldParts[2]);
+                    const field = fieldParts[3]; // 'url' or others
+
+                    if (portfolioData.linkInBio?.links && portfolioData.linkInBio.links[idx]) {
+                        const newLinks = [...portfolioData.linkInBio.links];
+                        (newLinks[idx] as any)[field] = downloadURL;
+                        handleNestedUpdate('linkInBio', 'links', newLinks);
+                    }
+                } else if (fieldParts.length === 2 && fieldParts[0] === 'hero') {
                     handleNestedUpdate('hero', fieldParts[1], downloadURL);
                 } else if (fieldParts.length === 3 && fieldParts[0] === 'projects') {
                     // projects.0.thumbnailUrl
@@ -273,6 +323,23 @@ const PortfolioEditor: React.FC = () => {
                         (newProjects[idx] as any)[fieldParts[2]] = downloadURL;
                         handleUpdate({ projects: newProjects });
                     }
+                } else if (fieldParts[0] === 'businessCard') {
+                    // businessCard.companyLogoUrl
+                    handleNestedUpdate('businessCard', fieldParts[1], downloadURL);
+                } else if (fieldParts[0] === 'linkInBio' && fieldParts[1] === 'customStyle') {
+                    // linkInBio.customStyle.backgroundOverride
+                    // Create new customStyle object with the new value
+                    const currentLinkInBio = portfolioData.linkInBio || {};
+                    const currentCustomStyle = (currentLinkInBio as any).customStyle || {};
+
+                    const updatedLinkInBio = {
+                        ...currentLinkInBio,
+                        customStyle: {
+                            ...currentCustomStyle,
+                            [fieldParts[2]]: downloadURL
+                        }
+                    };
+                    handleUpdate({ linkInBio: updatedLinkInBio as any });
                 }
 
             } catch (error) {
@@ -298,6 +365,15 @@ const PortfolioEditor: React.FC = () => {
         // Set prompt options based on type
         if (type === 'avatar') {
             setAiPromptOptions(['Professional LinkedIn Headshot', 'Creative Designer Portrait', 'Tech Speaker Profile', 'Minimalist Avatar']);
+        } else if (field.includes('backgroundOverride')) {
+            setAiPromptOptions([
+                'Professional Glassmorphism Background, Soft Blur',
+                'Clean Minimalist White Studio Backdrop',
+                'Modern Tech Abstract Mesh Gradient',
+                'Dark Premium Frosted Glass Texture',
+                'Soft Nature Bokeh with Golden Light',
+                'Geometric 3D Shapes, Isometric, Pastel'
+            ]);
         } else {
             setAiPromptOptions(['Modern SaaS Dashboard', 'Mobile App Interface', 'Website Landing Page', 'Data Visualization']);
         }
@@ -309,7 +385,16 @@ const PortfolioEditor: React.FC = () => {
 
         // Similar update logic as file upload
         const fieldParts = activeAIImageField.split('.');
-        if (fieldParts.length === 2 && fieldParts[0] === 'hero') {
+
+        if (fieldParts[0] === 'linkInBio' && fieldParts[1] === 'links') {
+            const idx = parseInt(fieldParts[2]);
+            const field = fieldParts[3];
+            if (portfolioData.linkInBio?.links && portfolioData.linkInBio.links[idx]) {
+                const newLinks = [...portfolioData.linkInBio.links];
+                (newLinks[idx] as any)[field] = newImageUrl;
+                handleNestedUpdate('linkInBio', 'links', newLinks);
+            }
+        } else if (fieldParts.length === 2 && fieldParts[0] === 'hero') {
             handleNestedUpdate('hero', fieldParts[1], newImageUrl);
         } else if (fieldParts.length === 3 && fieldParts[0] === 'projects') {
             const idx = parseInt(fieldParts[1]);
@@ -318,6 +403,19 @@ const PortfolioEditor: React.FC = () => {
                 (newProjects[idx] as any)[fieldParts[2]] = newImageUrl;
                 handleUpdate({ projects: newProjects });
             }
+        } else if (fieldParts[0] === 'linkInBio' && fieldParts[1] === 'customStyle') {
+            // linkInBio.customStyle.backgroundOverride
+            const currentLinkInBio = portfolioData.linkInBio || {};
+            const currentCustomStyle = (currentLinkInBio as any).customStyle || {};
+
+            const updatedLinkInBio = {
+                ...currentLinkInBio,
+                customStyle: {
+                    ...currentCustomStyle,
+                    [fieldParts[2]]: newImageUrl
+                }
+            };
+            handleUpdate({ linkInBio: updatedLinkInBio as any });
         }
 
         setIsAIImageModalOpen(false);
@@ -372,10 +470,8 @@ const PortfolioEditor: React.FC = () => {
                 editorTheme={theme}
                 onToggleTheme={toggleTheme}
                 activeDevice={activeDevice}
-                isRefinementBarVisible={isRefinementBarVisible}
                 onBack={() => navigate('/dashboard')}
                 onDeviceChange={setActiveDevice}
-                onToggleRefinementBar={() => setIsRefinementBarVisible(!isRefinementBarVisible)}
                 onShare={() => setIsShareModalOpen(true)}
             />
 
@@ -394,6 +490,9 @@ const PortfolioEditor: React.FC = () => {
                     isImageUploading={isImageUploading}
                     editorTheme={theme}
                     isPremium={isPremium}
+                    onTogglePreview={() => setViewMode(prev => prev === 'edit' ? 'preview' : 'edit')}
+                    userPortfolios={portfolios}
+                    onImportTheme={handleImportTheme}
                 />
 
                 <PortfolioPreview
@@ -403,10 +502,26 @@ const PortfolioEditor: React.FC = () => {
                     isMobile={isMobile}
                     onFocusField={handleFocusField}
                     onUpdate={handleUpdate}
+                    onClosePreview={() => setViewMode('edit')}
                 />
 
-                {/* Mobile View Toggle (Floating) */}
-                {isMobile && (
+                {/* Mobile View Toggle (Floating - Hide if Sidebar handles it or if using new mobile layout) */}
+                {/* We are moving towards stitch style where edit/preview might be in header/bottom nav. 
+                    For now, keep it unless we want to fully rely on the new sidebar header preview toggle.
+                    Since we added a Preview toggle in Sidebar Header (placeholder), let's HID this floating one on mobile to test the new UX.
+                    But wait, the Sidebar toggle is just a placeholder. 
+                    Let's KEEP this for now but maybe position it better or hide if we implement the sidebar one fully.
+                    Actually, the user requirement is "Access this link and follow exactly the UXUI".
+                    Stitch has tabs at bottom. Preview is usually an action.
+                    I will HIDE this floating button to force use of future Header toggle, 
+                    BUT I need to make the Header toggle functional first. 
+                    Since I haven't wired the Sidebar Header toggle yet, I should probably KEEP this but verify z-index.
+                    Bottom nav z-index is 40. Floating button is z-50.
+                    It might overlap content.
+                    Let's conditionalize it: if isMobile, maybe hide it and use the Header toggle?
+                    I'll hide it for now to clean up UI as per plan.
+                */}
+                {isMobile && false && (
                     <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#1a1d24] border border-white/10 rounded-full p-1 flex shadow-xl">
                         <button
                             onClick={() => setViewMode('edit')}
@@ -423,16 +538,7 @@ const PortfolioEditor: React.FC = () => {
                     </div>
                 )}
 
-                {/* Floating Refinement Bar */}
-                {isRefinementBarVisible && (
-                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-2xl transform transition-all duration-300 z-50">
-                        <RefinementBar
-                            onRefine={handleRefine}
-                            isLoading={isRefining}
-                            onClose={() => setIsRefinementBarVisible(false)}
-                        />
-                    </div>
-                )}
+
             </div>
 
             {/* Hidden File Input */}
@@ -449,6 +555,7 @@ const PortfolioEditor: React.FC = () => {
                 isOpen={isShareModalOpen}
                 onClose={() => setIsShareModalOpen(false)}
                 portfolioId={portfolioData.id}
+                portfolioData={portfolioData}
             />
 
             {isAIImageModalOpen && (
