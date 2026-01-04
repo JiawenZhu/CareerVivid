@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { PortfolioTemplateProps } from '../types/portfolio';
 import { Book, FileText, Download, Mail, ExternalLink, GraduationCap, Users } from 'lucide-react';
+import { usePortfolioAdminAccess } from '../hooks/usePortfolioAdminAccess';
 
 const AcademicResearch: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileView }) => {
     const { hero, projects, timeline, education, contactEmail } = data;
     const [activeTab, setActiveTab] = useState<'about' | 'publications' | 'cv' | 'teaching'>('about');
+
+    // Admin Access Hook
+    const { longPressProps, AdminAccessModal } = usePortfolioAdminAccess({ data, onEdit });
 
     const responsiveClass = (base: string, desktop: string) => {
         return isMobileView ? base : `${base} ${desktop}`;
@@ -15,7 +19,10 @@ const AcademicResearch: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMo
             {/* Sidebar Navigation */}
             <aside className={`w-full ${responsiveClass('', 'md:w-80 border-r border-slate-200 md:h-screen md:sticky md:top-0 md:flex flex-col shrink-0')} bg-slate-50`}>
                 <div className={`p-8 text-center ${responsiveClass('', 'md:text-left')}`}>
-                    <div className={`w-32 h-32 mx-auto ${responsiveClass('', 'md:mx-0')} bg-slate-200 rounded-full overflow-hidden border-4 border-white shadow-sm mb-6`}>
+                    <div
+                        className={`w-32 h-32 mx-auto ${responsiveClass('', 'md:mx-0')} bg-slate-200 rounded-full overflow-hidden border-4 border-white shadow-sm mb-6 ${onEdit ? 'cursor-pointer hover:opacity-80' : ''}`}
+                        {...(onEdit ? { onClick: () => onEdit('hero.avatarUrl') } : longPressProps)}
+                    >
                         {hero.avatarUrl ? (
                             <img src={hero.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
                         ) : (
@@ -211,6 +218,7 @@ const AcademicResearch: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMo
                     </div>
                 )}
             </main>
+            <AdminAccessModal />
         </div>
     );
 };

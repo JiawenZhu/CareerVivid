@@ -152,43 +152,56 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
     };
 
     const handleSaveAndUse = async () => {
+        console.log('[AIImageEditModal] handleSaveAndUse starting...');
         const targetPhoto = getSelectedPhoto();
+        console.log('[AIImageEditModal] Selected photo exists:', !!targetPhoto, 'Selection:', activeSelection);
 
         if (!targetPhoto) {
             onError("Error", "No image selected.");
             return;
         }
 
-        // If it's already a remote URL (and not a blob/data url), we might just pass it back
-        // But to be safe/consistent with the "Save" action implying persistence, 
-        // if it is the "currentPhoto" and it is already a remote URL, we just return it.
+        // 1. remote URL optimization
         if (activeSelection === 'current' && targetPhoto.startsWith('http')) {
+            console.log('[AIImageEditModal] Returning existing remote URL.');
             onSave(targetPhoto);
             onClose();
             return;
         }
 
-        if (userId) {
-            setIsLoading(true);
-            const blob = dataURLtoBlob(targetPhoto);
-            if (!blob) {
-                onError("Save Failed", "Could not process the selected photo.");
-                setIsLoading(false);
-                return;
-            }
-            try {
-                // Default path updated to resume_photos to match new architecture
-                const path = savePath || `users/${userId}/resume_photos/${Date.now()}_edited.png`;
-                const downloadURL = await uploadImage(blob, path);
+        // 2. Upload Logic
+        if (!userId) {
+            console.error('[AIImageEditModal] Missing userId. Cannot upload.');
+            onError("Error", "User identification missing. Please sign in again.");
+            return;
+        }
 
-                onSave(downloadURL);
-                onClose();
-            } catch (error: any) {
-                console.error("Error uploading edited photo:", error);
-                onError("Save Failed", `Failed to save edited photo. ${error.message || ''}`);
-            } finally {
-                setIsLoading(false);
+        setIsLoading(true);
+        try {
+            console.log('[AIImageEditModal] Converting data URL to Blob...');
+            const blob = dataURLtoBlob(targetPhoto);
+
+            if (!blob) {
+                console.error('[AIImageEditModal] dataURLtoBlob returned null for input of length:', targetPhoto.length);
+                throw new Error("Failed to process image data.");
             }
+
+            console.log('[AIImageEditModal] Blob created. Size:', blob.size, 'Type:', blob.type);
+
+            // Default path updated to resume_photos to match new architecture
+            const path = savePath || `users/${userId}/resume_photos/${Date.now()}_edited.png`;
+            console.log('[AIImageEditModal] Uploading to path:', path);
+
+            const downloadURL = await uploadImage(blob, path);
+            console.log('[AIImageEditModal] Upload complete. URL:', downloadURL);
+
+            onSave(downloadURL);
+            onClose();
+        } catch (error: any) {
+            console.error("[AIImageEditModal] Critical error during save:", error);
+            onError("Save Failed", `Could not save image: ${error.message || 'Unknown error'}`);
+        } finally {
+            setIsLoading(false);
         }
     };
 

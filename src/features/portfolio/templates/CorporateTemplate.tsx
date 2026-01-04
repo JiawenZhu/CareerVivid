@@ -2,9 +2,14 @@ import React from 'react';
 import { PortfolioTemplateProps } from '../types/portfolio';
 import { Mail, Linkedin, Globe, MapPin, Download, Sun, Moon } from 'lucide-react';
 import InlineEdit from '../../../components/InlineEdit';
+import TikTokWidget from '../components/widgets/TikTokWidget';
+import { usePortfolioAdminAccess } from '../hooks/usePortfolioAdminAccess';
 
 const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpdate, isMobileView }) => {
     const { hero, timeline, education, techStack, about, theme } = data;
+
+    // Admin Access Hook
+    const { longPressProps, AdminAccessModal } = usePortfolioAdminAccess({ data, onEdit });
 
     const responsiveClass = (base: string, desktop: string) => {
         return isMobileView ? base : `${base} ${desktop}`;
@@ -28,6 +33,15 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
     const sidebarText = '#ffffff';
     const accentColor = primaryColor;
 
+    // TikTok Integration
+    const tiktokLink = data.socialLinks?.find(l => l.url.includes('tiktok.com') || l.platform === 'tiktok');
+    let tiktokUsername = '';
+    if (tiktokLink) {
+        // Extract username from URL (e.g. tiktok.com/@username)
+        const match = tiktokLink.url.match(/@([a-zA-Z0-9_.-]+)/);
+        if (match) tiktokUsername = match[1];
+    }
+
     return (
         <div
             className={`font-sans min-h-full max-w-[1024px] mx-auto shadow-2xl my-8 md:my-0 transition-colors duration-300`}
@@ -43,7 +57,12 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                 >
                     <div className="mb-8 text-center md:text-left">
                         {hero.avatarUrl && (
-                            <img src={hero.avatarUrl} alt="Profile" className="w-32 h-32 rounded-full border-4 border-white/10 mx-auto md:mx-0 mb-6 object-cover" />
+                            <img
+                                src={hero.avatarUrl}
+                                alt="Profile"
+                                className={`w-32 h-32 rounded-full border-4 border-white/10 mx-auto md:mx-0 mb-6 object-cover ${onEdit ? 'cursor-pointer hover:opacity-80' : ''}`}
+                                {...(onEdit ? { onClick: () => onEdit('hero.avatarUrl') } : longPressProps)}
+                            />
                         )}
                         <InlineEdit
                             value={hero.headline}
@@ -232,6 +251,7 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                     </section>
                 </main>
             </div>
+            <AdminAccessModal />
         </div>
     );
 };

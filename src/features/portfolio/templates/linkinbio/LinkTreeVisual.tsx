@@ -10,12 +10,19 @@ import SocialLinkWrapper from '../../components/SocialLinkWrapper';
 import useLongPress from '../../../../hooks/useLongPress';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { navigate } from '../../../../App';
+import { usePortfolioAdminAccess } from '../../hooks/usePortfolioAdminAccess';
 import QuickAuthModal from '../../../../components/QuickAuthModal';
+import AlertModal from '../../../../components/AlertModal';
+import MessageModal from '../../components/MessageModal';
 import confetti from 'canvas-confetti';
 import CosmicInvaders from '../../components/games/CosmicInvaders';
 import CyberPong from '../../components/games/CyberPong';
 import BrutalSnake from '../../components/games/BrutalSnake';
 import ZenStacker from '../../components/games/ZenStacker';
+import { downloadResume } from '../../utils/resumeDownload';
+import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { ProductShowcase } from '../../../commerce/components/ProductShowcase';
 
 // --- Animation Helpers ---
 
@@ -47,7 +54,7 @@ const useTypewriter = (text: string, speed = 100, enabled = false) => {
 
 };
 
-const MatrixRain = () => {
+const MatrixRain: React.FC = () => {
     const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
@@ -104,6 +111,12 @@ const MatrixRain = () => {
 
     }, []);
 
+    return (
+        <canvas
+            ref={canvasRef}
+            className="fixed inset-0 pointer-events-none z-0 opacity-20"
+        />
+    );
 };
 
 // Tilt Hook
@@ -201,11 +214,20 @@ const AnimatedLinkButton = ({
     buttonStyle,
     customStyle,
     LinkWrapper,
-    getIcon
+    getIcon,
+    onLinkClick
 }: any) => {
     const tiltRef = useTilt(theme.effects?.tilt || false);
 
-    const handleClick = () => {
+    const handleClick = (e: React.MouseEvent) => {
+        if (onLinkClick) {
+            const shouldPreventDefault = onLinkClick(link, e);
+            if (shouldPreventDefault) {
+                e.preventDefault();
+                return;
+            }
+        }
+
         if (theme.effects?.confetti) {
             confetti({
                 particleCount: 100,
@@ -305,48 +327,38 @@ const LinkTreeVisual: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobi
 
     };
 
+    const [isDownloading, setIsDownloading] = useState(false);
+    const [errorModal, setErrorModal] = useState({ isOpen: false, title: '', message: '' });
+    const [messageModalOpen, setMessageModalOpen] = useState(false);
+
     const { currentUser } = useAuth();
-    // const navigate = useNavigate(); // Removed: using custom navigate
-    // const location = useLocation(); // Removed: using window.location
-    const [showAuthModal, setShowAuthModal] = React.useState(false);
 
-    // Determines if we are in "Public Viewer" mode (not being edited inside the Editor)
-    // If onEdit is passed, we are inside the Editor preview, so we disable the long-press hijack
-    const isPublicView = !onEdit;
+    // Admin Access Hook
+    const { longPressProps, AdminAccessModal } = usePortfolioAdminAccess({ data, onEdit });
 
-    // Handle Admin Access Logic
-    const handleAdminAccess = () => {
-        if (!isPublicView) return;
+    // isPublicView check is now handled inside the hook, but we need onEdit for other things.
+    // The hook provides longPressProps which handles the interaction.
 
-        if (currentUser) {
-            // Already logged in - Redirect to Edit Page
-            // Construct edit URL: /portfolio/:slug/edit/:id
-            // We might need to infer slug or just use ID if slug isn't readily available in data context
-            // Ideally we stick to id-based routing if slug is unknown, or use current path parts
-            // Path is usually /portfolio/:slug/:id or /portfolio/:id
-            // Let's rely on data.id if available
-            if (data.id) {
-                // Try to keep the slug from current URL to be nice, otherwise use 'user'
-                const pathParts = window.location.pathname.split('/');
-                // path is usually /portfolio/SLUG/ID
-                const slug = pathParts[2] || 'user';
-                navigate(`/portfolio/${slug}/edit/${data.id}`);
+    const handleResumeDownload = async () => {
+        if (!data.attachedResumeId || isDownloading) return;
+
+        downloadResume({
+            userId: data.userId,
+            resumeId: data.attachedResumeId,
+            title: displayName ? `${displayName}_Resume` : 'Resume',
+            onStart: () => setIsDownloading(true),
+            onComplete: () => setIsDownloading(false),
+            onError: (err) => {
+                console.error(err);
+                setIsDownloading(false);
+                setErrorModal({
+                    isOpen: true,
+                    title: 'Download Failed',
+                    message: 'Failed to download resume. Please try again or check your connection.'
+                });
             }
-        } else {
-            // Not logged in - Show Quick Auth Modal
-            setShowAuthModal(true);
-        }
-
+        });
     };
-
-    const longPressProps = useLongPress(handleAdminAccess, () => {
-        // Optional: Standard click handler if needed (e.g. view image in lightbox)
-        // For now, do nothing on standard click unless onEdit (handled below)
-        if (onEdit) onEdit('hero.avatarUrl');
-    }, {
-        shouldPreventDefault: true,
-        delay: 3000 // 3 Seconds
-    });
 
     // Use hero fields as source of truth to match Editor Sidebar
     const displayName = data.hero?.headline || linkInBio.displayName || 'Your Name';
@@ -701,17 +713,35 @@ const LinkTreeVisual: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobi
                 {/* Links Stack */}
                 <div className={`flex flex-col w-full flex-grow ${theme.layout?.buttonSpacing === 'loose' ? 'gap-6' : theme.layout?.buttonSpacing === 'tight' ? 'gap-3' : 'gap-4'}`}>
                     {linkInBio.links.filter(l => l.enabled).length > 0 ? (
-                        linkInBio.links.filter(l => l.enabled).map(link => (
-                            <AnimatedLinkButton
-                                key={link.id}
-                                link={link}
-                                theme={theme}
-                                buttonStyle={buttonStyle}
-                                customStyle={linkInBio.customStyle}
-                                LinkWrapper={SocialLinkWrapper}
-                                getIcon={getIcon}
-                            />
-                        ))
+                        linkInBio.links.filter(l => l.enabled).map(link => {
+                            // Link-specific overrides to prevent navigation issues
+                            const effectiveLink = link.icon === 'Mail' ? { ...link, url: '#' } : link;
+
+                            return (
+                                <AnimatedLinkButton
+                                    key={link.id}
+                                    link={effectiveLink}
+                                    theme={theme}
+                                    buttonStyle={buttonStyle}
+                                    customStyle={linkInBio.customStyle}
+                                    LinkWrapper={SocialLinkWrapper}
+                                    getIcon={getIcon}
+                                    onLinkClick={(linkItem: any, e: any) => {
+                                        if (linkItem.icon === 'FileText' && data.attachedResumeId) {
+                                            handleResumeDownload();
+                                            return true; // Signal to prevent default
+                                        }
+                                        console.log('Link Click:', linkItem);
+                                        if (linkItem.icon === 'Mail') {
+                                            // window.location.href = `mailto:${linkItem.url}`;
+                                            setMessageModalOpen(true);
+                                            return true;
+                                        }
+                                        return false;
+                                    }}
+                                />
+                            );
+                        })
                     ) : (
                         // Empty State
                         onEdit && (
@@ -723,6 +753,16 @@ const LinkTreeVisual: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobi
                         )
                     )}
                 </div>
+
+                {/* Commerce / Store Section */}
+                {linkInBio.enableStore && (
+                    <div className="mt-8 mb-8 w-full">
+                        <ProductShowcase
+                            userId={data.userId}
+                            theme={theme.buttons.style === 'glass' ? 'glass' : (theme.id === 'minimal_mono' ? 'light' : 'glass')}
+                        />
+                    </div>
+                )}
 
                 {/* Social Icons (Footer) */}
                 {
@@ -772,22 +812,26 @@ const LinkTreeVisual: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobi
                         </div>
                     )
                 }
-            </div >
+            </div>
 
-            {/* Quick Auth Modal for Public View */}
-            < QuickAuthModal
-                isOpen={showAuthModal}
-                onClose={() => setShowAuthModal(false)}
-                onSuccess={() => {
-                    // Start editing immediately after login
-                    if (data.id) {
-                        const pathParts = window.location.pathname.split('/');
-                        const slug = pathParts[2] || 'user';
-                        navigate(`/portfolio/${slug}/edit/${data.id}`);
-                    }
-                }}
+            {/* Modals */}
+            <MessageModal
+                isOpen={messageModalOpen}
+                onClose={() => setMessageModalOpen(false)}
+                ownerId={data.userId}
+                ownerName={displayName}
+                portfolioId={data.id}
             />
-        </div >
+
+            <AlertModal
+                isOpen={errorModal.isOpen}
+                onClose={() => setErrorModal({ ...errorModal, isOpen: false })}
+                title={errorModal.title}
+                message={errorModal.message}
+            />
+
+
+        </div>
     );
 
 };

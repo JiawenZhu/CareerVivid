@@ -1,7 +1,13 @@
 import React from 'react';
 import { PortfolioTemplateProps } from '../../types/portfolio';
+import AlertModal from '../../../../components/AlertModal';
 import * as Icons from 'lucide-react';
 import { nanoid } from 'nanoid';
+import { downloadResume } from '../../utils/resumeDownload';
+import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import MessageModal from '../../components/MessageModal';
+import { usePortfolioAdminAccess } from '../../hooks/usePortfolioAdminAccess';
 
 /**
  * LinkTreeBento - Bento grid style for link-in-bio
@@ -12,6 +18,9 @@ const LinkTreeBento: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpdat
     const theme = data.theme || { darkMode: false, primaryColor: '#f59e0b' };
     const isDark = theme.darkMode;
 
+    // Admin Access Hook
+    const { longPressProps, AdminAccessModal } = usePortfolioAdminAccess({ data, onEdit });
+
     const linkInBio = data.linkInBio || {
         links: [],
         showSocial: true,
@@ -19,6 +28,10 @@ const LinkTreeBento: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpdat
         backgroundColor: isDark ? '#0a0a0a' : '#fafaf9',
         buttonLayout: 'grid'
     } as any;
+
+    const [isDownloading, setIsDownloading] = useState(false);
+    const [errorModal, setErrorModal] = useState({ isOpen: false, title: '', message: '' });
+    const [messageModalOpen, setMessageModalOpen] = useState(false);
 
     // Use hero fields as source of truth to match Editor Sidebar
     const displayName = data.hero?.headline || linkInBio.displayName || 'Your Name';
@@ -31,9 +44,40 @@ const LinkTreeBento: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpdat
         return IconComponent ? <IconComponent size={24} /> : null;
     };
 
-    const handleLinkClick = (linkId: string, url: string) => {
+    const handleLinkClick = (linkId: string, url: string, icon?: string) => {
+        if (icon === 'FileText') {
+            handleResumeDownload();
+            return;
+        }
+
+        if (icon === 'Mail') {
+            setMessageModalOpen(true);
+            return;
+        }
+
         console.log('[Analytics] Link clicked:', linkId);
         window.open(url, '_blank', 'noopener,noreferrer');
+    };
+
+    const handleResumeDownload = async () => {
+        if (!data.attachedResumeId || isDownloading) return;
+
+        downloadResume({
+            userId: data.userId,
+            resumeId: data.attachedResumeId,
+            title: displayName ? `${displayName}_Resume` : 'Resume',
+            onStart: () => setIsDownloading(true),
+            onComplete: () => setIsDownloading(false),
+            onError: (err) => {
+                console.error(err);
+                setIsDownloading(false);
+                setErrorModal({
+                    isOpen: true,
+                    title: 'Download Failed',
+                    message: 'Failed to download resume. Please try again or check your connection.'
+                });
+            }
+        });
     };
 
     // Color palette for different cards
@@ -59,7 +103,7 @@ const LinkTreeBento: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpdat
                 e.stopPropagation();
                 onEdit('links'); // Focus Links section
             } else {
-                handleLinkClick(button.id, button.url);
+                handleLinkClick(button.id, button.url, button.icon);
             }
         };
 
@@ -132,7 +176,10 @@ const LinkTreeBento: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpdat
     return (
         <div
             className="min-h-screen p-4 md:p-8 transition-colors duration-500"
-            style={{ backgroundColor: linkInBio.backgroundColor || (isDark ? '#0a0a0a' : '#fafaf9') }}
+            style={{
+                backgroundColor: linkInBio.backgroundColor || (isDark ? '#0a0a0a' : '#fafaf9')
+            }
+            }
         >
             <div className="w-full max-w-5xl mx-auto">
                 {/* Profile Header - Bento Style */}
@@ -140,7 +187,7 @@ const LinkTreeBento: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpdat
                     {/* Avatar Card */}
                     <div
                         className={`bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl p-6 flex items-center justify-center transition-transform shadow-xl ${onEdit ? 'cursor-pointer hover:scale-[1.02] hover:ring-4 hover:ring-purple-500/50' : ''}`}
-                        onClick={() => onEdit?.('hero.avatarUrl')}
+                        {...(onEdit ? { onClick: () => onEdit('hero.avatarUrl') } : longPressProps)}
                     >
                         <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-white/30 shadow-2xl">
                             {profileImage ? (
@@ -189,7 +236,7 @@ const LinkTreeBento: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpdat
                         .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
                         .map((link: any, index: any) => renderGridButton(link, index))}
 
-                    {linkInBio.links.filter((l: any) => l.enabled).length === 0 && onEdit && (
+                    {linkInBio.links.filter((l: any) => l.enabled).length === 0 && !data.attachedResumeId && onEdit && (
                         <div
                             className="col-span-2 md:col-span-4 text-center py-20 bg-white dark:bg-gray-900 rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-700 cursor-pointer hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-all group"
                             onClick={() => onEdit('links')}
@@ -253,7 +300,15 @@ const LinkTreeBento: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpdat
                     </div>
                 </div>
             </div>
-        </div>
+
+            <MessageModal
+                isOpen={messageModalOpen}
+                onClose={() => setMessageModalOpen(false)}
+                ownerId={data.userId}
+                ownerName={displayName}
+                portfolioId={data.id}
+            />
+        </div >
     );
 };
 

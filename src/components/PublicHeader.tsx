@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Sun, Moon, Menu, X, ChevronDown, Briefcase, Users, FileText, Zap } from 'lucide-react';
+import { Sun, Moon, Menu, X, ChevronDown, Briefcase, Users, FileText, Zap, Link as LinkIcon } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { navigate } from '../App';
 import Logo from './Logo';
@@ -52,6 +52,15 @@ const PublicHeader: React.FC = () => {
                                         <div>
                                             <div className="font-semibold text-gray-900 dark:text-white text-sm">{t('nav.students')}</div>
                                             <p className="text-xs text-gray-500 dark:text-gray-400">{t('nav.students_desc')}</p>
+                                        </div>
+                                    </a>
+                                    <a href="/bio-links" className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group/item">
+                                        <div className="p-2 bg-pink-50 dark:bg-pink-900/30 text-pink-600 rounded-md group-hover/item:bg-pink-100 dark:group-hover/item:bg-pink-900/50">
+                                            <LinkIcon size={18} />
+                                        </div>
+                                        <div>
+                                            <div className="font-semibold text-gray-900 dark:text-white text-sm">{t('nav.bio_links') || "Link in Bio"}</div>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">{t('nav.bio_links_desc') || "Share everything"}</p>
                                         </div>
                                     </a>
                                 </>
@@ -155,6 +164,7 @@ const PublicHeader: React.FC = () => {
                         <div className="pl-4 border-l-2 border-gray-100 dark:border-gray-800 space-y-3">
                             <a href="/demo" onClick={() => setIsMenuOpen(false)} className="block text-sm text-gray-600 dark:text-gray-400">{t('nav.professional')}</a>
                             <a href="/demo" onClick={() => setIsMenuOpen(false)} className="block text-sm text-gray-600 dark:text-gray-400">{t('nav.students')}</a>
+                            <a href="/bio-links" onClick={() => setIsMenuOpen(false)} className="block text-sm text-gray-600 dark:text-gray-400">{t('nav.bio_links') || "Link in Bio"}</a>
                         </div>
                         <a href="/pricing" onClick={() => setIsMenuOpen(false)} className="block text-base font-semibold text-gray-900 dark:text-white">{t('nav.pricing')}</a>
                         <a href="/blog" onClick={() => setIsMenuOpen(false)} className="block text-base font-semibold text-gray-900 dark:text-white">{t('nav.blog')}</a>

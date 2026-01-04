@@ -1,9 +1,13 @@
 import React from 'react';
 import { PortfolioTemplateProps } from '../types/portfolio';
 import { Stethoscope, Activity, FileText, Calendar, MapPin, Award, GraduationCap, ChevronRight, Mail } from 'lucide-react';
+import { usePortfolioAdminAccess } from '../hooks/usePortfolioAdminAccess';
 
 const MedicalCare: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileView }) => {
     const { hero, projects, timeline, education, contactEmail, about } = data;
+
+    // Admin Access Hook
+    const { longPressProps, AdminAccessModal } = usePortfolioAdminAccess({ data, onEdit });
 
     const responsiveClass = (base: string, desktop: string) => {
         return isMobileView ? base : `${base} ${desktop}`;
@@ -55,7 +59,10 @@ const MedicalCare: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
                     </div>
                     {/* Hero Image / Avatar */}
                     <div className="mt-12 md:mt-0 flex-shrink-0 relative">
-                        <div className="w-64 h-64 md:w-80 md:h-80 rounded-full border-8 border-white shadow-xl overflow-hidden bg-slate-200 mx-auto">
+                        <div
+                            className="w-64 h-64 md:w-80 md:h-80 rounded-full border-8 border-white shadow-xl overflow-hidden bg-slate-200 mx-auto"
+                            {...(onEdit ? { onClick: () => onEdit('hero.avatarUrl') } : longPressProps)}
+                        >
                             {hero.avatarUrl ? (
                                 <img src={hero.avatarUrl} alt="Doctor Profile" className="w-full h-full object-cover" />
                             ) : (
@@ -209,6 +216,7 @@ const MedicalCare: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
                 </div>
                 <p>&copy; {new Date().getFullYear()} {hero.headline}. All rights reserved.</p>
             </footer>
+            <AdminAccessModal />
         </div>
     );
 };

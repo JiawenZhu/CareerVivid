@@ -2,9 +2,17 @@ import React from 'react';
 import { PortfolioTemplateProps } from '../types/portfolio';
 import { ArrowRight, Sun, Moon, Plus, Trash2 } from 'lucide-react';
 import InlineEdit from '../../../components/InlineEdit';
+import { usePortfolioAdminAccess } from '../hooks/usePortfolioAdminAccess';
 
 const VisualTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpdate, isMobileView }) => {
     const { hero, projects, about, theme } = data;
+
+    // Admin Access Hook
+    const { longPressProps, AdminAccessModal } = usePortfolioAdminAccess({
+        data,
+        onEdit,
+        editField: 'hero.headline'
+    });
 
     const responsiveClass = (base: string, desktop: string) => {
         return isMobileView ? base : `${base} ${desktop}`;
@@ -58,8 +66,8 @@ const VisualTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpda
                 )}
 
                 <h1
-                    className={`${responsiveClass('text-5xl', 'md:text-7xl')} font-black tracking-tight mb-6 leading-none block`}
-                    onClick={() => onEdit?.('hero.headline')}
+                    className={`${responsiveClass('text-5xl', 'md:text-7xl')} font-black tracking-tight mb-6 leading-none block cursor-pointer`}
+                    {...(onEdit ? { onClick: () => onEdit('hero.headline') } : longPressProps)}
                 >
                     <span style={gradientStyle}>{hero.headline}</span>
                 </h1>
@@ -208,6 +216,7 @@ const VisualTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpda
                     Let's Create Together
                 </a>
             </div>
+            <AdminAccessModal />
         </div>
     );
 };

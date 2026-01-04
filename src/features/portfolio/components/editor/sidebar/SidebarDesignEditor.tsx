@@ -14,6 +14,7 @@ interface SidebarDesignEditorProps {
     userThemes: LinkTreeTheme[];
     handleDeleteThemeClick: (themeId: string) => void;
     handleEditBackground: (theme: LinkTreeTheme) => void;
+    handleThemeStockPhoto: (theme: LinkTreeTheme) => void;
     handleSaveCustomThemeClick: () => void;
     onTogglePreview?: () => void;
     userPortfolios?: PortfolioData[]; // List of user's portfolios for import
@@ -29,6 +30,7 @@ const SidebarDesignEditor: React.FC<SidebarDesignEditorProps> = ({
     userThemes,
     handleDeleteThemeClick,
     handleEditBackground,
+    handleThemeStockPhoto,
     handleSaveCustomThemeClick,
     onTogglePreview,
     userPortfolios = [],
@@ -86,6 +88,7 @@ const SidebarDesignEditor: React.FC<SidebarDesignEditorProps> = ({
                             userThemes={userThemes}
                             onDeleteTheme={handleDeleteThemeClick}
                             onEditBackground={handleEditBackground}
+                            onPickBg={handleThemeStockPhoto}
                             isSnowEnabled={portfolioData.linkInBio?.customStyle?.enableSnow || false}
                             onToggleSnow={() => onUpdate({
                                 linkInBio: {

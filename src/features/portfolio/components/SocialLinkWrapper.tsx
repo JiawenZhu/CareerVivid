@@ -6,16 +6,26 @@ interface SocialLinkWrapperProps {
     type?: string; // e.g. 'Wechat', 'Linkedin'
     children: React.ReactNode;
     className?: string;
+    onClick?: (e: React.MouseEvent) => void;
 }
 
-const SocialLinkWrapper: React.FC<SocialLinkWrapperProps> = ({ url, type, children, className }) => {
+const SocialLinkWrapper: React.FC<SocialLinkWrapperProps> = ({ url, type, children, className, onClick }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // Check if it's a WeChat link
+    // Check if it's a WeChat or Venmo link
     const isWeChat = type?.toLowerCase() === 'wechat' || type?.toLowerCase() === 'weixin';
+    const isVenmo = type?.toLowerCase() === 'venmo';
+    const isQRCodeLink = isWeChat || isVenmo;
+
+    const serviceName = isVenmo ? 'Venmo' : 'WeChat';
 
     const handleClick = (e: React.MouseEvent) => {
-        if (isWeChat) {
+        if (onClick) {
+            onClick(e);
+            if (e.defaultPrevented) return;
+        }
+
+        if (isQRCodeLink) {
             e.preventDefault();
             setIsModalOpen(true);
         }
@@ -44,19 +54,21 @@ const SocialLinkWrapper: React.FC<SocialLinkWrapperProps> = ({ url, type, childr
                             <X size={24} />
                         </button>
 
-                        <div className="mt-2 mb-4">
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white text-center">Scan QR Code</h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-1">
-                                Open WeChat and scan to connect
-                            </p>
-                        </div>
+                        {isWeChat && (
+                            <div className="mt-2 mb-4">
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white text-center">Scan QR Code</h3>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-1">
+                                    Open WeChat and scan to connect
+                                </p>
+                            </div>
+                        )}
 
-                        <div className="bg-white p-2 rounded-xl border border-gray-100 dark:border-gray-800 shadow-inner">
-                            {/* We expect 'url' to be the image URL for WeChat */}
+                        <div className={`p-2 flex items-center justify-center ${isWeChat ? 'bg-white rounded-xl border border-gray-100 dark:border-gray-800 shadow-inner' : ''}`}>
+                            {/* We expect 'url' to be the image URL for WeChat/Venmo */}
                             <img
                                 src={url}
-                                alt="WeChat QR Code"
-                                className="w-64 h-64 object-cover rounded-lg"
+                                alt={`${serviceName} QR Code`}
+                                className={`${isWeChat ? 'w-64 h-64 object-cover' : 'w-full h-auto max-h-[70vh] object-contain'} rounded-lg`}
                                 onError={(e) => {
                                     // Fallback if image fails or is actually a regular link
                                     (e.target as HTMLImageElement).style.display = 'none';
@@ -68,18 +80,19 @@ const SocialLinkWrapper: React.FC<SocialLinkWrapperProps> = ({ url, type, childr
                             </div>
                         </div>
 
-                        {/* Fallback Actions */}
-                        <div className="mt-6 w-full">
-                            <a
-                                href={url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="w-full flex items-center justify-center gap-2 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-medium transition-colors"
-                            >
-                                <ExternalLink size={18} />
-                                Open Link Directly
-                            </a>
-                        </div>
+                        {isWeChat && (
+                            <div className="mt-6 w-full">
+                                <a
+                                    href={url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-full flex items-center justify-center gap-2 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-medium transition-colors"
+                                >
+                                    <ExternalLink size={18} />
+                                    Open Link Directly
+                                </a>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

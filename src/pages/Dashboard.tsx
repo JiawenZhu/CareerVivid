@@ -144,26 +144,7 @@ const Dashboard: React.FC = () => {
                 }
             }
 
-            // Import Portfolios (Migration from LocalStorage)
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key && key.startsWith('portfolio_')) {
-                    try {
-                        const portfolioJSON = localStorage.getItem(key);
-                        if (portfolioJSON) {
-                            const portfolioData = JSON.parse(portfolioJSON);
-                            // Only migrate if valid portfolio data
-                            if (portfolioData.title && portfolioData.hero) {
-                                await createPortfolio(portfolioData);
-                                localStorage.removeItem(key);
-                                console.log(`Successfully migrated portfolio: ${key}`);
-                            }
-                        }
-                    } catch (e) {
-                        console.error(`Failed to migrate portfolio ${key}:`, e);
-                    }
-                }
-            }
+
         };
 
         // Run once after user context is available

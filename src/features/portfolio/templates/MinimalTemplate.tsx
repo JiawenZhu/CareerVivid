@@ -3,8 +3,17 @@ import { PortfolioTemplateProps } from '../types/portfolio';
 import { ExternalLink, Github, FileText, Sun, Moon } from 'lucide-react';
 import InlineEdit from '../../../components/InlineEdit';
 
+import { usePortfolioAdminAccess } from '../hooks/usePortfolioAdminAccess';
+
 const MinimalTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpdate, isMobileView }) => {
     const { hero, projects, timeline, about, techStack, attachedResumeId, theme } = data;
+
+    // Admin Access Hook (Attach to Headline since no Avatar)
+    const { longPressProps, AdminAccessModal } = usePortfolioAdminAccess({
+        data,
+        onEdit,
+        editField: 'hero.headline'
+    });
 
     const responsiveClass = (base: string, desktop: string) => {
         return isMobileView ? base : `${base} ${desktop}`;
@@ -33,7 +42,7 @@ const MinimalTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
             <header className="mb-20">
                 <p className="text-sm opacity-60 mb-4">Hello, I am</p>
                 <h1
-                    onClick={() => onEdit?.('hero.headline')}
+                    {...(onEdit ? { onClick: () => onEdit('hero.headline') } : longPressProps)}
                     className={`${responsiveClass('text-5xl', 'md:text-6xl')} font-bold tracking-tighter mb-4 cursor-pointer hover:underline decoration-2 underline-offset-4`}
                     title="Click to edit headline"
                 >
@@ -279,6 +288,7 @@ const MinimalTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
                 <span>© {new Date().getFullYear()} {hero.headline}</span>
                 <a href={`mailto:${data.contactEmail}`} className="hover:text-black">Get in touch</a>
             </footer>
+            <AdminAccessModal />
         </div>
     );
 };

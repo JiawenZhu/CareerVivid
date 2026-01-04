@@ -16,16 +16,39 @@ export interface ExtractedTheme {
 }
 
 /**
+ * Helper to remove undefined properties from an object recursively
+ * Firestore does not accept undefined values
+ */
+const cleanObject = (obj: any): any => {
+    if (obj === null || typeof obj !== 'object') {
+        return obj;
+    }
+
+    if (Array.isArray(obj)) {
+        return obj.map(cleanObject);
+    }
+
+    const cleaned: any = {};
+    Object.keys(obj).forEach(key => {
+        const value = obj[key];
+        if (value !== undefined) {
+            cleaned[key] = cleanObject(value);
+        }
+    });
+    return cleaned;
+};
+
+/**
  * Extract theme settings from a portfolio (typically a link-in-bio portfolio)
  */
 export const extractThemeFromPortfolio = (portfolio: PortfolioData): ExtractedTheme => {
-    const extracted: ExtractedTheme = {
+    const extracted: ExtractedTheme = cleanObject({
         primaryColor: portfolio.theme.primaryColor,
         secondaryColor: portfolio.theme.secondaryColor,
         textColor: portfolio.theme.textColor,
         backgroundColor: portfolio.theme.backgroundColor,
         fontFamily: portfolio.theme.fontFamily,
-    };
+    });
 
     // If it's a link-in-bio portfolio, extract additional theme info
     if (portfolio.mode === 'linkinbio' && portfolio.linkInBio) {
@@ -93,36 +116,37 @@ export const applyThemeToBusinessCard = (
     currentData: PortfolioData,
     theme: ExtractedTheme
 ): Partial<PortfolioData> => {
-    // Build theme object with only defined values (Firestore doesn't accept undefined)
+    // Build theme object update
     const themeUpdates: any = {
         ...currentData.theme,
-        primaryColor: theme.primaryColor,
     };
 
-    // Only add optional fields if they're defined
-    if (theme.secondaryColor !== undefined) {
+    if (theme.primaryColor) {
+        themeUpdates.primaryColor = theme.primaryColor;
+    }
+    if (theme.secondaryColor) {
         themeUpdates.secondaryColor = theme.secondaryColor;
     }
-    if (theme.textColor !== undefined) {
+    if (theme.textColor) {
         themeUpdates.textColor = theme.textColor;
     }
-    if (theme.backgroundColor !== undefined) {
+    if (theme.backgroundColor) {
         themeUpdates.backgroundColor = theme.backgroundColor;
     }
-    if (theme.fontFamily !== undefined) {
+    if (theme.fontFamily) {
         themeUpdates.fontFamily = theme.fontFamily;
     }
 
     const updates: Partial<PortfolioData> = {
-        theme: themeUpdates,
+        theme: cleanObject(themeUpdates),
     };
 
     // If we have a business card configuration, update it with theme info
     if (currentData.businessCard) {
-        updates.businessCard = {
+        updates.businessCard = cleanObject({
             ...currentData.businessCard,
             themeId: theme.themeSource, // Store reference to source theme
-        };
+        });
     }
 
     return updates;

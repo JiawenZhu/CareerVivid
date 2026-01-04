@@ -3,6 +3,8 @@ import { Edit3, Copy, Trash2, Share2 } from 'lucide-react';
 import { PortfolioData } from '../features/portfolio/types/portfolio';
 import { navigate } from '../App';
 import { TEMPLATES } from '../features/portfolio/templates';
+import LinkTreeVisual from '../features/portfolio/templates/linkinbio/LinkTreeVisual';
+import { getTheme } from '../features/portfolio/styles/themes';
 
 interface PortfolioCardProps {
     portfolio: PortfolioData;
@@ -27,11 +29,17 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
     const previewContainerRef = useRef<HTMLDivElement>(null);
     const [scale, setScale] = useState(0.15);
 
+    // Determine if this is a bio-link portfolio
+    const isBioLink = portfolio.mode === 'linkinbio';
+    // For bio-links, use 9:16 portrait aspect ratio; for regular portfolios use 16:9 landscape
+    const aspectClass = isBioLink ? 'aspect-[9/16]' : 'aspect-video';
+    const originalWidth = isBioLink ? 430 : 1200;
+    const originalHeight = isBioLink ? 932 : 675;
+
     useLayoutEffect(() => {
         const calculateScale = () => {
             if (previewContainerRef.current) {
                 const parentWidth = previewContainerRef.current.offsetWidth;
-                const originalWidth = 1200; // Base width for portfolio preview
                 if (parentWidth > 0) {
                     setScale(parentWidth / originalWidth);
                 }
@@ -45,7 +53,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
         }
 
         return () => resizeObserver.disconnect();
-    }, []);
+    }, [originalWidth]);
 
     const navigateToEdit = () => {
         navigate(`/portfolio/edit/${portfolio.id}`);
@@ -62,6 +70,9 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
 
     const CurrentTemplate = TEMPLATES[portfolio.templateId as keyof typeof TEMPLATES] || TEMPLATES.minimalist;
 
+    // Get theme for bio-link preview
+    const bioLinkTheme = isBioLink && portfolio.linkInBio?.themeId ? getTheme(portfolio.linkInBio.themeId) : undefined;
+
     return (
         <div
             draggable
@@ -72,23 +83,27 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
                 onClick={!isEditingTitle ? navigateToEdit : undefined}
                 className="block p-4 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/40 flex-grow cursor-pointer rounded-t-xl"
             >
-                {/* Portfolio Preview - 16:9 aspect ratio for web */}
+                {/* Portfolio Preview - aspect ratio depends on mode */}
                 <div
                     ref={previewContainerRef}
-                    className="w-full aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg mb-4 overflow-hidden relative"
+                    className={`w-full ${aspectClass} bg-gray-200 dark:bg-gray-700 rounded-lg mb-4 overflow-hidden relative`}
                 >
                     <div
                         style={{
                             position: 'absolute',
                             top: 0,
                             left: 0,
-                            width: '1200px',
-                            height: '675px', // 16:9 ratio
+                            width: `${originalWidth}px`,
+                            height: `${originalHeight}px`,
                             transform: `scale(${scale})`,
                             transformOrigin: 'top left',
                         }}
                     >
-                        <CurrentTemplate data={portfolio} />
+                        {isBioLink && portfolio.linkInBio && bioLinkTheme ? (
+                            <LinkTreeVisual data={portfolio} />
+                        ) : (
+                            <CurrentTemplate data={portfolio} />
+                        )}
                     </div>
                 </div>
 

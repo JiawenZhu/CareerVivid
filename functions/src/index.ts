@@ -34,6 +34,7 @@ export * from './scheduled';
 export * from './email';
 export * as jobs from "./jobs";
 export * from './stripe';
+export * from './stripeConnect';
 export { onUserCreated, onPartnerApplicationUpdated, onApplicationCreated } from "./triggers";
 export { onEmailRequestCreated } from "./email";
 
@@ -167,6 +168,25 @@ export const generateResumePdfHttp = functions
           userId = decodedToken.uid;
           resumeDataToUse = req.body.resumeData; // Use provided data (allows drafts)
           templateIdToUse = req.body.templateId;
+
+          // Fallback: If no resumeData provided, try to fetch by ID (for owner previews of saved resumes)
+          if (!resumeDataToUse && req.body.resumeId) {
+            console.log(`Authenticated request missing body data, fetching from DB for user: ${userId}`);
+            const doc = await admin.firestore()
+              .collection("users")
+              .doc(userId) // The authenticated user
+              .collection("resumes")
+              .doc(req.body.resumeId)
+              .get();
+
+            if (doc.exists) {
+              const fetchedData = doc.data() as ResumeData;
+              resumeDataToUse = { ...fetchedData, id: doc.id };
+              templateIdToUse = fetchedData.templateId;
+            } else {
+              console.warn("Resume not found for authenticated user");
+            }
+          }
         } catch (e) {
           console.error("Token verification failed:", e);
           res.status(401).send('Unauthorized');
@@ -603,3 +623,5 @@ export const getInterviewAuthToken = functions.region('us-west1').https.onCall(a
     );
   }
 });
+// Social
+export * from "./social";

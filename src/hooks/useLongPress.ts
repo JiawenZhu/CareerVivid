@@ -7,6 +7,15 @@ interface Options {
     delay?: number;
 }
 
+import { useCallback, useRef, useState } from 'react';
+
+type LongPressEvent = React.MouseEvent | React.TouchEvent;
+
+interface Options {
+    shouldPreventDefault?: boolean;
+    delay?: number;
+}
+
 const useLongPress = (
     onLongPress: (event: LongPressEvent) => void,
     onClick?: (event: LongPressEvent) => void,
@@ -25,6 +34,7 @@ const useLongPress = (
                 target.current = event.target;
             }
             timeout.current = setTimeout(() => {
+                console.log('[useLongPress] Timer fired.');
                 onLongPress(event);
                 setLongPressTriggered(true);
             }, delay);
@@ -54,6 +64,13 @@ const useLongPress = (
         onMouseUp: (e: React.MouseEvent) => clear(e),
         onMouseLeave: (e: React.MouseEvent) => clear(e, false),
         onTouchEnd: (e: React.TouchEvent) => clear(e),
+        onTouchMove: (e: React.TouchEvent) => clear(e, false), // Cancel on scroll/drag
+        onContextMenu: (e: React.MouseEvent) => {
+            if (shouldPreventDefault) {
+                e.preventDefault();
+            }
+        },
+        'data-long-press-target': shouldPreventDefault ? 'true' : undefined
     };
 };
 

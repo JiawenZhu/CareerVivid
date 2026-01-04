@@ -47,6 +47,9 @@ const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'));
 const PermissionDeniedPage = React.lazy(() => import('./pages/PermissionDeniedPage'));
 const ReferralLandingPage = React.lazy(() => import('./pages/ReferralLandingPage'));
 const ReferralPage = React.lazy(() => import('./pages/ReferralPage'));
+const BioLinksPage = React.lazy(() => import('./pages/BioLinksPage'));
+const CommerceDashboard = React.lazy(() => import('./features/commerce/pages/CommerceDashboard'));
+const ProductPage = React.lazy(() => import('./features/commerce/pages/ProductPage'));
 
 import { SUPPORTED_LANGUAGES } from './constants';
 import i18n from './i18n';
@@ -109,8 +112,11 @@ const LoadingFallback = () => (
   </div>
 );
 
+import { useGuestDataMigration } from './hooks/useGuestDataMigration';
+
 const App: React.FC = () => {
   const { currentUser, userProfile, loading, isAdmin, isAdminLoading, isEmailVerified } = useAuth();
+  useGuestDataMigration(); // Global guest data migration
   const [path, setPath] = useState(getPathFromUrl());
 
   useEffect(() => {
@@ -272,6 +278,8 @@ const App: React.FC = () => {
       } else if (path.startsWith('/blog/')) {
         const id = path.split('/')[2];
         content = <BlogPostPage postId={id} />;
+      } else if (path === '/commerce') {
+        content = <CommerceDashboard />;
       } else if (path === '/academic-partner') {
         // Simple role check for now
         if (userProfile?.role === 'academic_partner' || isAdmin) {
@@ -283,6 +291,7 @@ const App: React.FC = () => {
         // Default to dashboard for any other path when logged in
         content = <Dashboard />;
       }
+
     }
   } else {
     // Public routes for logged-out users
@@ -304,6 +313,12 @@ const App: React.FC = () => {
       content = <PolicyPage />;
     } else if (path === '/referral') {
       content = <ReferralLandingPage />;
+    } else if (path === '/bio-links') {
+      content = <BioLinksPage />;
+    } else if (isPortfolioEditorRoute) {
+      content = <PortfolioEditor />;
+    } else if (path === '/portfolio-builder') {
+      content = <PortfolioBuilderPage />;
     } else if (path === '/blog') {
       content = <BlogListPage />;
     } else if (path.startsWith('/blog/')) {
@@ -328,6 +343,9 @@ const App: React.FC = () => {
     } else if (path === '/' || path === '') {
       // Root path shows landing page
       content = <LandingPage />;
+    } else if (path.startsWith('/p/')) {
+      // Product Page Route: /p/USER_ID/SLUG
+      content = <ProductPage />;
     } else {
       // Unknown routes show 404
       content = <NotFoundPage />;

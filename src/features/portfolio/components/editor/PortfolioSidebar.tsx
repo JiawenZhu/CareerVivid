@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-    User, Briefcase, Code, FolderGit2, Layers, Palette, FileText, Link as LinkIcon
+    User, Briefcase, Code, FolderGit2, Layers, Palette, FileText, Link as LinkIcon, ShoppingBag
 } from 'lucide-react';
 import { PortfolioData } from '../../types/portfolio';
 import AppearanceControls from './AppearanceControls';
@@ -27,8 +27,8 @@ import SidebarSettingsEditor from './sidebar/SidebarSettingsEditor';
 
 interface PortfolioSidebarProps {
     portfolioData: PortfolioData;
-    activeSection: 'hero' | 'timeline' | 'stack' | 'projects' | 'components' | 'design' | 'settings' | 'links';
-    setActiveSection: (section: 'hero' | 'timeline' | 'stack' | 'projects' | 'components' | 'design' | 'settings' | 'links') => void;
+    activeSection: 'hero' | 'timeline' | 'stack' | 'projects' | 'components' | 'design' | 'settings' | 'links' | 'commerce';
+    setActiveSection: (section: 'hero' | 'timeline' | 'stack' | 'projects' | 'components' | 'design' | 'settings' | 'links' | 'commerce') => void;
     isMobile: boolean;
     viewMode: 'edit' | 'preview';
     resumes: any[];
@@ -42,6 +42,7 @@ interface PortfolioSidebarProps {
     onTogglePreview?: () => void;
     userPortfolios?: PortfolioData[];
     onImportTheme?: (theme: ExtractedTheme) => void;
+    onStockPhotoTrigger?: (field: string) => void;
 }
 
 const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
@@ -60,7 +61,8 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
     isPremium,
     onTogglePreview,
     userPortfolios,
-    onImportTheme
+    onImportTheme,
+    onStockPhotoTrigger
 }) => {
 
     const isLinkInBio = portfolioData.mode === 'linkinbio';
@@ -238,6 +240,26 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
         onAIImageEdit('linkInBio.customStyle.backgroundOverride', cleanSrc, 'project');
     };
 
+    const handleThemeStockPhoto = (theme: LinkTreeTheme) => {
+        onUpdate({
+            linkInBio: {
+                ...(portfolioData.linkInBio || {
+                    links: [],
+                    showSocial: true,
+                    showEmail: true,
+                    displayName: 'Your Name',
+                    bio: 'Your Bio',
+                    profileImage: '',
+                    buttonLayout: 'stack'
+                }),
+                themeId: theme.id
+            }
+        });
+        if (onStockPhotoTrigger) {
+            onStockPhotoTrigger('linkInBio.customStyle.backgroundOverride');
+        }
+    };
+
     return (
         <div className={`
             border-r flex-col shrink-0 z-10 transition-all duration-300
@@ -309,6 +331,7 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
                         themeClasses={themeClasses}
                         editorTheme={editorTheme}
                         isLinkInBio={isLinkInBio}
+                        onStockPhotoTrigger={onStockPhotoTrigger}
                     />
                 )}
 
@@ -359,6 +382,7 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
                         userThemes={userThemes}
                         handleDeleteThemeClick={handleDeleteThemeClick}
                         handleEditBackground={handleEditBackground}
+                        handleThemeStockPhoto={handleThemeStockPhoto}
                         handleSaveCustomThemeClick={handleSaveCustomThemeClick}
                         onTogglePreview={onTogglePreview}
                         userPortfolios={userPortfolios}

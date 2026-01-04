@@ -5,6 +5,7 @@ import { db } from '../../../firebase';
 import { PortfolioData } from '../types/portfolio';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { TEMPLATES } from '../templates';
+import { useAnalytics } from '../hooks/useAnalytics';
 
 // Simple types for the public page if not importing full types
 // but we have PortfolioData so we are good.
@@ -90,6 +91,13 @@ const PublicPortfolioPage: React.FC = () => {
         fetchPortfolio();
     }, [id]);
 
+    // Analytics
+    const { trackClick } = useAnalytics({
+        portfolioId: portfolioData?.id,
+        ownerId: portfolioData?.userId,
+        enabled: !!portfolioData
+    });
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -109,7 +117,17 @@ const PublicPortfolioPage: React.FC = () => {
     }
 
     // Render the Template
-    const TemplateComponent = TEMPLATES[portfolioData.templateId as keyof typeof TEMPLATES] || TEMPLATES.minimalist;
+    const TemplateComponent = (() => {
+        if (portfolioData.mode === 'linkinbio') {
+            const id = portfolioData.templateId as string;
+            // If it is one of the structural keys, use it. Otherwise default to visual.
+            if (['linktree_minimal', 'linktree_visual', 'linktree_corporate', 'linktree_bento'].includes(id)) {
+                return TEMPLATES[id as keyof typeof TEMPLATES];
+            }
+            return TEMPLATES.linktree_visual;
+        }
+        return TEMPLATES[portfolioData.templateId as keyof typeof TEMPLATES] || TEMPLATES.minimalist;
+    })();
 
     // Determine background color for the wrapper to ensure full-page theme
     // This is crucial for Corporate template in Dark Mode to have a matching backdrop
@@ -135,8 +153,25 @@ const PublicPortfolioPage: React.FC = () => {
         });
     };
 
+
+
+    const handleGlobalClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        const target = (e.target as HTMLElement).closest('a');
+        if (target && target.href) {
+            // Avoid tracking internal hash navigations or void links if needed
+            if (target.getAttribute('href')?.startsWith('#')) return;
+
+            const label = target.innerText.trim() || target.getAttribute('aria-label') || 'link';
+            trackClick(target.href, label.substring(0, 50)); // Limit label length
+        }
+    };
+
     return (
-        <div className="min-h-screen transition-colors duration-500" style={{ backgroundColor: wrapperBg }}>
+        <div
+            className="min-h-screen transition-colors duration-500"
+            style={{ backgroundColor: wrapperBg }}
+            onClick={handleGlobalClick}
+        >
             <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin" /></div>}>
                 <TemplateComponent
                     data={portfolioData}

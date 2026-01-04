@@ -18,6 +18,7 @@ export interface WebsiteLink {
   url: string;
   icon?: string; // Optional custom icon ID from AVAILABLE_ICONS
   showUrl?: boolean; // Toggle to show full URL on resume
+  platform?: string; // Optional platform identifier (e.g. 'tiktok', 'linkedin')
 }
 
 export interface Skill {

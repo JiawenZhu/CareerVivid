@@ -2,16 +2,16 @@ import React, { useMemo } from 'react';
 import { PortfolioData } from '../../types/portfolio';
 import {
     Phone, Mail, MapPin, Globe, Linkedin, Twitter,
-    Instagram, Github, Facebook, Youtube, Share2,
-    Download, QrCode, ExternalLink
+    Instagram, Github, Youtube, Share2,
+    Download, QrCode, ExternalLink, User
 } from 'lucide-react';
-import { FaTiktok, FaWeixin, FaWeibo } from 'react-icons/fa';
+import { FaTiktok, FaWeixin, FaWeibo, FaFacebookF } from 'react-icons/fa';
 
 // --- Types ---
 
 interface CardTemplateProps {
     data: PortfolioData;
-    variant?: 'minimal' | 'photo' | 'modern';
+    variant?: 'minimal' | 'photo' | 'modern' | 'corporate';
     onEdit?: (section: string) => void;
 }
 
@@ -37,7 +37,7 @@ const SocialIcon = ({ type, className }: { type: string, className?: string }) =
         case 'twitter': return <Twitter size={18} className={className} />;
         case 'instagram': return <Instagram size={18} className={className} />;
         case 'github': return <Github size={18} className={className} />;
-        case 'facebook': return <Facebook size={18} className={className} />;
+        case 'facebook': return <FaFacebookF size={18} className={className} />;
         case 'youtube': return <Youtube size={18} className={className} />;
         case 'tiktok': return <FaTiktok size={18} className={className} />;
         case 'wechat': return <FaWeixin size={18} className={className} />;

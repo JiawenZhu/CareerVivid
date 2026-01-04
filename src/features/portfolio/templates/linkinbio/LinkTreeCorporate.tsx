@@ -1,7 +1,15 @@
 import React from 'react';
 import { PortfolioTemplateProps } from '../../types/portfolio';
+import QuickAuthModal from '../../../../components/QuickAuthModal';
+import AlertModal from '../../../../components/AlertModal';
+import MessageModal from '../../components/MessageModal';
 import * as Icons from 'lucide-react';
 import { nanoid } from 'nanoid';
+import { downloadResume } from '../../utils/resumeDownload';
+import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { useAuth } from '../../../../contexts/AuthContext';
+import { usePortfolioAdminAccess } from '../../hooks/usePortfolioAdminAccess';
 
 /**
  * LinkTreeCorporate - Professional, formal design for link-in-bio
@@ -13,6 +21,9 @@ const LinkTreeCorporate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
     const isDark = theme.darkMode;
     const primaryColor = theme.primaryColor || '#1e40af';
 
+    // Admin Access Hook
+    const { longPressProps, AdminAccessModal } = usePortfolioAdminAccess({ data, onEdit });
+
     const linkInBio = data.linkInBio || {
         links: [],
         showSocial: true,
@@ -20,6 +31,13 @@ const LinkTreeCorporate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
         backgroundColor: isDark ? '#0f1117' : '#f8fafc',
         buttonLayout: 'stack'
     } as any;
+
+    const [isDownloading, setIsDownloading] = useState(false);
+    const [errorModal, setErrorModal] = useState({ isOpen: false, title: '', message: '' });
+    const [showAuthModal, setShowAuthModal] = useState(false);
+    const [messageModalOpen, setMessageModalOpen] = useState(false);
+
+    const { currentUser } = useAuth();
 
     // Use hero fields as source of truth to match Editor Sidebar
     const displayName = data.hero?.headline || linkInBio.displayName || 'Executive Name';
@@ -32,9 +50,40 @@ const LinkTreeCorporate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
         return IconComponent ? <IconComponent size={18} strokeWidth={2.5} /> : null;
     };
 
-    const handleLinkClick = (linkId: string, url: string) => {
-        console.log('[Analytics] Link clicked:', linkId);
-        window.open(url, '_blank', 'noopener,noreferrer');
+    const handleLinkClick = (link: typeof linkInBio.links[0]) => {
+        if (link.icon === 'FileText') {
+            handleResumeDownload();
+            return;
+        }
+
+        if (link.icon === 'Mail') {
+            setMessageModalOpen(true);
+            return;
+        }
+
+        console.log('[Analytics] Link clicked:', link.id);
+        window.open(link.url, '_blank', 'noopener,noreferrer');
+    };
+
+    const handleResumeDownload = async () => {
+        if (!data.attachedResumeId || isDownloading) return;
+
+        downloadResume({
+            userId: data.userId,
+            resumeId: data.attachedResumeId,
+            title: displayName ? `${displayName}_Resume` : 'Resume',
+            onStart: () => setIsDownloading(true),
+            onComplete: () => setIsDownloading(false),
+            onError: (err) => {
+                console.error(err);
+                setIsDownloading(false);
+                setErrorModal({
+                    isOpen: true,
+                    title: 'Download Failed',
+                    message: 'Failed to download resume. Please try again or check your connection.'
+                });
+            }
+        });
     };
 
     const renderButton = (button: typeof linkInBio.links[0]) => {
@@ -47,7 +96,7 @@ const LinkTreeCorporate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                 e.stopPropagation();
                 onEdit('links'); // Focus Links section
             } else {
-                handleLinkClick(button.id, button.url);
+                handleLinkClick(button);
             }
         };
 
@@ -113,7 +162,7 @@ const LinkTreeCorporate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                         {/* Avatar */}
                         <div
                             className={`flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg transition-shadow ${onEdit ? 'cursor-pointer hover:shadow-xl hover:ring-4 hover:ring-blue-500/30' : ''}`}
-                            onClick={() => onEdit?.('hero.avatarUrl')}
+                            {...(onEdit ? { onClick: () => onEdit('hero.avatarUrl') } : longPressProps)}
                         >
                             {profileImage ? (
                                 <img
@@ -154,7 +203,7 @@ const LinkTreeCorporate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                         .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
                         .map(renderButton)}
 
-                    {linkInBio.links.filter((l: any) => l.enabled).length === 0 && onEdit && (
+                    {linkInBio.links.filter((l: any) => l.enabled).length === 0 && !data.attachedResumeId && onEdit && (
                         <div
                             className="text-center py-16 bg-white dark:bg-gray-900 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 cursor-pointer hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all group"
                             onClick={() => onEdit('links')}
@@ -165,66 +214,77 @@ const LinkTreeCorporate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                         </div>
                     )}
                 </div>
-
-                {/* Contact Card */}
-                <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 p-6 mb-6 animate-in fade-in duration-700 delay-200">
-                    {/* Social Links */}
-                    {linkInBio.showSocial && data.socialLinks.length > 0 && (
-                        <div className="mb-6 pb-6 border-b border-gray-200 dark:border-gray-800">
-                            <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-500 uppercase tracking-wider mb-4">Connect</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {data.socialLinks.slice(0, 6).map(social => {
-                                    const getSocialIcon = (label?: string) => {
-                                        const lower = (label || '').toLowerCase();
-                                        if (lower.includes('github')) return <Icons.Github size={18} />;
-                                        if (lower.includes('twitter')) return <Icons.Twitter size={18} />;
-                                        if (lower.includes('linkedin')) return <Icons.Linkedin size={18} />;
-                                        if (lower.includes('facebook')) return <Icons.Facebook size={18} />;
-                                        if (lower.includes('youtube')) return <Icons.Youtube size={18} />;
-                                        return <Icons.Globe size={18} />;
-                                    };
-
-                                    return (
-                                        <a
-                                            key={social.id || nanoid()}
-                                            href={social.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all text-sm font-medium"
-                                            title={social.label}
-                                        >
-                                            {getSocialIcon(social.label)}
-                                            <span>{social.label}</span>
-                                        </a>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Email Contact */}
-                    {linkInBio.showEmail && data.contactEmail && (
-                        <div>
-                            <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-500 uppercase tracking-wider mb-3">Email</h3>
-                            <a
-                                href={`mailto:${data.contactEmail}`}
-                                className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
-                            >
-                                <Icons.Mail size={18} />
-                                {data.contactEmail}
-                            </a>
-                        </div>
-                    )}
-                </div>
-
-                {/* Footer */}
-                <div className="text-center">
-                    <p className="text-xs text-gray-400 dark:text-gray-600">
-                        Powered by CareerVivid
-                    </p>
-                </div>
             </div>
+
+            {/* Contact Card */}
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 p-6 mb-6 animate-in fade-in duration-700 delay-200">
+                {/* Social Links */}
+                {linkInBio.showSocial && data.socialLinks.length > 0 && (
+                    <div className="mb-6 pb-6 border-b border-gray-200 dark:border-gray-800">
+                        <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-500 uppercase tracking-wider mb-4">Connect</h3>
+                        <div className="flex flex-wrap gap-2">
+                            {data.socialLinks.slice(0, 6).map(social => {
+                                const getSocialIcon = (label?: string) => {
+                                    const lower = (label || '').toLowerCase();
+                                    if (lower.includes('github')) return <Icons.Github size={18} />;
+                                    if (lower.includes('twitter')) return <Icons.Twitter size={18} />;
+                                    if (lower.includes('linkedin')) return <Icons.Linkedin size={18} />;
+                                    if (lower.includes('facebook')) return <Icons.Facebook size={18} />;
+                                    if (lower.includes('youtube')) return <Icons.Youtube size={18} />;
+                                    return <Icons.Globe size={18} />;
+                                };
+
+                                return (
+                                    <a
+                                        key={social.id || nanoid()}
+                                        href={social.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all text-sm font-medium"
+                                        title={social.label}
+                                    >
+                                        {getSocialIcon(social.label)}
+                                        <span>{social.label}</span>
+                                    </a>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
+
+                {/* Email Contact */}
+                {linkInBio.showEmail && data.contactEmail && (
+                    <div>
+                        <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-500 uppercase tracking-wider mb-3">Email</h3>
+                        <a
+                            href={`mailto:${data.contactEmail}`}
+                            className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+                        >
+                            <Icons.Mail size={18} />
+                            {data.contactEmail}
+                        </a>
+                    </div>
+                )}
+            </div>
+
+            {/* Footer */}
+            <div className="text-center">
+                <p className="text-xs text-gray-400 dark:text-gray-600">
+                    Powered by CareerVivid
+                </p>
+            </div>
+
+            <MessageModal
+                isOpen={messageModalOpen}
+                onClose={() => setMessageModalOpen(false)}
+                ownerId={data.userId}
+                ownerName={displayName}
+                portfolioId={data.id}
+            />
+
+            <AdminAccessModal />
         </div>
+
     );
 };
 

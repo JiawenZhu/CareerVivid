@@ -1,9 +1,13 @@
 import React from 'react';
 import { PortfolioTemplateProps } from '../types/portfolio';
 import { Briefcase, TrendingUp, Users, Award, ChevronRight, Download, Linkedin, Mail } from 'lucide-react';
+import { usePortfolioAdminAccess } from '../hooks/usePortfolioAdminAccess';
 
 const ExecutiveBrief: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileView }) => {
     const { hero, projects, timeline, about, education } = data;
+
+    // Admin Access Hook
+    const { longPressProps, AdminAccessModal } = usePortfolioAdminAccess({ data, onEdit });
 
     const responsiveClass = (base: string, desktop: string) => {
         return isMobileView ? base : `${base} ${desktop}`;
@@ -51,7 +55,10 @@ const ExecutiveBrief: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobi
                     {/* Headshot Card */}
                     <div className="relative">
                         <div className="bg-white p-4 shadow-xl border border-slate-100 rounded-lg transform rotate-2 hover:rotate-0 transition-transform duration-500">
-                            <div className="aspect-[3/4] bg-slate-200 rounded overflow-hidden">
+                            <div
+                                className={`aspect-[3/4] bg-slate-200 rounded overflow-hidden ${onEdit ? 'cursor-pointer hover:ring-2 hover:ring-[#2c3e50]' : ''}`}
+                                {...(onEdit ? { onClick: () => onEdit('hero.avatarUrl') } : longPressProps)}
+                            >
                                 {hero.avatarUrl ? (
                                     <img src={hero.avatarUrl} alt="Executive Headshot" className="w-full h-full object-cover grayscale contrast-125 hover:grayscale-0 transition-all duration-500" />
                                 ) : (
@@ -187,6 +194,7 @@ const ExecutiveBrief: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobi
             <footer className="text-center py-8 text-slate-400 text-sm">
                 &copy; {new Date().getFullYear()} {hero.headline}. Confidential & Proprietary.
             </footer>
+            <AdminAccessModal />
         </div>
     );
 };

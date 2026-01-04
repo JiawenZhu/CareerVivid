@@ -1,7 +1,7 @@
 import React from 'react';
 import { User, Upload, Loader2, Brush, Trash2, Type, AlignLeft, MousePointer, Link as LinkIcon, FileText, Phone, Mail } from 'lucide-react';
 import AppearanceControls from '../AppearanceControls';
-import { PortfolioData } from '../../../../types/portfolio';
+import { PortfolioData } from '../../../types/portfolio';
 
 interface SidebarProfileEditorProps {
     portfolioData: PortfolioData;
@@ -13,6 +13,7 @@ interface SidebarProfileEditorProps {
     themeClasses: any;
     editorTheme: 'light' | 'dark';
     isLinkInBio: boolean;
+    onStockPhotoTrigger?: (field: string) => void;
 }
 
 const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
@@ -24,7 +25,8 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
     isImageUploading,
     themeClasses,
     editorTheme,
-    isLinkInBio
+    isLinkInBio,
+    onStockPhotoTrigger
 }) => {
     return (
         <div className="space-y-4 animate-fade-in">
@@ -59,17 +61,26 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                                 Upload
                             </button>
 
+                            {/* Library Button */}
+                            <button
+                                onClick={() => onStockPhotoTrigger?.('hero.avatarUrl')}
+                                className="flex-1 flex flex-col items-center justify-center gap-1.5 py-3 rounded-lg border border-transparent bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 text-[10px] sm:text-xs font-medium transition-colors"
+                            >
+                                <span className="text-lg">📷</span>
+                                Library
+                            </button>
+
+                            {/* AI Button - Always Visible */}
+                            <button
+                                onClick={() => onAIImageEdit('hero.avatarUrl', portfolioData.hero.avatarUrl || '', 'avatar')}
+                                className="flex-1 flex flex-col items-center justify-center gap-1.5 py-3 rounded-lg border border-transparent bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 text-[10px] sm:text-xs font-medium transition-colors"
+                            >
+                                <Brush size={16} />
+                                {portfolioData.hero.avatarUrl ? 'Edit AI' : 'Create AI'}
+                            </button>
+
                             {portfolioData.hero.avatarUrl && (
                                 <>
-                                    {/* Edit AI Button */}
-                                    <button
-                                        onClick={() => onAIImageEdit('hero.avatarUrl', portfolioData.hero.avatarUrl!, 'avatar')}
-                                        className="flex-1 flex flex-col items-center justify-center gap-1.5 py-3 rounded-lg border border-transparent bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 text-[10px] sm:text-xs font-medium transition-colors"
-                                    >
-                                        <Brush size={16} />
-                                        Edit with AI
-                                    </button>
-
                                     {/* Remove Button */}
                                     <button
                                         onClick={() => onNestedUpdate('hero', 'avatarUrl', '')}

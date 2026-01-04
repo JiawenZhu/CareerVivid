@@ -4,6 +4,14 @@ import * as Icons from 'lucide-react';
 import { FaWeixin, FaWeibo, FaTiktok } from 'react-icons/fa';
 import { nanoid } from 'nanoid';
 import { parseTextWithEmojis } from '../../../../utils/emojiParser';
+import AlertModal from '../../../../components/AlertModal';
+import MessageModal from '../../components/MessageModal';
+import { downloadResume } from '../../utils/resumeDownload';
+import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { ProductShowcase } from '../../../commerce/components/ProductShowcase';
+
+import { usePortfolioAdminAccess } from '../../hooks/usePortfolioAdminAccess';
 
 /**
  * LinkTreeMinimal - Clean minimal design for link-in-bio
@@ -12,6 +20,10 @@ import { parseTextWithEmojis } from '../../../../utils/emojiParser';
 const LinkTreeMinimal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpdate, isMobileView }) => {
     const theme = data.theme || { darkMode: false, primaryColor: '#2563eb' };
     const isDark = theme.darkMode;
+
+    // Admin Access Hook
+    const { longPressProps, AdminAccessModal } = usePortfolioAdminAccess({ data, onEdit });
+
     const linkInBio = data.linkInBio || {
         links: [],
         showSocial: true,
@@ -19,6 +31,10 @@ const LinkTreeMinimal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
         backgroundColor: isDark ? '#0f1117' : '#ffffff',
         buttonLayout: 'stack'
     } as any;
+
+    const [isDownloading, setIsDownloading] = useState(false);
+    const [errorModal, setErrorModal] = useState({ isOpen: false, title: '', message: '' });
+    const [messageModalOpen, setMessageModalOpen] = useState(false);
 
     // Use hero fields as source of truth to match Editor Sidebar
     const displayName = data.hero?.headline || linkInBio.displayName || 'Your Name';
@@ -45,10 +61,42 @@ const LinkTreeMinimal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
     };
 
     // Handle link click for analytics
-    const handleLinkClick = (linkId: string, url: string) => {
+    const handleLinkClick = (linkId: string, url: string, icon?: string) => {
+        // Check for Resume Download trigger
+        if (icon === 'FileText') {
+            handleResumeDownload();
+            return;
+        }
+
+        if (icon === 'Mail') {
+            setMessageModalOpen(true);
+            return;
+        }
+
         // Track click (will implement analytics service later)
         console.log('[Analytics] Link clicked:', linkId);
         window.open(url, '_blank', 'noopener,noreferrer');
+    };
+
+    const handleResumeDownload = async () => {
+        if (!data.attachedResumeId || isDownloading) return;
+
+        downloadResume({
+            userId: data.userId,
+            resumeId: data.attachedResumeId,
+            title: displayName ? `${displayName} _Resume` : 'Resume',
+            onStart: () => setIsDownloading(true),
+            onComplete: () => setIsDownloading(false),
+            onError: (err) => {
+                console.error(err);
+                setIsDownloading(false);
+                setErrorModal({
+                    isOpen: true,
+                    title: 'Download Failed',
+                    message: 'Failed to download resume. Please try again or check your connection.'
+                });
+            }
+        });
     };
 
     // Get button classes based on variant
@@ -60,17 +108,17 @@ const LinkTreeMinimal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
 
         switch (button.variant) {
             case 'primary':
-                return `${baseClasses} bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:scale-[1.02] shadow-sm hover:shadow-md`;
+                return `${baseClasses} bg - gray - 900 dark: bg - white text - white dark: text - gray - 900 hover: scale - [1.02] shadow - sm hover: shadow - md`;
             case 'secondary':
-                return `${baseClasses} bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700`;
+                return `${baseClasses} bg - gray - 100 dark: bg - gray - 800 text - gray - 900 dark: text - white hover: bg - gray - 200 dark: hover: bg - gray - 700`;
             case 'outline':
-                return `${baseClasses} border-2 border-gray-900 dark:border-white text-gray-900 dark:text-white hover:bg-gray-900 dark:hover:bg-white hover:text-white dark:hover:text-gray-900`;
+                return `${baseClasses} border - 2 border - gray - 900 dark: border - white text - gray - 900 dark: text - white hover: bg - gray - 900 dark: hover: bg - white hover: text - white dark: hover: text - gray - 900`;
             case 'ghost':
-                return `${baseClasses} text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800`;
+                return `${baseClasses} text - gray - 600 dark: text - gray - 400 hover: bg - gray - 100 dark: hover: bg - gray - 800`;
             case 'custom':
                 return baseClasses;
             default:
-                return `${baseClasses} bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:scale-[1.02]`;
+                return `${baseClasses} bg - gray - 900 dark: bg - white text - white dark: text - gray - 900 hover: scale - [1.02]`;
         }
     };
 
@@ -93,7 +141,7 @@ const LinkTreeMinimal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
                 e.stopPropagation();
                 onEdit('links'); // Focus Links section
             } else {
-                handleLinkClick(button.id, button.url);
+                handleLinkClick(button.id, button.url, button.icon);
             }
         };
 
@@ -103,7 +151,7 @@ const LinkTreeMinimal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
             <button
                 key={button.id}
                 onClick={handleClick}
-                className={`${buttonClasses} ${editClasses}`}
+                className={`${buttonClasses} ${editClasses} `}
                 style={customStyle}
             >
                 {button.icon && (
@@ -132,7 +180,7 @@ const LinkTreeMinimal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
                     {/* Avatar */}
                     <div
                         className={`w-24 h-24 mx-auto mb-6 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 border-4 border-white dark:border-gray-900 shadow-lg transition-transform ${onEdit ? 'cursor-pointer hover:ring-4 hover:ring-indigo-500 hover:scale-105' : ''}`}
-                        onClick={() => onEdit?.('hero.avatarUrl')}
+                        {...(onEdit ? { onClick: () => onEdit('hero.avatarUrl') } : longPressProps)}
                     >
                         {profileImage ? (
                             <img
@@ -149,7 +197,7 @@ const LinkTreeMinimal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
 
                     {/* Display Name */}
                     <h1
-                        className={`text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3 transition-all ${onEdit ? 'cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 hover:underline decoration-dashed decoration-2 underline-offset-4' : ''}`}
+                        className={`text - 2xl md: text - 3xl font - bold text - gray - 900 dark: text - white mb - 3 transition - all ${onEdit ? 'cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 hover:underline decoration-dashed decoration-2 underline-offset-4' : ''} `}
                         onClick={() => onEdit?.('hero.headline')}
                     >
                         {displayName}
@@ -157,7 +205,7 @@ const LinkTreeMinimal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
 
                     {/* Bio */}
                     <p
-                        className={`text-gray-600 dark:text-gray-400 text-base md:text-lg max-w-md mx-auto transition-all ${onEdit ? 'cursor-pointer hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-300 rounded-lg p-2 -m-2 border border-transparent hover:border-indigo-500/20' : ''}`}
+                        className={`text - gray - 600 dark: text - gray - 400 text - base md: text - lg max - w - md mx - auto transition - all ${onEdit ? 'cursor-pointer hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-300 rounded-lg p-2 -m-2 border border-transparent hover:border-indigo-500/20' : ''} `}
                         onClick={() => onEdit?.('about')}
                     >
                         {parseTextWithEmojis(bio)}
@@ -171,7 +219,14 @@ const LinkTreeMinimal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
                         .sort((a, b) => (a.order || 0) - (b.order || 0))
                         .map(renderButton)}
 
-                    {linkInBio.links.filter(l => l.enabled).length === 0 && onEdit && (
+                    {linkInBio.links.filter(l => l.enabled).length === 0 && !data.attachedResumeId && onEdit && (
+                        <div className="text-center py-12 text-gray-400">
+                            <Icons.LinkIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                            <p className="text-sm">No links yet. Click to add your first link!</p>
+                        </div>
+                    )}
+
+                    {linkInBio.links.filter(l => l.enabled).length === 0 && !data.attachedResumeId && onEdit && (
                         <div className="text-center py-12 text-gray-400">
                             <Icons.LinkIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
                             <p className="text-sm">No links yet. Click to add your first link!</p>
@@ -211,11 +266,21 @@ const LinkTreeMinimal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
                     </div>
                 )}
 
+                {/* Commerce / Store Section */}
+                {linkInBio.enableStore && (
+                    <div className="mt-8 mb-8 w-full max-w-md mx-auto">
+                        <ProductShowcase
+                            userId={data.userId}
+                            theme={theme.darkMode ? 'dark' : 'light'}
+                        />
+                    </div>
+                )}
+
                 {/* Email Contact */}
                 {linkInBio.showEmail && data.contactEmail && (
                     <div className="text-center animate-in fade-in duration-700 delay-300">
                         <a
-                            href={`mailto:${data.contactEmail}`}
+                            href={`mailto:${data.contactEmail} `}
                             className="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
                         >
                             <Icons.Mail size={16} />
@@ -233,6 +298,16 @@ const LinkTreeMinimal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
                     </div>
                 )}
             </div>
+
+            <MessageModal
+                isOpen={messageModalOpen}
+                onClose={() => setMessageModalOpen(false)}
+                ownerId={data.userId}
+                ownerName={displayName}
+                portfolioId={data.id}
+            />
+
+            <AdminAccessModal />
         </div>
     );
 };

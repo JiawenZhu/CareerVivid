@@ -4,10 +4,12 @@ import { STANDARD_THEMES } from './standard';
 import { SEASONAL_THEMES } from './seasonal';
 import { PREMIUM_THEMES } from './premium';
 import { GAME_THEMES } from './games';
+import { LANDING_THEMES } from './landing';
 
 export * from './types';
 
 export const LINKTREE_THEMES: Record<string, LinkTreeTheme> = {
+    ...LANDING_THEMES, // Landing page featured themes first
     ...CREATIVE_THEMES,
     ...STANDARD_THEMES,
     ...SEASONAL_THEMES,

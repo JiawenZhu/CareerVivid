@@ -2,8 +2,13 @@ import React from 'react';
 import { PortfolioTemplateProps } from '../types/portfolio';
 import { Instagram, MapPin, Music, Github, Twitter, Mail, ArrowUpRight, Coffee, Laptop, Camera } from 'lucide-react';
 
+import { usePortfolioAdminAccess } from '../hooks/usePortfolioAdminAccess';
+
 const BentoPersonal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileView }) => {
     const { hero, projects, about } = data;
+
+    // Admin Access Hook
+    const { longPressProps, AdminAccessModal } = usePortfolioAdminAccess({ data, onEdit });
 
     // Helper to force mobile styles when in mobile view
     const responsiveClass = (base: string, desktop: string) => {
@@ -16,7 +21,10 @@ const BentoPersonal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobil
 
                 {/* Hero Tile - Large */}
                 <div className={`bg-white rounded-3xl p-8 col-span-1 ${responsiveClass('', 'md:col-span-2 md:row-span-2')} shadow-sm border border-gray-200/50 flex flex-col justify-between hover:shadow-md transition-shadow`}>
-                    <div className="w-16 h-16 bg-gray-100 rounded-full overflow-hidden mb-4">
+                    <div
+                        className={`w-16 h-16 bg-gray-100 rounded-full overflow-hidden mb-4 ${onEdit ? 'cursor-pointer hover:ring-2 hover:ring-rose-500' : ''}`}
+                        {...(onEdit ? { onClick: () => onEdit('hero.avatarUrl') } : longPressProps)}
+                    >
                         {hero.avatarUrl ? (
                             <img src={hero.avatarUrl} alt="Me" className="w-full h-full object-cover" />
                         ) : (
@@ -137,6 +145,7 @@ const BentoPersonal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobil
                     </div>
                 </div>
             </div>
+            <AdminAccessModal />
         </div>
     );
 };

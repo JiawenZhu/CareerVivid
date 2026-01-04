@@ -21,4 +21,17 @@ dist-ssr
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
+.sw?
+
+# Firebase
+.firebase/
+functions/lib/
+functions/node_modules/
+.runtimeconfig.json
+
+# Build
+dist/
+dist-ssr/
+build/
+.cache/
+

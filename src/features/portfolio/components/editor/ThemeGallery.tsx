@@ -10,6 +10,7 @@ interface ThemeGalleryProps {
     userThemes?: any[];
     onDeleteTheme?: (themeId: string) => void;
     onEditBackground: (theme: any) => void;
+    onPickBg?: (theme: any) => void;
     onToggleSnow?: () => void;
     isSnowEnabled?: boolean;
 }
@@ -21,6 +22,7 @@ const ThemeGallery: React.FC<ThemeGalleryProps> = ({
     userThemes = [],
     onDeleteTheme,
     onEditBackground,
+    onPickBg,
     onToggleSnow,
     isSnowEnabled
 }) => {
@@ -136,36 +138,58 @@ const ThemeGallery: React.FC<ThemeGalleryProps> = ({
                                 </div>
                             )}
 
-                            {onEditBackground && (
-                                <div
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onEditBackground(theme);
-                                    }}
-                                    className="px-3 py-1.5 bg-gray-900/90 hover:bg-black text-[11px] font-medium items-center text-gray-100 rounded-full transition-all hidden group-hover:flex whitespace-nowrap backdrop-blur-md cursor-pointer border border-white/10 shadow-sm gap-1.5"
-                                >
-                                    <ImageIcon size={12} />
-                                    Edit BG
-                                </div>
-                            )}
+                            {/* Background Controls */}
+                            <div className="flex gap-1">
+                                {/* 1. Change Background (Stock) - Always Visible */}
+                                {onPickBg && (
+                                    <div
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onPickBg(theme);
+                                        }}
+                                        className="px-2 py-1.5 bg-gray-900/90 hover:bg-black text-[11px] font-medium items-center text-gray-100 rounded-l-full transition-all hidden group-hover:flex whitespace-nowrap backdrop-blur-md cursor-pointer border border-white/10 shadow-sm"
+                                        title="Change Background Image"
+                                    >
+                                        <ImageIcon size={12} />
+                                    </div>
+                                )}
+
+                                {/* 2. Edit AI - Visible only if Image exists */}
+                                {onEditBackground && (theme.backgroundConfig?.type === 'image' || String(theme.colors?.background || '').includes('url(')) && (
+                                    <div
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            // Fallback to stock picker if no image, but UI implies AI edit
+                                            onEditBackground(theme);
+                                        }}
+                                        className={`px-2 py-1.5 bg-gray-900/90 hover:bg-black text-[11px] font-medium items-center text-gray-100 ${onPickBg ? 'rounded-r-full border-l-0' : 'rounded-full'} transition-all hidden group-hover:flex whitespace-nowrap backdrop-blur-md cursor-pointer border border-white/10 shadow-sm`}
+                                        title="Edit with AI"
+                                    >
+                                        {/* Show Sparkles if image, else maybe just Text? But we rely on parent logic mostly. Use Sparkles for AI. */}
+                                        <span className="text-xs">✨</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </button>
 
                 {/* Delete Button for Custom Themes */}
-                {isCustom && onDeleteTheme && (
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onDeleteTheme(theme.id);
-                        }}
-                        className="absolute top-2 left-2 z-30 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Delete Theme"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>
-                    </button>
-                )}
-            </div>
+                {
+                    isCustom && onDeleteTheme && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDeleteTheme(theme.id);
+                            }}
+                            className="absolute top-2 left-2 z-30 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                            title="Delete Theme"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>
+                        </button>
+                    )
+                }
+            </div >
         );
     };
 

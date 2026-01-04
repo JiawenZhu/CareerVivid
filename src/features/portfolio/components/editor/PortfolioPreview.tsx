@@ -23,16 +23,30 @@ const PortfolioPreview: React.FC<PortfolioPreviewProps> = ({
 }) => {
 
     // Memoize template to avoid unnecessary lookups, though object lookup is fast
+    // Memoize template to avoid unnecessary lookups, though object lookup is fast
     const CurrentTemplate = useMemo(() => {
         if (!portfolioData) return TEMPLATES.minimalist;
+
+        // Explicit override for Link-in-Bio mode to support dynamic themes
+        // (e.g. if templateId is 'neo_xmas', it's not a component, so we map it to linktree_visual)
+        if (portfolioData.mode === 'linkinbio') {
+            const id = portfolioData.templateId as string;
+            // If it is one of the structural keys, use it. Otherwise default to visual.
+            if (['linktree_minimal', 'linktree_visual', 'linktree_corporate', 'linktree_bento'].includes(id)) {
+                return TEMPLATES[id as keyof typeof TEMPLATES];
+            }
+            return TEMPLATES.linktree_visual;
+        }
+
         return TEMPLATES[portfolioData.templateId as keyof typeof TEMPLATES] || TEMPLATES.minimalist;
-    }, [portfolioData?.templateId]);
+    }, [portfolioData?.templateId, portfolioData?.mode]);
 
     if (!portfolioData) return null;
 
     return (
         <div className={`
-            flex-1 bg-[#090a0d] relative flex items-center justify-center p-8 overflow-hidden bg-grid-pattern
+            flex-1 relative flex items-center justify-center p-8 overflow-hidden 
+            bg-[#f9fafb] dark:bg-[#0b0c10] bg-dot-pattern
             ${isMobile && viewMode === 'edit' ? 'hidden' : 'flex'}
         `}>
             {/* Browser Frame */}

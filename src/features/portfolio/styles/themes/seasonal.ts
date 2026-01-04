@@ -7,26 +7,26 @@ export const SEASONAL_THEMES: Record<string, LinkTreeTheme> = {
         name: 'Neo Xmas',
         category: 'abstract',
         colors: {
-            background: '#b91c1c', // Deep Red
+            background: '#6366f1', // Indigo base (for fallback)
             text: '#ffffff',
-            subtext: '#feca1e', // Gold
-            accent: '#15803d', // Green shadow
-            cardBg: '#ef4444',
+            subtext: '#e0e7ff',
+            accent: '#a855f7',
+            cardBg: 'rgba(255, 255, 255, 0.1)',
             buttonText: '#ffffff',
         },
+        backgroundConfig: {
+            type: 'image',
+            value: 'url("https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?auto=format&fit=crop&w=1200&q=80")',
+        },
         buttons: {
-            style: 'hard-shadow',
-            radius: 'none',
-            border: '2px solid #000000',
-            shadow: '6px 6px 0px #15803d',
-            customShape: 'jagged'
+            style: 'glass',
+            radius: 'lg',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            shadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
         },
         fonts: {
-            heading: 'Mountains of Christmas, cursive',
-            body: 'Nunito, sans-serif',
-        },
-        effects: {
-            confetti: true
+            heading: 'Inter, sans-serif',
+            body: 'Inter, sans-serif',
         }
     },
     'xmas_snow': {

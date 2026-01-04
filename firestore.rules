@@ -44,10 +44,22 @@ service cloud.firestore {
         allow update: if isBusinessPartner(); 
       }
       
+      // Portfolio Messages (Public Write, Owner Read)
+      match /messages/{messageId} {
+        allow create: if true;
+        allow read, update, delete: if isOwner(userId) || isAdmin();
+      }
+
       // Specifically helpful for public access logic if needed, but handled by sub-collections below
       match /portfolios/{portfolioId} {
         allow read: if request.auth != null; // Authenticated users can read portfolios (for verification/viewing)
         allow write: if isOwner(userId) || isAdmin();
+
+        // Analytics Stats
+        match /stats/{statId} {
+          allow create: if true; // Public can log views/clicks
+          allow read: if isOwner(userId) || isAdmin();
+        }
       }
       
       // Public Resume Comments/Annotations

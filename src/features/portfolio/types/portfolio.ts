@@ -78,6 +78,7 @@ export interface PortfolioData {
     businessCard?: {
         orientation: 'horizontal' | 'vertical'; // Default horizontal
         themeId?: string;
+        companyLogoUrl?: string;
     };
 
     // Link-in-Bio Configuration (when mode = 'linkinbio')
@@ -108,11 +109,11 @@ export interface PortfolioData {
                 matrix?: boolean;
                 typewriter?: boolean;
                 tilt?: boolean;
-                tilt?: boolean;
                 spinAvatar?: boolean;
             };
             enableSnow?: boolean;
         };
+        enableStore?: boolean; // Toggle for Commerce Storefront
         settings?: {
             removeBranding?: boolean;
         };

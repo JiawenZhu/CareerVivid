@@ -1,9 +1,18 @@
+import React from 'react';
 import { PortfolioTemplateProps } from '../types/portfolio';
 import { Layers, ChevronRight, Zap, Box, TrendingUp, CheckCircle, Smartphone, Globe, Code } from 'lucide-react';
 import InlineEdit from '../../../components/InlineEdit';
+import { usePortfolioAdminAccess } from '../hooks/usePortfolioAdminAccess';
 
 const SaaSModern: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileView }) => {
     const { hero, projects, timeline, about, techStack } = data;
+
+    // Admin Access Hook (No Avatar, create trigger on Headline)
+    const { longPressProps, AdminAccessModal } = usePortfolioAdminAccess({
+        data,
+        onEdit,
+        editField: 'hero.headline'
+    });
 
     // Helper to force mobile styles when in mobile view
     const responsiveClass = (base: string, desktop: string) => {
@@ -16,7 +25,7 @@ const SaaSModern: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileVi
             <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-slate-200">
                 <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
                     <div
-                        onClick={() => onEdit?.('hero.headline')}
+                        {...(onEdit ? { onClick: () => onEdit('hero.headline') } : longPressProps)}
                         className="flex items-center gap-2 font-bold text-slate-900 cursor-pointer hover:bg-slate-100 rounded p-1 transition-colors"
                     >
                         <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
@@ -47,7 +56,7 @@ const SaaSModern: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileVi
                         Available for new opportunities
                     </div>
                     <h1
-                        onClick={() => onEdit?.('hero.headline')}
+                        {...(onEdit ? { onClick: () => onEdit('hero.headline') } : longPressProps)}
                         className={`${responsiveClass('text-5xl', 'md:text-6xl')} font-bold tracking-tight text-slate-900 mb-6 bg-gradient-to-br from-slate-900 to-slate-600 bg-clip-text text-transparent pb-2 cursor-pointer hover:opacity-70 transition-opacity`}
                         title="Click to edit headline"
                     >
@@ -224,6 +233,7 @@ const SaaSModern: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileVi
                     </div>
                 </div>
             </footer>
+            <AdminAccessModal />
         </div>
     );
 };

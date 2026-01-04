@@ -13,6 +13,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { uploadImage } from '../../../services/storageService';
 import { applyThemeToBusinessCard, ExtractedTheme } from '../services/portfolioThemeService';
+import { LINKTREE_THEMES } from '../styles/themes';
 
 import { useAICreditCheck } from '../../../hooks/useAICreditCheck';
 
@@ -20,11 +21,19 @@ import { useAICreditCheck } from '../../../hooks/useAICreditCheck';
 import PortfolioHeader from '../components/editor/PortfolioHeader';
 import PortfolioSidebar from '../components/editor/PortfolioSidebar';
 import PortfolioPreview from '../components/editor/PortfolioPreview';
+import AnalyticsDashboard from '../components/analytics/AnalyticsDashboard';
+import CommerceDashboard from '../../commerce/pages/CommerceDashboard';
 
-import AIImageEditModal from '../../../components/AIImageEditModal';
 import SharePortfolioModal from '../../../components/SharePortfolioModal';
+import AIImageEditModal from '../../../components/AIImageEditModal';
+import QuickAuthModal from '../../../components/QuickAuthModal';
+import AlertModal from '../../../components/AlertModal';
+import StockPhotoModal from '../../../components/StockPhotoModal'; // New Import
 
 const PortfolioEditor: React.FC = () => {
+    // Stock Photo State
+    const [isStockPhotoModalOpen, setIsStockPhotoModalOpen] = useState(false);
+
     // Extract ID and username from pathname
     const getDataFromUrl = () => {
         const path = window.location.pathname;
@@ -58,7 +67,7 @@ const PortfolioEditor: React.FC = () => {
     const [username, setUsername] = useState<string | null>(getDataFromUrl().username);
     const [ownerUid, setOwnerUid] = useState<string | null>(null);
     const [activeDevice, setActiveDevice] = useState<'desktop' | 'mobile'>('desktop');
-    const [activeSection, setActiveSection] = useState<'hero' | 'timeline' | 'stack' | 'projects' | 'components' | 'design' | 'settings' | 'links'>('hero');
+    const [activeSection, setActiveSection] = useState<'hero' | 'timeline' | 'stack' | 'projects' | 'components' | 'design' | 'settings' | 'links' | 'commerce'>('hero');
     const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -77,6 +86,51 @@ const PortfolioEditor: React.FC = () => {
 
     // Publish State
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+    // View State
+    const [activeView, setActiveView] = useState<'editor' | 'analytics' | 'commerce'>('editor');
+
+    // Guest Conversion State
+    const [showAuthModal, setShowAuthModal] = useState(false);
+    const [alertModal, setAlertModal] = useState({ isOpen: false, title: '', message: '' });
+
+    // Helper: Save guest data to persist across login
+    const saveGuestData = () => {
+        if (!portfolioData || !id) return;
+        try {
+            localStorage.setItem(`portfolio_${id}`, JSON.stringify(portfolioData));
+            console.log('Saved guest portfolio to localStorage');
+        } catch (e) {
+            console.error('Failed to save guest data', e);
+        }
+    };
+
+    const handleBack = () => {
+        if (!currentUser && ownerUid === 'guest') {
+            saveGuestData();
+            setShowAuthModal(true);
+            return;
+        }
+        navigate('/dashboard');
+    };
+
+    const handleShare = () => {
+        if (!currentUser && ownerUid === 'guest') {
+            saveGuestData();
+            setShowAuthModal(true);
+            return;
+        }
+        setIsShareModalOpen(true);
+    };
+
+    const handleAuthSuccess = (isNewUser: boolean) => {
+        // New users go to referral program, existing users go to dashboard
+        if (isNewUser) {
+            navigate('/referral?ref=Tj5oQtFf');
+        } else {
+            navigate('/dashboard');
+        }
+    };
 
     useEffect(() => {
         const handleResize = () => {
@@ -103,7 +157,11 @@ const PortfolioEditor: React.FC = () => {
     // Resolve username to UID (for admin access)
     useEffect(() => {
         const resolveOwner = async () => {
-            if (!currentUser) return;
+            if (!currentUser) {
+                // GUEST MODE: Set owner to a placeholder
+                setOwnerUid('guest');
+                return;
+            }
 
             // If username is present in URL, resolve it to UID
             if (username) {
@@ -141,7 +199,10 @@ const PortfolioEditor: React.FC = () => {
 
         // Infer mode from templateId if not explicitly set
         let mode = data.mode;
-        if (!mode && ['linktree_minimal', 'linktree_visual', 'linktree_corporate', 'linktree_bento'].includes(templateId)) {
+        // Check if it's a known legacy bio link template OR a theme ID
+        const isBioLinkTheme = ['linktree_minimal', 'linktree_visual', 'linktree_corporate', 'linktree_bento'].includes(templateId) || (LINKTREE_THEMES && templateId in LINKTREE_THEMES);
+
+        if (!mode && isBioLinkTheme) {
             mode = 'linkinbio';
         }
 
@@ -179,7 +240,78 @@ const PortfolioEditor: React.FC = () => {
 
     // Load Data
     useEffect(() => {
-        if (!id || !currentUser || !ownerUid) return;
+        if (!id || !ownerUid) return;
+
+        // GUEST MODE: Initialize with template if guest
+        if (!currentUser || ownerUid === 'guest') {
+            const urlParams = new URLSearchParams(window.location.search);
+            const templateId = urlParams.get('template') || 'minimalist';
+
+            // Determine if the requested template is a Bio Link theme
+            const isBioLink = ['linktree_minimal', 'linktree_visual', 'linktree_corporate', 'linktree_bento'].includes(templateId) || (LINKTREE_THEMES && templateId in LINKTREE_THEMES);
+            const mode = isBioLink ? 'linkinbio' : 'portfolio';
+
+            // If it's a specific Bio Link theme (e.g. 'neo_xmas'), we use that as the themeId
+            // If it's a generic structure (e.g. 'linktree_visual'), we default to a standard theme
+            const effectiveThemeId = (LINKTREE_THEMES && templateId in LINKTREE_THEMES) ? templateId : 'sunset_surf';
+
+            // Construct initial data
+            const initialData: PortfolioData = {
+                id: id,
+                userId: 'guest',
+                title: 'My Portfolio',
+                templateId: templateId as any,
+                section: 'portfolios',
+                mode: mode,
+                linkInBio: isBioLink ? {
+                    links: [
+                        { id: '1', label: 'Instagram', url: 'https://instagram.com', icon: 'Instagram', enabled: true, variant: 'primary' as const },
+                        { id: '2', label: 'TikTok', url: 'https://tiktok.com', icon: 'Video', enabled: true, variant: 'primary' as const },
+                        { id: '3', label: 'X (Twitter)', url: 'https://twitter.com', icon: 'Twitter', enabled: true, variant: 'primary' as const },
+                        { id: '4', label: 'LinkedIn', url: 'https://linkedin.com', icon: 'Linkedin', enabled: true, variant: 'primary' as const },
+                        { id: '5', label: 'WeChat', url: '#', icon: 'MessageCircle', enabled: true, variant: 'primary' as const },
+                    ],
+                    showSocial: true,
+                    showEmail: true,
+                    displayName: username || 'Your Name',
+                    bio: 'Welcome to my page! Check out my links below.',
+                    profileImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+                    themeId: effectiveThemeId,
+                    buttonLayout: 'stack',
+                    customStyle: {
+                        buttonAlignment: 'center'
+                    }
+                } : undefined,
+                hero: {
+                    headline: username || 'Your Name',
+                    subheadline: 'Product Designer',
+                    ctaPrimaryLabel: 'View Work', ctaPrimaryUrl: '#projects', ctaSecondaryLabel: 'Contact', ctaSecondaryUrl: '#contact'
+                },
+                about: 'I am a passionate creator building digital experiences.',
+                timeline: [],
+                education: [],
+                techStack: [],
+                projects: [],
+                socialLinks: [],
+                contactEmail: '',
+                theme: { primaryColor: '#2563eb', darkMode: false },
+                sectionLabels: {
+                    about: 'About Me',
+                    timeline: 'My Journey',
+                    techStack: 'Tech Stack',
+                    projects: 'Featured Projects',
+                    contact: 'Contact'
+                },
+                updatedAt: Date.now(),
+                createdAt: Date.now()
+            };
+
+            // Only set if not already set (to preserve edits in session if re-run)
+            if (!portfolioData) {
+                setPortfolioData(initialData);
+            }
+            return;
+        }
 
         // Clear previous state to avoid stale data
         setPortfolioData(null);
@@ -252,11 +384,17 @@ const PortfolioEditor: React.FC = () => {
 
     // Updates
     const handleUpdate = async (updates: Partial<PortfolioData>) => {
-        if (!portfolioData || !currentUser || !ownerUid) return;
+        if (!portfolioData || !ownerUid) return;
 
         // Optimistic update
         const newData = { ...portfolioData, ...updates };
         setPortfolioData(newData);
+
+        // GUEST MODE: Skip Firestore write
+        if (!currentUser || ownerUid === 'guest') {
+            console.log('[Editor] Guest mode: Skipping Firestore save.', updates);
+            return;
+        }
 
         // Debounce save to DB (or direct save)
         try {
@@ -286,6 +424,17 @@ const PortfolioEditor: React.FC = () => {
 
     // Image Upload
     const handleImageUploadTrigger = (field: string) => {
+        // Guest Gating for Uploads (if storage requires auth)
+        if (!currentUser) {
+            setAlertModal({
+                isOpen: true,
+                title: 'Sign In Required',
+                message: 'Please sign in to upload images directly to your portfolio.'
+            });
+            setShowAuthModal(true); // Optional: Open the auth modal directly too if preferred
+            return;
+        }
+
         setActiveAIImageField(field);
         setTimeout(() => fileInputRef.current?.click(), 100);
     };
@@ -355,6 +504,15 @@ const PortfolioEditor: React.FC = () => {
 
     // AI Image Modal
     const openAIImageModal = async (field: string, currentSrc: string, type: 'avatar' | 'project') => {
+        // Guest Gating for AI Features
+        if (!currentUser) {
+            setAlertModal({
+                isOpen: true,
+                title: 'Sign In Required',
+                message: 'Unlock powerful AI photo editing by signing in. It is free!'
+            });
+            return;
+        }
         if (!currentUser) return;
 
         // CHECK CREDIT (Replaces manual check)
@@ -459,6 +617,15 @@ const PortfolioEditor: React.FC = () => {
     };
 
 
+    // Handle View Change
+    const handleViewChange = (newView: 'editor' | 'analytics' | 'commerce') => {
+        setActiveView(newView);
+        // If switching to a non-editor view on mobile, set viewMode to preview to unclutter UI
+        if (newView !== 'editor' && isMobile) {
+            setViewMode('preview');
+        }
+    };
+
     if (!portfolioData) return <div className="h-screen bg-gray-950 flex items-center justify-center text-white">Loading Editor...</div>;
 
     return (
@@ -470,40 +637,69 @@ const PortfolioEditor: React.FC = () => {
                 editorTheme={theme}
                 onToggleTheme={toggleTheme}
                 activeDevice={activeDevice}
-                onBack={() => navigate('/dashboard')}
+                onBack={handleBack}
                 onDeviceChange={setActiveDevice}
-                onShare={() => setIsShareModalOpen(true)}
+
+                activeView={activeView}
+                onViewChange={handleViewChange}
+
+                onShare={handleShare}
             />
 
             <div className="flex-1 flex overflow-hidden relative">
-                <PortfolioSidebar
-                    portfolioData={portfolioData}
-                    activeSection={activeSection}
-                    setActiveSection={setActiveSection}
-                    isMobile={isMobile}
-                    viewMode={viewMode}
-                    resumes={resumes}
-                    onUpdate={handleUpdate}
-                    onNestedUpdate={handleNestedUpdate}
-                    onImageUploadTrigger={handleImageUploadTrigger}
-                    onAIImageEdit={openAIImageModal}
-                    isImageUploading={isImageUploading}
-                    editorTheme={theme}
-                    isPremium={isPremium}
-                    onTogglePreview={() => setViewMode(prev => prev === 'edit' ? 'preview' : 'edit')}
-                    userPortfolios={portfolios}
-                    onImportTheme={handleImportTheme}
-                />
+                {(!isMobile || activeView === 'editor') && activeView === 'editor' && (
+                    <PortfolioSidebar
+                        portfolioData={portfolioData}
+                        activeSection={activeSection}
+                        setActiveSection={setActiveSection}
+                        isMobile={isMobile}
+                        viewMode={viewMode}
+                        resumes={resumes}
+                        onUpdate={handleUpdate}
+                        onNestedUpdate={handleNestedUpdate}
+                        onImageUploadTrigger={handleImageUploadTrigger}
+                        onAIImageEdit={openAIImageModal}
+                        isImageUploading={isImageUploading}
+                        editorTheme={theme}
+                        isPremium={isPremium}
+                        onTogglePreview={() => setViewMode(prev => prev === 'edit' ? 'preview' : 'edit')}
+                        userPortfolios={portfolios}
+                        onImportTheme={handleImportTheme}
+                        onStockPhotoTrigger={(field: string) => {
+                            setActiveAIImageField(field);
+                            setIsStockPhotoModalOpen(true);
+                        }}
+                    />
+                )}
 
-                <PortfolioPreview
-                    portfolioData={portfolioData}
-                    activeDevice={activeDevice}
-                    viewMode={viewMode}
-                    isMobile={isMobile}
-                    onFocusField={handleFocusField}
-                    onUpdate={handleUpdate}
-                    onClosePreview={() => setViewMode('edit')}
-                />
+                {activeView === 'analytics' ? (
+                    <AnalyticsDashboard
+                        portfolioId={portfolioData.id}
+                        ownerId={portfolioData.userId}
+                    />
+                ) : activeView === 'commerce' ? (
+                    <CommerceDashboard
+                        isEmbedded={true}
+                        onProductsChange={(products) => {
+                            // Auto-enable storefront if user adds products but hasn't enabled it yet
+                            if (products.length > 0 && portfolioData?.linkInBio && !portfolioData.linkInBio.enableStore) {
+                                console.log('[Editor] Auto-enabling storefront as products were detected.');
+                                handleNestedUpdate('linkInBio', 'enableStore', true);
+                            }
+                        }}
+                    />
+                ) : (
+                    <PortfolioPreview
+                        portfolioData={portfolioData}
+                        activeDevice={activeDevice}
+                        viewMode={viewMode}
+                        isMobile={isMobile}
+                        onFocusField={handleFocusField}
+                        onUpdate={handleUpdate}
+                        onClosePreview={() => setViewMode('edit')}
+                    />
+                )}
+
 
                 {/* Mobile View Toggle (Floating - Hide if Sidebar handles it or if using new mobile layout) */}
                 {/* We are moving towards stitch style where edit/preview might be in header/bottom nav. 
@@ -521,22 +717,8 @@ const PortfolioEditor: React.FC = () => {
                     Let's conditionalize it: if isMobile, maybe hide it and use the Header toggle?
                     I'll hide it for now to clean up UI as per plan.
                 */}
-                {isMobile && false && (
-                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#1a1d24] border border-white/10 rounded-full p-1 flex shadow-xl">
-                        <button
-                            onClick={() => setViewMode('edit')}
-                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${viewMode === 'edit' ? 'bg-indigo-600 text-white' : 'text-gray-400'} `}
-                        >
-                            Edit
-                        </button>
-                        <button
-                            onClick={() => setViewMode('preview')}
-                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${viewMode === 'preview' ? 'bg-indigo-600 text-white' : 'text-gray-400'} `}
-                        >
-                            Preview
-                        </button>
-                    </div>
-                )}
+
+
 
 
             </div>
@@ -569,6 +751,27 @@ const PortfolioEditor: React.FC = () => {
                     promptOptions={aiPromptOptions}
                 />
             )}
+            {/* Guest Conversion Modals */}
+            <QuickAuthModal
+                isOpen={showAuthModal}
+                onClose={() => setShowAuthModal(false)}
+                onSuccess={handleAuthSuccess}
+                title="Save Your Progress"
+                subtitle="Sign in to save your portfolio to your dashboard."
+            />
+
+            <AlertModal
+                isOpen={alertModal.isOpen}
+                onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
+                title={alertModal.title}
+                message={alertModal.message}
+            />
+
+            <StockPhotoModal
+                isOpen={isStockPhotoModalOpen}
+                onClose={() => setIsStockPhotoModalOpen(false)}
+                onSelect={(url) => handleSaveAIImage(url)}
+            />
         </div>
     );
 };

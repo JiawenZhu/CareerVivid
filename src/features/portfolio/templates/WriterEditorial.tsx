@@ -1,9 +1,17 @@
 import React from 'react';
 import { PortfolioTemplateProps } from '../types/portfolio';
 import { BookOpen, PenTool, Twitter, Mail, ChevronRight, Bookmark } from 'lucide-react';
+import { usePortfolioAdminAccess } from '../hooks/usePortfolioAdminAccess';
 
 const WriterEditorial: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileView }) => {
     const { hero, projects, about, timeline } = data;
+
+    // Admin Access Hook (No Avatar, target Headline)
+    const { longPressProps, AdminAccessModal } = usePortfolioAdminAccess({
+        data,
+        onEdit,
+        editField: 'hero.headline'
+    });
 
     const responsiveClass = (base: string, desktop: string) => {
         return isMobileView ? base : `${base} ${desktop}`;
@@ -14,7 +22,7 @@ const WriterEditorial: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMob
             {/* Minimal Header */}
             <div className="max-w-3xl mx-auto px-6 py-12 flex flex-wrap justify-between items-center border-b border-gray-200 gap-4">
                 <div
-                    onClick={() => onEdit?.('hero.headline')}
+                    {...(onEdit ? { onClick: () => onEdit('hero.headline') } : longPressProps)}
                     className="font-bold text-xl tracking-tight font-sans uppercase cursor-pointer hover:bg-yellow-100/50 hover:text-black transition-colors rounded px-2 -mx-2"
                     title="Click to edit headline"
                 >
@@ -128,6 +136,7 @@ const WriterEditorial: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMob
                     </div>
                 </div>
             </footer>
+            <AdminAccessModal />
         </div>
     );
 };
