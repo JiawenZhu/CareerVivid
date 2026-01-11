@@ -1,11 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useState } from 'react';
 import { PortfolioData } from '../../types/portfolio';
+import { CARD_TEMPLATES } from '../../constants/cardTemplates';
 import {
     Phone, Mail, MapPin, Globe, Linkedin, Twitter,
     Instagram, Github, Youtube, Share2,
-    Download, QrCode, ExternalLink, User
+    Download, QrCode, ExternalLink, User, RotateCcw
 } from 'lucide-react';
 import { FaTiktok, FaWeixin, FaWeibo, FaFacebookF } from 'react-icons/fa';
+import QRCodeSVG from 'react-qr-code';
 
 // --- Types ---
 
@@ -13,6 +15,10 @@ interface CardTemplateProps {
     data: PortfolioData;
     variant?: 'minimal' | 'photo' | 'modern' | 'corporate';
     onEdit?: (section: string) => void;
+    onUpdate?: (updates: Partial<PortfolioData>) => void;
+    isFlipped?: boolean;
+    onToggleFlip?: (flipped: boolean) => void;
+    isEmbed?: boolean;
 }
 
 // --- Helpers ---
@@ -80,21 +86,116 @@ const getEditTriggerClasses = (canEdit: boolean) =>
 
 // --- Components ---
 
-const CardTemplate: React.FC<CardTemplateProps> = ({ data, variant = 'modern', onEdit }) => {
+const CardTemplate: React.FC<CardTemplateProps> = ({ data, onEdit, onUpdate, isFlipped: controlledFlipped, onToggleFlip, isEmbed }) => {
+    // Determine Template Configuration
+    const templateId = data.templateId || 'card_modern';
+    // Fallback to minimal if ID not found in registry (e.g. legacy IDs)
+    const config = CARD_TEMPLATES[templateId] || CARD_TEMPLATES['card_minimal'];
 
-    const containerClasses = "min-h-screen bg-gray-100 dark:bg-black flex flex-col items-center justify-center p-4 sm:p-8 font-sans";
+    // --- Dynamic Data ---
+    const usePhotoBg = data.businessCard?.usePhotoBackground;
 
-    // Credit Card Aspect Ratio ~ 1.586
-    // Horizontal: aspect-[1.586/1]
-    // Vertical: aspect-[1/1.586]
+    // Flip State
+    const [internalFlipped, setInternalFlipped] = useState(false);
+    const isFlipped = controlledFlipped !== undefined ? controlledFlipped : internalFlipped;
+
+    const handleFlip = (startFlipped: boolean) => {
+        if (onToggleFlip) {
+            onToggleFlip(startFlipped);
+        } else {
+            setInternalFlipped(startFlipped);
+        }
+    };
+
+    // Profile URL for QR Code - Uses Share Portfolio URL format
+    const username = data.hero?.headline?.replace(/\s+/g, '').toLowerCase() || 'user';
+    const profileUrl = typeof window !== 'undefined'
+        ? `${window.location.origin}/portfolio/${username}/${data.id}`
+        : `https://careervivid.app/portfolio/${username}/${data.id}`;
+
+    // Customization Handlers
+    const handleUpdate = (updates: Partial<typeof data.businessCard>) => {
+        if (onUpdate) {
+            onUpdate({
+                businessCard: {
+                    orientation: 'horizontal',
+                    usePhotoBackground: usePhotoBg,
+                    ...(data.businessCard || {}),
+                    ...updates
+                }
+            });
+        }
+    };
+
+    // --- Computed Styles ---
+    const customTextColor = data.businessCard?.customTextColor;
+    const customFont = data.businessCard?.customFont;
+    const customFontSize = data.businessCard?.customFontSize || 'md';
+    const blurLevel = data.businessCard?.blurLevel ?? 0;
+
+    const containerStyle: React.CSSProperties = {
+        backgroundColor: config.baseColor,
+        color: customTextColor || config.textColor,
+        fontFamily: customFont || config.fontFamily,
+        backgroundImage: usePhotoBg && data.hero.avatarUrl
+            ? `url(${data.hero.avatarUrl})`
+            : (config.textureUrl ? `url(${config.textureUrl})` : undefined),
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+    };
+
+    // Overlay Logic
+    const needsThemeOverlay = usePhotoBg && config.id !== 'card_photo' && !config.overlayStyle.gradient;
+
+    const themeGradient = needsThemeOverlay
+        ? `linear-gradient(to bottom, transparent 30%, ${config.baseColor} 90%)`
+        : config.overlayStyle.gradient;
+
+    // If blurLevel is explicitly set (including 0), use it. Otherwise, fallback to theme default or 10px global default.
+    const effectiveBlur = data.businessCard?.blurLevel ?? (needsThemeOverlay ? 4 : (config.overlayStyle.blur || 10));
+
+    const overlayStyle: React.CSSProperties = {
+        backdropFilter: (config.overlayStyle.glass || needsThemeOverlay || effectiveBlur > 0)
+            ? `blur(${effectiveBlur}px)`
+            : undefined,
+        backgroundColor: config.overlayStyle.glass
+            ? `rgba(255,255,255,${config.overlayStyle.opacity})`
+            : undefined,
+        background: themeGradient,
+        border: config.overlayStyle.border,
+    };
+
+
+    // Font Scaling
+    const headlineSize = usePhotoBg
+        ? (customFontSize === 'sm' ? 'text-xl' : customFontSize === 'lg' ? 'text-3xl' : 'text-2xl')
+        : (customFontSize === 'sm' ? 'text-2xl' : customFontSize === 'lg' ? 'text-4xl' : 'text-3xl');
+
+    // Brutalist specific text styles
+    const isBrutalist = config.category === 'brutalist';
+
+    // Text Shadow for Readability
+    const hasPhotoBg = config.category === 'photo' || usePhotoBg;
+    const textShadowStyle = (hasPhotoBg && !isBrutalist) ? '0 2px 4px rgba(0,0,0,0.5)' : 'none';
+    const subTextShadowStyle = (hasPhotoBg && !isBrutalist) ? '0 1px 2px rgba(0,0,0,0.5)' : 'none';
+
+    // Layout Logic
+    const avatarUrl = data.hero.avatarUrl;
+
+    // EMBED FIX: If embedded, use transparent and centered layout, no min-height
+    const containerClasses = isEmbed
+        ? "w-full h-full flex flex-col items-center justify-center font-sans bg-transparent"
+        : "min-h-screen bg-gray-100 dark:bg-black flex flex-col items-center justify-center p-4 sm:p-8 font-sans";
+
     const orientation = data.businessCard?.orientation || 'horizontal';
     const isVertical = orientation === 'vertical';
+    // EMBED: Remove aspect ratio entirely so card fills full iframe container
+    const aspectRatioClass = isEmbed
+        ? "w-full h-full"  // No aspect ratio - just fill iframe
+        : (isVertical ? "aspect-[1/1.586] max-w-[320px]" : "aspect-[1.586/1] max-w-[480px]");
+    const paddingClass = hasPhotoBg ? 'p-4' : 'p-6';
+    const cardBaseClasses = `${isEmbed ? 'w-full h-full' : `w-full ${aspectRatioClass}`} rounded-2xl shadow-2xl relative overflow-hidden transition-all duration-500 hover:scale-[1.02] flex flex-col justify-between ${paddingClass} z-10`;
 
-    const aspectRatioClass = isVertical ? "aspect-[1/1.586] max-w-[320px]" : "aspect-[1.586/1] max-w-[480px]";
-
-    const cardBaseClasses = `w-full ${aspectRatioClass} rounded-2xl shadow-2xl relative overflow-hidden transition-all duration-500 hover:scale-[1.02]`;
-
-    // Helper to safely trigger edit
     const handleEdit = (e: React.MouseEvent, section: string) => {
         if (onEdit) {
             e.preventDefault();
@@ -102,317 +203,207 @@ const CardTemplate: React.FC<CardTemplateProps> = ({ data, variant = 'modern', o
             onEdit(section);
         }
     };
-
-    // Render logic per variant
-    const renderCardContent = () => {
-        const canEdit = !!onEdit;
-        const editClass = getEditTriggerClasses(canEdit);
-
-        switch (variant) {
-            case 'minimal':
-                return (
-                    <div className={`${cardBaseClasses} bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white border border-gray-200 dark:border-zinc-800 flex flex-col p-6 shadow-xl`}>
-                        <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none">
-                            <QrCode size={isVertical ? 80 : 120} />
-                        </div>
-
-                        <div className="flex-1 z-10 flex flex-col justify-center">
-                            <h1
-                                onClick={(e) => handleEdit(e, 'hero')}
-                                className={`${isVertical ? 'text-2xl mt-8' : 'text-3xl'} font-bold tracking-tight mb-1 ${editClass}`}
-                            >
-                                {data.hero.headline}
-                            </h1>
-                            <p
-                                onClick={(e) => handleEdit(e, 'hero')}
-                                className={`text-sm text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider mb-6 ${editClass}`}
-                            >
-                                {data.about?.split('.')[0].slice(0, 30)}
-                            </p>
-
-                            <div className="space-y-3 text-sm">
-                                {data.phone && (
-                                    <div onClick={(e) => handleEdit(e, 'hero')} className={`flex items-center gap-3 hover:text-black dark:hover:text-white text-gray-600 dark:text-gray-400 transition-colors group ${editClass}`}>
-                                        <Phone size={16} className="group-hover:stroke-[2.5px]" />
-                                        <span>{data.phone}</span>
-                                    </div>
-                                )}
-                                {data.contactEmail && (
-                                    <div onClick={(e) => handleEdit(e, 'hero')} className={`flex items-center gap-3 hover:text-black dark:hover:text-white text-gray-600 dark:text-gray-400 transition-colors group ${editClass}`}>
-                                        <Mail size={16} className="group-hover:stroke-[2.5px]" />
-                                        <span className={`truncate ${isVertical ? 'max-w-[200px]' : 'max-w-[280px]'}`}>{data.contactEmail}</span>
-                                    </div>
-                                )}
-                                {data.location && (
-                                    <div onClick={(e) => handleEdit(e, 'hero')} className={`flex items-center gap-3 text-gray-600 dark:text-gray-400 ${editClass}`}>
-                                        <MapPin size={16} />
-                                        <span>{data.location}</span>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className={`pt-4 mt-auto border-t border-gray-100 dark:border-zinc-800 flex ${isVertical ? 'flex-col gap-4' : 'justify-between'} items-center z-10`}>
-                            <div className="flex gap-4" onClick={(e) => handleEdit(e, 'hero')}> {/* Socials often in hero/profile */}
-                                {data.socialLinks?.slice(0, 3).map((link, i) => (
-                                    <div key={i} className="text-gray-400 hover:text-black dark:hover:text-white transition-colors cursor-pointer">
-                                        <SocialIcon type={getPlatformFromUrl(link.url)} />
-                                    </div>
-                                ))}
-                            </div>
-                            <button
-                                onClick={() => handleDownloadVCard(data)}
-                                className={`bg-black dark:bg-white text-white dark:text-black px-6 py-2 rounded-full text-xs font-bold hover:opacity-80 transition-opacity flex items-center gap-2 ${isVertical ? 'w-full justify-center' : ''}`}
-                            >
-                                <Download size={14} /> Save Contact
-                            </button>
-                        </div>
-                    </div>
-                );
-
-            case 'photo':
-                return (
-                    <div className={`${cardBaseClasses} bg-gray-900 text-white group`}>
-                        {/* Background Image */}
-                        {data.hero.avatarUrl ? (
-                            <div className="absolute inset-0 z-0" onClick={(e) => handleEdit(e, 'hero')}>
-                                <img src={data.hero.avatarUrl} alt="Bg" className="w-full h-full object-cover opacity-60 group-hover:opacity-50 transition-opacity duration-500 scale-105" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                            </div>
-                        ) : (
-                            <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900" onClick={(e) => handleEdit(e, 'hero')} />
-                        )}
-
-                        <div className="relative z-10 flex flex-col h-full p-6 justify-end">
-                            <div className="mb-6">
-                                <h1 onClick={(e) => handleEdit(e, 'hero')} className={`${isVertical ? 'text-3xl' : 'text-4xl'} font-bold text-white mb-2 shadow-sm leading-tight ${editClass}`}>{data.hero.headline}</h1>
-                                <p onClick={(e) => handleEdit(e, 'hero')} className={`text-gray-300 text-sm font-medium ${editClass}`}>{data.about?.slice(0, 50)}</p>
-                            </div>
-
-                            <div className={`flex ${isVertical ? 'flex-col gap-3' : 'items-center justify-between'} backdrop-blur-md bg-white/10 p-4 rounded-2xl border border-white/10`}>
-                                <div className={`flex ${isVertical ? 'justify-center' : ''} gap-4`}>
-                                    <button onClick={(e) => handleEdit(e, 'hero')} className="p-2.5 bg-white/20 rounded-xl hover:bg-white text-white hover:text-black transition-all">
-                                        <Phone size={20} />
-                                    </button>
-                                    <button onClick={(e) => handleEdit(e, 'hero')} className="p-2.5 bg-white/20 rounded-xl hover:bg-white text-white hover:text-black transition-all">
-                                        <Mail size={20} />
-                                    </button>
-                                </div>
-                                <button
-                                    onClick={() => handleDownloadVCard(data)}
-                                    className={`px-5 py-2.5 bg-white text-black rounded-xl text-xs font-bold hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 ${isVertical ? 'w-full' : ''}`}
-                                >
-                                    Save Contact
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                );
-
-            case 'corporate':
-                return (
-                    <div className={`${cardBaseClasses} bg-white flex overflow-hidden shadow-2xl`}>
-                        {/* Left Side: Photo (35% width usually appropriate for split) */}
-                        <div
-                            className="w-[35%] h-full relative"
-                            onClick={(e) => handleEdit(e, 'hero')}
-                        >
-                            {data.hero.avatarUrl ? (
-                                <img src={data.hero.avatarUrl} alt="Profile" className="w-full h-full object-cover grayscale-[20%]" />
-                            ) : (
-                                <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
-                                    <User size={32} />
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Right Side: Content & Branding */}
-                        <div className="flex-1 flex flex-col relative">
-
-                            {/* Brand Stripe / Background */}
-                            <div className="absolute inset-0 bg-white z-0">
-                                {/* Diagonal decorative shape using primary brand color */}
-                                <div
-                                    className="absolute -top-10 -right-10 w-40 h-40 transform rotate-45 rounded-xl opacity-10"
-                                    style={{ backgroundColor: data.theme.primaryColor || '#1a202c' }}
-                                />
-                                <div
-                                    className="absolute bottom-0 right-0 w-2 h-full"
-                                    style={{ backgroundColor: data.theme.primaryColor || '#1a202c' }}
-                                />
-                            </div>
-
-                            <div className="relative z-10 flex-1 p-6 flex flex-col justify-center">
-                                {/* Company Logo */}
-                                {data.businessCard?.companyLogoUrl && (
-                                    <div className="mb-4 h-8 flex items-center" onClick={(e) => handleEdit(e, 'businessCard')}>
-                                        <img src={data.businessCard.companyLogoUrl} alt="Company Logo" className="h-full object-contain" />
-                                    </div>
-                                )}
-
-                                <h1
-                                    onClick={(e) => handleEdit(e, 'hero')}
-                                    className={`text-2xl font-bold text-gray-900 leading-tight mb-1 ${editClass}`}
-                                >
-                                    {data.hero.headline}
-                                </h1>
-                                <p
-                                    onClick={(e) => handleEdit(e, 'hero')}
-                                    className={`text-xs font-semibold uppercase tracking-wider text-gray-500 mb-6 ${editClass}`}
-                                >
-                                    {data.about?.split('.')[0] || 'Position Title'}
-                                </p>
-
-                                <div className="space-y-2 mb-6">
-                                    {data.phone && (
-                                        <div onClick={(e) => handleEdit(e, 'hero')} className={`flex items-center gap-3 text-sm text-gray-600 ${editClass}`}>
-                                            <div className="w-6 h-6 rounded bg-gray-100 flex items-center justify-center shrink-0">
-                                                <Phone size={12} className="text-gray-900" />
-                                            </div>
-                                            <span className="truncate">{data.phone}</span>
-                                        </div>
-                                    )}
-                                    {data.contactEmail && (
-                                        <div onClick={(e) => handleEdit(e, 'hero')} className={`flex items-center gap-3 text-sm text-gray-600 ${editClass}`}>
-                                            <div className="w-6 h-6 rounded bg-gray-100 flex items-center justify-center shrink-0">
-                                                <Mail size={12} className="text-gray-900" />
-                                            </div>
-                                            <span className="truncate max-w-[170px]">{data.contactEmail}</span>
-                                        </div>
-                                    )}
-                                    {data.location && (
-                                        <div onClick={(e) => handleEdit(e, 'hero')} className={`flex items-center gap-3 text-sm text-gray-600 ${editClass}`}>
-                                            <div className="w-6 h-6 rounded bg-gray-100 flex items-center justify-center shrink-0">
-                                                <MapPin size={12} className="text-gray-900" />
-                                            </div>
-                                            <span className="truncate">{data.location}</span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Action Row */}
-                                <div className="mt-auto flex items-center justify-between">
-                                    <div className="flex gap-2" onClick={(e) => handleEdit(e, 'hero')}>
-                                        {data.socialLinks?.slice(0, 3).map((link, i) => (
-                                            <div key={i} className="text-gray-400 hover:text-gray-900 transition-colors cursor-pointer">
-                                                <SocialIcon type={getPlatformFromUrl(link.url)} className="w-4 h-4" />
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    <div className="flex items-center gap-3">
-                                        <QrCode size={24} className="text-gray-300" />
-                                        <button
-                                            onClick={() => handleDownloadVCard(data)}
-                                            style={{ backgroundColor: data.theme.primaryColor || '#1a202c' }}
-                                            className="text-white px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-wide hover:opacity-90 transition-opacity flex items-center gap-1"
-                                        >
-                                            <Download size={10} /> Save
-                                        </button>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                );
-
-            case 'modern':
-            default:
-                return (
-                    <div className={`${cardBaseClasses} relative overflow-hidden bg-white dark:bg-[#0f1117]`}>
-                        {/* Decorative Gradient Blob */}
-                        <div className="absolute top-[-50%] right-[-20%] w-[300px] h-[300px] rounded-full bg-indigo-500 blur-[80px] opacity-20 dark:opacity-40 animate-pulse" />
-                        <div className="absolute bottom-[-20%] left-[-20%] w-[250px] h-[250px] rounded-full bg-purple-500 blur-[80px] opacity-20 dark:opacity-40 animate-pulse" style={{ animationDelay: '2s' }} />
-
-                        {/* Glass Overlay */}
-                        <div className="absolute inset-0 bg-white/40 dark:bg-black/20 backdrop-blur-[2px]" />
-
-                        <div className="relative z-10 h-full p-8 flex flex-col justify-between">
-                            <div className={`flex ${isVertical ? 'flex-col items-center text-center gap-4' : 'justify-between items-start'}`}>
-                                <div className={`flex ${isVertical ? 'flex-col' : ''} items-center gap-4`}>
-                                    <div onClick={(e) => handleEdit(e, 'hero')} className={`w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 p-[2px] shadow-lg ${canEdit ? 'cursor-pointer hover:scale-105 transition-transform' : ''}`}>
-                                        <div className="w-full h-full rounded-[14px] overflow-hidden bg-white dark:bg-black">
-                                            {data.hero.avatarUrl ? (
-                                                <img src={data.hero.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center font-bold text-indigo-500">
-                                                    {data.hero.headline.charAt(0)}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <h1 onClick={(e) => handleEdit(e, 'hero')} className={`text-xl font-bold text-gray-900 dark:text-white ${editClass}`}>{data.hero.headline}</h1>
-                                        <p onClick={(e) => handleEdit(e, 'hero')} className={`text-xs font-semibold text-indigo-600 dark:text-indigo-400 tracking-wide uppercase mt-0.5 ${editClass}`}>
-                                            {data.about?.split('.')[0] || 'Professional'}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="bg-white dark:bg-black p-2 rounded-xl shadow-sm border border-gray-100 dark:border-white/10">
-                                    <QrCode size={28} className="text-gray-900 dark:text-white" />
-                                </div>
-                            </div>
-
-                            <div className={`space-y-3 my-auto ${isVertical ? 'text-center' : 'pl-1'}`}>
-                                {data.phone && (
-                                    <div onClick={(e) => handleEdit(e, 'hero')} className={`flex items-center ${isVertical ? 'justify-center' : ''} gap-3 text-sm text-gray-600 dark:text-gray-300 ${editClass}`}>
-                                        <Phone size={16} className="text-indigo-500" />
-                                        <span>{data.phone}</span>
-                                    </div>
-                                )}
-                                {data.contactEmail && (
-                                    <div onClick={(e) => handleEdit(e, 'hero')} className={`flex items-center ${isVertical ? 'justify-center' : ''} gap-3 text-sm text-gray-600 dark:text-gray-300 ${editClass}`}>
-                                        <Mail size={16} className="text-indigo-500" />
-                                        <span className="truncate">{data.contactEmail}</span>
-                                    </div>
-                                )}
-                                {data.location && (
-                                    <div onClick={(e) => handleEdit(e, 'hero')} className={`flex items-center ${isVertical ? 'justify-center' : ''} gap-3 text-sm text-gray-600 dark:text-gray-300 ${editClass}`}>
-                                        <MapPin size={16} className="text-indigo-500" />
-                                        <span>{data.location}</span>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className={`flex ${isVertical ? 'flex-col gap-4' : 'justify-between'} items-center pt-6 border-t border-gray-200/50 dark:border-white/5`}>
-                                <div className="flex -space-x-2 overflow-hidden py-1" onClick={(e) => handleEdit(e, 'hero')}>
-                                    {data.socialLinks?.slice(0, 4).map((link, i) => (
-                                        <div
-                                            key={i}
-                                            className={`inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-[#0f1117] bg-white dark:bg-[#1a1d24] flex items-center justify-center text-gray-500 hover:text-indigo-500 hover:z-10 relative transition-all ${canEdit ? 'cursor-pointer' : ''}`}
-                                        >
-                                            <SocialIcon type={getPlatformFromUrl(link.url)} className="w-4 h-4" />
-                                        </div>
-                                    ))}
-                                </div>
-                                <button
-                                    onClick={() => handleDownloadVCard(data)}
-                                    className={`bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl text-xs font-semibold shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-1.5 ${isVertical ? 'w-full' : ''}`}
-                                >
-                                    <Share2 size={14} /> Connect
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                );
-        }
-    };
+    const canEdit = !!onEdit; // Only show edit hints/toolbar if handler is provided
+    const editClass = getEditTriggerClasses(canEdit);
 
     return (
         <div className={containerClasses}>
-            {renderCardContent()}
 
-            <div className="mt-8 text-center space-y-2 opacity-60">
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                    NFC Business Card &bull; {variant.charAt(0).toUpperCase() + variant.slice(1)} Template &bull; {isVertical ? 'Vertical' : 'Horizontal'}
-                </p>
-                <div className="flex gap-2 justify-center">
-                    <div className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-600 animate-bounce" />
-                    <div className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-600 animate-bounce [animation-delay:0.1s]" />
-                    <div className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-600 animate-bounce [animation-delay:0.2s]" />
+            {/* 3D Perspective Container with Orientation Animation */}
+            <div
+                className={`${isEmbed ? 'w-full h-full' : aspectRatioClass + ' w-full'} transition-all duration-700 ease-in-out`}
+                style={{
+                    perspective: '1000px',
+                    transformOrigin: 'center center'
+                }}
+            >
+                {/* Flipper - rotates on Y axis */}
+                <div
+                    className="relative w-full h-full transition-transform duration-700"
+                    style={{
+                        transformStyle: 'preserve-3d',
+                        transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
+                    }}
+                >
+                    {/* FRONT FACE */}
+                    <div
+                        className={`absolute inset-0 rounded-2xl shadow-2xl overflow-hidden flex flex-col justify-between ${paddingClass} ${isFlipped ? 'pointer-events-none' : 'pointer-events-auto'}`}
+                        style={{
+                            ...containerStyle,
+                            backfaceVisibility: 'hidden',
+                            WebkitBackfaceVisibility: 'hidden'
+                        }}
+                    >
+                        {/* Overlay Layer */}
+                        {(config.textureUrl || themeGradient || needsThemeOverlay || blurLevel > 0) && (
+                            <div className="absolute inset-0 z-0 pointer-events-none rounded-2xl" style={overlayStyle} />
+                        )}
+
+                        {/* Content Layer */}
+                        <div className="relative z-10 h-full flex flex-col justify-between">
+
+                            {/* Header: Logo/QR */}
+                            <div className="flex justify-between items-start">
+                                {!usePhotoBg && (
+                                    avatarUrl ? (
+                                        <div onClick={(e) => handleEdit(e, 'hero')} className={`w-16 h-16 rounded-full overflow-hidden border-2 ${isBrutalist ? 'border-black' : 'border-white/20'}`}>
+                                            <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                                        </div>
+                                    ) : (
+                                        <div className={`w-12 h-12 flex items-center justify-center rounded-full bg-white/10 ${isBrutalist ? 'border-2 border-black text-black' : 'text-current'}`}>
+                                            <User size={24} />
+                                        </div>
+                                    )
+                                )}
+                                {usePhotoBg ? <div /> : null}
+
+                                <button
+                                    onClick={() => handleFlip(true)}
+                                    className={`p-2 bg-white/90 rounded-lg cursor-pointer hover:scale-105 transition-transform ${isBrutalist ? 'border-2 border-black rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : ''}`}
+                                    title="View QR Code"
+                                >
+                                    <QrCode size={24} className="text-black" />
+                                </button>
+                            </div>
+
+                            {/* Main Info */}
+                            <div className={`mt-auto ${hasPhotoBg ? 'mb-3' : 'mb-6'}`}>
+                                <h1 onClick={(e) => handleEdit(e, 'hero')}
+                                    className={`${headlineSize} font-bold leading-tight mb-1 ${editClass}`}
+                                    style={{ textShadow: textShadowStyle }}
+                                >
+                                    {data.hero.headline}
+                                </h1>
+                                <p onClick={(e) => handleEdit(e, 'hero')}
+                                    className={`${hasPhotoBg ? 'text-xs' : 'text-sm'} opacity-90 uppercase tracking-widest ${editClass}`}
+                                    style={{ textShadow: subTextShadowStyle }}
+                                >
+                                    {data.about?.split('.')[0] || 'Digital Creator'}
+                                </p>
+                            </div>
+
+                            {/* Footer - Contact Info */}
+                            <div className="space-y-4">
+                                <div className="flex flex-col gap-2">
+                                    {data.phone && (
+                                        <div className="flex items-center gap-3 text-sm opacity-90">
+                                            <Phone size={14} /> <span>{data.phone}</span>
+                                        </div>
+                                    )}
+                                    {data.contactEmail && (
+                                        <div className="flex items-center gap-3 text-sm opacity-90">
+                                            <Mail size={14} /> <span>{data.contactEmail}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* BACK FACE */}
+                    <div
+                        className={`absolute inset-0 rounded-2xl shadow-2xl overflow-hidden flex flex-col items-center justify-center p-6 ${isFlipped ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                        style={{
+                            backgroundColor: config.baseColor,
+                            color: customTextColor || config.textColor,
+                            fontFamily: customFont || config.fontFamily,
+                            backfaceVisibility: 'hidden',
+                            WebkitBackfaceVisibility: 'hidden',
+                            transform: 'rotateY(180deg)'
+                        }}
+                    >
+                        {/* Back to Front Button */}
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleFlip(false);
+                            }}
+                            className={`absolute top-4 right-4 p-2 bg-white/90 rounded-lg cursor-pointer hover:scale-105 transition-transform pointer-events-auto z-50 ${isBrutalist ? 'border-2 border-black rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' : ''}`}
+                            title="Back to Front"
+                        >
+                            <RotateCcw size={20} className="text-black" />
+                        </button>
+
+                        {/* QR Code */}
+                        <div className="bg-white p-4 rounded-xl shadow-lg">
+                            <QRCodeSVG
+                                value={profileUrl}
+                                size={isVertical ? 180 : 140}
+                                level="H"
+                                bgColor="#ffffff"
+                                fgColor="#000000"
+                            />
+                        </div>
+
+                        {/* Label */}
+                        <p className={`mt-4 text-sm font-bold uppercase tracking-wider opacity-80 ${isBrutalist ? 'text-black' : ''}`}>
+                            Scan to Connect
+                        </p>
+                        <p className="text-xs opacity-50 mt-1 text-center max-w-[200px] break-all">
+                            {profileUrl}
+                        </p>
+                    </div>
                 </div>
             </div>
+
+            {/* Editor Action Bar */}
+            {canEdit && (
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-4 p-4 bg-white/80 dark:bg-black/80 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200 dark:border-white/10 max-w-xl mx-auto animate-fade-in-up">
+
+                    {/* Orientation Toggle */}
+                    <div className="flex items-center gap-2 border-r border-gray-300 dark:border-white/20 pr-4">
+                        <button
+                            onClick={() => handleUpdate({ orientation: isVertical ? 'horizontal' : 'vertical' })}
+                            className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors flex flex-col items-center gap-1 group"
+                            title="Toggle Orientation"
+                        >
+                            <div className={`w-5 h-5 rounded border-2 border-current transition-transform duration-300 ${isVertical ? 'rotate-90' : ''}`} />
+                            <span className="text-[10px] uppercase font-bold opacity-60 group-hover:opacity-100">Rotate</span>
+                        </button>
+                    </div>
+
+                    {/* Blur Slider */}
+                    <div className="flex flex-col gap-1 w-32 border-r border-gray-300 dark:border-white/20 pr-4">
+                        <div className="flex justify-between text-[10px] font-bold uppercase opacity-60">
+                            <span>Blur</span>
+                            <span>{blurLevel}px</span>
+                        </div>
+                        <input
+                            type="range"
+                            min="0"
+                            max="20"
+                            step="1"
+                            value={blurLevel}
+                            onChange={(e) => handleUpdate({ blurLevel: parseInt(e.target.value) })}
+                            className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                        />
+                    </div>
+
+                    {/* Text Customization */}
+                    <div className="flex items-center gap-3 pl-2">
+                        {/* Color Picker */}
+                        <div className="relative group">
+                            <input
+                                type="color"
+                                value={customTextColor || config.textColor}
+                                onChange={(e) => handleUpdate({ customTextColor: e.target.value })}
+                                className="w-8 h-8 rounded-full overflow-hidden border-none p-0 cursor-pointer shadow-sm"
+                            />
+                            <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[10px] font-bold uppercase opacity-0 group-hover:opacity-60 transition-opacity">Color</span>
+                        </div>
+
+                        {/* Font Size */}
+                        <button
+                            onClick={() => handleUpdate({ customFontSize: customFontSize === 'sm' ? 'md' : customFontSize === 'md' ? 'lg' : 'sm' })}
+                            className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors flex flex-col items-center gap-1 group"
+                        >
+                            <span className="text-lg font-serif leading-none">Aa</span>
+                            <span className="text-[10px] uppercase font-bold opacity-60 group-hover:opacity-100">{customFontSize}</span>
+                        </button>
+                    </div>
+
+                </div>
+            )}
         </div>
     );
 };

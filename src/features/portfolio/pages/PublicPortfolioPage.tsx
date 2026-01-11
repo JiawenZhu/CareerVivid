@@ -6,6 +6,7 @@ import { PortfolioData } from '../types/portfolio';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { TEMPLATES } from '../templates';
 import { useAnalytics } from '../hooks/useAnalytics';
+import IntroOverlay from '../components/intro/IntroOverlay';
 
 // Simple types for the public page if not importing full types
 // but we have PortfolioData so we are good.
@@ -25,6 +26,7 @@ const PublicPortfolioPage: React.FC = () => {
     const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [showIntro, setShowIntro] = useState(true);
 
     useEffect(() => {
         // Parse ID from URL
@@ -98,6 +100,29 @@ const PublicPortfolioPage: React.FC = () => {
         enabled: !!portfolioData
     });
 
+    // Check for embed mode and theme/orientation overrides - MUST be before any early returns
+    const urlParams = new URLSearchParams(window.location.search);
+    const isEmbed = urlParams.get('embed') === 'true';
+    const themeOverride = urlParams.get('theme');
+    const orientationOverride = urlParams.get('orientation');
+
+    // Apply theme and orientation overrides if provided (used by BusinessCardPage iframe)
+    // Using useMemo BEFORE early returns to comply with Rules of Hooks
+    const displayData = React.useMemo(() => {
+        if (!portfolioData) return null;
+        let result = { ...portfolioData };
+        if (themeOverride) {
+            result.templateId = themeOverride as any;
+        }
+        if (orientationOverride) {
+            result.businessCard = {
+                ...(result.businessCard || {}),
+                orientation: orientationOverride as 'horizontal' | 'vertical'
+            };
+        }
+        return result;
+    }, [portfolioData, themeOverride, orientationOverride]);
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -138,53 +163,54 @@ const PublicPortfolioPage: React.FC = () => {
     const isExplicitlyLight = theme.backgroundColor?.toLowerCase() === '#ffffff' || theme.backgroundColor?.toLowerCase() === '#fff';
     const wrapperBg = (isDark && isExplicitlyLight) ? '#0f1117' : (theme.backgroundColor || (isDark ? '#0f1117' : '#ffffff'));
 
+
     // Handle local theme updates (e.g. toggle dark mode)
     // This allows the visitor to toggle the theme on the client side without saving
     const handleUpdate = (updates: Partial<PortfolioData>) => {
         if (!portfolioData) return;
-
-        // Deep merge for theme if needed, but simple spread works for top-level keys
-        // If updates contains theme, we need to merge it carefully or replace
-        // The templates send { theme: { ...oldTheme, darkMode: !val } } usually
-
         setPortfolioData(prev => {
             if (!prev) return null;
             return { ...prev, ...updates };
         });
     };
 
-
-
     const handleGlobalClick = (e: React.MouseEvent<HTMLDivElement>) => {
         const target = (e.target as HTMLElement).closest('a');
         if (target && target.href) {
-            // Avoid tracking internal hash navigations or void links if needed
             if (target.getAttribute('href')?.startsWith('#')) return;
-
             const label = target.innerText.trim() || target.getAttribute('aria-label') || 'link';
-            trackClick(target.href, label.substring(0, 50)); // Limit label length
+            trackClick(target.href, label.substring(0, 50));
         }
     };
 
     return (
         <div
-            className="min-h-screen transition-colors duration-500"
-            style={{ backgroundColor: wrapperBg }}
+            className={`transition-colors duration-500 ${isEmbed ? 'h-full flex items-center justify-center overflow-hidden' : 'min-h-screen'}`}
+            style={{ backgroundColor: isEmbed ? 'transparent' : wrapperBg }}
             onClick={handleGlobalClick}
         >
-            <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin" /></div>}>
-                <TemplateComponent
-                    data={portfolioData}
-                    // No onEdit prop passed, so InlineEdit is read-only
-                    onEdit={undefined}
-                    // Pass onUpdate to allow interactive elements like Theme Toggle to work locally
-                    onUpdate={handleUpdate}
+            {/* Intro / Splash Screen - Hide in embed mode */}
+            {!isEmbed && portfolioData.linkInBio?.introPage?.enabled && showIntro && (
+                <IntroOverlay
+                    config={portfolioData.linkInBio.introPage}
+                    onEnter={() => setShowIntro(false)}
+                    portfolioId={portfolioData.id}
                 />
+            )}
+
+            <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin" /></div>}>
+                <div className={isEmbed ? 'w-full h-screen' : ''}>
+                    <TemplateComponent
+                        data={displayData}
+                        onEdit={undefined}
+                        onUpdate={handleUpdate}
+                        isEmbed={isEmbed}
+                    />
+                </div>
             </Suspense>
 
-            {/* Simple footer or badge */}
-            {/* Simple footer or badge - Hidden if removeBranding is set */}
-            {!portfolioData.linkInBio?.settings?.removeBranding && (
+            {/* Simple footer or badge - Hidden if removeBranding is set OR isEmbed */}
+            {!isEmbed && !portfolioData.linkInBio?.settings?.removeBranding && (
                 <div className="fixed bottom-4 right-4 z-50">
                     <a href="/" className="bg-black text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:scale-105 transition-transform flex items-center gap-2">
                         <span>Build your own with CareerVivid</span>

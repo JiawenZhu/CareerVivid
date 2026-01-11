@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { JobApplicationData, ApplicationStatus, WorkModel, APPLICATION_STATUSES, WORK_MODELS, ResumeData, ResumeMatchAnalysis } from '../../types';
-import { X, Briefcase, Building, MapPin, Link as LinkIcon, ExternalLink, Trash2, Loader2, Wand2, ChevronDown, Plus, Minus, FileText, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
+import { X, Briefcase, Building, MapPin, Link as LinkIcon, ExternalLink, Trash2, Loader2, Wand2, ChevronDown, Plus, Minus, FileText, CheckCircle, XCircle, ArrowRight, Play, Square, Settings, Volume2, RotateCcw } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useResumes } from '../../hooks/useResumes';
 import { generateJobPrepNotes, regenerateJobPrepSection, analyzeResumeMatch } from '../../services/geminiService';
@@ -138,10 +138,13 @@ const EditablePrepSection: React.FC<{
     onChange: (value: string) => void;
     placeholder?: string;
     onRegenerate: () => void;
-}> = ({ label, value, onChange, placeholder, onRegenerate }) => {
+    selectedVoice: SpeechSynthesisVoice | null;
+}> = ({ label, value, onChange, placeholder, onRegenerate, selectedVoice }) => {
     const { t } = useTranslation();
     const [isEditing, setIsEditing] = useState(false);
     const [currentValue, setCurrentValue] = useState(value);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [highlightRange, setHighlightRange] = useState<{ start: number, end: number } | null>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
@@ -176,17 +179,121 @@ const EditablePrepSection: React.FC<{
         e.target.style.height = `${e.target.scrollHeight}px`;
     };
 
+    const getCleanText = (text: string) => text.replace(/\*\*/g, '');
+
+    const handlePlay = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (window.speechSynthesis.speaking && isPlaying) {
+            window.speechSynthesis.cancel();
+            setIsPlaying(false);
+            setHighlightRange(null);
+        } else {
+            window.speechSynthesis.cancel();
+            const textToRead = value || placeholder || "No text available.";
+            const cleanText = getCleanText(textToRead);
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            }
+
+            utterance.onboundary = (event) => {
+                if (event.name === 'word') {
+                    setHighlightRange({
+                        start: event.charIndex,
+                        end: event.charIndex + event.charLength
+                    });
+                }
+            };
+
+            utterance.onend = () => {
+                setIsPlaying(false);
+                setHighlightRange(null);
+            };
+
+            utterance.onerror = () => {
+                setIsPlaying(false);
+                setHighlightRange(null);
+            };
+
+            window.speechSynthesis.speak(utterance);
+            setIsPlaying(true);
+        }
+    };
+
+    const renderHighlightedText = () => {
+        if (!value) return <span className="text-gray-400 italic">{placeholder}</span>;
+
+        // If not playing or no highlight, fallback to standard markdown render
+        if (!isPlaying || !highlightRange) {
+            const parts = value.split(/(\*\*.*?\*\*)/g);
+            return parts.map((part, i) => {
+                if (part.startsWith('**') && part.endsWith('**')) {
+                    return <strong key={i}>{part.slice(2, -2)}</strong>;
+                }
+                return <span key={i}>{part}</span>;
+            });
+        }
+
+        // Logic to render text with highlighting while preserving bold
+        const parts = value.split(/(\*\*.*?\*\*)/g);
+        let currentCleanIdx = 0;
+
+        return parts.map((part, i) => {
+            const isBold = part.startsWith('**') && part.endsWith('**');
+            const content = isBold ? part.slice(2, -2) : part;
+
+            // Map this part's range in the CLEAN text
+            const partStart = currentCleanIdx;
+            const partEnd = currentCleanIdx + content.length;
+            currentCleanIdx += content.length;
+
+            // Check overlap with highlightRange
+            // Range: [partStart, partEnd] vs [highlightRange.start, highlightRange.end]
+            if (highlightRange.end > partStart && highlightRange.start < partEnd) {
+                // Determine intersection relative to this part's content
+                const startInPart = Math.max(0, highlightRange.start - partStart);
+                const endInPart = Math.min(content.length, highlightRange.end - partStart);
+
+                const before = content.substring(0, startInPart);
+                const highlight = content.substring(startInPart, endInPart);
+                const after = content.substring(endInPart);
+
+                const Wrapper = isBold ? 'strong' : 'span';
+
+                return (
+                    <Wrapper key={i}>
+                        {before}
+                        <span className="bg-yellow-200 dark:bg-yellow-900/50 rounded-sm px-0.5 transition-colors duration-75">{highlight}</span>
+                        {after}
+                    </Wrapper>
+                );
+            }
+
+            return isBold ? <strong key={i}>{content}</strong> : <span key={i}>{content}</span>;
+        });
+    };
+
     return (
         <div>
             <div className="flex items-center justify-between mb-2">
                 <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">{label}</h3>
-                <button onClick={onRegenerate} title="Regenerate with AI" className="text-primary-500 hover:text-primary-700 dark:hover:text-primary-300 p-1">
-                    <Wand2 size={18} />
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={handlePlay}
+                        title={isPlaying ? "Stop Reading" : "Read Aloud"}
+                        className={`p-1 transition-colors rounded-full ${isPlaying ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20' : 'text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-900/20'}`}
+                    >
+                        {isPlaying ? <Square size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" />}
+                    </button>
+                    <button onClick={onRegenerate} title="Regenerate with AI" className="text-primary-500 hover:text-primary-700 dark:hover:text-primary-300 p-1">
+                        <Wand2 size={18} />
+                    </button>
+                </div>
             </div>
 
             <div
-                className="cursor-pointer group"
+                className="cursor-pointer group min-h-[60px] p-2 -ml-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                 onClick={() => !isEditing && setIsEditing(true)}
             >
                 {isEditing ? (
@@ -195,17 +302,14 @@ const EditablePrepSection: React.FC<{
                         value={currentValue || ''}
                         onChange={handleTextareaInput}
                         onBlur={handleSave}
-                        onKeyDown={handleKeyDown}
+                        onKeyDown={(e) => { if (e.key === 'Escape') handleSave(); }}
+                        className="w-full p-2 border rounded focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 resize-none overflow-hidden"
                         placeholder={placeholder}
-                        className="w-full p-3 text-inherit leading-relaxed bg-white dark:bg-gray-700/50 rounded-md border-2 border-primary-500 focus:outline-none resize-none overflow-hidden"
+                        autoFocus
                     />
                 ) : (
-                    <div className="w-full min-h-[40px] p-2 rounded-md border border-transparent group-hover:bg-gray-200/50 dark:group-hover:bg-gray-700/30 transition-colors">
-                        {value ? (
-                            <MarkdownRenderer text={value} />
-                        ) : (
-                            <p className="text-gray-400 italic">{placeholder}</p>
-                        )}
+                    <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-300">
+                        {renderHighlightedText()}
                     </div>
                 )}
             </div>
@@ -356,7 +460,7 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
     useEffect(() => {
         if (isEditingDescription && descriptionTextareaRef.current) {
             descriptionTextareaRef.current.style.height = 'auto';
-            descriptionTextareaRef.current.style.height = `${descriptionTextareaRef.current.scrollHeight}px`;
+            descriptionTextareaRef.current.style.height = `${descriptionTextareaRef.current.scrollHeight} px`;
             descriptionTextareaRef.current.focus();
         }
     }, [isEditingDescription, localJob.jobDescription]);
@@ -404,16 +508,16 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
         const latestResume = resumes[0];
         if (!latestResume) return "No resume available.";
         // ... (rest of the function is the same)
-        let context = `Name: ${latestResume.personalDetails.firstName} ${latestResume.personalDetails.lastName}\n`;
-        context += `Job Title: ${latestResume.personalDetails.jobTitle}\n\nSUMMARY:\n${latestResume.professionalSummary}\n\n`;
+        let context = `Name: ${latestResume.personalDetails.firstName} ${latestResume.personalDetails.lastName} \n`;
+        context += `Job Title: ${latestResume.personalDetails.jobTitle} \n\nSUMMARY: \n${latestResume.professionalSummary} \n\n`;
         if (latestResume.employmentHistory.length > 0) {
-            context += `EXPERIENCE:\n`;
+            context += `EXPERIENCE: \n`;
             latestResume.employmentHistory.forEach(job => {
-                context += `- ${job.jobTitle} at ${job.employer}\n${job.description}\n`;
+                context += `- ${job.jobTitle} at ${job.employer} \n${job.description} \n`;
             });
         }
         if (latestResume.skills.length > 0) {
-            context += `\nSKILLS: ${latestResume.skills.map(s => s.name).join(', ')}\n`;
+            context += `\nSKILLS: ${latestResume.skills.map(s => s.name).join(', ')} \n`;
         }
         return context;
     };
@@ -460,16 +564,16 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
     // --- New Resume Match Functions ---
 
     const formatResumeForAnalysis = (resume: ResumeData): string => {
-        let text = `Title: ${resume.personalDetails.jobTitle}\n\n`;
-        text += `Summary: ${resume.professionalSummary}\n\n`;
-        text += `Skills: ${resume.skills.map(s => s.name).join(', ')}\n\n`;
+        let text = `Title: ${resume.personalDetails.jobTitle} \n\n`;
+        text += `Summary: ${resume.professionalSummary} \n\n`;
+        text += `Skills: ${resume.skills.map(s => s.name).join(', ')} \n\n`;
         text += 'Experience:\n';
         resume.employmentHistory.forEach(job => {
-            text += `- ${job.jobTitle} at ${job.employer}\n${job.description}\n`;
+            text += `- ${job.jobTitle} at ${job.employer} \n${job.description} \n`;
         });
         text += '\nEducation:\n';
         resume.education.forEach(edu => {
-            text += `- ${edu.degree} from ${edu.school}\n`;
+            text += `- ${edu.degree} from ${edu.school} \n`;
         });
         return text;
     };
@@ -515,7 +619,60 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
         } else {
             sessionStorage.removeItem('jobMatchAnalysis');
         }
-        navigate(`/edit/${selectedResumeId}`);
+        navigate(`/ edit / ${selectedResumeId} `);
+    };
+
+    // --- Voice Selection State ---
+    const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+    const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
+    const [isVoiceDropdownOpen, setIsVoiceDropdownOpen] = useState(false);
+
+    // Robust Voice Loading
+    useEffect(() => {
+        const loadVoices = () => {
+            // Array.from ensures we get a proper array from the browser API
+            const allVoices = Array.from(window.speechSynthesis.getVoices());
+            // Filter to only show Google voices as requested
+            const googleVoices = allVoices.filter(v => v.name.includes('Google'));
+
+            // If we have Google voices, use them; otherwise fall back to all voices (safety net)
+            const finalVoices = googleVoices.length > 0 ? googleVoices : allVoices;
+
+            setVoices(finalVoices);
+
+            if (finalVoices.length > 0) {
+                const savedVoiceURI = localStorage.getItem('preferredVoiceURI');
+                if (savedVoiceURI) {
+                    const found = finalVoices.find(v => v.voiceURI === savedVoiceURI);
+                    if (found) setSelectedVoice(found);
+                } else {
+                    const defaultVoice = finalVoices.find(v => v.name.includes('Google US English')) || finalVoices[0];
+                    setSelectedVoice(defaultVoice);
+                }
+            }
+        };
+
+        loadVoices();
+        // Chrome needs this event to populate voices
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+    }, []);
+
+    const handleVoiceSelect = (voice: SpeechSynthesisVoice) => {
+        setSelectedVoice(voice);
+        localStorage.setItem('preferredVoiceURI', voice.voiceURI);
+        setIsVoiceDropdownOpen(false);
+    };
+
+    const handleVoiceReset = () => {
+        localStorage.removeItem('preferredVoiceURI');
+        // Re-run logic to pick default
+        const availVoices = window.speechSynthesis.getVoices();
+        if (availVoices.length > 0) {
+            const defaultVoice = availVoices.find(v => v.name.includes('Google US English'));
+            if (defaultVoice) setSelectedVoice(defaultVoice);
+            else setSelectedVoice(availVoices[0]);
+        }
+        setIsVoiceDropdownOpen(false);
     };
 
     return (
@@ -539,7 +696,7 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
                 />
             )}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl w-full max-w-4xl h-[95vh] flex flex-col">
-                <header className="p-4 border-b dark:border-gray-700 flex justify-between items-center flex-shrink-0">
+                <header className="p-4 border-b dark:border-gray-700 flex justify-between items-center flex-shrink-0 relative">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-md flex items-center justify-center">
                             <Briefcase size={22} className="text-gray-500 dark:text-gray-400" />
@@ -550,6 +707,46 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
+                        {/* Voice Settings */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setIsVoiceDropdownOpen(!isVoiceDropdownOpen)}
+                                className={`p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${isVoiceDropdownOpen ? 'bg-gray-100 dark:bg-gray-700 text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'}`}
+                                title="Voice Settings"
+                            >
+                                <Volume2 size={20} />
+                            </button>
+                            {isVoiceDropdownOpen && (
+                                <div className="absolute top-full right-0 mt-2 w-72 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50 p-2 max-h-80 overflow-y-auto flex flex-col gap-1">
+                                    <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-1 px-2 mt-1">Select Voice</h4>
+
+                                    <button
+                                        onClick={handleVoiceReset}
+                                        className="w-full text-left px-2 py-1.5 text-xs font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md flex items-center gap-2 mb-2 border-b border-gray-100 dark:border-gray-700 pb-2"
+                                    >
+                                        <RotateCcw size={12} /> Reset to Default
+                                    </button>
+
+                                    {voices.map(voice => (
+                                        <button
+                                            key={voice.voiceURI}
+                                            onClick={() => handleVoiceSelect(voice)}
+                                            className={`w-full text-left px-2 py-1.5 text-sm rounded-md truncate transition-colors flex justify-between items-center ${selectedVoice?.voiceURI === voice.voiceURI ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 font-medium' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200'}`}
+                                        >
+                                            <span className="truncate flex-1">{voice.name}</span>
+                                            <span className="text-xs text-gray-400 ml-2 whitespace-nowrap">{voice.lang}</span>
+                                        </button>
+                                    ))}
+                                    {voices.length === 0 && (
+                                        <div className="p-4 text-center">
+                                            <p className="text-sm text-gray-500 mb-1">No voices found</p>
+                                            <p className="text-xs text-gray-400">Your browser may not support voices without interaction.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
                         <div className="flex items-center gap-1 mr-2 border-r pr-2 border-gray-300 dark:border-gray-600">
                             <button onClick={() => handleFontSizeChange('decrease')} disabled={fontSize === 0} className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
                                 <Minus size={18} />
@@ -616,7 +813,7 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
                                             <span className="text-lg">{Math.round(analysis.matchPercentage)}% Match</span>
                                         </div>
                                         <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2.5 mt-2">
-                                            <div className="bg-blue-500 h-2.5 rounded-full" style={{ width: `${analysis.matchPercentage}%` }}></div>
+                                            <div className="bg-blue-500 h-2.5 rounded-full" style={{ width: `${analysis.matchPercentage}% ` }}></div>
                                         </div>
                                     </div>
                                     <button
@@ -655,7 +852,7 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
                                 className="w-full flex justify-between items-center"
                             >
                                 <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">{t('job_tracker.modal.job_description')}</h3>
-                                <ChevronDown className={`transition-transform duration-200 ${showDescription ? 'rotate-180' : ''}`} />
+                                <ChevronDown className={`transition - transform duration - 200 ${showDescription ? 'rotate-180' : ''} `} />
                             </button>
                             {showDescription && (
                                 <div className="mt-4 pt-4 border-t dark:border-gray-700">
@@ -666,7 +863,7 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
                                             onChange={(e) => {
                                                 handleChange('jobDescription', e.target.value);
                                                 e.target.style.height = 'auto';
-                                                e.target.style.height = `${e.target.scrollHeight}px`;
+                                                e.target.style.height = `${e.target.scrollHeight} px`;
                                             }}
                                             onBlur={() => setIsEditingDescription(false)}
                                             onKeyDown={(e) => e.key === 'Escape' && setIsEditingDescription(false)}
@@ -689,19 +886,19 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
                         <button
                             onClick={handleGenerateAllPrepNotes}
                             disabled={isGeneratingAll}
-                            className={`bg-primary-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:bg-primary-700 transition-colors flex items-center justify-center gap-2 disabled:bg-primary-300 mx-auto ${shouldAnimateButton ? 'animate-gentle-pulse' : ''}`}
+                            className={`bg - primary - 600 text - white font - semibold py - 2 px - 6 rounded - lg shadow - md hover: bg - primary - 700 transition - colors flex items - center justify - center gap - 2 disabled: bg - primary - 300 mx - auto ${shouldAnimateButton ? 'animate-gentle-pulse' : ''} `}
                         >
                             {isGeneratingAll ? <Loader2 className="animate-spin" /> : <Wand2 />}
                             {isGeneratingAll ? t('job_tracker.modal.generating') : t('job_tracker.modal.generate_prep')}
                         </button>
                     </div>
 
-                    <div className={`space-y-10 ${textSizeClass} transition-all duration-300 ${isHighlighting ? 'animate-highlight p-4 -m-4 rounded-xl' : ''}`} ref={prepNotesContainerRef}>
-                        <EditablePrepSection label={t('job_tracker.modal.prep_sections.role_research')} value={localJob.prep_RoleOverview || ''} onChange={v => handleChange('prep_RoleOverview', v)} placeholder={t('job_tracker.modal.prep_sections.role_research_ph')} onRegenerate={() => setRegenModalState({ section: 'prep_RoleOverview', name: t('job_tracker.modal.prep_sections.role_research') })} />
-                        <EditablePrepSection label={t('job_tracker.modal.prep_sections.my_story')} value={localJob.prep_MyStory || ''} onChange={v => handleChange('prep_MyStory', v)} placeholder={t('job_tracker.modal.prep_sections.my_story_ph')} onRegenerate={() => setRegenModalState({ section: 'prep_MyStory', name: t('job_tracker.modal.prep_sections.my_story') })} />
-                        <EditablePrepSection label={t('job_tracker.modal.prep_sections.interview_prep')} value={localJob.prep_InterviewPrep || ''} onChange={v => handleChange('prep_InterviewPrep', v)} placeholder={t('job_tracker.modal.prep_sections.interview_prep_ph')} onRegenerate={() => setRegenModalState({ section: 'prep_InterviewPrep', name: t('job_tracker.modal.prep_sections.interview_prep') })} />
-                        <EditablePrepSection label={t('job_tracker.modal.prep_sections.questions_for_them')} value={localJob.prep_QuestionsForInterviewer || ''} onChange={v => handleChange('prep_QuestionsForInterviewer', v)} placeholder={t('job_tracker.modal.prep_sections.questions_for_them_ph')} onRegenerate={() => setRegenModalState({ section: 'prep_QuestionsForInterviewer', name: t('job_tracker.modal.prep_sections.questions_for_them') })} />
-                        <EditablePrepSection label={t('job_tracker.modal.prep_sections.general_notes')} value={localJob.notes || ''} onChange={v => handleChange('notes', v)} placeholder={t('job_tracker.modal.prep_sections.general_notes_ph')} onRegenerate={() => setRegenModalState({ section: 'notes', name: t('job_tracker.modal.prep_sections.general_notes') })} />
+                    <div className={`space - y - 10 ${textSizeClass} transition - all duration - 300 ${isHighlighting ? 'animate-highlight p-4 -m-4 rounded-xl' : ''} `} ref={prepNotesContainerRef}>
+                        <EditablePrepSection label={t('job_tracker.modal.prep_sections.role_research')} value={localJob.prep_RoleOverview || ''} onChange={v => handleChange('prep_RoleOverview', v)} placeholder={t('job_tracker.modal.prep_sections.role_research_ph')} onRegenerate={() => setRegenModalState({ section: 'prep_RoleOverview', name: t('job_tracker.modal.prep_sections.role_research') })} selectedVoice={selectedVoice} />
+                        <EditablePrepSection label={t('job_tracker.modal.prep_sections.my_story')} value={localJob.prep_MyStory || ''} onChange={v => handleChange('prep_MyStory', v)} placeholder={t('job_tracker.modal.prep_sections.my_story_ph')} onRegenerate={() => setRegenModalState({ section: 'prep_MyStory', name: t('job_tracker.modal.prep_sections.my_story') })} selectedVoice={selectedVoice} />
+                        <EditablePrepSection label={t('job_tracker.modal.prep_sections.interview_prep')} value={localJob.prep_InterviewPrep || ''} onChange={v => handleChange('prep_InterviewPrep', v)} placeholder={t('job_tracker.modal.prep_sections.interview_prep_ph')} onRegenerate={() => setRegenModalState({ section: 'prep_InterviewPrep', name: t('job_tracker.modal.prep_sections.interview_prep') })} selectedVoice={selectedVoice} />
+                        <EditablePrepSection label={t('job_tracker.modal.prep_sections.questions_for_them')} value={localJob.prep_QuestionsForInterviewer || ''} onChange={v => handleChange('prep_QuestionsForInterviewer', v)} placeholder={t('job_tracker.modal.prep_sections.questions_for_them_ph')} onRegenerate={() => setRegenModalState({ section: 'prep_QuestionsForInterviewer', name: t('job_tracker.modal.prep_sections.questions_for_them') })} selectedVoice={selectedVoice} />
+                        <EditablePrepSection label={t('job_tracker.modal.prep_sections.general_notes')} value={localJob.notes || ''} onChange={v => handleChange('notes', v)} placeholder={t('job_tracker.modal.prep_sections.general_notes_ph')} onRegenerate={() => setRegenModalState({ section: 'notes', name: t('job_tracker.modal.prep_sections.general_notes') })} selectedVoice={selectedVoice} />
                     </div>
                 </div>
             </div>

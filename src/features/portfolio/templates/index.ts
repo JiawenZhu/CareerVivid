@@ -65,6 +65,22 @@ export const TEMPLATES = {
     card_minimal: CardMinimal,
     card_photo: CardPhoto,
     card_modern: CardModern,
+
+    // Neo-Brutalism
+    brutalist_yellow: CardPhoto,
+    brutalist_pink: CardPhoto,
+    brutalist_blue: CardPhoto,
+    brutalist_bw: CardPhoto,
+    brutalist_orange: CardPhoto,
+
+    // Professional / Creative
+    pro_executive: CardPhoto,
+    pro_clean: CardPhoto,
+    creative_gradient: CardPhoto,
+    card_creative_dark: CardPhoto,
+    nature_calm: CardPhoto,
+    tech_future: CardPhoto,
+    abstract_art: CardPhoto,
 };
 
 export type TemplateId = keyof typeof TEMPLATES;

@@ -112,6 +112,12 @@ service cloud.firestore {
     match /analytics/demo_page_events {
       allow read, write: if true;
     }
+
+    // Piano Game Recordings (Public Read/Create)
+    match /portfolio_piano_recordings/{recordingId} {
+      allow read, create: if true;
+    }
+    
     
     // --- Job Platform Rules ---
     

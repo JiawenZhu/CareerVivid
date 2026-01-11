@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-    User, Briefcase, Code, FolderGit2, Layers, Palette, FileText, Link as LinkIcon, ShoppingBag
+    User, Briefcase, Code, FolderGit2, Layers, Palette, FileText, Link as LinkIcon, ShoppingBag, Settings, BarChart3, Sparkles
 } from 'lucide-react';
 import { PortfolioData } from '../../types/portfolio';
 import AppearanceControls from './AppearanceControls';
@@ -23,12 +23,14 @@ import SidebarTechStackEditor from './sidebar/SidebarTechStackEditor';
 import SidebarProjectsEditor from './sidebar/SidebarProjectsEditor';
 import SidebarComponentsEditor from './sidebar/SidebarComponentsEditor';
 import SidebarDesignEditor from './sidebar/SidebarDesignEditor';
+import SidebarCardDesign from './sidebar/SidebarCardDesign';
 import SidebarSettingsEditor from './sidebar/SidebarSettingsEditor';
+import AnalyticsDashboard from '../analytics/AnalyticsDashboard';
 
 interface PortfolioSidebarProps {
     portfolioData: PortfolioData;
-    activeSection: 'hero' | 'timeline' | 'stack' | 'projects' | 'components' | 'design' | 'settings' | 'links' | 'commerce';
-    setActiveSection: (section: 'hero' | 'timeline' | 'stack' | 'projects' | 'components' | 'design' | 'settings' | 'links' | 'commerce') => void;
+    activeSection: 'hero' | 'timeline' | 'stack' | 'projects' | 'components' | 'design' | 'settings' | 'links' | 'commerce' | 'intro';
+    setActiveSection: (section: 'hero' | 'timeline' | 'stack' | 'projects' | 'components' | 'design' | 'settings' | 'links' | 'commerce' | 'intro') => void;
     isMobile: boolean;
     viewMode: 'edit' | 'preview';
     resumes: any[];
@@ -89,8 +91,9 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
             { id: 'stack', icon: <Code size={18} />, label: 'Tech Stack' },
             { id: 'projects', icon: <FolderGit2 size={18} />, label: 'Projects' },
             { id: 'components', icon: <Layers size={18} />, label: 'Components' },
-            { id: 'design', icon: <Palette size={18} />, label: 'Design' },
-            { id: 'settings', icon: <FileText size={18} />, label: 'Files' }
+            { id: 'design', label: 'Design', icon: <Palette size={18} /> },
+            { id: 'settings', label: 'Settings', icon: <FileText size={18} /> }, // Was Settings icon but let's consistency check
+            { id: 'analytics', label: 'Analytics', icon: <BarChart3 size={18} /> },
         ];
     };
 
@@ -320,6 +323,7 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
                     </div>
                 )}
 
+
                 {activeSection === 'hero' && (
                     <SidebarProfileEditor
                         portfolioData={portfolioData}
@@ -373,21 +377,31 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
                 )}
 
                 {activeSection === 'design' && (
-                    <SidebarDesignEditor
-                        portfolioData={portfolioData}
-                        onUpdate={onUpdate}
-                        isLinkInBio={isLinkInBio}
-                        editorTheme={editorTheme}
-                        themeClasses={themeClasses}
-                        userThemes={userThemes}
-                        handleDeleteThemeClick={handleDeleteThemeClick}
-                        handleEditBackground={handleEditBackground}
-                        handleThemeStockPhoto={handleThemeStockPhoto}
-                        handleSaveCustomThemeClick={handleSaveCustomThemeClick}
-                        onTogglePreview={onTogglePreview}
-                        userPortfolios={userPortfolios}
-                        onImportTheme={onImportTheme}
-                    />
+                    <>
+                        {portfolioData.mode === 'business_card' ? (
+                            <SidebarCardDesign
+                                portfolioData={portfolioData}
+                                onUpdate={onUpdate}
+                                editorTheme={editorTheme}
+                            />
+                        ) : (
+                            <SidebarDesignEditor
+                                portfolioData={portfolioData}
+                                onUpdate={onUpdate}
+                                isLinkInBio={isLinkInBio}
+                                editorTheme={editorTheme}
+                                themeClasses={themeClasses}
+                                userThemes={userThemes}
+                                handleDeleteThemeClick={handleDeleteThemeClick}
+                                handleEditBackground={handleEditBackground}
+                                handleThemeStockPhoto={handleThemeStockPhoto}
+                                handleSaveCustomThemeClick={handleSaveCustomThemeClick}
+                                onTogglePreview={onTogglePreview}
+                                userPortfolios={userPortfolios}
+                                onImportTheme={onImportTheme}
+                            />
+                        )}
+                    </>
                 )}
 
                 {activeSection === 'settings' && (

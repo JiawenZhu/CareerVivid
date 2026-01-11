@@ -1,6 +1,7 @@
 import React from 'react';
 import { FileText, Award, Store, Sparkles } from 'lucide-react';
-import { PortfolioData } from '../../../../types/portfolio';
+import { PortfolioData } from '../../../types/portfolio';
+import SidebarIntroEditor from './SidebarIntroEditor';
 
 interface SidebarSettingsEditorProps {
     portfolioData: PortfolioData;
@@ -42,6 +43,13 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
 
     return (
         <div className="space-y-4 animate-fade-in">
+            {/* Intro Page Settings */}
+            <SidebarIntroEditor
+                portfolioData={portfolioData}
+                onUpdate={onUpdate}
+                themeClasses={themeClasses}
+            />
+
             {/* Commerce Hub Settings */}
             <div className={`p-4 rounded-lg border ${themeClasses.cardBg}`}>
                 <div className="flex items-center gap-2 mb-3">

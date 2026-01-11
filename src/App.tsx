@@ -34,6 +34,8 @@ const PortfolioEditor = React.lazy(() => import('./features/portfolio/pages/Port
 const PortfolioBuilderPage = React.lazy(() => import('./pages/PortfolioBuilderPage'));
 const PublicPortfolioPage = React.lazy(() => import('./features/portfolio/pages/PublicPortfolioPage'));
 const PartnerLandingPage = React.lazy(() => import('./pages/partners/PartnerLandingPage'));
+const BusinessCardPage = React.lazy(() => import('./pages/BusinessCardPage'));
+const OrderNfcCardPage = React.lazy(() => import('./pages/OrderNfcCardPage'));
 const AcademicPartnerPage = React.lazy(() => import('./pages/partners/AcademicPartnerPage'));
 const BusinessPartnerPage = React.lazy(() => import('./pages/partners/BusinessPartnerPage'));
 const StudentAmbassadorPage = React.lazy(() => import('./pages/partners/StudentAmbassadorPage'));
@@ -112,11 +114,23 @@ const LoadingFallback = () => (
   </div>
 );
 
+const AuthRedirect = ({ target }: { target: string }) => {
+  useEffect(() => {
+    navigate(target);
+  }, [target]);
+  return <LoadingFallback />;
+};
+
 import { useGuestDataMigration } from './hooks/useGuestDataMigration';
+import SEOHelper from './components/SEOHelper';
 
 const App: React.FC = () => {
   const { currentUser, userProfile, loading, isAdmin, isAdminLoading, isEmailVerified } = useAuth();
   useGuestDataMigration(); // Global guest data migration
+
+  // SEO Helper runs on every render to update canonical tags
+  // Since App.tsx re-renders on path changes (due to setPath), this works perfectly.
+
   const [path, setPath] = useState(getPathFromUrl());
 
   useEffect(() => {
@@ -237,7 +251,11 @@ const App: React.FC = () => {
       content = <VerifyEmailPage />;
     } else {
       showChatbot = true;
-      if (path.startsWith('/edit/')) {
+      if (path === '/signin' || path.startsWith('/signin?') || path === '/signup') {
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get('redirect');
+        content = <AuthRedirect target={redirect ? decodeURIComponent(redirect) : '/'} />;
+      } else if (path.startsWith('/edit/')) {
         const id = path.split('/')[2];
         content = <Editor resumeId={id} />;
       } else if (path === '/new') {
@@ -287,6 +305,10 @@ const App: React.FC = () => {
         } else {
           content = <PermissionDeniedPage requiredRole="Academic Partner" message="This page is only accessible to academic partners." />;
         }
+      } else if (path === '/order-nfc-card') {
+        content = <OrderNfcCardPage />;
+      } else if (path === '/business-card') {
+        content = <BusinessCardPage />;
       } else {
         // Default to dashboard for any other path when logged in
         content = <Dashboard />;
@@ -340,6 +362,10 @@ const App: React.FC = () => {
       content = <HRPartnerPage />;
     } else if (path === '/partners/apply') {
       content = <PartnerApplicationPage />;
+    } else if (path === '/business-card') {
+      content = <BusinessCardPage />;
+    } else if (path === '/order-nfc-card') {
+      content = <OrderNfcCardPage />;
     } else if (path === '/' || path === '') {
       // Root path shows landing page
       content = <LandingPage />;
@@ -355,6 +381,7 @@ const App: React.FC = () => {
   return (
     <ThemeProvider>
       <div className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-200 font-sans">
+        <SEOHelper />
         <Suspense fallback={<LoadingFallback />}>
           {content}
           {showChatbot && <ChatBot />}

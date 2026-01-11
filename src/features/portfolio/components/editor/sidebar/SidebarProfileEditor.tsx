@@ -97,56 +97,69 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                 </div>
             </div>
 
+            {/* Headline */}
             <div>
-                <label className="text-[10px] uppercase font-semibold text-gray-400 mb-1 flex items-center gap-1.5">
-                    <Type size={12} /> Headline
-                </label>
+                <div className="flex justify-between items-center mb-1">
+                    <label className="text-[10px] uppercase font-semibold text-gray-400 flex items-center gap-1.5">
+                        <Type size={12} /> Headline
+                    </label>
+                    <span className="text-[10px] text-gray-400">
+                        {portfolioData.hero.headline.length} / 40 characters
+                    </span>
+                </div>
                 <input
                     id="hero.headline"
                     type="text"
                     className={`w-full rounded-lg px-4 py-2.5 text-sm outline-none transition-colors ${themeClasses.inputBg} h-10`}
                     value={portfolioData.hero.headline}
                     onChange={(e) => onNestedUpdate('hero', 'headline', e.target.value)}
+                    maxLength={40}
                 />
             </div>
-            <div>
-                <label className="text-[10px] uppercase font-semibold text-gray-400 mb-1 flex items-center gap-1.5">
-                    <AlignLeft size={12} /> Sub-headline
-                </label>
-                <input
-                    id="hero.subheadline"
-                    type="text"
-                    className={`w-full rounded-lg px-4 py-2.5 text-sm outline-none transition-colors ${themeClasses.inputBg} h-10`}
-                    value={portfolioData.hero.subheadline}
-                    onChange={(e) => onNestedUpdate('hero', 'subheadline', e.target.value)}
-                />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label className="text-[10px] uppercase font-semibold text-gray-400 mb-1 flex items-center gap-1.5">
-                        <MousePointer size={12} /> CTA Text
-                    </label>
-                    <input
-                        id="hero.ctaPrimaryLabel"
-                        type="text"
-                        className={`w-full rounded-lg px-4 py-2.5 text-sm outline-none transition-colors ${themeClasses.inputBg} h-10`}
-                        value={portfolioData.hero.ctaPrimaryLabel}
-                        onChange={(e) => onNestedUpdate('hero', 'ctaPrimaryLabel', e.target.value)}
-                    />
-                </div>
-                <div>
-                    <label className="text-[10px] uppercase font-semibold text-gray-400 mb-1 flex items-center gap-1.5">
-                        <LinkIcon size={12} /> CTA URL
-                    </label>
-                    <input
-                        id="hero.ctaPrimaryUrl"
-                        type="text"
-                        className={`w-full rounded-lg px-4 py-2.5 text-sm outline-none transition-colors ${themeClasses.inputBg} h-10`}
-                        value={portfolioData.hero.ctaPrimaryUrl}
-                        onChange={(e) => onNestedUpdate('hero', 'ctaPrimaryUrl', e.target.value)}
-                    />
-                </div>
-            </div>
+
+            {/* Sub-headline & CTA - Hidden for NFC Cards */}
+            {!portfolioData.templateId?.startsWith('card_') && (
+                <>
+                    <div>
+                        <label className="text-[10px] uppercase font-semibold text-gray-400 mb-1 flex items-center gap-1.5">
+                            <AlignLeft size={12} /> Sub-headline
+                        </label>
+                        <input
+                            id="hero.subheadline"
+                            type="text"
+                            className={`w-full rounded-lg px-4 py-2.5 text-sm outline-none transition-colors ${themeClasses.inputBg} h-10`}
+                            value={portfolioData.hero.subheadline}
+                            onChange={(e) => onNestedUpdate('hero', 'subheadline', e.target.value)}
+                        />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="text-[10px] uppercase font-semibold text-gray-400 mb-1 flex items-center gap-1.5">
+                                <MousePointer size={12} /> CTA Text
+                            </label>
+                            <input
+                                id="hero.ctaPrimaryLabel"
+                                type="text"
+                                className={`w-full rounded-lg px-4 py-2.5 text-sm outline-none transition-colors ${themeClasses.inputBg} h-10`}
+                                value={portfolioData.hero.ctaPrimaryLabel}
+                                onChange={(e) => onNestedUpdate('hero', 'ctaPrimaryLabel', e.target.value)}
+                            />
+                        </div>
+                        <div>
+                            <label className="text-[10px] uppercase font-semibold text-gray-400 mb-1 flex items-center gap-1.5">
+                                <LinkIcon size={12} /> CTA URL
+                            </label>
+                            <input
+                                id="hero.ctaPrimaryUrl"
+                                type="text"
+                                className={`w-full rounded-lg px-4 py-2.5 text-sm outline-none transition-colors ${themeClasses.inputBg} h-10`}
+                                value={portfolioData.hero.ctaPrimaryUrl}
+                                onChange={(e) => onNestedUpdate('hero', 'ctaPrimaryUrl', e.target.value)}
+                            />
+                        </div>
+                    </div>
+                </>
+            )}
 
             {/* Contact Information */}
             <div className="grid grid-cols-2 gap-4">
@@ -178,10 +191,17 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                 </div>
             </div>
 
+            {/* About Section */}
             <div>
-                <label className="text-[10px] uppercase font-semibold text-gray-400 mb-1 flex items-center gap-1.5">
-                    <FileText size={12} /> About Me Label & Bio
-                </label>
+                <div className="flex justify-between items-center mb-1">
+                    <label className="text-[10px] uppercase font-semibold text-gray-400 flex items-center gap-1.5">
+                        <FileText size={12} /> About Me Label & Bio
+                    </label>
+                    <span className="text-[10px] text-gray-400">
+                        Label: {(portfolioData.sectionLabels?.about || 'About Me').length}/30 &bull; Bio: {portfolioData.about?.length || 0}/130
+                    </span>
+                </div>
+
                 <input
                     id="sectionLabels.about"
                     type="text"
@@ -190,6 +210,8 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                     onChange={(e) => onUpdate({
                         sectionLabels: { ...portfolioData.sectionLabels, about: e.target.value }
                     })}
+                    maxLength={30}
+                    placeholder="Section Label (e.g. About Me)"
                 />
                 <textarea
                     id="about"
@@ -197,6 +219,8 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                     className={`w-full rounded-lg px-4 py-2 text-sm outline-none transition-colors resize-none ${themeClasses.inputBg}`}
                     value={portfolioData.about}
                     onChange={(e) => onUpdate({ about: e.target.value })}
+                    maxLength={130}
+                    placeholder="Write a short bio..."
                 />
             </div>
 

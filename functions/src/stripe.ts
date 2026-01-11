@@ -12,7 +12,17 @@ const PRICE_IDS = {
     SPRINT: "price_1ScLNsRJNflGxv32cvu6cTsK", // The 7-Day Sprint - One-time
     MONTHLY: "price_1ScLOaRJNflGxv32BwQnSBs0", // Pro Monthly - Subscription
     DOWNLOAD_ONCE: "price_1ScLPERJNflGxv32Wxtpvg62", // Download Once - $1.99
+    NFC_CUSTOM: "price_1So67jRJNflGxv32TKsC7AbX", // Custom NFC Card - $12.90
+    NFC_STANDARD: "price_1So6AtRJNflGxv32qHMPnhwz", // Standard NFC Card - $9.89
 } as const;
+
+// One-time payment price IDs
+const ONE_TIME_PRICE_IDS = [
+    PRICE_IDS.SPRINT,
+    PRICE_IDS.DOWNLOAD_ONCE,
+    PRICE_IDS.NFC_CUSTOM,
+    PRICE_IDS.NFC_STANDARD,
+];
 
 /**
  * Creates a Stripe checkout session for purchasing a plan
@@ -28,7 +38,7 @@ export const createCheckoutSession = onCall(
             throw new HttpsError("unauthenticated", "User must be authenticated");
         }
 
-        const { priceId, successUrl, cancelUrl } = request.data;
+        const { priceId, successUrl, cancelUrl, quantity, metadata, mode: requestedMode } = request.data;
 
         if (!priceId || !successUrl || !cancelUrl) {
             throw new HttpsError(
@@ -65,19 +75,19 @@ export const createCheckoutSession = onCall(
                 );
             }
 
-            // Determine mode based on price ID
+            // Determine mode: use requested mode if provided, otherwise check if price is one-time
             const mode: Stripe.Checkout.SessionCreateParams.Mode =
-                (priceId === PRICE_IDS.SPRINT || priceId === PRICE_IDS.DOWNLOAD_ONCE) ? "payment" : "subscription";
+                requestedMode === 'payment' || ONE_TIME_PRICE_IDS.includes(priceId) ? "payment" : "subscription";
 
             try {
                 // Create checkout session
                 const session = await stripe.checkout.sessions.create({
                     customer: stripeCustomerId,
                     mode: mode,
-                    line_items: [{ price: priceId, quantity: 1 }],
+                    line_items: [{ price: priceId, quantity: quantity || 1 }],
                     success_url: successUrl,
                     cancel_url: cancelUrl,
-                    metadata: { userId: userId, priceId: priceId },
+                    metadata: { userId: userId, priceId: priceId, ...metadata },
                 });
 
                 return { url: session.url, sessionId: session.id };
@@ -101,10 +111,10 @@ export const createCheckoutSession = onCall(
                     const session = await stripe.checkout.sessions.create({
                         customer: newCustomerId,
                         mode: mode,
-                        line_items: [{ price: priceId, quantity: 1 }],
+                        line_items: [{ price: priceId, quantity: quantity || 1 }],
                         success_url: successUrl,
                         cancel_url: cancelUrl,
-                        metadata: { userId: userId, priceId: priceId },
+                        metadata: { userId: userId, priceId: priceId, ...metadata },
                     });
 
                     return { url: session.url, sessionId: session.id };

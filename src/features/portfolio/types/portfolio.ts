@@ -25,6 +25,61 @@ export interface LinkInBioButton {
     order?: number; // Explicit ordering
 }
 
+export interface IntroAsset {
+    id: string; // Unique ID
+    label: string; // "My Video", "Summer Game", etc.
+    type: 'image' | 'video' | 'game';
+    contentUrl?: string;
+    mobileContentUrl?: string;
+    objectFit?: 'cover' | 'contain';
+    mobileObjectFit?: 'cover' | 'contain';
+    gameType?: 'bubble_pop' | 'quiz' | 'custom' | 'piano_flow';
+    embedCode?: string;
+    // Specific configs can go here too if needed
+    pianoConfig?: {
+        soundPack?: 'classic' | 'synth';
+        bubbleStyle?: 'water' | 'pixel';
+    };
+}
+
+export interface IntroPageConfig {
+    enabled: boolean;
+    // Multi-asset support
+    assets?: IntroAsset[];
+    activeAssetId?: string;
+
+    // Legacy / Shared Config (Button stays global)
+    buttonText: string;
+    buttonStyle: 'outline' | 'solid' | 'glass';
+    autoDismissTimer?: number;
+
+    // Legacy Fields (Deprecated but kept for type safety until migration)
+    type?: 'image' | 'video' | 'game';
+    contentUrl?: string;
+    mobileContentUrl?: string;
+    objectFit?: 'cover' | 'contain';
+    mobileObjectFit?: 'cover' | 'contain';
+    gameType?: 'bubble_pop' | 'quiz' | 'custom' | 'piano_flow';
+    embedCode?: string;
+    pianoConfig?: {
+        soundPack?: 'classic' | 'synth';
+        bubbleStyle?: 'water' | 'pixel';
+    };
+}
+
+export interface PianoRecording {
+    id: string;
+    portfolioId: string;
+    visitorId?: string;
+    visitorName?: string; // "Guest" or custom
+    timestamp: number;
+    duration: number; // in seconds
+    notes: {
+        note: string; // e.g., "C4"
+        time: number; // Offset in ms
+    }[];
+}
+
 export interface PortfolioProject {
     id: string;
     title: string;
@@ -68,7 +123,10 @@ export interface PortfolioData {
     | 'bento_personal' | 'executive_brief'
     | 'bento_personal' | 'executive_brief'
     | 'linktree_minimal' | 'linktree_visual' | 'linktree_corporate' | 'linktree_bento'
-    | 'card_minimal' | 'card_photo' | 'card_modern';
+    // Card Templates
+    | 'card_minimal' | 'card_photo' | 'card_modern'
+    | 'brutalist_yellow' | 'brutalist_pink' | 'brutalist_blue' | 'brutalist_bw' | 'brutalist_orange'
+    | 'pro_executive' | 'pro_clean' | 'creative_gradient' | 'card_creative_dark' | 'nature_calm' | 'tech_future' | 'abstract_art';
     section?: string; // For folder organization in dashboard
 
     // Mode: portfolio (default), linkinbio, or business_card (NEW)
@@ -79,11 +137,19 @@ export interface PortfolioData {
         orientation: 'horizontal' | 'vertical'; // Default horizontal
         themeId?: string;
         companyLogoUrl?: string;
+        usePhotoBackground?: boolean; // Toggle to use avatar as backgroundUrl
+        blurLevel?: number; // 0-20
+        customTextColor?: string; // Override theme color
+        customFont?: string; // Override theme font
+        customFontSize?: 'sm' | 'md' | 'lg'; // Scale text
     };
 
     // Link-in-Bio Configuration (when mode = 'linkinbio')
     linkInBio?: {
         links: LinkInBioButton[];
+        introPage?: IntroPageConfig;
+
+
         showSocial: boolean;
         showEmail: boolean;
         profileImage?: string;
@@ -173,4 +239,5 @@ export interface PortfolioTemplateProps {
     onEdit?: (field: string) => void;
     onUpdate?: (updates: Partial<PortfolioData>) => void;
     isMobileView?: boolean;
+    isEmbed?: boolean;
 }

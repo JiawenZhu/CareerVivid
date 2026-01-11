@@ -73,6 +73,7 @@ __exportStar(require("./scheduled"), exports);
 __exportStar(require("./email"), exports);
 exports.jobs = __importStar(require("./jobs"));
 __exportStar(require("./stripe"), exports);
+__exportStar(require("./stripeConnect"), exports);
 var triggers_1 = require("./triggers");
 Object.defineProperty(exports, "onUserCreated", { enumerable: true, get: function () { return triggers_1.onUserCreated; } });
 Object.defineProperty(exports, "onPartnerApplicationUpdated", { enumerable: true, get: function () { return triggers_1.onPartnerApplicationUpdated; } });
@@ -183,6 +184,24 @@ exports.generateResumePdfHttp = functions
                 userId = decodedToken.uid;
                 resumeDataToUse = req.body.resumeData; // Use provided data (allows drafts)
                 templateIdToUse = req.body.templateId;
+                // Fallback: If no resumeData provided, try to fetch by ID (for owner previews of saved resumes)
+                if (!resumeDataToUse && req.body.resumeId) {
+                    console.log(`Authenticated request missing body data, fetching from DB for user: ${userId}`);
+                    const doc = await admin.firestore()
+                        .collection("users")
+                        .doc(userId) // The authenticated user
+                        .collection("resumes")
+                        .doc(req.body.resumeId)
+                        .get();
+                    if (doc.exists) {
+                        const fetchedData = doc.data();
+                        resumeDataToUse = { ...fetchedData, id: doc.id };
+                        templateIdToUse = fetchedData.templateId;
+                    }
+                    else {
+                        console.warn("Resume not found for authenticated user");
+                    }
+                }
             }
             catch (e) {
                 console.error("Token verification failed:", e);
@@ -553,4 +572,6 @@ exports.getInterviewAuthToken = functions.region('us-west1').https.onCall(async 
         throw new functions.https.HttpsError("internal", "Failed to generate authentication token");
     }
 });
+// Social
+__exportStar(require("./social"), exports);
 //# sourceMappingURL=index.js.map

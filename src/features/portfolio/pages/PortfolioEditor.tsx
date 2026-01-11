@@ -224,6 +224,7 @@ const PortfolioEditor: React.FC = () => {
             projects: data.projects || [],
             socialLinks: data.socialLinks || [],
             contactEmail: data.contactEmail || '',
+            phone: data.phone || '',
             theme: data.theme || { primaryColor: '#2563eb', darkMode: false },
             sectionLabels: data.sectionLabels || {
                 about: 'About Me',
@@ -231,6 +232,10 @@ const PortfolioEditor: React.FC = () => {
                 techStack: 'Tech Stack',
                 projects: 'Featured Projects',
                 contact: 'Contact'
+            },
+            businessCard: data.businessCard || {
+                orientation: 'horizontal',
+                usePhotoBackground: false
             },
             attachedResumeId: data.attachedResumeId || null,
             updatedAt: data.updatedAt || Date.now(),
@@ -282,6 +287,10 @@ const PortfolioEditor: React.FC = () => {
                         buttonAlignment: 'center'
                     }
                 } : undefined,
+                businessCard: {
+                    orientation: 'horizontal',
+                    usePhotoBackground: false
+                },
                 hero: {
                     headline: username || 'Your Name',
                     subheadline: 'Product Designer',
@@ -294,6 +303,7 @@ const PortfolioEditor: React.FC = () => {
                 projects: [],
                 socialLinks: [],
                 contactEmail: '',
+                phone: '',
                 theme: { primaryColor: '#2563eb', darkMode: false },
                 sectionLabels: {
                     about: 'About Me',

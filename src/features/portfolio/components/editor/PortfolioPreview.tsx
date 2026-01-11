@@ -1,4 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { Smartphone, Monitor, RotateCcw, ZoomIn, ZoomOut } from 'lucide-react';
+import IntroOverlay from '../intro/IntroOverlay';
 import { PortfolioData } from '../../types/portfolio';
 import { TEMPLATES } from '../../templates';
 
@@ -14,24 +16,29 @@ interface PortfolioPreviewProps {
 
 const PortfolioPreview: React.FC<PortfolioPreviewProps> = ({
     portfolioData,
-    activeDevice,
+    activeDevice: initialActiveDevice,
     viewMode,
     isMobile,
     onFocusField,
     onUpdate,
     onClosePreview
 }) => {
+    // Local state for device preview (defaults to prop, but can be toggled in toolbar)
+    const [currentDevice, setCurrentDevice] = useState<'desktop' | 'mobile'>(initialActiveDevice);
+    const [showIntro, setShowIntro] = useState(false);
+    const [zoom, setZoom] = useState(1);
 
-    // Memoize template to avoid unnecessary lookups, though object lookup is fast
-    // Memoize template to avoid unnecessary lookups, though object lookup is fast
+    // Sync with prop if it changes (optional, but good practice if parent controls it too)
+    useEffect(() => {
+        setCurrentDevice(initialActiveDevice);
+    }, [initialActiveDevice]);
+
+    // Memoize template to avoid unnecessary lookups
     const CurrentTemplate = useMemo(() => {
         if (!portfolioData) return TEMPLATES.minimalist;
 
-        // Explicit override for Link-in-Bio mode to support dynamic themes
-        // (e.g. if templateId is 'neo_xmas', it's not a component, so we map it to linktree_visual)
         if (portfolioData.mode === 'linkinbio') {
             const id = portfolioData.templateId as string;
-            // If it is one of the structural keys, use it. Otherwise default to visual.
             if (['linktree_minimal', 'linktree_visual', 'linktree_corporate', 'linktree_bento'].includes(id)) {
                 return TEMPLATES[id as keyof typeof TEMPLATES];
             }
@@ -41,6 +48,9 @@ const PortfolioPreview: React.FC<PortfolioPreviewProps> = ({
         return TEMPLATES[portfolioData.templateId as keyof typeof TEMPLATES] || TEMPLATES.minimalist;
     }, [portfolioData?.templateId, portfolioData?.mode]);
 
+    const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.1, 1.5));
+    const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.1, 0.5));
+
     if (!portfolioData) return null;
 
     return (
@@ -49,52 +59,115 @@ const PortfolioPreview: React.FC<PortfolioPreviewProps> = ({
             bg-[#f9fafb] dark:bg-[#0b0c10] bg-dot-pattern
             ${isMobile && viewMode === 'edit' ? 'hidden' : 'flex'}
         `}>
-            {/* Browser Frame */}
-            <div
-                className={`
-                    bg-white h-full shadow-2xl transition-all duration-500 ease-in-out flex flex-col rounded-xl overflow-hidden
-                    ${activeDevice === 'mobile' ? 'w-[375px] max-h-[812px] border-[8px] border-gray-800' : 'w-full max-w-6xl border border-gray-800'}
-                `}
-            >
-                {/* Browser Address Bar */}
-                <div className="h-8 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center px-4 shrink-0 gap-2">
-                    <div className="flex gap-1.5 group/traffic">
-                        <button
-                            onClick={onClosePreview}
-                            className="w-2.5 h-2.5 rounded-full bg-red-400 hover:scale-125 hover:bg-red-500 transition-all cursor-pointer flex items-center justify-center group/close"
-                            title="Close Preview"
-                        >
-                            <span className="opacity-0 group-hover/close:opacity-100 text-[8px] leading-none text-red-900 font-bold">×</span>
-                        </button>
-                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
-                        <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
+            {/* Toolbar */}
+            <div className="absolute top-4 right-4 flex items-center gap-2 z-30">
+                {/* Zoom Controls */}
+                <div className="flex bg-white rounded-lg shadow-sm border border-gray-200 p-1 mr-2">
+                    <button
+                        onClick={handleZoomOut}
+                        className="p-2 text-gray-400 hover:text-gray-600 rounded-md transition-colors"
+                        title="Zoom Out"
+                    >
+                        <ZoomOut size={18} />
+                    </button>
+                    <div className="flex items-center px-1 text-xs font-mono text-gray-400">
+                        {Math.round(zoom * 100)}%
                     </div>
-                    <div className="flex-1 mx-4 bg-white dark:bg-black/20 h-5 rounded flex items-center px-2 text-[10px] text-gray-400 font-mono overflow-hidden whitespace-nowrap">
-                        careervivid.app/portfolio/{portfolioData.userId}
-                    </div>
+                    <button
+                        onClick={handleZoomIn}
+                        className="p-2 text-gray-400 hover:text-gray-600 rounded-md transition-colors"
+                        title="Zoom In"
+                    >
+                        <ZoomIn size={18} />
+                    </button>
                 </div>
 
-                {/* Live Template Render */}
-                {(() => {
-                    const theme = portfolioData.theme || { darkMode: false, primaryColor: '#000000' } as any;
-                    const isDark = theme.darkMode;
-                    const isExplicitlyLight = theme.backgroundColor?.toLowerCase() === '#ffffff' || theme.backgroundColor?.toLowerCase() === '#fff';
-                    const wrapperBg = (isDark && isExplicitlyLight) ? '#0f1117' : (theme.backgroundColor || (isDark ? '#0f1117' : '#ffffff'));
+                {portfolioData.linkInBio?.introPage?.enabled && (
+                    <button
+                        onClick={() => setShowIntro(true)}
+                        className="p-2 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 text-gray-600 tooltip-trigger"
+                        title="Replay Intro"
+                    >
+                        <RotateCcw size={18} />
+                    </button>
+                )}
 
-                    return (
-                        <div
-                            className="flex-1 overflow-y-auto text-gray-900 scroll-smooth transition-colors duration-500"
-                            style={{ backgroundColor: wrapperBg }}
-                        >
-                            <CurrentTemplate
-                                data={portfolioData}
-                                onEdit={onFocusField}
-                                onUpdate={onUpdate}
-                                isMobileView={activeDevice === 'mobile'}
-                            />
-                        </div>
-                    );
-                })()}
+                <div className="flex bg-white rounded-lg shadow-sm border border-gray-200 p-1">
+                    <button
+                        onClick={() => setCurrentDevice('mobile')}
+                        className={`p-2 rounded-md transition-colors ${currentDevice === 'mobile' ? 'bg-indigo-50 text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+                        title="Mobile View"
+                    >
+                        <Smartphone size={18} />
+                    </button>
+                    <button
+                        onClick={() => setCurrentDevice('desktop')}
+                        className={`p-2 rounded-md transition-colors ${currentDevice === 'desktop' ? 'bg-indigo-50 text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+                        title="Desktop View"
+                    >
+                        <Monitor size={18} />
+                    </button>
+                </div>
+
+                {onClosePreview && (
+                    <button
+                        onClick={onClosePreview}
+                        className="w-8 h-8 rounded-full bg-red-400 hover:bg-red-500 text-white flex items-center justify-center transition-colors shadow-sm ml-2"
+                        title="Close Preview"
+                    >
+                        <span className="font-bold text-lg leading-none">&times;</span>
+                    </button>
+                )}
+            </div>
+
+            {/* Browser Frame with Zoom */}
+            <div
+                className={`
+                    transition-all duration-300 shadow-2xl overflow-hidden relative
+                    ${currentDevice === 'mobile' ? 'w-[375px] h-[750px] rounded-[40px] border-[12px] border-gray-900' : 'w-full h-full rounded-xl border border-gray-200'}
+                `}
+                style={{
+                    transform: `scale(${zoom})`,
+                    transformOrigin: 'center center'
+                }}
+            >
+                {/* Intro Overlay Preview */}
+                {portfolioData.linkInBio?.introPage?.enabled && showIntro && (
+                    <div className="absolute inset-0 z-[100] rounded-[inherit] overflow-hidden">
+                        <IntroOverlay
+                            config={portfolioData.linkInBio.introPage}
+                            onEnter={() => setShowIntro(false)}
+                            position="absolute"
+                            portfolioId={portfolioData.id}
+                            isPreview={true}
+                        />
+                    </div>
+                )}
+
+                {/* Content Iframe / Component */}
+                <div className="w-full h-full overflow-y-auto bg-white custom-scrollbar relative">
+                    {/* Component Rendering */}
+                    {(() => {
+                        const theme = portfolioData.theme || { darkMode: false, primaryColor: '#000000' } as any;
+                        const isDark = theme.darkMode;
+                        const isExplicitlyLight = theme.backgroundColor?.toLowerCase() === '#ffffff' || theme.backgroundColor?.toLowerCase() === '#fff';
+                        const wrapperBg = (isDark && isExplicitlyLight) ? '#0f1117' : (theme.backgroundColor || (isDark ? '#0f1117' : '#ffffff'));
+
+                        return (
+                            <div
+                                className="min-h-full transition-colors duration-500"
+                                style={{ backgroundColor: wrapperBg }}
+                            >
+                                <CurrentTemplate
+                                    data={portfolioData}
+                                    onEdit={onFocusField}
+                                    onUpdate={onUpdate}
+                                    isMobileView={currentDevice === 'mobile'}
+                                />
+                            </div>
+                        );
+                    })()}
+                </div>
             </div>
         </div>
     );
