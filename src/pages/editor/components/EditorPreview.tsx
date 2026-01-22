@@ -1,7 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { ResumeData } from '../../../types';
 import ResumePreview from '../../../components/ResumePreview';
 import AdvancedAnnotationCanvas from '../../../components/AdvancedAnnotationCanvas';
+import PageBreakGuides from './PageBreakGuides';
 import { AnnotationObject } from '../../../services/annotationService';
 
 interface EditorPreviewProps {
@@ -24,8 +25,26 @@ const EditorPreview: React.FC<EditorPreviewProps> = ({
     onResumeChange, onFocusField, onDoubleClick
 }) => {
     const editorPreviewContainerRef = useRef<HTMLDivElement>(null);
-    const previewRef = useRef<any>(null); // Ref for the ResumePreview component if it exposes methods
+    const previewRef = useRef<HTMLDivElement>(null);
     const blurOverlayRef = useRef<HTMLDivElement>(null);
+    const [contentHeight, setContentHeight] = useState<number>(0);
+
+    // Track content height changes for page break guides
+    useEffect(() => {
+        const element = previewRef.current;
+        if (!element) return;
+
+        const observer = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                // Use scrollHeight to get total content height including overflow
+                // But ResumePreview is growing now.
+                setContentHeight(entry.target.scrollHeight);
+            }
+        });
+
+        observer.observe(element);
+        return () => observer.disconnect();
+    }, [resume]); // Re-attach if resume changes drastically, though Ref should be stable
 
     return (
         <div
@@ -38,12 +57,12 @@ const EditorPreview: React.FC<EditorPreviewProps> = ({
         >
             <div className="min-h-full w-full flex justify-center items-start p-4 md:p-8 lg:p-12 relative">
                 <div
-                    className="bg-white shadow-2xl rounded-sm origin-top transition-transform duration-300 relative overflow-hidden"
+                    className="bg-white shadow-2xl rounded-sm origin-top transition-transform duration-300 relative"
                     style={{
                         width: '210mm', // Fixed A4 width
                         minHeight: '297mm', // Fixed A4 height ratio aspect
                         transform: `scale(${scale})`,
-                        marginBottom: `-${(1 - scale) * 1122}px` // approximate 297mm in pixels (96dpi) is 1122
+                        marginBottom: `-${(1 - scale) * (Math.max(contentHeight, 1122))}px`
                     }}
                     onDoubleClick={onDoubleClick}
                     title="Double-click to enter full-screen preview"
@@ -55,6 +74,9 @@ const EditorPreview: React.FC<EditorPreviewProps> = ({
                         onUpdate={onResumeChange}
                         onFocus={onFocusField}
                     />
+
+                    {/* Dynamic Page Break Guides */}
+                    <PageBreakGuides contentHeight={contentHeight} scale={scale} />
 
                     {/* Annotation Overlay for Review Feedback */}
                     {showAnnotationOverlay && annotationUrl && (
@@ -72,7 +94,7 @@ const EditorPreview: React.FC<EditorPreviewProps> = ({
                     {/* Anti-Screenshot Blur Overlay */}
                     <div
                         ref={blurOverlayRef}
-                        className="absolute inset-0 backdrop-blur-3xl bg-white/40 dark:bg-gray-900/40 z-50 items-center justify-center"
+                        className="absolute inset-0 backdrop-blur-3xl bg-white/40 dark:bg-gray-900/40 z-50 items-center justify-center rounded-sm overflow-hidden"
                         style={{ display: isPreviewBlurred ? 'flex' : 'none' }}
                     >
                         <div className="text-center max-w-md mx-auto px-6 py-8 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700">
