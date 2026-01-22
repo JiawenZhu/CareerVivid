@@ -9,11 +9,29 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
   const { personalDetails, professionalSummary, employmentHistory, education, skills, websites, sectionTitles, customIcons } = resume;
 
   const titleStyle = { fontFamily: `'${titleFont}', sans-serif` };
-  const bodyStyle = { fontFamily: `'${bodyFont}', sans-serif` };
+  const bodyStyle: React.CSSProperties = {
+    fontFamily: `'${bodyFont}', sans-serif`,
+    fontSize: 'calc(1rem * var(--body-scale, 1))',
+    lineHeight: 'var(--line-height, 1.4)',
+  };
+
+  // Section and element spacing using CSS variables
+  const sectionStyle: React.CSSProperties = {
+    marginBottom: 'var(--section-gap, 1.5rem)',
+  };
+  const paragraphStyle: React.CSSProperties = {
+    marginBottom: 'var(--paragraph-gap, 0.5rem)',
+  };
 
   return (
-    <div className="p-10 text-gray-800 bg-white" style={bodyStyle}>
-      <header className="text-left mb-8">
+    <div
+      className="text-gray-800 bg-white"
+      style={{
+        ...bodyStyle,
+        padding: 'var(--page-margin, 2.5rem)',
+      }}
+    >
+      <header className="text-left" style={sectionStyle}>
         <div className="flex gap-4 items-end">
           <InlineEdit
             value={personalDetails.firstName}
@@ -66,36 +84,36 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
         </div>
       </header>
 
-      <hr className="mb-6" />
+      <hr style={{ marginBottom: 'var(--section-gap, 1.5rem)' }} />
 
       <main>
-        <section className="mb-6">
+        <section style={sectionStyle}>
           <InlineEdit
             value={resume.sectionTitles?.profile || 'Profile'}
             fieldId="sectionTitles.profile"
             onFocus={onFocus}
-            className="text-sm font-bold uppercase text-gray-500 tracking-widest mb-3 block"
+            className="text-sm font-bold uppercase text-gray-500 tracking-widest block"
             tagName="h3"
-            style={titleStyle}
+            style={{ ...titleStyle, ...paragraphStyle }}
           />
           <InlineEdit
             value={professionalSummary}
             fieldId="professionalSummary"
             onFocus={onFocus}
             multiline
-            className="text-sm leading-relaxed block"
+            className="leading-relaxed block"
             placeholder="Professional Summary..."
           />
         </section>
 
-        <section className="mb-6">
+        <section style={sectionStyle}>
           <InlineEdit
             value={resume.sectionTitles?.skills || 'Skills'}
             fieldId="sectionTitles.skills"
             onFocus={onFocus}
-            className="text-sm font-bold uppercase text-gray-500 tracking-widest mb-3 block"
+            className="text-sm font-bold uppercase text-gray-500 tracking-widest block"
             tagName="h3"
-            style={titleStyle}
+            style={{ ...titleStyle, ...paragraphStyle }}
           />
           <div className="flex flex-wrap gap-2">
             {skills.map((skill, index) => (
@@ -110,17 +128,17 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
           </div>
         </section>
 
-        <section className="mb-6">
+        <section style={sectionStyle}>
           <InlineEdit
             value={resume.sectionTitles?.experience || 'Experience'}
             fieldId="sectionTitles.experience"
             onFocus={onFocus}
-            className="text-sm font-bold uppercase text-gray-500 tracking-widest mb-4 block"
+            className="text-sm font-bold uppercase text-gray-500 tracking-widest block"
             tagName="h3"
-            style={titleStyle}
+            style={{ ...titleStyle, ...paragraphStyle }}
           />
           {employmentHistory.map((job, index) => (
-            <div key={job.id} className="mb-5">
+            <div key={job.id} style={{ marginBottom: 'var(--paragraph-gap, 0.5rem)' }} className="mb-5">
               <div className="flex justify-between items-baseline">
                 <InlineEdit
                   value={job.jobTitle}
@@ -145,7 +163,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
                 fieldId={`employmentHistory[${index}].description`}
                 onFocus={onFocus}
                 multiline
-                className="text-sm mt-1 leading-relaxed whitespace-pre-wrap block"
+                className="mt-1 leading-relaxed whitespace-pre-wrap block"
               />
             </div>
           ))}
@@ -156,12 +174,12 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
             value={resume.sectionTitles?.education || 'Education'}
             fieldId="sectionTitles.education"
             onFocus={onFocus}
-            className="text-sm font-bold uppercase text-gray-500 tracking-widest mb-4 block"
+            className="text-sm font-bold uppercase text-gray-500 tracking-widest block"
             tagName="h3"
-            style={titleStyle}
+            style={{ ...titleStyle, ...paragraphStyle }}
           />
           {education.map((edu, index) => (
-            <div key={edu.id} className="mb-4">
+            <div key={edu.id} style={{ marginBottom: 'var(--paragraph-gap, 0.5rem)' }} className="mb-4">
               <div className="flex justify-between items-baseline">
                 <InlineEdit
                   value={edu.degree}
@@ -186,7 +204,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
                 fieldId={`education[${index}].description`}
                 onFocus={onFocus}
                 multiline
-                className="text-sm mt-1 leading-relaxed whitespace-pre-wrap block"
+                className="mt-1 leading-relaxed whitespace-pre-wrap block"
                 placeholder="Description..."
               />
             </div>
@@ -196,3 +214,4 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
     </div>
   );
 };
+

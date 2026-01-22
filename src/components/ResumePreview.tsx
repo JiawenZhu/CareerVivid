@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ResumeData, TemplateId } from '../types';
+import { ResumeData, TemplateId, DEFAULT_FORMATTING_SETTINGS } from '../types';
 import { SydneyTemplate } from './templates/SydneyTemplate';
 import { ModernTemplate } from './templates/ModernTemplate';
 import { CreativeTemplate } from './templates/CreativeTemplate';
@@ -94,11 +94,28 @@ const ResumePreview: React.FC<ResumePreviewProps> = React.memo(({ resume, templa
     }
   };
 
+  // Get formatting settings with defaults
+  const fmt = resume.formattingSettings || DEFAULT_FORMATTING_SETTINGS;
+
+  // CSS variables for real-time formatting
+  const formattingStyles: React.CSSProperties = {
+    '--body-scale': fmt.bodyScale,
+    '--line-height': fmt.lineHeight,
+    '--section-gap': `${fmt.sectionGap}rem`,
+    '--paragraph-gap': `${fmt.paragraphGap}rem`,
+    '--page-margin': `${fmt.pageMargin}rem`,
+  } as React.CSSProperties;
+
   return (
-    <div className="w-full aspect-[210/297] max-w-full bg-white shadow-lg" ref={previewRef}>
+    <div
+      className="w-full min-h-[297mm] max-w-full bg-white shadow-lg relative"
+      ref={previewRef}
+      style={formattingStyles}
+    >
       {renderTemplate()}
     </div>
   );
 });
 
 export default ResumePreview;
+

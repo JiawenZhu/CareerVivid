@@ -77,6 +77,23 @@ export interface CustomIcons {
   location?: string;
 }
 
+// Advanced Formatting Settings for fine-tuning resume layout
+export interface FormattingSettings {
+  bodyScale: number;      // Font scale multiplier (0.85 - 1.2)
+  lineHeight: number;     // Line-height value (1.0 - 2.0)
+  sectionGap: number;     // Gap between sections in rem (0.5 - 3)
+  paragraphGap: number;   // Gap between paragraphs in rem (0 - 1)
+  pageMargin: number;     // Page padding in rem (1 - 4)
+}
+
+export const DEFAULT_FORMATTING_SETTINGS: FormattingSettings = {
+  bodyScale: 1,
+  lineHeight: 1.4,
+  sectionGap: 1.5,
+  paragraphGap: 0.5,
+  pageMargin: 2,
+};
+
 export interface ResumeData {
   id: string;
   title: string;
@@ -97,6 +114,7 @@ export interface ResumeData {
   sectionTitles?: SectionTitles; // Custom section headers
   customIcons?: CustomIcons; // New field for custom icons
   shareConfig?: ShareConfig; // New field for sharing settings
+  formattingSettings?: FormattingSettings; // Advanced formatting controls
 }
 
 export type TemplateId = string;
@@ -136,6 +154,7 @@ export interface UserProfile {
   stripeCustomerId?: string; // Renamed from stripeId for clarity
   stripeSubscriptionId?: string; // Added for subscription tracking
   stripeSubscriptionStatus?: 'active' | 'trialing' | 'past_due' | 'canceled' | 'unpaid' | 'active_canceling' | null;
+  source?: string;
   // Plan and limits
   plan?: 'free' | 'pro_sprint' | 'pro_monthly';
   resumeLimit?: number; // 2 (free), 8 (sprint), or 15 (monthly)
@@ -472,4 +491,15 @@ export interface JobApplication {
   // Metadata
   appliedAt: any; // Firestore Timestamp
   lastUpdated: any; // Firestore Timestamp
+}
+
+export interface CoverLetter {
+  id: string;
+  userId: string;
+  resumeId: string;
+  jobTitle?: string;
+  companyName?: string;
+  jobDescription: string;
+  content: string;
+  createdAt: any; // Firestore Timestamp
 }
