@@ -1,9 +1,13 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { ResumeData } from '../../../types';
 import ResumePreview from '../../../components/ResumePreview';
 import AdvancedAnnotationCanvas from '../../../components/AdvancedAnnotationCanvas';
 import PageBreakGuides from './PageBreakGuides';
 import { AnnotationObject } from '../../../services/annotationService';
+import { motion, AnimatePresence } from 'framer-motion';
+
+// A4 height at 96 DPI
+const A4_HEIGHT_PX = 1123;
 
 interface EditorPreviewProps {
     resume: ResumeData;
@@ -29,6 +33,10 @@ const EditorPreview: React.FC<EditorPreviewProps> = ({
     const blurOverlayRef = useRef<HTMLDivElement>(null);
     const [contentHeight, setContentHeight] = useState<number>(0);
 
+    // Detect overflow
+    const hasOverflow = useMemo(() => contentHeight > A4_HEIGHT_PX, [contentHeight]);
+    const pageCount = useMemo(() => Math.ceil(contentHeight / A4_HEIGHT_PX) || 1, [contentHeight]);
+
     // Track content height changes for page break guides
     useEffect(() => {
         const element = previewRef.current;
@@ -37,7 +45,6 @@ const EditorPreview: React.FC<EditorPreviewProps> = ({
         const observer = new ResizeObserver((entries) => {
             for (const entry of entries) {
                 // Use scrollHeight to get total content height including overflow
-                // But ResumePreview is growing now.
                 setContentHeight(entry.target.scrollHeight);
             }
         });
@@ -55,6 +62,25 @@ const EditorPreview: React.FC<EditorPreviewProps> = ({
                 overflow-y-auto custom-scrollbar
             `}
         >
+            {/* Overflow Warning Banner */}
+            <AnimatePresence>
+                {hasOverflow && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="sticky top-0 z-50 bg-amber-50 border-b border-amber-200 px-4 py-3 flex items-center justify-center gap-3 shadow-sm"
+                    >
+                        <svg className="w-5 h-5 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <p className="text-sm text-amber-800 font-medium">
+                            Your resume is <span className="font-bold">{pageCount} pages</span>. Content below the red line will appear on page {pageCount}.
+                        </p>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <div className="min-h-full w-full flex justify-center items-start p-4 md:p-8 lg:p-12 relative">
                 <div
                     className="bg-white shadow-2xl rounded-sm origin-top transition-transform duration-300 relative"
