@@ -8,7 +8,7 @@ import { usePracticeHistory } from '../../hooks/useJobHistory';
 import { useAICreditCheck } from '../../hooks/useAICreditCheck';
 import { submitApplication, getApplicationsForUser } from '../../services/applicationService';
 import { JobPosting, WorkModel } from '../../types';
-import { navigate } from '../../App';
+import { navigate } from '../../utils/navigation';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { Loader2, Briefcase, ArrowRight, X, FileText, Send, HelpCircle, LayoutDashboard, Search, Filter, MapPin, Building2, DollarSign, Clock, ExternalLink, PlusCircle, CheckCircle2, Mic, RefreshCw, Trash2 } from 'lucide-react';
 import { SmartDescription } from './components/SmartDescription';
@@ -692,7 +692,7 @@ const JobMarketPage: React.FC = () => {
                                         <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-2">
                                             AI search can make mistakes, so double-check it.{' '}
                                             <a
-                                                href="https://careervivid.app/en/policy#privacy"
+                                                href="https://careervivid.app/policy#privacy"
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="underline hover:text-indigo-800 dark:hover:text-indigo-200"

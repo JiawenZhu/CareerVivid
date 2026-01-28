@@ -6,7 +6,7 @@ import PublicHeader from '../../components/PublicHeader';
 import Footer from '../../components/Footer';
 import InteractiveParticleTitle from '../../components/InteractiveParticleTitle';
 import ParticleBackground from '../../components/ParticleBackground';
-import { navigate } from '../../App';
+import { navigate } from '../../utils/navigation';
 
 const PartnerLandingPage: React.FC = () => {
     // Mouse tracking state removed as it is handled inside ParticleBackground now

@@ -35,6 +35,9 @@ const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, 
     const [proposedResume, setProposedResume] = useState<ResumeData | null>(null);
     const [refineInstruction, setRefineInstruction] = useState('');
 
+    // Stats State
+    const [wordCountStats, setWordCountStats] = useState<{ original: number; new: number } | null>(null);
+
     const [toastMessage, setToastMessage] = useState<string | null>(null);
 
     // Reset when modal opens/closes
@@ -45,6 +48,7 @@ const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, 
             setAnalysis(null);
             setProposedResume(null);
             setRefineInstruction('');
+            setWordCountStats(null);
         }
     }, [isOpen]);
 
@@ -54,21 +58,27 @@ const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, 
     const callAiAgent = async (action: 'analyze' | 'tailor' | 'condense' | 'refine', instruction = '') => {
         setIsProcessing(true);
 
+        // Validation for actions that REQUIRE JD
+        if ((action === 'analyze' || action === 'tailor') && !jobDescription.trim()) {
+            setToastMessage("Please paste a Job Description first.");
+            setIsProcessing(false);
+            return;
+        }
+
         let msg = 'Thinking...';
         if (action === 'analyze') msg = 'Analyzing job description vs resume...';
         if (action === 'tailor') msg = 'Rewriting resume to match job...';
-        if (action === 'condense') msg = 'Condensing content to one page...';
+        if (action === 'condense') msg = 'Condensing content to 450 words...';
         if (action === 'refine') msg = 'Refining based on your feedback...';
         setProcessMessage(msg);
 
         try {
             const tailorFn = httpsCallable(functions, 'tailorResume');
-            // Use current version (proposed) if refining, else original resume
             const resumeToSend = (action === 'refine' && proposedResume) ? proposedResume : resume;
 
             const result = await tailorFn({
                 resume: resumeToSend,
-                jobDescription,
+                jobDescription, // Backend handles optional JD for 'condense'
                 action,
                 instruction
             });
@@ -81,8 +91,16 @@ const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, 
                 } else {
                     setProposedResume(data.tailoredResume);
                     setStep('PREVIEW'); // Move to preview mode
+
+                    if (data.originalWordCount && data.newWordCount) {
+                        setWordCountStats({
+                            original: data.originalWordCount,
+                            new: data.newWordCount
+                        });
+                    }
+
                     if (action === 'condense') {
-                        setToastMessage("Resume condensed & formatting updated!");
+                        setToastMessage("Resume condensed to one page!");
                     } else if (action === 'refine') {
                         setToastMessage("Refinements applied!");
                         setRefineInstruction(''); // Clear input
@@ -111,19 +129,13 @@ const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, 
 
     return ReactDOM.createPortal(
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-            {toastMessage && (
-                <Toast
-                    message={toastMessage}
-                    onClose={() => setToastMessage(null)}
-                    duration={2000}
-                />
-            )}
+            {/* ... (keep toast and modal container) */}
 
             <div className={`
                 bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-5xl flex flex-col 
                 h-[90vh] transition-all duration-300 ${theme === 'dark' ? 'dark' : ''}
             `}>
-                {/* Header */}
+                {/* ... (keep header) */}
                 <header className="p-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-white dark:bg-gray-800 rounded-t-xl z-10">
                     <div className="flex items-center gap-3">
                         <div className="bg-primary-100 dark:bg-primary-900/30 p-2 rounded-lg">
@@ -132,7 +144,7 @@ const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, 
                         <div>
                             <h2 className="text-xl font-bold text-gray-900 dark:text-white">AI Resume Tailor</h2>
                             <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                                Powered by Gemini 2.0 Flash <Zap size={10} className="text-yellow-500 fill-yellow-500" />
+                                Powered by Gemini 3 Flash <Zap size={10} className="text-yellow-500 fill-yellow-500" />
                             </p>
                         </div>
                     </div>
@@ -178,7 +190,7 @@ const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, 
                                     <button
                                         onClick={() => callAiAgent('analyze')}
                                         disabled={!jobDescription.trim() || isProcessing}
-                                        className="h-14 flex items-center justify-center gap-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:border-primary-500 hover:text-primary-600 text-gray-700 dark:text-gray-200 font-semibold rounded-xl transition-all shadow-sm hover:shadow-md"
+                                        className="h-14 flex items-center justify-center gap-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:border-primary-500 hover:text-primary-600 text-gray-700 dark:text-gray-200 font-semibold rounded-xl transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isProcessing && processMessage.includes('Analyzing') ? <Loader2 className="animate-spin" /> : <BarChart size={18} />}
                                         Analyze Match First
@@ -187,7 +199,7 @@ const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, 
                                     <button
                                         onClick={() => callAiAgent('tailor')}
                                         disabled={!jobDescription.trim() || isProcessing}
-                                        className="h-14 flex items-center justify-center gap-2 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white font-bold rounded-xl shadow-lg shadow-primary-500/30 transition-all hover:translate-y-[-2px]"
+                                        className="h-14 flex items-center justify-center gap-2 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white font-bold rounded-xl shadow-lg shadow-primary-500/30 transition-all hover:translate-y-[-2px] disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isProcessing && processMessage.includes('Rewriting') ? <Loader2 className="animate-spin" /> : <Sparkles size={18} />}
                                         ✨ Tailor to Job
@@ -195,8 +207,8 @@ const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, 
 
                                     <button
                                         onClick={() => callAiAgent('condense')}
-                                        disabled={!jobDescription.trim() || isProcessing}
-                                        className="h-14 flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-xl shadow-md transition-all hover:shadow-lg dark:bg-slate-700 dark:hover:bg-slate-600"
+                                        disabled={isProcessing}
+                                        className="h-14 flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-xl shadow-md transition-all hover:shadow-lg dark:bg-slate-700 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isProcessing && processMessage.includes('Condensing') ? <Loader2 className="animate-spin" /> : <FileInput size={18} />}
                                         Smart Condense (1-Page)
@@ -217,16 +229,25 @@ const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, 
                                         <div className="flex items-center justify-between mb-4">
                                             <div className="flex flex-col">
                                                 <span className="text-3xl font-bold text-gray-900 dark:text-white">Optimized</span>
-                                                <span className="text-xs text-green-600 font-medium flex items-center gap-1">
-                                                    <Check size={12} /> Keywords Integrated
-                                                </span>
+                                                {wordCountStats ? (
+                                                    <span className="text-xs text-primary-600 font-medium flex items-center gap-1 mt-1">
+                                                        <Zap size={12} /> {wordCountStats.original} → {wordCountStats.new} words
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-xs text-green-600 font-medium flex items-center gap-1">
+                                                        <Check size={12} /> Keywords Integrated
+                                                    </span>
+                                                )}
                                             </div>
                                             <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 font-bold text-xl border-4 border-white dark:border-gray-800 shadow-sm">
                                                 A+
                                             </div>
                                         </div>
                                         <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                                            I've rewritten your summary and refined your bullet points to match the job description. The format has been adjusted for better readability.
+                                            {wordCountStats
+                                                ? `I've condensed your resume by ${Math.round((1 - wordCountStats.new / wordCountStats.original) * 100)}%. The content was tightened to fit the 1-page target.`
+                                                : "I've rewritten your summary and refined your bullet points to match the job description. The format has been adjusted for better readability."
+                                            }
                                         </p>
                                     </div>
 

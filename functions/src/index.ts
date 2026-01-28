@@ -37,6 +37,12 @@ export * from './stripe';
 export * from './stripeConnect';
 export { onUserCreated, onPartnerApplicationUpdated, onApplicationCreated } from "./triggers";
 export { onEmailRequestCreated } from "./email";
+export { sendSubscriptionNotifications } from "./subscriptionNotifications";
+export { sendTestEmails } from "./sendTestEmails";
+export { generateCoverLetter } from "./coverLetter";
+export { tailorResume } from "./tailorResume";
+export { exportToGoogleDocs } from "./googleDocs";
+
 
 const getFunctionConfig = () => {
   try {
@@ -100,7 +106,7 @@ const generatePdfBuffer = async (resumeData: ResumeData, templateId: string) => 
 
   const page = await browser.newPage();
   await page.goto(PDF_PREVIEW_URL, { waitUntil: "networkidle0" });
-  await page.emulateMediaType("screen");
+  await page.emulateMediaType("print");
   await waitForPdfStatus(page, "ready");
   await injectPreviewPayload(page, { resumeData, templateId });
   await waitForPdfStatus(page, "rendered");
@@ -625,3 +631,326 @@ export const getInterviewAuthToken = functions.region('us-west1').https.onCall(a
 });
 // Social
 export * from "./social";
+
+export const connectTikTok = functions
+  .region('us-west1')
+  .runWith({ timeoutSeconds: 60, memory: "256MB" }) // No need to defineSecrets if using .env
+  .https.onRequest(async (req, res) => {
+    corsHandler(req, res, async () => {
+      // 1. Method Check
+      if (req.method !== 'POST') {
+        res.status(405).send('Method Not Allowed');
+        return;
+      }
+
+      // 2. Auth Check
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        res.status(401).send('Unauthorized');
+        return;
+      }
+
+      let userId = '';
+      try {
+        const idToken = authHeader.split('Bearer ')[1];
+        const decodedToken = await admin.auth().verifyIdToken(idToken);
+        userId = decodedToken.uid;
+      } catch (err) {
+        console.error("Token verification failed:", err);
+        res.status(401).send('Unauthorized');
+        return;
+      }
+
+      // 3. Get Code from Body
+      const { code, redirectUri } = req.body;
+      if (!code) {
+        res.status(400).send('Missing auth code');
+        return;
+      }
+
+      const clientKey = process.env.TIKTOK_CLIENT_KEY;
+      const clientSecret = process.env.TIKTOK_CLIENT_SECRET;
+
+      if (!clientKey || !clientSecret) {
+        console.error("Missing TikTok Credentials in .env");
+        res.status(500).send('Internal Configuration Error');
+        return;
+      }
+
+      try {
+        // 4. Exchange Code for Token
+        const params = new URLSearchParams();
+        params.append('client_key', clientKey);
+        params.append('client_secret', clientSecret);
+        params.append('code', code);
+        params.append('grant_type', 'authorization_code');
+        params.append('redirect_uri', redirectUri || 'https://careervivid.app/dashboard/integrations');
+
+        const tokenResp = await fetch('https://open.tiktokapis.com/v2/oauth/token/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Cache-Control': 'no-cache'
+          },
+          body: params
+        });
+
+        const tokenData = await tokenResp.json();
+
+        if (tokenData.error) {
+          console.error("TikTok Token Error:", tokenData);
+          res.status(400).json({ error: tokenData.error_description || "Failed to exchange code" });
+          return;
+        }
+
+        const { access_token, open_id, refresh_token, expires_in } = tokenData;
+
+
+        // 5. Fetch User Info (including verification)
+        const userResp = await fetch('https://open.tiktokapis.com/v2/user/info/?fields=avatar_url,display_name,follower_count,likes_count,video_count,is_verified', {
+          headers: {
+            'Authorization': `Bearer ${access_token}`
+          }
+        });
+        const userDataWrapper = await userResp.json();
+        const tikTokUser = userDataWrapper.data?.user || {};
+
+        // 5.1 Fetch Recent Videos
+        let recentVideos: any[] = [];
+        try {
+          const videoResp = await fetch('https://open.tiktokapis.com/v2/video/list/?fields=cover_image_url,video_description,embed_link', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${access_token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              max_count: 3
+            })
+          });
+          const videoData = await videoResp.json();
+          if (videoData.data?.videos) {
+            recentVideos = videoData.data.videos.map((v: any) => ({
+              coverUrl: v.cover_image_url,
+              title: v.video_description || 'No description',
+              link: v.embed_link
+            }));
+          }
+        } catch (err) {
+          console.error('Error fetching TikTok videos:', err);
+        }
+
+        // Sanitize profile data
+        const sanitizedProfile = {
+          displayName: tikTokUser.display_name || 'TikTok User',
+          avatarUrl: tikTokUser.avatar_url || null,
+          followerCount: tikTokUser.follower_count ?? null,
+          likesCount: tikTokUser.likes_count ?? null,
+          videoCount: tikTokUser.video_count ?? null,
+          isVerified: tikTokUser.is_verified || false
+        };
+
+        // 6. Save to Firestore
+        await admin.firestore().collection('users').doc(userId).collection('integrations').doc('tiktok').set({
+          connected: true,
+          accessToken: access_token, // Encrypt in production!
+          refreshToken: refresh_token,
+          openId: open_id,
+          expiresAt: admin.firestore.Timestamp.fromMillis(Date.now() + (expires_in * 1000)),
+          profile: sanitizedProfile,
+          videos: recentVideos,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Also update main profile to reflect connected state if needed
+        await admin.firestore().collection('users').doc(userId).set({
+          integrations: { tiktok: true }
+        }, { merge: true });
+
+        res.json({ success: true, profile: tikTokUser });
+
+      } catch (error: any) {
+        console.error("TikTok Auth Exception:", error);
+        res.status(500).json({ error: error.message });
+      }
+    });
+  });
+
+export const authWithTikTok = functions
+  .region('us-west1')
+  .runWith({ timeoutSeconds: 60, memory: "256MB" })
+  .https.onCall(async (data, context) => {
+    // Note: This is a Callable function, but we might be calling it from a public context (login page),
+    // so we can't enforce context.auth. However, we are minting a token, so we need to be careful.
+    // Actually, checking the flow: Frontend sends code -> Backend exchanges -> Backend mints token.
+    // This is secure because only a valid code from TikTok (which implies user ownership) allows this.
+
+    const { code, redirectUri } = data;
+    if (!code) {
+      throw new functions.https.HttpsError('invalid-argument', 'Missing auth code');
+    }
+
+    const clientKey = process.env.TIKTOK_CLIENT_KEY;
+    const clientSecret = process.env.TIKTOK_CLIENT_SECRET;
+
+    if (!clientKey || !clientSecret) {
+      console.error("Missing TikTok Credentials");
+      throw new functions.https.HttpsError('internal', 'Configuration Error');
+    }
+
+    try {
+      // 1. Exchange Code for Access Token
+      const params = new URLSearchParams();
+      params.append('client_key', clientKey);
+      params.append('client_secret', clientSecret);
+      params.append('code', code);
+      params.append('grant_type', 'authorization_code');
+      params.append('redirect_uri', redirectUri);
+
+      const tokenResp = await fetch('https://open.tiktokapis.com/v2/oauth/token/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Cache-Control': 'no-cache'
+        },
+        body: params
+      });
+
+      const tokenData = await tokenResp.json();
+
+      if (tokenData.error) {
+        console.error("TikTok Token Error:", tokenData);
+        throw new functions.https.HttpsError('aborted', tokenData.error_description || "Failed to exchange code");
+      }
+
+      const { access_token, open_id, refresh_token, expires_in } = tokenData;
+
+      // 2. Fetch User Profile (including stats and verification)
+      const userResp = await fetch('https://open.tiktokapis.com/v2/user/info/?fields=avatar_url,display_name,follower_count,likes_count,video_count,is_verified', {
+        headers: {
+          'Authorization': `Bearer ${access_token}`
+        }
+      });
+      const userDataWrapper = await userResp.json();
+      const tikTokUser = userDataWrapper.data?.user || {};
+
+      // 2.1 Fetch Recent Videos
+      let recentVideos: any[] = [];
+      try {
+        const videoResp = await fetch('https://open.tiktokapis.com/v2/video/list/?fields=cover_image_url,video_description,embed_link', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            max_count: 3
+          })
+        });
+        const videoData = await videoResp.json();
+        if (videoData.data?.videos) {
+          recentVideos = videoData.data.videos.map((v: any) => ({
+            coverUrl: v.cover_image_url,
+            title: v.video_description || 'No description',
+            link: v.embed_link
+          }));
+        }
+      } catch (err) {
+        console.error('Error fetching TikTok videos:', err);
+      }
+
+      // Sanitize profile data - handle undefined values that Firestore rejects
+      const sanitizedProfile = {
+        displayName: tikTokUser.display_name || 'TikTok User',
+        avatarUrl: tikTokUser.avatar_url || null,
+        followerCount: tikTokUser.follower_count ?? null,
+        likesCount: tikTokUser.likes_count ?? null,
+        videoCount: tikTokUser.video_count ?? null,
+        isVerified: tikTokUser.is_verified || false
+      };
+
+      // 3. Find or Create User in Firestore
+      // We query by tiktok.openId
+      const usersRef = admin.firestore().collection('users');
+      const querySnapshot = await usersRef.where('integrations.tiktok.openId', '==', open_id).limit(1).get();
+
+      let uid;
+      let isNewUser = false;
+
+      if (!querySnapshot.empty) {
+        // User exists
+        uid = querySnapshot.docs[0].id;
+
+        // Update token with sanitized profile
+        await usersRef.doc(uid).update({
+          'integrations.tiktok': {
+            connected: true,
+            openId: open_id,
+            accessToken: access_token,
+            refreshToken: refresh_token,
+            expiresAt: admin.firestore.Timestamp.fromMillis(Date.now() + (expires_in * 1000)),
+            profile: sanitizedProfile,
+            videos: recentVideos,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+          }
+        });
+      } else {
+        // Create new user
+        isNewUser = true;
+        const placeholderEmail = `${open_id}@tiktok.careervivid.app`;
+
+        try {
+          // Check if firebase user exists
+          const existingAuth = await admin.auth().getUserByEmail(placeholderEmail).catch(() => null);
+
+          if (existingAuth) {
+            uid = existingAuth.uid;
+          } else {
+            const newAuthUser = await admin.auth().createUser({
+              email: placeholderEmail,
+              displayName: sanitizedProfile.displayName,
+              photoURL: sanitizedProfile.avatarUrl || undefined, // undefined OK for Auth, converts to no photo
+              emailVerified: true
+            });
+            uid = newAuthUser.uid;
+          }
+
+          // Create Firestore Doc with sanitized data
+          await usersRef.doc(uid).set({
+            uid: uid,
+            email: placeholderEmail,
+            displayName: sanitizedProfile.displayName,
+            photoURL: sanitizedProfile.avatarUrl,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            plan: 'free',
+            integrations: {
+              tiktok: {
+                connected: true,
+                openId: open_id,
+                accessToken: access_token,
+                refreshToken: refresh_token,
+                profile: sanitizedProfile,
+                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+              }
+            },
+            source: 'tiktok_biolink'
+          });
+
+        } catch (err) {
+          console.error("Error creating new user:", err);
+          throw new functions.https.HttpsError('internal', 'Failed to create user account');
+        }
+      }
+
+      // 4. Mint Custom Token
+      const customToken = await admin.auth().createCustomToken(uid);
+
+      return { token: customToken, isNewUser };
+
+    } catch (error: any) {
+      console.error("TikTok Auth Function Error:", error);
+      // Re-throw valid HttpsErrors, wrap others
+      if (error.code && error.details) throw error;
+      throw new functions.https.HttpsError('internal', error.message);
+    }
+  });

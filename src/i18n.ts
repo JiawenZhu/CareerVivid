@@ -15,6 +15,9 @@ const getLangFromPath = () => {
   if (parts.length > 0 && supportedCodes.includes(parts[0])) {
     return parts[0];
   }
+  // If no prefix found, we assume English (root path)
+  // This helps i18n init with 'en' immediately instead of waiting for fallback
+  return 'en';
   return undefined;
 };
 

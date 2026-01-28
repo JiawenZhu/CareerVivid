@@ -1,9 +1,10 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
 import HeroVideo from '../components/HeroVideo';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 import { ArrowRight, CheckCircle2, Wand2, LayoutTemplate, Mic, Globe, Star, Loader2 } from 'lucide-react';
 import { subscribeToLandingPageSettings, DEFAULT_LANDING_PAGE_SETTINGS } from '../services/systemSettingsService';
 
@@ -29,8 +30,26 @@ const LandingPage: React.FC = () => {
         );
     }
 
+    const websiteSchema = {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "CareerVivid",
+        "url": "https://careervivid.app/",
+        "description": t('landing.hero_subtitle'),
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://careervivid.app/job-market?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    };
+
     return (
         <div className="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col font-sans selection:bg-primary-100 dark:selection:bg-primary-900">
+            <Helmet>
+                <script type="application/ld+json">
+                    {JSON.stringify(websiteSchema)}
+                </script>
+            </Helmet>
             <PublicHeader />
             <main className="flex-grow">
 

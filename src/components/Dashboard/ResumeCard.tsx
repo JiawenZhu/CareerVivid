@@ -2,7 +2,7 @@ import React, { useState, useRef, useLayoutEffect } from 'react';
 import { Edit3, Copy, Trash2, Share2 } from 'lucide-react';
 import { ResumeData } from '../../types';
 import ResumePreview from '../ResumePreview';
-import { navigate } from '../../App';
+import { navigate } from '../../utils/navigation';
 
 interface ResumeCardProps {
     resume: ResumeData;

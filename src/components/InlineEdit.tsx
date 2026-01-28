@@ -57,7 +57,7 @@ const InlineEdit: React.FC<InlineEditProps> = ({
       title={!isLink ? "Click to edit" : undefined}
       {...props}
     >
-      {value || <span className="opacity-50 italic">{placeholder || 'Click to edit'}</span>}
+      {value || <span className="opacity-50 italic print:hidden">{placeholder || 'Click to edit'}</span>}
 
       {isLink && onFocus && (
         <button

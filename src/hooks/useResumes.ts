@@ -7,7 +7,7 @@ import { createBlankResume } from '../constants';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase';
 import { collection, query, onSnapshot, doc, updateDoc, deleteDoc, addDoc, serverTimestamp, orderBy, getDocs, writeBatch, getDoc } from 'firebase/firestore';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 
 export const useResumes = () => {
     const { currentUser } = useAuth();
@@ -15,11 +15,20 @@ export const useResumes = () => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (!currentUser) {
+        if (!currentUser?.uid) {
             setResumes([]);
             setIsLoading(false);
             return;
         }
+
+        // Only start loading if we don't have resumes or if the user changed
+        // Optimization: If we already have resumes and the ID is same, we technically don't need to hard reset isLoading to true 
+        // unless we want to ensure fresh data on mount. 
+        // But for token refresh, we don't want to show loading spinner.
+        // We can keep the onSnapshot active.
+
+        // Actually, onSnapshot handles updates. If we unmount/remount this effect, we tear down the snapshot.
+        // So we strictly want this effect ONLY to run when UID changes.
 
         setIsLoading(true);
         const resumesCol = collection(db, 'users', currentUser.uid, 'resumes');
@@ -27,29 +36,25 @@ export const useResumes = () => {
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const resumesFromDb: ResumeData[] = [];
-            const blankResume = createBlankResume(); // Used as a fallback structure
+            const blankResume = createBlankResume();
 
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
-                // Hydrate the data from Firestore to ensure all required fields are present
                 const hydratedData = {
-                    ...blankResume, // Ensures all top-level fields exist
-                    ...data,        // Overwrites defaults with DB data
+                    ...blankResume,
+                    ...data,
                     id: doc.id,
-                    section: data.section || 'resumes', // Default to 'resumes'
-                    // Deep merge for personalDetails to ensure it's always an object
+                    section: data.section || 'resumes',
                     personalDetails: {
                         ...blankResume.personalDetails,
                         ...(data.personalDetails || {}),
                     },
-                    // Also ensure arrays are initialized if missing
                     websites: data.websites || [],
                     skills: data.skills || [],
                     employmentHistory: data.employmentHistory || [],
                     education: data.education || [],
                     languages: data.languages || [],
-                    // Safely handle timestamp
-                    updatedAt: data.updatedAt?.toDate().toISOString() || new Date().toISOString()
+                    updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : (data.updatedAt || new Date().toISOString())
                 };
                 resumesFromDb.push(hydratedData as ResumeData);
             });
@@ -61,7 +66,7 @@ export const useResumes = () => {
         });
 
         return () => unsubscribe();
-    }, [currentUser]);
+    }, [currentUser?.uid]);
 
     const getResumeById = useCallback((id: string): ResumeData | undefined => {
         return resumes.find(r => r.id === id);

@@ -126,7 +126,8 @@ export interface PortfolioData {
     // Card Templates
     | 'card_minimal' | 'card_photo' | 'card_modern'
     | 'brutalist_yellow' | 'brutalist_pink' | 'brutalist_blue' | 'brutalist_bw' | 'brutalist_orange'
-    | 'pro_executive' | 'pro_clean' | 'creative_gradient' | 'card_creative_dark' | 'nature_calm' | 'tech_future' | 'abstract_art';
+    | 'pro_executive' | 'pro_clean' | 'creative_gradient' | 'card_creative_dark' | 'nature_calm' | 'tech_future' | 'abstract_art'
+    | 'media_kit'; // New Media Kit Template
     section?: string; // For folder organization in dashboard
 
     // Mode: portfolio (default), linkinbio, or business_card (NEW)
@@ -167,15 +168,24 @@ export interface PortfolioData {
             buttonShape?: 'pill' | 'rounded' | 'sharp' | 'soft-shadow' | 'hard-shadow';
             buttonAlignment?: 'center' | 'left'; // Text alignment
             // Profile Specific
+            profileImageSize?: 'sm' | 'md' | 'lg' | 'xl'; // Avatar size
             profileFontFamily?: string;
             profileTitleColor?: string;
             profileTextColor?: string;
             effects?: {
-                confetti?: boolean;
-                matrix?: boolean;
-                typewriter?: boolean;
-                tilt?: boolean;
-                spinAvatar?: boolean;
+                confetti?: boolean; // Celebration confetti
+                matrix?: boolean; // Matrix rain
+                typewriter?: boolean; // Typewriter effect
+                tilt?: boolean; // 3D tilt
+                spinAvatar?: boolean; // Spin avatar
+                blobs?: boolean; // Ambient blobs
+                noise?: boolean; // Film noise
+                scanlines?: boolean; // Retro scanlines
+                particles?: boolean; // Snow/particles
+                grid?: boolean; // Retro cyber grid
+                fireflies?: boolean; // Fireflies
+                stars?: boolean; // Starfield
+                waves?: boolean; // Liquid waves
             };
             enableSnow?: boolean;
         };
@@ -240,4 +250,6 @@ export interface PortfolioTemplateProps {
     onUpdate?: (updates: Partial<PortfolioData>) => void;
     isMobileView?: boolean;
     isEmbed?: boolean;
+    isFlipped?: boolean; // New prop for card templates to force flip state
+    onToggleFlip?: (flipped: boolean) => void; // Allow parent to handle flip
 }

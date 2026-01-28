@@ -6,7 +6,7 @@ import { BlogPost } from '../types';
 import { collection, query, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Loader2, Calendar, ArrowRight, AlertCircle, Clock } from 'lucide-react';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 
 const BlogListPage: React.FC = () => {
     const { t } = useTranslation();

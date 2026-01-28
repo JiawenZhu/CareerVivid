@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
-import { Send, Loader2, CheckCircle } from 'lucide-react';
+import { Send, Loader2, CheckCircle, CreditCard, Activity } from 'lucide-react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import FAQSection from '../components/FAQSection';
@@ -56,11 +56,36 @@ const ContactPage: React.FC = () => {
             <PublicHeader />
             <main className="flex-grow pt-24 pb-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center max-w-3xl mx-auto mb-16">
-                        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-6">{t('contact.title')}</h1>
-                        <p className="text-xl text-gray-600 dark:text-gray-400">
+                    <div className="text-center max-w-3xl mx-auto mb-12">
+                        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-6">Support & Contact</h1>
+                        <p className="text-xl text-gray-600 dark:text-gray-400 mb-12">
                             {t('contact.subtitle')}
                         </p>
+
+                        {/* Direct Email Channels */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+                            <a href="mailto:support@careervivid.app" className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 block group">
+                                <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Send size={20} />
+                                </div>
+                                <h3 className="font-bold text-lg mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">General Support</h3>
+                                <p className="text-sm text-gray-500">support@careervivid.app</p>
+                            </a>
+                            <a href="mailto:billing@careervivid.app" className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 block group">
+                                <div className="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <CreditCard size={20} />
+                                </div>
+                                <h3 className="font-bold text-lg mb-1 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">Billing & Subscriptions</h3>
+                                <p className="text-sm text-gray-500">billing@careervivid.app</p>
+                            </a>
+                            <a href="mailto:partners@careervivid.app" className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 block group">
+                                <div className="bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Activity size={20} />
+                                </div>
+                                <h3 className="font-bold text-lg mb-1 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Partnerships & Media</h3>
+                                <p className="text-sm text-gray-500">partners@careervivid.app</p>
+                            </a>
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">

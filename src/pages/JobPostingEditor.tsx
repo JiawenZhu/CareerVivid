@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 import { Save, Eye, ArrowLeft, Plus, X } from 'lucide-react';
 import { JobPosting, JobLocationType, JobEmploymentType } from '../types';
 import { createJobPosting, updateJobPosting, getJobPosting, publishJobPosting } from '../services/jobService';

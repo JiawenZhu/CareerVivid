@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowRight, Briefcase, Target, BarChart3, Zap, CheckCircle2, Users } from 'lucide-react';
-import { navigate } from '../../App';
+import { navigate } from '../../utils/navigation';
 import PublicHeader from '../../components/PublicHeader';
 import Footer from '../../components/Footer';
 

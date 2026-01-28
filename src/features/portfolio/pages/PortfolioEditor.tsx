@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { navigate } from '../../../App';
+import { navigate } from '../../../utils/navigation';
 import { db } from '../../../firebase';
 import { doc, onSnapshot, setDoc, getDoc } from 'firebase/firestore';
 import { getUserIdFromUsername } from '../../../services/userService';
@@ -67,7 +67,7 @@ const PortfolioEditor: React.FC = () => {
     const [username, setUsername] = useState<string | null>(getDataFromUrl().username);
     const [ownerUid, setOwnerUid] = useState<string | null>(null);
     const [activeDevice, setActiveDevice] = useState<'desktop' | 'mobile'>('desktop');
-    const [activeSection, setActiveSection] = useState<'hero' | 'timeline' | 'stack' | 'projects' | 'components' | 'design' | 'settings' | 'links' | 'commerce'>('hero');
+    const [activeSection, setActiveSection] = useState<'hero' | 'timeline' | 'stack' | 'projects' | 'components' | 'design' | 'settings' | 'links' | 'commerce' | 'intro'>('hero');
     const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -92,6 +92,7 @@ const PortfolioEditor: React.FC = () => {
 
     // Guest Conversion State
     const [showAuthModal, setShowAuthModal] = useState(false);
+    const [authModalConfig, setAuthModalConfig] = useState({ title: 'Save Your Progress', subtitle: 'Sign in to save your portfolio to your dashboard.' });
     const [alertModal, setAlertModal] = useState({ isOpen: false, title: '', message: '' });
 
     // Helper: Save guest data to persist across login
@@ -108,6 +109,10 @@ const PortfolioEditor: React.FC = () => {
     const handleBack = () => {
         if (!currentUser && ownerUid === 'guest') {
             saveGuestData();
+            setAuthModalConfig({
+                title: 'Save Your Progress',
+                subtitle: 'Sign in to save your portfolio to your dashboard.'
+            });
             setShowAuthModal(true);
             return;
         }
@@ -117,6 +122,10 @@ const PortfolioEditor: React.FC = () => {
     const handleShare = () => {
         if (!currentUser && ownerUid === 'guest') {
             saveGuestData();
+            setAuthModalConfig({
+                title: 'Save Your Progress',
+                subtitle: 'Sign in to save your portfolio to your dashboard.'
+            });
             setShowAuthModal(true);
             return;
         }
@@ -396,8 +405,10 @@ const PortfolioEditor: React.FC = () => {
     const handleUpdate = async (updates: Partial<PortfolioData>) => {
         if (!portfolioData || !ownerUid) return;
 
-        // Optimistic update
-        const newData = { ...portfolioData, ...updates };
+        const timestamp = Date.now();
+
+        // Optimistic update with timestamp
+        const newData = { ...portfolioData, ...updates, updatedAt: timestamp };
         setPortfolioData(newData);
 
         // GUEST MODE: Skip Firestore write
@@ -409,7 +420,8 @@ const PortfolioEditor: React.FC = () => {
         // Debounce save to DB (or direct save)
         try {
             const portfolioRef = doc(db, 'users', ownerUid, 'portfolios', portfolioData.id);
-            await setDoc(portfolioRef, updates, { merge: true });
+            // Ensure we update the timestamp on every save
+            await setDoc(portfolioRef, { ...updates, updatedAt: timestamp }, { merge: true });
             console.log('[Editor] Portfolio updated for owner:', ownerUid);
         } catch (error) {
             console.error("Error updating portfolio:", error);
@@ -629,6 +641,27 @@ const PortfolioEditor: React.FC = () => {
 
     // Handle View Change
     const handleViewChange = (newView: 'editor' | 'analytics' | 'commerce') => {
+        // Prevent guests from accessing Analytics or Commerce
+        if (newView === 'commerce' && (!currentUser || ownerUid === 'guest')) {
+            saveGuestData();
+            setAuthModalConfig({
+                title: "Unlock Commerce Hub",
+                subtitle: "Sign in to start selling services and products directly from your portfolio."
+            });
+            setShowAuthModal(true);
+            return;
+        }
+
+        if (newView === 'analytics' && (!currentUser || ownerUid === 'guest')) {
+            saveGuestData();
+            setAuthModalConfig({
+                title: "View Analytics",
+                subtitle: "Sign in to track views, clicks, and engagement on your portfolio."
+            });
+            setShowAuthModal(true);
+            return;
+        }
+
         setActiveView(newView);
         // If switching to a non-editor view on mobile, set viewMode to preview to unclutter UI
         if (newView !== 'editor' && isMobile) {
@@ -679,6 +712,7 @@ const PortfolioEditor: React.FC = () => {
                             setActiveAIImageField(field);
                             setIsStockPhotoModalOpen(true);
                         }}
+                        onUpgradeTrigger={() => navigate('/subscription')}
                     />
                 )}
 
@@ -766,8 +800,8 @@ const PortfolioEditor: React.FC = () => {
                 isOpen={showAuthModal}
                 onClose={() => setShowAuthModal(false)}
                 onSuccess={handleAuthSuccess}
-                title="Save Your Progress"
-                subtitle="Sign in to save your portfolio to your dashboard."
+                title={authModalConfig.title}
+                subtitle={authModalConfig.subtitle}
             />
 
             <AlertModal

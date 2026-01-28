@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft, Monitor, Smartphone, Share2, Sun, Moon, BarChart3, Store } from 'lucide-react';
+import { ChevronLeft, Monitor, Smartphone, Share2, Sun, Moon, BarChart3, Store, X } from 'lucide-react';
 
 interface PortfolioHeaderProps {
     title: string;
@@ -100,10 +100,10 @@ const PortfolioHeader: React.FC<PortfolioHeaderProps> = ({
                                 : (editorTheme === 'dark' ? 'hover:bg-white/5 text-gray-400 hover:text-white border-transparent' : 'hover:bg-gray-100 text-gray-500 hover:text-gray-900 border-transparent')
                             }
                         `}
-                        title="Commerce Hub"
+                        title={activeView === 'commerce' ? "Close Commerce Hub" : "Commerce Hub"}
                     >
-                        <Store size={18} />
-                        <span className="hidden lg:inline">Commerce Hub</span>
+                        {activeView === 'commerce' ? <X size={18} /> : <Store size={18} />}
+                        <span className="hidden lg:inline">{activeView === 'commerce' ? 'Close' : 'Commerce Hub'}</span>
                     </button>
 
                     {/* Analytics Toggle */}
@@ -115,10 +115,10 @@ const PortfolioHeader: React.FC<PortfolioHeaderProps> = ({
                                 : (editorTheme === 'dark' ? 'hover:bg-white/5 text-gray-400 hover:text-white border-transparent' : 'hover:bg-gray-100 text-gray-500 hover:text-gray-900 border-transparent')
                             }
                         `}
-                        title="User Engagement & Analytics"
+                        title={activeView === 'analytics' ? "Close Analytics" : "User Engagement & Analytics"}
                     >
-                        <BarChart3 size={18} />
-                        <span className="hidden lg:inline">Analytics</span>
+                        {activeView === 'analytics' ? <X size={18} /> : <BarChart3 size={18} />}
+                        <span className="hidden lg:inline">{activeView === 'analytics' ? 'Close' : 'Analytics'}</span>
                     </button>
 
                     <div className={`w-px h-6 mx-1 ${editorTheme === 'dark' ? 'bg-white/10' : 'bg-gray-200'}`} />

@@ -10,7 +10,7 @@ import { auth, googleProvider, db } from '../../firebase';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { Shield, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { navigate } from '../../App';
+import { navigate } from '../../utils/navigation';
 
 interface AdminLoginPageProps {
   accessDenied?: boolean;

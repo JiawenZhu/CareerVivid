@@ -1,6 +1,6 @@
 import React from 'react';
 import { Zap, X, Check } from 'lucide-react';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 
 interface AICreditLimitModalProps {
     isOpen: boolean;

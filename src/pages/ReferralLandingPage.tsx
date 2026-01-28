@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
 import { Gift, Sparkles, Target, Zap, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 
 const ReferralLandingPage: React.FC = () => {
     const { t } = useTranslation();

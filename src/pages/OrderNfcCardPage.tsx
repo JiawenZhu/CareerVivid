@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Upload, Info, Check, ArrowLeft, Loader2, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebase';

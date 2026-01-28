@@ -6,7 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useResumes } from '../../hooks/useResumes';
 import { generateJobPrepNotes, regenerateJobPrepSection, analyzeResumeMatch } from '../../services/geminiService';
 import ConfirmationModal from '../ConfirmationModal';
-import { navigate } from '../../App';
+import { navigate } from '../../utils/navigation';
 import { useAICreditCheck } from '../../hooks/useAICreditCheck';
 
 // Reusable components for the top section

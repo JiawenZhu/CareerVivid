@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Globe, ChevronDown, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SUPPORTED_LANGUAGES } from '../constants';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 
 const LanguageSelect: React.FC = () => {
   const { i18n } = useTranslation();

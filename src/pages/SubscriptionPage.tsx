@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 import { ArrowLeft, Check, CreditCard, Calendar, X, CheckCircle, Sparkles, Home, FileText } from 'lucide-react';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebase';
@@ -60,7 +60,68 @@ const SubscriptionPage: React.FC = () => {
         return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     };
 
-    const pricingPlans = [
+    // View Mode State: 'career' (standard) or 'creator' (bio-links)
+    const [viewMode, setViewMode] = useState<'career' | 'creator'>('career');
+
+    useEffect(() => {
+        if (userProfile?.source === 'bio-link') {
+            setViewMode('creator');
+        }
+    }, [userProfile]);
+
+    const pricingPlans = viewMode === 'creator' ? [
+        {
+            id: 'bio_link_pro',
+            name: 'Bio-Link Pro',
+            price: '$2.99',
+            originalPrice: null,
+            discount: null,
+            period: '/month',
+            priceId: 'price_1Sr2UlRJNflGxv32C4XhlnUf', // Monthly
+            priceIdYearly: 'price_1Sr2UlRJNflGxv329NwShWqX', // Yearly - handling logic needs update if we want toggle
+            // For now, let's map it to the monthly one and assumes logic handles it or we show both. 
+            // The user request said: "Render only the Bio-Links pricing cards... and the All-in-One Bundle"
+            // The existing UI supports a toggle? No, the existing UI in SubscriptionPage shows cards. 
+            // Let's look at how `pricingPlans` is used. It renders cards. 
+            // The existing `monthly` plan has `priceId`. 
+            // I should likely add a toggle for monthly/yearly in SubscriptionPage or just show Monthly for now as primary.
+            // However, the requested IDs are: price_1Sr2UlRJNflGxv32C4XhlnUf (Monthly?), price_1Sr2UlRJNflGxv329NwShWqX (Yearly?).
+            // Let's stick to Monthly display for consistency with existing "Pro Monthly" card style, or add the toggle logic?
+            // Existing page has `billingCycle` state? No. 
+            // I will implement "Bio-Link Pro" (Monthly) and "All-Access" (Monthly).
+            features: [
+                '50 AI Credits / month',
+                'Unlimited Bio-Link Portfolios',
+                'Analytics Dashboard',
+                'Media Kit & TikTok Analytics',
+                "Remove 'Careervivid' Branding",
+                'Custom Domain (Coming Soon)'
+            ],
+            current: false, // We don't have a clean way to track "is bio link plan" current 
+            popular: true,
+        },
+        {
+            id: 'monthly', // All Access
+            name: 'All-Access Bundle',
+            price: '$14.90',
+            originalPrice: '$29.80',
+            discount: '50% OFF',
+            period: '/month',
+            priceId: 'price_1ScLOaRJNflGxv32BwQnSBs0',
+            features: [
+                "Create & Edit up to 15 Resumes",
+                "Create up to 8 Portfolio Websites",
+                t('subscription.features.all_templates'),
+                "300 AI Credits/Month",
+                t('subscription.features.ai_content'),
+                t('subscription.features.ai_photo'),
+                t('subscription.features.unlimited_downloads'),
+                t('subscription.features.unlimited_practice')
+            ],
+            current: currentPlan === 'pro_monthly',
+            popular: false,
+        }
+    ] : [
         {
             id: 'free',
             name: t('subscription.plans.free'),
@@ -432,11 +493,43 @@ const SubscriptionPage: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {/* Plan Type Toggle */}
+                        <div className="flex justify-center mb-8">
+                            <div className="bg-gray-100 dark:bg-gray-800 p-1 rounded-xl inline-flex shadow-inner">
+                                <button
+                                    onClick={() => setViewMode('career')}
+                                    className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${viewMode === 'career'
+                                        ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                        }`}
+                                >
+                                    Resume & Career
+                                </button>
+                                <button
+                                    onClick={() => setViewMode('creator')}
+                                    className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${viewMode === 'creator'
+                                        ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                        }`}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        Bio-Link & Brand
+                                        <span className="relative flex h-4 w-auto">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                                            <span className="relative inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white shadow-sm">
+                                                NEW
+                                            </span>
+                                        </span>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-wrap justify-center gap-6">
                             {pricingPlans.map((plan: any) => (
                                 <div
                                     key={plan.id}
-                                    className={`relative rounded-xl p-6 ${plan.popular
+                                    className={`relative rounded-xl p-6 w-full max-w-sm ${plan.popular
                                         ? 'bg-primary-600 text-white shadow-xl shadow-primary-600/30'
                                         : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800'
                                         } ${plan.current ? 'ring-2 ring-primary-600' : ''}`}

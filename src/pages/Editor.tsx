@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef, useMemo, useLayoutEffe
 import { useResumes } from '../hooks/useResumes';
 import { ResumeData, TemplateInfo, ResumeMatchAnalysis } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 import { trackUsage } from '../services/trackingService';
 import { translateResumeContent, duplicateAndTranslateResume } from '../services/translationService';
 import { useTheme } from '../contexts/ThemeContext';
@@ -12,6 +12,9 @@ import { getLatestAnnotation, AnnotationObject, subscribeToAnnotations } from '.
 import { subscribeToComments, Comment } from '../services/commentService';
 import { TEMPLATES } from '../templates';
 import { createNewResume } from '../constants';
+import { auth, functions } from '../firebase'; // Ensure functions is imported if not already
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { httpsCallable } from 'firebase/functions';
 
 // UI Components
 import Toast from '../components/Toast';
@@ -471,6 +474,76 @@ const Editor: React.FC<EditorProps> = ({
         }
     };
 
+    const handleGoogleDocsExport = async () => {
+        if (!currentUser || !currentUser.email) return;
+
+        setIsExporting(true);
+        setExportProgress("Requesting Google Drive Access...");
+
+        try {
+            // 1. Auth Check (Incremental Auth for Drive Scope)
+            const provider = new GoogleAuthProvider();
+            provider.addScope('https://www.googleapis.com/auth/drive.file');
+
+            // Pre-fill the account chooser with the user's current email
+            provider.setCustomParameters({
+                login_hint: currentUser.email,
+                prompt: 'consent' // Force consent screen to ensure we get a fresh token
+            });
+
+            const result = await signInWithPopup(auth, provider);
+
+            // 2. Validate that the selected Google account matches the app account
+            const googleEmail = result.user.email;
+            if (googleEmail?.toLowerCase() !== currentUser.email.toLowerCase()) {
+                setAlertState({
+                    isOpen: true,
+                    title: "Account Mismatch",
+                    message: `Please use the same Google account as your CareerVivid login (${currentUser.email}). You selected: ${googleEmail}`
+                });
+                setIsExporting(false);
+                setExportProgress('');
+                return; // Abort export
+            }
+
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const accessToken = credential?.accessToken;
+
+            if (!accessToken) {
+                throw new Error("Failed to authorize Google Drive access.");
+            }
+
+            setExportProgress("Generating Google Doc...");
+
+            // 3. Call Cloud Function
+            const exportFn = httpsCallable(functions, 'exportToGoogleDocs');
+            const response = await exportFn({
+                resumeData: resume,
+                accessToken
+            });
+            const { docUrl } = response.data as any;
+            window.open(docUrl, '_blank');
+
+            console.log("Auth Successful. Document Created.");
+            setToastMessage("Resume Exported to Google Docs!");
+
+        } catch (error: any) {
+            console.error("Google Docs Export Failed:", error);
+            if (error.code === 'auth/popup-closed-by-user') {
+                setToastMessage("Export cancelled.");
+            } else {
+                setAlertState({
+                    isOpen: true,
+                    title: "Export Failed",
+                    message: error.message || "Could not connect to Google Drive. Please try again."
+                });
+            }
+        } finally {
+            setIsExporting(false);
+            setExportProgress('');
+        }
+    };
+
     const toggleFeedbackOverlay = () => {
         setShowAnnotationOverlay(!showAnnotationOverlay);
         if (!showAnnotationOverlay) {
@@ -529,6 +602,8 @@ const Editor: React.FC<EditorProps> = ({
                 onShare={() => setIsShareModalOpen(true)}
                 onToggleTheme={toggleTheme}
                 setViewMode={setViewMode}
+                onDismissGuideArrow={() => setShowGuideArrow(false)}
+                onExportToGoogleDocs={handleGoogleDocsExport}
             />
 
             <div className="flex-grow flex overflow-hidden relative h-[calc(100vh-64px)]">
@@ -546,6 +621,7 @@ const Editor: React.FC<EditorProps> = ({
                     isTemplateLoading={isTemplateLoading}
                     tempPhoto={tempPhoto}
                     sampleResume={sampleResumeForPreview}
+                    viewMode={viewMode}
                     setActiveTab={setActiveTab}
                     setTempPhoto={setTempPhoto}
                     onResumeChange={handleResumeChange}

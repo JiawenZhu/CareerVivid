@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 import { Plus, Edit2, Trash2, Eye, BarChart3, Briefcase, Users, Calendar, DollarSign, MapPin, Clock, Star, X, Check, FileText, CheckCircle, XCircle, Wand2, ArrowRight, ChevronUp, ChevronDown, Mail, Code2 } from 'lucide-react';
 import { JobPosting, JobApplication, ResumeData, JobApplicationStatus, ResumeMatchAnalysis, DEFAULT_PIPELINE_STAGES, CompanyProfile } from '../types';
 import { getJobPostingsByHR, deleteJobPosting, publishJobPosting } from '../services/jobService';

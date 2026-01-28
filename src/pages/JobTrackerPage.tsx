@@ -8,7 +8,7 @@ import KanbanBoard from '../components/JobTracker/KanbanBoard';
 import JobDetailModal from '../components/JobTracker/JobDetailModal';
 import AddJobModal from '../components/JobTracker/AddJobUrlModal';
 import { ArrowLeft, PlusCircle } from 'lucide-react';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 
 const JobTrackerPage: React.FC = () => {
     const { currentUser } = useAuth();

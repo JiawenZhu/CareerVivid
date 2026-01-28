@@ -1,6 +1,6 @@
 import React from 'react';
 import { Building2, Search, Zap, Target } from 'lucide-react';
-import { navigate } from '../../App';
+import { navigate } from '../../utils/navigation';
 import PublicHeader from '../../components/PublicHeader';
 import Footer from '../../components/Footer';
 

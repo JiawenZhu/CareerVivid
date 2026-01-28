@@ -108,7 +108,7 @@ const CardTemplate: React.FC<CardTemplateProps> = ({ data, onEdit, onUpdate, isF
     };
 
     // Profile URL for QR Code - Uses Share Portfolio URL format
-    const username = data.hero?.headline?.replace(/\s+/g, '').toLowerCase() || 'user';
+    const username = (data as any).username || data.hero?.headline?.replace(/\s+/g, '').toLowerCase() || 'user';
     const profileUrl = typeof window !== 'undefined'
         ? `${window.location.origin}/portfolio/${username}/${data.id}`
         : `https://careervivid.app/portfolio/${username}/${data.id}`;
@@ -225,13 +225,16 @@ const CardTemplate: React.FC<CardTemplateProps> = ({ data, onEdit, onUpdate, isF
                         transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
                     }}
                 >
-                    {/* FRONT FACE */}
+                    {/* FRONT FACE - Hidden when flipped for mobile compatibility */}
                     <div
                         className={`absolute inset-0 rounded-2xl shadow-2xl overflow-hidden flex flex-col justify-between ${paddingClass} ${isFlipped ? 'pointer-events-none' : 'pointer-events-auto'}`}
                         style={{
                             ...containerStyle,
                             backfaceVisibility: 'hidden',
-                            WebkitBackfaceVisibility: 'hidden'
+                            WebkitBackfaceVisibility: 'hidden',
+                            visibility: isFlipped ? 'hidden' : 'visible',
+                            opacity: isFlipped ? 0 : 1,
+                            transition: 'visibility 0s 0.35s, opacity 0.35s'
                         }}
                     >
                         {/* Overlay Layer */}
@@ -300,7 +303,7 @@ const CardTemplate: React.FC<CardTemplateProps> = ({ data, onEdit, onUpdate, isF
                         </div>
                     </div>
 
-                    {/* BACK FACE */}
+                    {/* BACK FACE - Visible only when flipped for mobile compatibility */}
                     <div
                         className={`absolute inset-0 rounded-2xl shadow-2xl overflow-hidden flex flex-col items-center justify-center p-6 ${isFlipped ? 'pointer-events-auto' : 'pointer-events-none'}`}
                         style={{
@@ -309,7 +312,10 @@ const CardTemplate: React.FC<CardTemplateProps> = ({ data, onEdit, onUpdate, isF
                             fontFamily: customFont || config.fontFamily,
                             backfaceVisibility: 'hidden',
                             WebkitBackfaceVisibility: 'hidden',
-                            transform: 'rotateY(180deg)'
+                            transform: 'rotateY(180deg)',
+                            visibility: isFlipped ? 'visible' : 'hidden',
+                            opacity: isFlipped ? 1 : 0,
+                            transition: 'visibility 0s 0.35s, opacity 0.35s'
                         }}
                     >
                         {/* Back to Front Button */}
@@ -324,24 +330,26 @@ const CardTemplate: React.FC<CardTemplateProps> = ({ data, onEdit, onUpdate, isF
                             <RotateCcw size={20} className="text-black" />
                         </button>
 
-                        {/* QR Code */}
-                        <div className="bg-white p-4 rounded-xl shadow-lg">
-                            <QRCodeSVG
-                                value={profileUrl}
-                                size={isVertical ? 180 : 140}
-                                level="H"
-                                bgColor="#ffffff"
-                                fgColor="#000000"
-                            />
-                        </div>
+                        {/* QR Code Container - properly oriented */}
+                        <div
+                            className="flex flex-col items-center justify-center"
+                            style={{ transform: 'none' }}
+                        >
+                            <div className="bg-white p-4 rounded-xl shadow-lg">
+                                <QRCodeSVG
+                                    value={profileUrl}
+                                    size={isVertical ? 160 : 120}
+                                    level="H"
+                                    bgColor="#ffffff"
+                                    fgColor="#000000"
+                                />
+                            </div>
 
-                        {/* Label */}
-                        <p className={`mt-4 text-sm font-bold uppercase tracking-wider opacity-80 ${isBrutalist ? 'text-black' : ''}`}>
-                            Scan to Connect
-                        </p>
-                        <p className="text-xs opacity-50 mt-1 text-center max-w-[200px] break-all">
-                            {profileUrl}
-                        </p>
+                            {/* Simplified Label */}
+                            <p className={`mt-4 text-sm font-bold uppercase tracking-wider ${isBrutalist ? 'text-black' : ''}`}>
+                                Scan to Connect
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>

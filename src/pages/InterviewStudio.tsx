@@ -6,7 +6,7 @@ import { generateInterviewQuestions } from '../services/geminiService';
 import AIInterviewAgentModal from '../components/AIInterviewAgentModal';
 import { usePracticeHistory } from '../hooks/useJobHistory';
 import { Job, PracticeHistoryEntry, ResumeData } from '../types';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { useResumes } from '../hooks/useResumes';
 import { getFunctions, httpsCallable } from 'firebase/functions';

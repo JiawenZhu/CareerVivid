@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { generateNeoBrutalistEmail } from "./emailTemplates";
 
 /**
  * Trigger: On User Created
@@ -16,7 +17,54 @@ export const onUserCreated = functions.region('us-west1').firestore
         const newUser = snap.data();
         const userId = context.params.userId;
 
-        if (!newUser || !newUser.referredBy) {
+        if (!newUser) {
+            console.log("No data for user " + userId);
+            return null;
+        }
+
+        // --- NEW: Send Welcome Email ---
+        try {
+            if (newUser.email) {
+                const userName = newUser.displayName || newUser.personalDetails?.firstName || "there";
+                const emailHtml = generateNeoBrutalistEmail({
+                    title: "Welcome to CareerVivid",
+                    userName: userName,
+                    messageLines: [
+                        "We're thrilled to have you on board! Get ready to supercharge your career journey.",
+                        "With CareerVivid, you can create stunning resumes, track your job applications, and prepare for interviews with AI."
+                    ],
+                    boxContent: {
+                        title: "Get Started",
+                        type: "success",
+                        lines: [
+                            "<strong>Complete your profile</strong> to get personalized recommendations.",
+                            "<strong>Upload your resume</strong> to kickstart the AI analysis.",
+                            "Explore our premium templates to stand out."
+                        ]
+                    },
+                    mainButton: {
+                        text: "Go to Dashboard",
+                        url: "https://careervivid.app/dashboard"
+                    },
+                    footerText: "Let's build your future together!"
+                });
+
+                await admin.firestore().collection("mail").add({
+                    to: newUser.email,
+                    message: {
+                        subject: "Welcome to CareerVivid! 🚀",
+                        html: emailHtml,
+                        text: "Welcome to CareerVivid! We're thrilled to have you on board. Go to https://careervivid.app/dashboard to get started."
+                    }
+                });
+                console.log(`Welcome email queued for ${newUser.email}`);
+            }
+        } catch (e) {
+            console.error("Error sending welcome email:", e);
+        }
+
+        // --- Referral Logic ---
+        if (!newUser.referredBy) {
             console.log(`User ${userId} created without referral.`);
             return null;
         }

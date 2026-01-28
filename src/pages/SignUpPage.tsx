@@ -10,6 +10,7 @@ import { doc, setDoc, getDoc, serverTimestamp, collection, query, where, getDocs
 import { Eye, EyeOff, ArrowLeft, Loader2, Mail, Lock, ChevronRight } from 'lucide-react';
 import { trackUsage } from '../services/trackingService';
 import Logo from '../components/Logo';
+import { navigate } from '../utils/navigation';
 
 const SignUpPage: React.FC = () => {
     const { t } = useTranslation();
@@ -119,6 +120,9 @@ const SignUpPage: React.FC = () => {
                 ? Timestamp.fromDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
                 : undefined;
 
+            const params = new URLSearchParams(window.location.search);
+            const source = params.get('source');
+
             await setDoc(doc(db, 'users', cred.user.uid), {
                 uid: cred.user.uid,
                 email: cred.user.email,
@@ -127,6 +131,7 @@ const SignUpPage: React.FC = () => {
                 status: 'active',
                 ...(referredBy ? { referredBy } : {}),
                 ...(academicPartnerId ? { academicPartnerId } : {}),
+                ...(source ? { source } : {}),
                 ...(grantTrial ? {
                     plan: 'pro_sprint',
                     expiresAt: expiresAt
@@ -135,8 +140,8 @@ const SignUpPage: React.FC = () => {
             trackUsage(cred.user.uid, 'sign_in', { signup: true });
 
             // Check for redirect param
-            const params = new URLSearchParams(window.location.search);
-            const redirectUrl = params.get('redirect');
+            const redirectParams = new URLSearchParams(window.location.search);
+            const redirectUrl = redirectParams.get('redirect');
             if (redirectUrl) {
                 window.location.href = decodeURIComponent(redirectUrl);
             }
@@ -173,6 +178,9 @@ const SignUpPage: React.FC = () => {
                     ? Timestamp.fromDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
                     : undefined;
 
+                const params = new URLSearchParams(window.location.search);
+                const source = params.get('source');
+
                 await setDoc(userDocRef, {
                     uid: user.uid,
                     email: user.email,
@@ -183,6 +191,7 @@ const SignUpPage: React.FC = () => {
                     status: 'active',
                     ...(referredBy ? { referredBy } : {}),
                     ...(academicPartnerId ? { academicPartnerId } : {}),
+                    ...(source ? { source } : {}),
                     ...(grantTrial ? {
                         plan: 'pro_sprint',
                         expiresAt: expiresAt
@@ -194,8 +203,8 @@ const SignUpPage: React.FC = () => {
             }
 
             // Check for redirect param
-            const params = new URLSearchParams(window.location.search);
-            const redirectUrl = params.get('redirect');
+            const redirectParams = new URLSearchParams(window.location.search);
+            const redirectUrl = redirectParams.get('redirect');
             if (redirectUrl) {
                 window.location.href = decodeURIComponent(redirectUrl);
             }
@@ -217,6 +226,69 @@ const SignUpPage: React.FC = () => {
         </div>
     );
 
+    // TikTok Auth Logic (Same as SignIn)
+    const handleTikTokLogin = () => {
+        setLoading(true);
+        const csrfState = Math.random().toString(36).substring(7);
+        localStorage.setItem('tiktok_node_auth_state', csrfState);
+
+        // Store context for after redirect (TikTok doesn't allow query params in redirect URI)
+        const sourceParam = new URLSearchParams(window.location.search).get('source');
+        if (sourceParam === 'bio-link') {
+            localStorage.setItem('tiktok_auth_context', 'bio-link');
+        }
+
+        // Redirect with CLEAN URL (no query params)
+        const clientKey = 'aw1crl350g7yvps2';
+        const redirectUri = `${window.location.origin}/signup`; // Clean base URL
+        const scope = 'user.info.basic,user.info.profile,user.info.stats,video.list';
+        const url = `https://www.tiktok.com/v2/auth/authorize/?client_key=${clientKey}&response_type=code&scope=${scope}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${csrfState}`;
+        window.location.href = url;
+    };
+
+    // Handle TikTok Callback
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+        const state = params.get('state');
+        const storedState = localStorage.getItem('tiktok_node_auth_state');
+
+        if (code && state && storedState && state === storedState) {
+            const processTikTokAuth = async () => {
+                setLoading(true);
+                try {
+                    const { getFunctions, httpsCallable } = await import('firebase/functions');
+                    const functions = getFunctions();
+                    const authWithTikTokFn = httpsCallable(functions, 'authWithTikTok');
+
+                    // Pass redirectUri consistent with request
+                    const result = await authWithTikTokFn({
+                        code,
+                        redirectUri: `${window.location.origin}/signup`
+                    });
+
+                    const { token } = result.data as { token: string };
+
+                    const { signInWithCustomToken } = await import('firebase/auth');
+                    await signInWithCustomToken(auth, token);
+
+                    localStorage.removeItem('tiktok_node_auth_state');
+                    navigate('/dashboard');
+
+                } catch (err: any) {
+                    console.error("TikTok Auth Failed:", err);
+                    setError("TikTok Sign Up failed. Please try again.");
+                    setLoading(false);
+                }
+            };
+            processTikTokAuth();
+        }
+    }, []);
+
+    // Helper to check context - also check localStorage for TikTok callback
+    const isBioLinkContext = new URLSearchParams(window.location.search).get('source') === 'bio-link'
+        || localStorage.getItem('tiktok_auth_context') === 'bio-link';
+
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-950 px-4 relative overflow-hidden font-sans">
             {/* Abstract Background Elements */}
@@ -228,7 +300,7 @@ const SignUpPage: React.FC = () => {
             {loading && <LoadingOverlay />}
 
             <a
-                href="/"
+                href={new URLSearchParams(window.location.search).get('source') === 'bio-link' ? '/bio-links' : '/'}
                 className="absolute top-8 left-8 z-20 flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
             >
                 <ArrowLeft size={18} />
@@ -240,12 +312,28 @@ const SignUpPage: React.FC = () => {
 
                     <div className="text-center mb-10">
                         <Logo className="h-10 w-10 mx-auto mb-6" />
-                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-                            {t('auth.create_account')}
-                        </h2>
-                        <p className="mt-3 text-gray-500 dark:text-gray-400">
-                            {t('auth.start_building')}
-                        </p>
+
+                        {/* Contextual Headline */}
+                        {new URLSearchParams(window.location.search).get('source') === 'bio-link' ? (
+                            <>
+                                <h2 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
+                                    Create your Bio-Link Account
+                                </h2>
+                                <p className="mt-3 text-gray-500 dark:text-gray-400">
+                                    Sign up to claim your unique URL and start sharing.
+                                </p>
+                            </>
+                        ) : (
+                            <>
+                                <h2 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
+                                    {t('auth.create_account')}
+                                </h2>
+                                <p className="mt-3 text-gray-500 dark:text-gray-400">
+                                    {t('auth.start_building')}
+                                </p>
+                            </>
+                        )}
+
                         {getReferralCode() && (
                             <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-100 to-yellow-50 dark:from-yellow-900/30 dark:to-yellow-800/20 rounded-full">
                                 <span className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">
@@ -330,14 +418,28 @@ const SignUpPage: React.FC = () => {
                         </div>
                     </div>
 
-                    <button
-                        onClick={handleGoogleSignUp}
-                        disabled={loading}
-                        className="w-full flex items-center justify-center gap-3 py-3.5 px-4 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm bg-white dark:bg-gray-800 text-sm font-bold text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
-                    >
-                        <svg className="w-5 h-5" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 381.5 512 244 512 111.8 512 0 398.2 0 256S111.8 0 244 0c71.2 0 130.9 27.8 176.9 72.9l-63.1 61.3C294.3 93.6 270.3 80 244 80 158.4 80 90 148.2 90 233.9s68.4 153.9 154 153.9c75.5 0 120.9-42.3 124.9-97.9H244v-77.3h236.1c2.4 12.7 3.9 26.1 3.9 40.2z"></path></svg>
-                        {t('auth.google')}
-                    </button>
+                    <div className="space-y-3">
+                        {/* Contextual TikTok Button */}
+                        {isBioLinkContext && (
+                            <button
+                                onClick={handleTikTokLogin}
+                                disabled={loading}
+                                className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-[#FE2C55] text-white text-sm font-black uppercase border-2 border-black hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+                            >
+                                <svg className="w-5 h-5 fill-current" viewBox="0 0 448 512"><path d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25V349.38A162.55 162.55 0 1 1 185 188.31V278.2a74.62 74.62 0 1 0 52.23 71.18V0l88 0a121.18 121.18 0 0 0 1.86 22.17h0A122.18 122.18 0 0 0 381 102.39a121.43 121.43 0 0 0 67 20.14z" /></svg>
+                                Continue with TikTok
+                            </button>
+                        )}
+
+                        <button
+                            onClick={handleGoogleSignUp}
+                            disabled={loading}
+                            className="w-full flex items-center justify-center gap-3 py-3.5 px-4 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm bg-white dark:bg-gray-800 text-sm font-bold text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+                        >
+                            <svg className="w-5 h-5" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 381.5 512 244 512 111.8 512 0 398.2 0 256S111.8 0 244 0c71.2 0 130.9 27.8 176.9 72.9l-63.1 61.3C294.3 93.6 270.3 80 244 80 158.4 80 90 148.2 90 233.9s68.4 153.9 154 153.9c75.5 0 120.9-42.3 124.9-97.9H244v-77.3h236.1c2.4 12.7 3.9 26.1 3.9 40.2z"></path></svg>
+                            {t('auth.google')}
+                        </button>
+                    </div>
 
                     <div className="mt-8 text-center">
                         <p className="text-sm text-gray-600 dark:text-gray-400">

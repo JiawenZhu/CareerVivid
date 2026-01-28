@@ -9,7 +9,7 @@ import { functions } from '../firebase';
 import { httpsCallable } from 'firebase/functions';
 import { loadStripe } from '@stripe/stripe-js';
 import { trackUsage } from '../services/trackingService';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 
 
 // Pricing plans with correct IDs from Stripe

@@ -205,5 +205,14 @@ service cloud.firestore {
       allow read: if true;  // Public read for smart search
       allow write: if false; // Only Cloud Functions (admin SDK) can write
     }
+    // --- TikTok Leaderboard (Public) ---
+    match /tiktok_leaderboard/{playerId} {
+       allow read, write: if true; 
+    }
+
+    // --- Contact Messages (Public) ---
+    match /contact_messages/{messageId} {
+       allow create: if true;
+    }
   }
 }

@@ -10,7 +10,7 @@ import { AnnotationObject, getLatestAnnotation } from '../services/annotationSer
 import { useAuth } from '../contexts/AuthContext';
 import Logo from '../components/Logo';
 import ThemeToggle from '../components/ThemeToggle';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 import { addComment, subscribeToComments, Comment } from '../services/commentService';
 import { subscribeToAnnotations } from '../services/annotationService';
 import Toast from '../components/Toast';

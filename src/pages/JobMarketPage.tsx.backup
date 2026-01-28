@@ -8,7 +8,7 @@ import { usePracticeHistory } from '../hooks/useJobHistory';
 import { useAICreditCheck } from '../hooks/useAICreditCheck';
 import { submitApplication, getApplicationsForUser } from '../services/applicationService';
 import { JobPosting, WorkModel } from '../types';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { Loader2, Briefcase, MapPin, DollarSign, Clock, Building2, PlusCircle, ArrowRight, CheckCircle2, X, FileText, Send, ExternalLink, HelpCircle, LayoutDashboard, Search, Filter, Mic } from 'lucide-react';
 

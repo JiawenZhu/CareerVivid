@@ -66,16 +66,61 @@ const PdfPreviewPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (payload) {
-      requestAnimationFrame(() => {
+    const renderContent = async () => {
+      if (payload) {
+        // 1. Wait for Fonts to Load (Critical for PDF embedding)
+        try {
+          await document.fonts.ready;
+        } catch (e) {
+          console.warn('Font loading timeout or error', e);
+        }
+
+        // 2. Signal Ready for Capture
         requestAnimationFrame(() => {
-          window.__PDF_STATUS__ = 'rendered';
+          requestAnimationFrame(() => {
+            window.__PDF_STATUS__ = 'rendered';
+          });
         });
-      });
-    } else {
-      window.__PDF_STATUS__ = 'ready';
-    }
+      } else {
+        window.__PDF_STATUS__ = 'ready';
+      }
+    };
+
+    renderContent();
   }, [payload]);
+
+  // Helper to force standard fonts for ATS compliance if needed
+  const getSimulatedPayload = () => {
+    if (!payload) return null;
+
+    // Check if we should force standard fonts (ATS Mode)
+    // We can default this to true if the issue is severe, 
+    // or pass it via payload.extras.useStandardFonts
+    const useStandardFonts = true; // FORCE FIX for LinkedIn Corruption Issue
+
+    if (useStandardFonts) {
+      const standardFontMap: Record<string, string> = {
+        'Merriweather': 'Times New Roman, serif',
+        'Crimson Text': 'Times New Roman, serif',
+        'Inter': 'Arial, Helvetica, sans-serif',
+        'Roboto': 'Arial, Helvetica, sans-serif',
+        // Add other mappings as needed, defaulting to sans-serif
+      };
+
+      return {
+        ...payload,
+        resumeData: {
+          ...payload.resumeData,
+          bodyFont: standardFontMap[payload.resumeData.bodyFont] || 'Arial, Helvetica, sans-serif',
+          titleFont: standardFontMap[payload.resumeData.titleFont] || 'Arial, Helvetica, sans-serif',
+        }
+      };
+    }
+
+    return payload;
+  };
+
+  const activePayload = getSimulatedPayload();
 
   useEffect(() => {
     const body = document.body;
@@ -136,8 +181,8 @@ const PdfPreviewPage: React.FC = () => {
         }
       `}</style>
       <div className="pdf-sheet" data-pdf-sheet>
-        {payload ? (
-          <ResumePreview resume={payload.resumeData} template={payload.templateId} />
+        {activePayload ? (
+          <ResumePreview resume={activePayload.resumeData} template={activePayload.templateId} />
         ) : (
           <div className="h-full flex flex-col items-center justify-center text-center text-gray-500 space-y-4">
             <p className="text-lg font-semibold">Waiting for resume data…</p>

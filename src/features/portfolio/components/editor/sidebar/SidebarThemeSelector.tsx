@@ -8,6 +8,8 @@ interface SidebarThemeSelectorProps {
     currentSelection: string;
     editorTheme: 'light' | 'dark';
     themeClasses: any;
+    isPremium?: boolean;
+    onUpgradeTrigger?: () => void;
 }
 
 const SidebarThemeSelector: React.FC<SidebarThemeSelectorProps> = ({
@@ -15,7 +17,9 @@ const SidebarThemeSelector: React.FC<SidebarThemeSelectorProps> = ({
     onUpdate,
     currentSelection,
     editorTheme,
-    themeClasses
+    themeClasses,
+    isPremium,
+    onUpgradeTrigger
 }) => {
 
     const handleTemplateChange = (value: string) => {
@@ -39,6 +43,11 @@ const SidebarThemeSelector: React.FC<SidebarThemeSelectorProps> = ({
                 }
             });
         } else {
+            // GATING: Check for Media Kit
+            if (value === 'media_kit' && !isPremium) {
+                if (onUpgradeTrigger) onUpgradeTrigger();
+                return;
+            }
             onUpdate({ templateId: value as any });
         }
     };
@@ -93,6 +102,9 @@ const SidebarThemeSelector: React.FC<SidebarThemeSelectorProps> = ({
                         </optgroup>
                         <optgroup label="Healthcare">
                             <option value="medical_care">Medical Care</option>
+                        </optgroup>
+                        <optgroup label="Social & Media">
+                            <option value="media_kit">💎 Media Kit (Pro)</option>
                         </optgroup>
                     </>
                 )}

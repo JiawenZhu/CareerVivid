@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserReferralCode, getReferralStats } from '../services/referralService';
 import { Gift, Copy, Check, Users, Calendar } from 'lucide-react';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 
 const ReferralPage: React.FC = () => {
     const { t } = useTranslation();

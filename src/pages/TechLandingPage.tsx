@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
 import { Wand2, LayoutTemplate, UploadCloud, Mic, Briefcase, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 
 // Use Cases for the Bento Grid
 const USE_CASES = [

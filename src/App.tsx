@@ -19,6 +19,7 @@ const TechLandingPage = React.lazy(() => import('./pages/TechLandingPage'));
 const PricingPage = React.lazy(() => import('./pages/PricingPage'));
 const AdminLoginPage = React.lazy(() => import('./pages/admin/AdminLoginPage'));
 const AdminDashboardPage = React.lazy(() => import('./pages/admin/AdminPage'));
+const StrategyDashboard = React.lazy(() => import('./pages/admin/StrategyDashboard'));
 const AcademicPartnerDashboard = React.lazy(() => import('./pages/academic/AcademicPartnerDashboard'));
 const VerifyEmailPage = React.lazy(() => import('./pages/VerifyEmailPage'));
 const JobTrackerPage = React.lazy(() => import('./pages/JobTrackerPage'));
@@ -41,10 +42,13 @@ const BusinessPartnerPage = React.lazy(() => import('./pages/partners/BusinessPa
 const StudentAmbassadorPage = React.lazy(() => import('./pages/partners/StudentAmbassadorPage'));
 const PartnerApplicationPage = React.lazy(() => import('./pages/partners/PartnerApplicationPage'));
 const PolicyPage = React.lazy(() => import('./pages/PolicyPage'));
+const TermsOfServicePage = React.lazy(() => import('./pages/TermsOfServicePage'));
+const PrivacyPolicyPage = React.lazy(() => import('./pages/PrivacyPolicyPage'));
 const HRPartnerPage = React.lazy(() => import('./pages/partners/HRPartnerPage'));
 const BusinessPartnerDashboard = React.lazy(() => import('./pages/BusinessPartnerDashboard'));
 const JobPostingEditor = React.lazy(() => import('./pages/JobPostingEditor'));
 const JobMarketPage = React.lazy(() => import('./pages/JobMarketPage'));
+const IntegrationsPage = React.lazy(() => import('./pages/IntegrationsPage'));
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'));
 const PermissionDeniedPage = React.lazy(() => import('./pages/PermissionDeniedPage'));
 const ReferralLandingPage = React.lazy(() => import('./pages/ReferralLandingPage'));
@@ -52,61 +56,16 @@ const ReferralPage = React.lazy(() => import('./pages/ReferralPage'));
 const BioLinksPage = React.lazy(() => import('./pages/BioLinksPage'));
 const CommerceDashboard = React.lazy(() => import('./features/commerce/pages/CommerceDashboard'));
 const ProductPage = React.lazy(() => import('./features/commerce/pages/ProductPage'));
+const GetMoreReview01 = React.lazy(() => import('./pages/bio-links/template/ticktok/GetMoreReview01'));
+const ServicePortfolioPage = React.lazy(() => import('./pages/ServicePortfolioPage'));
 
 import { SUPPORTED_LANGUAGES } from './constants';
-import i18n from './i18n';
+// import i18n from './i18n'; // Used in navigation.ts
 
-// Returns path from pathname, stripping language prefix if present
-// e.g., /zh/contact -> /contact
-// e.g., /contact -> /contact
-const getPathFromUrl = () => {
-  let path = window.location.pathname;
 
-  // Remove leading slash for splitting
-  if (path.startsWith('/')) path = path.substring(1);
+// Navigation utility
+import { navigate, getPathFromUrl } from './utils/navigation';
 
-  const parts = path.split('/');
-
-  // Check if first part is a supported language code
-  if (parts.length > 0 && SUPPORTED_LANGUAGES.some(l => l.code === parts[0])) {
-    // It's a language prefix, remove it to get the actual route
-    const langCode = parts[0];
-    // Sync i18n if it differs (this handles direct URL access)
-    if (i18n.language !== langCode) {
-      i18n.changeLanguage(langCode);
-    }
-    return '/' + parts.slice(1).join('/');
-  }
-
-  // No language prefix, return as is (with leading slash)
-  return '/' + path;
-};
-
-// Navigation utility that uses History API and preserves language
-export const navigate = (path: string) => {
-  // If path already starts with a language code, use it as is
-  const parts = path.split('/').filter(p => p);
-  if (parts.length > 0 && SUPPORTED_LANGUAGES.some(l => l.code === parts[0])) {
-    window.history.pushState({}, '', path);
-    window.dispatchEvent(new PopStateEvent('popstate'));
-    return;
-  }
-
-  // Otherwise, prepend current language (normalized to 2-letter code)
-  // i18n.language might be 'en-US', we need just 'en'
-  const rawLang = i18n.language || 'en';
-  const currentLang = rawLang.substring(0, 2);
-
-  // Verify it's a supported language, fallback to 'en' if not
-  const normalizedLang = SUPPORTED_LANGUAGES.some(l => l.code === currentLang) ? currentLang : 'en';
-
-  // Ensure path starts with /
-  const cleanPath = path.startsWith('/') ? path : '/' + path;
-  const fullPath = `/${normalizedLang}${cleanPath}`;
-
-  window.history.pushState({}, '', fullPath);
-  window.dispatchEvent(new PopStateEvent('popstate'));
-};
 
 const LoadingFallback = () => (
   <div className="flex flex-col justify-center items-center h-screen bg-gray-100 dark:bg-gray-900">
@@ -223,6 +182,17 @@ const App: React.FC = () => {
           </ThemeProvider>
         );
       }
+
+      if (path === '/admin/strategy') {
+        return (
+          <ThemeProvider>
+            <Suspense fallback={<LoadingFallback />}>
+              <StrategyDashboard />
+            </Suspense>
+          </ThemeProvider>
+        );
+      }
+
       return (
         <ThemeProvider>
           <Suspense fallback={<LoadingFallback />}>
@@ -280,8 +250,14 @@ const App: React.FC = () => {
         content = <SubscriptionPage />;
       } else if (path === '/contact') {
         content = <ContactPage />;
+      } else if (path === '/services') {
+        content = <ServicePortfolioPage />;
       } else if (path === '/policy') {
         content = <PolicyPage />;
+      } else if (path === '/terms') {
+        content = <TermsOfServicePage />;
+      } else if (path === '/privacy') {
+        content = <PrivacyPolicyPage />;
       } else if (path === '/business-partner/dashboard') {
         content = <BusinessPartnerDashboard />;
       } else if (path.toLowerCase() === '/jobmarket' || path === '/job-market') {
@@ -293,6 +269,8 @@ const App: React.FC = () => {
         content = <JobPostingEditor jobId={jobId} />;
       } else if (path === '/blog') {
         content = <BlogListPage />;
+      } else if (path === '/dashboard/integrations') {
+        content = <IntegrationsPage />;
       } else if (path.startsWith('/blog/')) {
         const id = path.split('/')[2];
         content = <BlogPostPage postId={id} />;
@@ -307,6 +285,8 @@ const App: React.FC = () => {
         }
       } else if (path === '/order-nfc-card') {
         content = <OrderNfcCardPage />;
+      } else if (path === '/bio-links') {
+        content = <BioLinksPage />;
       } else if (path === '/business-card') {
         content = <BusinessCardPage />;
       } else {
@@ -331,12 +311,20 @@ const App: React.FC = () => {
       content = <DemoPage />;
     } else if (path === '/contact') {
       content = <ContactPage />;
+    } else if (path === '/services') {
+      content = <ServicePortfolioPage />;
     } else if (path === '/policy') {
       content = <PolicyPage />;
+    } else if (path === '/terms') {
+      content = <TermsOfServicePage />;
+    } else if (path === '/privacy') {
+      content = <PrivacyPolicyPage />;
     } else if (path === '/referral') {
       content = <ReferralLandingPage />;
     } else if (path === '/bio-links') {
       content = <BioLinksPage />;
+    } else if (path === '/bio-links/template/ticktok/get-more-review01') {
+      content = <GetMoreReview01 />;
     } else if (isPortfolioEditorRoute) {
       content = <PortfolioEditor />;
     } else if (path === '/portfolio-builder') {

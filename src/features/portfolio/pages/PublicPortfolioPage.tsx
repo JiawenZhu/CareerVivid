@@ -106,6 +106,20 @@ const PublicPortfolioPage: React.FC = () => {
     const themeOverride = urlParams.get('theme');
     const orientationOverride = urlParams.get('orientation');
 
+    // Allow explicitly forcing the flip state (true = back/QR, false = front/info)
+    // If param is present, it sets the initial state.
+    const flippedParam = urlParams.get('flipped');
+    const initialFlipped = flippedParam !== null ? flippedParam === 'true' : undefined;
+
+    const [isFlipped, setIsFlipped] = useState<boolean | undefined>(initialFlipped);
+
+    // Update state if URL changes (e.g. navigation)
+    useEffect(() => {
+        if (flippedParam !== null) {
+            setIsFlipped(flippedParam === 'true');
+        }
+    }, [flippedParam]);
+
     // Apply theme and orientation overrides if provided (used by BusinessCardPage iframe)
     // Using useMemo BEFORE early returns to comply with Rules of Hooks
     const displayData = React.useMemo(() => {
@@ -143,15 +157,15 @@ const PublicPortfolioPage: React.FC = () => {
 
     // Render the Template
     const TemplateComponent = (() => {
-        if (portfolioData.mode === 'linkinbio') {
-            const id = portfolioData.templateId as string;
+        if (displayData?.mode === 'linkinbio') {
+            const id = displayData.templateId as string;
             // If it is one of the structural keys, use it. Otherwise default to visual.
             if (['linktree_minimal', 'linktree_visual', 'linktree_corporate', 'linktree_bento'].includes(id)) {
                 return TEMPLATES[id as keyof typeof TEMPLATES];
             }
             return TEMPLATES.linktree_visual;
         }
-        return TEMPLATES[portfolioData.templateId as keyof typeof TEMPLATES] || TEMPLATES.minimalist;
+        return TEMPLATES[displayData?.templateId as keyof typeof TEMPLATES] || TEMPLATES.minimalist;
     })();
 
     // Determine background color for the wrapper to ensure full-page theme
@@ -205,6 +219,8 @@ const PublicPortfolioPage: React.FC = () => {
                         onEdit={undefined}
                         onUpdate={handleUpdate}
                         isEmbed={isEmbed}
+                        isFlipped={isFlipped}
+                        onToggleFlip={setIsFlipped}
                     />
                 </div>
             </Suspense>

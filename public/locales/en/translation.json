@@ -121,7 +121,8 @@
     "success_title": "Message Sent!",
     "success_message": "Thank you for reaching out. We'll get back to you as soon as possible.",
     "error_fill_fields": "Please fill in all fields.",
-    "error_send_failed": "Failed to send message. Please try again later."
+    "error_send_failed": "Failed to send message. Please try again later.",
+    "send_another_message": "Send another message"
   },
   "demo": {
     "title": "See CareerVivid in Action",

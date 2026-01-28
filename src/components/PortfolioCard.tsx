@@ -1,7 +1,7 @@
 import React, { useState, useRef, useLayoutEffect } from 'react';
 import { Edit3, Copy, Trash2, Share2 } from 'lucide-react';
 import { PortfolioData } from '../features/portfolio/types/portfolio';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 import { TEMPLATES } from '../features/portfolio/templates';
 import LinkTreeVisual from '../features/portfolio/templates/linkinbio/LinkTreeVisual';
 import { getTheme } from '../features/portfolio/styles/themes';

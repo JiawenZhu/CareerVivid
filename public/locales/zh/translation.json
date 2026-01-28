@@ -188,7 +188,8 @@
     "success_title": "消息已发送！",
     "success_message": "感谢您联系我们。我们会尽快给您回复。",
     "error_fill_fields": "请填写所有字段。",
-    "error_send_failed": "发送消息失败。请稍后再试。"
+    "error_send_failed": "发送消息失败。请稍后再试。",
+    "send_another_message": "发送另一条消息"
   },
   "demo": {
     "title": "观看 CareerVivid 演示",

@@ -8,7 +8,8 @@
     "build:vite": "vite build",
     "build:next": "cd ../careervivid-next && npm run build",
     "build:copy": "rm -rf dist/nextjs && mkdir -p dist/nextjs && cp -r ../careervivid-next/out/* dist/nextjs/ && cp -r dist/nextjs/_next dist/_next && cp dist/nextjs/embed.js dist/embed.js",
-    "build": "npm run build:vite && npm run build:next && npm run build:copy",
+    "build:nfc": "cd ../services/client_website_nfc_card && npm run build && mkdir -p ../../careervivid/dist/services/client_website_nfc_card && cp -r out/* ../../careervivid/dist/services/client_website_nfc_card/",
+    "build": "npm run build:vite && npm run build:next && npm run build:nfc && npm run build:copy",
     "lint": "eslint",
     "preview": "vite preview",
     "translate-locales": "node scripts/translate_locales.js"
@@ -49,6 +50,7 @@
     "react-router-dom": "^7.9.6",
     "react-sketch-canvas": "^6.2.0",
     "react-textarea-autosize": "^8.5.9",
+    "recharts": "^3.7.0",
     "three": "^0.182.0"
   },
   "devDependencies": {
@@ -64,9 +66,14 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "lighthouse": "^13.0.1",
     "postcss": "^8.4.35",
+    "react-helmet-async": "^2.0.5",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.2.2",
     "vite": "^7.2.7"
+  },
+  "overrides": {
+    "@mapbox/node-pre-gyp": "^2.0.3"
   }
 }

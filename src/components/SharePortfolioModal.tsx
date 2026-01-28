@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Globe, Lock, Check, Share2, ExternalLink } from 'lucide-react';
+import { X, Copy, Globe, Lock, Check, Share2, ExternalLink, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -24,6 +24,7 @@ const SharePortfolioModal: React.FC<SharePortfolioModalProps> = ({
     const [isPublic, setIsPublic] = useState(false);
     const [copied, setCopied] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [isOutOfSync, setIsOutOfSync] = useState(false);
 
     // Construct the share URL using headline as slug if available
     const userSlug = portfolioData?.hero?.headline
@@ -43,6 +44,22 @@ const SharePortfolioModal: React.FC<SharePortfolioModalProps> = ({
             const docRef = doc(db, 'public_portfolios', portfolioId);
             const docSnap = await getDoc(docRef);
             setIsPublic(docSnap.exists());
+
+            if (docSnap.exists() && portfolioData?.updatedAt) {
+                const publicData = docSnap.data();
+
+                // Compare updated timestamps
+                // Ensure we convert both to milliseconds for comparison
+                const publicTime = publicData.updatedAt?.toMillis ? publicData.updatedAt.toMillis() : new Date(publicData.updatedAt).getTime();
+                const privateTime = typeof portfolioData.updatedAt === 'number' ? portfolioData.updatedAt : new Date(portfolioData.updatedAt).getTime();
+
+                // If private version is significantly newer (> 2 seconds to avoid race conditions), show warning
+                if (privateTime > publicTime + 2000) {
+                    setIsOutOfSync(true);
+                } else {
+                    setIsOutOfSync(false);
+                }
+            }
         } catch (error) {
             console.error("Error checking public status:", error);
         }
@@ -98,6 +115,7 @@ const SharePortfolioModal: React.FC<SharePortfolioModalProps> = ({
                     }
                 }
                 setIsPublic(true);
+                setIsOutOfSync(false); // Clear stale warning
             } else {
                 // Unpublish
                 await deleteDoc(doc(db, 'public_portfolios', portfolioId));
@@ -120,7 +138,8 @@ const SharePortfolioModal: React.FC<SharePortfolioModalProps> = ({
     useEffect(() => {
         if (!isOpen) {
             setCopied(false);
-            setIsPublic(false); // Reset/Consistency? Actually better to re-fetch on open.
+            setIsPublic(false);
+            setIsOutOfSync(false); // Reset
         } else {
             const handleKeyDown = (event: KeyboardEvent) => {
                 if (event.key === 'Escape') {
@@ -194,6 +213,21 @@ const SharePortfolioModal: React.FC<SharePortfolioModalProps> = ({
 
                     {isPublic && (
                         <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
+                            {/* Stale Data Warning */}
+                            {isOutOfSync && (
+                                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-lg p-3 flex gap-3 items-start">
+                                    <div className="bg-amber-100 dark:bg-amber-800/40 p-1.5 rounded-full text-amber-600 dark:text-amber-400 mt-0.5">
+                                        <AlertCircle size={14} />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold text-amber-800 dark:text-amber-200">Update Required</p>
+                                        <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+                                            New changes detected. Please toggle Public Access <span className="font-bold">OFF</span> and <span className="font-bold">ON</span> to update your live link.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Link Input */}
                             <div>
                                 <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wider">

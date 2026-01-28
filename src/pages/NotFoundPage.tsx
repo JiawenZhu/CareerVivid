@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
 import { Home, Search, ArrowLeft, FileQuestion } from 'lucide-react';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 
 const NotFoundPage: React.FC = () => {
     const { t } = useTranslation();

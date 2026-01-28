@@ -9,7 +9,7 @@ import { parseTextWithEmojis } from '../../../../utils/emojiParser';
 import SocialLinkWrapper from '../../components/SocialLinkWrapper';
 import useLongPress from '../../../../hooks/useLongPress';
 import { useAuth } from '../../../../contexts/AuthContext';
-import { navigate } from '../../../../App';
+import { navigate } from '../../../../utils/navigation';
 import { usePortfolioAdminAccess } from '../../hooks/usePortfolioAdminAccess';
 import QuickAuthModal from '../../../../components/QuickAuthModal';
 import AlertModal from '../../../../components/AlertModal';
@@ -23,6 +23,7 @@ import { downloadResume } from '../../utils/resumeDownload';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { ProductShowcase } from '../../../commerce/components/ProductShowcase';
+import BackgroundEffects from '../../components/effects/BackgroundEffects';
 
 // --- Animation Helpers ---
 
@@ -54,70 +55,7 @@ const useTypewriter = (text: string, speed = 100, enabled = false) => {
 
 };
 
-const MatrixRain: React.FC = () => {
-    const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%';
-        const fontSize = 14;
-        const columns = canvas.width / fontSize;
-        const drops: number[] = [];
-
-        for (let x = 0; x < columns; x++) {
-            drops[x] = 1;
-        }
-
-        const draw = () => {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = '#0F0';
-            ctx.font = fontSize + 'px monospace';
-
-            for (let i = 0; i < drops.length; i++) {
-                const text = letters.charAt(Math.floor(Math.random() * letters.length));
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    drops[i] = 0;
-                }
-                drops[i]++;
-            }
-
-        };
-
-        const interval = setInterval(draw, 33);
-        const handleResize = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-        };
-
-        window.addEventListener('resize', handleResize);
-        return () => {
-            clearInterval(interval);
-            window.removeEventListener('resize', handleResize);
-
-        };
-
-    }, []);
-
-    return (
-        <canvas
-            ref={canvasRef}
-            className="fixed inset-0 pointer-events-none z-0 opacity-20"
-        />
-    );
-};
 
 // Tilt Hook
 const useTilt = (active: boolean) => {
@@ -238,6 +176,8 @@ const AnimatedLinkButton = ({
 
     };
 
+    const isCentered = customStyle?.buttonAlignment === 'center';
+
     return (
         <LinkWrapper
             url={link.url}
@@ -249,24 +189,26 @@ const AnimatedLinkButton = ({
                 ref={tiltRef}
                 className={`
                     group relative w-full p-4 md:p-5 flex items-center hover:scale-[1.02] active:scale-[0.98]
-                    ${customStyle?.buttonAlignment === 'center' ? 'justify-center' : 'justify-between'}
+                    ${isCentered ? 'justify-center' : 'justify-between'}
                 `}
                 style={buttonStyle(link.variant || 'primary')}
             >
-                <div className={`flex items-center gap-4 ${customStyle?.buttonAlignment === 'center' ? 'w-full justify-center' : ''}`}>
+                <div className={`flex items-center gap-4 ${isCentered ? 'justify-center text-center w-full px-8' : ''}`}>
                     {link.thumbnail && (
-                        <img src={link.thumbnail} alt="" className="w-12 h-12 rounded-md object-cover" />
+                        <img src={link.thumbnail} alt="" className="w-12 h-12 rounded-md object-cover flex-shrink-0" />
                     )}
                     {!link.thumbnail && link.icon && (
-                        <div className={theme.id === 'air' ? "text-gray-900" : ""}>
+                        <div className={`flex-shrink-0 ${theme.id === 'air' ? "text-gray-900" : ""}`}>
                             {getIcon(link.icon)}
                         </div>
                     )}
-                    <span className="font-semibold text-lg tracking-wide">{link.label}</span>
+                    <span className={`font-semibold text-lg tracking-wide ${isCentered ? 'text-center w-full' : ''}`}>
+                        {link.label}
+                    </span>
                 </div>
 
                 {/* Share/Arrow Icon */}
-                <div className="opacity-60 group-hover:opacity-100 transition-opacity transform group-hover:translate-x-1">
+                <div className={`opacity-60 group-hover:opacity-100 transition-opacity transform group-hover:translate-x-1 ${isCentered ? 'absolute right-5' : ''}`}>
                     {theme.buttons.customShape === 'torn-paper' ? null :
                         theme.buttons.style === 'glass' || theme.buttons.style === 'outline' ?
                             <Icons.ArrowUpRight size={20} /> :
@@ -279,40 +221,7 @@ const AnimatedLinkButton = ({
 
 };
 
-const SnowEffect = () => {
-    return (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden z-20">
-            {Array.from({ length: 50 }).map((_, i) => (
-                <div
-                    key={i}
-                    className="absolute top-0 text-white animate-fall"
-                    style={{
-                        left: `${Math.random() * 100}%`,
-                        animationDuration: `${Math.random() * 5 + 5}s`,
-                        animationDelay: `-${Math.random() * 5}s`,
-                        fontSize: `${Math.random() * 10 + 10}px`,
-                        opacity: Math.random() * 0.5 + 0.3
-                    }}
-                >
-                    ❄
-                </div>
-            ))}
-            <style>
-                {`
-                @keyframes fall {
-                    0% { transform: translateY(-10vh) translateX(0); }
-                    100% { transform: translateY(110vh) translateX(20px); }
-                }
-                .animate-fall {
-                    animation-name: fall;
-                    animation-timing-function: linear;
-                    animation-iteration-count: infinite;
-                }
-                `}
-            </style>
-        </div>
-    );
-};
+
 
 const LinkTreeVisual: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileView }) => {
     const linkInBio = data.linkInBio || {
@@ -371,7 +280,9 @@ const LinkTreeVisual: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobi
         ...baseTheme,
         effects: {
             ...baseTheme.effects,
-            ...linkInBio.customStyle?.effects
+            ...linkInBio.customStyle?.effects,
+            // Support legacy snow toggle
+            particles: baseTheme.effects?.particles || linkInBio.customStyle?.effects?.particles || linkInBio.customStyle?.enableSnow
         }
 
     };
@@ -576,6 +487,17 @@ const LinkTreeVisual: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobi
 
     };
 
+    const getAvatarSizeClass = () => {
+        const size = linkInBio.customStyle?.profileImageSize || 'md';
+        switch (size) {
+            case 'sm': return 'w-20 h-20';
+            case 'lg': return 'w-36 h-36';
+            case 'xl': return 'w-48 h-48';
+            default: return 'w-28 h-28';
+        }
+    };
+    const avatarSizeClass = getAvatarSizeClass();
+
     return (
         <div style={containerStyle} className="relative w-full min-h-screen transition-all duration-500 ease-in-out scroll-smooth">
             {/* Overlay for readability if image background */}
@@ -583,31 +505,13 @@ const LinkTreeVisual: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobi
                 <div className="absolute inset-0 pointer-events-none" style={{ background: theme.backgroundConfig.overlay }} />
             )}
 
-            {/* Matrix Rain Effect */}
-            {theme.effects?.matrix && <MatrixRain />}
-
-            {/* Background Effects */}
-            {theme.effects?.blobs && (
-                <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                    <div className="absolute top-[10%] right-[10%] w-[300px] h-[300px] rounded-full bg-purple-500/30 blur-[80px] animate-blob" />
-                    <div className="absolute bottom-[20%] left-[10%] w-[250px] h-[250px] rounded-full bg-blue-500/30 blur-[80px] animate-blob animation-delay-2000" />
-                </div>
-            )}
-
-            {theme.effects?.scanlines && (
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,6px_100%] pointer-events-none z-10 opacity-30" />
-            )}
-
-            {theme.effects?.noise && (
-                <div className="absolute inset-0 opacity-[0.05] pointer-events-none z-10" style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }} />
-            )}
+            {/* Centralized Background Effects */}
+            <BackgroundEffects theme={theme} />
 
             {theme.id === 'game_invaders' && <CosmicInvaders />}
             {theme.id === 'game_pong' && <CyberPong />}
             {theme.id === 'game_snake' && <BrutalSnake />}
             {theme.id === 'game_stacker' && <ZenStacker />}
-
-            {(theme.effects?.particles || linkInBio.customStyle?.enableSnow) && <SnowEffect />}
 
             <div className="relative z-20 max-w-md mx-auto min-h-screen px-6 py-16 flex flex-col">
                 {/* Profile Section */}
@@ -615,7 +519,7 @@ const LinkTreeVisual: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobi
                     {/* Avatar */}
                     {profileImage && (
                         <div
-                            className={`w-28 h-28 mb-6 overflow-hidden shadow-2xl transition-transform duration-700 ${theme.effects?.spinAvatar ? 'hover:rotate-[360deg]' : ''} ${onEdit ? 'cursor-pointer hover:scale-105' : ''}`}
+                            className={`${avatarSizeClass} mb-6 overflow-hidden shadow-2xl transition-transform duration-700 ${theme.effects?.spinAvatar ? 'hover:rotate-[360deg]' : ''} ${onEdit ? 'cursor-pointer hover:scale-105' : ''}`}
                             style={{
                                 borderRadius: '50%',
                                 border: `4px solid ${theme.colors.cardBg || 'rgba(255,255,255,0.3)'}`,
@@ -831,7 +735,7 @@ const LinkTreeVisual: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobi
             />
 
 
-        </div>
+        </div >
     );
 
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { generateResumeFromPrompt, generateDemoInterviewQuestions } from '../services/geminiService';
 import { Loader2, Mic, Wand2, ArrowLeft, Search, Briefcase, ChevronRight } from 'lucide-react';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 import { createBlankResume } from '../constants';
 import { auth, db } from '../firebase';
 import { signInAnonymously } from 'firebase/auth';

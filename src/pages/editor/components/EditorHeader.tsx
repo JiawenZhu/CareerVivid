@@ -1,12 +1,11 @@
 import React, { useRef, useState } from 'react';
-import { ArrowLeft, Share2, Download, ChevronDown, FileText, Image as ImageIcon, Loader2, Languages, Eye, MoreVertical, Edit as EditIcon, Moon, Sun } from 'lucide-react';
+import { ArrowLeft, Share2, Download, ChevronDown, FileText, Image as ImageIcon, Loader2, Languages, Eye, MoreVertical, Edit as EditIcon, Moon, Sun, Sparkles, Wand2 } from 'lucide-react';
+import CoverLetterManagerModal from './CoverLetterManagerModal';
+import TailorResumeModal from './TailorResumeModal';
 import { useTranslation } from 'react-i18next';
 import { ResumeData, UserProfile } from '../../../types';
 import ThemeToggle from '../../../components/ThemeToggle';
 import { EXPORT_OPTIONS, SUPPORTED_TRANSLATE_LANGUAGES } from '../../../constants';
-
-// Note: Ensure EXPORT_OPTIONS and SUPPORTED_TRANSLATE_LANGUAGES are exported from Editor.tsx or moved to a constants file.
-// Ideally, move them to a separate file constants.ts in src/pages/editor/constants.ts
 
 interface EditorHeaderProps {
     resume: ResumeData;
@@ -28,18 +27,23 @@ interface EditorHeaderProps {
     onShare: () => void;
     onToggleTheme: () => void;
     setViewMode: (mode: 'edit' | 'preview') => void;
+    onDismissGuideArrow?: () => void;
+    onExportToGoogleDocs?: () => void;
 }
 
 const EditorHeader: React.FC<EditorHeaderProps> = ({
     resume, currentUser, isShared, isGuestMode, isTranslating,
     hasAnnotations, hasViewedFeedback, commentsCount, showAnnotationOverlay,
     theme, showGuideArrow, onResumeChange, onExport, onTranslate,
-    onToggleFeedback, onShare, onToggleTheme, setViewMode
+    onToggleFeedback, onShare, onToggleTheme, setViewMode, onDismissGuideArrow,
+    onExportToGoogleDocs
 }) => {
     const { t } = useTranslation();
     const [isDesktopDownloadMenuOpen, setIsDesktopDownloadMenuOpen] = useState(false);
     const [isTranslateMenuOpen, setIsTranslateMenuOpen] = useState(false);
     const [isMobileMoreMenuOpen, setIsMobileMoreMenuOpen] = useState(false);
+    const [isCoverLetterModalOpen, setIsCoverLetterModalOpen] = useState(false);
+    const [isTailorModalOpen, setIsTailorModalOpen] = useState(false);
 
     const desktopDownloadMenuRef = useRef<HTMLDivElement>(null);
     const translateMenuRef = useRef<HTMLDivElement>(null);
@@ -70,108 +74,7 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
                         />
                     )}
                 </div>
-                <div className="flex items-center gap-2">
-                    {/* Desktop Download Menu */}
-                    <div className="hidden md:block relative" ref={desktopDownloadMenuRef}>
-                        <button
-                            onClick={() => setIsDesktopDownloadMenuOpen(!isDesktopDownloadMenuOpen)}
-                            className="flex items-center gap-2 bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg shadow-soft hover:bg-primary-700 transition-colors"
-                        >
-                            <Download size={18} />
-                            <span>{t('editor.download')}</span>
-                            <ChevronDown size={18} />
-                        </button>
-                        {isDesktopDownloadMenuOpen && (
-                            <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-20 border dark:border-gray-700">
-                                <div className="py-1">
-                                    {EXPORT_OPTIONS.map(opt => {
-                                        let name = opt.name;
-                                        let rec = opt.recommendation;
-                                        if (opt.id === 'pdf') { name = t('export.pdf'); rec = t('export.pdf_rec'); }
-                                        else if (opt.id === 'png') { name = t('export.png'); rec = t('export.png_rec'); }
-                                        else if (opt.id === '1:1') { name = t('export.square'); rec = t('export.square_rec'); }
-                                        else if (opt.id === '16:9') { name = t('export.widescreen'); rec = t('export.widescreen_rec'); }
-                                        else if (opt.id === '9:16') { name = t('export.story'); rec = t('export.story_rec'); }
-                                        else if (opt.id === '4:5') { name = t('export.portrait'); rec = t('export.portrait_rec'); }
-
-                                        return (
-                                            <button key={opt.id} onClick={() => { onExport(opt.id); setIsDesktopDownloadMenuOpen(false); }} className="w-full text-left flex items-start gap-3 px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                {opt.id === 'pdf' ? <FileText className="mt-1" /> : <ImageIcon className="mt-1" />}
-                                                <div>
-                                                    <p className="font-semibold">{name}</p>
-                                                    <p className="text-xs text-gray-500 dark:text-gray-400">{rec}</p>
-                                                </div>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Translate Menu */}
-                    {!isShared && (
-                        <div className="hidden md:block relative" ref={translateMenuRef}>
-                            <button
-                                onClick={() => setIsTranslateMenuOpen(!isTranslateMenuOpen)}
-                                disabled={isTranslating}
-                                className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
-                            >
-                                {isTranslating ? <Loader2 size={16} className="animate-spin" /> : <Languages size={16} />}
-                                <span>Translate</span>
-                                <ChevronDown size={14} className={`transition-transform ${isTranslateMenuOpen ? 'rotate-180' : ''}`} />
-                            </button>
-                            {isTranslateMenuOpen && (
-                                <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-20 border dark:border-gray-700 max-h-80 overflow-y-auto">
-                                    <div className="py-1">
-                                        <div className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 font-semibold">Translate Resume To:</div>
-                                        {SUPPORTED_TRANSLATE_LANGUAGES.map(lang => (
-                                            <button
-                                                key={lang.code}
-                                                onClick={() => { onTranslate(lang.code); setIsTranslateMenuOpen(false); }}
-                                                className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                                            >
-                                                {lang.name}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Feedback / Share Buttons */}
-                    {!isShared && !isGuestMode && (
-                        <div className="hidden md:block">
-                            {(hasAnnotations || commentsCount > 0) ? (
-                                <button
-                                    onClick={onToggleFeedback}
-                                    className={`relative flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${showAnnotationOverlay
-                                        ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400'
-                                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-                                        }`}
-                                    title="Toggle feedback annotations and comments"
-                                >
-                                    <Eye size={16} />
-                                    <span>Review Feedback</span>
-                                    {/* Visual indicator badge */}
-                                    {(!hasViewedFeedback && (commentsCount > 0 || hasAnnotations)) && (
-                                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></span>
-                                    )}
-                                </button>
-                            ) : (
-                                <button
-                                    onClick={onShare}
-                                    className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                                    title="Share this resume"
-                                >
-                                    <Share2 size={16} />
-                                    <span>Share</span>
-                                </button>
-                            )}
-                        </div>
-                    )}
-
+                <div className="flex items-center gap-2 z-10">
                     <div className="hidden md:flex items-center gap-1">
                         <ThemeToggle />
                     </div>
@@ -190,7 +93,12 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
                         )}
 
                         <button
-                            onClick={() => setIsMobileMoreMenuOpen(!isMobileMoreMenuOpen)}
+                            onClick={() => {
+                                setIsMobileMoreMenuOpen(!isMobileMoreMenuOpen);
+                                if (!isMobileMoreMenuOpen && onDismissGuideArrow) {
+                                    onDismissGuideArrow();
+                                }
+                            }}
                             className="p-3 rounded-xl bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-all animate-pulse-slow shadow-lg shadow-primary-500/20"
                         >
                             <MoreVertical size={24} className="stroke-2" />
@@ -240,7 +148,160 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
                         )}
                     </div>
                 </div>
-            </div>
+
+                {/* Centered Actions (Desktop) - Evenly Spaced & Offset for Preview Area */}
+                <div className="hidden md:flex absolute left-[60%] top-1/2 transform -translate-x-1/2 -translate-y-1/2 items-center justify-between w-[55%] max-w-4xl">
+                    {/* DOWNLOAD MENU */}
+                    <div className="relative" ref={desktopDownloadMenuRef}>
+                        <button
+                            onClick={() => setIsDesktopDownloadMenuOpen(!isDesktopDownloadMenuOpen)}
+                            className="flex items-center gap-2 bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg shadow-soft hover:bg-primary-700 transition-colors"
+                        >
+                            <Download size={18} />
+                            <span>{t('editor.download')}</span>
+                            <ChevronDown size={18} />
+                        </button>
+                        {isDesktopDownloadMenuOpen && (
+                            <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-50 border dark:border-gray-700">
+                                <div className="py-1">
+                                    {EXPORT_OPTIONS.map(opt => {
+                                        let name = opt.name;
+                                        let rec = opt.recommendation;
+                                        if (opt.id === 'pdf') { name = t('export.pdf'); rec = t('export.pdf_rec'); }
+                                        else if (opt.id === 'png') { name = t('export.png'); rec = t('export.png_rec'); }
+                                        else if (opt.id === '1:1') { name = t('export.square'); rec = t('export.square_rec'); }
+                                        else if (opt.id === '16:9') { name = t('export.widescreen'); rec = t('export.widescreen_rec'); }
+                                        else if (opt.id === '9:16') { name = t('export.story'); rec = t('export.story_rec'); }
+                                        else if (opt.id === '4:5') { name = t('export.portrait'); rec = t('export.portrait_rec'); }
+
+                                        return (
+                                            <button key={opt.id} onClick={() => { onExport(opt.id); setIsDesktopDownloadMenuOpen(false); }} className="w-full text-left flex items-start gap-3 px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                {opt.id === 'pdf' ? <FileText className="mt-1" /> : <ImageIcon className="mt-1" />}
+                                                <div>
+                                                    <p className="font-semibold">{name}</p>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400">{rec}</p>
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+
+                    {/* TRANSLATE MENU */}
+                    {!isShared && (
+                        <div className="relative" ref={translateMenuRef}>
+                            <button
+                                onClick={() => setIsTranslateMenuOpen(!isTranslateMenuOpen)}
+                                disabled={isTranslating}
+                                className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+                            >
+                                {isTranslating ? <Loader2 size={16} className="animate-spin" /> : <Languages size={16} />}
+                                <span>Translate</span>
+                                <ChevronDown size={14} className={`transition-transform ${isTranslateMenuOpen ? 'rotate-180' : ''}`} />
+                            </button>
+                            {isTranslateMenuOpen && (
+                                <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-50 border dark:border-gray-700 max-h-80 overflow-y-auto">
+                                    <div className="py-1">
+                                        <div className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 font-semibold">Translate Resume To:</div>
+                                        {SUPPORTED_TRANSLATE_LANGUAGES.map(lang => (
+                                            <button
+                                                key={lang.code}
+                                                onClick={() => { onTranslate(lang.code); setIsTranslateMenuOpen(false); }}
+                                                className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                            >
+                                                {lang.name}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* NEW: COVER LETTER BUTTON */}
+                    {!isShared && (
+                        <button
+                            onClick={() => setIsCoverLetterModalOpen(true)}
+                            className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        >
+                            <Sparkles size={16} className="text-purple-500" />
+                            <span>Cover Letter</span>
+                        </button>
+                    )}
+
+                    {/* NEW: AI TAILOR BUTTON */}
+                    {!isShared && (
+                        <button
+                            onClick={() => setIsTailorModalOpen(true)}
+                            className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/10 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors border border-primary-200 dark:border-primary-800"
+                        >
+                            <Wand2 size={16} />
+                            <span>AI Tailor</span>
+                        </button>
+                    )}
+
+                    {/* NEW: GOOGLE DOCS BUTTON */}
+                    {!isShared && (
+                        <button
+                            onClick={onExportToGoogleDocs}
+                            className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                            title="Export to Google Docs"
+                        >
+                            <FileText size={16} />
+                            <span className="hidden lg:inline">Exp. Docs</span>
+                        </button>
+                    )}
+
+                    {/* FEEDBACK / SHARE BUTTONS (Moved to Center) */}
+                    {!isShared && !isGuestMode && (
+                        <div className="flex items-center">
+                            {(hasAnnotations || commentsCount > 0) ? (
+                                <button
+                                    onClick={onToggleFeedback}
+                                    className={`relative flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${showAnnotationOverlay
+                                        ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400'
+                                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                        }`}
+                                    title="Toggle feedback annotations and comments"
+                                >
+                                    <Eye size={16} />
+                                    <span>Review Feedback</span>
+                                    {/* Visual indicator badge */}
+                                    {(!hasViewedFeedback && (commentsCount > 0 || hasAnnotations)) && (
+                                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></span>
+                                    )}
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={onShare}
+                                    className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                    title="Share this resume"
+                                >
+                                    <Share2 size={16} />
+                                    <span>Share</span>
+                                </button>
+                            )}
+                        </div>
+                    )}
+
+                </div>
+            </div>            <CoverLetterManagerModal
+                isOpen={isCoverLetterModalOpen}
+                onClose={() => setIsCoverLetterModalOpen(false)}
+                resume={resume}
+                theme={theme}
+            />
+
+            <TailorResumeModal
+                isOpen={isTailorModalOpen}
+                onClose={() => setIsTailorModalOpen(false)}
+                resume={resume}
+                onResumeChange={onResumeChange}
+                theme={theme}
+            />
         </header>
     );
 };

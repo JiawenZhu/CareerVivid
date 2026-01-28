@@ -20,6 +20,7 @@ interface EditorSidebarProps {
     isTemplateLoading: boolean;
     tempPhoto: string | null;
     sampleResume: ResumeData; // For template previews
+    viewMode: 'edit' | 'preview';
 
     setActiveTab: (tab: 'content' | 'template' | 'design' | 'comments') => void;
     setTempPhoto: (photo: string | null) => void;
@@ -34,7 +35,7 @@ interface EditorSidebarProps {
 const EditorSidebar: React.FC<EditorSidebarProps> = ({
     resume, currentUser, activeTab, activeTemplate, templates,
     sidebarWidth, sidebarMode, isDesktop, isGuestMode, isShared, isTemplateLoading,
-    tempPhoto, sampleResume,
+    tempPhoto, sampleResume, viewMode,
     setActiveTab, setTempPhoto,
     onResumeChange, onTemplateSelect, onDesignChange, onResizeSidebar, onCloseComments
 }) => {
@@ -47,7 +48,7 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     h-full z-20 
                     absolute md:relative
                     transition-all duration-300 ease-in-out
-                    ${isDesktop ? '' : 'translate-x-0 w-full'} 
+                    ${isDesktop ? '' : (viewMode === 'preview' ? 'hidden' : 'translate-x-0 w-full')} 
                     ${isDesktop && sidebarMode === 'closed' ? 'w-0 overflow-hidden' : ''}
                     md:translate-x-0
                     overflow-hidden

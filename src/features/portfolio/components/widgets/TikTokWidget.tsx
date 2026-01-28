@@ -45,8 +45,21 @@ const TikTokWidget: React.FC<TikTokWidgetProps> = ({ username, isDark }) => {
         }
     }, [username]);
 
-    if (loading) return <div className="animate-pulse h-32 bg-gray-100 dark:bg-white/5 rounded-xl"></div>;
-    if (error || !stats) return null;
+    if (loading) return (
+        <div className="grid grid-cols-3 gap-3">
+            {[1, 2, 3].map(i => (
+                <div key={i} className="aspect-[3/4] bg-gray-100 dark:bg-white/5 rounded-lg animate-pulse" />
+            ))}
+        </div>
+    );
+
+    if (error) return (
+        <div className={`p-6 rounded-xl border ${isDark ? 'border-red-900/50 bg-red-900/10' : 'border-red-100 bg-red-50'} text-center`}>
+            <p className="text-sm text-red-500">Failed to load TikTok stats.</p>
+        </div>
+    );
+
+    if (!stats) return null;
 
     const formatNumber = (num: number) => {
         return new Intl.NumberFormat('en-US', { notation: "compact", compactDisplay: "short" }).format(num);
@@ -86,10 +99,10 @@ const TikTokWidget: React.FC<TikTokWidgetProps> = ({ username, isDark }) => {
                         href={video.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="aspect-[3/4] rounded-lg overflow-hidden relative group"
+                        className="aspect-[3/4] rounded-lg overflow-hidden relative group bg-black"
                     >
-                        <img src={video.thumbnailUrl} alt="TikTok Video" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
-                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+                        <img src={video.thumbnailUrl} alt="TikTok Video" className="w-full h-full object-cover transition-transform group-hover:scale-105 opacity-80 group-hover:opacity-100" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60" />
                         <div className="absolute bottom-2 left-2 flex items-center gap-1 text-white text-xs font-bold shadow-black drop-shadow-md">
                             <Play size={12} fill="white" />
                             {formatNumber(video.views)}

@@ -1,15 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
+import BioLinkPricing from '../features/pricing/components/BioLinkPricing';
 import TemplateCard from '../features/portfolio/components/bio-links/TemplateCard';
 import { LINKTREE_THEMES } from '../features/portfolio/styles/themes';
 import { STOCK_PHOTOS } from '../constants/stockPhotos';
 import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
-import { navigate } from '../App';
+import Logo from '../components/Logo';
+import { navigate } from '../utils/navigation';
 import GuestPromptModal from '../components/GuestPromptModal';
-import { useState } from 'react';
-
-// Since translation keys are not yet available for everything, we use hardcoded fallbacks or new keys if added.
-// For now, hardcoding english text with placeholders for t() to be replaced when keys exist.
+import { useAuth } from '../contexts/AuthContext';
+import { usePortfolios } from '../hooks/usePortfolios';
+import ConfirmationModal from '../components/ConfirmationModal';
 
 // Define the list of themes to feature - using new landing themes with exact styles
 const FEATURED_THEMES = [
@@ -89,18 +90,51 @@ const templates = FEATURED_THEMES.map((id, index) => {
         category: theme.category || 'Standard',
         previewStyle: previewStyle,
         thumbnailSrc: undefined,
-        avatarUrl,
-        userName,
+        avatarUrl: avatarUrl, // Explicit property
+        userName: userName,   // Explicit property
         sampleLinks: SOCIAL_LINKS
     };
 }).filter(Boolean) as any[];
 
 const BioLinksPage: React.FC = () => {
+    const { isPremium, currentUser } = useAuth();
+    const { portfolios } = usePortfolios();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<string>('All');
+    const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+
+    // Filter for Bio-Link sites only
+    const bioLinksCount = portfolios.filter(p => p.mode === 'linkinbio').length;
+    const totalPortfolioCount = portfolios.length;
+    const [limitMessage, setLimitMessage] = useState('You have reached your site limit. Please upgrade your plan to create more.');
+
+    const checkLimit = () => {
+        // Check total site limit first (2 sites for free users)
+        if (currentUser && !isPremium && totalPortfolioCount >= 2) {
+            setLimitMessage('Free users can only create up to 2 sites. Please upgrade your plan to create more.');
+            setIsUpgradeModalOpen(true);
+            return false;
+        }
+        // Enforce limit for logged-in free users: max 1 bio-link site
+        if (currentUser && !isPremium && bioLinksCount >= 1) {
+            setLimitMessage('You have reached your Bio-Link limit. Please upgrade your plan to create more.');
+            setIsUpgradeModalOpen(true);
+            return false;
+        }
+        return true;
+    };
 
     const handleTemplateClick = (templateId: string) => {
+        if (!checkLimit()) return;
         setSelectedTemplateId(templateId);
+        setIsModalOpen(true);
+    };
+
+    const handleScratchClick = () => {
+        if (!checkLimit()) return;
+        // Use 'clean_air' as the base for scratch (Clean Slate)
+        setSelectedTemplateId('clean_air');
         setIsModalOpen(true);
     };
 
@@ -116,11 +150,56 @@ const BioLinksPage: React.FC = () => {
         const slug = headline.trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
 
         // Navigate to Editor: /portfolio/SLUG/edit/ID
+        // Note: The Editor should ensure 'mode' is set to 'linkinbio' upon creation
         navigate(`/portfolio/${slug}/edit/${randomId}?template=${selectedTemplateId}`);
     };
+
+    // ... existing filters ...
+
+    const filteredTemplates = selectedCategory === 'All'
+        ? templates
+        : templates.filter(t => t.category.toLowerCase().includes(selectedCategory.toLowerCase()) || (selectedCategory === 'Creative' && ['brutal', 'neon'].some(k => t.category.toLowerCase().includes(k))));
+
+    const displayedTemplates = selectedCategory === 'All'
+        ? templates
+        : templates.filter(t => {
+            if (selectedCategory === 'Seasonal') return t.category === 'Seasonal';
+            if (selectedCategory === 'Sports') return t.category === 'Sports';
+            if (selectedCategory === 'Gaming') return t.category === 'Gaming';
+            if (selectedCategory === 'Creative') return ['Creative', 'Abstract', 'Neo-Brutalism'].includes(t.category);
+            if (selectedCategory === 'Minimal') return ['Minimal', 'Professional', 'Modern'].includes(t.category);
+            return t.category === selectedCategory;
+        });
+
     return (
-        <div className="bg-white dark:bg-gray-950 min-h-screen flex flex-col font-sans">
-            <PublicHeader />
+        <div className="bg-[#f0f0f0] min-h-screen flex flex-col font-sans" style={{
+            backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)',
+            backgroundSize: '20px 20px'
+        }}>
+            {/* Conditional Header: Authenticated vs Public */}
+            {currentUser ? (
+                <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b-4 border-black shadow-sm">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between items-center h-16">
+                            <a href="/dashboard" className="flex items-center gap-2">
+                                <Logo className="h-8 w-8" />
+                                <span className="text-xl font-black text-black">CareerVivid</span>
+                            </a>
+                            <div className="flex items-center gap-4">
+                                <span className="text-sm font-medium text-gray-600 hidden sm:block">{currentUser.email}</span>
+                                <button
+                                    onClick={() => navigate('/dashboard')}
+                                    className="px-4 py-2 bg-black text-white font-bold text-sm rounded-none border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+                                >
+                                    Go to Dashboard
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+            ) : (
+                <PublicHeader variant="brutalist" context="bio-link" />
+            )}
 
             <GuestPromptModal
                 isOpen={isModalOpen}
@@ -128,21 +207,43 @@ const BioLinksPage: React.FC = () => {
                 onSubmit={handleStartDesigning}
             />
 
-            <main className="flex-grow pt-24 pb-20">
-                {/* Header */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight">
-                        Choose a <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Starting Point</span>
+            <ConfirmationModal
+                isOpen={isUpgradeModalOpen}
+                onCancel={() => setIsUpgradeModalOpen(false)}
+                onConfirm={() => navigate('/subscription')}
+                title="Limit Reached"
+                message={limitMessage}
+                confirmText="Upgrade Now"
+                cancelText="Maybe Later"
+                variant="default"
+            />
+
+            <main className="flex-grow pt-32 pb-20">
+                {/* Neo-Brutalist Hero */}
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20 text-center">
+                    <h1 className="text-5xl md:text-7xl font-black text-black mb-8 tracking-tighter uppercase relative inline-block">
+                        Choose a <br className="md:hidden" />
+                        <span className="relative inline-block px-4">
+                            <span className="absolute inset-0 bg-[#A7F3D0] -skew-y-2 transform border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"></span>
+                            <span className="relative z-10">Starting Point</span>
+                        </span>
                     </h1>
-                    <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-                        Select a template to launch your professional portfolio in seconds.
-                        Fully customizable to match your personal brand.
+                    <p className="text-xl font-bold text-gray-700 max-w-2xl mx-auto mb-12 font-mono bg-white inline-block px-4 py-2 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                        Launch your professional portfolio in seconds. <br />
+                        Fully customizable. Zero fluff.
                     </p>
 
-                    {/* Categories - Linktree Style */}
-                    <div className="flex flex-wrap justify-center gap-2 mb-12">
+                    {/* Rectangular Tags Filter */}
+                    <div className="flex flex-wrap justify-center gap-3 mb-16">
                         {(['All', 'Seasonal', 'Sports', 'Gaming', 'Creative', 'Minimal'] as const).map((cat) => (
-                            <button key={cat} className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-200 border ${cat === 'All' ? 'bg-gray-900 border-gray-900 dark:bg-white dark:border-white text-white dark:text-gray-900 shadow-md' : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'}`}>
+                            <button
+                                key={cat}
+                                onClick={() => setSelectedCategory(cat)}
+                                className={`px-6 py-3 font-black text-sm uppercase tracking-wide border-3 border-black transition-all duration-200 ${selectedCategory === cat
+                                    ? 'bg-black text-white shadow-[4px_4px_0px_0px_rgba(167,243,208,1)] transform -translate-y-1'
+                                    : 'bg-white text-black hover:bg-[#FDE047] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1'
+                                    }`}
+                            >
                                 {cat}
                             </button>
                         ))}
@@ -151,36 +252,64 @@ const BioLinksPage: React.FC = () => {
 
                 {/* Grid */}
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {templates.map((template, index) => (
-                            <div key={template.id} className="animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${index * 100}ms` }}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+                        {displayedTemplates.map((template, index) => (
+                            <div key={template.id} className="animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${index * 50}ms` }}>
                                 <TemplateCard
                                     {...template}
                                     category={template.category}
                                     onSelect={() => handleTemplateClick(template.id)}
-                                // Props are now spread from template, but explicitly showing intent for clarity if needed, 
-                                // but {...template} covers avatarUrl, userName, sampleLinks
+                                    variant="brutalist"
                                 />
                             </div>
                         ))}
+                        {displayedTemplates.length === 0 && (
+                            <div className="col-span-full text-center py-20 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                                <p className="text-black font-bold text-xl uppercase">No templates found for this category.</p>
+                                <button
+                                    onClick={() => setSelectedCategory('All')}
+                                    className="mt-6 text-white bg-black px-6 py-3 font-bold uppercase hover:bg-gray-800"
+                                >
+                                    View all templates
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                {/* CTA Section */}
+                {/* Pricing Section (Already Brutalist) */}
+                <div id="pricing" className="scroll-mt-32">
+                    <BioLinkPricing />
+                </div>
+
+                {/* Construction Zone Bottom CTA */}
                 <div className="mt-24 px-4">
-                    <div className="max-w-4xl mx-auto bg-gray-50 dark:bg-gray-900/50 rounded-3xl p-12 text-center border border-gray-100 dark:border-gray-800">
-                        <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">Start with a blank canvas?</h2>
-                        <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-lg mx-auto">
-                            Prefer to build from scratch? Our builder gives you complete control over every element to design exactly what you need.
-                        </p>
-                        <button onClick={() => navigate('/portfolio-builder')} className="inline-flex items-center justify-center px-8 py-3 border border-gray-300 dark:border-gray-700 rounded-full font-medium text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 transition-colors bg-white dark:bg-black shadow-sm">
-                            Build from Scratch
-                        </button>
+                    <div className="max-w-5xl mx-auto bg-[#FDE047] border-4 border-black p-12 text-center relative overflow-hidden shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
+                        {/* Caution Stripes Pattern */}
+                        <div className="absolute inset-0 opacity-10 pointer-events-none" style={{
+                            backgroundImage: 'repeating-linear-gradient(45deg, #000 0, #000 10px, transparent 10px, transparent 20px)'
+                        }}></div>
+
+                        <div className="relative z-10 bg-white border-4 border-black p-8 md:p-12 inline-block max-w-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                            <h2 className="text-4xl md:text-5xl font-black mb-6 text-black uppercase tracking-tight">
+                                Start with a <br />
+                                <span className="text-[#3b82f6]">Blank Canvas?</span>
+                            </h2>
+                            <p className="text-lg font-bold text-gray-800 mb-10 max-w-lg mx-auto font-mono">
+                                Prefer to build from scratch? Take full control of every pixel.
+                            </p>
+                            <button
+                                onClick={handleScratchClick}
+                                className="px-10 py-5 bg-black text-white border-4 border-black font-black text-xl uppercase tracking-widest hover:bg-white hover:text-black transition-all hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1"
+                            >
+                                Build from Scratch
+                            </button>
+                        </div>
                     </div>
                 </div>
             </main>
 
-            <Footer />
+            <Footer variant="brutalist" policyPath="/policy#bio-link" />
         </div>
     );
 };

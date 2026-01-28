@@ -45,6 +45,7 @@ interface PortfolioSidebarProps {
     userPortfolios?: PortfolioData[];
     onImportTheme?: (theme: ExtractedTheme) => void;
     onStockPhotoTrigger?: (field: string) => void;
+    onUpgradeTrigger?: () => void;
 }
 
 const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
@@ -64,9 +65,9 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
     onTogglePreview,
     userPortfolios,
     onImportTheme,
-    onStockPhotoTrigger
+    onStockPhotoTrigger,
+    onUpgradeTrigger
 }) => {
-
     const isLinkInBio = portfolioData.mode === 'linkinbio';
 
     const getSidebarSections = () => {
@@ -289,6 +290,8 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
                     currentSelection={currentSelection}
                     editorTheme={editorTheme}
                     themeClasses={themeClasses}
+                    isPremium={isPremium}
+                    onUpgradeTrigger={onUpgradeTrigger}
                 />
             )}
 

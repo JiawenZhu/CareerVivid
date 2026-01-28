@@ -7,7 +7,7 @@ import { BlogPost } from '../types';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Loader2, Calendar, User, ArrowLeft, Facebook, Twitter, Linkedin } from 'lucide-react';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 
 // --- Simple Markdown Renderer for Blog Content ---
 const MarkdownRenderer: React.FC<{ text: string }> = ({ text = '' }) => {

@@ -4,7 +4,7 @@ import { useResumes } from '../hooks/useResumes';
 import { generateResumeFromPrompt, parseResume } from '../services/geminiService';
 import { CAREER_PATHS, Industry } from '../data/careers';
 import { ArrowRight, Zap, Loader2, ChevronLeft, LayoutDashboard, UploadCloud } from 'lucide-react';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import Logo from '../components/Logo';
 import ResumeImport from '../components/ResumeImport';

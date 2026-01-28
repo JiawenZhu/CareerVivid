@@ -1,7 +1,13 @@
 import * as functions from "firebase-functions";
+import * as admin from "firebase-admin";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { onRequest } from "firebase-functions/v2/https";
+import { getAuthUrl, getAccessToken, getUserInfo } from "./tiktokApi";
 
-// Mock Data Service for Social Stats
+// Database reference
+const db = admin.firestore();
+
+// Mock Data Service for Social Stats (Fallback)
 const getMockTikTokStats = (username: string) => {
     // Generate deterministic but realistic-looking stats based on username length
     const base = username.length * 1000;
@@ -39,12 +45,39 @@ export const getSocialStats = onCall(
     },
     async (request) => {
         const { platform, username } = request.data;
+        const uid = request.auth?.uid;
 
         if (!username) {
             throw new HttpsError('invalid-argument', 'Username is required.');
         }
 
         if (platform === 'tiktok') {
+            // Check if we have a real integration for this user
+            if (uid) {
+                const doc = await db.collection('users').doc(uid).collection('integrations').doc('tiktok').get();
+                if (doc.exists) {
+                    const { accessToken } = doc.data() as any;
+                    try {
+                        // Try fetching real stats
+                        const realData = await getUserInfo(accessToken);
+                        if (realData) {
+                            // Transform real data to match expected format if needed
+                            // For now return mock structure with real numbers
+                            return {
+                                data: {
+                                    ...getMockTikTokStats(username),
+                                    followerCount: realData.follower_count, // Overlay real data
+                                    // other fields...
+                                },
+                                success: true
+                            };
+                        }
+                    } catch (e) {
+                        console.error("Failed to fetch real TikTok data, falling back to mock", e);
+                    }
+                }
+            }
+
             const stats = getMockTikTokStats(username);
             return {
                 data: stats,
@@ -53,5 +86,56 @@ export const getSocialStats = onCall(
         }
 
         throw new HttpsError('unimplemented', 'Platform not supported.');
+    }
+);
+
+// 1. Initiate OAuth Flow
+export const initiateTikTokAuth = onCall(
+    { region: "us-west1" },
+    async (request) => {
+        if (!request.auth) {
+            throw new HttpsError('unauthenticated', 'User must be logged in.');
+        }
+
+        // Generate state to prevent CSRF (include uid to link later)
+        const state = request.auth.uid; // Simple state for now
+        const authUrl = getAuthUrl(state);
+
+        return { url: authUrl };
+    }
+);
+
+// 2. Handle Callback
+export const handleTikTokCallback = onRequest(
+    { region: "us-west1" },
+    async (req, res) => {
+        const { code, state } = req.query;
+
+        if (!code || !state) {
+            res.status(400).send("Missing code or state");
+            return;
+        }
+
+        try {
+            // Exchange code for access token
+            const tokenData = await getAccessToken(code as string);
+
+            // Save to Firestore (state is uid)
+            const uid = state as string;
+            await db.collection('users').doc(uid).collection('integrations').doc('tiktok').set({
+                accessToken: tokenData.access_token,
+                refreshToken: tokenData.refresh_token,
+                expiresIn: tokenData.expires_in,
+                openId: tokenData.open_id,
+                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+
+            // Redirect back to app (subscription page with success param)
+            res.redirect('https://careervivid.app/subscription?success=true');
+
+        } catch (error) {
+            console.error("GitHub OAuth Error:", error);
+            res.status(500).send("Authentication failed");
+        }
     }
 );

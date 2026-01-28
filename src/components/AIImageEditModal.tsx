@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Loader2, Check, Upload } from 'lucide-react';
+import { Loader2, Check, Upload, Wand2, X, Download, Save, Image as ImageIcon, Sparkles } from 'lucide-react';
 import { editProfilePhoto } from '../services/geminiService';
 import { uploadImage, dataURLtoBlob } from '../services/storageService';
 
@@ -11,9 +11,56 @@ interface AIImageEditModalProps {
     onUseTemp: (newPhotoDataUrl: string) => void;
     onClose: () => void;
     onError: (title: string, message: string) => void;
-    promptOptions?: string[]; // Optional custom prompts
-    savePath?: string; // Optional custom storage path
+    promptOptions?: string[]; // Kept for backward compatibility, but we prioritize internal styles
+    savePath?: string;
 }
+
+// --- New Style Definitions ---
+const STYLE_PRESETS = [
+    {
+        id: 'tech_vector',
+        label: 'Tech Vector',
+        description: 'Google Fi Style',
+        prompt: 'A flat vector illustration in the style of corporate tech art. A professional headshot with realistic proportions, distinct black outlines, and flat cel-shaded coloring. Friendly expression, modern casual business attire, solid muted background.',
+        color: 'bg-blue-100 text-blue-700',
+        icon: '🎨'
+    },
+    {
+        id: 'modern_maker',
+        label: 'Modern Maker',
+        description: 'Expressive Avatar',
+        prompt: 'Digital avatar in a modern corporate illustration style. Character features natural skin tones, expressive facial features, and thick energetic linework. Minimalist shading, vibrant but flat colors, wearing smart-casual office wear.',
+        color: 'bg-purple-100 text-purple-700',
+        icon: '🚀'
+    },
+    {
+        id: 'campus',
+        label: 'Campus Style',
+        description: 'Clean Comic',
+        prompt: 'A semi-realistic vector portrait. Clean comic-book style inking with bold outlines. The character is looking directly at the viewer with a confident smile. Palette includes primary colors and soft pastels, avoiding gradients in favor of solid color blocks.',
+        color: 'bg-green-100 text-green-700',
+        icon: '🎓'
+    },
+    {
+        id: 'minimalist',
+        label: 'Fi Minimalist',
+        description: 'High-Fidelity Line',
+        prompt: 'High-fidelity vector art headshot. Focus on simple geometry and clear readability at small sizes. Black contour lines, cel-shaded skin tones, and a single solid background color. Resembles high-end tech brand illustrations from 2020.',
+        color: 'bg-gray-100 text-gray-700',
+        icon: '⚡'
+    }
+];
+
+const QUICK_PROMPTS = [
+    'Make this photo look more professional',
+    'Change the background to a blurred office setting',
+    'Convert this to a black and white headshot',
+    'Change my shirt to a professional collared shirt',
+    'Improve the lighting to be brighter and more even',
+    'Create a clean, professional avatar from this photo',
+    'Replace background with a solid light gray color',
+    'Slightly enhance sharpness and color',
+];
 
 const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
     userId,
@@ -22,10 +69,9 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
     onUseTemp,
     onClose,
     onError,
-    promptOptions,
     savePath
 }) => {
-    const [selectedPrompts, setSelectedPrompts] = useState<string[]>([]);
+    const [selectedStyleId, setSelectedStyleId] = useState<string | null>(null);
     const [customPrompt, setCustomPrompt] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [newPhoto, setNewPhoto] = useState<string | null>(null);
@@ -38,33 +84,13 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
         setPreviewPhoto(currentPhoto);
     }, [currentPhoto]);
 
-    useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') {
-                onClose();
-            }
-        };
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [onClose]);
-
-    const defaultTemplates = [
-        'Make this photo look more professional',
-        'Change the background to a blurred office setting',
-        'Convert this to a black and white headshot',
-        'Change my shirt to a professional collared shirt',
-        'Improve the lighting to be brighter and more even',
-        'Create a clean, professional avatar from this photo',
-        'Replace background with a solid light gray color',
-        'Slightly enhance sharpness and color',
-    ];
-
-    const activeTemplates = promptOptions || defaultTemplates;
-
-    const handlePromptToggle = (p: string) => {
-        setSelectedPrompts(prev =>
-            prev.includes(p) ? prev.filter(item => item !== p) : [...prev, p]
-        );
+    // Handle Style Selection
+    const handleStyleSelect = (styleId: string) => {
+        const style = STYLE_PRESETS.find(s => s.id === styleId);
+        if (style) {
+            setSelectedStyleId(styleId);
+            setCustomPrompt(style.prompt);
+        }
     };
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,7 +99,6 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
             const reader = new FileReader();
             reader.onloadend = () => {
                 setPreviewPhoto(reader.result as string);
-                // Reset errors or new photo state if needed
                 setNewPhoto(null);
                 setActiveSelection('current');
             };
@@ -82,20 +107,20 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
     };
 
     const handleGenerate = async () => {
-        const finalPrompt = [...selectedPrompts, customPrompt].filter(Boolean).join(', ');
-        if (!finalPrompt) {
-            onError("Prompt Required", "Please select or enter a prompt to edit the image.");
+        if (!customPrompt.trim()) {
+            onError("Prompt Required", "Please select a style or enter instructions.");
             return;
         }
+
         setIsLoading(true);
         setNewPhoto(null);
-        // Reset selection to current while generating to avoid confusion
         setActiveSelection('current');
 
         try {
             let base64data: string;
             let mimeType: string;
 
+            // Image Processing (Keep existing robust logic)
             if (previewPhoto && previewPhoto.startsWith('data:')) {
                 const parts = previewPhoto.split(',');
                 const mimeMatch = parts[0].match(/:(.*?);/);
@@ -103,18 +128,10 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
                 mimeType = mimeMatch[1];
                 base64data = parts[1];
             } else if (previewPhoto && previewPhoto.trim().length > 0) {
-                // Handle cross-origin issues with proxy or fetch configuration if needed.
-                // For Firebase Storage images, ensure CORS is configured.
                 try {
                     const response = await fetch(previewPhoto, { mode: 'cors' });
-                    if (!response.ok) {
-                        // If 404 or other error, throw specific error
-                        throw new Error(`Failed to load image (Status: ${response.status})`);
-                    }
+                    if (!response.ok) throw new Error(`Failed to load image (Status: ${response.status})`);
                     const blob = await response.blob();
-                    if (!blob.type.startsWith('image/')) {
-                        throw new Error('Url returned non-image data.');
-                    }
                     mimeType = blob.type;
                     base64data = await new Promise((resolve, reject) => {
                         const reader = new FileReader();
@@ -123,244 +140,259 @@ const AIImageEditModal: React.FC<AIImageEditModalProps> = ({
                         reader.readAsDataURL(blob);
                     });
                 } catch (err: any) {
-                    console.error("Image fetch failed:", err);
-                    throw new Error('Could not access the original image. It may be a broken link or blocked. Please upload a specific image to edit.');
+                    throw new Error('Could not access origin image. Please upload directly.');
                 }
             } else {
-                // No image provided (empty string)
-                // We cannot "edit" nothing with this specific function usually, 
-                // UNLESS editProfilePhoto supports generation.
-                // Throwing error for now to be safe, asking user to upload.
-                throw new Error('No source image found to edit. Please upload an initial image first.');
+                throw new Error('No source image found.');
             }
 
-            const result = await editProfilePhoto(userId, base64data, mimeType, finalPrompt);
+            const result = await editProfilePhoto(userId, base64data, mimeType, customPrompt);
             setNewPhoto(result);
-            // Automatically select the new photo upon success
             setActiveSelection('new');
 
         } catch (error) {
             console.error(error);
-            onError('AI Edit Failed', error instanceof Error ? error.message : 'An unknown error occurred. Ensure CORS is configured if using external images.');
+            onError('Generation Failed', error instanceof Error ? error.message : 'Unknown error.');
         } finally {
             setIsLoading(false);
         }
     };
 
-    const getSelectedPhoto = () => {
-        return activeSelection === 'new' ? newPhoto : currentPhoto;
-    };
-
     const handleSaveAndUse = async () => {
-        console.log('[AIImageEditModal] handleSaveAndUse starting...');
-        const targetPhoto = getSelectedPhoto();
-        console.log('[AIImageEditModal] Selected photo exists:', !!targetPhoto, 'Selection:', activeSelection);
+        const targetPhoto = activeSelection === 'new' ? newPhoto : previewPhoto;
+        if (!targetPhoto) return;
 
-        if (!targetPhoto) {
-            onError("Error", "No image selected.");
-            return;
-        }
-
-        // 1. remote URL optimization
+        // Remote URL optimization
         if (activeSelection === 'current' && targetPhoto.startsWith('http')) {
-            console.log('[AIImageEditModal] Returning existing remote URL.');
             onSave(targetPhoto);
             onClose();
             return;
         }
 
-        // 2. Upload Logic
-        if (!userId) {
-            console.error('[AIImageEditModal] Missing userId. Cannot upload.');
-            onError("Error", "User identification missing. Please sign in again.");
-            return;
-        }
-
         setIsLoading(true);
         try {
-            console.log('[AIImageEditModal] Converting data URL to Blob...');
             const blob = dataURLtoBlob(targetPhoto);
+            if (!blob) throw new Error("Failed to process image.");
 
-            if (!blob) {
-                console.error('[AIImageEditModal] dataURLtoBlob returned null for input of length:', targetPhoto.length);
-                throw new Error("Failed to process image data.");
-            }
-
-            console.log('[AIImageEditModal] Blob created. Size:', blob.size, 'Type:', blob.type);
-
-            // Default path updated to resume_photos to match new architecture
             const path = savePath || `users/${userId}/resume_photos/${Date.now()}_edited.png`;
-            console.log('[AIImageEditModal] Uploading to path:', path);
-
             const downloadURL = await uploadImage(blob, path);
-            console.log('[AIImageEditModal] Upload complete. URL:', downloadURL);
 
             onSave(downloadURL);
             onClose();
         } catch (error: any) {
-            console.error("[AIImageEditModal] Critical error during save:", error);
-            onError("Save Failed", `Could not save image: ${error.message || 'Unknown error'}`);
+            onError("Save Failed", error.message);
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleUseTemp = () => {
-        const targetPhoto = getSelectedPhoto();
-        if (targetPhoto) {
-            onUseTemp(targetPhoto);
-            onClose();
-        }
-    };
-
     const handleDownload = () => {
-        const targetPhoto = getSelectedPhoto();
+        const targetPhoto = activeSelection === 'new' ? newPhoto : previewPhoto;
         if (targetPhoto) {
             const link = document.createElement('a');
             link.href = targetPhoto;
-            link.download = `image_${activeSelection}_${Date.now()}.png`;
+            link.download = `avatar_${Date.now()}.png`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
     };
 
-    const finalPrompt = [...selectedPrompts, customPrompt].filter(Boolean).join(', ');
-
     const modalContent = (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl shadow-xl max-h-[90vh] overflow-y-auto relative">
-                <h3 className="text-lg font-bold mb-4 dark:text-white">Edit Image with AI</h3>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+            <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl max-h-[95vh] overflow-hidden flex flex-col">
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    {/* Current Photo */}
-                    <div
-                        onClick={() => setActiveSelection('current')}
-                        className={`
-                            cursor-pointer rounded-lg p-1 border-2 transition-all relative
-                            ${activeSelection === 'current' ? 'border-primary-500 ring-2 ring-primary-200 dark:ring-primary-900' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'}
-                        `}
-                    >
-                        <p className="text-sm font-semibold mb-2 text-center dark:text-gray-300">Current</p>
-                        <div className="relative aspect-square bg-gray-100 dark:bg-gray-700 rounded-md overflow-hidden group">
-                            <img src={previewPhoto} alt="Current" className="w-full h-full object-contain" onError={() => {
-                                // If image fails, maybe show a fallback or just let the user use the upload button
-                            }} />
+                {/* Header */}
+                <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                    <div>
+                        <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                            <Sparkles className="w-5 h-5 text-indigo-600" />
+                            Edit Image with AI
+                        </h3>
+                        <p className="text-sm text-gray-500">Transform your photo into a professional avatar.</p>
+                    </div>
+                    <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-gray-700">
+                        <X size={20} />
+                    </button>
+                </div>
 
-                            {/* Overlay Upload Button */}
-                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar">
+
+                    {/* 1. Split View Canvas */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        {/* Original */}
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-semibold text-gray-700">Original</span>
+                                {activeSelection === 'current' && <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">Active</span>}
+                            </div>
+                            <div
+                                onClick={() => setActiveSelection('current')}
+                                className={`
+                                    relative aspect-square rounded-2xl overflow-hidden bg-gray-50 border-2 transition-all cursor-pointer group
+                                    ${activeSelection === 'current' ? 'border-gray-900 shadow-md' : 'border-transparent hover:border-gray-200'}
+                                `}
+                            >
+                                <img src={previewPhoto} alt="Original" className="w-full h-full object-contain" />
+
+                                {/* Upload Overlay */}
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                                        className="bg-white text-black px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 hover:scale-105 transition-transform"
+                                    >
+                                        <Upload size={14} /> Upload New
+                                    </button>
+                                </div>
+                                <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
+
+                                {activeSelection === 'current' && (
+                                    <div className="absolute top-3 right-3 bg-white text-black rounded-full p-1 shadow-sm">
+                                        <Check size={14} strokeWidth={3} />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Result */}
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-semibold text-gray-700">Result</span>
+                                {activeSelection === 'new' && <span className="text-xs font-bold text-white bg-indigo-600 px-2 py-0.5 rounded-full">Active</span>}
+                            </div>
+                            <div
+                                onClick={() => newPhoto && setActiveSelection('new')}
+                                className={`
+                                    relative aspect-square rounded-2xl overflow-hidden bg-gray-50 border-2 transition-all
+                                    ${newPhoto ? 'cursor-pointer' : 'cursor-default'}
+                                    ${activeSelection === 'new' ? 'border-indigo-600 shadow-md ring-2 ring-indigo-50' : 'border-transparent'}
+                                    ${!newPhoto ? 'border-dashed border-gray-200' : ''}
+                                `}
+                            >
+                                {isLoading ? (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm z-10">
+                                        <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mb-3" />
+                                        <p className="text-sm font-medium text-indigo-600 animate-pulse">Generating Avatar...</p>
+                                    </div>
+                                ) : newPhoto ? (
+                                    <img src={newPhoto} alt="Generated" className="w-full h-full object-contain" />
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                                        <Wand2 className="w-8 h-8 mb-2 opacity-50" />
+                                        <p className="text-sm">Preview appears here</p>
+                                    </div>
+                                )}
+
+                                {activeSelection === 'new' && newPhoto && (
+                                    <div className="absolute top-3 right-3 bg-indigo-600 text-white rounded-full p-1 shadow-sm">
+                                        <Check size={14} strokeWidth={3} />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 2. Style Selector */}
+                    <div className="mb-6">
+                        <label className="text-sm font-bold text-gray-900 mb-3 block">Choose a Style</label>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            {STYLE_PRESETS.map((style) => (
                                 <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        fileInputRef.current?.click();
-                                    }}
-                                    className="px-3 py-1.5 bg-white text-gray-900 rounded-full text-xs font-bold hover:bg-gray-100 flex items-center gap-2"
+                                    key={style.id}
+                                    onClick={() => handleStyleSelect(style.id)}
+                                    disabled={isLoading}
+                                    className={`
+                                        relative p-3 rounded-xl border-2 text-left transition-all group
+                                        ${selectedStyleId === style.id
+                                            ? 'border-black bg-gray-50'
+                                            : 'border-gray-100 bg-white hover:border-gray-300 hover:shadow-sm'}
+                                    `}
                                 >
-                                    <Upload size={12} /> Upload New
+                                    <div className={`w-10 h-10 rounded-lg ${style.color} flex items-center justify-center text-lg mb-3`}>
+                                        {style.icon}
+                                    </div>
+                                    <h4 className="font-bold text-gray-900 text-sm mb-0.5">{style.label}</h4>
+                                    <p className="text-xs text-gray-500">{style.description}</p>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* 2.5 Quick Adjustments (Previous Prompts) */}
+                    <div className="mb-6">
+                        <label className="text-sm font-bold text-gray-900 mb-3 block">Quick Adjustments</label>
+                        <div className="flex flex-wrap gap-2">
+                            {QUICK_PROMPTS.map((prompt) => (
+                                <button
+                                    key={prompt}
+                                    onClick={() => setCustomPrompt(prev => prev ? `${prev}, ${prompt}` : prompt)}
+                                    disabled={isLoading}
+                                    className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 transition-colors border border-transparent hover:border-gray-300 text-left"
+                                >
+                                    {prompt}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* 3. Input & Generate */}
+                    <div className="relative">
+                        <div className="relative flex items-center">
+                            <input
+                                type="text"
+                                value={customPrompt}
+                                onChange={(e) => setCustomPrompt(e.target.value)}
+                                placeholder="Select a style above or describe your own..."
+                                disabled={isLoading}
+                                className="w-full pl-4 pr-32 py-4 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black transition-all"
+                            />
+                            <div className="absolute right-2">
+                                <button
+                                    onClick={handleGenerate}
+                                    disabled={isLoading || !customPrompt.trim()}
+                                    className="bg-black text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all"
+                                >
+                                    {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
+                                    Generate
                                 </button>
                             </div>
-
-                            <input
-                                type="file"
-                                ref={fileInputRef}
-                                className="hidden"
-                                accept="image/*"
-                                onChange={handleImageUpload}
-                            />
-
-                            {activeSelection === 'current' && (
-                                <div className="absolute top-2 right-2 bg-primary-500 text-white rounded-full p-1 shadow-md">
-                                    <Check size={16} />
-                                </div>
-                            )}
                         </div>
                     </div>
 
-                    {/* New Photo */}
-                    <div
-                        onClick={() => newPhoto && setActiveSelection('new')}
-                        className={`
-                            rounded-lg p-1 border-2 transition-all relative
-                            ${newPhoto ? 'cursor-pointer' : 'cursor-default'}
-                            ${activeSelection === 'new' ? 'border-primary-500 ring-2 ring-primary-200 dark:ring-primary-900' : 'border-transparent'}
-                            ${newPhoto && activeSelection !== 'new' ? 'hover:border-gray-300 dark:hover:border-gray-600' : ''}
-                        `}
+                </div>
+
+                {/* Footer */}
+                <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
+                    <button
+                        onClick={onClose}
+                        className="text-gray-500 hover:text-gray-900 font-medium text-sm px-2"
                     >
-                        <p className="text-sm font-semibold mb-2 text-center dark:text-gray-300">New</p>
-                        <div className="relative aspect-square rounded-md bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
-                            {isLoading && !newPhoto ? (
-                                <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
-                            ) : newPhoto ? (
-                                <img src={newPhoto} alt="Generated" className="w-full h-full object-contain" />
-                            ) : (
-                                <p className="text-gray-500 dark:text-gray-400 text-sm p-4 text-center">AI generated preview will appear here</p>
-                            )}
+                        Cancel
+                    </button>
 
-                            {activeSelection === 'new' && newPhoto && (
-                                <div className="absolute top-2 right-2 bg-primary-500 text-white rounded-full p-1 shadow-md">
-                                    <Check size={16} />
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="mb-4">
-                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Suggested Prompts:</p>
-                    <div className="flex flex-wrap gap-2">
-                        {activeTemplates.map((p) => {
-                            const isSelected = selectedPrompts.includes(p);
-                            return (
-                                <button
-                                    key={p}
-                                    onClick={() => handlePromptToggle(p)}
-                                    className={`text-xs px-2 py-1 rounded-md transition-colors disabled:opacity-50 text-left ${isSelected
-                                        ? 'bg-primary-600 text-white'
-                                        : 'bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-500'
-                                        }`}
-                                    disabled={isLoading}
-                                >
-                                    {p}
-                                </button>
-                            )
-                        })}
-                    </div>
-                </div>
-
-                <textarea
-                    value={customPrompt}
-                    onChange={(e) => setCustomPrompt(e.target.value)}
-                    placeholder={`Or add your own instructions...`}
-                    className="w-full p-2 border dark:border-gray-600 rounded-md mb-4 bg-white dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-primary-500"
-                    rows={2}
-                    disabled={isLoading}
-                />
-
-                <div className="flex justify-between items-center">
-                    <button onClick={onClose} className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">Close</button>
-                    <div className="flex flex-wrap justify-end gap-2">
-                        <button onClick={handleGenerate} disabled={isLoading || !finalPrompt} className="bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 disabled:bg-primary-300 flex items-center gap-2">
-                            {isLoading && <Loader2 className="animate-spin" size={16} />}
-                            {isLoading ? 'Generating...' : (newPhoto ? 'Regenerate' : 'Generate')}
-                        </button>
-
-                        <button onClick={handleDownload} disabled={isLoading} className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 disabled:bg-gray-300">
-                            Download
-                        </button>
-                        <button onClick={handleUseTemp} disabled={isLoading} className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 disabled:bg-blue-300">
-                            Use Preview
-                        </button>
-                        <button onClick={handleSaveAndUse} disabled={isLoading} className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 disabled:bg-green-300">
-                            Save & Apply
+                    <div className="flex gap-3">
+                        {newPhoto && (
+                            <button
+                                onClick={handleDownload}
+                                className="px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-50 transition-colors flex items-center gap-2"
+                            >
+                                <Download size={16} /> Save Image
+                            </button>
+                        )}
+                        <button
+                            onClick={handleSaveAndUse}
+                            disabled={isLoading}
+                            className="px-6 py-2.5 bg-black text-white rounded-xl text-sm font-bold hover:bg-gray-800 hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Save & Apply Profile
                         </button>
                     </div>
                 </div>
+
             </div>
         </div>
     );
 
-    // Use React Portal to render the modal at the document body level
-    // This prevents z-index and positioning issues when nested deep in other components
     return createPortal(modalContent, document.body);
 };
 

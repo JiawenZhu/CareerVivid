@@ -45,6 +45,10 @@ export interface LinkTreeTheme {
         typewriter?: boolean; // Typewriter effect for name
         tilt?: boolean; // 3D tilt effect on buttons
         spinAvatar?: boolean; // Spin avatar on hover
+        grid?: boolean; // Retro cyber grid
+        fireflies?: boolean; // Floating glowing lights
+        stars?: boolean; // Twinkling starfield
+        waves?: boolean; // Liquid waves at bottom
     };
     avatarDecoration?: 'christmas-hat' | 'crown' | 'premium-badge'; // New decoration field
 }

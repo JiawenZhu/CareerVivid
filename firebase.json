@@ -6,11 +6,19 @@
       "**/.*",
       "**/node_modules/**"
     ],
-    "rewrites": [
+    "headers": [
       {
-        "source": "/en/shared/**",
-        "destination": "/index.html"
-      },
+        "source": "**",
+        "headers": [
+          {
+            "key": "Cross-Origin-Opener-Policy",
+            "value": "same-origin-allow-popups"
+          }
+        ]
+      }
+    ],
+    "rewrites": [
+
       {
         "source": "/zh/shared/**",
         "destination": "/index.html"
@@ -19,10 +27,7 @@
         "source": "/es/shared/**",
         "destination": "/index.html"
       },
-      {
-        "source": "/en/demo",
-        "destination": "/index.html"
-      },
+
       {
         "source": "/zh/demo",
         "destination": "/index.html"
@@ -39,26 +44,11 @@
         "source": "/_next/**",
         "destination": "/nextjs/_next/:splat"
       },
-      {
-        "source": "/en/pricing",
-        "destination": "/nextjs/en/pricing.html"
-      },
-      {
-        "source": "/en/contact",
-        "destination": "/nextjs/en/contact.html"
-      },
-      {
-        "source": "/en/signin",
-        "destination": "/nextjs/en/signin.html"
-      },
-      {
-        "source": "/en/signup",
-        "destination": "/nextjs/en/signup.html"
-      },
-      {
-        "source": "/en/blog",
-        "destination": "/nextjs/en/blog.html"
-      },
+
+
+
+
+
       {
         "source": "/zh/pricing",
         "destination": "/nextjs/zh/pricing.html"
@@ -99,14 +89,7 @@
         "source": "/es/blog",
         "destination": "/nextjs/es/blog.html"
       },
-      {
-        "source": "/en",
-        "destination": "/nextjs/en.html"
-      },
-      {
-        "source": "/en/",
-        "destination": "/nextjs/en.html"
-      },
+
       {
         "source": "/zh",
         "destination": "/nextjs/zh.html"

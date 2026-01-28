@@ -1,7 +1,7 @@
 // General Templates
 import MinimalTemplate from './MinimalTemplate';
 import VisualTemplate from './VisualTemplate'; import CorporateTemplate from './CorporateTemplate';
-
+import MediaKitTemplate from './mediakit/MediaKitTemplate';
 // Technology Templates
 import DevTerminal from './general/Gen_Dev_Terminal';
 import SaaSModern from './SaaSModern';
@@ -40,6 +40,9 @@ export const TEMPLATES = {
     // Technology
     dev_terminal: DevTerminal,
     saas_modern: SaaSModern,
+
+    // Media Kit
+    media_kit: MediaKitTemplate,
 
     // Creative
     ux_folio: UXFolio,

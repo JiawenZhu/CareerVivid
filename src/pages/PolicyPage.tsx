@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
-import { ChevronDown, Shield, FileText, CreditCard } from 'lucide-react';
+import { ChevronDown, Shield, FileText, CreditCard, Link as LinkIcon } from 'lucide-react';
 
 interface PolicySection {
     icon: React.ReactNode;
@@ -18,6 +18,22 @@ const PolicyPage: React.FC = () => {
     const toggleItem = (id: string) => {
         setOpenIndex(openIndex === id ? null : id);
     };
+
+    // Auto-scroll to section based on hash
+    React.useEffect(() => {
+        if (window.location.hash) {
+            const id = window.location.hash.substring(1);
+            setTimeout(() => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                    // Provide visual feedback
+                    element.classList.add('ring-4', 'ring-indigo-200', 'dark:ring-indigo-900');
+                    setTimeout(() => element.classList.remove('ring-4', 'ring-indigo-200', 'dark:ring-indigo-900'), 2000);
+                }
+            }, 500); // Small delay to ensure render
+        }
+    }, []);
 
     const policySections: PolicySection[] = [
         {
@@ -112,6 +128,41 @@ const PolicyPage: React.FC = () => {
                     answer: 'Yes, we use cookies and similar tracking technologies to track activity on our service and hold certain information. Cookies help us improve your experience, understand how you use our service, and deliver personalized content. You can control cookies through your browser settings.'
                 }
             ]
+        },
+        {
+            icon: <LinkIcon size={24} />,
+            title: 'Bio-Link & Creators',
+            slug: 'bio-link',
+            items: [
+                {
+                    question: 'What content is allowed on my Bio-Link page?',
+                    answer: 'Your Bio-Link page is a space for your personal brand. However, you strictly agree NOT to post: illegal content, hate speech, malware/phishing links, sexually explicit material, or content that infringes on others\' intellectual property. We reserve the right to suspend any account violating these guidelines without notice.'
+                },
+                {
+                    question: 'Who is responsible for items sold via Bio-Link Store?',
+                    answer: 'If you use the "Commerce" or "Store" features to sell digital or physical goods, YOU are the merchant of record. CareerVivid provides the platform but is not a party to the transaction. You are responsible for product fulfillment, customer support, refunds, and tax obligations associated with your sales. We are not liable for disputes between you and your customers.'
+                },
+                {
+                    question: 'How do you track analytics for my Bio-Link?',
+                    answer: 'We collect aggregated engagement data (page views, link clicks, device type) to provide you with the "Analytics Dashboard". This data is collected to help you grow your audience. We do not sell this visitor data to third-party advertisers. Visitor privacy is respected in accordance with our general Privacy Policy.'
+                },
+                {
+                    question: 'Can I remove the "Powered by CareerVivid" branding?',
+                    answer: 'Yes, users on the "Bio-Link Pro" or "All-Access" plans have the option to remove the footer branding from their public Bio-Link pages. Free plan users must retain the branding link.'
+                },
+                {
+                    question: 'Are there limits on traffic or links?',
+                    answer: 'We want you to grow! We currently do not enforce hard limits on traffic or the number of links for fair usage. However, we reserve the right to limit access to accounts with abnormal traffic patterns (e.g., bot attacks, DDoS originators) that threaten the stability of our platform for other users.'
+                },
+                {
+                    question: 'Can I cancel my subscription anytime?',
+                    answer: 'Absolutely. We believe in creative freedom, not contracts. You can cancel your Bio-Link Pro subscription at any time with a single click in your dashboard. You will retain access to Pro features until the end of your billing cycle, after which your account will revert to the Free plan. No questions asked.'
+                },
+                {
+                    question: 'How does the TikTok integration work with my data?',
+                    answer: 'Our TikTok integration uses the official TikTok API to display your public stats (followers, views, likes) on your Bio-Link page. This connection is READ-ONLY. We do NOT have access to your password, direct messages, or private settings. We simply fetch your public metrics to showcase them on your profile.'
+                }
+            ]
         }
     ];
 
@@ -133,9 +184,16 @@ const PolicyPage: React.FC = () => {
                                 <a
                                     key={section.slug}
                                     href={`#${section.slug}`}
-                                    className="px-6 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-gray-600 dark:text-gray-300 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors shadow-sm text-sm font-medium"
+                                    className="relative px-6 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-gray-600 dark:text-gray-300 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors shadow-sm text-sm font-medium"
                                 >
                                     {section.title}
+                                    {section.slug === 'bio-link' && (
+                                        <span className="absolute -top-2 -right-2 flex h-4 w-4">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-4 w-4 bg-indigo-500 text-[8px] text-white font-bold items-center justify-center border-2 border-white dark:border-gray-800">
+                                            </span>
+                                        </span>
+                                    )}
                                 </a>
                             ))}
                         </div>

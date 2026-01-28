@@ -4,7 +4,7 @@ import { onAuthStateChanged, User, signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { doc, getDoc, onSnapshot, updateDoc, setDoc } from 'firebase/firestore';
 import { trackUsage } from '../services/trackingService';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 import { UserProfile } from '../types';
 
 interface AuthContextType {

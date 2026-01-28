@@ -239,8 +239,8 @@ export const NFCCard3D: React.FC<NFCCard3DProps> = ({
                         <meshBasicMaterial color={themeColor} toneMapped={false} />
                     </RoundedBox>
 
-                    {/* --- Content Layer (Back) --- */}
-                    <group position={[0, 0, cardDepth / 2 + 0.003]}>
+                    {/* --- Content Layer (Back) - Scale X flipped to unmirror text --- */}
+                    <group position={[0, 0, cardDepth / 2 + 0.003]} scale={[-1, 1, 1]}>
 
                         {/* Flip Icon Button (Top Right) */}
                         <group position={[cardWidth / 2 - 0.45, cardHeight / 2 - 0.45, 0]} onClick={handleIconClick}
@@ -285,19 +285,6 @@ export const NFCCard3D: React.FC<NFCCard3DProps> = ({
                             letterSpacing={0.05}
                         >
                             SCAN TO CONNECT
-                        </Text>
-
-                        {/* URL Text */}
-                        <Text
-                            position={[0, -1.2, 0]}
-                            fontSize={0.1}
-                            color={backTextColor} // Or white/lighter if needed contrast
-                            anchorX="center"
-                            anchorY="middle"
-                            maxWidth={cardWidth * 0.9}
-                            textAlign="center"
-                        >
-                            https://{portfolioUrl}
                         </Text>
                     </group>
                 </group>

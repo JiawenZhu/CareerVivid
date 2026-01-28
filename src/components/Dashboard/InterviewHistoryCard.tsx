@@ -1,7 +1,7 @@
 import React from 'react';
 import { ExternalLink, Trash2, Sparkles, BarChart } from 'lucide-react';
 import { PracticeHistoryEntry } from '../../types';
-import { navigate } from '../../App';
+import { navigate } from '../../utils/navigation';
 
 interface InterviewHistoryCardProps {
     entry: PracticeHistoryEntry;

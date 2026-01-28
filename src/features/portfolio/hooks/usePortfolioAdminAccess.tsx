@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { navigate } from '../../../App';
+import { navigate } from '../../../utils/navigation';
 import { useAuth } from '../../../contexts/AuthContext';
 import useLongPress from '../../../hooks/useLongPress';
 import QuickAuthModal from '../../../components/QuickAuthModal';

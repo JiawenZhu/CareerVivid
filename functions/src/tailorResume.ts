@@ -20,15 +20,24 @@ export const tailorResume = functions
         const { resume, jobDescription, action = 'tailor', instruction = '' } = data;
 
         // 2. Validate Inputs
-        if (!resume || !jobDescription) {
+        // jobDescription is optional ONLY for 'condense' action
+        if (!resume || (!jobDescription && action !== 'condense')) {
             throw new functions.https.HttpsError("invalid-argument", "Missing 'resume' or 'jobDescription'.");
         }
 
         const genAI = new GoogleGenerativeAI(geminiApiKey.value());
         const aiModel = genAI.getGenerativeModel({
-            model: "gemini-2.0-flash-exp",
+            model: "gemini-3-flash-preview",
             generationConfig: { responseMimeType: "application/json" }
         });
+
+        // Helper to estimate word count
+        const countWords = (obj: any): number => {
+            const str = JSON.stringify(obj);
+            return str.replace(/[{},":\[\]]/g, " ").split(/\s+/).filter(w => w.length > 0).length;
+        };
+
+        const originalWordCount = countWords(resume);
 
         try {
             const resumeJson = JSON.stringify(resume, null, 2);
@@ -54,13 +63,16 @@ export const tailorResume = functions
                 `;
             } else if (action === 'condense') {
                 prompt = `
-                You are a professional resume editor. The user wants to fit their resume onto ONE PAGE.
+                You are an expert editor. The user's resume is too long (${originalWordCount} words).
+                Your goal is to rewrite the resume content (Summary, Experience, Skills) to fit strictly within a 450-word limit without losing the core professional impact.
                 
-                1. Condense "professionalSummary" to be punchy and short (max 3 lines).
-                2. Merge similar bullet points in "employmentHistory". Remove fluff. Prioritize metrics.
-                3. Reduce total word count by ~25%.
-                4. ALSO, suggest tighter formatting settings.
-                
+                RULES:
+                1. Merge Bullets: Combine short, related bullet points into single, impactful sentences.
+                2. Remove Fluff: Remove generic soft skills or filler words.
+                3. Prioritize: Keep recent roles detailed, but summarize older roles (3+ years ago) into 1-2 lines.
+                4. Reduce total word count to ~450 words.
+                5. Do NOT invent fake experiences.
+
                 CURRENT RESUME:
                 ${resumeJson}
 
@@ -68,15 +80,14 @@ export const tailorResume = functions
                 {
                     "tailoredResume": { ...resume structure ... },
                     "formattingChanges": {
-                        "bodyScale": 0.9,
+                        "bodyScale": 0.85,
                         "lineHeight": 1.15,
-                        "sectionGap": 1.0,
-                        "paragraphGap": 0.25,
-                        "pageMargin": 1.5
+                        "sectionGap": 0.5,
+                        "paragraphGap": 0.15,
+                        "pageMargin": 1.0
                     }
                 }
                 Merge the condensed content into "tailoredResume" and return the EXACT same structure as input resume, but with shorter text.
-                CRITICAL: Do NOT invent fake experiences.
                 `;
             } else if (action === 'refine') {
                 prompt = `
@@ -148,7 +159,10 @@ export const tailorResume = functions
                         };
                     }
 
-                    return { success: true, tailoredResume: resumeData };
+                    // Calculate new word count for stats
+                    const newWordCount = countWords(resumeData);
+
+                    return { success: true, tailoredResume: resumeData, originalWordCount, newWordCount };
                 }
 
             } catch (e) {

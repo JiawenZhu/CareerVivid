@@ -138,7 +138,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
             style={{ ...titleStyle, ...paragraphStyle }}
           />
           {employmentHistory.map((job, index) => (
-            <div key={job.id} style={{ marginBottom: 'var(--paragraph-gap, 0.5rem)' }} className="mb-5">
+            <div key={job.id} style={{ marginBottom: 'var(--paragraph-gap, 0.5rem)' }}>
               <div className="flex justify-between items-baseline">
                 <InlineEdit
                   value={job.jobTitle}
@@ -179,7 +179,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
             style={{ ...titleStyle, ...paragraphStyle }}
           />
           {education.map((edu, index) => (
-            <div key={edu.id} style={{ marginBottom: 'var(--paragraph-gap, 0.5rem)' }} className="mb-4">
+            <div key={edu.id} style={{ marginBottom: 'var(--paragraph-gap, 0.5rem)' }}>
               <div className="flex justify-between items-baseline">
                 <InlineEdit
                   value={edu.degree}

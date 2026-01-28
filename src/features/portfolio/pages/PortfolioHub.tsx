@@ -17,20 +17,31 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../contexts/AuthContext';
-import { navigate } from '../../../App';
+import { navigate } from '../../../utils/navigation';
 import { generatePortfolioFromPrompt } from '../services/portfolioGenerator';
 import { usePortfolios } from '../../../hooks/usePortfolios';
 import { TEMPLATES } from '../templates';
 import Logo from '../../../components/Logo';
 import PortfolioImport from '../../../components/PortfolioImport';
 import { useAICreditCheck } from '../../../hooks/useAICreditCheck';
+import ConfirmationModal from '../../../components/ConfirmationModal';
+
+// Define Category Interface
+interface PortfolioCategory {
+    id: string;
+    name: string;
+    description: string;
+    templates: string[];
+    path?: string; // Optional - if present, navigates directly instead of showing templates
+}
 
 // Define Categories
-const PORTFOLIO_CATEGORIES = [
+const PORTFOLIO_CATEGORIES: PortfolioCategory[] = [
     {
         id: 'linkinbio',
         name: '🔗 Link in Bio',
         description: 'Simple, shareable pages perfect for social media bios (Instagram, TikTok, etc.)',
+        path: '/bio-links', // Direct path to specialized builder
         templates: [
             // Structural Templates
             'linktree_minimal',
@@ -52,6 +63,7 @@ const PORTFOLIO_CATEGORIES = [
         id: 'nfc_cards',
         name: 'Digital Business Cards',
         description: 'Horizontal, mobile-first cards optimized for NFC sharing.',
+        path: '/business-card', // Direct path to specialized builder
         templates: ['card_minimal', 'card_photo', 'card_modern']
     },
     {
@@ -82,7 +94,7 @@ const PORTFOLIO_CATEGORIES = [
 
 const PortfolioHub: React.FC = () => {
     const { t } = useTranslation();
-    const { currentUser } = useAuth();
+    const { currentUser, isPremium } = useAuth();
     const { createPortfolio, portfolios } = usePortfolios();
 
     // AI Credit Check Hook
@@ -92,9 +104,24 @@ const PortfolioHub: React.FC = () => {
     const [isGenerating, setIsGenerating] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<typeof PORTFOLIO_CATEGORIES[0] | null>(null);
     const [isFileImport, setIsFileImport] = useState(false);
+    const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+
+    // Counts for limit enforcement
+    const bioLinksCount = portfolios.filter(p => p.mode === 'linkinbio').length;
+    const totalPortfolioCount = portfolios.length;
+
+    // Limit state
+    const [limitMessage, setLimitMessage] = useState('You have reached your site limit. Please upgrade your plan to create more.');
 
     const handleCreate = async (param: string, type: 'prompt' | 'template' = 'prompt') => {
         if (!currentUser) return;
+
+        // CHECK TOTAL SITE LIMIT FOR FREE USERS FIRST
+        if (!isPremium && totalPortfolioCount >= 2) {
+            setLimitMessage('Free users can only create up to 2 sites. Please upgrade your plan to create more.');
+            setIsUpgradeModalOpen(true);
+            return;
+        }
 
         // CHECK CREDIT BEFORE GENERATION
         if (!checkCredit()) return;
@@ -150,6 +177,15 @@ const PortfolioHub: React.FC = () => {
                     generatedData.businessCard = {
                         orientation: 'horizontal'
                     };
+                }
+            }
+
+            // CHECK BIO-LINK SPECIFIC LIMIT (1 for free users)
+            if (generatedData.mode === 'linkinbio') {
+                if (!isPremium && bioLinksCount >= 1) {
+                    setLimitMessage('You have reached your Bio-Link limit. Please upgrade your plan to create more.');
+                    setIsUpgradeModalOpen(true);
+                    return; // Stop creation
                 }
             }
 
@@ -236,7 +272,13 @@ const PortfolioHub: React.FC = () => {
                     {PORTFOLIO_CATEGORIES.map(category => (
                         <button
                             key={category.id}
-                            onClick={() => setSelectedCategory(category)}
+                            onClick={() => {
+                                if (category.path) {
+                                    navigate(category.path);
+                                } else {
+                                    setSelectedCategory(category);
+                                }
+                            }}
                             className="p-5 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:border-indigo-500 dark:hover:border-indigo-400 hover:shadow-md transition-all text-left flex items-center justify-between group"
                         >
                             <div>
@@ -263,9 +305,21 @@ const PortfolioHub: React.FC = () => {
         );
     };
 
+
+
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-[#0f1117] flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 relative selection:bg-indigo-500/30">
             <CreditLimitModal />
+            <ConfirmationModal
+                isOpen={isUpgradeModalOpen}
+                onCancel={() => setIsUpgradeModalOpen(false)}
+                onConfirm={() => navigate('/subscription')}
+                title="Limit Reached"
+                message={limitMessage}
+                confirmText="Upgrade Now"
+                cancelText="Maybe Later"
+                variant="default"
+            />
             {/* Dashboard Link */}
             {portfolios.length > 0 && (
                 <div className="absolute top-6 right-6 z-20">

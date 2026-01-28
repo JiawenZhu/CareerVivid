@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase';
 import { collection, query, onSnapshot, doc, updateDoc, deleteDoc, addDoc, serverTimestamp, orderBy, writeBatch } from 'firebase/firestore';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 import { PortfolioData } from '../features/portfolio/types/portfolio';
 
 export const usePortfolios = () => {

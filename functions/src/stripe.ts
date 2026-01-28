@@ -306,6 +306,19 @@ export const cancelSubscription = onCall(
                 { merge: true }
             );
 
+            // Send cancellation confirmation email with win-back CTA
+            const cancelDate = subscription.cancel_at
+                ? new Date(subscription.cancel_at * 1000).toLocaleDateString("en-US", {
+                    year: "numeric", month: "long", day: "numeric"
+                })
+                : "your next billing date";
+
+            await sendCancellationConfirmationEmail(
+                userData?.email,
+                userData?.displayName || "there",
+                cancelDate
+            );
+
             return {
                 status: "success",
                 cancelAt: subscription.cancel_at
@@ -611,6 +624,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
 
 /**
  * Handle failed invoice payment
+ * Revokes premium access and notifies user
  */
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     const customerId = invoice.customer as string;
@@ -631,7 +645,17 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     const userDoc = usersSnapshot.docs[0];
     const userData = userDoc.data();
 
-    // Send payment failed notification
+    // CRITICAL: Revoke premium access immediately
+    await userDoc.ref.set({
+        subscriptionStatus: "payment_failed",
+        promotions: { isPremium: false },
+        paymentFailedAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+
+    console.log(`Premium access revoked for user ${userDoc.id} due to payment failure`);
+
+    // Send payment failed notification with update payment link
     await sendPaymentFailedEmail(
         userData.email,
         userData.displayName || "Valued Customer",
@@ -697,6 +721,56 @@ async function sendPaymentFailedEmail(
     });
 
     console.log(`Payment failed email queued for ${userEmail}`);
+}
+
+/**
+ * Send cancellation confirmation email with win-back CTA
+ */
+import { generateNeoBrutalistEmail } from "./emailTemplates";
+
+/**
+ * Send cancellation confirmation email with win-back CTA
+ */
+async function sendCancellationConfirmationEmail(
+    userEmail: string,
+    userName: string,
+    accessEndDate: string
+): Promise<void> {
+    const mailRef = admin.firestore().collection("mail").doc();
+    const APP_URL = "https://careervivid.app";
+
+    const emailHtml = generateNeoBrutalistEmail({
+        title: "Subscription Canceled",
+        userName: userName,
+        messageLines: [
+            "We're sorry to see you go. Your subscription cancellation has been confirmed."
+        ],
+        boxContent: {
+            title: "Access Details",
+            type: "warning", // Yellow box
+            lines: [
+                "<strong>Your premium access will remain active until:</strong>",
+                `<span style="font-size: 18px; font-weight: bold;">${accessEndDate}</span>`,
+                "After this date, your account will revert to the free plan."
+            ]
+        },
+        mainButton: {
+            text: "Resubscribe Now",
+            url: `${APP_URL}/subscription`
+        },
+        footerText: "We'd love to have you back!"
+    });
+
+    await mailRef.set({
+        to: userEmail,
+        message: {
+            subject: `Your subscription has been canceled`,
+            html: emailHtml,
+            text: `Hi ${userName},\n\nYour subscription cancellation has been confirmed.\n\nYour premium access will remain active until: ${accessEndDate}\n\nAfter this date, your account will revert to the free plan.\n\nChanged your mind? Resubscribe at: ${APP_URL}/subscription\n\nThank you for being a part of CareerVivid.\n\nThe CareerVivid Team`
+        },
+    });
+
+    console.log(`Cancellation confirmation email queued for ${userEmail}`);
 }
 
 /**
@@ -825,74 +899,43 @@ Contact us at support@careervivid.app
 /**
  * Generate HTML email for payment failed
  */
+/**
+ * Generate HTML email for payment failed
+ */
 function generatePaymentFailedEmailHTML(
     userName: string,
     invoiceNumber: string,
     amount: string,
     invoiceUrl: string
 ): string {
-    return `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }
-        .container { max-width: 600px; margin: 0 auto; background: white; }
-        .header { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 40px 20px; text-align: center; }
-        .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
-        .content { padding: 40px 30px; }
-        .content p { margin: 0 0 16px 0; font-size: 16px; }
-        .alert-box { background: #fef2f2; padding: 24px; margin: 24px 0; border-radius: 8px; border-left: 4px solid #ef4444; }
-        .alert-box h3 { margin: 0 0 16px 0; font-size: 18px; color: #991b1b; }
-        .alert-box p { margin: 8px 0; font-size: 15px; color: #7f1d1d; }
-        .alert-box strong { color: #991b1b; font-weight: 600; }
-        .button { display: inline-block; padding: 14px 28px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; }
-        .button:hover { opacity: 0.9; }
-        .footer { text-align: center; padding: 30px 20px; color: #6b7280; font-size: 13px; background: #f9fafb; border-top: 1px solid #e5e7eb; }
-        .footer p { margin: 8px 0; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>⚠️ Payment Failed</h1>
-        </div>
-        <div class="content">
-            <p>Hello <strong>${userName}</strong>,</p>
-            <p>We were unable to process your payment for the following invoice. Please update your payment method to avoid service interruption.</p>
-            
-            <div class="alert-box">
-                <h3>Action Required</h3>
-                <p><strong>Invoice Number:</strong> ${invoiceNumber}</p>
-                <p><strong>Amount Due:</strong> $${amount}</p>
-                <p><strong>Status:</strong> Payment Failed</p>
-            </div>
-            
-            <p><strong>What to do next:</strong></p>
-            <ul style="margin: 16px 0; padding-left: 20px;">
-                <li>Update your payment method in your account settings</li>
-                <li>Ensure your card has sufficient funds</li>
-                <li>Check that your billing information is correct</li>
-            </ul>
-            
-            <div style="text-align: center;">
-                <a href="${invoiceUrl}" class="button">Update Payment Method</a>
-            </div>
-            
-            <p style="margin-top: 30px;">If you continue to experience issues, please contact our support team for assistance.</p>
-            
-            <p style="margin-top: 20px;">Best regards,<br><strong>The CareerVivid Team</strong></p>
-        </div>
-        <div class="footer">
-            <p>This is an automated message from CareerVivid</p>
-            <p>If you have any questions, contact us at <a href="mailto:support@careervivid.app" style="color: #ef4444;">support@careervivid.app</a></p>
-        </div>
-    </div>
-</body>
-</html>
-    `;
+    const APP_URL = "https://careervivid.app";
+
+    return generateNeoBrutalistEmail({
+        title: "Payment Failed",
+        userName: userName,
+        messageLines: [
+            "We were unable to process your payment for the following invoice.",
+            "<strong>⚠️ Your premium access has been temporarily paused.</strong>"
+        ],
+        boxContent: {
+            title: "Action Required",
+            type: "critical",
+            lines: [
+                `<strong>Invoice Number:</strong> ${invoiceNumber}`,
+                `<strong>Amount Due:</strong> $${amount}`,
+                `<strong>Status:</strong> Payment Failed`
+            ]
+        },
+        mainButton: {
+            text: "Update Payment Method",
+            url: invoiceUrl
+        },
+        secondaryButton: {
+            text: "Resubscribe",
+            url: `${APP_URL}/subscription`
+        },
+        footerText: "Please update your payment method to restore access."
+    });
 }
 
 /**
@@ -933,3 +976,84 @@ This is an automated message from CareerVivid
 Contact us at support@careervivid.app
     `;
 }
+
+/**
+ * Fetches financial metrics from Stripe for the Strategy Dashboard
+ * Calculates MRR, Churn Rate, and Average LTV
+ */
+export const getFinancialMetrics = onCall(
+    {
+        secrets: [stripeSecretKey],
+        region: "us-west1",
+    },
+    async (request) => {
+        // Verify authentication
+        if (!request.auth) {
+            throw new HttpsError("unauthenticated", "User must be authenticated");
+        }
+
+        try {
+            const stripe = new Stripe(stripeSecretKey.value(), {
+                apiVersion: "2025-11-17.clover",
+            });
+
+            // 1. Calculate Monthly Recurring Revenue (MRR)
+            const activeSubs = await stripe.subscriptions.list({
+                status: 'active',
+                limit: 100,
+                expand: ['data.plan']
+            });
+
+            let mrr = 0;
+            let activeSubscriberCount = 0;
+
+            activeSubs.data.forEach(sub => {
+                const price = sub.items.data[0].price;
+                if (price.unit_amount && (price.recurring?.interval === 'month' || price.recurring?.interval === 'year')) {
+                    let monthlyAmount = price.unit_amount;
+                    if (price.recurring.interval === 'year') {
+                        monthlyAmount = Math.round(monthlyAmount / 12);
+                    }
+                    mrr += monthlyAmount;
+                    activeSubscriberCount++;
+                }
+            });
+
+            // 2. Calculate Churn Rate
+            const thirtyDaysAgo = Math.floor(Date.now() / 1000) - (30 * 24 * 60 * 60);
+            const canceledSubs = await stripe.subscriptions.list({
+                status: 'canceled',
+                created: { gte: thirtyDaysAgo },
+                limit: 100
+            });
+
+            const canceledCount = canceledSubs.data.length;
+            const totalConsidered = activeSubscriberCount + canceledCount;
+            const churnRate = totalConsidered > 0
+                ? ((canceledCount / totalConsidered) * 100).toFixed(1)
+                : "0.0";
+
+            // 3. Estimate LTV
+            const arpu = activeSubscriberCount > 0 ? mrr / activeSubscriberCount : 0;
+            let ltv = 0;
+            const churnDecimal = parseFloat(churnRate) / 100;
+
+            if (churnDecimal > 0) {
+                ltv = arpu / churnDecimal;
+            } else {
+                ltv = arpu * 12;
+            }
+
+            return {
+                activeRevenue: (mrr / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
+                churn: `${churnRate}%`,
+                ltv: (ltv / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
+                subscriberCount: activeSubscriberCount
+            };
+
+        } catch (error: any) {
+            console.error("Error fetching financial metrics:", error);
+            throw new HttpsError("internal", `Failed to fetch financial metrics: ${error.message}`);
+        }
+    }
+);

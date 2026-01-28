@@ -8,7 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { usePracticeHistory } from '../hooks/useJobHistory';
 import JobDetailModal from '../components/JobTracker/JobDetailModal';
 import { useJobTracker } from '../hooks/useJobTracker';
-import { navigate } from '../App';
+import { navigate } from '../utils/navigation';
 import { db } from '../firebase';
 import { doc, onSnapshot, setDoc, updateDoc, writeBatch } from 'firebase/firestore';
 import ThemeToggle from '../components/ThemeToggle';
@@ -47,8 +47,53 @@ const Dashboard: React.FC = () => {
     const [selectedJobApplication, setSelectedJobApplication] = useState<JobApplicationData | null>(null);
     const [shareModalResume, setShareModalResume] = useState<ResumeData | null>(null);
     const [shareModalPortfolio, setShareModalPortfolio] = useState<PortfolioData | null>(null);
+    const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false); // New State for limit modal
 
     const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: () => { }, confirmText: 'Confirm' });
+
+    // ... (existing code for menu refs etc.) ...
+
+    // Limit Logic
+    const bioLinksCount = portfolios.filter(p => p.mode === 'linkinbio').length;
+    const totalPortfolioCount = portfolios.length;
+    const [limitMessage, setLimitMessage] = useState('You have reached your site limit. Please upgrade your plan to create more.');
+
+    const handleDuplicatePortfolio = async (id: string) => {
+        const portfolio = portfolios.find(p => p.id === id);
+        if (!portfolio) return;
+
+        // Check Total Limit (2 sites for free users)
+        if (!isPremium && totalPortfolioCount >= 2) {
+            setLimitMessage('Free users can only create up to 2 sites. Please upgrade your plan to create more.');
+            setIsUpgradeModalOpen(true);
+            return;
+        }
+
+        // Check Limit for Bio-Links (1 for free users)
+        if (portfolio.mode === 'linkinbio') {
+            if (!isPremium && bioLinksCount >= 1) {
+                setLimitMessage('You have reached your Bio-Link limit. Please upgrade your plan to create more.');
+                setIsUpgradeModalOpen(true);
+                return;
+            }
+        }
+
+        // Proceed if valid
+        await duplicatePortfolio(id);
+    };
+
+    const handleCreateNewPortfolio = () => {
+        // Check Total Limit (2 sites for free users)
+        if (!isPremium && totalPortfolioCount >= 2) {
+            setLimitMessage('Free users can only create up to 2 sites. Please upgrade your plan to create more.');
+            setIsUpgradeModalOpen(true);
+            return;
+        }
+        navigate('/portfolio');
+    };
+
+    // ... (existing code) ...
+
 
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [isNewMenuOpen, setIsNewMenuOpen] = useState(false);
@@ -58,6 +103,7 @@ const Dashboard: React.FC = () => {
     const [folders, setFolders] = useState<Folder[]>([]);
     const [jobTrackerShowPreview, setJobTrackerShowPreview] = useState(true);
     const [dragOverSection, setDragOverSection] = useState<{ id: string, position: 'top' | 'bottom' | 'middle' } | null>(null);
+
     const [isFolderReorderModalOpen, setIsFolderReorderModalOpen] = useState(false);
 
     // Long Press Logic
@@ -484,6 +530,17 @@ const Dashboard: React.FC = () => {
 
     return (
         <div className="bg-gray-100 dark:bg-gray-950 min-h-screen">
+            {/* Upgrade Modal for Site Limits */}
+            <ConfirmationModal
+                isOpen={isUpgradeModalOpen}
+                onCancel={() => setIsUpgradeModalOpen(false)}
+                onConfirm={() => navigate('/subscription')}
+                title="Limit Reached"
+                message={limitMessage}
+                confirmText="Upgrade Now"
+                cancelText="Maybe Later"
+                variant="default"
+            />
             <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 shadow-sm sticky top-0 z-20">
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16 sm:h-20">
@@ -793,7 +850,7 @@ const Dashboard: React.FC = () => {
 
                                     {isLoadingPortfolios && folder.id === 'portfolios'
                                         ? Array.from({ length: 3 }).map((_, i) => <ResumeCardSkeleton key={`portfolio_skel_${i}`} />)
-                                        : portfoliosInSection.map(portfolio => <PortfolioCard key={portfolio.id} portfolio={portfolio} onUpdate={updatePortfolio} onDuplicate={duplicatePortfolio} onDelete={(id) => confirmItemDelete(id, 'portfolio')} onShare={setShareModalPortfolio} onDragStart={(e) => handleDragStart(e, portfolio.id, 'portfolio')} />)
+                                        : portfoliosInSection.map(portfolio => <PortfolioCard key={portfolio.id} portfolio={portfolio} onUpdate={updatePortfolio} onDuplicate={handleDuplicatePortfolio} onDelete={(id) => confirmItemDelete(id, 'portfolio')} onShare={setShareModalPortfolio} onDragStart={(e) => handleDragStart(e, portfolio.id, 'portfolio')} />)
                                     }
 
                                     {isLoadingHistory && folder.id === 'interviews'
@@ -804,7 +861,7 @@ const Dashboard: React.FC = () => {
                                     {jobsInSection.map(job => <JobApplicationCard key={job.id} job={job} onClick={() => setSelectedJobApplication(job)} onDelete={(id) => confirmItemDelete(id, 'job')} onDragStart={(e) => handleDragStart(e, job.id, 'jobApplication')} />)}
 
                                     {folder.id === 'resumes' && <div onClick={addBlankResume} className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-300 cursor-pointer min-h-[340px] transform hover:-translate-y-1 hover:shadow-lg"><PlusCircle size={48} /><span className="mt-2 font-semibold">Create a New Resume</span></div>}
-                                    {folder.id === 'portfolios' && <div onClick={() => navigate('/portfolio')} className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-300 cursor-pointer min-h-[340px] transform hover:-translate-y-1 hover:shadow-lg"><PlusCircle size={48} /><span className="mt-2 font-semibold">Create a New Portfolio</span></div>}
+                                    {folder.id === 'portfolios' && <div onClick={handleCreateNewPortfolio} className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-300 cursor-pointer min-h-[340px] transform hover:-translate-y-1 hover:shadow-lg"><PlusCircle size={48} /><span className="mt-2 font-semibold">Create a New Portfolio</span></div>}
                                 </div>
                             )}
                         </div>
