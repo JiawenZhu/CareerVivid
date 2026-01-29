@@ -58,6 +58,7 @@ const CommerceDashboard = React.lazy(() => import('./features/commerce/pages/Com
 const ProductPage = React.lazy(() => import('./features/commerce/pages/ProductPage'));
 const GetMoreReview01 = React.lazy(() => import('./pages/bio-links/template/ticktok/GetMoreReview01'));
 const ServicePortfolioPage = React.lazy(() => import('./pages/ServicePortfolioPage'));
+const MerchantProductSubmission = React.lazy(() => import('./pages/MerchantProductSubmission'));
 
 import { SUPPORTED_LANGUAGES } from './constants';
 // import i18n from './i18n'; // Used in navigation.ts

@@ -19,7 +19,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@gsap/react": "^2.1.2",
-    "@react-three/drei": "^10.7.7",
+    "@react-three/drei": "^9.121.0",
     "@react-three/fiber": "^8.18.0",
     "@stripe/stripe-js": "^4.3.0",
     "@types/react-router-dom": "^5.3.3",
@@ -75,5 +75,8 @@
   },
   "overrides": {
     "@mapbox/node-pre-gyp": "^2.0.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }

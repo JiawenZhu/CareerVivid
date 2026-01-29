@@ -1,6 +1,10 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+    match /products/{merchantId}/{imageId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == merchantId;
+    }
     match /{allPaths=**} {
       allow read, write: if request.auth != null;
     }

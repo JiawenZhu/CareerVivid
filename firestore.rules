@@ -214,5 +214,27 @@ service cloud.firestore {
     match /contact_messages/{messageId} {
        allow create: if true;
     }
+
+    // --- Stitch Platform Rules ---
+    
+    // Products: Public read, Merchant write (own products only)
+    match /products/{productId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.merchant_uid == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.merchant_uid == request.auth.uid;
+    }
+
+    // Drops: Public read (or auth read), Admin write
+    match /drops/{dropId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Orders: Authenticated create (own order)
+    match /orders/{orderId} {
+      allow create: if request.auth != null && request.resource.data.user_id == request.auth.uid;
+      allow read: if request.auth != null && (resource.data.user_id == request.auth.uid || isAdmin());
+      allow update: if isAdmin();
+    }
   }
 }
