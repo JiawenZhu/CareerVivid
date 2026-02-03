@@ -15,7 +15,7 @@
     "translate-locales": "node scripts/translate_locales.js",
     "dev:extension": "vite build --watch --config vite.extension.config.ts",
     "build:extension": "vite build --config vite.extension.config.ts && npm run copy:extension-assets",
-    "copy:extension-assets": "cp public/manifest.json dist-extension/ && cp -r public/icons dist-extension/ && cp public/content.css dist-extension/"
+    "copy:extension-assets": "cp public/manifest.json dist-extension/ && cp -r public/icons dist-extension/ && cp public/content.css dist-extension/ && mv dist-extension/index.extension.html dist-extension/index.html"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

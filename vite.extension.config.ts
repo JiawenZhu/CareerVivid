@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => {
             emptyOutDir: true,
             rollupOptions: {
                 input: {
-                    main: path.resolve(__dirname, 'index.html'),
+                    main: path.resolve(__dirname, 'index.extension.html'),
                     background: path.resolve(__dirname, 'src/background.ts'),
                     content: path.resolve(__dirname, 'src/content.ts'),
                 },
