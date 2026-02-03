@@ -572,6 +572,10 @@ exports.getInterviewAuthToken = functions.region('us-west1').https.onCall(async 
     if (!context.auth) {
         throw new functions.https.HttpsError("unauthenticated", "User must be logged in to generate an interview token");
     }
+    // Reject anonymous users (Auth Guard)
+    if (context.auth.token.firebase.sign_in_provider === 'anonymous') {
+        throw new functions.https.HttpsError("permission-denied", "Guest users cannot start interview sessions. Please sign up.");
+    }
     try {
         // Generate custom token using the user's UID
         const token = await admin.auth().createCustomToken(context.auth.uid);

@@ -164,7 +164,7 @@ const SubscriptionPage: React.FC = () => {
             period: 'one-time',
             priceId: 'price_1ScLNsRJNflGxv32cvu6cTsK',
             features: [
-                "Create & Edit up to 8 Resumes",
+                "Create & Edit up to 100 Resumes",
                 "Create up to 8 Portfolio Websites",
                 t('subscription.features.all_templates'),
                 "100 AI Credits/Month",
@@ -185,7 +185,7 @@ const SubscriptionPage: React.FC = () => {
             period: '/month',
             priceId: 'price_1ScLOaRJNflGxv32BwQnSBs0',
             features: [
-                "Create & Edit up to 15 Resumes",
+                "Create & Edit Unlimited Resumes",
                 "Create up to 8 Portfolio Websites",
                 t('subscription.features.all_templates'),
                 "300 AI Credits/Month",

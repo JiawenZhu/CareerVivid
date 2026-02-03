@@ -135,7 +135,10 @@ export const useResumes = () => {
             const userDocRef = doc(db, 'users', currentUser.uid);
             const userDoc = await getDoc(userDocRef);
             const userData = userDoc.data();
-            const resumeLimit = userData?.resumeLimit || 2;
+
+            // Backward compatibility: Premium users get unlimited resumes
+            const hasLegacyPremium = userData?.promotions?.isPremium === true;
+            const resumeLimit = hasLegacyPremium ? 999 : (userData?.resumeLimit || 2);
 
             if (resumes.length >= resumeLimit) {
                 throw new Error('RESUME_LIMIT_REACHED');
@@ -182,7 +185,10 @@ export const useResumes = () => {
             const userDocRef = doc(db, 'users', currentUser.uid);
             const userDoc = await getDoc(userDocRef);
             const userData = userDoc.data();
-            const resumeLimit = userData?.resumeLimit || 2;
+
+            // Backward compatibility: Premium users get unlimited resumes
+            const hasLegacyPremium = userData?.promotions?.isPremium === true;
+            const resumeLimit = hasLegacyPremium ? 999 : (userData?.resumeLimit || 2);
 
             if (resumes.length >= resumeLimit) {
                 throw new Error('RESUME_LIMIT_REACHED');
@@ -251,7 +257,19 @@ export const useResumes = () => {
                 const userDocRef = doc(db, 'users', currentUser.uid);
                 const userDoc = await getDoc(userDocRef);
                 const userData = userDoc.data();
-                const resumeLimit = userData?.resumeLimit || 2;
+
+                // Determine limit based on plan
+                let resumeLimit = userData?.resumeLimit || 2;
+                const plan = userData?.plan;
+                const hasLegacyPremium = userData?.promotions?.isPremium === true;
+
+                if (plan === 'pro_monthly') {
+                    resumeLimit = 9999;
+                } else if (plan === 'pro_sprint') {
+                    resumeLimit = 100;
+                } else if (hasLegacyPremium) {
+                    resumeLimit = Math.max(resumeLimit, 9999);
+                }
 
                 if (resumes.length >= resumeLimit) {
                     throw new Error('RESUME_LIMIT_REACHED');

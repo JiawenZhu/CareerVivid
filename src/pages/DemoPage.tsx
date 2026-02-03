@@ -4,7 +4,7 @@ import { Loader2, Mic, Wand2, ArrowLeft, Search, Briefcase, ChevronRight } from 
 import { navigate } from '../utils/navigation';
 import { createBlankResume } from '../constants';
 import { auth, db } from '../firebase';
-import { signInAnonymously } from 'firebase/auth';
+import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { CAREER_PATHS } from '../data/careers';
@@ -57,6 +57,29 @@ const DemoPage: React.FC = () => {
     const [selectedRoleForResume, setSelectedRoleForResume] = useState('');
 
     const isLoading = isGeneratingResume || isPreparingInterview;
+
+    // Check for pending interview intent on load (Post-Signup Redirect)
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user && !user.isAnonymous) {
+                const intentStr = localStorage.getItem('pending_interview_intent');
+                if (intentStr) {
+                    try {
+                        const { prompt, title } = JSON.parse(intentStr);
+                        console.log("Restoring pending interview session:", title);
+                        // Clean up immediate to prevent loops, then trigger
+                        localStorage.removeItem('pending_interview_intent');
+                        // Pass 'user' explicitly to avoid race condition with auth.currentUser
+                        handleGenerateInterview(prompt, title, user);
+                    } catch (e) {
+                        console.error("Failed to parse interview intent", e);
+                        localStorage.removeItem('pending_interview_intent');
+                    }
+                }
+            }
+        });
+        return () => unsubscribe();
+    }, []);
 
     useEffect(() => {
         let interval: number;
@@ -138,23 +161,31 @@ const DemoPage: React.FC = () => {
         setIsResumeModalOpen(true);
     };
 
-    const handleGenerateInterview = async (prompt: string, title: string) => {
+    const handleGenerateInterview = async (prompt: string, title: string, explicitUser?: any) => {
         if (!prompt.trim()) return;
 
-        await trackDemoEvent('totalInterviewStarts');
+        // 1. Auth Guard - Strict (No Guest Access)
+        // Prefer explicitUser if provided (from onAuthStateChanged), fallback to auth.currentUser
+        const user = explicitUser || auth.currentUser;
+
+        if (!user || user.isAnonymous) {
+            console.log("Auth Guard: User not logged in, saving intent and redirecting.");
+            // Save intent to restore after login
+            localStorage.setItem('pending_interview_intent', JSON.stringify({ prompt, title }));
+            // Redirect to SignUp with callback to Demo page
+            navigate('/signup?redirect=/demo');
+            return;
+        }
+
+        try {
+            await trackDemoEvent('totalInterviewStarts');
+        } catch (err) {
+            console.warn("Tracking failed but proceeding with interview:", err);
+        }
 
         setIsPreparingInterview(true);
         setError('');
         try {
-            // 1. Ensure User is Authenticated (Anonymous)
-            let user = auth.currentUser;
-            if (!user) {
-                const userCred = await signInAnonymously(auth);
-                user = userCred.user;
-            }
-
-            if (!user) throw new Error("Authentication failed");
-
             // 2. Create Job Entry in Firestore
             // We do this manually instead of using hooks to ensure immediate availability without re-renders
             const jobId = `demo_${Date.now()}`;

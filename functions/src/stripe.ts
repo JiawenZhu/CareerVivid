@@ -469,7 +469,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             await userRef.set(
                 {
                     plan: "pro_sprint",
-                    resumeLimit: 8,
+                    resumeLimit: 100,
                     expiresAt: expiresAt,
                     stripeCustomerId: session.customer,
                     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -486,7 +486,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             await userRef.set(
                 {
                     plan: "pro_monthly",
-                    resumeLimit: 15,
+                    resumeLimit: 9999,
                     subscriptionStatus: "active",
                     stripeCustomerId: session.customer,
                     stripeSubscriptionId: session.subscription,

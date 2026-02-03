@@ -40,7 +40,7 @@ const pricingPlans = [
         duration: 'one-time',
         priceId: 'price_1SXEhfEqIOIAAUV0gMU2RsIN',
         features: [
-            'Create & Edit up to 8 Resumes',
+            'Create & Edit up to 100 Resumes',
             'Create up to 8 Portfolio Websites',
             'All Professional Templates',
             '100 AI Credits/Month',
@@ -50,7 +50,7 @@ const pricingPlans = [
             '7 Days Access',
         ],
         cta: 'Get Started',
-        resumeLimit: 8,
+        resumeLimit: 100,
     },
     {
         name: 'Pro Monthly',
@@ -61,7 +61,7 @@ const pricingPlans = [
         duration: '/month',
         priceId: 'price_1SXF15EqIOIAAUV01eD0To1q',
         features: [
-            'Create & Edit up to 15 Resumes',
+            'Create & Edit Unlimited Resumes',
             'Create up to 8 Portfolio Websites',
             'All Professional Templates',
             '300 AI Credits/Month',
@@ -72,7 +72,7 @@ const pricingPlans = [
         ],
         cta: 'Get Started',
         popular: true,
-        resumeLimit: 15,
+        resumeLimit: 9999,
     },
 ];
 

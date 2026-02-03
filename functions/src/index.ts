@@ -616,6 +616,14 @@ export const getInterviewAuthToken = functions.region('us-west1').https.onCall(a
     );
   }
 
+  // Reject anonymous users (Auth Guard)
+  if (context.auth.token.firebase.sign_in_provider === 'anonymous') {
+    throw new functions.https.HttpsError(
+      "permission-denied",
+      "Guest users cannot start interview sessions. Please sign up."
+    );
+  }
+
   try {
     // Generate custom token using the user's UID
     const token = await admin.auth().createCustomToken(context.auth.uid);
