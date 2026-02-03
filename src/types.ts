@@ -503,3 +503,61 @@ export interface CoverLetter {
   content: string;
   createdAt: any; // Firestore Timestamp
 }
+
+// --- Stitch Commerce Types ---
+
+export interface StitchUser extends UserProfile {
+  // Extends existing profile with commerce-specific fields
+  zone_id?: string;
+  stripe_id?: string; // Merchant/Host specific Stripe Connect ID
+}
+
+export type DropStatus = 'open' | 'locked' | 'delivering';
+
+export interface Drop {
+  id: string;
+  title: string;
+  scheduled_date: any; // Firestore Timestamp
+  cutoff_timestamp: any; // Firestore Timestamp
+  status: DropStatus;
+  zones: string[]; // List of zone_ids (e.g. ['urbana'])
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  host_uid?: string;
+  merchant_uid?: string;
+  max_quantity?: number;
+  image_url?: string; // Standardized naming for images
+  description?: string;
+  unit?: string; // e.g. "bag", "lb", "bunch"
+}
+
+export interface DropInventoryItem {
+  product_id: string;
+  stock_remaining: number;
+  price_at_drop: number; // Snapshot of price for this specific drop
+}
+
+export type OrderStatus = 'confirmed' | 'paid' | 'packed' | 'delivered';
+
+export interface OrderItem {
+  product_id: string;
+  quantity: number;
+  price: number; // Price per unit
+  name: string; // Snapshot of name
+}
+
+export interface Order {
+  id: string;
+  drop_id: string;
+  user_id: string;
+  items: OrderItem[];
+  status: OrderStatus;
+  payment_status: string; // Added for granularity
+  delivery_proof_img?: string;
+  total_amount: number;
+  created_at: any; // Firestore Timestamp
+}

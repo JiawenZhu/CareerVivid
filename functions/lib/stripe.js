@@ -76,7 +76,7 @@ exports.createCheckoutSession = (0, https_2.onCall)({
     }
     try {
         const stripe = new stripe_1.default(stripeSecretKey.value(), {
-            apiVersion: "2025-11-17.clover",
+            apiVersion: "2026-01-28.clover",
         });
         const userId = request.auth.uid;
         const userEmail = request.auth.token.email || undefined;
@@ -145,7 +145,7 @@ exports.stripeWebhook = (0, https_1.onRequest)({
     region: "us-west1",
 }, async (req, res) => {
     const stripe = new stripe_1.default(stripeSecretKey.value(), {
-        apiVersion: "2025-11-17.clover",
+        apiVersion: "2026-01-28.clover",
     });
     // Verify webhook signature
     const sig = req.headers["stripe-signature"];
@@ -239,7 +239,7 @@ exports.cancelSubscription = (0, https_2.onCall)({
             }
         }
         const stripe = new stripe_1.default(stripeSecretKey.value(), {
-            apiVersion: "2025-11-17.clover",
+            apiVersion: "2026-01-28.clover",
         });
         // Fallback: If no subscription ID but we have a customer ID, try to find it from Stripe
         if (!stripeSubscriptionId && stripeCustomerId) {
@@ -316,7 +316,7 @@ exports.applyDiscount = (0, https_2.onCall)({
     }
     const userId = request.auth.uid;
     const stripe = new stripe_1.default(stripeSecretKey.value(), {
-        apiVersion: "2025-11-17.clover",
+        apiVersion: "2026-01-28.clover",
     });
     try {
         const userDoc = await admin.firestore().collection("users").doc(userId).get();
@@ -833,7 +833,7 @@ exports.getFinancialMetrics = (0, https_2.onCall)({
     }
     try {
         const stripe = new stripe_1.default(stripeSecretKey.value(), {
-            apiVersion: "2025-11-17.clover",
+            apiVersion: "2026-01-28.clover",
         });
         // 1. Calculate Monthly Recurring Revenue (MRR)
         const activeSubs = await stripe.subscriptions.list({

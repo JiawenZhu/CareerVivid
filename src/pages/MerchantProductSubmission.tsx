@@ -116,7 +116,6 @@ const MerchantProductSubmission: React.FC = () => {
                 description: description,
                 image_url: downloadURL,
                 created_at: serverTimestamp(),
-                // You might fetch merchant name from user profile, but keeping it simple
             };
 
             await addDoc(collection(db, 'products'), productData);
@@ -129,11 +128,13 @@ const MerchantProductSubmission: React.FC = () => {
             setDescription('');
             setImageFile(null);
             setImagePreview(null);
-            alert("Product added successfully!");
+            // alert("Product added successfully!"); // Removed alert for smoother UX
 
             // Refresh history
-            const newProd = { ...productData, image_url: downloadURL, id: 'temp_' + Date.now() }; // Optimistic or just re-fetch
+            const newProd = { ...productData, image_url: downloadURL, id: 'temp_' + Date.now() };
             setProducts([newProd, ...products]);
+
+            // Optional: Redirect or show toast
 
         } catch (error) {
             console.error("Error uploading product:", error);
@@ -145,9 +146,9 @@ const MerchantProductSubmission: React.FC = () => {
     };
 
     return (
-        <div className="bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 font-display antialiased pb-24 min-h-screen">
+        <div className="bg-background-light dark:bg-background-dark text-text-main dark:text-text-light font-display antialiased pb-24 min-h-screen">
             {/* Header */}
-            <header className="sticky top-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-border-light dark:border-border-dark">
+            <header className="sticky top-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-black/5 dark:border-white/5">
                 <div className="flex items-center p-4 justify-between max-w-lg mx-auto">
                     <h1 className="text-xl font-bold leading-tight tracking-tight flex-1">New Drop Submission</h1>
                     <button className="flex items-center justify-center h-10 w-10 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
@@ -160,12 +161,12 @@ const MerchantProductSubmission: React.FC = () => {
 
                 {/* Drop Selector */}
                 <section className="flex flex-col gap-2">
-                    <label className="text-base font-bold text-gray-900 dark:text-gray-100 ml-1">Select Drop</label>
+                    <label className="text-base font-bold text-text-main dark:text-text-light ml-1">Select Drop</label>
                     <div className="relative">
                         <select
                             value={selectedDropId}
                             onChange={(e) => setSelectedDropId(e.target.value)}
-                            className="form-select w-full rounded-xl border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-4 py-3.5 text-base text-gray-900 dark:text-gray-100 focus:border-primary focus:ring-primary/20 focus:ring-4 transition-all appearance-none"
+                            className="form-select w-full rounded-xl border-transparent bg-surface-light dark:bg-surface-dark px-4 py-3.5 text-base text-text-main dark:text-text-light focus:border-primary focus:ring-primary/20 focus:ring-4 transition-all appearance-none shadow-sm"
                         >
                             {drops.length === 0 && <option value="">No Open Drops</option>}
                             {drops.map(drop => (
@@ -174,32 +175,34 @@ const MerchantProductSubmission: React.FC = () => {
                                 </option>
                             ))}
                         </select>
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none material-symbols-outlined text-gray-500">expand_more</span>
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none material-symbols-outlined text-gray-400">expand_more</span>
                     </div>
                 </section>
 
                 {/* Image Uploader */}
                 <section className="flex flex-col gap-2">
-                    <label className="text-base font-bold text-gray-900 dark:text-gray-100 ml-1">Product Image</label>
+                    <label className="text-base font-bold text-text-main dark:text-text-light ml-1">Product Image</label>
                     <div
                         onClick={() => fileInputRef.current?.click()}
-                        className={`group relative flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-6 py-10 transition-colors hover:border-primary cursor-pointer ${imagePreview ? 'border-primary' : ''}`}
+                        className={`group relative flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700 bg-surface-light dark:bg-surface-dark px-6 py-10 transition-colors hover:border-primary hover:bg-surface-light/50 cursor-pointer ${imagePreview ? '!border-primary' : ''}`}
                     >
                         {imagePreview ? (
-                            <div className="relative w-full h-48 rounded-lg overflow-hidden">
+                            <div className="relative w-full h-48 rounded-lg overflow-hidden shadow-inner">
                                 <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <span className="text-white font-bold">Change Photo</span>
+                                    <span className="text-white font-bold flex items-center gap-2">
+                                        <span className="material-symbols-outlined">edit</span> Change
+                                    </span>
                                 </div>
                             </div>
                         ) : (
                             <>
-                                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 dark:bg-primary/20">
+                                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 dark:bg-primary/20 group-hover:scale-110 transition-transform">
                                     <span className="material-symbols-outlined text-primary text-3xl">add_a_photo</span>
                                 </div>
                                 <div className="text-center">
-                                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100">Tap to upload product photo</p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Supports: JPG, PNG</p>
+                                    <p className="text-sm font-bold text-text-main dark:text-text-light">Tap to upload product photo</p>
+                                    <p className="text-xs text-text-secondary dark:text-gray-400 mt-1">Supports: JPG, PNG</p>
                                 </div>
                             </>
                         )}
@@ -217,11 +220,11 @@ const MerchantProductSubmission: React.FC = () => {
                 <form className="flex flex-col gap-5">
                     {/* Product Name */}
                     <div className="flex flex-col gap-2">
-                        <label className="text-base font-bold text-gray-900 dark:text-gray-100 ml-1">Product Name</label>
+                        <label className="text-base font-bold text-text-main dark:text-text-light ml-1">Product Name</label>
                         <input
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="form-input w-full rounded-xl border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-4 py-3.5 text-base text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-primary focus:ring-primary/20 focus:ring-4 transition-all outline-none border"
+                            className="form-input w-full rounded-xl border-transparent bg-surface-light dark:bg-surface-dark px-4 py-3.5 text-base text-text-main dark:text-text-light placeholder-gray-400 focus:border-primary focus:ring-primary/20 focus:ring-4 transition-all outline-none shadow-sm"
                             placeholder="e.g. Fresh Sourdough Loaf"
                             type="text"
                         />
@@ -229,13 +232,13 @@ const MerchantProductSubmission: React.FC = () => {
                     {/* Price & Quantity Row */}
                     <div className="flex gap-4">
                         <div className="flex flex-col gap-2 flex-1">
-                            <label className="text-base font-bold text-gray-900 dark:text-gray-100 ml-1">Price</label>
+                            <label className="text-base font-bold text-text-main dark:text-text-light ml-1">Price</label>
                             <div className="relative">
                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
                                 <input
                                     value={price}
                                     onChange={(e) => setPrice(e.target.value)}
-                                    className="form-input w-full rounded-xl border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark pl-8 pr-4 py-3.5 text-base text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-primary focus:ring-primary/20 focus:ring-4 transition-all outline-none border"
+                                    className="form-input w-full rounded-xl border-transparent bg-surface-light dark:bg-surface-dark pl-8 pr-4 py-3.5 text-base text-text-main dark:text-text-light placeholder-gray-400 focus:border-primary focus:ring-primary/20 focus:ring-4 transition-all outline-none shadow-sm"
                                     placeholder="0.00"
                                     type="number"
                                     step="0.01"
@@ -243,11 +246,11 @@ const MerchantProductSubmission: React.FC = () => {
                             </div>
                         </div>
                         <div className="flex flex-col gap-2 w-1/3">
-                            <label className="text-base font-bold text-gray-900 dark:text-gray-100 ml-1">Qty</label>
+                            <label className="text-base font-bold text-text-main dark:text-text-light ml-1">Qty</label>
                             <input
                                 value={quantity}
                                 onChange={(e) => setQuantity(e.target.value)}
-                                className="form-input w-full rounded-xl border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-4 py-3.5 text-base text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-primary focus:ring-primary/20 focus:ring-4 transition-all outline-none border"
+                                className="form-input w-full rounded-xl border-transparent bg-surface-light dark:bg-surface-dark px-4 py-3.5 text-base text-text-main dark:text-text-light placeholder-gray-400 focus:border-primary focus:ring-primary/20 focus:ring-4 transition-all outline-none shadow-sm"
                                 placeholder="10"
                                 type="number"
                             />
@@ -255,11 +258,11 @@ const MerchantProductSubmission: React.FC = () => {
                     </div>
                     {/* Description */}
                     <div className="flex flex-col gap-2">
-                        <label className="text-base font-bold text-gray-900 dark:text-gray-100 ml-1">Description</label>
+                        <label className="text-base font-bold text-text-main dark:text-text-light ml-1">Description</label>
                         <textarea
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            className="form-textarea w-full rounded-xl border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-4 py-3.5 text-base text-gray-900 dark:text-gray-100 placeholder-gray-400 min-h-[120px] resize-none focus:border-primary focus:ring-primary/20 focus:ring-4 transition-all outline-none border"
+                            className="form-textarea w-full rounded-xl border-transparent bg-surface-light dark:bg-surface-dark px-4 py-3.5 text-base text-text-main dark:text-text-light placeholder-gray-400 min-h-[120px] resize-none focus:border-primary focus:ring-primary/20 focus:ring-4 transition-all outline-none shadow-sm"
                             placeholder="Describe your product (ingredients, origin, etc.)..."
                         ></textarea>
                     </div>
@@ -268,24 +271,29 @@ const MerchantProductSubmission: React.FC = () => {
                         type="button"
                         onClick={handleSubmit}
                         disabled={isUploading}
-                        className="mt-2 flex w-full items-center justify-center rounded-xl bg-primary px-6 py-4 text-base font-bold text-[#111b0e] hover:bg-opacity-90 active:scale-[0.98] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="mt-2 flex w-full items-center justify-center rounded-xl bg-primary px-6 py-4 text-base font-bold text-[#111b0e] hover:bg-primary/90 active:scale-[0.98] transition-all shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
                     >
-                        {isUploading ? 'Uploading...' : 'Add to Next Drop'}
+                        {isUploading ? (
+                            <span className="flex items-center gap-2">
+                                <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin"></span>
+                                Uploading...
+                            </span>
+                        ) : 'Add to Next Drop'}
                     </button>
                 </form>
 
                 {/* Divider */}
-                <div className="my-2 h-px w-full bg-border-light dark:bg-border-dark"></div>
+                <div className="my-2 h-px w-full bg-gray-200 dark:bg-white/10"></div>
 
                 {/* History List */}
                 <section className="flex flex-col gap-4">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Your Products</h2>
+                        <h2 className="text-lg font-bold text-text-main dark:text-text-light">Your Products</h2>
                         <button className="text-sm font-bold text-primary hover:underline">View All</button>
                     </div>
                     <div className="flex flex-col gap-3">
                         {products.map((prod, idx) => (
-                            <div key={idx} className="flex items-center gap-4 rounded-xl bg-surface-light dark:bg-surface-dark p-3 border border-border-light dark:border-border-dark shadow-sm">
+                            <div key={idx} className="flex items-center gap-4 rounded-xl bg-surface-light dark:bg-surface-dark p-3 border border-transparent hover:border-black/5 dark:hover:border-white/10 shadow-sm transition-all">
                                 <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
                                     <img
                                         src={prod.image_url}
@@ -294,27 +302,30 @@ const MerchantProductSubmission: React.FC = () => {
                                     />
                                 </div>
                                 <div className="flex flex-1 flex-col justify-center">
-                                    <h3 className="font-bold text-gray-900 dark:text-gray-100 leading-tight">{prod.name}</h3>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">${prod.price} • {prod.max_quantity} units</p>
+                                    <h3 className="font-bold text-text-main dark:text-text-light leading-tight">{prod.name}</h3>
+                                    <p className="text-sm text-text-secondary dark:text-gray-400">${prod.price} • {prod.max_quantity} units</p>
                                 </div>
                                 <div className="flex flex-col items-end gap-1">
-                                    <span className="inline-flex items-center rounded-full bg-yellow-100 dark:bg-yellow-900/40 px-2.5 py-1 text-xs font-bold text-yellow-800 dark:text-yellow-100">
+                                    <span className="inline-flex items-center rounded-full bg-yellow-100 dark:bg-yellow-900/40 px-2.5 py-1 text-xs font-bold text-yellow-800 dark:text-yellow-100 border border-yellow-200 dark:border-yellow-700/50">
                                         Submitted
                                     </span>
                                 </div>
                             </div>
                         ))}
                         {products.length === 0 && (
-                            <p className="text-center text-gray-400 py-4">No products submitted yet.</p>
+                            <div className="text-center py-8 opacity-50">
+                                <span className="material-symbols-outlined text-4xl mb-2">inventory_2</span>
+                                <p className="text-sm font-medium">No products submitted yet.</p>
+                            </div>
                         )}
                     </div>
                 </section>
             </main>
 
             {/* Bottom Navigation */}
-            <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border-light dark:border-border-dark bg-surface-light/95 dark:bg-surface-dark/95 backdrop-blur-md pb-safe">
+            <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-black/5 dark:border-white/5 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md pb-safe">
                 <div className="mx-auto flex max-w-lg items-center justify-around h-16">
-                    <button onClick={() => navigate('/')} className="flex flex-1 flex-col items-center justify-center gap-1 text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+                    <button onClick={() => navigate('/feed')} className="flex flex-1 flex-col items-center justify-center gap-1 text-gray-400 hover:text-text-main dark:hover:text-text-light transition-colors">
                         <span className="material-symbols-outlined text-2xl">home</span>
                         <span className="text-[10px] font-bold">Home</span>
                     </button>
@@ -322,11 +333,11 @@ const MerchantProductSubmission: React.FC = () => {
                         <span className="material-symbols-outlined text-2xl font-variation-fill">add_circle</span>
                         <span className="text-[10px] font-bold">Add Item</span>
                     </button>
-                    <button className="flex flex-1 flex-col items-center justify-center gap-1 text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+                    <button className="flex flex-1 flex-col items-center justify-center gap-1 text-gray-400 hover:text-text-main dark:hover:text-text-light transition-colors">
                         <span className="material-symbols-outlined text-2xl">inventory_2</span>
                         <span className="text-[10px] font-bold">Orders</span>
                     </button>
-                    <button onClick={() => navigate('/profile')} className="flex flex-1 flex-col items-center justify-center gap-1 text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+                    <button onClick={() => navigate('/profile')} className="flex flex-1 flex-col items-center justify-center gap-1 text-gray-400 hover:text-text-main dark:hover:text-text-light transition-colors">
                         <span className="material-symbols-outlined text-2xl">person</span>
                         <span className="text-[10px] font-bold">Profile</span>
                     </button>

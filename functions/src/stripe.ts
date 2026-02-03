@@ -49,7 +49,7 @@ export const createCheckoutSession = onCall(
 
         try {
             const stripe = new Stripe(stripeSecretKey.value(), {
-                apiVersion: "2025-11-17.clover",
+                apiVersion: "2026-01-28.clover",
             });
 
             const userId = request.auth.uid;
@@ -138,7 +138,7 @@ export const stripeWebhook = onRequest(
     },
     async (req, res) => {
         const stripe = new Stripe(stripeSecretKey.value(), {
-            apiVersion: "2025-11-17.clover",
+            apiVersion: "2026-01-28.clover",
         });
 
         // Verify webhook signature
@@ -251,7 +251,7 @@ export const cancelSubscription = onCall(
             }
 
             const stripe = new Stripe(stripeSecretKey.value(), {
-                apiVersion: "2025-11-17.clover",
+                apiVersion: "2026-01-28.clover",
             });
 
             // Fallback: If no subscription ID but we have a customer ID, try to find it from Stripe
@@ -350,7 +350,7 @@ export const applyDiscount = onCall(
 
         const userId = request.auth.uid;
         const stripe = new Stripe(stripeSecretKey.value(), {
-            apiVersion: "2025-11-17.clover",
+            apiVersion: "2026-01-28.clover",
         });
 
         try {
@@ -994,7 +994,7 @@ export const getFinancialMetrics = onCall(
 
         try {
             const stripe = new Stripe(stripeSecretKey.value(), {
-                apiVersion: "2025-11-17.clover",
+                apiVersion: "2026-01-28.clover",
             });
 
             // 1. Calculate Monthly Recurring Revenue (MRR)

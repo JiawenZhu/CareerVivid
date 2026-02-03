@@ -217,24 +217,46 @@ service cloud.firestore {
 
     // --- Stitch Platform Rules ---
     
-    // Products: Public read, Merchant write (own products only)
+    // Stitch Users Extension (secure by default, only user or admin can create/edit sensitive fields)
+    // Note: Main /users rules at top already cover basic read/write for owner.
+    // We just need to ensure new fields are respected validation-wise if needed, 
+    // but for now the role-based checks in Cloud Functions are safer for "assigning zones".
+
+    // Products: Public read, Merchant/Host write
     match /products/{productId} {
       allow read: if true;
-      allow create: if request.auth != null && request.resource.data.merchant_uid == request.auth.uid;
-      allow update, delete: if request.auth != null && resource.data.merchant_uid == request.auth.uid;
+      allow create: if request.auth != null && (
+        request.resource.data.merchant_uid == request.auth.uid || 
+        request.resource.data.host_uid == request.auth.uid
+      );
+      allow update, delete: if request.auth != null && (
+        resource.data.merchant_uid == request.auth.uid || 
+        resource.data.host_uid == request.auth.uid ||
+        isAdmin()
+      );
     }
 
-    // Drops: Public read (or auth read), Admin write
+    // Drops: Zone-restricted Read, Admin/Host Write
     match /drops/{dropId} {
-      allow read: if true;
-      allow write: if isAdmin();
+      // Read: Allow if user's zone_id is in the drop's allowed zones OR if user is admin/host
+      allow read: if true; // Open read for catalog convenience, frontend filters by zone. 
+      // Ideally: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.zone_id in resource.data.zones
+      
+      allow write: if isAdmin(); // Only Admins (or Cloud Functions) schedule drops for now
+      
+      // Sub-collection: Inventory
+      match /drop_inventory/{itemId} {
+        allow read: if true;
+        allow write: if isAdmin();
+      }
     }
 
-    // Orders: Authenticated create (own order)
+    // Orders: Authenticated create REMOVED (Must use Cloud Function). Read Own.
     match /orders/{orderId} {
-      allow create: if request.auth != null && request.resource.data.user_id == request.auth.uid;
+      allow create: if false; // Block client-side creation. Use createOrder Cloud Function.
       allow read: if request.auth != null && (resource.data.user_id == request.auth.uid || isAdmin());
-      allow update: if isAdmin();
+      // Only Admins or Hosts (via function/claim) can update status to 'packed'/'delivered'
+      allow update: if isAdmin(); 
     }
   }
 }

@@ -42,6 +42,7 @@ export { sendTestEmails } from "./sendTestEmails";
 export { generateCoverLetter } from "./coverLetter";
 export { tailorResume } from "./tailorResume";
 export { exportToGoogleDocs } from "./googleDocs";
+export * from "./stitchCommerce";
 
 
 const getFunctionConfig = () => {

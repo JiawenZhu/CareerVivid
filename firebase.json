@@ -6,6 +6,23 @@
       "**/.*",
       "**/node_modules/**"
     ],
+    "redirects": [
+      {
+        "source": "/auth",
+        "destination": "/signin",
+        "type": 301
+      },
+      {
+        "source": "/login",
+        "destination": "/signin",
+        "type": 301
+      },
+      {
+        "source": "/register",
+        "destination": "/signup",
+        "type": 301
+      }
+    ],
     "headers": [
       {
         "source": "**",

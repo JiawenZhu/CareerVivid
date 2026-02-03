@@ -90,6 +90,7 @@ var tailorResume_1 = require("./tailorResume");
 Object.defineProperty(exports, "tailorResume", { enumerable: true, get: function () { return tailorResume_1.tailorResume; } });
 var googleDocs_1 = require("./googleDocs");
 Object.defineProperty(exports, "exportToGoogleDocs", { enumerable: true, get: function () { return googleDocs_1.exportToGoogleDocs; } });
+__exportStar(require("./stitchCommerce"), exports);
 const getFunctionConfig = () => {
     try {
         return functions.config().careervivid || {};

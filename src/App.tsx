@@ -2,7 +2,9 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { useAuth } from './contexts/AuthContext';
+import { CartProvider } from './features/commerce/context/CartContext';
 import { Loader2 } from 'lucide-react';
+
 
 // Lazy load pages to drastically reduce initial JavaScript payload
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -35,6 +37,11 @@ const PortfolioEditor = React.lazy(() => import('./features/portfolio/pages/Port
 const PortfolioBuilderPage = React.lazy(() => import('./pages/PortfolioBuilderPage'));
 const PublicPortfolioPage = React.lazy(() => import('./features/portfolio/pages/PublicPortfolioPage'));
 const PartnerLandingPage = React.lazy(() => import('./pages/partners/PartnerLandingPage'));
+const CheckoutSummary = React.lazy(() => import('./features/commerce/pages/CheckoutSummary'));
+const DropProductGallery = React.lazy(() => import('./features/commerce/pages/DropProductGallery'));
+const AssemblyLinePacking = React.lazy(() => import('./features/commerce/pages/AssemblyLinePacking'));
+const CreateNewDrop = React.lazy(() => import('./features/commerce/pages/CreateNewDrop'));
+const UpcomingDropsFeed = React.lazy(() => import('./features/commerce/pages/UpcomingDropsFeed'));
 const BusinessCardPage = React.lazy(() => import('./pages/BusinessCardPage'));
 const OrderNfcCardPage = React.lazy(() => import('./pages/OrderNfcCardPage'));
 const AcademicPartnerPage = React.lazy(() => import('./pages/partners/AcademicPartnerPage'));
@@ -277,6 +284,18 @@ const App: React.FC = () => {
         content = <BlogPostPage postId={id} />;
       } else if (path === '/commerce') {
         content = <CommerceDashboard />;
+      } else if (path === '/checkout') {
+        content = <CheckoutSummary />;
+      } else if (path.startsWith('/drop/')) {
+        content = <DropProductGallery />;
+      } else if (path === '/merchant/packing') {
+        content = <AssemblyLinePacking />;
+      } else if (path === '/merchant/new-drop') {
+        content = <CreateNewDrop />;
+      } else if (path === '/feed') {
+        content = <UpcomingDropsFeed />;
+      } else if (path === '/merchant/submit') {
+        content = <MerchantProductSubmission />;
       } else if (path === '/academic-partner') {
         // Simple role check for now
         if (userProfile?.role === 'academic_partner' || isAdmin) {
@@ -369,13 +388,15 @@ const App: React.FC = () => {
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-200 font-sans">
-        <SEOHelper />
-        <Suspense fallback={<LoadingFallback />}>
-          {content}
-          {showChatbot && <ChatBot />}
-        </Suspense>
-      </div>
+      <CartProvider>
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-200 font-sans">
+          <SEOHelper />
+          <Suspense fallback={<LoadingFallback />}>
+            {content}
+            {showChatbot && <ChatBot />}
+          </Suspense>
+        </div>
+      </CartProvider>
     </ThemeProvider>
   );
 };
