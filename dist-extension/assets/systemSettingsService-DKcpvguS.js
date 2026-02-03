@@ -1,0 +1,1 @@
+import{f as a,g as n,v as d,e as i,h as c}from"./main-Bi0Ei0w3.js";const o="system_settings",r="landing_page",g={featuredResumeSuffix:"shared/n95XpkySLMhwcHcpKTOpFAqrOPi2/H0t3jJ0CNMrrsIpWy9Yr"},u=s=>{const t=a(n,o,r);return d(t,e=>{e.exists()?s(e.data()):s(g)})},T=async(s,t)=>{const e=a(n,o,r);await i(e,{...s,updatedAt:c(),updatedBy:t},{merge:!0})};export{g as D,u as s,T as u};

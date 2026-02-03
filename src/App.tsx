@@ -4,6 +4,8 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { useAuth } from './contexts/AuthContext';
 import { CartProvider } from './features/commerce/context/CartContext';
 import { Loader2 } from 'lucide-react';
+import { isExtensionContext } from './services/extensionStorage';
+import ExtensionLayout from './extension-ui/layout/ExtensionLayout';
 
 
 // Lazy load pages to drastically reduce initial JavaScript payload
@@ -94,6 +96,15 @@ import SEOHelper from './components/SEOHelper';
 const App: React.FC = () => {
   const { currentUser, userProfile, loading, isAdmin, isAdminLoading, isEmailVerified } = useAuth();
   useGuestDataMigration(); // Global guest data migration
+
+  // Extension Context Check
+  if (isExtensionContext()) {
+    return (
+      <ThemeProvider>
+        <ExtensionLayout />
+      </ThemeProvider>
+    );
+  }
 
   // SEO Helper runs on every render to update canonical tags
   // Since App.tsx re-renders on path changes (due to setPath), this works perfectly.
