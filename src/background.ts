@@ -8,6 +8,14 @@ chrome.runtime.onInstalled.addListener((details) => {
         // Open onboarding page on first install
         chrome.tabs.create({ url: 'https://careervivid.app/extension-welcome' });
     }
+
+    // Create context menu on install/update
+    chrome.contextMenus.create({
+        id: 'saveJob',
+        title: 'Save Job to CareerVivid',
+        contexts: ['page'],
+        documentUrlPatterns: ['https://www.linkedin.com/jobs/*', 'https://www.indeed.com/*']
+    });
 });
 
 // Message handler for communication between components
@@ -59,16 +67,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 });
 
-// Context menu for right-click actions
-chrome.runtime.onInstalled.addListener(() => {
-    chrome.contextMenus.create({
-        id: 'saveJob',
-        title: 'Save Job to CareerVivid',
-        contexts: ['page'],
-        documentUrlPatterns: ['https://www.linkedin.com/jobs/*', 'https://www.indeed.com/*']
-    });
-});
-
+// Context menu click handler
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     if (info.menuItemId === 'saveJob' && tab?.id) {
         chrome.tabs.sendMessage(tab.id, { type: 'EXTRACT_JOB_DATA' }, (response) => {
