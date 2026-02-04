@@ -5,6 +5,7 @@
   "description": "Create AI-powered resumes, practice interviews, and track job applications. Autofill applications on LinkedIn and Indeed.",
   "permissions": [
     "storage",
+    "cookies",
     "activeTab",
     "tabs",
     "contextMenus"

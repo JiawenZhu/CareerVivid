@@ -9,11 +9,11 @@ import ExtensionLayout from './extension-ui/layout/ExtensionLayout';
 
 
 // Lazy load pages to drastically reduce initial JavaScript payload
-const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const Dashboard = React.lazy(() => import('./pages/Dashboard')); // Protected
 const Editor = React.lazy(() => import('./pages/Editor'));
-const GenerationHub = React.lazy(() => import('./pages/GenerationHub'));
-const InterviewStudio = React.lazy(() => import('./pages/InterviewStudio'));
-const ProfilePage = React.lazy(() => import('./pages/ProfilePage'));
+const GenerationHub = React.lazy(() => import('./pages/GenerationHub')); // Protected
+const InterviewStudio = React.lazy(() => import('./pages/InterviewStudio')); // Protected
+const ProfilePage = React.lazy(() => import('./pages/ProfilePage')); // Protected
 const ChatBot = React.lazy(() => import('./components/ChatBot'));
 const AuthPage = React.lazy(() => import('./pages/AuthPage'));
 const SignInPage = React.lazy(() => import('./pages/SignInPage'));
@@ -92,6 +92,7 @@ const AuthRedirect = ({ target }: { target: string }) => {
 
 import { useGuestDataMigration } from './hooks/useGuestDataMigration';
 import SEOHelper from './components/SEOHelper';
+import ProtectedRoute from './components/ProtectedRoute'; // [NEW] Protected Route Wrapper
 
 const App: React.FC = () => {
   const { currentUser, userProfile, loading, isAdmin, isAdminLoading, isEmailVerified } = useAuth();
@@ -235,164 +236,249 @@ const App: React.FC = () => {
   let content;
   let showChatbot = false;
 
-  if (currentUser) {
-    if (!isEmailVerified && currentUser.providerData[0]?.providerId === 'password') {
-      content = <VerifyEmailPage />;
-    } else {
-      showChatbot = true;
-      if (path === '/signin' || path.startsWith('/signin?') || path === '/signup') {
+  if (currentUser && !(!isEmailVerified && currentUser.providerData[0]?.providerId === 'password')) {
+    showChatbot = true;
+  }
+
+  // 1. Verify Email Handling via specific route or override
+  if (currentUser && !isEmailVerified && currentUser.providerData[0]?.providerId === 'password') {
+    content = <VerifyEmailPage />;
+  } else {
+    // 2. Flattened Routing Logic
+
+    // -- Authentication Routes --
+    if (path === '/signin' || path.startsWith('/signin?')) {
+      if (currentUser) {
         const params = new URLSearchParams(window.location.search);
         const redirect = params.get('redirect');
-        content = <AuthRedirect target={redirect ? decodeURIComponent(redirect) : '/'} />;
-      } else if (path.startsWith('/edit/')) {
-        const id = path.split('/')[2];
-        content = <Editor resumeId={id} />;
-      } else if (path === '/new') {
-        content = <GenerationHub />;
-      } else if (path === '/portfolio') {
-        content = <PortfolioHub />;
-      } else if (isPortfolioEditorRoute) {
-        content = <PortfolioEditor />;
-      } else if (path === '/portfolio-builder') {
-        content = <PortfolioBuilderPage />;
-      } else if (path.startsWith('/interview-studio')) {
-        const parts = path.split('/');
-        const jobId = parts[2]; // /interview-studio/JOB_ID
-        content = <InterviewStudio jobId={jobId} />;
-      } else if (path === '/tracker') {
-        content = <JobTrackerPage />;
-      } else if (path === '/profile') {
-        content = <ProfilePage />;
-      } else if (path === '/referrals') {
-        content = <ReferralPage />;
-      } else if (path === '/subscription') {
-        content = <SubscriptionPage />;
-      } else if (path === '/contact') {
-        content = <ContactPage />;
-      } else if (path === '/services') {
-        content = <ServicePortfolioPage />;
-      } else if (path === '/policy') {
-        content = <PolicyPage />;
-      } else if (path === '/terms') {
-        content = <TermsOfServicePage />;
-      } else if (path === '/privacy') {
-        content = <PrivacyPolicyPage />;
-      } else if (path === '/business-partner/dashboard') {
-        content = <BusinessPartnerDashboard />;
-      } else if (path.toLowerCase() === '/jobmarket' || path === '/job-market') {
-        content = <JobMarketPage />;
-      } else if (path === '/business-partner/jobs/new') {
-        content = <JobPostingEditor />;
-      } else if (path.startsWith('/business-partner/jobs/') && path.endsWith('/edit')) {
-        const jobId = path.split('/')[3]; // Extract job ID from /business-partner/jobs/:jobId/edit
-        content = <JobPostingEditor jobId={jobId} />;
-      } else if (path === '/blog') {
-        content = <BlogListPage />;
-      } else if (path === '/dashboard/integrations') {
-        content = <IntegrationsPage />;
-      } else if (path.startsWith('/blog/')) {
-        const id = path.split('/')[2];
-        content = <BlogPostPage postId={id} />;
-      } else if (path === '/commerce') {
-        content = <CommerceDashboard />;
-      } else if (path === '/checkout') {
-        content = <CheckoutSummary />;
-      } else if (path.startsWith('/drop/')) {
-        content = <DropProductGallery />;
-      } else if (path === '/merchant/packing') {
-        content = <AssemblyLinePacking />;
-      } else if (path === '/merchant/new-drop') {
-        content = <CreateNewDrop />;
-      } else if (path === '/feed') {
-        content = <UpcomingDropsFeed />;
-      } else if (path === '/merchant/submit') {
-        content = <MerchantProductSubmission />;
-      } else if (path === '/academic-partner') {
-        // Simple role check for now
-        if (userProfile?.role === 'academic_partner' || isAdmin) {
-          content = <AcademicPartnerDashboard />;
-        } else {
-          content = <PermissionDeniedPage requiredRole="Academic Partner" message="This page is only accessible to academic partners." />;
-        }
-      } else if (path === '/order-nfc-card') {
-        content = <OrderNfcCardPage />;
-      } else if (path === '/bio-links') {
-        content = <BioLinksPage />;
-      } else if (path === '/business-card') {
-        content = <BusinessCardPage />;
+        content = <AuthRedirect target={redirect ? decodeURIComponent(redirect) : '/dashboard'} />;
       } else {
-        // Default to dashboard for any other path when logged in
-        content = <Dashboard />;
+        content = <SignInPage />;
       }
-
-    }
-  } else {
-    // Public routes for logged-out users
-    if (path === '/signin') {
-      content = <SignInPage />;
     } else if (path === '/signup') {
-      content = <SignUpPage />;
+      content = currentUser ? <AuthRedirect target="/dashboard" /> : <SignUpPage />;
     } else if (path === '/auth') {
-      // Redirect old auth route to signin
-      window.location.href = '/signin';
-      content = <SignInPage />;
-    } else if (path === '/pricing') {
-      content = <PricingPage />;
-    } else if (path === '/demo') {
-      content = <DemoPage />;
-    } else if (path === '/contact') {
-      content = <ContactPage />;
-    } else if (path === '/services') {
-      content = <ServicePortfolioPage />;
-    } else if (path === '/policy') {
-      content = <PolicyPage />;
-    } else if (path === '/terms') {
-      content = <TermsOfServicePage />;
-    } else if (path === '/privacy') {
-      content = <PrivacyPolicyPage />;
-    } else if (path === '/referral') {
-      content = <ReferralLandingPage />;
-    } else if (path === '/bio-links') {
-      content = <BioLinksPage />;
-    } else if (path === '/bio-links/template/ticktok/get-more-review01') {
-      content = <GetMoreReview01 />;
-    } else if (isPortfolioEditorRoute) {
+      if (currentUser) {
+        content = <AuthRedirect target="/dashboard" />;
+      } else {
+        window.location.href = '/signin';
+        content = <SignInPage />;
+      }
+    }
+
+    // -- Protected Routes (Redirect to login if guest) --
+
+    // Dashboard
+    else if (path === '/dashboard') {
+      content = (
+        <ProtectedRoute>
+          <Dashboard />
+        </ProtectedRoute>
+      );
+    }
+
+    // Generator / Resume Creation
+    else if (path === '/newresume') {
+      content = (
+        <ProtectedRoute>
+          <GenerationHub />
+        </ProtectedRoute>
+      );
+    }
+
+    // Job Tracker
+    else if (path === '/job-tracker') {
+      content = (
+        <ProtectedRoute>
+          <JobTrackerPage />
+        </ProtectedRoute>
+      );
+    }
+    // Legacy Tracker Redirect
+    else if (path === '/tracker') {
+      window.location.replace('/job-tracker');
+      content = null; // Will trigger redirect
+    }
+
+    // Interview Studio
+    else if (path.startsWith('/interview-studio')) {
+      const parts = path.split('/');
+      const jobId = parts[2];
+      content = (
+        <ProtectedRoute>
+          <InterviewStudio jobId={jobId} />
+        </ProtectedRoute>
+      );
+    }
+
+    // Portfolio Hub (Main Dashboard for Portfolios)
+    else if (path === '/portfolio') {
+      content = (
+        <ProtectedRoute>
+          <PortfolioHub />
+        </ProtectedRoute>
+      );
+    }
+
+    // Profile & Settings
+    else if (path === '/profile') {
+      content = (
+        <ProtectedRoute>
+          <ProfilePage />
+        </ProtectedRoute>
+      );
+    }
+
+    // Subscription
+    else if (path === '/subscription') {
+      content = (
+        <ProtectedRoute>
+          <SubscriptionPage />
+        </ProtectedRoute>
+      );
+    }
+
+    // Business Partner Dashboard
+    else if (path === '/business-partner/dashboard') {
+      content = (
+        <ProtectedRoute>
+          <BusinessPartnerDashboard />
+        </ProtectedRoute>
+      );
+    }
+
+    // -- Public / Shared Routes --
+
+    // Editor (Handles its own auth/guest logic mostly, but /edit/:id usually implies protected found in auth block)
+    // We'll wrap /edit/:id in ProtectedRoute to be safe, as it was in the Auth block.
+    // /edit/guest is explicitly public.
+    else if (path.startsWith('/edit/guest')) {
+      content = <Editor resumeId="guest" />;
+    }
+    else if (path.startsWith('/edit/')) {
+      const id = path.split('/')[2];
+      content = (
+        <ProtectedRoute>
+          <Editor resumeId={id} />
+        </ProtectedRoute>
+      );
+    }
+
+    // Portfolio Editor (Was accessible in both, keeping accessible)
+    else if (isPortfolioEditorRoute) {
       content = <PortfolioEditor />;
-    } else if (path === '/portfolio-builder') {
+    }
+    else if (path === '/portfolio-builder') {
       content = <PortfolioBuilderPage />;
-    } else if (path === '/blog') {
-      content = <BlogListPage />;
-    } else if (path.startsWith('/blog/')) {
+    }
+
+    // Job Market (Was in Auth block, seemingly protected)
+    else if (path.toLowerCase() === '/jobmarket' || path === '/job-market') {
+      content = (
+        <ProtectedRoute>
+          <JobMarketPage />
+        </ProtectedRoute>
+      );
+    }
+
+    // Referrals (Was in Auth block)
+    else if (path === '/referrals') {
+      content = (
+        <ProtectedRoute>
+          <ReferralPage />
+        </ProtectedRoute>
+      );
+    }
+
+    // Commerce / Checkout (Was in Auth block)
+    else if (path === '/commerce') {
+      content = <ProtectedRoute><CommerceDashboard /></ProtectedRoute>;
+    }
+    else if (path === '/checkout') {
+      content = <ProtectedRoute><CheckoutSummary /></ProtectedRoute>;
+    }
+    // ... Commerce specialized routes (skipping exhaustive wrap for now to focus on main request, defaulting to accessible or explicit check)
+    // Actually, let's keep them accessible if unsure, or wrap if they were in Auth.
+    // They were in Auth.
+    else if (path.startsWith('/drop/')) {
+      content = <ProtectedRoute><DropProductGallery /></ProtectedRoute>;
+    }
+    else if (path === '/merchant/packing') {
+      content = <ProtectedRoute><AssemblyLinePacking /></ProtectedRoute>;
+    }
+    else if (path === '/merchant/new-drop') {
+      content = <ProtectedRoute><CreateNewDrop /></ProtectedRoute>;
+    }
+    else if (path === '/feed') {
+      content = <ProtectedRoute><UpcomingDropsFeed /></ProtectedRoute>;
+    }
+    else if (path === '/merchant/submit') {
+      content = <ProtectedRoute><MerchantProductSubmission /></ProtectedRoute>;
+    }
+
+    // Academic Partner
+    else if (path === '/academic-partner') {
+      content = (
+        <ProtectedRoute>
+          {userProfile?.role === 'academic_partner' || isAdmin ? <AcademicPartnerDashboard /> : <PermissionDeniedPage requiredRole="Academic Partner" message="Access denied." />}
+        </ProtectedRoute>
+      );
+    }
+
+    // Pages that are definitely public
+    else if (path === '/pricing') { content = <PricingPage />; }
+    else if (path === '/demo') { content = <DemoPage />; }
+    else if (path === '/contact') { content = <ContactPage />; }
+    else if (path === '/services') { content = <ServicePortfolioPage />; }
+    else if (path === '/policy') { content = <PolicyPage />; }
+    else if (path === '/terms') { content = <TermsOfServicePage />; }
+    else if (path === '/privacy') { content = <PrivacyPolicyPage />; }
+    else if (path === '/referral') { content = <ReferralLandingPage />; }
+    else if (path === '/bio-links') { content = <BioLinksPage />; }
+    else if (path === '/bio-links/template/ticktok/get-more-review01') { content = <GetMoreReview01 />; }
+    else if (path === '/blog') { content = <BlogListPage />; }
+    else if (path.startsWith('/blog/')) {
       const id = path.split('/')[2];
       content = <BlogPostPage postId={id} />;
-    } else if (path.startsWith('/edit/guest')) {
-      content = <Editor resumeId="guest" />;
-    } else if (path === '/tech-preview') {
-      content = <TechLandingPage />;
-    } else if (path === '/partners') {
-      content = <PartnerLandingPage />;
-    } else if (path === '/partners/academic') {
-      content = <AcademicPartnerPage />;
-    } else if (path === '/partners/business') {
-      content = <BusinessPartnerPage />;
-    } else if (path === '/partners/students') {
-      content = <StudentAmbassadorPage />;
-    } else if (path === '/partners/hiring') {
-      content = <HRPartnerPage />;
-    } else if (path === '/partners/apply') {
-      content = <PartnerApplicationPage />;
-    } else if (path === '/business-card') {
-      content = <BusinessCardPage />;
-    } else if (path === '/order-nfc-card') {
-      content = <OrderNfcCardPage />;
-    } else if (path === '/' || path === '') {
-      // Root path shows landing page
-      content = <LandingPage />;
-    } else if (path.startsWith('/p/')) {
-      // Product Page Route: /p/USER_ID/SLUG
+    }
+    else if (path === '/tech-preview') { content = <TechLandingPage />; }
+    else if (path === '/partners') { content = <PartnerLandingPage />; }
+    else if (path.startsWith('/partners/')) {
+      if (path === '/partners/academic') content = <AcademicPartnerPage />;
+      else if (path === '/partners/business') content = <BusinessPartnerPage />;
+      else if (path === '/partners/students') content = <StudentAmbassadorPage />;
+      else if (path === '/partners/hiring') content = <HRPartnerPage />;
+      else if (path === '/partners/apply') content = <PartnerApplicationPage />;
+      else content = <NotFoundPage />;
+    }
+    else if (path === '/business-card') { content = <BusinessCardPage />; }
+    else if (path === '/order-nfc-card') { content = <OrderNfcCardPage />; }
+    else if (path === '/dashboard/integrations') {
+      content = <ProtectedRoute><IntegrationsPage /></ProtectedRoute>;
+    }
+
+    // Product Page (Public)
+    else if (path.startsWith('/p/')) {
       content = <ProductPage />;
-    } else {
-      // Unknown routes show 404
+    }
+
+    // Business Partner Jobs (Was in Auth block)
+    else if (path === '/business-partner/jobs/new' || (path.startsWith('/business-partner/jobs/') && path.endsWith('/edit'))) {
+      const jobId = path.endsWith('/edit') ? path.split('/')[3] : undefined;
+      content = <ProtectedRoute><JobPostingEditor jobId={jobId} /></ProtectedRoute>;
+    }
+
+    // Root Path
+    else if (path === '/' || path === '') {
+      if (currentUser) {
+        content = <Dashboard />;
+      } else {
+        content = <LandingPage />;
+      }
+    }
+
+    // Fallback
+    else {
       content = <NotFoundPage />;
     }
   }

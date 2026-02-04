@@ -1,7 +1,7 @@
+@import './components/patterns.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import './components/patterns.css';
 
 /* Existing animations... */
 

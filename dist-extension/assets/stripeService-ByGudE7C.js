@@ -1,1 +1,0 @@
-import{K as c,N as n}from"./main-Bi0Ei0w3.js";const l=async(s,e)=>{const o=window.location.origin+`/p/${e}/${s}?success=true`,t=window.location.origin+`/p/${e}/${s}?cancel=true`;return(await c(n,"createProductCheckoutSession")({productId:s,merchantId:e,successUrl:o,cancelUrl:t})).data};export{l as c};

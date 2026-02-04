@@ -729,7 +729,7 @@ const JobMarketPage: React.FC = () => {
                                         Add Again
                                     </button>
                                     <button
-                                        onClick={() => navigate('/tracker')}
+                                        onClick={() => navigate('/job-tracker')}
                                         className="px-5 py-2.5 rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 font-medium transition-colors flex items-center gap-2"
                                     >
                                         <LayoutDashboard size={16} />
@@ -792,7 +792,7 @@ const JobMarketPage: React.FC = () => {
                                         <div className="text-center py-6 bg-gray-50 dark:bg-gray-900 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
                                             <p className="text-gray-500 dark:text-gray-400 mb-3">No resumes found.</p>
                                             <button
-                                                onClick={() => navigate('/new')}
+                                                onClick={() => navigate('/newresume')}
                                                 className="text-indigo-600 font-medium hover:underline text-sm"
                                             >
                                                 Create a resume first

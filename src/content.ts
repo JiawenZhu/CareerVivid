@@ -12,32 +12,31 @@ const BUTTON_STYLE = `
   gap: 6px;
   margin-left: 8px;
   padding: 8px 16px;
-  background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  background: linear-gradient(135deg, #1f2937 0%, #000000 100%);
   color: white;
-  border: none;
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 8px;
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
 `;
 
 const BUTTON_HOVER_STYLE = `
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #374151 0%, #111827 100%);
 `;
 
 // Create CareerVivid button
-function createCVButton(text: string, onClick: () => void): HTMLButtonElement {
+function createCVButton(text: string, icon: string, onClick: () => void): HTMLButtonElement {
     const btn = document.createElement('button');
     btn.className = 'careervivid-btn';
     btn.innerHTML = `
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
-      <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
-    </svg>
-    ${text}
+    ${icon}
+    <span>${text}</span>
   `;
     btn.style.cssText = BUTTON_STYLE;
 
@@ -47,117 +46,100 @@ function createCVButton(text: string, onClick: () => void): HTMLButtonElement {
     btn.addEventListener('mouseleave', () => {
         btn.style.cssText = BUTTON_STYLE;
     });
-    btn.addEventListener('click', onClick);
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onClick();
+    });
 
     return btn;
 }
 
 // Extract job data from the page
-function extractJobData(): { title: string; company: string; location: string; url: string } | null {
-    if (isLinkedIn) {
-        const title = document.querySelector('.job-details-jobs-unified-top-card__job-title')?.textContent?.trim();
-        const company = document.querySelector('.job-details-jobs-unified-top-card__company-name')?.textContent?.trim();
-        const location = document.querySelector('.job-details-jobs-unified-top-card__primary-description-container')?.textContent?.trim();
+function extractJobData(): { title: string; company: string; location: string; description: string; url: string } | null {
+    try {
+        if (isLinkedIn) {
+            // LinkedIn Selectors (Unified & Classic)
+            const title = document.querySelector('.job-details-jobs-unified-top-card__job-title')?.textContent?.trim() ||
+                document.querySelector('.jobs-unified-top-card__job-title')?.textContent?.trim();
 
-        if (title && company) {
-            return { title, company, location: location || '', url: window.location.href };
-        }
-    } else if (isIndeed) {
-        const title = document.querySelector('[data-testid="jobsearch-JobInfoHeader-title"]')?.textContent?.trim();
-        const company = document.querySelector('[data-testid="inlineHeader-companyName"]')?.textContent?.trim();
-        const location = document.querySelector('[data-testid="inlineHeader-companyLocation"]')?.textContent?.trim();
+            const company = document.querySelector('.job-details-jobs-unified-top-card__company-name')?.textContent?.trim() ||
+                document.querySelector('.jobs-unified-top-card__company-name')?.textContent?.trim();
 
-        if (title && company) {
-            return { title, company, location: location || '', url: window.location.href };
+            const location = document.querySelector('.job-details-jobs-unified-top-card__primary-description-container')?.textContent?.trim() ||
+                document.querySelector('.jobs-unified-top-card__primary-description-container')?.textContent?.trim();
+
+            // Description is often in a specific container, sometimes 'Show more' is needed but we grab current text
+            const description = document.querySelector('#job-details')?.textContent?.trim() || '';
+
+            if (title && company) {
+                return { title, company, location: location || '', description, url: window.location.href };
+            }
+        } else if (isIndeed) {
+            const title = document.querySelector('[data-testid="jobsearch-JobInfoHeader-title"]')?.textContent?.trim();
+            const company = document.querySelector('[data-testid="inlineHeader-companyName"]')?.textContent?.trim();
+            const location = document.querySelector('[data-testid="inlineHeader-companyLocation"]')?.textContent?.trim();
+            const description = document.querySelector('#jobDescriptionText')?.textContent?.trim() || '';
+
+            if (title && company) {
+                return { title, company, location: location || '', description, url: window.location.href };
+            }
         }
+    } catch (e) {
+        console.error('CareerVivid Extraction Error:', e);
     }
     return null;
 }
 
 // Inject CareerVivid buttons into the page
 function injectButtons(): void {
-    // Skip if already injected
     if (document.querySelector('.careervivid-btn')) return;
+
+    const saveIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>`;
+
+    // Actions
+    const handleSave = (btn: HTMLButtonElement) => {
+        btn.textContent = 'Saving...';
+        const job = extractJobData();
+        if (job) {
+            chrome.runtime.sendMessage({ type: 'SAVE_JOB', job }, (res) => {
+                if (res?.success) {
+                    btn.innerHTML = `✓ Saved`;
+                    btn.style.background = '#10B981'; // Green
+                    btn.style.borderColor = '#059669';
+                } else {
+                    btn.textContent = 'Error';
+                    setTimeout(() => btn.innerHTML = `${saveIcon} Save Job`, 2000);
+                }
+            });
+        } else {
+            btn.textContent = 'No Data';
+        }
+    };
 
     if (isLinkedIn) {
         // LinkedIn: Find the apply button container
-        const applySection = document.querySelector('.jobs-apply-button--top-card');
+        const applySection = document.querySelector('.jobs-apply-button--top-card') || document.querySelector('.jobs-unified-top-card__action-container');
         if (applySection) {
-            const fillBtn = createCVButton('Fill with CareerVivid', () => {
-                chrome.runtime.sendMessage({ type: 'OPEN_RESUME_PICKER' });
-            });
-            const saveBtn = createCVButton('Save Job', () => {
-                const job = extractJobData();
-                if (job) {
-                    chrome.runtime.sendMessage({ type: 'SAVE_JOB', job });
-                    saveBtn.textContent = '✓ Saved!';
-                    saveBtn.style.background = '#22C55E';
-                }
-            });
-            applySection.appendChild(fillBtn);
+            const saveBtn = createCVButton('Save Job', saveIcon, () => handleSave(saveBtn));
             applySection.appendChild(saveBtn);
         }
     } else if (isIndeed) {
         // Indeed: Find the apply button
-        const applyBtn = document.querySelector('[data-testid="indeedApply-button"]');
+        const applyBtn = document.querySelector('[data-testid="indeedApply-button"]') || document.querySelector('#indeedApplyButton');
         if (applyBtn?.parentElement) {
             const container = document.createElement('div');
             container.style.cssText = 'display: flex; gap: 8px; margin-top: 12px;';
-
-            const fillBtn = createCVButton('Fill with CareerVivid', () => {
-                chrome.runtime.sendMessage({ type: 'OPEN_RESUME_PICKER' });
-            });
-            const saveBtn = createCVButton('Save Job', () => {
-                const job = extractJobData();
-                if (job) {
-                    chrome.runtime.sendMessage({ type: 'SAVE_JOB', job });
-                    saveBtn.textContent = '✓ Saved!';
-                    saveBtn.style.background = '#22C55E';
-                }
-            });
-
-            container.appendChild(fillBtn);
+            const saveBtn = createCVButton('Save Job', saveIcon, () => handleSave(saveBtn));
             container.appendChild(saveBtn);
             applyBtn.parentElement.insertAdjacentElement('afterend', container);
         }
     }
 }
 
-// Handle form filling
-function fillForm(resumeData: any): void {
-    // Common form field selectors
-    const fieldMappings: Record<string, string[]> = {
-        firstName: ['[name*="first"]', '[id*="first"]', '[placeholder*="First"]'],
-        lastName: ['[name*="last"]', '[id*="last"]', '[placeholder*="Last"]'],
-        email: ['[type="email"]', '[name*="email"]', '[id*="email"]'],
-        phone: ['[type="tel"]', '[name*="phone"]', '[id*="phone"]'],
-        city: ['[name*="city"]', '[id*="city"]'],
-        summary: ['[name*="summary"]', '[name*="about"]', 'textarea']
-    };
-
-    Object.entries(fieldMappings).forEach(([field, selectors]) => {
-        const value = resumeData.personalDetails?.[field];
-        if (value) {
-            for (const selector of selectors) {
-                const input = document.querySelector(selector) as HTMLInputElement | HTMLTextAreaElement;
-                if (input && !input.value) {
-                    input.value = value;
-                    input.dispatchEvent(new Event('input', { bubbles: true }));
-                    input.dispatchEvent(new Event('change', { bubbles: true }));
-                    break;
-                }
-            }
-        }
-    });
-}
-
-// Listen for messages from background script
+// Listen for messages from background/popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     switch (message.type) {
-        case 'FILL_FORM':
-            fillForm(message.data);
-            sendResponse({ success: true });
-            break;
         case 'EXTRACT_JOB_DATA':
             const job = extractJobData();
             sendResponse({ job });
@@ -166,24 +148,27 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
 });
 
+// Bridge: Check if this tab was opened for Tailoring
+// Logic: If query param ?source=extension_tailor exists, we try to pull the JD from storage
+if (window.location.href.includes('careervivid.app/newresume') && window.location.href.includes('source=extension_tailor')) {
+    chrome.storage.local.get(['pending_tailor_jd'], (result) => {
+        if (result.pending_tailor_jd) {
+            // Wait for React to mount then inject
+            // Since we can't easily access React state from outside, we'll try to populate localStorage 
+            // used by the web app or just alert the user to paste. 
+            // Better approach: The web app should read from a shared location, but standard localStorage is sandboxed.
+            // Best hack for now: Copy to clipboard? Or just use URL params if length allows.
+            // Re-visiting: URL param is safest for "Low Effort".
+        }
+    });
+}
+
 // Initialize: inject buttons and observe for SPA navigation
 function init(): void {
     injectButtons();
-
-    // Re-inject on SPA navigation (LinkedIn/Indeed are SPAs)
-    const observer = new MutationObserver(() => {
-        injectButtons();
-    });
-
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
+    const observer = new MutationObserver(() => injectButtons());
+    observer.observe(document.body, { childList: true, subtree: true });
 }
 
-// Run when DOM is ready
-if (document.readyState === 'complete') {
-    init();
-} else {
-    window.addEventListener('load', init);
-}
+if (document.readyState === 'complete') init();
+else window.addEventListener('load', init);

@@ -151,7 +151,7 @@ const Dashboard: React.FC = () => {
         // On initial load for a user with no resumes, redirect them to the creation hub.
         // This also handles the case where a user deletes all their resumes.
         if (!isLoadingResumes && resumes.length === 0) {
-            navigate('/new');
+            navigate('/newresume');
         }
     }, [resumes, isLoadingResumes]);
 
@@ -578,7 +578,7 @@ const Dashboard: React.FC = () => {
                                 {isNewMenuOpen && (
                                     <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-20 border dark:border-gray-700">
                                         <div className="py-1">
-                                            <button onClick={() => { navigate('/new'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                            <button onClick={() => { navigate('/newresume'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                 <FileText size={16} /> {t('dashboard.new_resume')}
                                             </button>
                                             <button onClick={() => { navigate('/portfolio'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -590,7 +590,7 @@ const Dashboard: React.FC = () => {
                                             <button onClick={() => { navigate('/job-market'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                 <Briefcase size={16} /> Find Jobs (Professional)
                                             </button>
-                                            <button onClick={() => { navigate('/tracker'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                            <button onClick={() => { navigate('/job-tracker'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                 <Briefcase size={16} /> {t('dashboard.track_new_job')}
                                             </button>
                                             <div className="border-t my-1 border-gray-200 dark:border-gray-600"></div>
@@ -794,7 +794,7 @@ const Dashboard: React.FC = () => {
 
                             {isTrackerFolder ? (
                                 <>
-                                    <div onClick={() => navigate('/tracker')} className="bg-white dark:bg-gray-800 rounded-xl shadow-soft hover:shadow-lg transition-all duration-300 flex items-center justify-between p-6 cursor-pointer border-2 border-transparent hover:border-primary-500 transform hover:-translate-y-1">
+                                    <div onClick={() => navigate('/job-tracker')} className="bg-white dark:bg-gray-800 rounded-xl shadow-soft hover:shadow-lg transition-all duration-300 flex items-center justify-between p-6 cursor-pointer border-2 border-transparent hover:border-primary-500 transform hover:-translate-y-1">
                                         <div className="flex items-center gap-4">
                                             <LayoutDashboard className="w-10 h-10 text-primary-500" />
                                             <div>
