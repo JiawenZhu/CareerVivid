@@ -98,7 +98,7 @@ const templates = FEATURED_THEMES.map((id, index) => {
 
 const BioLinksPage: React.FC = () => {
     const { isPremium, currentUser } = useAuth();
-    const { portfolios } = usePortfolios();
+    const { portfolios, createPortfolio } = usePortfolios();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
     const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -138,20 +138,84 @@ const BioLinksPage: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    const handleStartDesigning = (headline: string) => {
+    const handleStartDesigning = async (headline: string) => {
         setIsModalOpen(false);
         if (!selectedTemplateId) return;
 
-        // Generate a random ID (simple unique string)
-        const randomId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-
-        // Clean headline for URL (slugify)
-        // e.g. "Steven Liu" -> "Steven-Liu"
         const slug = headline.trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
 
-        // Navigate to Editor: /portfolio/SLUG/edit/ID
-        // Note: The Editor should ensure 'mode' is set to 'linkinbio' upon creation
-        navigate(`/portfolio/${slug}/edit/${randomId}?template=${selectedTemplateId}`);
+        if (currentUser) {
+            const isBioLink = ['linktree_minimal', 'linktree_visual', 'linktree_corporate', 'linktree_bento'].includes(selectedTemplateId) || (LINKTREE_THEMES && selectedTemplateId in LINKTREE_THEMES);
+            const mode = isBioLink ? 'linkinbio' : 'portfolio';
+            const effectiveThemeId = (LINKTREE_THEMES && selectedTemplateId in LINKTREE_THEMES) ? selectedTemplateId : 'sunset_surf';
+
+            const newPortfolioData: any = {
+                id: '',
+                userId: currentUser.uid,
+                title: `${headline}'s Bio Link`,
+                templateId: selectedTemplateId,
+                section: 'portfolios',
+                mode: mode,
+                linkInBio: isBioLink ? {
+                    links: [
+                        { id: '1', label: 'Instagram', url: 'https://instagram.com', icon: 'Instagram', enabled: true, variant: 'primary' },
+                        { id: '2', label: 'TikTok', url: 'https://tiktok.com', icon: 'Video', enabled: true, variant: 'primary' },
+                        { id: '3', label: 'X (Twitter)', url: 'https://twitter.com', icon: 'Twitter', enabled: true, variant: 'primary' },
+                        { id: '4', label: 'LinkedIn', url: 'https://linkedin.com', icon: 'Linkedin', enabled: true, variant: 'primary' },
+                    ],
+                    showSocial: true,
+                    showEmail: true,
+                    displayName: headline,
+                    bio: 'Welcome to my page! Check out my links below.',
+                    profileImage: currentUser.photoURL || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+                    themeId: effectiveThemeId,
+                    buttonLayout: 'stack',
+                    customStyle: {
+                        buttonAlignment: 'center'
+                    }
+                } : undefined,
+                hero: {
+                    headline: headline,
+                    subheadline: 'Creator',
+                    ctaPrimaryLabel: 'View Work', ctaPrimaryUrl: '#projects', ctaSecondaryLabel: 'Contact', ctaSecondaryUrl: '#contact'
+                },
+                about: '',
+                timeline: [],
+                education: [],
+                techStack: [],
+                projects: [],
+                socialLinks: [],
+                contactEmail: currentUser.email || '',
+                phone: '',
+                theme: { primaryColor: '#2563eb', darkMode: false },
+                sectionLabels: {
+                    about: 'About Me',
+                    timeline: 'My Journey',
+                    techStack: 'Tech Stack',
+                    projects: 'Featured Projects',
+                    contact: 'Contact'
+                },
+                businessCard: {
+                    orientation: 'horizontal',
+                    usePhotoBackground: false
+                },
+                updatedAt: Date.now(),
+                createdAt: Date.now()
+            };
+
+            try {
+                const newId = await createPortfolio(newPortfolioData);
+                if (newId) {
+                    navigate(`/portfolio/${slug}/edit/${newId}?template=${selectedTemplateId}`);
+                }
+            } catch (err) {
+                console.error("Failed to create portfolio", err);
+            }
+        } else {
+            // Guest mode
+            const randomId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+            navigate(`/portfolio/${slug}/edit/${randomId}?template=${selectedTemplateId}`);
+        }
     };
 
     // ... existing filters ...
