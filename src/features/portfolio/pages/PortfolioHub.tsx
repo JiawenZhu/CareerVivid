@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
     Code2,
@@ -25,6 +26,9 @@ import Logo from '../../../components/Logo';
 import PortfolioImport from '../../../components/PortfolioImport';
 import { useAICreditCheck } from '../../../hooks/useAICreditCheck';
 import ConfirmationModal from '../../../components/ConfirmationModal';
+import PortfolioCard from '../../../components/PortfolioCard';
+import SharePortfolioModal from '../../../components/SharePortfolioModal';
+import { PortfolioData } from '../types/portfolio';
 
 // Define Category Interface
 interface PortfolioCategory {
@@ -95,7 +99,7 @@ const PORTFOLIO_CATEGORIES: PortfolioCategory[] = [
 const PortfolioHub: React.FC = () => {
     const { t } = useTranslation();
     const { currentUser, isPremium } = useAuth();
-    const { createPortfolio, portfolios } = usePortfolios();
+    const { createPortfolio, portfolios, isLoading, deletePortfolio, duplicatePortfolio } = usePortfolios();
 
     // AI Credit Check Hook
     const { checkCredit, CreditLimitModal } = useAICreditCheck();
@@ -105,6 +109,16 @@ const PortfolioHub: React.FC = () => {
     const [selectedCategory, setSelectedCategory] = useState<typeof PORTFOLIO_CATEGORIES[0] | null>(null);
     const [isFileImport, setIsFileImport] = useState(false);
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+
+    // Modal States
+    const [shareModalPortfolio, setShareModalPortfolio] = useState<PortfolioData | null>(null);
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        confirmText: 'Delete',
+        onConfirm: async () => { },
+    });
 
     // Counts for limit enforcement
     const bioLinksCount = portfolios.filter(p => p.mode === 'linkinbio').length;
@@ -215,6 +229,20 @@ const PortfolioHub: React.FC = () => {
         handleCreate(text, 'prompt');
     };
 
+    const handleDeleteClick = (id: string) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Delete Portfolio',
+            message: 'Are you sure you want to delete this portfolio? This action cannot be undone.',
+            confirmText: 'Delete',
+            onConfirm: async () => {
+                await deletePortfolio(id);
+                setConfirmModal(prev => ({ ...prev, isOpen: false }));
+            }
+        });
+    };
+
+
     const renderContent = () => {
         if (selectedCategory) {
             return (
@@ -305,10 +333,16 @@ const PortfolioHub: React.FC = () => {
         );
     };
 
-
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-gray-50 dark:bg-[#0f1117] flex items-center justify-center">
+                <Loader2 className="w-12 h-12 text-indigo-500 animate-spin" />
+            </div>
+        );
+    }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-[#0f1117] flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 relative selection:bg-indigo-500/30">
+        <div className="min-h-screen bg-gray-50 dark:bg-[#0f1117] flex flex-col items-center p-0 relative selection:bg-indigo-500/30">
             <CreditLimitModal />
             <ConfirmationModal
                 isOpen={isUpgradeModalOpen}
@@ -320,6 +354,22 @@ const PortfolioHub: React.FC = () => {
                 cancelText="Maybe Later"
                 variant="default"
             />
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                confirmText={confirmModal.confirmText}
+                onConfirm={confirmModal.onConfirm}
+                onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+            />
+            {shareModalPortfolio && (
+                <SharePortfolioModal
+                    isOpen={!!shareModalPortfolio}
+                    onClose={() => setShareModalPortfolio(null)}
+                    portfolio={shareModalPortfolio}
+                />
+            )}
+
             {/* Dashboard Link */}
             {portfolios.length > 0 && (
                 <div className="absolute top-6 right-6 z-20">
@@ -333,8 +383,50 @@ const PortfolioHub: React.FC = () => {
                 </div>
             )}
 
+            {/* Top Section: My Portfolios */}
+            <div className="w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 pt-8 pb-12 mb-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center mb-8">
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                            <Briefcase className="text-indigo-600" size={32} />
+                            My Portfolios
+                        </h1>
+                        <button
+                            onClick={() => document.getElementById('create-portfolio')?.scrollIntoView({ behavior: 'smooth' })}
+                            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2 font-medium"
+                        >
+                            <Plus size={20} /> New Portfolio
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {portfolios.length > 0 ? (
+                            portfolios.map(portfolio => (
+                                <PortfolioCard
+                                    key={portfolio.id}
+                                    portfolio={portfolio}
+                                    onDelete={handleDeleteClick}
+                                    onDuplicate={duplicatePortfolio}
+                                    onShare={(p) => setShareModalPortfolio(p)}
+                                />
+                            ))
+                        ) : (
+                            <div className="col-span-full py-12 text-center bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
+                                <p className="text-gray-500 dark:text-gray-400 mb-4">You haven't created any portfolios yet.</p>
+                                <button
+                                    onClick={() => document.getElementById('create-portfolio')?.scrollIntoView({ behavior: 'smooth' })}
+                                    className="text-indigo-600 font-medium hover:underline"
+                                >
+                                    Create your first portfolio below
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
             {isGenerating ? (
-                <div className="text-center animate-in fade-in duration-700">
+                <div className="text-center animate-in fade-in duration-700 py-20">
                     <div className="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 relative">
                         <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
                         <div className="absolute inset-0 bg-indigo-500/20 blur-xl rounded-full animate-pulse"></div>
@@ -343,7 +435,7 @@ const PortfolioHub: React.FC = () => {
                     <p className="text-gray-500 dark:text-gray-400"> Analyzing your inputs and designing the perfect layout.</p>
                 </div>
             ) : (
-                <div className="w-full max-w-5xl mx-auto">
+                <div id="create-portfolio" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
                     {/* Header */}
                     <div className="text-center mb-12 animate-in slide-in-from-bottom-4 duration-500">
                         <div className="inline-flex items-center justify-center p-3 mb-6 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-500/30">
@@ -360,7 +452,7 @@ const PortfolioHub: React.FC = () => {
                     </div>
 
                     {/* Main Input Card */}
-                    <div className="bg-white dark:bg-[#1a1d24] p-6 sm:p-2 rounded-2xl shadow-xl shadow-indigo-500/5 border border-gray-200 dark:border-white/5 mb-16 animate-in slide-in-from-bottom-8 duration-700 delay-100 ring-1 ring-gray-900/5 dark:ring-white/10">
+                    <div className="bg-white dark:bg-[#1a1d24] p-6 sm:p-2 rounded-2xl shadow-xl shadow-indigo-500/5 border border-gray-200 dark:border-white/5 mb-16 animate-in slide-in-from-bottom-8 duration-700 delay-100 ring-1 ring-gray-900/5 dark:ring-white/10 max-w-5xl mx-auto">
                         <div className="max-w-3xl mx-auto py-8 px-4 sm:px-0">
                             <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
                                 <Code2 className="text-indigo-500" size={24} />
@@ -392,7 +484,9 @@ const PortfolioHub: React.FC = () => {
                         </div>
                     </div>
 
-                    {renderContent()}
+                    <div className="max-w-5xl mx-auto">
+                        {renderContent()}
+                    </div>
 
                     {/* Footer Note */}
                     <p className="mt-16 text-center text-gray-500 dark:text-gray-600 text-sm">

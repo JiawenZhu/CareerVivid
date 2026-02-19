@@ -251,8 +251,7 @@ export const parseResume = async (userId: string, resumeText: string, language: 
             responseSchema: resumeSchema
         };
 
-        const result = await callGeminiProxy({ modelName: 'gemini-3-flash', contents, config })
-            .catch(() => callGeminiProxy({ modelName: 'gemini-2.5-flash', contents, config }));
+        const result = await callGeminiProxy({ modelName: 'gemini-2.5-flash', contents, config });
 
         const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
         await trackUsage(userId, 'resume_parse_text', { tokenUsage });
@@ -289,8 +288,7 @@ export const parseResumeFromFile = async (userId: string, fileData: string, mime
             responseSchema: resumeSchema
         };
 
-        const result = await callGeminiProxy({ modelName: 'gemini-3-flash', contents, config })
-            .catch(() => callGeminiProxy({ modelName: 'gemini-2.5-flash', contents, config }));
+        const result = await callGeminiProxy({ modelName: 'gemini-2.5-flash', contents, config });
 
         const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
         await trackUsage(userId, 'resume_parse_file', { tokenUsage });
@@ -390,8 +388,7 @@ export const editProfilePhoto = async (userId: string, base64Image: string, mime
         };
 
         const result = await callGeminiProxy({
-            modelName: 'gemini-2.5-flash-image', // Verify if this model name is supported/correct. Standard is gemini-pro-vision or just gemini-1.5-flash/pro. 
-            // Code used 'gemini-2.5-flash-image'. Assuming backend supports it.
+            modelName: 'gemini-2.5-flash',
             contents,
             config: { responseModalities: ["IMAGE"] }
         });
@@ -439,8 +436,7 @@ export const generateResumeFromPrompt = async (userId: string, prompt: string): 
             responseSchema: generationSchema
         };
 
-        const result = await callGeminiProxy({ modelName: 'gemini-3-flash', contents: fullPrompt, config })
-            .catch(() => callGeminiProxy({ modelName: 'gemini-2.5-flash', contents: fullPrompt, config }));
+        const result = await callGeminiProxy({ modelName: 'gemini-2.5-flash', contents: fullPrompt, config });
 
         const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
         if (!userId.startsWith('guest_')) {
@@ -565,8 +561,7 @@ Your entire response MUST be a valid JSON object that conforms to the provided s
             },
         };
 
-        const result = await callGeminiProxy({ modelName: 'gemini-3-flash', contents: fullPrompt, config })
-            .catch(() => callGeminiProxy({ modelName: 'gemini-2.5-flash', contents: fullPrompt, config }));
+        const result = await callGeminiProxy({ modelName: 'gemini-2.5-flash', contents: fullPrompt, config });
 
         const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
         const metadata: { tokenUsage: number, durationInSeconds?: number } = { tokenUsage };
