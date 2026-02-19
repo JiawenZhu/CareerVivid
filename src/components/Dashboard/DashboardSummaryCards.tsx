@@ -45,12 +45,12 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
         },
         {
             title: 'Job Application Tracker',
-            count: null, // special case
+            count: jobCount > 0 ? jobCount : null,
             icon: Briefcase,
             color: 'text-indigo-600',
             bg: 'bg-indigo-100 dark:bg-indigo-900/30',
             link: '/job-tracker',
-            isAction: true,
+            isAction: jobCount === 0,
             actionText: '+ Track Job'
         }
     ];
