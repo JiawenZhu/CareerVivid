@@ -4,6 +4,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { useAuth } from './contexts/AuthContext';
 import { CartProvider } from './features/commerce/context/CartContext';
 import { Loader2 } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 import { isExtensionContext } from './services/extensionStorage';
 import ExtensionLayout from './extension-ui/layout/ExtensionLayout';
 
@@ -487,6 +488,10 @@ const App: React.FC = () => {
     <ThemeProvider>
       <CartProvider>
         <div className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-200 font-sans">
+          <Helmet 
+            titleTemplate="%s | CareerVivid" 
+            defaultTitle="CareerVivid | Build Your Personal Brand & Accelerate Your Career" 
+          />
           <SEOHelper />
           <Suspense fallback={<LoadingFallback />}>
             {content}
