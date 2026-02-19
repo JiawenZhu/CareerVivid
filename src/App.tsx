@@ -66,7 +66,9 @@ const BioLinksPage = React.lazy(() => import('./pages/BioLinksPage'));
 const CommerceDashboard = React.lazy(() => import('./features/commerce/pages/CommerceDashboard'));
 const ProductPage = React.lazy(() => import('./features/commerce/pages/ProductPage'));
 const GetMoreReview01 = React.lazy(() => import('./pages/bio-links/template/ticktok/GetMoreReview01'));
+const ClientPortalPage = React.lazy(() => import('./pages/ClientPortalPage'));
 const ServicePortfolioPage = React.lazy(() => import('./pages/ServicePortfolioPage'));
+const ServicesPage = React.lazy(() => import('./pages/ServicesPage'));
 const MerchantProductSubmission = React.lazy(() => import('./pages/MerchantProductSubmission'));
 
 import { SUPPORTED_LANGUAGES } from './constants';
@@ -429,7 +431,8 @@ const App: React.FC = () => {
     else if (path === '/pricing') { content = <PricingPage />; }
     else if (path === '/demo') { content = <DemoPage />; }
     else if (path === '/contact') { content = <ContactPage />; }
-    else if (path === '/services') { content = <ServicePortfolioPage />; }
+    else if (path === '/services') { content = <ServicesPage />; }
+    else if (path === '/portal') { content = <ClientPortalPage />; }
     else if (path === '/policy') { content = <PolicyPage />; }
     else if (path === '/terms') { content = <TermsOfServicePage />; }
     else if (path === '/privacy') { content = <PrivacyPolicyPage />; }

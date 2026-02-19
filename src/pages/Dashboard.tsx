@@ -31,6 +31,8 @@ import InterviewHistoryCard from '../components/Dashboard/InterviewHistoryCard';
 import JobApplicationCard from '../components/Dashboard/JobApplicationCard';
 import EditableHeader from '../components/Dashboard/EditableHeader';
 import { ResumeCardSkeleton, InterviewHistoryCardSkeleton } from '../components/Dashboard/DashboardSkeletons';
+import DashboardSummaryCards from '../components/Dashboard/DashboardSummaryCards';
+import DashboardPreviewSection from '../components/Dashboard/DashboardPreviewSection';
 
 // Lazy load modal to optimize dashboard load time
 const InterviewReportModal = React.lazy(() => import('../components/InterviewReportModal'));
@@ -656,223 +658,54 @@ const Dashboard: React.FC = () => {
                     )}
                 </div>
             </header>
-            <main className="py-10">
-                {folders.map((folder) => {
-                    // Helper function to safely get timestamp
-                    const getTimestamp = (item: any, field: string) => {
-                        const val = item[field];
-                        if (!val) return 0;
-                        // Handle Firestore Timestamp
-                        if (typeof val.toMillis === 'function') return val.toMillis();
-                        // Handle Date object
-                        if (val instanceof Date) return val.getTime();
-                        // Handle ISO string or number
-                        return new Date(val).getTime();
-                    };
+            <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Summary Cards */}
+                <DashboardSummaryCards
+                    resumeCount={resumes.length}
+                    interviewCount={practiceHistory.length}
+                    portfolioCount={portfolios.length}
+                    jobCount={jobApplications.length}
+                />
 
-                    const resumesInSection = resumes
-                        .filter(r => (r.section || 'resumes') === folder.id)
-                        .sort((a, b) => getTimestamp(b, 'updatedAt') - getTimestamp(a, 'updatedAt'));
+                {/* Interview Sessions Preview */}
+                <DashboardPreviewSection
+                    title="Interview Studio Sessions"
+                    icon={<GripVertical className="rotate-90" size={20} />}
+                    items={practiceHistory}
+                    onViewAll={() => navigate('/interview-studio')}
+                    emptyMessage="No practice sessions yet. Start your first mock interview!"
+                    renderItem={(session) => (
+                        <InterviewHistoryCard
+                            key={session.id}
+                            entry={session}
+                            onDelete={deletePracticeHistory}
+                            onShowReport={setSelectedJobForReport}
+                            onDragStart={(e) => e.preventDefault()}
+                        />
+                    )}
+                />
 
-                    const portfoliosInSection = portfolios
-                        .filter(p => (p.section || 'portfolios') === folder.id)
-                        .sort((a, b) => b.updatedAt - a.updatedAt);
+                {/* Resumes Preview */}
+                <DashboardPreviewSection
+                    title="My Resumes"
+                    icon={<GripVertical className="rotate-90" size={20} />}
+                    items={resumes}
+                    onViewAll={() => navigate('/newresume')}
+                    emptyMessage="No resumes created yet. Create your first resume!"
+                    renderItem={(resume) => (
+                        <ResumeCard
+                            key={resume.id}
+                            resume={resume}
+                            onDelete={deleteResume}
+                            onDuplicate={duplicateResume}
+                            onUpdate={updateResume}
+                            onShare={(r) => setShareModalResume(r)}
+                            onDragStart={(e) => e.preventDefault()}
+                        />
+                    )}
+                />
+            </div>
 
-                    const interviewsInSection = practiceHistory
-                        .filter(j => (j.section || 'interviews') === folder.id)
-                        .sort((a, b) => getTimestamp(b, 'timestamp') - getTimestamp(a, 'timestamp'));
-
-                    const jobsInSection = jobApplications
-                        .filter(j => (j.section || 'jobTracker') === folder.id)
-                        .sort((a, b) => getTimestamp(b, 'updatedAt') - getTimestamp(a, 'updatedAt'));
-
-                    const isTrackerFolder = folder.id === 'jobTracker';
-                    const isEmpty = !isLoadingResumes && !isLoadingPortfolios && !isLoadingHistory && resumesInSection.length === 0 && portfoliosInSection.length === 0 && interviewsInSection.length === 0 && jobsInSection.length === 0 && !isTrackerFolder;
-                    const totalJobsTracked = jobApplications.length;
-
-                    if (folder.id === 'interviews' && practiceHistory.length === 0 && !isLoadingHistory) return null;
-                    if (isTrackerFolder && totalJobsTracked === 0 && !isLoadingJobs) return null;
-
-                    return (
-                        <div
-                            key={folder.id}
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, folder.id, 'folder')}
-                            onDragOver={(e) => { e.preventDefault(); setDragOverSection({ id: folder.id, position: 'middle' }); }}
-                            onDragLeave={() => setDragOverSection(null)}
-                            onDrop={(e) => handleDrop(e, folder.id)}
-                            className={`max-w-screen-2xl mx-auto sm:px-6 lg:px-8 p-4 rounded-xl transition-colors duration-300 mt-12 ${dragOverSection?.id === folder.id ? 'bg-primary-100/50 dark:bg-primary-900/20' : ''}`}
-                        >
-                            <div className="flex justify-between items-center mb-6">
-                                <div className="flex items-center gap-3">
-                                    <div
-                                        className="cursor-grab text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 relative group"
-                                        onMouseDown={(e) => {
-                                            // Start Press
-                                            if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
-                                            if (longPressIntervalRef.current) clearInterval(longPressIntervalRef.current);
-
-                                            setLongPressState({ id: folder.id, count: 3 });
-
-                                            longPressIntervalRef.current = setInterval(() => {
-                                                setLongPressState(prev => {
-                                                    if (!prev || prev.count <= 1) return prev;
-                                                    return { ...prev, count: prev.count - 1 };
-                                                });
-                                            }, 1000);
-
-                                            longPressTimerRef.current = setTimeout(() => {
-                                                setIsFolderReorderModalOpen(true);
-                                                // Reset after triggering
-                                                if (longPressIntervalRef.current) clearInterval(longPressIntervalRef.current);
-                                                setLongPressState(null);
-                                            }, 3000);
-                                        }}
-                                        onMouseUp={() => {
-                                            if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
-                                            if (longPressIntervalRef.current) clearInterval(longPressIntervalRef.current);
-                                            setLongPressState(null);
-                                        }}
-                                        onMouseLeave={() => {
-                                            if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
-                                            if (longPressIntervalRef.current) clearInterval(longPressIntervalRef.current);
-                                            setLongPressState(null);
-                                        }}
-                                        onTouchStart={() => {
-                                            if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
-                                            if (longPressIntervalRef.current) clearInterval(longPressIntervalRef.current);
-
-                                            setLongPressState({ id: folder.id, count: 3 });
-
-                                            longPressIntervalRef.current = setInterval(() => {
-                                                setLongPressState(prev => {
-                                                    if (!prev || prev.count <= 1) return prev;
-                                                    return { ...prev, count: prev.count - 1 };
-                                                });
-                                            }, 1000);
-
-                                            longPressTimerRef.current = setTimeout(() => {
-                                                setIsFolderReorderModalOpen(true);
-                                                if (longPressIntervalRef.current) clearInterval(longPressIntervalRef.current);
-                                                setLongPressState(null);
-                                            }, 3000);
-                                        }}
-                                        onTouchEnd={() => {
-                                            if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
-                                            if (longPressIntervalRef.current) clearInterval(longPressIntervalRef.current);
-                                            setLongPressState(null);
-                                        }}
-                                    >
-                                        <GripVertical size={24} />
-
-                                        {/* Countdown Tooltip */}
-                                        <div
-                                            className={`absolute -top-10 left-1/2 -translate-x-1/2 bg-black/90 dark:bg-white/90 text-white dark:text-gray-900 text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl whitespace-nowrap pointer-events-none transition-all duration-200 z-50 ${longPressState?.id === folder.id ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-2'
-                                                }`}
-                                        >
-                                            Hold to Reorder... {longPressState?.id === folder.id ? longPressState.count : 3}
-                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-t-black/90 dark:border-t-white/90"></div>
-                                        </div>
-                                    </div>
-                                    <EditableHeader title={folder.title} onSave={(newTitle) => handleTitleUpdate(folder.id, newTitle)} isEditable={true} />
-                                </div>
-                                {!['resumes', 'interviews'].includes(folder.id) && (
-                                    <button
-                                        onClick={() => {
-                                            if (folder.id === 'jobTracker') {
-                                                confirmDeleteTracker();
-                                            } else {
-                                                confirmFolderDelete(folder.id);
-                                            }
-                                        }}
-                                        className="text-gray-400 hover:text-red-500 p-1 rounded-full"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
-                                )}
-                            </div>
-
-                            {isTrackerFolder ? (
-                                <>
-                                    <div onClick={() => navigate('/job-tracker')} className="bg-white dark:bg-gray-800 rounded-xl shadow-soft hover:shadow-lg transition-all duration-300 flex items-center justify-between p-6 cursor-pointer border-2 border-transparent hover:border-primary-500 transform hover:-translate-y-1">
-                                        <div className="flex items-center gap-4">
-                                            <LayoutDashboard className="w-10 h-10 text-primary-500" />
-                                            <div>
-                                                <h3 className="font-bold text-xl text-gray-800 dark:text-gray-100">Job Application Tracker</h3>
-                                                <p className="text-gray-500 dark:text-gray-400">View your Kanban board</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-6">
-                                            <div
-                                                className="flex items-center gap-2"
-                                                onClick={(e) => e.stopPropagation()}
-                                                title={jobTrackerShowPreview ? "Hide preview on dashboard" : "Show preview on dashboard"}
-                                            >
-                                                <label htmlFor="show-overview-toggle" className="text-xs font-medium text-gray-500 dark:text-gray-400 cursor-pointer">Show Preview</label>
-                                                <label htmlFor="show-overview-toggle" className="relative inline-flex items-center cursor-pointer">
-                                                    <input
-                                                        type="checkbox"
-                                                        id="show-overview-toggle"
-                                                        className="sr-only peer"
-                                                        checked={jobTrackerShowPreview}
-                                                        onChange={handleToggleTrackerPreview}
-                                                    />
-                                                    <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
-                                                </label>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-3xl font-bold text-gray-800 dark:text-gray-100">{totalJobsTracked}</p>
-                                                <p className="text-sm text-gray-500 dark:text-gray-400">Jobs Tracked</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {jobTrackerShowPreview && totalJobsTracked > 0 && (
-                                        <div className="mt-8 space-y-8">
-                                            <StatusOverview applications={jobApplications} />
-                                            <KanbanBoard
-                                                applications={jobApplications}
-                                                onCardClick={(job) => setSelectedJobApplication(job)}
-                                                onUpdateApplication={updateJobApplication}
-                                            />
-                                        </div>
-                                    )}
-                                </>
-                            ) : isEmpty ? (
-                                <div className="text-center py-10 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl">
-                                    <p className="text-gray-500 dark:text-gray-400">Drag items here to organize them.</p>
-                                </div>
-                            ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                                    {isLoadingResumes && folder.id === 'resumes'
-                                        ? Array.from({ length: 4 }).map((_, i) => <ResumeCardSkeleton key={`resume_skel_${i}`} />)
-                                        : resumesInSection.map(resume => <ResumeCard key={resume.id} resume={resume} onUpdate={updateResume} onDuplicate={duplicateResume} onDelete={(id) => confirmItemDelete(id, 'resume')} onShare={setShareModalResume} onDragStart={(e) => handleDragStart(e, resume.id, 'resume')} />)
-                                    }
-
-                                    {isLoadingPortfolios && folder.id === 'portfolios'
-                                        ? Array.from({ length: 3 }).map((_, i) => <ResumeCardSkeleton key={`portfolio_skel_${i}`} />)
-                                        : portfoliosInSection.map(portfolio => <PortfolioCard key={portfolio.id} portfolio={portfolio} onUpdate={updatePortfolio} onDuplicate={handleDuplicatePortfolio} onDelete={(id) => confirmItemDelete(id, 'portfolio')} onShare={setShareModalPortfolio} onDragStart={(e) => handleDragStart(e, portfolio.id, 'portfolio')} />)
-                                    }
-
-                                    {isLoadingHistory && folder.id === 'interviews'
-                                        ? Array.from({ length: 3 }).map((_, i) => <InterviewHistoryCardSkeleton key={`interview_skel_${i}`} />)
-                                        : interviewsInSection.map(entry => <InterviewHistoryCard key={entry.id} entry={entry} onShowReport={setSelectedJobForReport} onDelete={(id) => confirmItemDelete(id, 'practice')} onDragStart={(e) => handleDragStart(e, entry.id, 'interview')} />)
-                                    }
-
-                                    {jobsInSection.map(job => <JobApplicationCard key={job.id} job={job} onClick={() => setSelectedJobApplication(job)} onDelete={(id) => confirmItemDelete(id, 'job')} onDragStart={(e) => handleDragStart(e, job.id, 'jobApplication')} />)}
-
-                                    {folder.id === 'resumes' && <div onClick={addBlankResume} className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-300 cursor-pointer min-h-[340px] transform hover:-translate-y-1 hover:shadow-lg"><PlusCircle size={48} /><span className="mt-2 font-semibold">Create a New Resume</span></div>}
-                                    {folder.id === 'portfolios' && <div onClick={handleCreateNewPortfolio} className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-300 cursor-pointer min-h-[340px] transform hover:-translate-y-1 hover:shadow-lg"><PlusCircle size={48} /><span className="mt-2 font-semibold">Create a New Portfolio</span></div>}
-                                </div>
-                            )}
-                        </div>
-                    );
-                })}
-                <div className="max-w-screen-2xl mx-auto sm:px-6 lg:px-8 mt-8">
-                    <button onClick={handleAddFolder} className="w-full text-center py-4 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl text-gray-500 dark:text-gray-400 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors font-semibold flex items-center justify-center gap-2">
-                        <FolderPlus size={20} /> Add New Folder
-                    </button>
-                </div>
-            </main>
 
             <Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"><Loader2 className="animate-spin text-white" /></div>}>
                 {selectedJobForReport && <InterviewReportModal jobHistoryEntry={selectedJobForReport} onClose={() => setSelectedJobForReport(null)} />}
@@ -887,24 +720,28 @@ const Dashboard: React.FC = () => {
                 confirmText={confirmModal.confirmText}
             />
 
-            {shareModalResume && (
-                <ShareResumeModal
-                    isOpen={!!shareModalResume}
-                    onClose={() => setShareModalResume(null)}
-                    resume={shareModalResume}
-                    onUpdate={updateResume}
-                />
-            )}
+            {
+                shareModalResume && (
+                    <ShareResumeModal
+                        isOpen={!!shareModalResume}
+                        onClose={() => setShareModalResume(null)}
+                        resume={shareModalResume}
+                        onUpdate={updateResume}
+                    />
+                )
+            }
 
-            {shareModalPortfolio && (
-                <SharePortfolioModal
-                    isOpen={!!shareModalPortfolio}
-                    onClose={() => setShareModalPortfolio(null)}
-                    portfolioId={shareModalPortfolio.id}
-                    portfolioTitle={shareModalPortfolio.title}
-                    portfolioData={shareModalPortfolio}
-                />
-            )}
+            {
+                shareModalPortfolio && (
+                    <SharePortfolioModal
+                        isOpen={!!shareModalPortfolio}
+                        onClose={() => setShareModalPortfolio(null)}
+                        portfolioId={shareModalPortfolio.id}
+                        portfolioTitle={shareModalPortfolio.title}
+                        portfolioData={shareModalPortfolio}
+                    />
+                )
+            }
 
             <FolderReorderModal
                 isOpen={isFolderReorderModalOpen}
@@ -912,7 +749,7 @@ const Dashboard: React.FC = () => {
                 folders={folders}
                 onSave={saveFolders}
             />
-        </div>
+        </div >
     );
 };
 

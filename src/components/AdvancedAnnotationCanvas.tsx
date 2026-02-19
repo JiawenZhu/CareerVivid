@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { fabric } from 'fabric';
+import * as fabric from 'fabric';
 import Draggable from 'react-draggable';
 import { Pen, Square, Circle, Type, Undo, Trash, Save, Loader2, Eraser, Redo, GripVertical, Minus, ArrowRight } from 'lucide-react';
 import { uploadAnnotation, AnnotationObject } from '../services/annotationService';
@@ -66,7 +66,8 @@ const AdvancedAnnotationCanvas: React.FC<AdvancedAnnotationCanvasProps> = ({
 
         // Load Background Image (Robust Persistence)
         if (initialImage) {
-            fabric.Image.fromURL(initialImage, (img) => {
+            const options = { crossOrigin: 'anonymous' } as any;
+            fabric.Image.fromURL(initialImage, options).then((img) => {
                 img.set({
                     left: 0,
                     top: 0,
@@ -74,10 +75,10 @@ const AdvancedAnnotationCanvas: React.FC<AdvancedAnnotationCanvasProps> = ({
                     scaleY: height / (img.height || 1),
                     selectable: false,
                     evented: false,
-                    crossOrigin: 'anonymous'
                 });
-                canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-            }, { crossOrigin: 'anonymous' });
+                canvas.backgroundImage = img;
+                canvas.requestRenderAll();
+            }).catch(console.error);
         }
 
         // Load Initial Objects
@@ -97,17 +98,17 @@ const AdvancedAnnotationCanvas: React.FC<AdvancedAnnotationCanvasProps> = ({
                 })
                 .filter(obj => obj !== null);
 
-            fabric.util.enlivenObjects(fabricObjects, (objects: fabric.Object[]) => {
-                objects.forEach(obj => {
+            fabric.util.enlivenObjects(fabricObjects).then((objects) => {
+                objects.forEach((obj: fabric.Object) => {
                     if (isReadOnly) {
                         obj.selectable = false;
                         obj.evented = false;
                     }
                     canvas.add(obj);
                 });
-                canvas.renderAll();
+                canvas.requestRenderAll();
                 saveHistory(); // Save initial state
-            }, 'fabric');
+            });
         } else {
             saveHistory(); // Save empty state
         }
@@ -143,14 +144,17 @@ const AdvancedAnnotationCanvas: React.FC<AdvancedAnnotationCanvasProps> = ({
         const canvas = fabricCanvasRef.current;
         if (!canvas || isReadOnly) return;
 
-        const handleMouseDown = (opt: fabric.IEvent) => {
+        const handleMouseDown = (opt: any) => { // Use 'any' to bypass strict v6 vs v7 event type mismatch for now
             if (activeTool === 'pen' || activeTool === 'select') return;
 
-            const pointer = canvas.getPointer(opt.e);
+            // v7 getPointer replacement logic or try getting from event
+            // In v6+, getPointer might be on the canvas instance but typescript definitions vary.
+            // Using a safe fallback or any cast.
+            const pointer = (canvas as any).getPointer ? (canvas as any).getPointer(opt.e) : { x: 0, y: 0 };
 
             // Eraser: Select and delete on click
             if (activeTool === 'eraser') {
-                const target = canvas.findTarget(opt.e, false);
+                const target = opt.target;
                 if (target && target !== canvas.backgroundImage) {
                     canvas.remove(target);
                     canvas.requestRenderAll();
@@ -239,19 +243,21 @@ const AdvancedAnnotationCanvas: React.FC<AdvancedAnnotationCanvasProps> = ({
         setHistory(prev => prev.slice(0, -1));
 
         canvas.loadFromJSON(prevState, () => {
-            canvas.renderAll();
+            canvas.requestRenderAll();
 
             // Re-apply background image if lost
             if (initialImage && !canvas.backgroundImage) {
-                fabric.Image.fromURL(initialImage, (img) => {
+                const options = { crossOrigin: 'anonymous' } as any;
+                fabric.Image.fromURL(initialImage, options).then((img) => {
                     img.set({
                         left: 0, top: 0,
                         scaleX: width / (img.width || 1),
                         scaleY: height / (img.height || 1),
-                        selectable: false, evented: false, crossOrigin: 'anonymous'
+                        selectable: false, evented: false
                     });
-                    canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-                }, { crossOrigin: 'anonymous' });
+                    canvas.backgroundImage = img;
+                    canvas.requestRenderAll();
+                });
             }
 
             isHistoryAction.current = false;
@@ -274,19 +280,21 @@ const AdvancedAnnotationCanvas: React.FC<AdvancedAnnotationCanvasProps> = ({
         setRedoStack(prev => prev.slice(0, -1));
 
         canvas.loadFromJSON(nextState, () => {
-            canvas.renderAll();
+            canvas.requestRenderAll();
 
             // Re-apply background image if needed
             if (initialImage && !canvas.backgroundImage) {
-                fabric.Image.fromURL(initialImage, (img) => {
+                const options = { crossOrigin: 'anonymous' } as any;
+                fabric.Image.fromURL(initialImage, options).then((img) => {
                     img.set({
                         left: 0, top: 0,
                         scaleX: width / (img.width || 1),
                         scaleY: height / (img.height || 1),
-                        selectable: false, evented: false, crossOrigin: 'anonymous'
+                        selectable: false, evented: false
                     });
-                    canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-                }, { crossOrigin: 'anonymous' });
+                    canvas.backgroundImage = img;
+                    canvas.requestRenderAll();
+                });
             }
 
             isHistoryAction.current = false;
@@ -419,15 +427,17 @@ const AdvancedAnnotationCanvas: React.FC<AdvancedAnnotationCanvasProps> = ({
         canvas.backgroundColor = 'transparent';
         // Restore background
         if (initialImage) {
-            fabric.Image.fromURL(initialImage, (img) => {
+            const options = { crossOrigin: 'anonymous' } as any;
+            fabric.Image.fromURL(initialImage, options).then((img) => {
                 img.set({
                     left: 0, top: 0,
                     scaleX: width / (img.width || 1),
                     scaleY: height / (img.height || 1),
-                    selectable: false, evented: false, crossOrigin: 'anonymous'
+                    selectable: false, evented: false
                 });
-                canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-            }, { crossOrigin: 'anonymous' });
+                canvas.backgroundImage = img;
+                canvas.requestRenderAll();
+            });
         }
         saveHistory();
     };

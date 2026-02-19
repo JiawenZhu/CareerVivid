@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /client_projects/{projectId}/tasks/{taskId} {
+      // Admin has full access
+      allow read, write: if request.auth.token.admin == true;
+      
+      // Client can read if they own the project
+      allow read: if request.auth.uid == get(/databases/$(database)/documents/client_projects/$(projectId)).data.ownerId;
+      
+      // Client can ONLY update 'comments' field
+      allow update: if request.auth.uid == get(/databases/$(database)/documents/client_projects/$(projectId)).data.ownerId
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['comments']);
+    }
+  }
+}
