@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { useJobTracker } from '../hooks/useJobTracker';
+import { useResumes } from '../hooks/useResumes'; // Import useResumes
 import { JobApplicationData } from '../types';
 import StatusOverview from '../components/JobTracker/StatusOverview';
 import KanbanBoard from '../components/JobTracker/KanbanBoard';
+import StrategyMap from '../components/JobTracker/StrategyMap';
 import JobDetailModal from '../components/JobTracker/JobDetailModal';
 import AddJobModal from '../components/JobTracker/AddJobUrlModal';
 import { ArrowLeft, PlusCircle } from 'lucide-react';
@@ -14,10 +16,12 @@ const JobTrackerPage: React.FC = () => {
     const { currentUser } = useAuth();
     const { t } = useTranslation();
     const { jobApplications, isLoading, addJobApplication, updateJobApplication, deleteJobApplication } = useJobTracker();
+    const { resumes } = useResumes(); // Fetch resumes
 
     const [selectedJob, setSelectedJob] = useState<JobApplicationData | null>(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [highlightForNewJob, setHighlightForNewJob] = useState(false);
+    const [viewMode, setViewMode] = useState<'kanban' | 'strategy'>('kanban');
 
     const handleCardClick = (job: JobApplicationData) => {
         setSelectedJob(job);
@@ -86,12 +90,45 @@ const JobTrackerPage: React.FC = () => {
                     ) : (
                         <>
                             <StatusOverview applications={jobApplications} />
-                            <div className="mt-8">
-                                <KanbanBoard
-                                    applications={jobApplications}
-                                    onCardClick={handleCardClick}
-                                    onUpdateApplication={updateJobApplication}
-                                />
+
+                            <div className="mt-8 mb-6 flex justify-end">
+                                <div className="bg-white dark:bg-gray-800 p-1 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 inline-flex">
+                                    <button
+                                        onClick={() => setViewMode('kanban')}
+                                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === 'kanban'
+                                            ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400'
+                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                                            }`}
+                                    >
+                                        Kanban Board
+                                    </button>
+                                    <button
+                                        onClick={() => setViewMode('strategy')}
+                                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === 'strategy'
+                                            ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400'
+                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                                            }`}
+                                    >
+                                        Strategy Map
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="mt-4">
+                                {viewMode === 'kanban' ? (
+                                    <KanbanBoard
+                                        applications={jobApplications}
+                                        onCardClick={handleCardClick}
+                                        onUpdateApplication={updateJobApplication}
+                                    />
+                                ) : (
+                                    <StrategyMap
+                                        applications={jobApplications}
+                                        resumes={resumes} // Pass resumes
+                                        onCardClick={handleCardClick}
+                                        onUpdateJob={updateJobApplication} // Pass update function
+                                    />
+                                )}
                             </div>
                         </>
                     )}

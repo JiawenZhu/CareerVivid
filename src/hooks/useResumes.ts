@@ -73,7 +73,7 @@ export const useResumes = () => {
     }, [resumes]);
 
     const addResume = useCallback(() => {
-        navigate('/new');
+        navigate('/newresume');
     }, []);
 
     const addBlankResume = useCallback(async () => {
@@ -239,7 +239,7 @@ export const useResumes = () => {
         try {
             await deleteDoc(resumeRef);
             if (resumes.length === 1) {
-                navigate('/new');
+                navigate('/newresume');
             } else {
                 navigate('/');
             }

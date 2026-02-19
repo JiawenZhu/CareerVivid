@@ -133,6 +133,25 @@ const ReferralPage: React.FC = () => {
                     </div>
                 </div>
 
+                {/* Share Message Card */}
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 md:p-8 mb-6 md:mb-8">
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Share Message</h2>
+                    <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700 mb-4">
+                        <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap font-medium">
+                            Accelerate Your Career Path with CareerVivid! 🚀{'\n\n'}
+                            Use my exclusive code {referralCode} to get 2 Months of Premium for free.{'\n\n'}
+                            Sign up here: {referralLink}
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => copyToClipboard(`Accelerate Your Career Path with CareerVivid! 🚀\n\nUse my exclusive code ${referralCode} to get 2 Months of Premium for free.\n\nSign up here: ${referralLink}`, 'code')}
+                        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold"
+                    >
+                        <Copy size={20} />
+                        Copy Share Message
+                    </button>
+                </div>
+
                 {/* Progress Tracker */}
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 md:p-8 mb-6 md:mb-8">
                     <div className="flex items-center justify-between mb-4">

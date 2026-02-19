@@ -172,8 +172,8 @@ const UpcomingDropsFeed: React.FC = () => {
                                     <span className="material-symbols-outlined text-[26px] group-hover:scale-110 transition-transform">home</span>
                                     <span className="text-[10px] font-bold">Home</span>
                                 </button>
-                                {/* Linking Orders to /tracker for now as it's the closest "my activity" page, or a new placeholder */}
-                                <button onClick={() => navigate('/tracker')} className="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-text-main dark:hover:text-white w-12 transition-colors group">
+                                {/* Linking Orders to /job-tracker for now */}
+                                <button onClick={() => navigate('/job-tracker')} className="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-text-main dark:hover:text-white w-12 transition-colors group">
                                     <span className="material-symbols-outlined text-[26px] group-hover:scale-110 transition-transform">receipt_long</span>
                                     <span className="text-[10px] font-medium">Orders</span>
                                 </button>

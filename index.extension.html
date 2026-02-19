@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="icons/icon128.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CareerVivid - AI Resume & Interview Coach</title>
+
+    <!-- Google Fonts - allowed via CSP -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Extension Popup Dimensions -->
+    <style>
+        html,
+        body {
+            width: 380px;
+            min-height: 520px;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f9fafb;
+            /* gray-50 */
+            color: #111827;
+            /* gray-900 */
+        }
+
+        #root {
+            width: 100%;
+            min-height: 100%;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <div id="root"></div>
+    <script type="module" src="/src/entry-extension.tsx"></script>
+</body>
+
+</html>

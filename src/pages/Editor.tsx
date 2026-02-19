@@ -384,7 +384,7 @@ const Editor: React.FC<EditorProps> = ({
         setTimeout(() => setIsTemplateLoading(false), 400);
     };
 
-    const handleConfirmNew = () => { setIsConfirmModalOpen(false); navigate('/new'); };
+    const handleConfirmNew = () => { setIsConfirmModalOpen(false); navigate('/newresume'); };
 
     const handleExport = async (optionId: string) => {
         if (handleGuestAction('download')) return;

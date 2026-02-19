@@ -8,6 +8,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Loader2, Calendar, User, ArrowLeft, Facebook, Twitter, Linkedin } from 'lucide-react';
 import { navigate } from '../utils/navigation';
+import ArticleAudioPlayer from '../components/blog/ArticleAudioPlayer';
 
 // --- Simple Markdown Renderer for Blog Content ---
 const MarkdownRenderer: React.FC<{ text: string }> = ({ text = '' }) => {
@@ -172,6 +173,12 @@ const BlogPostPage: React.FC<{ postId: string }> = ({ postId }) => {
                             </div>
                         </div>
                     </header>
+
+
+                    {/* Audio Player */}
+                    <div className="mb-8">
+                        <ArticleAudioPlayer articleId={post.id} />
+                    </div>
 
                     {/* Feature Image */}
                     {post.coverImage && (

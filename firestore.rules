@@ -1,262 +1,124 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // --- Helper Functions ---
-    
+
+    // ---------------------------------------------------------
+    // 🛡️ ADMIN CHECK (Robust & Fail-Safe)
+    // ---------------------------------------------------------
     function isAdmin() {
-      return request.auth != null && request.auth.token.admin == true;
-    }
-    
-    function isBusinessPartner() {
-      // Check if user has business_partner role (handling both legacy 'role' string and new 'roles' array)
-      let userData = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
-      return (userData.keys().hasAny(['role']) && userData.role == 'business_partner') || 
-             (userData.keys().hasAny(['roles']) && userData.roles.hasAny(['business_partner']));
-    }
-    
-    function isOwner(userId) {
-      return request.auth != null && request.auth.uid == userId;
+      return request.auth != null && (
+        // 1. Email Bypass
+        (request.auth.token.email == 'evan@careervivid.app' || request.auth.token.email == 'evan@jastalk.com') ||
+        // 2. Role Check
+        (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'academic_partner', 'super_admin']
+        )
+      );
     }
 
-    // --- Rules ---
-
-    // Global Admin Access
-    match /{document=**} {
-      allow read, write: if isAdmin();
-    }
-
-    // User Management
+    // ---------------------------------------------------------
+    // 👤 CORE USER DATA (Recursive - Covers EVERYTHING)
+    // ---------------------------------------------------------
     match /users/{userId} {
-      allow read: if request.auth != null;
-      allow write: if isOwner(userId) || isAdmin();
+      allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
       
-      // Allow users to manage their own subcollections
-      match /{document=**} {
-        allow read: if isOwner(userId) || isAdmin() || isBusinessPartner();
-        allow write: if isOwner(userId) || isAdmin();
-      }
-
-      // Allow Business Partners to update job tracker status
-      match /jobTracker/{trackerId} {
-        allow read: if isOwner(userId) || isAdmin();
-        allow write: if isOwner(userId) || isAdmin();
-        allow update: if isBusinessPartner(); 
-      }
-      
-      // Portfolio Messages (Public Write, Owner Read)
-      match /messages/{messageId} {
-        allow create: if true;
-        allow read, update, delete: if isOwner(userId) || isAdmin();
-      }
-
-      // Specifically helpful for public access logic if needed, but handled by sub-collections below
-      match /portfolios/{portfolioId} {
-        allow read: if request.auth != null; // Authenticated users can read portfolios (for verification/viewing)
-        allow write: if isOwner(userId) || isAdmin();
-
-        // Analytics Stats
-        match /stats/{statId} {
-          allow create: if true; // Public can log views/clicks
-          allow read: if isOwner(userId) || isAdmin();
-        }
-      }
-      
-      // Public Resume Comments/Annotations
-      match /resumes/{resumeId}/comments/{commentId} {
-        allow read, write: if true;
-      }
-      match /resumes/{resumeId}/annotations/{annotationId} {
-        allow read, write: if true;
+      // Recursive match for all subcollections (settings, resumes, referralStats, etc.)
+      match /{allChildren=**} {
+        allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
       }
     }
-    
-    // Admins Collection (Self-read)
-    match /admins/{userId} {
-      allow read: if isOwner(userId);
+
+    // ---------------------------------------------------------
+    // 🎟️ REFERRAL CODES (Root Collection)
+    // ---------------------------------------------------------
+    match /referralCodes/{code} {
+      // Anyone logged in can read codes (to validate them).
+      // Admins can read everything.
+      allow read: if request.auth != null || isAdmin();
+      
+      // Creation/Updates:
+      // 1. Admins: Always allowed.
+      // 2. Users: Can create/update if the code document belongs to them (userId field matches).
+      allow write: if isAdmin() || (request.auth != null && (resource == null || resource.data.userId == request.auth.uid));
     }
 
-    // Blog Posts (Public Read, Admin Write)
+    // ---------------------------------------------------------
+    // 💼 CLIENT PORTAL (Root Collection)
+    // ---------------------------------------------------------
+    match /client_projects/{projectId} {
+      allow read: if (request.auth != null && resource.data.ownerId == request.auth.uid) || isAdmin();
+      allow write: if isAdmin(); 
+      allow list: if isAdmin();
+
+      match /tasks/{taskId} {
+        allow read: if (request.auth != null && get(/databases/$(database)/documents/client_projects/$(projectId)).data.ownerId == request.auth.uid) || isAdmin();
+        allow write: if isAdmin(); 
+        
+        allow update: if (request.auth != null && get(/databases/$(database)/documents/client_projects/$(projectId)).data.ownerId == request.auth.uid)
+                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['comments']);
+      }
+    }
+    // ---------------------------------------------------------
+    // 📰 BLOG POSTS (Public Read)
+    // ---------------------------------------------------------
     match /blog_posts/{postId} {
       allow read: if true;
       allow write: if isAdmin();
     }
-
-    // Usage Logs
-    match /usage_logs/{logId} {
-      allow create: if request.auth != null;
-    }
-
-    // Public Portfolios
-    match /public_portfolios/{portfolioId} {
-      allow read: if true;
-      allow write: if request.auth != null; // Authenticated users can publish
-    }
-
-    // User Themes (Custom Saved Themes)
-    match /user_themes/{themeId} {
-      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow update: if request.auth != null && resource.data.userId == request.auth.uid;
-    }
-
-    // Partner Applications (Public Submit, Admin Manage)
-    match /partner_applications/{applicationId} {
-      allow create: if true; // Public submission
-      allow read, write: if isAdmin();
-      allow update: if isAdmin();
-    }
-
-    // Demo Analytics
-    match /analytics/demo_page_events {
-      allow read, write: if true;
-    }
-
-    // Piano Game Recordings (Public Read/Create)
-    match /portfolio_piano_recordings/{recordingId} {
-      allow read, create: if true;
-    }
-    
-    
-    // --- Job Platform Rules ---
-    
-    // Job Postings
-    match /jobPostings/{jobId} {
-      // Read: Public if published, Owner/Admin if draft
-      allow read: if resource.data.status == 'published' || 
-                    (request.auth != null && resource.data.hrUserId == request.auth.uid) || 
-                    isAdmin();
-      
-      // Create: Must be Business Partner and assign self as owner
-      allow create: if request.auth != null && 
-                      isBusinessPartner() && 
-                      request.resource.data.hrUserId == request.auth.uid;
-      
-      // Update/Delete: Only Owner or Admin
-      allow update, delete: if (request.auth != null && resource.data.hrUserId == request.auth.uid) || 
-                               isAdmin();
-    }
-    
-    // Company Profiles (for public job board branding)
-    match /companyProfiles/{profileId} {
-      // Read: Public access for public job board pages
-      allow read: if true;
-      
-      // Create: Must be Business Partner and assign self as owner
-      allow create: if request.auth != null && 
-                      isBusinessPartner() && 
-                      request.resource.data.hrUserId == request.auth.uid;
-      
-      // Update/Delete: Only Owner or Admin
-      allow update, delete: if (request.auth != null && resource.data.hrUserId == request.auth.uid) || 
-                               isAdmin();
-    }
-    
-    // Job Applications
-    match /jobApplications/{applicationId} {
-      // Read: Applicant OR HR Partner (Owner of the Job) OR Admin
-      allow read: if request.auth != null && (
-        resource.data.applicantUserId == request.auth.uid || 
-        get(/databases/$(database)/documents/jobPostings/$(resource.data.jobPostingId)).data.hrUserId == request.auth.uid ||
-        isAdmin()
-      );
-      
-      // Create: Authenticated Users (Applicants)
-      // Must be applying for themselves
-      allow create: if request.auth != null && 
-                       request.resource.data.applicantUserId == request.auth.uid;
-      
-      // Update: HR Partner (for status/notes) OR Admin
-      // Applicant generally shouldn't update after submission except maybe withdrawing (delete)
-      allow update: if request.auth != null && (
-        get(/databases/$(database)/documents/jobPostings/$(resource.data.jobPostingId)).data.hrUserId == request.auth.uid ||
-        isAdmin()
-      );
-      
-      // Delete: Admin or Applicant (Withdraw) or HR (Archive)
-      allow delete: if request.auth != null && (
-        resource.data.applicantUserId == request.auth.uid ||
-        get(/databases/$(database)/documents/jobPostings/$(resource.data.jobPostingId)).data.hrUserId == request.auth.uid ||
-        isAdmin()
-      );
-    }
-    
-    // --- Job Search Cache ---
-    // Public cached job search results (read by all, written only by Cloud Functions)
-    match /jobSearchCache/{queryHash} {
-      allow read: if true;  // Public read for cached job data
-      allow write: if false; // Only Cloud Functions (admin SDK) can write
-    }
-    
-    // --- Referral Codes ---
-    // Premium users can create their own referral codes
-    match /referralCodes/{code} {
-      allow read: if request.auth != null; // Any authenticated user can read
-      allow create: if request.auth != null && 
-                      request.resource.data.userId == request.auth.uid; // Can only create for self
-      allow update: if request.auth != null; // Allow updates for tracking referrals
-      allow delete: if isAdmin(); // Only admins can delete
-    }
-    
-    // --- Indexed Cached Jobs (for smart search) ---
-    // Individual job documents with searchable fields
-    match /cachedJobs/{jobId} {
-      allow read: if true;  // Public read for smart search
-      allow write: if false; // Only Cloud Functions (admin SDK) can write
-    }
-    // --- TikTok Leaderboard (Public) ---
-    match /tiktok_leaderboard/{playerId} {
-       allow read, write: if true; 
-    }
-
-    // --- Contact Messages (Public) ---
+    // ---------------------------------------------------------
+    // 📬 CONTACT MESSAGES (Public Create, Admin Manage)
+    // ---------------------------------------------------------
     match /contact_messages/{messageId} {
-       allow create: if true;
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
     }
 
-    // --- Stitch Platform Rules ---
-    
-    // Stitch Users Extension (secure by default, only user or admin can create/edit sensitive fields)
-    // Note: Main /users rules at top already cover basic read/write for owner.
-    // We just need to ensure new fields are respected validation-wise if needed, 
-    // but for now the role-based checks in Cloud Functions are safer for "assigning zones".
+    // ---------------------------------------------------------
+    // 🗣️ FEEDBACK (Public Create, Admin Manage)
+    // ---------------------------------------------------------
+    match /feedback/{feedbackId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
 
-    // Products: Public read, Merchant/Host write
-    match /products/{productId} {
+    // ---------------------------------------------------------
+    // ⚠️ ERROR REPORTS (Public Create, Admin Manage)
+    // ---------------------------------------------------------
+    match /error_reports/{errorId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // 🤝 PARTNER APPLICATIONS (Public Create, Admin Manage)
+    // ---------------------------------------------------------
+    match /partner_applications/{applicationId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // ⚙️ SYSTEM SETTINGS (Public Read, Admin Manage)
+    // ---------------------------------------------------------
+    match /system_settings/{settingId} {
       allow read: if true;
-      allow create: if request.auth != null && (
-        request.resource.data.merchant_uid == request.auth.uid || 
-        request.resource.data.host_uid == request.auth.uid
-      );
-      allow update, delete: if request.auth != null && (
-        resource.data.merchant_uid == request.auth.uid || 
-        resource.data.host_uid == request.auth.uid ||
-        isAdmin()
-      );
+      allow write: if isAdmin();
     }
 
-    // Drops: Zone-restricted Read, Admin/Host Write
-    match /drops/{dropId} {
-      // Read: Allow if user's zone_id is in the drop's allowed zones OR if user is admin/host
-      allow read: if true; // Open read for catalog convenience, frontend filters by zone. 
-      // Ideally: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.zone_id in resource.data.zones
-      
-      allow write: if isAdmin(); // Only Admins (or Cloud Functions) schedule drops for now
-      
-      // Sub-collection: Inventory
-      match /drop_inventory/{itemId} {
-        allow read: if true;
-        allow write: if isAdmin();
-      }
+    // ---------------------------------------------------------
+    // 📧 EMAIL TEMPLATES (Admin Manage)
+    // ---------------------------------------------------------
+    match /email_templates/{templateId} {
+      allow read, write: if isAdmin();
     }
 
-    // Orders: Authenticated create REMOVED (Must use Cloud Function). Read Own.
-    match /orders/{orderId} {
-      allow create: if false; // Block client-side creation. Use createOrder Cloud Function.
-      allow read: if request.auth != null && (resource.data.user_id == request.auth.uid || isAdmin());
-      // Only Admins or Hosts (via function/claim) can update status to 'packed'/'delivered'
-      allow update: if isAdmin(); 
+    // ---------------------------------------------------------
+    // 📨 MAIL (Admin Send)
+    // ---------------------------------------------------------
+    match /mail/{mailId} {
+      allow create: if isAdmin();
+      allow read, update, delete: if isAdmin();
     }
   }
 }

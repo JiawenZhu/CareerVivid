@@ -3,11 +3,16 @@ import React, { useState, useEffect } from 'react';
 import { useResumes } from '../hooks/useResumes';
 import { generateResumeFromPrompt, parseResume } from '../services/geminiService';
 import { CAREER_PATHS, Industry } from '../data/careers';
-import { ArrowRight, Zap, Loader2, ChevronLeft, LayoutDashboard, UploadCloud } from 'lucide-react';
+import { ArrowRight, Zap, Loader2, ChevronLeft, LayoutDashboard, UploadCloud, FileText, Plus } from 'lucide-react';
 import { navigate } from '../utils/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import Logo from '../components/Logo';
 import ResumeImport from '../components/ResumeImport';
+import ResumeCard from '../components/Dashboard/ResumeCard';
+import { ResumeCardSkeleton } from '../components/Dashboard/DashboardSkeletons';
+import ShareResumeModal from '../components/ShareResumeModal';
+import ConfirmationModal from '../components/ConfirmationModal';
+import { ResumeData } from '../types';
 
 const loadingMessages = [
     "Analyzing your prompt...",
@@ -31,7 +36,7 @@ const placeholderPrompts = [
 
 const GenerationHub: React.FC = () => {
     const { currentUser } = useAuth();
-    const { resumes, addAIGeneratedResume } = useResumes();
+    const { resumes, addAIGeneratedResume, updateResume, deleteResume, duplicateResume, isLoading: isLoadingResumes } = useResumes();
     const [prompt, setPrompt] = useState('');
     const [isFileImport, setIsFileImport] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -40,6 +45,16 @@ const GenerationHub: React.FC = () => {
     const [placeholder, setPlaceholder] = useState('');
 
     const [selectedIndustry, setSelectedIndustry] = useState<Industry | null>(null);
+
+    // Modal States
+    const [shareModalResume, setShareModalResume] = useState<ResumeData | null>(null);
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        confirmText: 'Delete',
+        onConfirm: async () => { },
+    });
 
     useEffect(() => {
         let interval: number;
@@ -126,15 +141,11 @@ const GenerationHub: React.FC = () => {
             let aiData;
 
             if (isFileImport) {
-                // If the content came from a file import, we parse it as a resume
-                // The inputContent is the extracted text
-                aiData = await parseResume(currentUser.uid, inputContent, 'English'); // Default to English for now
+                aiData = await parseResume(currentUser.uid, inputContent, 'English');
             } else {
-                // Otherwise treat it as a prompt
                 aiData = await generateResumeFromPrompt(currentUser.uid, inputContent);
             }
 
-            // Defensive check to ensure the AI returns a valid object with the required nested structure.
             if (!aiData || typeof aiData !== 'object' || !aiData.personalDetails) {
                 console.error("Invalid data structure from AI:", aiData);
                 throw new Error("AI failed to generate a valid resume structure. Please try a more specific prompt.");
@@ -142,7 +153,6 @@ const GenerationHub: React.FC = () => {
 
             const title = `${aiData.personalDetails.jobTitle || 'New'} Resume`;
             addAIGeneratedResume(aiData, title);
-            // Navigation happens in the hook
         } catch (e) {
             setError(e instanceof Error ? e.message : 'An unknown error occurred.');
             setIsLoading(false);
@@ -156,34 +166,31 @@ const GenerationHub: React.FC = () => {
 
     const handleFileProcessed = (text: string) => {
         setIsFileImport(true);
-        // We could auto-submit here, but let's let the user review the extracted text if they want?
-        // Proposal: Auto-submit for better "magic" feeling if it's a file drop.
         handleGenerate(text);
     };
 
     const handleTextChange = (text: string) => {
         setPrompt(text);
-        if (isFileImport) setIsFileImport(false); // Reset if user starts typing (switch back to prompt mode?)
-        // Actually, if they edit the imported text, it becomes a "prompt" to generate?
-        // Or should we just stick to "if it was a file, it's a parse"?
-        // Safe bet: If they edit, treat as Prompt? 
-        // No, if they import a resume text, they might want to parse it.
-        // But `parseResume` expects resume text, `generateResumeFromPrompt` expects instructions.
-        // It's ambiguous.
-        // Let's assume: If `isFileImport` was true, we keep it true unless they clear it?
-        // Or simple heuristic: Text > 500 chars = likely resume?
-        // For now, let's keep `setIsFileImport(false)` on manual edit to be safe, creating a "Prompt" flow.
-        // BUT if they paste a resume, they want it parsed!
-        // So we really need a distinct "Parse" vs "Generate" action or intelligent detection.
-        // Given the ambiguity, let's rely on the BUTTON label or source.
-        // If file dropped -> handleFileProcessed -> Auto Generate (Parse).
-        // If typed -> User clicks "Generate".
+        if (isFileImport) setIsFileImport(false);
     };
 
     const handleRoleSelect = (roleName: string) => {
         const industryName = selectedIndustry?.name;
         const fullPrompt = `Create a professional resume for the role of '${roleName}'. This role is in the '${industryName}' industry. The resume should be tailored to highlight key qualifications, skills, and experiences relevant to this specific career path.`;
         handleGenerate(fullPrompt);
+    };
+
+    const handleDeleteClick = (id: string) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Delete Resume',
+            message: 'Are you sure you want to delete this resume? This action cannot be undone.',
+            confirmText: 'Delete',
+            onConfirm: async () => {
+                await deleteResume(id);
+                setConfirmModal(prev => ({ ...prev, isOpen: false }));
+            }
+        });
     };
 
     const renderContent = () => {
@@ -229,21 +236,9 @@ const GenerationHub: React.FC = () => {
         );
     };
 
-
-    return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 relative">
-            {resumes.length > 0 && (
-                <div className="absolute top-6 right-6">
-                    <a
-                        href="/"
-                        className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded-lg shadow-soft border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                    >
-                        <LayoutDashboard size={20} />
-                        Dashboard
-                    </a>
-                </div>
-            )}
-            {isLoading ? (
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center p-4">
                 <div className="text-center">
                     <Loader2 className="w-16 h-16 text-primary-500 animate-spin mx-auto" />
                     <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mt-6">Generating your resume...</h1>
@@ -253,43 +248,128 @@ const GenerationHub: React.FC = () => {
                         </p>
                     </div>
                 </div>
-            ) : (
-                <div className="w-full max-w-4xl mx-auto">
-                    <div className="text-center mb-10">
-                        <Logo className="h-12 w-12 mx-auto" />
-                        <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-gray-100 mt-4">Create Your Next Resume</h1>
-                        <p className="text-lg text-gray-500 dark:text-gray-400 mt-2 max-w-2xl mx-auto">Start with an AI-powered prompt or choose a guided path to generate a professional resume in seconds.</p>
-                    </div>
+            </div>
+        );
+    }
 
-                    <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mb-10">
-                        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">Generate or Import Your Resume</h2>
-                        <div className="flex flex-col gap-4">
-                            <ResumeImport
-                                value={prompt}
-                                onChange={handleTextChange}
-                                onFileProcessed={handleFileProcessed}
-                                placeholder={placeholder}
-                                className="bg-transparent"
-                                variant="modern"
-                            >
-                                <button
-                                    onClick={() => handlePromptSubmit()}
-                                    className="bg-primary-600 text-white p-3 rounded-lg shadow-soft hover:bg-primary-700 transition-colors flex items-center justify-center disabled:bg-primary-300 disabled:cursor-not-allowed"
-                                    disabled={!prompt.trim()}
-                                    title={isFileImport ? "Import & Parse" : "Generate Resume"}
-                                >
-                                    <ArrowRight size={20} />
-                                </button>
-                            </ResumeImport>
-                        </div>
-                    </div>
-
-                    {renderContent()}
-
-                    {error && <p className="text-red-500 text-center mt-6 bg-red-100 dark:bg-red-900/20 dark:text-red-400 p-3 rounded-lg">{error}</p>}
+    return (
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-20 relative text-left">
+            {/* Dashboard Link */}
+            {resumes.length > 0 && (
+                <div className="absolute top-6 right-6 z-20">
+                    <a
+                        href="/"
+                        className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                        <LayoutDashboard size={18} />
+                        <span className="hidden sm:inline">Dashboard</span>
+                    </a>
                 </div>
+            )}
+
+            {/* Top Section: My Resumes */}
+            <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 pt-8 pb-12 mb-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center mb-8">
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                            <FileText className="text-primary-600" size={32} />
+                            My Resumes
+                        </h1>
+                        <button
+                            onClick={() => document.getElementById('create-section')?.scrollIntoView({ behavior: 'smooth' })}
+                            className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2 font-medium"
+                        >
+                            <Plus size={20} /> New Resume
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {isLoadingResumes
+                            ? Array.from({ length: 4 }).map((_, i) => <ResumeCardSkeleton key={i} />)
+                            : resumes.length > 0 ? (
+                                resumes.map(resume => (
+                                    <ResumeCard
+                                        key={resume.id}
+                                        resume={resume}
+                                        onUpdate={updateResume}
+                                        onDuplicate={duplicateResume}
+                                        onDelete={handleDeleteClick}
+                                        onShare={setShareModalResume}
+                                        onDragStart={(e) => e.preventDefault()}
+                                    />
+                                ))
+                            ) : (
+                                <div className="col-span-full py-12 text-center bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
+                                    <p className="text-gray-500 dark:text-gray-400 mb-4">You haven't created any resumes yet.</p>
+                                    <button
+                                        onClick={() => document.getElementById('create-section')?.scrollIntoView({ behavior: 'smooth' })}
+                                        className="text-primary-600 font-medium hover:underline"
+                                    >
+                                        Create your first resume below
+                                    </button>
+                                </div>
+                            )
+                        }
+                    </div>
+                </div>
+            </div>
+
+            {/* Bottom Section: Create New */}
+            <div id="create-section" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="text-center mb-10">
+                    <Logo className="h-12 w-12 mx-auto" />
+                    <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-gray-100 mt-4">Create Your Next Resume</h1>
+                    <p className="text-lg text-gray-500 dark:text-gray-400 mt-2 max-w-2xl mx-auto">Start with an AI-powered prompt or choose a guided path to generate a professional resume in seconds.</p>
+                </div>
+
+                <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mb-10">
+                    <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">Generate or Import Your Resume</h2>
+                    <div className="flex flex-col gap-4">
+                        <ResumeImport
+                            value={prompt}
+                            onChange={handleTextChange}
+                            onFileProcessed={handleFileProcessed}
+                            placeholder={placeholder}
+                            className="bg-transparent"
+                            variant="modern"
+                        >
+                            <button
+                                onClick={() => handlePromptSubmit()}
+                                className="bg-primary-600 text-white p-3 rounded-lg shadow-soft hover:bg-primary-700 transition-colors flex items-center justify-center disabled:bg-primary-300 disabled:cursor-not-allowed"
+                                disabled={!prompt.trim()}
+                                title={isFileImport ? "Import & Parse" : "Generate Resume"}
+                            >
+                                <ArrowRight size={20} />
+                            </button>
+                        </ResumeImport>
+                    </div>
+                </div>
+
+                {renderContent()}
+
+                {error && <p className="text-red-500 text-center mt-6 bg-red-100 dark:bg-red-900/20 dark:text-red-400 p-3 rounded-lg">{error}</p>}
+            </div>
+
+            {/* Modals */}
+            <ConfirmationModal
+                isOpen={confirmModal.isOpen}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                confirmText={confirmModal.confirmText}
+                onConfirm={confirmModal.onConfirm}
+                onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+            />
+
+            {shareModalResume && (
+                <ShareResumeModal
+                    isOpen={!!shareModalResume}
+                    onClose={() => setShareModalResume(null)}
+                    resume={shareModalResume}
+                    onUpdate={updateResume}
+                />
             )}
         </div>
     );
 };
+
 export default GenerationHub;

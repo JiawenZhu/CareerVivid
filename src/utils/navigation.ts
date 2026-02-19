@@ -50,6 +50,11 @@ export const getPathFromUrl = () => {
         // Let's trust i18n.init to pick up 'en' as default if no path prefix.
     }
 
+    // Strip trailing slash if present (and not root)
+    if (path.length > 1 && path.endsWith('/')) {
+        path = path.slice(0, -1);
+    }
+
     // No language prefix, return as is (with leading slash)
     return '/' + path;
 };
