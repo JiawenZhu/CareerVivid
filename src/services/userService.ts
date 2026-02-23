@@ -45,8 +45,11 @@ export const getUserIdFromUsername = async (username: string): Promise<string | 
         console.warn('[UserService] No user found for username:', username);
         usernameCache.set(username, null);
         return null;
-    } catch (error) {
-        console.error('[UserService] Error resolving username:', error);
+    } catch (error: any) {
+        // Suppress expected permission-denied errors for normal users trying to query all users
+        if (error?.code !== 'permission-denied') {
+            console.error('[UserService] Error resolving username:', error);
+        }
         return null;
     }
 };

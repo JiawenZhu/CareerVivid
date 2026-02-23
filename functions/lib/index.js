@@ -91,6 +91,8 @@ Object.defineProperty(exports, "tailorResume", { enumerable: true, get: function
 var googleDocs_1 = require("./googleDocs");
 Object.defineProperty(exports, "exportToGoogleDocs", { enumerable: true, get: function () { return googleDocs_1.exportToGoogleDocs; } });
 __exportStar(require("./stitchCommerce"), exports);
+__exportStar(require("./tts"), exports);
+__exportStar(require("./deepResearch"), exports);
 const getFunctionConfig = () => {
     try {
         return functions.config().careervivid || {};

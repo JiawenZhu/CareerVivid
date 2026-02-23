@@ -43,6 +43,8 @@ export { generateCoverLetter } from "./coverLetter";
 export { tailorResume } from "./tailorResume";
 export { exportToGoogleDocs } from "./googleDocs";
 export * from "./stitchCommerce";
+export * from "./tts";
+export * from "./deepResearch";
 
 
 const getFunctionConfig = () => {

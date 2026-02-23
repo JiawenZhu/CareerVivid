@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { collection, doc, updateDoc, addDoc, serverTimestamp } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db } from '../../../firebase';
 import {
     Loader2, X, Check, Edit2, Unlink, Trash2, ExternalLink, Link as LinkIcon,
-    ImageIcon, UploadCloud, Brush, Wand2
+    ImageIcon, UploadCloud, Brush, Wand2, Play, Pause, Volume2 as VolumeIcon, Sparkles
 } from 'lucide-react';
 import { BlogPost } from '../../../types';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -162,7 +163,22 @@ const BlogEditor: React.FC<{ post?: BlogPost; onSave: () => void; onCancel: () =
     const [alertState, setAlertState] = useState({ isOpen: false, title: '', message: '' });
     const [activeAIField, setActiveAIField] = useState<string | null>(null);
     const [isImageEditModalOpen, setIsImageEditModalOpen] = useState(false);
+    const [selectedVoice, setSelectedVoice] = useState('Amber');
+    const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const mockVoices = [
+        { name: 'Amber', label: 'Female' },
+        { name: 'Aria', label: 'Female' },
+        { name: 'Ashley', label: 'Female' },
+        { name: 'Cora', label: 'Female' },
+        { name: 'Daria', label: 'Female' },
+        { name: 'Dawn', label: 'Female' },
+        { name: 'Ellen', label: 'Female' },
+        { name: 'Eric', label: 'Male' },
+        { name: 'Guy', label: 'Male' },
+        { name: 'Jane', label: 'Female' }
+    ];
 
     useEffect(() => {
         if (post) setFormData(post);
@@ -218,6 +234,32 @@ const BlogEditor: React.FC<{ post?: BlogPost; onSave: () => void; onCancel: () =
             setAlertState({ isOpen: true, title: 'Save Failed', message: error.message });
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleGenerateAudio = async () => {
+        if (!post?.id) {
+            setAlertState({ isOpen: true, title: 'Error', message: 'You must save the post first before generating audio.' });
+            return;
+        }
+
+        if (!formData.content) {
+            setAlertState({ isOpen: true, title: 'Error', message: 'There is no content to narrate.' });
+            return;
+        }
+
+        setAlertState({ isOpen: true, title: 'Generating', message: 'Audio generation started in the background.' });
+        try {
+            await updateDoc(doc(db, 'blog_posts', post.id), {
+                audioGenerationStatus: 'processing',
+                audioVoiceUsed: selectedVoice
+            });
+            // Update local state to reflect UI changes immediately
+            setFormData(prev => ({ ...prev, audioGenerationStatus: 'processing', audioVoiceUsed: selectedVoice }));
+            // We do not have setPost since post is a prop, we only update formData.
+        } catch (error: any) {
+            console.error("Audio Generation Error:", error);
+            setAlertState({ isOpen: true, title: 'Error', message: 'Failed to start audio generation.' });
         }
     };
 
@@ -380,6 +422,91 @@ const BlogEditor: React.FC<{ post?: BlogPost; onSave: () => void; onCancel: () =
                             <p className="text-xs text-gray-500 mt-2">Recommended size: 1200×630px. Supported formats: JPG, PNG.</p>
                         </div>
                     </div>
+                </FormSection>
+
+                <FormSection title="Audio">
+                    <div className="mb-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Select AI Voice</label>
+                            <div className="flex gap-2">
+                                <span className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-600">All</span>
+                                <span className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-1 rounded-full cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700">Female</span>
+                                <span className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-1 rounded-full cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700">Male</span>
+                                <button className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold flex items-center gap-1 hover:underline ml-2">
+                                    <Sparkles size={12} /> Uncover Custom Voice
+                                </button>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                            {mockVoices.map(voice => (
+                                <div
+                                    key={voice.name}
+                                    onClick={() => setSelectedVoice(voice.name)}
+                                    className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${selectedVoice === voice.name
+                                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
+                                        : 'border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600 bg-white dark:bg-gray-800'
+                                        }`}
+                                >
+                                    <div className="flex justify-between items-center mb-1">
+                                        <span className={`font-semibold text-sm ${selectedVoice === voice.name ? 'text-indigo-900 dark:text-indigo-100' : 'text-gray-800 dark:text-gray-200'}`}>{voice.name}</span>
+                                        {selectedVoice === voice.name && <Check size={14} className="text-indigo-600 dark:text-indigo-400" />}
+                                    </div>
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">{voice.label}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={handleGenerateAudio}
+                        disabled={isGeneratingAudio}
+                        className={`w-full py-4 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors mb-6 shadow-md ${isGeneratingAudio ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+                    >
+                        {isGeneratingAudio ? (
+                            <>
+                                <Loader2 size={20} className="animate-spin" />
+                                Generating Audio (This may take a minute)...
+                            </>
+                        ) : (
+                            <>
+                                <Sparkles size={20} /> Generate Audio with AI ({selectedVoice})
+                            </>
+                        )}
+                    </button>
+
+                    {(formData as any).audioUrl || (formData as any).audioGenerationStatus === 'completed' ? (
+                        <div className="bg-gray-50 dark:bg-gray-800/80 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                            <div className="flex items-center justify-between mb-4">
+                                <span className="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                    <VolumeIcon size={16} className="text-indigo-500" /> Generated Audio ({(formData as any).audioVoiceUsed || selectedVoice})
+                                </span>
+                            </div>
+                            <audio controls className="w-full" src={(formData as any).audioUrl} />
+                        </div>
+                    ) : (
+                        <div className="bg-gray-50 dark:bg-gray-800/80 p-4 rounded-xl border border-gray-200 dark:border-gray-700 opacity-50">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                    <VolumeIcon size={16} className="text-gray-500" /> Audio Draft
+                                </span>
+                                {(formData as any).audioGenerationStatus === 'failed' && (
+                                    <span className="text-xs text-red-500 font-bold">Generation Failed: {(formData as any).audioError}</span>
+                                )}
+                                <span className="text-xs text-gray-500">Duration: --:-- / --:--</span>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <button disabled className="p-2 bg-gray-200 dark:bg-gray-700 text-gray-400 rounded-full cursor-not-allowed">
+                                    <Play size={20} className="ml-1" />
+                                </button>
+                                <div className="flex-grow h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden cursor-not-allowed">
+                                </div>
+                                <button disabled className="p-1 text-gray-400 cursor-not-allowed">
+                                    <VolumeIcon size={18} />
+                                </button>
+                            </div>
+                            <p className="text-xs text-center text-gray-500 mt-4">Generate audio to preview the track here.</p>
+                        </div>
+                    )}
                 </FormSection>
 
                 <FormSection title="Content">

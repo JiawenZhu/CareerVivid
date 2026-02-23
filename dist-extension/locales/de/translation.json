@@ -32,7 +32,9 @@
     "community": "Community",
     "community_desc": "Join 10k+ members",
     "help_support": "Help & Support",
-    "help_support_desc": "FAQ & Contact"
+    "help_support_desc": "FAQ & Contact",
+    "bio_links": "Link in Bio",
+    "bio_links_desc": "Share everything"
   },
   "dashboard": {
     "my_resumes": "Meine Lebensläufe",
@@ -68,7 +70,8 @@
     "edit_resume": "Edit Resume",
     "duplicate_resume": "Duplicate Resume",
     "share_resume": "Share Resume",
-    "rename_tooltip": "Double-click to rename"
+    "rename_tooltip": "Double-click to rename",
+    "academic_partner": "Academic Partner"
   },
   "editor": {
     "content": "Inhalt",
@@ -142,7 +145,8 @@
     "feature_portfolio_1": "Mit einem Klick vom Lebenslauf veröffentlichen",
     "feature_portfolio_2": "Wunderschöne, professionelle Designs",
     "feature_portfolio_3": "Benutzerdefinierte URL (careervivid.app/portfolio/du)",
-    "cta_build_portfolio": "Webseite erstellen"
+    "cta_build_portfolio": "Webseite erstellen",
+    "get_started": "Get Started"
   },
   "pricing": {
     "title": "Wählen Sie Ihren Plan",
@@ -186,7 +190,8 @@
     "success_title": "Nachricht gesendet!",
     "success_message": "Danke, dass Sie uns kontaktiert haben. Wir werden uns so schnell wie möglich bei Ihnen melden.",
     "error_fill_fields": "Bitte füllen Sie alle Felder aus.",
-    "error_send_failed": "Fehler beim Senden der Nachricht. Bitte versuchen Sie es später erneut."
+    "error_send_failed": "Fehler beim Senden der Nachricht. Bitte versuchen Sie es später erneut.",
+    "send_another_message": "Send another message"
   },
   "demo": {
     "title": "Sehen Sie CareerVivid in Aktion",
@@ -507,5 +512,18 @@
       "access_7_days": "7 Days Access",
       "unlimited_practice": "Unlimited Interview Practice"
     }
+  },
+  "errors": {
+    "404_title": "Page Not Found",
+    "404_message": "The page you're looking for doesn't exist or has been moved.",
+    "403_title": "Access Denied",
+    "403_message": "You don't have permission to access this page.",
+    "required_role": "Required Role",
+    "go_home": "Go to Home",
+    "go_back": "Go Back",
+    "quick_links": "Quick Links",
+    "need_access": "Need Access?",
+    "contact_support": "If you believe you should have access to this page, please contact our support team.",
+    "contact_us": "Contact Us"
   }
 }

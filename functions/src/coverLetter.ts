@@ -105,7 +105,7 @@ export const generateCoverLetter = functions
 
             // 5. Call Gemini
             const genAI = new GoogleGenerativeAI(geminiApiKey.value());
-            const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
             const result = await model.generateContent(prompt);
             const response = await result.response;
             const generatedText = response.text();

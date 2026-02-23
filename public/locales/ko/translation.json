@@ -32,7 +32,9 @@
     "community": "Community",
     "community_desc": "Join 10k+ members",
     "help_support": "Help & Support",
-    "help_support_desc": "FAQ & Contact"
+    "help_support_desc": "FAQ & Contact",
+    "bio_links": "Link in Bio",
+    "bio_links_desc": "Share everything"
   },
   "dashboard": {
     "my_resumes": "내 이력서",
@@ -68,7 +70,8 @@
     "edit_resume": "Edit Resume",
     "duplicate_resume": "Duplicate Resume",
     "share_resume": "Share Resume",
-    "rename_tooltip": "Double-click to rename"
+    "rename_tooltip": "Double-click to rename",
+    "academic_partner": "Academic Partner"
   },
   "editor": {
     "content": "내용",
@@ -142,7 +145,8 @@
     "feature_portfolio_1": "이력서에서 원클릭 게시",
     "feature_portfolio_2": "아름답고 전문적인 테마",
     "feature_portfolio_3": "사용자 지정 URL (careervivid.app/portfolio/사용자)",
-    "cta_build_portfolio": "웹사이트 만들기"
+    "cta_build_portfolio": "웹사이트 만들기",
+    "get_started": "Get Started"
   },
   "pricing": {
     "title": "요금제 선택",
@@ -186,7 +190,8 @@
     "success_title": "메시지 전송됨!",
     "success_message": "연락해 주셔서 감사합니다. 가능한 한 빨리 답변 드리겠습니다.",
     "error_fill_fields": "모든 필드를 입력해 주세요.",
-    "error_send_failed": "메시지 전송에 실패했습니다. 나중에 다시 시도해 주세요."
+    "error_send_failed": "메시지 전송에 실패했습니다. 나중에 다시 시도해 주세요.",
+    "send_another_message": "Send another message"
   },
   "demo": {
     "title": "CareerVivid 작동 확인",
@@ -507,5 +512,18 @@
       "access_7_days": "7 Days Access",
       "unlimited_practice": "Unlimited Interview Practice"
     }
+  },
+  "errors": {
+    "404_title": "Page Not Found",
+    "404_message": "The page you're looking for doesn't exist or has been moved.",
+    "403_title": "Access Denied",
+    "403_message": "You don't have permission to access this page.",
+    "required_role": "Required Role",
+    "go_home": "Go to Home",
+    "go_back": "Go Back",
+    "quick_links": "Quick Links",
+    "need_access": "Need Access?",
+    "contact_support": "If you believe you should have access to this page, please contact our support team.",
+    "contact_us": "Contact Us"
   }
 }

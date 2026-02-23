@@ -1,20 +1,20 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
+import { getStorage, connectStorageEmulator } from 'firebase/storage';
 import { getAnalytics, isSupported } from 'firebase/analytics';
 import { getFunctions } from 'firebase/functions';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyDoFoPoaPMi6HkqsA1vn6oDPokG9btVJ3g",
-    authDomain: "jastalk-firebase.firebaseapp.com",
-    databaseURL: "https://jastalk-firebase-default-rtdb.firebaseio.com",
-    projectId: "jastalk-firebase",
-    storageBucket: "jastalk-firebase.firebasestorage.app",
-    messagingSenderId: "371634100960",
-    appId: "1:371634100960:web:8ef53e663b37e14b9f0e85",
-    measurementId: "G-BTZ1F392FM"
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 
@@ -24,6 +24,11 @@ const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
+
+// Connect to emulator if configured
+if (import.meta.env.VITE_USE_FIREBASE_EMULATOR === 'true') {
+    connectStorageEmulator(storage, 'localhost', 9199);
+}
 const functions = getFunctions(app, 'us-west1'); // Set region to match Cloud Functions deployment
 const googleProvider = new GoogleAuthProvider();
 

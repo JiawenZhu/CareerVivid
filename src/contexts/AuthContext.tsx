@@ -184,8 +184,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const adminDocRef = doc(db, 'admins', currentUser.uid);
         const adminDoc = await getDoc(adminDocRef);
         setIsAdmin(adminDoc.exists());
-      } catch (error) {
-        console.error("Error checking admin status:", error);
+      } catch (error: any) {
+        // Suppress expected "permission-denied" errors for normal users checking admins table
+        if (error?.code !== 'permission-denied') {
+          console.error("Error checking admin status:", error);
+        }
         setIsAdmin(false);
       } finally {
         setIsAdminLoading(false);

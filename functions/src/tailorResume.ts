@@ -27,7 +27,7 @@ export const tailorResume = functions
 
         const genAI = new GoogleGenerativeAI(geminiApiKey.value());
         const aiModel = genAI.getGenerativeModel({
-            model: "gemini-3-flash-preview",
+            model: "gemini-2.5-flash",
             generationConfig: { responseMimeType: "application/json" }
         });
 

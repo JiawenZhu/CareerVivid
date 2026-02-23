@@ -33,11 +33,15 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cleanupUsageLogs = exports.cleanupJobSearchCache = exports.sendPracticeEmails = void 0;
+exports.passiveDeepResearchCron = exports.cleanupUsageLogs = exports.cleanupJobSearchCache = exports.sendPracticeEmails = void 0;
 const scheduler_1 = require("firebase-functions/v2/scheduler");
 const admin = __importStar(require("firebase-admin"));
 const params_1 = require("firebase-functions/params");
 const generative_ai_1 = require("@google/generative-ai");
+const deepResearch_1 = require("./deepResearch");
+if (!admin.apps.length) {
+    admin.initializeApp();
+}
 const db = admin.firestore();
 const geminiApiKey = (0, params_1.defineSecret)("GEMINI_API_KEY");
 // Helper to create job ID - matches frontend logic
@@ -59,7 +63,7 @@ function getFrequencyDays(freq) {
 }
 async function generateSmartTopic(baseRole, apiKey) {
     const genAI = new generative_ai_1.GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-3-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     try {
         const result = await model.generateContent(`Generate a specific, engaging interview topic or scenario for a ${baseRole}. Return ONLY the topic title, nothing else. Example: "System Design for High Scale", "Crisis Management Scenario". Keep it short.`);
         return result.response.text().trim().replace(/^"|"$/g, '') || baseRole;
@@ -71,7 +75,7 @@ async function generateSmartTopic(baseRole, apiKey) {
 }
 async function generateQuestions(topic, apiKey) {
     const genAI = new generative_ai_1.GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-3-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     try {
         const prompt = `Generate 5 challenging interview questions for: "${topic}". Return ONLY the questions as a JSON array of strings. Do not use markdown code blocks.`;
         const result = await model.generateContent(prompt);
@@ -259,6 +263,51 @@ exports.cleanupUsageLogs = (0, scheduler_1.onSchedule)({
     }
     catch (error) {
         console.error("[cleanupUsageLogs] Error during cleanup:", error);
+    }
+});
+/**
+ * Passive Mode: Autonomous Deep Research Agent
+ * Checks daily if it should run based on admin_settings/blog_automation
+ */
+exports.passiveDeepResearchCron = (0, scheduler_1.onSchedule)({
+    schedule: "every day 00:00", // Runs daily but logic dictates if it proceeds
+    timeZone: "America/Chicago", // Defaulting to Central
+    timeoutSeconds: 540,
+    memory: "1GiB",
+    region: "us-west1",
+    secrets: [geminiApiKey]
+}, async (event) => {
+    console.log("[passiveDeepResearchCron] Checking automation schedule...");
+    try {
+        const configSnap = await db.collection("admin_settings").doc("blog_automation").get();
+        if (!configSnap.exists) {
+            console.log("No blog_automation config found. Skipping.");
+            return;
+        }
+        const config = configSnap.data();
+        if (!config?.isActive) {
+            console.log("Blog automation is not marked active. Skipping.");
+            return;
+        }
+        // Extremely simplified check: if config says "Weekly" and "Monday", we ideally check if today is Monday.
+        // For demonstration of the feature, we will log the check and proceed if logic matches.
+        const today = new Date().toLocaleDateString('en-US', { weekday: 'long', timeZone: 'America/Chicago' });
+        if (config.frequency === 'Weekly' && config.day !== today) {
+            console.log(`Schedule requires ${config.day}, but today is ${today}. Skipping.`);
+            return;
+        }
+        // Ideally fetch a trending topic using Gemini or a News API
+        // For now, we will use Gemini to invent a pertinent topic if not provided
+        const genAI = new generative_ai_1.GoogleGenerativeAI(geminiApiKey.value());
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const topicRes = await model.generateContent("Give me exactly one modern, highly-relevant, and catchy blog post title about the future of tech careers, AI, or software engineering. Return nothing but the string.");
+        const topic = topicRes.response.text().trim();
+        console.log(`[passiveDeepResearchCron] Selected autonomous topic: ${topic}`);
+        // Run the agent
+        await (0, deepResearch_1.runPassiveDeepResearchTask)(topic, geminiApiKey.value());
+    }
+    catch (error) {
+        console.error("[passiveDeepResearchCron] Error during execution:", error);
     }
 });
 //# sourceMappingURL=scheduled.js.map

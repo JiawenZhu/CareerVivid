@@ -32,7 +32,9 @@
     "community": "社区",
     "community_desc": "加入 10k+ 成员",
     "help_support": "帮助与支持",
-    "help_support_desc": "常见问题与联系方式"
+    "help_support_desc": "常见问题与联系方式",
+    "bio_links": "Link in Bio",
+    "bio_links_desc": "Share everything"
   },
   "dashboard": {
     "my_resumes": "我的简历",
@@ -510,5 +512,18 @@
     "improve_desc": "优化描述",
     "premium_feature": "这是高级功能。",
     "upgrade_unlock": "立刻升级以解锁。"
+  },
+  "errors": {
+    "404_title": "Page Not Found",
+    "404_message": "The page you're looking for doesn't exist or has been moved.",
+    "403_title": "Access Denied",
+    "403_message": "You don't have permission to access this page.",
+    "required_role": "Required Role",
+    "go_home": "Go to Home",
+    "go_back": "Go Back",
+    "quick_links": "Quick Links",
+    "need_access": "Need Access?",
+    "contact_support": "If you believe you should have access to this page, please contact our support team.",
+    "contact_us": "Contact Us"
   }
 }

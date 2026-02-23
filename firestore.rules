@@ -60,6 +60,24 @@ service cloud.firestore {
       }
     }
     // ---------------------------------------------------------
+    // 🌐 PUBLIC PORTFOLIOS (Public Read, Owner/Admin Write)
+    // ---------------------------------------------------------
+    match /public_portfolios/{portfolioId} {
+      allow read: if true;
+      allow create, update: if isAdmin() || (request.auth != null && request.resource.data.userId == request.auth.uid);
+      allow delete: if isAdmin() || (request.auth != null && resource.data.userId == request.auth.uid);
+    }
+
+    // ---------------------------------------------------------
+    // 🎨 USER THEMES (Public Read, Owner Write)
+    // ---------------------------------------------------------
+    match /user_themes/{themeId} {
+      allow read: if true;
+      allow create, update: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
+    // ---------------------------------------------------------
     // 📰 BLOG POSTS (Public Read)
     // ---------------------------------------------------------
     match /blog_posts/{postId} {
@@ -104,6 +122,22 @@ service cloud.firestore {
     match /system_settings/{settingId} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // 📊 USAGE LOGS (Public Create, Admin Manage)
+    // ---------------------------------------------------------
+    match /usage_logs/{logId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // 📈 ANALYTICS (Public Update, Admin Manage)
+    // ---------------------------------------------------------
+    match /analytics/{docId} {
+      allow create, update: if true;
+      allow read, delete: if isAdmin();
     }
 
     // ---------------------------------------------------------

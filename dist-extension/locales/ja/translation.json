@@ -32,7 +32,9 @@
     "community": "Community",
     "community_desc": "Join 10k+ members",
     "help_support": "Help & Support",
-    "help_support_desc": "FAQ & Contact"
+    "help_support_desc": "FAQ & Contact",
+    "bio_links": "Link in Bio",
+    "bio_links_desc": "Share everything"
   },
   "dashboard": {
     "my_resumes": "マイ履歴書",
@@ -68,7 +70,8 @@
     "edit_resume": "Edit Resume",
     "duplicate_resume": "Duplicate Resume",
     "share_resume": "Share Resume",
-    "rename_tooltip": "Double-click to rename"
+    "rename_tooltip": "Double-click to rename",
+    "academic_partner": "Academic Partner"
   },
   "editor": {
     "content": "コンテンツ",
@@ -142,7 +145,8 @@
     "feature_portfolio_1": "履歴書からワンクリックで公開",
     "feature_portfolio_2": "美しくプロフェッショナルなテーマ",
     "feature_portfolio_3": "カスタムURL (careervivid.app/portfolio/あなた)",
-    "cta_build_portfolio": "ウェブサイトを作成"
+    "cta_build_portfolio": "ウェブサイトを作成",
+    "get_started": "Get Started"
   },
   "pricing": {
     "title": "プランを選択",
@@ -186,7 +190,8 @@
     "success_title": "メッセージ送信完了！",
     "success_message": "お問い合わせありがとうございます。できるだけ早くご連絡いたします。",
     "error_fill_fields": "すべてのフィールドに入力してください。",
-    "error_send_failed": "メッセージの送信に失敗しました。後でもう一度お試しください。"
+    "error_send_failed": "メッセージの送信に失敗しました。後でもう一度お試しください。",
+    "send_another_message": "Send another message"
   },
   "demo": {
     "title": "CareerVividの動作を見る",
@@ -507,5 +512,18 @@
       "access_7_days": "7 Days Access",
       "unlimited_practice": "Unlimited Interview Practice"
     }
+  },
+  "errors": {
+    "404_title": "Page Not Found",
+    "404_message": "The page you're looking for doesn't exist or has been moved.",
+    "403_title": "Access Denied",
+    "403_message": "You don't have permission to access this page.",
+    "required_role": "Required Role",
+    "go_home": "Go to Home",
+    "go_back": "Go Back",
+    "quick_links": "Quick Links",
+    "need_access": "Need Access?",
+    "contact_support": "If you believe you should have access to this page, please contact our support team.",
+    "contact_us": "Contact Us"
   }
 }

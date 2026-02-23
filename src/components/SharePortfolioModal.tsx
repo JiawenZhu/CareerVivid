@@ -86,6 +86,7 @@ const SharePortfolioModal: React.FC<SharePortfolioModalProps> = ({
 
                     await setDoc(doc(db, 'public_portfolios', portfolioId), {
                         ...sanitizedData,
+                        userId: currentUser?.uid,
                         updatedAt: new Date(),
                         templateId: portfolioData.templateId || 'minimalist',
                         username: userSlug, // Save slug for public URL routing
@@ -105,6 +106,7 @@ const SharePortfolioModal: React.FC<SharePortfolioModalProps> = ({
 
                         await setDoc(doc(db, 'public_portfolios', portfolioId), {
                             ...sanitizedData,
+                            userId: currentUser.uid,
                             updatedAt: new Date(),
                             username: username,
                             attachedResumeId: data.attachedResumeId || null // Explicitly handle potential undefined
