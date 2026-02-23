@@ -27,11 +27,21 @@ dist-ssr
 .firebase/
 functions/lib/
 functions/node_modules/
+functions/firebase-tmp/
 .runtimeconfig.json
 
 # Build
 dist/
 dist-ssr/
+dist-extension/
 build/
 .cache/
 
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Service Account Keys
+*-adminsdk-*.json
+*-service-account*.json
