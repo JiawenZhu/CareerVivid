@@ -1,0 +1,54 @@
+
+// --- Translation Function ---
+export const translateText = functions.region('us-west1').https.onCall(async (data, context) => {
+  // 1. Authentication Check
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'The function must be called while authenticated.'
+    );
+  }
+
+  const { content, targetLanguage, format } = data;
+
+  // 2. Input Validation
+  if (!content || !targetLanguage) {
+    throw new functions.https.HttpsError(
+      'invalid-argument',
+      'The function must be called with "content" and "targetLanguage" arguments.'
+    );
+  }
+
+  try {
+    // 3. Initialize Client
+    const translationClient = new TranslationServiceClient();
+    const projectId = 'jastalk-firebase'; // Hardcoded based on previous context or env var
+    const location = 'global';
+
+    // 4. Construct Request
+    const request = {
+      parent: `projects/${projectId}/locations/${location}`,
+      contents: Array.isArray(content) ? content : [content],
+      mimeType: format === 'html' ? 'text/html' : 'text/plain', // Crucial for bold/italics
+      sourceLanguageCode: 'en-US', // Assuming source is English, or let auto-detect
+      targetLanguageCode: targetLanguage,
+    };
+
+    // 5. Call API
+    const [response] = await translationClient.translateText(request);
+
+    // 6. Return Results
+    // Return just the translated strings to keep it simple for the client
+    return {
+      translations: response.translations?.map(t => t.translatedText) || []
+    };
+
+  } catch (error: any) {
+    console.error("Translation Error:", error);
+    // Return clean errors
+    if (error.code === 3 || error.message?.includes('invalid language')) {
+       throw new functions.https.HttpsError('invalid-argument', 'Invalid target language code.');
+    }
+    throw new functions.https.HttpsError('internal', 'Translation failed.', error.message);
+  }
+});

@@ -1,0 +1,166 @@
+{
+  "hosting": {
+    "public": "dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "redirects": [
+      {
+        "source": "/auth",
+        "destination": "/signin",
+        "type": 301
+      },
+      {
+        "source": "/login",
+        "destination": "/signin",
+        "type": 301
+      },
+      {
+        "source": "/register",
+        "destination": "/signup",
+        "type": 301
+      }
+    ],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "Cross-Origin-Opener-Policy",
+            "value": "same-origin-allow-popups"
+          }
+        ]
+      }
+    ],
+    "rewrites": [
+
+      {
+        "source": "/zh/shared/**",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/es/shared/**",
+        "destination": "/index.html"
+      },
+
+      {
+        "source": "/zh/demo",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/es/demo",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/_next/static/**",
+        "destination": "/nextjs/_next/static/:splat"
+      },
+      {
+        "source": "/_next/**",
+        "destination": "/nextjs/_next/:splat"
+      },
+
+
+
+
+
+      {
+        "source": "/zh/pricing",
+        "destination": "/nextjs/zh/pricing.html"
+      },
+      {
+        "source": "/zh/contact",
+        "destination": "/nextjs/zh/contact.html"
+      },
+      {
+        "source": "/zh/signin",
+        "destination": "/nextjs/zh/signin.html"
+      },
+      {
+        "source": "/zh/signup",
+        "destination": "/nextjs/zh/signup.html"
+      },
+      {
+        "source": "/zh/blog",
+        "destination": "/nextjs/zh/blog.html"
+      },
+      {
+        "source": "/es/pricing",
+        "destination": "/nextjs/es/pricing.html"
+      },
+      {
+        "source": "/es/contact",
+        "destination": "/nextjs/es/contact.html"
+      },
+      {
+        "source": "/es/signin",
+        "destination": "/nextjs/es/signin.html"
+      },
+      {
+        "source": "/es/signup",
+        "destination": "/nextjs/es/signup.html"
+      },
+      {
+        "source": "/es/blog",
+        "destination": "/nextjs/es/blog.html"
+      },
+
+      {
+        "source": "/zh",
+        "destination": "/nextjs/zh.html"
+      },
+      {
+        "source": "/zh/",
+        "destination": "/nextjs/zh.html"
+      },
+      {
+        "source": "/es",
+        "destination": "/nextjs/es.html"
+      },
+      {
+        "source": "/es/",
+        "destination": "/nextjs/es.html"
+      },
+      {
+        "source": "/j/*",
+        "destination": "/nextjs/j/demo.html"
+      },
+      {
+        "source": "/j/*/*",
+        "destination": "/nextjs/j/demo/sample.html"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" install",
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ]
+    }
+  ],
+  "extensions": {
+    "firestore-send-email": "firebase/firestore-send-email@0.2.4"
+  }
+}

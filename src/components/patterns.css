@@ -1,0 +1,9 @@
+/* Modern Design Board Pattern */
+.bg-dot-pattern {
+    background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
+}
+
+.dark .bg-dot-pattern {
+    background-image: radial-gradient(#4b5563 1.5px, transparent 1.5px);
+}

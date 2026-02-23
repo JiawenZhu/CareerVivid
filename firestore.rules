@@ -1,0 +1,158 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------------------------------------------------------
+    // 🛡️ ADMIN CHECK (Robust & Fail-Safe)
+    // ---------------------------------------------------------
+    function isAdmin() {
+      return request.auth != null && (
+        // 1. Email Bypass
+        (request.auth.token.email == 'evan@careervivid.app' || request.auth.token.email == 'evan@jastalk.com') ||
+        // 2. Role Check
+        (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'academic_partner', 'super_admin']
+        )
+      );
+    }
+
+    // ---------------------------------------------------------
+    // 👤 CORE USER DATA (Recursive - Covers EVERYTHING)
+    // ---------------------------------------------------------
+    match /users/{userId} {
+      allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      
+      // Recursive match for all subcollections (settings, resumes, referralStats, etc.)
+      match /{allChildren=**} {
+        allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      }
+    }
+
+    // ---------------------------------------------------------
+    // 🎟️ REFERRAL CODES (Root Collection)
+    // ---------------------------------------------------------
+    match /referralCodes/{code} {
+      // Anyone logged in can read codes (to validate them).
+      // Admins can read everything.
+      allow read: if request.auth != null || isAdmin();
+      
+      // Creation/Updates:
+      // 1. Admins: Always allowed.
+      // 2. Users: Can create/update if the code document belongs to them (userId field matches).
+      allow write: if isAdmin() || (request.auth != null && (resource == null || resource.data.userId == request.auth.uid));
+    }
+
+    // ---------------------------------------------------------
+    // 💼 CLIENT PORTAL (Root Collection)
+    // ---------------------------------------------------------
+    match /client_projects/{projectId} {
+      allow read: if (request.auth != null && resource.data.ownerId == request.auth.uid) || isAdmin();
+      allow write: if isAdmin(); 
+      allow list: if isAdmin();
+
+      match /tasks/{taskId} {
+        allow read: if (request.auth != null && get(/databases/$(database)/documents/client_projects/$(projectId)).data.ownerId == request.auth.uid) || isAdmin();
+        allow write: if isAdmin(); 
+        
+        allow update: if (request.auth != null && get(/databases/$(database)/documents/client_projects/$(projectId)).data.ownerId == request.auth.uid)
+                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['comments']);
+      }
+    }
+    // ---------------------------------------------------------
+    // 🌐 PUBLIC PORTFOLIOS (Public Read, Owner/Admin Write)
+    // ---------------------------------------------------------
+    match /public_portfolios/{portfolioId} {
+      allow read: if true;
+      allow create, update: if isAdmin() || (request.auth != null && request.resource.data.userId == request.auth.uid);
+      allow delete: if isAdmin() || (request.auth != null && resource.data.userId == request.auth.uid);
+    }
+
+    // ---------------------------------------------------------
+    // 🎨 USER THEMES (Public Read, Owner Write)
+    // ---------------------------------------------------------
+    match /user_themes/{themeId} {
+      allow read: if true;
+      allow create, update: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
+    // ---------------------------------------------------------
+    // 📰 BLOG POSTS (Public Read)
+    // ---------------------------------------------------------
+    match /blog_posts/{postId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    // ---------------------------------------------------------
+    // 📬 CONTACT MESSAGES (Public Create, Admin Manage)
+    // ---------------------------------------------------------
+    match /contact_messages/{messageId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // 🗣️ FEEDBACK (Public Create, Admin Manage)
+    // ---------------------------------------------------------
+    match /feedback/{feedbackId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // ⚠️ ERROR REPORTS (Public Create, Admin Manage)
+    // ---------------------------------------------------------
+    match /error_reports/{errorId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // 🤝 PARTNER APPLICATIONS (Public Create, Admin Manage)
+    // ---------------------------------------------------------
+    match /partner_applications/{applicationId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // ⚙️ SYSTEM SETTINGS (Public Read, Admin Manage)
+    // ---------------------------------------------------------
+    match /system_settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // 📊 USAGE LOGS (Public Create, Admin Manage)
+    // ---------------------------------------------------------
+    match /usage_logs/{logId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // 📈 ANALYTICS (Public Update, Admin Manage)
+    // ---------------------------------------------------------
+    match /analytics/{docId} {
+      allow create, update: if true;
+      allow read, delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // 📧 EMAIL TEMPLATES (Admin Manage)
+    // ---------------------------------------------------------
+    match /email_templates/{templateId} {
+      allow read, write: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // 📨 MAIL (Admin Send)
+    // ---------------------------------------------------------
+    match /mail/{mailId} {
+      allow create: if isAdmin();
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}

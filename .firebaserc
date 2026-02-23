@@ -1,0 +1,13 @@
+{
+  "projects": {
+    "default": "gen-lang-client-0687391730"
+  },
+  "targets": {},
+  "etags": {
+    "jastalk-firebase": {
+      "extensionInstances": {
+        "firestore-send-email": "ac8487d690ead2dd2a5d622dc785424acfcbfe92d8c590bae90e1ace5acf2700"
+      }
+    }
+  }
+}
