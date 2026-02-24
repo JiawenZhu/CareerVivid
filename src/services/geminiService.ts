@@ -714,21 +714,50 @@ export const regenerateJobPrepSection = async (
 
 export const generateExcalidrawDiagram = async (userId: string, prompt: string): Promise<any> => {
     try {
-        const systemInstruction = `Role: You are an Expert System Architect and UI Layout Engine.
-Task: The user will request a diagram. You must generate a highly professional, visually spaced diagram by outputting RAW, strictly valid Excalidraw JSON.
+        const systemInstruction = `You are an Expert System Architect and UI Layout Engine.
+Generate a professional, well-spaced diagram as RAW Excalidraw JSON — no markdown, no explanation, just the JSON object.
 
-Strict JSON Schema Rules:
-1. You must output a single JSON object containing: "type": "excalidraw", "version": 2, and an "elements" array.
-2. NO MARKDOWN: Do not wrap your response in code blocks. Return purely the raw JSON string. Do not include any conversational text.
-3. Element IDs: Every element must have a unique, 20-character alphanumeric "id".
-4. Spatial Layout (Crucial): You must calculate x and y coordinates to ensure elements do not overlap. Use a grid system with generous spacing (at least 300px horizontal gap, 200px vertical gap between nodes).
-5. Element Types:
-   - Use "type": "rectangle" for components (width: 200, height: 80, with backgroundColor: "#ced4da", fillStyle: "solid", strokeColor: "#000000", roughness: 1, strokeWidth: 1, roundness: {"type": 3}).
-   - Use "type": "text" for labels. Position them centered inside their rectangle (offset x by ~20-40px, y by ~25px from the rectangle's x,y). Set fontSize: 16, fontFamily: 1, textAlign: "center".
-   - Use "type": "arrow" to connect components. Each arrow needs startBinding and endBinding objects referencing the rectangle IDs, plus a "points" array like [[0,0],[dx,dy]].
-6. All elements need these base properties: "versionNonce", "isDeleted": false, "boundElements": null, "updated": 1, "locked": false, "opacity": 100.
-7. For rectangles that have text labels, add a "boundElements" array containing {"id": "<text_element_id>", "type": "text"} to link them.
-8. For text elements inside rectangles, set "containerId": "<rectangle_id>".`;
+OUTPUT FORMAT: A single JSON object with exactly: {"type":"excalidraw","version":2,"elements":[...]}
+
+ELEMENT RULES (follow precisely):
+
+1. RECTANGLES — one per component:
+{
+  "type": "rectangle", "id": "<unique 20-char alphanumeric>",
+  "x": <number>, "y": <number>, "width": 200, "height": 70,
+  "backgroundColor": "#4dabf7", "fillStyle": "solid",
+  "strokeColor": "#1971c2", "strokeWidth": 2, "roughness": 0,
+  "roundness": {"type": 3}, "opacity": 100,
+  "isDeleted": false, "boundElements": null, "locked": false
+}
+Use distinct, professional pastel colors per layer (e.g., #4dabf7 blue for clients, #69db7c green for services, #ffd43b yellow for storage, #ff8787 red for external, #a9e34b lime for queues).
+
+2. TEXT LABELS — one per rectangle, as a STANDALONE text element (NOT bound):
+{
+  "type": "text", "id": "<unique 20-char alphanumeric>",
+  "x": <rect_x + 10>, "y": <rect_y + 22>, "width": 180, "height": 26,
+  "text": "<component name>", "fontSize": 16, "fontFamily": 1,
+  "textAlign": "center", "verticalAlign": "middle",
+  "strokeColor": "#1a1a2e", "backgroundColor": "transparent",
+  "fillStyle": "solid", "opacity": 100,
+  "isDeleted": false, "boundElements": null, "containerId": null, "locked": false
+}
+CRITICAL: Do NOT use containerId. Do NOT add boundElements on rectangles. Text must be standalone.
+
+3. ARROWS — connecting rectangles:
+{
+  "type": "arrow", "id": "<unique 20-char alphanumeric>",
+  "x": <startX>, "y": <startY>,
+  "points": [[0, 0], [<dx>, <dy>]],
+  "startBinding": {"elementId": "<source_rect_id>", "focus": 0, "gap": 8},
+  "endBinding": {"elementId": "<target_rect_id>", "focus": 0, "gap": 8},
+  "strokeColor": "#495057", "strokeWidth": 2, "roughness": 0,
+  "opacity": 100, "isDeleted": false, "boundElements": null, "locked": false,
+  "endArrowhead": "arrow", "startArrowhead": null
+}
+
+LAYOUT: Space nodes at least 320px apart horizontally, 180px vertically. No overlaps.
+Generate 6-15 nodes for a meaningful diagram. Keep IDs strictly 20 alphanumeric chars.`;
 
         // Guard: cap prompt length to prevent abuse
         if (prompt.length > 1000) {
