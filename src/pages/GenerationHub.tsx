@@ -6,6 +6,7 @@ import { CAREER_PATHS, Industry } from '../data/careers';
 import { ArrowRight, Zap, Loader2, ChevronLeft, LayoutDashboard, UploadCloud, FileText, Plus } from 'lucide-react';
 import { navigate } from '../utils/navigation';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigation } from '../contexts/NavigationContext';
 import Logo from '../components/Logo';
 import ResumeImport from '../components/ResumeImport';
 import ResumeCard from '../components/Dashboard/ResumeCard';
@@ -13,6 +14,7 @@ import { ResumeCardSkeleton } from '../components/Dashboard/DashboardSkeletons';
 import ShareResumeModal from '../components/ShareResumeModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { ResumeData } from '../types';
+import AppLayout from '../components/Layout/AppLayout';
 
 const loadingMessages = [
     "Analyzing your prompt...",
@@ -36,6 +38,7 @@ const placeholderPrompts = [
 
 const GenerationHub: React.FC = () => {
     const { currentUser } = useAuth();
+    const { navPosition } = useNavigation();
     const { resumes, addAIGeneratedResume, updateResume, deleteResume, duplicateResume, isLoading: isLoadingResumes } = useResumes();
     const [prompt, setPrompt] = useState('');
     const [isFileImport, setIsFileImport] = useState(false);
@@ -253,122 +256,124 @@ const GenerationHub: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-20 relative text-left">
-            {/* Dashboard Link */}
-            {resumes.length > 0 && (
-                <div className="absolute top-6 right-6 z-20">
-                    <a
-                        href="/"
-                        className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                    >
-                        <LayoutDashboard size={18} />
-                        <span className="hidden sm:inline">Dashboard</span>
-                    </a>
-                </div>
-            )}
-
-            {/* Top Section: My Resumes */}
-            <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 pt-8 pb-12 mb-12">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center mb-8">
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                            <FileText className="text-primary-600" size={32} />
-                            My Resumes
-                        </h1>
-                        <button
-                            onClick={() => document.getElementById('create-section')?.scrollIntoView({ behavior: 'smooth' })}
-                            className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2 font-medium"
+        <AppLayout>
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-20 relative text-left">
+                {/* Dashboard Link */}
+                {resumes.length > 0 && (
+                    <div className={`absolute top-6 right-6 z-20 ${navPosition === 'side' ? 'md:hidden' : ''}`}>
+                        <a
+                            href="/"
+                            className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                         >
-                            <Plus size={20} /> New Resume
-                        </button>
+                            <LayoutDashboard size={18} />
+                            <span className="hidden sm:inline">Dashboard</span>
+                        </a>
                     </div>
+                )}
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {isLoadingResumes
-                            ? Array.from({ length: 4 }).map((_, i) => <ResumeCardSkeleton key={i} />)
-                            : resumes.length > 0 ? (
-                                resumes.map(resume => (
-                                    <ResumeCard
-                                        key={resume.id}
-                                        resume={resume}
-                                        onUpdate={updateResume}
-                                        onDuplicate={duplicateResume}
-                                        onDelete={handleDeleteClick}
-                                        onShare={setShareModalResume}
-                                        onDragStart={(e) => e.preventDefault()}
-                                    />
-                                ))
-                            ) : (
-                                <div className="col-span-full py-12 text-center bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
-                                    <p className="text-gray-500 dark:text-gray-400 mb-4">You haven't created any resumes yet.</p>
-                                    <button
-                                        onClick={() => document.getElementById('create-section')?.scrollIntoView({ behavior: 'smooth' })}
-                                        className="text-primary-600 font-medium hover:underline"
-                                    >
-                                        Create your first resume below
-                                    </button>
-                                </div>
-                            )
-                        }
-                    </div>
-                </div>
-            </div>
-
-            {/* Bottom Section: Create New */}
-            <div id="create-section" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-10">
-                    <Logo className="h-12 w-12 mx-auto" />
-                    <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-gray-100 mt-4">Create Your Next Resume</h1>
-                    <p className="text-lg text-gray-500 dark:text-gray-400 mt-2 max-w-2xl mx-auto">Start with an AI-powered prompt or choose a guided path to generate a professional resume in seconds.</p>
-                </div>
-
-                <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mb-10">
-                    <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">Generate or Import Your Resume</h2>
-                    <div className="flex flex-col gap-4">
-                        <ResumeImport
-                            value={prompt}
-                            onChange={handleTextChange}
-                            onFileProcessed={handleFileProcessed}
-                            placeholder={placeholder}
-                            className="bg-transparent"
-                            variant="modern"
-                        >
+                {/* Top Section: My Resumes */}
+                <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 pt-8 pb-12 mb-12">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between items-center mb-8">
+                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                                <FileText className="text-primary-600" size={32} />
+                                My Resumes
+                            </h1>
                             <button
-                                onClick={() => handlePromptSubmit()}
-                                className="bg-primary-600 text-white p-3 rounded-lg shadow-soft hover:bg-primary-700 transition-colors flex items-center justify-center disabled:bg-primary-300 disabled:cursor-not-allowed"
-                                disabled={!prompt.trim()}
-                                title={isFileImport ? "Import & Parse" : "Generate Resume"}
+                                onClick={() => document.getElementById('create-section')?.scrollIntoView({ behavior: 'smooth' })}
+                                className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2 font-medium"
                             >
-                                <ArrowRight size={20} />
+                                <Plus size={20} /> New Resume
                             </button>
-                        </ResumeImport>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {isLoadingResumes
+                                ? Array.from({ length: 4 }).map((_, i) => <ResumeCardSkeleton key={i} />)
+                                : resumes.length > 0 ? (
+                                    resumes.map(resume => (
+                                        <ResumeCard
+                                            key={resume.id}
+                                            resume={resume}
+                                            onUpdate={updateResume}
+                                            onDuplicate={duplicateResume}
+                                            onDelete={handleDeleteClick}
+                                            onShare={setShareModalResume}
+                                            onDragStart={(e) => e.preventDefault()}
+                                        />
+                                    ))
+                                ) : (
+                                    <div className="col-span-full py-12 text-center bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
+                                        <p className="text-gray-500 dark:text-gray-400 mb-4">You haven't created any resumes yet.</p>
+                                        <button
+                                            onClick={() => document.getElementById('create-section')?.scrollIntoView({ behavior: 'smooth' })}
+                                            className="text-primary-600 font-medium hover:underline"
+                                        >
+                                            Create your first resume below
+                                        </button>
+                                    </div>
+                                )
+                            }
+                        </div>
                     </div>
                 </div>
 
-                {renderContent()}
+                {/* Bottom Section: Create New */}
+                <div id="create-section" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-10">
+                        <Logo className="h-12 w-12 mx-auto" />
+                        <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-gray-100 mt-4">Create Your Next Resume</h1>
+                        <p className="text-lg text-gray-500 dark:text-gray-400 mt-2 max-w-2xl mx-auto">Start with an AI-powered prompt or choose a guided path to generate a professional resume in seconds.</p>
+                    </div>
 
-                {error && <p className="text-red-500 text-center mt-6 bg-red-100 dark:bg-red-900/20 dark:text-red-400 p-3 rounded-lg">{error}</p>}
-            </div>
+                    <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mb-10">
+                        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">Generate or Import Your Resume</h2>
+                        <div className="flex flex-col gap-4">
+                            <ResumeImport
+                                value={prompt}
+                                onChange={handleTextChange}
+                                onFileProcessed={handleFileProcessed}
+                                placeholder={placeholder}
+                                className="bg-transparent"
+                                variant="modern"
+                            >
+                                <button
+                                    onClick={() => handlePromptSubmit()}
+                                    className="bg-primary-600 text-white p-3 rounded-lg shadow-soft hover:bg-primary-700 transition-colors flex items-center justify-center disabled:bg-primary-300 disabled:cursor-not-allowed"
+                                    disabled={!prompt.trim()}
+                                    title={isFileImport ? "Import & Parse" : "Generate Resume"}
+                                >
+                                    <ArrowRight size={20} />
+                                </button>
+                            </ResumeImport>
+                        </div>
+                    </div>
 
-            {/* Modals */}
-            <ConfirmationModal
-                isOpen={confirmModal.isOpen}
-                title={confirmModal.title}
-                message={confirmModal.message}
-                confirmText={confirmModal.confirmText}
-                onConfirm={confirmModal.onConfirm}
-                onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
-            />
+                    {renderContent()}
 
-            {shareModalResume && (
-                <ShareResumeModal
-                    isOpen={!!shareModalResume}
-                    onClose={() => setShareModalResume(null)}
-                    resume={shareModalResume}
-                    onUpdate={updateResume}
+                    {error && <p className="text-red-500 text-center mt-6 bg-red-100 dark:bg-red-900/20 dark:text-red-400 p-3 rounded-lg">{error}</p>}
+                </div>
+
+                {/* Modals */}
+                <ConfirmationModal
+                    isOpen={confirmModal.isOpen}
+                    title={confirmModal.title}
+                    message={confirmModal.message}
+                    confirmText={confirmModal.confirmText}
+                    onConfirm={confirmModal.onConfirm}
+                    onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
                 />
-            )}
-        </div>
+
+                {shareModalResume && (
+                    <ShareResumeModal
+                        isOpen={!!shareModalResume}
+                        onClose={() => setShareModalResume(null)}
+                        resume={shareModalResume}
+                        onUpdate={updateResume}
+                    />
+                )}
+            </div>
+        </AppLayout>
     );
 };
 

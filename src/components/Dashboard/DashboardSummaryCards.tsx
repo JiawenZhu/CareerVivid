@@ -44,7 +44,7 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
             isAction: false
         },
         {
-            title: 'Job Application Tracker',
+            title: 'Job Tracker',
             count: jobCount > 0 ? jobCount : null,
             icon: Briefcase,
             color: 'text-indigo-600',

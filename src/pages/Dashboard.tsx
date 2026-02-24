@@ -4,8 +4,10 @@ import { usePortfolios } from '../hooks/usePortfolios';
 import { useWhiteboards } from '../hooks/useWhiteboards';
 import { ResumeData, PracticeHistoryEntry, JobApplicationData, Folder } from '../types';
 import { PortfolioData } from '../features/portfolio/types/portfolio';
-import { PlusCircle, FileText, Mic, Briefcase, GripVertical, LayoutDashboard, Loader2, Globe, Plus, User as UserIcon, LogOut, ChevronDown, FolderPlus, Trash2, PenTool, LayoutGrid, List, ChevronRight } from 'lucide-react';
+import { PlusCircle, FileText, Mic, Briefcase, GripVertical, LayoutDashboard, Loader2, Globe, Plus, User as UserIcon, LogOut, ChevronDown, FolderPlus, Trash2, PenTool, LayoutGrid, List, ChevronRight, PanelLeft, Github } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigation } from '../contexts/NavigationContext';
+import AppLayout from '../components/Layout/AppLayout';
 import { usePracticeHistory } from '../hooks/useJobHistory';
 import JobDetailModal from '../components/JobTracker/JobDetailModal';
 import { useJobTracker } from '../hooks/useJobTracker';
@@ -48,6 +50,7 @@ const Dashboard: React.FC = () => {
     const { whiteboards, isLoading: isLoadingWhiteboards, deleteWhiteboard, duplicateWhiteboard, updateWhiteboard, createWhiteboard } = useWhiteboards();
     const { currentUser, logOut, isAdmin, userProfile, isPremium, aiUsage } = useAuth();
     const { t } = useTranslation();
+    const { navPosition, toggleNavPosition } = useNavigation();
 
     const [selectedJobForReport, setSelectedJobForReport] = useState<PracticeHistoryEntry | null>(null);
     const [selectedJobApplication, setSelectedJobApplication] = useState<JobApplicationData | null>(null);
@@ -72,7 +75,7 @@ const Dashboard: React.FC = () => {
         { id: 'resumes', label: 'My Resumes' },
         { id: 'whiteboards', label: 'My Whiteboards' },
         { id: 'portfolios', label: 'Portfolios' },
-        { id: 'jobTracker', label: 'Job Application Tracker' },
+        { id: 'jobTracker', label: 'Job Tracker' },
     ];
 
     const DEFAULT_ORDER = SECTIONS_CONFIG.map(s => s.id);
@@ -104,7 +107,7 @@ const Dashboard: React.FC = () => {
         resumes: 'My Resumes',
         whiteboards: 'My Whiteboards',
         portfolios: 'Portfolios',
-        jobTracker: 'Job Application Tracker',
+        jobTracker: 'Job Tracker',
     };
 
     const [sectionNames, setSectionNames] = useState<Record<string, string>>(() => {
@@ -603,357 +606,375 @@ const Dashboard: React.FC = () => {
     const isLoading = isLoadingHistory || isLoadingJobs;
 
     return (
-        <div className="bg-gray-100 dark:bg-gray-950 min-h-screen">
-            {/* Upgrade Modal for Site Limits */}
-            <ConfirmationModal
-                isOpen={isUpgradeModalOpen}
-                onCancel={() => setIsUpgradeModalOpen(false)}
-                onConfirm={() => navigate('/subscription')}
-                title="Limit Reached"
-                message={limitMessage}
-                confirmText="Upgrade Now"
-                cancelText="Maybe Later"
-                variant="default"
-            />
-            <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 shadow-sm sticky top-0 z-20">
-                <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16 sm:h-20">
-                        <div className="flex items-center gap-4">
-                            <a href="/" className="flex items-center gap-2">
-                                <Logo className="h-8 w-8" />
-                                <span className="text-xl font-bold text-gray-900 dark:text-white hidden sm:inline">CareerVivid</span>
-                            </a>
-                        </div>
-                        <div className="flex items-center gap-2 md:gap-4">
-                            <span className="text-sm font-medium text-gray-600 dark:text-gray-300 hidden lg:block">{currentUser?.email}</span>
+        <AppLayout>
+            <div className="bg-gray-100 dark:bg-gray-950 min-h-screen">
+                {/* Upgrade Modal for Site Limits */}
+                <ConfirmationModal
+                    isOpen={isUpgradeModalOpen}
+                    onCancel={() => setIsUpgradeModalOpen(false)}
+                    onConfirm={() => navigate('/subscription')}
+                    title="Limit Reached"
+                    message={limitMessage}
+                    confirmText="Upgrade Now"
+                    cancelText="Maybe Later"
+                    variant="default"
+                />
+                <header className={`bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 shadow-sm sticky top-0 z-20 ${navPosition === 'side' ? 'md:hidden' : ''}`}>
+                    <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between items-center h-16 sm:h-20">
+                            <div className="flex items-center gap-4">
+                                <a href="/" className="flex items-center gap-2">
+                                    <Logo className="h-8 w-8" />
+                                    <span className="text-xl font-bold text-gray-900 dark:text-white hidden sm:inline">CareerVivid</span>
+                                </a>
+                            </div>
+                            <div className="flex items-center gap-2 md:gap-4">
+                                <span className="text-sm font-medium text-gray-600 dark:text-gray-300 hidden lg:block">{currentUser?.email}</span>
 
-                            {/* AI Usage Progress Bar */}
-                            {aiUsage && (
-                                /* Desktop: Minimal Progress Bar */
-                                <div className="hidden xl:block w-48">
-                                    <AIUsageProgressBar
-                                        used={aiUsage.count}
-                                        limit={aiUsage.limit}
-                                        isPremium={isPremium}
-                                        onUpgradeClick={() => navigate('/subscription')}
-                                        variant="minimal"
-                                    />
-                                </div>
-                            )}
-                            <LanguageSelect />
-                            <ThemeToggle />
-                            <button onClick={() => navigate('/interview-studio')} className="flex items-center gap-2 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300 font-semibold py-2 px-3 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-900/80 transition-colors">
-                                <Mic size={20} /> <span className="hidden md:inline">{t('nav.interview_studio')}</span>
-                            </button>
-                            <div className="relative" ref={newMenuRef}>
-                                <button onClick={() => setIsNewMenuOpen(!isNewMenuOpen)} className="flex items-center gap-2 bg-primary-600 text-white font-semibold py-2 px-3 rounded-lg shadow-soft hover:bg-primary-700 transition-colors">
-                                    <PlusCircle size={20} /> <span className="hidden md:inline">{t('dashboard.create_new')}</span> <ChevronDown size={20} />
-                                </button>
-                                {isNewMenuOpen && (
-                                    <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-20 border dark:border-gray-700">
-                                        <div className="py-1">
-                                            <button onClick={() => { navigate('/newresume'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                <FileText size={16} /> {t('dashboard.new_resume')}
-                                            </button>
-                                            <button onClick={() => { navigate('/portfolio'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                <Globe size={16} /> New Portfolio
-                                            </button>
-                                            <button onClick={async () => {
-                                                const id = await createWhiteboard();
-                                                navigate(`/whiteboard/${id}`);
-                                                setIsNewMenuOpen(false);
-                                            }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                <PenTool size={16} /> New Whiteboard
-                                            </button>
-                                            <button onClick={() => { navigate('/interview-studio'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                <Mic size={16} /> {t('dashboard.interview_practice')}
-                                            </button>
-                                            <button onClick={() => { navigate('/job-market'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                <Briefcase size={16} /> Find Jobs (Professional)
-                                            </button>
-                                            <button onClick={() => { navigate('/job-tracker'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                <Briefcase size={16} /> {t('dashboard.track_new_job')}
-                                            </button>
-                                            <div className="border-t my-1 border-gray-200 dark:border-gray-600"></div>
-                                            <button onClick={() => { handleAddFolder(); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                <FolderPlus size={16} /> {t('dashboard.new_folder')}
-                                            </button>
-                                        </div>
+                                {/* AI Usage Progress Bar */}
+                                {aiUsage && (
+                                    /* Desktop: Minimal Progress Bar */
+                                    <div className="hidden xl:block w-48">
+                                        <AIUsageProgressBar
+                                            used={aiUsage.count}
+                                            limit={aiUsage.limit}
+                                            isPremium={isPremium}
+                                            onUpgradeClick={() => navigate('/subscription')}
+                                            variant="minimal"
+                                        />
                                     </div>
                                 )}
-                            </div>
-                            <div className="relative" ref={userMenuRef}>
-                                <button onClick={handleStep1Click} className="relative w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300">
-                                    {currentUser?.photoURL ? <img src={currentUser.photoURL} alt="User" className="w-full h-full rounded-full object-cover" /> : <UserIcon size={20} />}
-
-                                    {/* Step 1 Arrow: Pointing UP to Profile Icon */}
-                                    {!isPremium && upgradeStep === 1 && (
-                                        <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 flex flex-col items-center animate-bounce-vertical pointer-events-none z-50">
-                                            <svg className="w-8 h-8 text-orange-500 transform -rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                            </svg>
-                                            <span className="text-orange-500 font-bold text-sm whitespace-nowrap bg-white dark:bg-gray-800 px-1 rounded shadow-sm">Click on Profile</span>
+                                <LanguageSelect />
+                                <ThemeToggle />
+                                <a
+                                    href="https://github.com/Jastalk/CareerVivid"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors hidden md:block"
+                                    title="Open Source Project"
+                                >
+                                    <Github size={20} />
+                                </a>
+                                <button
+                                    onClick={toggleNavPosition}
+                                    className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors hidden md:block"
+                                    title="Toggle Sidebar"
+                                >
+                                    <PanelLeft size={20} />
+                                </button>
+                                <button onClick={() => navigate('/interview-studio')} className="flex items-center gap-2 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300 font-semibold py-2 px-3 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-900/80 transition-colors">
+                                    <Mic size={20} /> <span className="hidden md:inline">{t('nav.interview_studio')}</span>
+                                </button>
+                                <div className="relative" ref={newMenuRef}>
+                                    <button onClick={() => setIsNewMenuOpen(!isNewMenuOpen)} className="flex items-center gap-2 bg-primary-600 text-white font-semibold py-2 px-3 rounded-lg shadow-soft hover:bg-primary-700 transition-colors">
+                                        <PlusCircle size={20} /> <span className="hidden md:inline">{t('dashboard.create_new')}</span> <ChevronDown size={20} />
+                                    </button>
+                                    {isNewMenuOpen && (
+                                        <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-20 border dark:border-gray-700">
+                                            <div className="py-1">
+                                                <button onClick={() => { navigate('/newresume'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                    <FileText size={16} /> {t('dashboard.new_resume')}
+                                                </button>
+                                                <button onClick={() => { navigate('/portfolio'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                    <Globe size={16} /> New Portfolio
+                                                </button>
+                                                <button onClick={async () => {
+                                                    const id = await createWhiteboard();
+                                                    navigate(`/whiteboard/${id}`);
+                                                    setIsNewMenuOpen(false);
+                                                }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                    <PenTool size={16} /> New Whiteboard
+                                                </button>
+                                                <button onClick={() => { navigate('/interview-studio'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                    <Mic size={16} /> {t('dashboard.interview_practice')}
+                                                </button>
+                                                <button onClick={() => { navigate('/job-market'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                    <Briefcase size={16} /> Find Jobs (Professional)
+                                                </button>
+                                                <button onClick={() => { navigate('/job-tracker'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                    <Briefcase size={16} /> {t('dashboard.track_new_job')}
+                                                </button>
+                                                <div className="border-t my-1 border-gray-200 dark:border-gray-600"></div>
+                                                <button onClick={() => { handleAddFolder(); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                    <FolderPlus size={16} /> {t('dashboard.new_folder')}
+                                                </button>
+                                            </div>
                                         </div>
                                     )}
-                                </button>
-                                {isUserMenuOpen && (
-                                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-20 border dark:border-gray-700">
-                                        <div className="py-1">
-                                            <a href="/profile" onClick={handleStep2Click} className="relative block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                {t('dashboard.profile')}
-                                                {/* Step 2 Arrow: Pointing LEFT to Profile Link (from Right side) */}
-                                                {!isPremium && upgradeStep === 2 && (
-                                                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 animate-bounce-horizontal pointer-events-none">
-                                                        <svg className="w-6 h-6 text-orange-500 transform rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                                        </svg>
-                                                        <span className="text-orange-500 font-bold text-xs whitespace-nowrap">Click Here</span>
-                                                    </div>
-                                                )}
-                                            </a>
-                                            {isPremium && <a href="/referrals" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Referrals</a>}
-                                            {(userProfile?.roles?.includes('academic_partner') || userProfile?.role === 'academic_partner') && <a href="/academic-partner" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.academic_partner')}</a>}
-                                            {(userProfile?.roles?.includes('business_partner') || userProfile?.role === 'business_partner') && <a href="/business-partner/dashboard" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Business Partner</a>}
-                                            {isAdmin && <a href="/admin" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.admin')}</a>}
-                                            <button onClick={logOut} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.sign_out')}</button>
+                                </div>
+                                <div className="relative" ref={userMenuRef}>
+                                    <button onClick={handleStep1Click} className="relative w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300">
+                                        {currentUser?.photoURL ? <img src={currentUser.photoURL} alt="User" className="w-full h-full rounded-full object-cover" /> : <UserIcon size={20} />}
+
+                                        {/* Step 1 Arrow: Pointing UP to Profile Icon */}
+                                        {!isPremium && upgradeStep === 1 && (
+                                            <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 flex flex-col items-center animate-bounce-vertical pointer-events-none z-50">
+                                                <svg className="w-8 h-8 text-orange-500 transform -rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                                </svg>
+                                                <span className="text-orange-500 font-bold text-sm whitespace-nowrap bg-white dark:bg-gray-800 px-1 rounded shadow-sm">Click on Profile</span>
+                                            </div>
+                                        )}
+                                    </button>
+                                    {isUserMenuOpen && (
+                                        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-20 border dark:border-gray-700">
+                                            <div className="py-1">
+                                                <a href="/profile" onClick={handleStep2Click} className="relative block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                    {t('dashboard.profile')}
+                                                    {/* Step 2 Arrow: Pointing LEFT to Profile Link (from Right side) */}
+                                                    {!isPremium && upgradeStep === 2 && (
+                                                        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 animate-bounce-horizontal pointer-events-none">
+                                                            <svg className="w-6 h-6 text-orange-500 transform rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                                            </svg>
+                                                            <span className="text-orange-500 font-bold text-xs whitespace-nowrap">Click Here</span>
+                                                        </div>
+                                                    )}
+                                                </a>
+                                                {isPremium && <a href="/referrals" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Referrals</a>}
+                                                {(userProfile?.roles?.includes('academic_partner') || userProfile?.role === 'academic_partner') && <a href="/academic-partner" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.academic_partner')}</a>}
+                                                {(userProfile?.roles?.includes('business_partner') || userProfile?.role === 'business_partner') && <a href="/business-partner/dashboard" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Business Partner</a>}
+                                                {isAdmin && <a href="/admin" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.admin')}</a>}
+                                                <button onClick={logOut} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.sign_out')}</button>
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
+                                </div>
                             </div>
                         </div>
+
+                        {/* Mobile Only: Full Width AI Progress Bar */}
+                        {aiUsage && (
+                            <div className="block xl:hidden pb-3 -mt-2">
+                                <AIUsageProgressBar
+                                    used={aiUsage.count}
+                                    limit={aiUsage.limit}
+                                    isPremium={isPremium}
+                                    onUpgradeClick={() => navigate('/subscription')}
+                                    variant="mobile-line"
+                                />
+                            </div>
+                        )}
+                    </div>
+                </header>
+                <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    {/* Summary Cards */}
+                    <DashboardSummaryCards
+                        resumeCount={resumes.length}
+                        interviewCount={practiceHistory.length}
+                        portfolioCount={portfolios.length}
+                        jobCount={jobApplications.length}
+                    />
+
+                    {/* View Mode Toggle */}
+                    <div className="flex justify-end mt-6 mb-2 pr-1">
+                        <button
+                            onClick={() => setViewMode(viewMode === 'row' ? 'grid' : 'row')}
+                            className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors text-gray-500 dark:text-gray-400 flex items-center gap-2 text-sm font-medium"
+                            title={viewMode === 'row' ? 'Switch to Grid View' : 'Switch to Row View'}
+                        >
+                            {viewMode === 'row' ? (
+                                <><LayoutGrid size={18} /> <span className="hidden sm:inline">Grid View</span></>
+                            ) : (
+                                <><List size={18} /> <span className="hidden sm:inline">Row View</span></>
+                            )}
+                        </button>
                     </div>
 
-                    {/* Mobile Only: Full Width AI Progress Bar */}
-                    {aiUsage && (
-                        <div className="block xl:hidden pb-3 -mt-2">
-                            <AIUsageProgressBar
-                                used={aiUsage.count}
-                                limit={aiUsage.limit}
-                                isPremium={isPremium}
-                                onUpgradeClick={() => navigate('/subscription')}
-                                variant="mobile-line"
-                            />
-                        </div>
-                    )}
-                </div>
-            </header>
-            <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Summary Cards */}
-                <DashboardSummaryCards
-                    resumeCount={resumes.length}
-                    interviewCount={practiceHistory.length}
-                    portfolioCount={portfolios.length}
-                    jobCount={jobApplications.length}
-                />
-
-                {/* View Mode Toggle */}
-                <div className="flex justify-end mt-6 mb-2 pr-1">
-                    <button
-                        onClick={() => setViewMode(viewMode === 'row' ? 'grid' : 'row')}
-                        className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors text-gray-500 dark:text-gray-400 flex items-center gap-2 text-sm font-medium"
-                        title={viewMode === 'row' ? 'Switch to Grid View' : 'Switch to Row View'}
-                    >
-                        {viewMode === 'row' ? (
-                            <><LayoutGrid size={18} /> <span className="hidden sm:inline">Grid View</span></>
-                        ) : (
-                            <><List size={18} /> <span className="hidden sm:inline">Row View</span></>
-                        )}
-                    </button>
-                </div>
-
-                {/* Sections Rendered in Configured Order */}
-                {sectionOrder.map(sectionId => {
-                    switch (sectionId) {
-                        case 'interviewStudio':
-                            return (
-                                <DashboardPreviewSection
-                                    key={sectionId}
-                                    title={sectionNames.interviewStudio}
-                                    items={practiceHistory}
-                                    viewMode={viewMode}
-                                    onLongPress={() => setIsReorderModalOpen(true)}
-                                    onViewAll={() => navigate('/interview-studio')}
-                                    onTitleChange={(name) => handleSectionNameChange('interviewStudio', name)}
-                                    emptyMessage="No practice sessions yet. Start your first mock interview!"
-                                    renderItem={(session) => (
-                                        <InterviewHistoryCard
-                                            key={session.id}
-                                            entry={session}
-                                            onDelete={deletePracticeHistory}
-                                            onShowReport={setSelectedJobForReport}
-                                            onDragStart={(e) => e.preventDefault()}
-                                        />
-                                    )}
-                                />
-                            );
-                        case 'resumes':
-                            return (
-                                <DashboardPreviewSection
-                                    key={sectionId}
-                                    title={sectionNames.resumes}
-                                    items={resumes}
-                                    viewMode={viewMode}
-                                    onLongPress={() => setIsReorderModalOpen(true)}
-                                    onViewAll={() => navigate('/newresume')}
-                                    onTitleChange={(name) => handleSectionNameChange('resumes', name)}
-                                    emptyMessage="No resumes created yet. Create your first resume!"
-                                    renderItem={(resume) => (
-                                        <ResumeCard
-                                            key={resume.id}
-                                            resume={resume}
-                                            onDelete={deleteResume}
-                                            onDuplicate={duplicateResume}
-                                            onUpdate={updateResume}
-                                            onShare={(r) => setShareModalResume(r)}
-                                            onDragStart={(e) => e.preventDefault()}
-                                        />
-                                    )}
-                                />
-                            );
-                        case 'whiteboards':
-                            return (
-                                <React.Fragment key={sectionId}>
+                    {/* Sections Rendered in Configured Order */}
+                    {sectionOrder.map(sectionId => {
+                        switch (sectionId) {
+                            case 'interviewStudio':
+                                return (
                                     <DashboardPreviewSection
-                                        title={sectionNames.whiteboards}
-                                        items={whiteboards}
+                                        key={sectionId}
+                                        title={sectionNames.interviewStudio}
+                                        items={practiceHistory}
                                         viewMode={viewMode}
                                         onLongPress={() => setIsReorderModalOpen(true)}
-                                        onViewAll={() => { navigate('/whiteboard') }}
-                                        onTitleChange={(name) => handleSectionNameChange('whiteboards', name)}
-                                        emptyMessage="No whiteboards created yet."
-                                        renderItem={(whiteboard) => (
-                                            <WhiteboardCard
-                                                key={whiteboard.id}
-                                                whiteboard={whiteboard}
-                                                onDelete={deleteWhiteboard}
-                                                onDuplicate={duplicateWhiteboard}
-                                                onUpdate={updateWhiteboard}
+                                        onViewAll={() => navigate('/interview-studio')}
+                                        onTitleChange={(name) => handleSectionNameChange('interviewStudio', name)}
+                                        emptyMessage="No practice sessions yet. Start your first mock interview!"
+                                        renderItem={(session) => (
+                                            <InterviewHistoryCard
+                                                key={session.id}
+                                                entry={session}
+                                                onDelete={deletePracticeHistory}
+                                                onShowReport={setSelectedJobForReport}
                                                 onDragStart={(e) => e.preventDefault()}
                                             />
                                         )}
                                     />
-                                    {whiteboards.length === 0 && (
-                                        <div className="flex justify-center -mt-8 mb-10">
-                                            <button
-                                                onClick={async () => {
-                                                    const id = await createWhiteboard();
-                                                    navigate(`/whiteboard/${id}`);
-                                                }}
-                                                className="bg-primary-600 text-white font-medium py-2 px-6 rounded-lg hover:bg-primary-700 transition"
-                                            >
-                                                + Create a New Whiteboard
-                                            </button>
-                                        </div>
-                                    )}
-                                </React.Fragment>
-                            );
-                        case 'portfolios':
-                            return (
-                                <DashboardPreviewSection
-                                    key={sectionId}
-                                    title={sectionNames.portfolios}
-                                    items={portfolios}
-                                    viewMode={viewMode}
-                                    onLongPress={() => setIsReorderModalOpen(true)}
-                                    onViewAll={() => navigate('/portfolio')}
-                                    onTitleChange={(name) => handleSectionNameChange('portfolios', name)}
-                                    emptyMessage="No portfolios created yet."
-                                    renderItem={(portfolio) => (
-                                        <PortfolioCard
-                                            key={portfolio.id}
-                                            portfolio={portfolio}
-                                            onDelete={deletePortfolio}
-                                            onDuplicate={handleDuplicatePortfolio}
-                                            onUpdate={updatePortfolio}
-                                            onShare={(p) => setShareModalPortfolio(p)}
-                                            onDragStart={(e) => e.preventDefault()}
-                                        />
-                                    )}
-                                />
-                            );
-                        case 'jobTracker':
-                            return (
-                                <div key={sectionId} className="mb-10">
-                                    <DraggableSectionHeader
-                                        title={sectionNames.jobTracker}
+                                );
+                            case 'resumes':
+                                return (
+                                    <DashboardPreviewSection
+                                        key={sectionId}
+                                        title={sectionNames.resumes}
+                                        items={resumes}
                                         viewMode={viewMode}
                                         onLongPress={() => setIsReorderModalOpen(true)}
-                                        onViewAll={() => navigate('/job-tracker')}
-                                        hasItems={jobApplications.length > 0}
-                                        onTitleChange={(name) => handleSectionNameChange('jobTracker', name)}
+                                        onViewAll={() => navigate('/newresume')}
+                                        onTitleChange={(name) => handleSectionNameChange('resumes', name)}
+                                        emptyMessage="No resumes created yet. Create your first resume!"
+                                        renderItem={(resume) => (
+                                            <ResumeCard
+                                                key={resume.id}
+                                                resume={resume}
+                                                onDelete={deleteResume}
+                                                onDuplicate={duplicateResume}
+                                                onUpdate={updateResume}
+                                                onShare={(r) => setShareModalResume(r)}
+                                                onDragStart={(e) => e.preventDefault()}
+                                            />
+                                        )}
                                     />
+                                );
+                            case 'whiteboards':
+                                return (
+                                    <React.Fragment key={sectionId}>
+                                        <DashboardPreviewSection
+                                            title={sectionNames.whiteboards}
+                                            items={whiteboards}
+                                            viewMode={viewMode}
+                                            onLongPress={() => setIsReorderModalOpen(true)}
+                                            onViewAll={() => { navigate('/whiteboard') }}
+                                            onTitleChange={(name) => handleSectionNameChange('whiteboards', name)}
+                                            emptyMessage="No whiteboards created yet."
+                                            renderItem={(whiteboard) => (
+                                                <WhiteboardCard
+                                                    key={whiteboard.id}
+                                                    whiteboard={whiteboard}
+                                                    onDelete={deleteWhiteboard}
+                                                    onDuplicate={duplicateWhiteboard}
+                                                    onUpdate={updateWhiteboard}
+                                                    onDragStart={(e) => e.preventDefault()}
+                                                />
+                                            )}
+                                        />
+                                        {whiteboards.length === 0 && (
+                                            <div className="flex justify-center -mt-8 mb-10">
+                                                <button
+                                                    onClick={async () => {
+                                                        const id = await createWhiteboard();
+                                                        navigate(`/whiteboard/${id}`);
+                                                    }}
+                                                    className="bg-primary-600 text-white font-medium py-2 px-6 rounded-lg hover:bg-primary-700 transition"
+                                                >
+                                                    + Create a New Whiteboard
+                                                </button>
+                                            </div>
+                                        )}
+                                    </React.Fragment>
+                                );
+                            case 'portfolios':
+                                return (
+                                    <DashboardPreviewSection
+                                        key={sectionId}
+                                        title={sectionNames.portfolios}
+                                        items={portfolios}
+                                        viewMode={viewMode}
+                                        onLongPress={() => setIsReorderModalOpen(true)}
+                                        onViewAll={() => navigate('/portfolio')}
+                                        onTitleChange={(name) => handleSectionNameChange('portfolios', name)}
+                                        emptyMessage="No portfolios created yet."
+                                        renderItem={(portfolio) => (
+                                            <PortfolioCard
+                                                key={portfolio.id}
+                                                portfolio={portfolio}
+                                                onDelete={deletePortfolio}
+                                                onDuplicate={handleDuplicatePortfolio}
+                                                onUpdate={updatePortfolio}
+                                                onShare={(p) => setShareModalPortfolio(p)}
+                                                onDragStart={(e) => e.preventDefault()}
+                                            />
+                                        )}
+                                    />
+                                );
+                            case 'jobTracker':
+                                return (
+                                    <div key={sectionId} className="mb-10">
+                                        <DraggableSectionHeader
+                                            title={sectionNames.jobTracker}
+                                            viewMode={viewMode}
+                                            onLongPress={() => setIsReorderModalOpen(true)}
+                                            onViewAll={() => navigate('/job-tracker')}
+                                            hasItems={jobApplications.length > 0}
+                                            onTitleChange={(name) => handleSectionNameChange('jobTracker', name)}
+                                        />
 
-                                    <div className="mb-6">
-                                        <StatusOverview applications={jobApplications} />
+                                        <div className="mb-6">
+                                            <StatusOverview applications={jobApplications} />
+                                        </div>
+
+                                        <KanbanBoard
+                                            applications={jobApplications}
+                                            onCardClick={(job) => setSelectedJobApplication(job)}
+                                            onUpdateApplication={updateJobApplication}
+                                        />
                                     </div>
-
-                                    <KanbanBoard
-                                        applications={jobApplications}
-                                        onCardClick={(job) => setSelectedJobApplication(job)}
-                                        onUpdateApplication={updateJobApplication}
-                                    />
-                                </div>
-                            );
-                        default:
-                            return null;
-                    }
-                })}
-            </div>
+                                );
+                            default:
+                                return null;
+                        }
+                    })}
+                </div>
 
 
-            <Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"><Loader2 className="animate-spin text-white" /></div>}>
-                {selectedJobForReport && <InterviewReportModal jobHistoryEntry={selectedJobForReport} onClose={() => setSelectedJobForReport(null)} />}
-            </Suspense>
-            {selectedJobApplication && <JobDetailModal job={selectedJobApplication} onClose={() => setSelectedJobApplication(null)} onUpdate={updateJobApplication} onDelete={(id) => { confirmItemDelete(id, 'job'); setSelectedJobApplication(null); }} />}
-            <ConfirmationModal
-                isOpen={confirmModal.isOpen}
-                title={confirmModal.title}
-                message={confirmModal.message}
-                onConfirm={confirmModal.onConfirm}
-                onCancel={closeConfirmModal}
-                confirmText={confirmModal.confirmText}
-            />
+                <Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"><Loader2 className="animate-spin text-white" /></div>}>
+                    {selectedJobForReport && <InterviewReportModal jobHistoryEntry={selectedJobForReport} onClose={() => setSelectedJobForReport(null)} />}
+                </Suspense>
+                {selectedJobApplication && <JobDetailModal job={selectedJobApplication} onClose={() => setSelectedJobApplication(null)} onUpdate={updateJobApplication} onDelete={(id) => { confirmItemDelete(id, 'job'); setSelectedJobApplication(null); }} />}
+                <ConfirmationModal
+                    isOpen={confirmModal.isOpen}
+                    title={confirmModal.title}
+                    message={confirmModal.message}
+                    onConfirm={confirmModal.onConfirm}
+                    onCancel={closeConfirmModal}
+                    confirmText={confirmModal.confirmText}
+                />
 
-            {
-                shareModalResume && (
-                    <ShareResumeModal
-                        isOpen={!!shareModalResume}
-                        onClose={() => setShareModalResume(null)}
-                        resume={shareModalResume}
-                        onUpdate={updateResume}
-                    />
-                )
-            }
-
-            {
-                shareModalPortfolio && (
-                    <SharePortfolioModal
-                        isOpen={!!shareModalPortfolio}
-                        onClose={() => setShareModalPortfolio(null)}
-                        portfolioId={shareModalPortfolio.id}
-                        portfolioTitle={shareModalPortfolio.title}
-                        portfolioData={shareModalPortfolio}
-                    />
-                )
-            }
-
-            <ReorderDashboardModal
-                isOpen={isReorderModalOpen}
-                onClose={() => setIsReorderModalOpen(false)}
-                sections={SECTIONS_CONFIG
-                    .filter(s => sectionOrder.includes(s.id))
-                    .sort((a, b) => sectionOrder.indexOf(a.id) - sectionOrder.indexOf(b.id))
+                {
+                    shareModalResume && (
+                        <ShareResumeModal
+                            isOpen={!!shareModalResume}
+                            onClose={() => setShareModalResume(null)}
+                            resume={shareModalResume}
+                            onUpdate={updateResume}
+                        />
+                    )
                 }
-                onSave={(newOrder) => setSectionOrder(newOrder)}
-            />
 
-            <FolderReorderModal
-                isOpen={isFolderReorderModalOpen}
-                onClose={() => setIsFolderReorderModalOpen(false)}
-                folders={folders}
-                onSave={saveFolders}
-            />
-        </div >
+                {
+                    shareModalPortfolio && (
+                        <SharePortfolioModal
+                            isOpen={!!shareModalPortfolio}
+                            onClose={() => setShareModalPortfolio(null)}
+                            portfolioId={shareModalPortfolio.id}
+                            portfolioTitle={shareModalPortfolio.title}
+                            portfolioData={shareModalPortfolio}
+                        />
+                    )
+                }
+
+                <ReorderDashboardModal
+                    isOpen={isReorderModalOpen}
+                    onClose={() => setIsReorderModalOpen(false)}
+                    sections={SECTIONS_CONFIG
+                        .filter(s => sectionOrder.includes(s.id))
+                        .sort((a, b) => sectionOrder.indexOf(a.id) - sectionOrder.indexOf(b.id))
+                    }
+                    onSave={(newOrder) => setSectionOrder(newOrder)}
+                />
+
+                <FolderReorderModal
+                    isOpen={isFolderReorderModalOpen}
+                    onClose={() => setIsFolderReorderModalOpen(false)}
+                    folders={folders}
+                    onSave={saveFolders}
+                />
+            </div >
+        </AppLayout>
     );
 };
 

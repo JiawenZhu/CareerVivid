@@ -9,12 +9,14 @@ import { usePracticeHistory } from '../hooks/useJobHistory';
 import { Job, PracticeHistoryEntry, ResumeData } from '../types';
 import { navigate } from '../utils/navigation';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigation } from '../contexts/NavigationContext';
 import { useResumes } from '../hooks/useResumes';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useAICreditCheck } from '../hooks/useAICreditCheck';
 import InterviewHistoryCard from '../components/Dashboard/InterviewHistoryCard';
 import { InterviewHistoryCardSkeleton } from '../components/Dashboard/DashboardSkeletons';
 import ConfirmationModal from '../components/ConfirmationModal';
+import AppLayout from '../components/Layout/AppLayout';
 
 // Lazy load modal
 const InterviewReportModal = React.lazy(() => import('../components/InterviewReportModal'));
@@ -72,6 +74,7 @@ interface InterviewStudioProps {
 
 const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
     const { currentUser } = useAuth();
+    const { navPosition } = useNavigation();
     const { t } = useTranslation();
     const [prompt, setPrompt] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -352,12 +355,12 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
     }
 
     return (
-        <>
+        <AppLayout>
             <CreditLimitModal />
             <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-20 relative text-left">
                 {/* Dashboard Link */}
                 {practiceHistory.length > 0 && (
-                    <div className="absolute top-6 right-6 z-20">
+                    <div className={`absolute top-6 right-6 z-20 ${navPosition === 'side' ? 'md:hidden' : ''}`}>
                         <a
                             href="/"
                             className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
@@ -476,7 +479,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                     }}
                 />
             )}
-        </>
+        </AppLayout>
     );
 };
 

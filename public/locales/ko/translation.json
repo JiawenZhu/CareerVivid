@@ -342,7 +342,7 @@
     }
   },
   "job_tracker": {
-    "title": "Job Application Tracker",
+    "title": "Job Tracker",
     "subtitle": "Organize and manage your job application pipeline.",
     "track_new": "Track New Job",
     "loading": "Loading applications...",

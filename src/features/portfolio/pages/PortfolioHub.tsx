@@ -28,6 +28,8 @@ import { useAICreditCheck } from '../../../hooks/useAICreditCheck';
 import ConfirmationModal from '../../../components/ConfirmationModal';
 import PortfolioCard from '../../../components/PortfolioCard';
 import SharePortfolioModal from '../../../components/SharePortfolioModal';
+import { useNavigation } from '../../../contexts/NavigationContext';
+import AppLayout from '../../../components/Layout/AppLayout';
 import { PortfolioData } from '../types/portfolio';
 
 // Define Category Interface
@@ -99,6 +101,7 @@ const PORTFOLIO_CATEGORIES: PortfolioCategory[] = [
 const PortfolioHub: React.FC = () => {
     const { t } = useTranslation();
     const { currentUser, isPremium } = useAuth();
+    const { navPosition } = useNavigation();
     const { createPortfolio, portfolios, isLoading, deletePortfolio, duplicatePortfolio } = usePortfolios();
 
     // AI Credit Check Hook
@@ -342,159 +345,161 @@ const PortfolioHub: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-[#0f1117] flex flex-col items-center p-0 relative selection:bg-indigo-500/30">
-            <CreditLimitModal />
-            <ConfirmationModal
-                isOpen={isUpgradeModalOpen}
-                onCancel={() => setIsUpgradeModalOpen(false)}
-                onConfirm={() => navigate('/subscription')}
-                title="Limit Reached"
-                message={limitMessage}
-                confirmText="Upgrade Now"
-                cancelText="Maybe Later"
-                variant="default"
-            />
-            <ConfirmationModal
-                isOpen={confirmModal.isOpen}
-                title={confirmModal.title}
-                message={confirmModal.message}
-                confirmText={confirmModal.confirmText}
-                onConfirm={confirmModal.onConfirm}
-                onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
-            />
-            {shareModalPortfolio && (
-                <SharePortfolioModal
-                    isOpen={!!shareModalPortfolio}
-                    onClose={() => setShareModalPortfolio(null)}
-                    portfolio={shareModalPortfolio}
+        <AppLayout>
+            <div className="min-h-screen bg-gray-50 dark:bg-[#0f1117] flex flex-col items-center p-0 relative selection:bg-indigo-500/30">
+                <CreditLimitModal />
+                <ConfirmationModal
+                    isOpen={isUpgradeModalOpen}
+                    onCancel={() => setIsUpgradeModalOpen(false)}
+                    onConfirm={() => navigate('/subscription')}
+                    title="Limit Reached"
+                    message={limitMessage}
+                    confirmText="Upgrade Now"
+                    cancelText="Maybe Later"
+                    variant="default"
                 />
-            )}
+                <ConfirmationModal
+                    isOpen={confirmModal.isOpen}
+                    title={confirmModal.title}
+                    message={confirmModal.message}
+                    confirmText={confirmModal.confirmText}
+                    onConfirm={confirmModal.onConfirm}
+                    onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                />
+                {shareModalPortfolio && (
+                    <SharePortfolioModal
+                        isOpen={!!shareModalPortfolio}
+                        onClose={() => setShareModalPortfolio(null)}
+                        portfolio={shareModalPortfolio}
+                    />
+                )}
 
-            {/* Dashboard Link */}
-            {portfolios.length > 0 && (
-                <div className="absolute top-6 right-6 z-20">
-                    <a
-                        href="/"
-                        className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                    >
-                        <LayoutDashboard size={18} />
-                        <span className="hidden sm:inline">Dashboard</span>
-                    </a>
-                </div>
-            )}
-
-            {/* Top Section: My Portfolios */}
-            <div className="w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 pt-8 pb-12 mb-12">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center mb-8">
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                            <Briefcase className="text-indigo-600" size={32} />
-                            My Portfolios
-                        </h1>
-                        <button
-                            onClick={() => document.getElementById('create-portfolio')?.scrollIntoView({ behavior: 'smooth' })}
-                            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2 font-medium"
+                {/* Dashboard Link */}
+                {portfolios.length > 0 && (
+                    <div className={`absolute top-6 right-6 z-20 ${navPosition === 'side' ? 'md:hidden' : ''}`}>
+                        <a
+                            href="/"
+                            className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                         >
-                            <Plus size={20} /> New Portfolio
-                        </button>
+                            <LayoutDashboard size={18} />
+                            <span className="hidden sm:inline">Dashboard</span>
+                        </a>
                     </div>
+                )}
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {portfolios.length > 0 ? (
-                            portfolios.map(portfolio => (
-                                <PortfolioCard
-                                    key={portfolio.id}
-                                    portfolio={portfolio}
-                                    onDelete={handleDeleteClick}
-                                    onDuplicate={duplicatePortfolio}
-                                    onShare={(p) => setShareModalPortfolio(p)}
-                                />
-                            ))
-                        ) : (
-                            <div className="col-span-full py-12 text-center bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
-                                <p className="text-gray-500 dark:text-gray-400 mb-4">You haven't created any portfolios yet.</p>
-                                <button
-                                    onClick={() => document.getElementById('create-portfolio')?.scrollIntoView({ behavior: 'smooth' })}
-                                    className="text-indigo-600 font-medium hover:underline"
-                                >
-                                    Create your first portfolio below
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {isGenerating ? (
-                <div className="text-center animate-in fade-in duration-700 py-20">
-                    <div className="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 relative">
-                        <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
-                        <div className="absolute inset-0 bg-indigo-500/20 blur-xl rounded-full animate-pulse"></div>
-                    </div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Generating your portfolio...</h1>
-                    <p className="text-gray-500 dark:text-gray-400"> Analyzing your inputs and designing the perfect layout.</p>
-                </div>
-            ) : (
-                <div id="create-portfolio" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-                    {/* Header */}
-                    <div className="text-center mb-12 animate-in slide-in-from-bottom-4 duration-500">
-                        <div className="inline-flex items-center justify-center p-3 mb-6 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-500/30">
-                            <Sparkles className="w-8 h-8 text-white" />
+                {/* Top Section: My Portfolios */}
+                <div className="w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 pt-8 pb-12 mb-12">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between items-center mb-8">
+                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                                <Briefcase className="text-indigo-600" size={32} />
+                                My Portfolios
+                            </h1>
+                            <button
+                                onClick={() => document.getElementById('create-portfolio')?.scrollIntoView({ behavior: 'smooth' })}
+                                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2 font-medium"
+                            >
+                                <Plus size={20} /> New Portfolio
+                            </button>
                         </div>
-                        <h1 className="text-4xl sm:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
-                            Build your dream portfolio <br className="hidden sm:block" />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">in minutes.</span>
-                        </h1>
-                        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-                            Describe your vision, upload a resume, or drop in your code files. <br className="hidden sm:block" />
-                            Our AI will generate a stunning, deployed portfolio websites for you instantly.
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {portfolios.length > 0 ? (
+                                portfolios.map(portfolio => (
+                                    <PortfolioCard
+                                        key={portfolio.id}
+                                        portfolio={portfolio}
+                                        onDelete={handleDeleteClick}
+                                        onDuplicate={duplicatePortfolio}
+                                        onShare={(p) => setShareModalPortfolio(p)}
+                                    />
+                                ))
+                            ) : (
+                                <div className="col-span-full py-12 text-center bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
+                                    <p className="text-gray-500 dark:text-gray-400 mb-4">You haven't created any portfolios yet.</p>
+                                    <button
+                                        onClick={() => document.getElementById('create-portfolio')?.scrollIntoView({ behavior: 'smooth' })}
+                                        className="text-indigo-600 font-medium hover:underline"
+                                    >
+                                        Create your first portfolio below
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {isGenerating ? (
+                    <div className="text-center animate-in fade-in duration-700 py-20">
+                        <div className="w-16 h-16 bg-indigo-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 relative">
+                            <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                            <div className="absolute inset-0 bg-indigo-500/20 blur-xl rounded-full animate-pulse"></div>
+                        </div>
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Generating your portfolio...</h1>
+                        <p className="text-gray-500 dark:text-gray-400"> Analyzing your inputs and designing the perfect layout.</p>
+                    </div>
+                ) : (
+                    <div id="create-portfolio" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+                        {/* Header */}
+                        <div className="text-center mb-12 animate-in slide-in-from-bottom-4 duration-500">
+                            <div className="inline-flex items-center justify-center p-3 mb-6 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-500/30">
+                                <Sparkles className="w-8 h-8 text-white" />
+                            </div>
+                            <h1 className="text-4xl sm:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                                Build your dream portfolio <br className="hidden sm:block" />
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">in minutes.</span>
+                            </h1>
+                            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                                Describe your vision, upload a resume, or drop in your code files. <br className="hidden sm:block" />
+                                Our AI will generate a stunning, deployed portfolio websites for you instantly.
+                            </p>
+                        </div>
+
+                        {/* Main Input Card */}
+                        <div className="bg-white dark:bg-[#1a1d24] p-6 sm:p-2 rounded-2xl shadow-xl shadow-indigo-500/5 border border-gray-200 dark:border-white/5 mb-16 animate-in slide-in-from-bottom-8 duration-700 delay-100 ring-1 ring-gray-900/5 dark:ring-white/10 max-w-5xl mx-auto">
+                            <div className="max-w-3xl mx-auto py-8 px-4 sm:px-0">
+                                <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
+                                    <Code2 className="text-indigo-500" size={24} />
+                                    Generate from Prompt or Code
+                                </h2>
+                                <div className="flex flex-col gap-4">
+                                    <PortfolioImport
+                                        value={prompt}
+                                        onChange={setPrompt}
+                                        onFileProcessed={handleFileProcessed}
+                                        placeholder="Describe your portfolio (e.g. 'Dark mode portfolio for a React Developer') or drop existing code files..."
+                                        className="bg-transparent"
+                                    >
+                                        <button
+                                            onClick={handlePromptSubmit}
+                                            className="bg-indigo-600 text-white p-3 rounded-xl shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-indigo-500/30 transition-all flex items-center justify-center disabled:bg-indigo-400 disabled:cursor-not-allowed group"
+                                            disabled={!prompt.trim()}
+                                            title={isFileImport ? "Parse & Build" : "Generate Portfolio"}
+                                        >
+                                            <ArrowRight size={20} className="group-hover:translate-x-0.5 transition-transform" />
+                                        </button>
+                                    </PortfolioImport>
+                                </div>
+                                <div className="mt-4 flex items-center justify-center gap-6 text-xs text-gray-400 font-medium">
+                                    <span className="flex items-center gap-1.5"><Code2 size={12} /> HTML/CSS/JS</span>
+                                    <span className="flex items-center gap-1.5"><FileCode size={12} /> React/Vue</span>
+                                    <span className="flex items-center gap-1.5"><UploadCloud size={12} /> Resumes (PDF/DOCX)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="max-w-5xl mx-auto">
+                            {renderContent()}
+                        </div>
+
+                        {/* Footer Note */}
+                        <p className="mt-16 text-center text-gray-500 dark:text-gray-600 text-sm">
+                            Powered by Gemini Cloud &bull; Generates layout, copy, and themes
                         </p>
                     </div>
-
-                    {/* Main Input Card */}
-                    <div className="bg-white dark:bg-[#1a1d24] p-6 sm:p-2 rounded-2xl shadow-xl shadow-indigo-500/5 border border-gray-200 dark:border-white/5 mb-16 animate-in slide-in-from-bottom-8 duration-700 delay-100 ring-1 ring-gray-900/5 dark:ring-white/10 max-w-5xl mx-auto">
-                        <div className="max-w-3xl mx-auto py-8 px-4 sm:px-0">
-                            <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
-                                <Code2 className="text-indigo-500" size={24} />
-                                Generate from Prompt or Code
-                            </h2>
-                            <div className="flex flex-col gap-4">
-                                <PortfolioImport
-                                    value={prompt}
-                                    onChange={setPrompt}
-                                    onFileProcessed={handleFileProcessed}
-                                    placeholder="Describe your portfolio (e.g. 'Dark mode portfolio for a React Developer') or drop existing code files..."
-                                    className="bg-transparent"
-                                >
-                                    <button
-                                        onClick={handlePromptSubmit}
-                                        className="bg-indigo-600 text-white p-3 rounded-xl shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-indigo-500/30 transition-all flex items-center justify-center disabled:bg-indigo-400 disabled:cursor-not-allowed group"
-                                        disabled={!prompt.trim()}
-                                        title={isFileImport ? "Parse & Build" : "Generate Portfolio"}
-                                    >
-                                        <ArrowRight size={20} className="group-hover:translate-x-0.5 transition-transform" />
-                                    </button>
-                                </PortfolioImport>
-                            </div>
-                            <div className="mt-4 flex items-center justify-center gap-6 text-xs text-gray-400 font-medium">
-                                <span className="flex items-center gap-1.5"><Code2 size={12} /> HTML/CSS/JS</span>
-                                <span className="flex items-center gap-1.5"><FileCode size={12} /> React/Vue</span>
-                                <span className="flex items-center gap-1.5"><UploadCloud size={12} /> Resumes (PDF/DOCX)</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="max-w-5xl mx-auto">
-                        {renderContent()}
-                    </div>
-
-                    {/* Footer Note */}
-                    <p className="mt-16 text-center text-gray-500 dark:text-gray-600 text-sm">
-                        Powered by Gemini Cloud &bull; Generates layout, copy, and themes
-                    </p>
-                </div>
-            )}
-        </div>
+                )}
+            </div>
+        </AppLayout>
     );
 };
 

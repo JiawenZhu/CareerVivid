@@ -98,6 +98,7 @@ const AuthRedirect = ({ target }: { target: string }) => {
 import { useGuestDataMigration } from './hooks/useGuestDataMigration';
 import SEOHelper from './components/SEOHelper';
 import ProtectedRoute from './components/ProtectedRoute'; // [NEW] Protected Route Wrapper
+import { NavigationProvider } from './contexts/NavigationContext';
 
 const App: React.FC = () => {
   const { currentUser, userProfile, loading, isAdmin, isAdminLoading, isEmailVerified } = useAuth();
@@ -511,17 +512,19 @@ const App: React.FC = () => {
   return (
     <ThemeProvider>
       <CartProvider>
-        <div className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-200 font-sans">
-          <Helmet
-            titleTemplate="%s | CareerVivid"
-            defaultTitle="CareerVivid | Build Your Personal Brand & Accelerate Your Career"
-          />
-          <SEOHelper />
-          <Suspense fallback={<LoadingFallback />}>
-            {content}
-            {showChatbot && <ChatBot />}
-          </Suspense>
-        </div>
+        <NavigationProvider>
+          <div className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-200 font-sans">
+            <Helmet
+              titleTemplate="%s | CareerVivid"
+              defaultTitle="CareerVivid | Build Your Personal Brand & Accelerate Your Career"
+            />
+            <SEOHelper />
+            <Suspense fallback={<LoadingFallback />}>
+              {content}
+              {showChatbot && <ChatBot />}
+            </Suspense>
+          </div>
+        </NavigationProvider>
       </CartProvider>
     </ThemeProvider>
   );
