@@ -40,7 +40,7 @@ const EditableHeader: React.FC<EditableHeaderProps> = ({ title: initialTitle, on
                 onBlur={handleSave}
                 onKeyDown={handleKeyDown}
                 autoFocus
-                className="text-2xl font-bold text-gray-800 dark:text-gray-100 bg-transparent border-b-2 border-primary-500 focus:outline-none"
+                className="text-xl font-bold text-gray-800 dark:text-gray-100 bg-transparent border-b-2 border-primary-500 focus:outline-none font-sans"
             />
         );
     }
@@ -48,7 +48,7 @@ const EditableHeader: React.FC<EditableHeaderProps> = ({ title: initialTitle, on
     return (
         <h2
             onDoubleClick={() => isEditable && setIsEditing(true)}
-            className={`text-2xl font-bold text-gray-800 dark:text-gray-100 ${isEditable ? 'cursor-text' : ''}`}
+            className={`text-xl font-bold text-gray-800 dark:text-gray-100 font-sans ${isEditable ? 'cursor-text' : ''}`}
             title={isEditable ? "Double-click to rename" : ""}
         >
             {title}

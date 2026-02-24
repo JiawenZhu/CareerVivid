@@ -12,6 +12,8 @@ import ExtensionLayout from './extension-ui/layout/ExtensionLayout';
 // Lazy load pages to drastically reduce initial JavaScript payload
 const Dashboard = React.lazy(() => import('./pages/Dashboard')); // Protected
 const Editor = React.lazy(() => import('./pages/Editor'));
+const WhiteboardsPage = React.lazy(() => import('./pages/WhiteboardsPage'));
+const WhiteboardEditor = React.lazy(() => import('./pages/WhiteboardEditor'));
 const GenerationHub = React.lazy(() => import('./pages/GenerationHub')); // Protected
 const InterviewStudio = React.lazy(() => import('./pages/InterviewStudio')); // Protected
 const ProfilePage = React.lazy(() => import('./pages/ProfilePage')); // Protected
@@ -323,6 +325,25 @@ const App: React.FC = () => {
       );
     }
 
+    // Whiteboard Hub (List View)
+    else if (path === '/whiteboard') {
+      content = (
+        <ProtectedRoute>
+          <WhiteboardsPage />
+        </ProtectedRoute>
+      );
+    }
+
+    // Whiteboard Editor
+    else if (path.startsWith('/whiteboard/')) {
+      const id = path.split('/')[2];
+      content = (
+        <ProtectedRoute>
+          <WhiteboardEditor id={id} />
+        </ProtectedRoute>
+      );
+    }
+
     // Profile & Settings
     else if (path === '/profile') {
       content = (
@@ -491,9 +512,9 @@ const App: React.FC = () => {
     <ThemeProvider>
       <CartProvider>
         <div className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-200 font-sans">
-          <Helmet 
-            titleTemplate="%s | CareerVivid" 
-            defaultTitle="CareerVivid | Build Your Personal Brand & Accelerate Your Career" 
+          <Helmet
+            titleTemplate="%s | CareerVivid"
+            defaultTitle="CareerVivid | Build Your Personal Brand & Accelerate Your Career"
           />
           <SEOHelper />
           <Suspense fallback={<LoadingFallback />}>

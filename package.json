@@ -12,12 +12,15 @@
     "translate-locales": "node scripts/translate_locales.js",
     "sync-translations": "zx sync_translations.mjs",
     "dev:extension": "vite build --watch --config vite.extension.config.ts",
-    "build:extension": "zx scripts/build-extension.mjs"
+    "build:extension": "zx scripts/build-extension.mjs",
+    "clean": "zx scripts/clean.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@excalidraw/excalidraw": "^0.18.0",
+    "@excalidraw/mermaid-to-excalidraw": "^2.0.0",
     "@google/genai": "^1.42.0",
     "@gsap/react": "^2.1.2",
     "@react-three/drei": "^9.121.0",

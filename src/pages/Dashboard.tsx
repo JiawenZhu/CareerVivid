@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useResumes } from '../hooks/useResumes';
 import { usePortfolios } from '../hooks/usePortfolios';
+import { useWhiteboards } from '../hooks/useWhiteboards';
 import { ResumeData, PracticeHistoryEntry, JobApplicationData, Folder } from '../types';
 import { PortfolioData } from '../features/portfolio/types/portfolio';
-import { PlusCircle, FileText, Mic, Briefcase, GripVertical, LayoutDashboard, Loader2, Globe, Plus, User as UserIcon, LogOut, ChevronDown, FolderPlus, Trash2 } from 'lucide-react';
+import { PlusCircle, FileText, Mic, Briefcase, GripVertical, LayoutDashboard, Loader2, Globe, Plus, User as UserIcon, LogOut, ChevronDown, FolderPlus, Trash2, PenTool, LayoutGrid, List, ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePracticeHistory } from '../hooks/useJobHistory';
 import JobDetailModal from '../components/JobTracker/JobDetailModal';
@@ -29,10 +30,12 @@ import AIUsageProgressBar from '../components/AIUsageProgressBar';
 import ResumeCard from '../components/Dashboard/ResumeCard';
 import InterviewHistoryCard from '../components/Dashboard/InterviewHistoryCard';
 import JobApplicationCard from '../components/Dashboard/JobApplicationCard';
+import WhiteboardCard from '../components/Dashboard/WhiteboardCard';
 import EditableHeader from '../components/Dashboard/EditableHeader';
 import { ResumeCardSkeleton, InterviewHistoryCardSkeleton } from '../components/Dashboard/DashboardSkeletons';
 import DashboardSummaryCards from '../components/Dashboard/DashboardSummaryCards';
-import DashboardPreviewSection from '../components/Dashboard/DashboardPreviewSection';
+import DashboardPreviewSection, { DraggableSectionHeader } from '../components/Dashboard/DashboardPreviewSection';
+import ReorderDashboardModal, { SectionItem } from '../components/Dashboard/ReorderDashboardModal';
 
 // Lazy load modal to optimize dashboard load time
 const InterviewReportModal = React.lazy(() => import('../components/InterviewReportModal'));
@@ -42,6 +45,7 @@ const Dashboard: React.FC = () => {
     const { portfolios, isLoading: isLoadingPortfolios, deletePortfolio, duplicatePortfolio, updatePortfolio, createPortfolio } = usePortfolios();
     const { practiceHistory, isLoading: isLoadingHistory, deletePracticeHistory, updatePracticeHistory, addCompletedPractice } = usePracticeHistory();
     const { jobApplications, isLoading: isLoadingJobs, updateJobApplication, deleteJobApplication, deleteAllJobApplications } = useJobTracker();
+    const { whiteboards, isLoading: isLoadingWhiteboards, deleteWhiteboard, duplicateWhiteboard, updateWhiteboard, createWhiteboard } = useWhiteboards();
     const { currentUser, logOut, isAdmin, userProfile, isPremium, aiUsage } = useAuth();
     const { t } = useTranslation();
 
@@ -52,6 +56,74 @@ const Dashboard: React.FC = () => {
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false); // New State for limit modal
 
     const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: () => { }, confirmText: 'Confirm' });
+
+    // View Mode Toggle State
+    const [viewMode, setViewMode] = useState<'row' | 'grid'>(() => {
+        return (localStorage.getItem('careervivid_dashboard_view') as 'row' | 'grid') || 'row';
+    });
+
+    useEffect(() => {
+        localStorage.setItem('careervivid_dashboard_view', viewMode);
+    }, [viewMode]);
+
+    // Dashboard Sections Reordering State
+    const SECTIONS_CONFIG: SectionItem[] = [
+        { id: 'interviewStudio', label: 'Interview Studio Sessions' },
+        { id: 'resumes', label: 'My Resumes' },
+        { id: 'whiteboards', label: 'My Whiteboards' },
+        { id: 'portfolios', label: 'Portfolios' },
+        { id: 'jobTracker', label: 'Job Application Tracker' },
+    ];
+
+    const DEFAULT_ORDER = SECTIONS_CONFIG.map(s => s.id);
+
+    const [sectionOrder, setSectionOrder] = useState<string[]>(() => {
+        try {
+            const stored = localStorage.getItem('careervivid_dashboard_order');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                // Ensure all default sections exist (handles new features added later)
+                const missing = DEFAULT_ORDER.filter(id => !parsed.includes(id));
+                return [...parsed, ...missing];
+            }
+        } catch (e) {
+            console.error("Failed to parse dashboard order:", e);
+        }
+        return DEFAULT_ORDER;
+    });
+
+    useEffect(() => {
+        localStorage.setItem('careervivid_dashboard_order', JSON.stringify(sectionOrder));
+    }, [sectionOrder]);
+
+    const [isReorderModalOpen, setIsReorderModalOpen] = useState(false);
+
+    // Custom Section Names (persisted)
+    const DEFAULT_SECTION_NAMES: Record<string, string> = {
+        interviewStudio: 'Interview Studio Sessions',
+        resumes: 'My Resumes',
+        whiteboards: 'My Whiteboards',
+        portfolios: 'Portfolios',
+        jobTracker: 'Job Application Tracker',
+    };
+
+    const [sectionNames, setSectionNames] = useState<Record<string, string>>(() => {
+        try {
+            const stored = localStorage.getItem('careervivid_section_names');
+            if (stored) return { ...DEFAULT_SECTION_NAMES, ...JSON.parse(stored) };
+        } catch (e) {
+            console.error("Failed to parse section names:", e);
+        }
+        return { ...DEFAULT_SECTION_NAMES };
+    });
+
+    const handleSectionNameChange = (sectionId: string, newName: string) => {
+        setSectionNames(prev => {
+            const updated = { ...prev, [sectionId]: newName };
+            localStorage.setItem('careervivid_section_names', JSON.stringify(updated));
+            return updated;
+        });
+    };
 
     // ... (existing code for menu refs etc.) ...
 
@@ -586,6 +658,13 @@ const Dashboard: React.FC = () => {
                                             <button onClick={() => { navigate('/portfolio'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                 <Globe size={16} /> New Portfolio
                                             </button>
+                                            <button onClick={async () => {
+                                                const id = await createWhiteboard();
+                                                navigate(`/whiteboard/${id}`);
+                                                setIsNewMenuOpen(false);
+                                            }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                <PenTool size={16} /> New Whiteboard
+                                            </button>
                                             <button onClick={() => { navigate('/interview-studio'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                 <Mic size={16} /> {t('dashboard.interview_practice')}
                                             </button>
@@ -667,43 +746,158 @@ const Dashboard: React.FC = () => {
                     jobCount={jobApplications.length}
                 />
 
-                {/* Interview Sessions Preview */}
-                <DashboardPreviewSection
-                    title="Interview Studio Sessions"
-                    icon={<GripVertical className="rotate-90" size={20} />}
-                    items={practiceHistory}
-                    onViewAll={() => navigate('/interview-studio')}
-                    emptyMessage="No practice sessions yet. Start your first mock interview!"
-                    renderItem={(session) => (
-                        <InterviewHistoryCard
-                            key={session.id}
-                            entry={session}
-                            onDelete={deletePracticeHistory}
-                            onShowReport={setSelectedJobForReport}
-                            onDragStart={(e) => e.preventDefault()}
-                        />
-                    )}
-                />
+                {/* View Mode Toggle */}
+                <div className="flex justify-end mt-6 mb-2 pr-1">
+                    <button
+                        onClick={() => setViewMode(viewMode === 'row' ? 'grid' : 'row')}
+                        className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors text-gray-500 dark:text-gray-400 flex items-center gap-2 text-sm font-medium"
+                        title={viewMode === 'row' ? 'Switch to Grid View' : 'Switch to Row View'}
+                    >
+                        {viewMode === 'row' ? (
+                            <><LayoutGrid size={18} /> <span className="hidden sm:inline">Grid View</span></>
+                        ) : (
+                            <><List size={18} /> <span className="hidden sm:inline">Row View</span></>
+                        )}
+                    </button>
+                </div>
 
-                {/* Resumes Preview */}
-                <DashboardPreviewSection
-                    title="My Resumes"
-                    icon={<GripVertical className="rotate-90" size={20} />}
-                    items={resumes}
-                    onViewAll={() => navigate('/newresume')}
-                    emptyMessage="No resumes created yet. Create your first resume!"
-                    renderItem={(resume) => (
-                        <ResumeCard
-                            key={resume.id}
-                            resume={resume}
-                            onDelete={deleteResume}
-                            onDuplicate={duplicateResume}
-                            onUpdate={updateResume}
-                            onShare={(r) => setShareModalResume(r)}
-                            onDragStart={(e) => e.preventDefault()}
-                        />
-                    )}
-                />
+                {/* Sections Rendered in Configured Order */}
+                {sectionOrder.map(sectionId => {
+                    switch (sectionId) {
+                        case 'interviewStudio':
+                            return (
+                                <DashboardPreviewSection
+                                    key={sectionId}
+                                    title={sectionNames.interviewStudio}
+                                    items={practiceHistory}
+                                    viewMode={viewMode}
+                                    onLongPress={() => setIsReorderModalOpen(true)}
+                                    onViewAll={() => navigate('/interview-studio')}
+                                    onTitleChange={(name) => handleSectionNameChange('interviewStudio', name)}
+                                    emptyMessage="No practice sessions yet. Start your first mock interview!"
+                                    renderItem={(session) => (
+                                        <InterviewHistoryCard
+                                            key={session.id}
+                                            entry={session}
+                                            onDelete={deletePracticeHistory}
+                                            onShowReport={setSelectedJobForReport}
+                                            onDragStart={(e) => e.preventDefault()}
+                                        />
+                                    )}
+                                />
+                            );
+                        case 'resumes':
+                            return (
+                                <DashboardPreviewSection
+                                    key={sectionId}
+                                    title={sectionNames.resumes}
+                                    items={resumes}
+                                    viewMode={viewMode}
+                                    onLongPress={() => setIsReorderModalOpen(true)}
+                                    onViewAll={() => navigate('/newresume')}
+                                    onTitleChange={(name) => handleSectionNameChange('resumes', name)}
+                                    emptyMessage="No resumes created yet. Create your first resume!"
+                                    renderItem={(resume) => (
+                                        <ResumeCard
+                                            key={resume.id}
+                                            resume={resume}
+                                            onDelete={deleteResume}
+                                            onDuplicate={duplicateResume}
+                                            onUpdate={updateResume}
+                                            onShare={(r) => setShareModalResume(r)}
+                                            onDragStart={(e) => e.preventDefault()}
+                                        />
+                                    )}
+                                />
+                            );
+                        case 'whiteboards':
+                            return (
+                                <React.Fragment key={sectionId}>
+                                    <DashboardPreviewSection
+                                        title={sectionNames.whiteboards}
+                                        items={whiteboards}
+                                        viewMode={viewMode}
+                                        onLongPress={() => setIsReorderModalOpen(true)}
+                                        onViewAll={() => { navigate('/whiteboard') }}
+                                        onTitleChange={(name) => handleSectionNameChange('whiteboards', name)}
+                                        emptyMessage="No whiteboards created yet."
+                                        renderItem={(whiteboard) => (
+                                            <WhiteboardCard
+                                                key={whiteboard.id}
+                                                whiteboard={whiteboard}
+                                                onDelete={deleteWhiteboard}
+                                                onDuplicate={duplicateWhiteboard}
+                                                onUpdate={updateWhiteboard}
+                                                onDragStart={(e) => e.preventDefault()}
+                                            />
+                                        )}
+                                    />
+                                    {whiteboards.length === 0 && (
+                                        <div className="flex justify-center -mt-8 mb-10">
+                                            <button
+                                                onClick={async () => {
+                                                    const id = await createWhiteboard();
+                                                    navigate(`/whiteboard/${id}`);
+                                                }}
+                                                className="bg-primary-600 text-white font-medium py-2 px-6 rounded-lg hover:bg-primary-700 transition"
+                                            >
+                                                + Create a New Whiteboard
+                                            </button>
+                                        </div>
+                                    )}
+                                </React.Fragment>
+                            );
+                        case 'portfolios':
+                            return (
+                                <DashboardPreviewSection
+                                    key={sectionId}
+                                    title={sectionNames.portfolios}
+                                    items={portfolios}
+                                    viewMode={viewMode}
+                                    onLongPress={() => setIsReorderModalOpen(true)}
+                                    onViewAll={() => navigate('/portfolio')}
+                                    onTitleChange={(name) => handleSectionNameChange('portfolios', name)}
+                                    emptyMessage="No portfolios created yet."
+                                    renderItem={(portfolio) => (
+                                        <PortfolioCard
+                                            key={portfolio.id}
+                                            portfolio={portfolio}
+                                            onDelete={deletePortfolio}
+                                            onDuplicate={handleDuplicatePortfolio}
+                                            onUpdate={updatePortfolio}
+                                            onShare={(p) => setShareModalPortfolio(p)}
+                                            onDragStart={(e) => e.preventDefault()}
+                                        />
+                                    )}
+                                />
+                            );
+                        case 'jobTracker':
+                            return (
+                                <div key={sectionId} className="mb-10">
+                                    <DraggableSectionHeader
+                                        title={sectionNames.jobTracker}
+                                        viewMode={viewMode}
+                                        onLongPress={() => setIsReorderModalOpen(true)}
+                                        onViewAll={() => navigate('/job-tracker')}
+                                        hasItems={jobApplications.length > 0}
+                                        onTitleChange={(name) => handleSectionNameChange('jobTracker', name)}
+                                    />
+
+                                    <div className="mb-6">
+                                        <StatusOverview applications={jobApplications} />
+                                    </div>
+
+                                    <KanbanBoard
+                                        applications={jobApplications}
+                                        onCardClick={(job) => setSelectedJobApplication(job)}
+                                        onUpdateApplication={updateJobApplication}
+                                    />
+                                </div>
+                            );
+                        default:
+                            return null;
+                    }
+                })}
             </div>
 
 
@@ -742,6 +936,16 @@ const Dashboard: React.FC = () => {
                     />
                 )
             }
+
+            <ReorderDashboardModal
+                isOpen={isReorderModalOpen}
+                onClose={() => setIsReorderModalOpen(false)}
+                sections={SECTIONS_CONFIG
+                    .filter(s => sectionOrder.includes(s.id))
+                    .sort((a, b) => sectionOrder.indexOf(a.id) - sectionOrder.indexOf(b.id))
+                }
+                onSave={(newOrder) => setSectionOrder(newOrder)}
+            />
 
             <FolderReorderModal
                 isOpen={isFolderReorderModalOpen}

@@ -711,3 +711,56 @@ export const regenerateJobPrepSection = async (
         throw new Error("Failed to regenerate section with AI.");
     }
 };
+
+export const generateExcalidrawDiagram = async (userId: string, prompt: string): Promise<any> => {
+    try {
+        const systemInstruction = `Role: You are an Expert System Architect and UI Layout Engine.
+Task: The user will request a diagram. You must generate a highly professional, visually spaced diagram by outputting RAW, strictly valid Excalidraw JSON.
+
+Strict JSON Schema Rules:
+1. You must output a single JSON object containing: "type": "excalidraw", "version": 2, and an "elements" array.
+2. NO MARKDOWN: Do not wrap your response in code blocks. Return purely the raw JSON string. Do not include any conversational text.
+3. Element IDs: Every element must have a unique, 20-character alphanumeric "id".
+4. Spatial Layout (Crucial): You must calculate x and y coordinates to ensure elements do not overlap. Use a grid system with generous spacing (at least 300px horizontal gap, 200px vertical gap between nodes).
+5. Element Types:
+   - Use "type": "rectangle" for components (width: 200, height: 80, with backgroundColor: "#ced4da", fillStyle: "solid", strokeColor: "#000000", roughness: 1, strokeWidth: 1, roundness: {"type": 3}).
+   - Use "type": "text" for labels. Position them centered inside their rectangle (offset x by ~20-40px, y by ~25px from the rectangle's x,y). Set fontSize: 16, fontFamily: 1, textAlign: "center".
+   - Use "type": "arrow" to connect components. Each arrow needs startBinding and endBinding objects referencing the rectangle IDs, plus a "points" array like [[0,0],[dx,dy]].
+6. All elements need these base properties: "versionNonce", "isDeleted": false, "boundElements": null, "updated": 1, "locked": false, "opacity": 100.
+7. For rectangles that have text labels, add a "boundElements" array containing {"id": "<text_element_id>", "type": "text"} to link them.
+8. For text elements inside rectangles, set "containerId": "<rectangle_id>".`;
+
+        const result = await callGeminiProxy({
+            modelName: 'gemini-3-flash-preview',
+            contents: `Generate an Excalidraw diagram for: "${prompt}"`,
+            systemInstruction,
+        });
+
+        const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
+        await trackUsage(userId, 'diagram_generation', { tokenUsage });
+
+        // Clean up any markdown wrapping the LLM might add despite instructions
+        let rawJson = result.text.trim();
+        if (rawJson.startsWith('```json')) {
+            rawJson = rawJson.replace(/^```json\n?/, '');
+        }
+        if (rawJson.startsWith('```')) {
+            rawJson = rawJson.replace(/^```[a-z]*\n?/, '');
+        }
+        if (rawJson.endsWith('```')) {
+            rawJson = rawJson.replace(/\n?```$/, '');
+        }
+
+        const parsed = JSON.parse(rawJson);
+
+        if (!parsed.elements || !Array.isArray(parsed.elements)) {
+            throw new Error("AI response is missing a valid 'elements' array.");
+        }
+
+        return parsed;
+    } catch (error) {
+        console.error("Error generating Excalidraw diagram:", error);
+        reportError(error as Error, { functionName: 'generateExcalidrawDiagram' });
+        throw new Error("Failed to generate diagram with AI. Please try a different prompt.");
+    }
+};

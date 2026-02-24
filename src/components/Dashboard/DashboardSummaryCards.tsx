@@ -61,13 +61,13 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
                 <div
                     key={index}
                     onClick={() => navigate(card.link)}
-                    className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all cursor-pointer group"
+                    className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg cursor-pointer group"
                 >
                     <div className="flex justify-between items-start mb-4">
                         <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 font-sans">
                             {card.title}
                         </h3>
-                        <div className={`p-2 rounded-lg ${card.bg}`}>
+                        <div className={`p-2 rounded-lg transition-transform duration-300 ease-out group-hover:scale-110 ${card.bg}`}>
                             <card.icon className={`w-5 h-5 ${card.color}`} />
                         </div>
                     </div>

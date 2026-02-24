@@ -1,3 +1,4 @@
+export * from './types/whiteboard';
 
 export interface PersonalDetails {
   jobTitle: string;
@@ -189,7 +190,7 @@ export interface UserProfile {
 
 export type TrackEventType =
   | 'sign_in' | 'sign_out'
-  | 'ai_assistant_query' | 'image_generation'
+  | 'ai_assistant_query' | 'image_generation' | 'diagram_generation'
   | 'interview_start' | 'interview_analysis'
   | 'resume_suggestion' | 'question_generation'
   | 'resume_parse_text' | 'resume_parse_file' | 'resume_generate_prompt'
