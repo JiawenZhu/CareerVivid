@@ -59,7 +59,11 @@ const GenerateDiagramModal: React.FC<GenerateDiagramModalProps> = ({ isOpen, onC
                         placeholder="e.g., Create a system design for a ride-sharing app with users, payment gateway, and matching service..."
                         className="w-full h-32 px-4 py-3 bg-gray-50 dark:bg-gray-800 border-2 border-transparent focus:border-primary-500 rounded-xl outline-none text-gray-900 dark:text-white placeholder-gray-400 resize-none transition-colors"
                         disabled={isGenerating}
+                        maxLength={1000}
                     />
+                    <p className={`text-xs text-right -mt-2 ${prompt.length >= 900 ? 'text-orange-500' : 'text-gray-400'}`}>
+                        {prompt.length}/1000
+                    </p>
 
                     {error && (
                         <div className="text-sm text-red-500 font-medium bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-100 dark:border-red-800/50">

@@ -730,9 +730,14 @@ Strict JSON Schema Rules:
 7. For rectangles that have text labels, add a "boundElements" array containing {"id": "<text_element_id>", "type": "text"} to link them.
 8. For text elements inside rectangles, set "containerId": "<rectangle_id>".`;
 
+        // Guard: cap prompt length to prevent abuse
+        if (prompt.length > 1000) {
+            throw new Error('Prompt is too long. Please keep it under 1000 characters.');
+        }
+
         const result = await callGeminiProxy({
             modelName: 'gemini-3-flash-preview',
-            contents: `Generate an Excalidraw diagram for: "${prompt}"`,
+            contents: `Generate an Excalidraw diagram for: "${prompt.slice(0, 1000)}"`,
             systemInstruction,
         });
 
@@ -756,6 +761,16 @@ Strict JSON Schema Rules:
         if (!parsed.elements || !Array.isArray(parsed.elements)) {
             throw new Error("AI response is missing a valid 'elements' array.");
         }
+
+        // Security: whitelist only known-safe Excalidraw element types to prevent
+        // injection of unknown types that might be processed unsafely by Excalidraw.
+        const SAFE_ELEMENT_TYPES = new Set([
+            'rectangle', 'ellipse', 'diamond', 'triangle',
+            'line', 'arrow', 'text', 'image', 'freedraw', 'frame', 'embeddable',
+        ]);
+        parsed.elements = parsed.elements.filter(
+            (el: any) => el && typeof el === 'object' && SAFE_ELEMENT_TYPES.has(el.type)
+        );
 
         return parsed;
     } catch (error) {

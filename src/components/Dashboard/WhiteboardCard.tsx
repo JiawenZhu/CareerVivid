@@ -39,12 +39,10 @@ const WhiteboardCard: React.FC<WhiteboardCardProps> = ({ whiteboard, onUpdate, o
                     className="w-full aspect-[16/9] bg-white dark:bg-gray-700/50 rounded-lg mb-4 flex flex-col items-center justify-center border border-gray-200 dark:border-gray-600 overflow-hidden"
                 >
                     {hasThumbnail ? (
-                        <div
-                            className="w-full h-full flex items-center justify-center p-2"
-                            dangerouslySetInnerHTML={{ __html: whiteboard.thumbnailSvg! }}
-                            style={{
-                                overflow: 'hidden',
-                            }}
+                        <img
+                            src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(whiteboard.thumbnailSvg!)}`}
+                            alt="Whiteboard thumbnail"
+                            className="w-full h-full object-contain"
                         />
                     ) : hasDrawing ? (
                         <div className="text-gray-400 dark:text-gray-500 text-center">
