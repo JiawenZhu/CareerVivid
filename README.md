@@ -3,75 +3,105 @@
   
   # CareerVivid
   
-  **Your AI-Powered Career Assistant**
+  **Personal Brand Building & Career Growth Platform**
   
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
   [![Status](https://img.shields.io/badge/Status-Active-success.svg)]()
+  [![Firebase](https://img.shields.io/badge/Firebase-Firestore%20%2B%20Auth-orange.svg)]()
+  [![AI](https://img.shields.io/badge/AI-Gemini%202.5%20Flash-blue.svg)]()
 </div>
 
 ## About
 
-**CareerVivid** is the ultimate AI-powered career development platform designed to bridge the gap between talent and opportunity. We believe that everyone deserves a fulfilling career, and we provide the cutting-edge tools to help you get there.
-
-Our platform empowers job seekers to land their dream roles faster with advanced AI technology, combining a state-of-the-art **Resume Builder**, a **Real-Time AI Interview Coach**, and a **Portfolio Creator** into one seamless experience.
+**CareerVivid** is an all-in-one AI-powered platform for building your personal brand, accelerating your career growth, and landing your next opportunity faster. From AI-generated resumes and portfolios to mock interview coaching and a collaborative whiteboard — we give you every tool you need in one seamless workspace.
 
 ## Features
 
-### 🚀 AI Resume Builder
-Create professional, ATS-optimized resumes that pass the screening bots in minutes.
-- **Smart Templates**: Choose from a variety of professional designs.
-- **AI Content Generation**: Get intelligent suggestions for summary and bullet points.
-- **Real-time Preview**: See changes instantly as you type.
+### ✨ AI Whiteboard & Diagram Generator
+A full collaborative canvas powered by Excalidraw with built-in AI generation.
+- **AI Diagram Generator**: Describe any system in plain English — the AI generates a professional architecture diagram directly on your canvas (flowcharts, system designs, service maps).
+- **Full Excalidraw Editor**: Freehand drawing, shapes, arrows, text, sticky notes & more.
+- **Auto-Save**: Changes persist to Firestore automatically with debounced saves.
+- **Thumbnail Previews**: Visual card previews generated from your canvas content.
 
-### 🎙️ AI Interview Coach
-Practice with a real-time AI voice assistant that simulates actual interviews.
-- **Mock Interviews**: Tailored questions based on your target role.
-- **Instant Compassionate Feedback**: Get actionable insights on your answers, tone, and pacing.
-- **Confidence Building**: Reduce anxiety by practicing in a safe environment.
+### 📄 AI Resume Builder
+Create professional, ATS-optimized resumes in minutes.
+- **Smart Templates**: Multiple professional designs with real-time preview.
+- **AI Content Generation**: Intelligent suggestions for summaries and bullet points.
+- **PDF Export**: Download publication-ready resumes in one click.
+- **Shareable Links**: Share your resume with a unique public URL.
 
-### 🌐 Personal Portfolio
-Instantly generate a beautiful personal website from your resume to showcase your projects.
-- **One-Click Generation**: No coding required.
-- **Customizable**: Updates automatically with your resume.
-- **Shareable URL**: Stand out to recruiters with a professional link.
+### 🎙️ AI Interview Coach (Interview Studio)
+Practice with a real-time AI voice coach that simulates actual interviews.
+- **Role-Tailored Questions**: AI generates questions based on your target job and industry.
+- **Voice Sessions**: Full real-time AI voice interaction via Cloud Run microservice.
+- **Session History**: Review past practice sessions and performance reports.
 
-### 📊 Job Tracker
-Organize your entire job search in one dashboard.
-- **Status Tracking**: Keep tabs on Applied, Interviewing, and Offer stages.
-- **Statistics**: Visualize your progress and conversion rates.
+### 🌐 Portfolio & Personal Brand Builder
+Build a beautiful personal website from your resume in minutes.
+- **Multiple Modes**: Portfolio sites and link-in-bio pages.
+- **Drag-and-Drop Editor**: Fully customizable with live preview.
+- **Custom Domain Ready**: Shareable URLs for recruiters and clients.
 
-### 🤝 Business Partner Integration
-A dedicated portal for HR professionals and Recruiters.
-- **Job Management**: Create, publish, and manage job postings.
-- **Applicant Tracking System (ATS)**: Review candidates, analyze resume matches with AI, and track status.
-- **Status Sync**: HR updates (e.g., Shortlisted, Interviewing) automatically sync to the candidate's personal Job Tracker.
+### 📊 Job Application Tracker
+Organize your entire job search with a Kanban-style board.
+- **Status Tracking**: Applied → Interviewing → Offer → Rejected pipeline.
+- **Detailed Records**: Notes, links, contacts and follow-up dates per application.
+- **Statistics**: Visualize your conversion rates at a glance.
 
 ### 🏢 Job Marketplace
-A centralized hub for connecting talent with opportunity.
-- **AI-Powered Job Search**: Search for jobs using Gemini Grounding with real-time web results.
-- **Smart Search & Caching**: Intelligent job indexing allows searching across all cached jobs by company, title, or location.
-- **Direct Apply**: Apply to jobs directly with your CareerVivid profile and resumes.
-- **Tracker Integration**: One-click addition of jobs to your personal tracker.
-- **Mock Interview**: Launch AI-powered mock interviews tailored to specific job postings.
+Discover and apply to jobs powered by AI search.
+- **Real-Time AI Search**: Gemini Grounding with live web results.
+- **Smart Caching**: 2-week TTL indexed job cache for instant searches.
+- **Direct Apply**: Apply with your CareerVivid profile and tailored resume.
+
+### 🤝 Business Partner Portal
+A dedicated space for HR teams and recruiters.
+- **Job Posting Manager**: Create and publish listings directly to the marketplace.
+- **ATS Dashboard**: AI-assisted resume screening and candidate tracking.
+- **Status Sync**: HR updates automatically sync to candidates' personal trackers.
+
+### 🎛️ Smart Dashboard
+A fully customizable home for all your CareerVivid tools.
+- **Drag & Drop Sections**: Reorder sections to your workflow preference.
+- **Editable Section Names**: Double-click any section header to rename it.
+- **Grid / Row View Toggle**: Switch between compact and card views.
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React + TypeScript + Vite |
+| Styling | Tailwind CSS |
+| Auth & Database | Firebase Auth + Firestore |
+| Storage | Firebase Storage |
+| AI | Google Gemini 2.5 Flash (via Cloud Run proxy) |
+| Canvas | Excalidraw |
+| Drag & Drop | @dnd-kit |
+| PDF Export | jsPDF + html2canvas |
 
 ## Recent Updates
 
+### February 2026
+- **AI Diagram Generator**: Generate professional Excalidraw diagrams from plain-English prompts — direct JSON generation bypasses Mermaid for higher reliability.
+- **Whiteboard List Page**: Dedicated `/whiteboard` page listing all boards with grid view, thumbnail previews, and CRUD actions.
+- **Editable Dashboard Section Names**: Double-click any dashboard section header to rename it; names persist via localStorage.
+- **Security Hardening**: Fixed stored XSS in SVG thumbnail rendering; added AI response element-type whitelisting and prompt length caps.
+- **AI Button Visibility Fix**: Resolved Excalidraw z-index layering issue so the AI Generate button always renders above the canvas.
+
 ### December 2024
-- **JobMarketPage Refactoring**: Modular architecture with extracted components, hooks, and utilities (1040 → ~400 lines)
-- **Smart Job Search**: Indexed job search across cached results with multi-field querying
-- **Job Caching System**: 2-week TTL cache with automatic cleanup for faster job searches
-- **Firestore Optimization**: Composite indexes for efficient job queries
-- **LLM Standardization**: Unified model usage to **Gemini 3 Flash** across frontend and backend for better performance and consistency
-- **Refresh Search**: Added automated refresh capability to force fresh job results and bypass cache
-- **Job Link Validation**: Implemented server-side URL validation with automated fallbacks to prevent 404/broken application links
+- **SEO Overhaul**: Updated all metadata and Open Graph tags to reflect personal brand positioning.
+- **LLM Standardization**: Unified Gemini model usage across frontend and backend.
+- **JobMarketPage Refactoring**: Modular architecture with smart job caching (2-week TTL).
+- **Job Link Validation**: Server-side URL validation with automated fallbacks.
 
 ## Getting Started
 
-Follow these steps to set up the project locally on your machine.
-
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (v16 or higher)
+- [Node.js](https://nodejs.org/) (v18 or higher)
 - [npm](https://www.npmjs.com/)
+- Firebase project with Firestore, Auth, and Storage enabled
+- Google Gemini API key
 
 ### Installation
 
@@ -87,17 +117,18 @@ Follow these steps to set up the project locally on your machine.
    ```
 
 3. **Configure Environment**
-   Create a `.env.local` file in the root directory and add your Gemini API Key:
+   Create a `.env` file in the root and add your credentials:
    ```env
-   GEMINI_API_KEY=your_api_key_here
+   VITE_FIREBASE_API_KEY=your_firebase_api_key
+   VITE_FIREBASE_PROJECT_ID=your_project_id
+   VITE_GEMINI_PROXY_URL=your_gemini_proxy_url
    ```
 
 4. **Run the App**
-   Start the development server:
    ```bash
    npm run dev
    ```
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
