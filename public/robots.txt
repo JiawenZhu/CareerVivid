@@ -11,6 +11,7 @@ Disallow: /profile
 Disallow: /subscription
 Disallow: /portfolio/*/edit/
 Disallow: /interview-studio/
+Disallow: /api-proxy
 Disallow: /business-partner/
 
 # Sitemap location
