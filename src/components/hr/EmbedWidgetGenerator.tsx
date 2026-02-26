@@ -347,7 +347,7 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
                                     Company Slug (URL)
                                 </label>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-sm text-gray-500">careervivid.app/j/</span>
+                                    <span className="text-sm text-gray-500">careervivid.app/jobs/</span>
                                     <input
                                         type="text"
                                         value={slug}
@@ -433,12 +433,12 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
                         Your public job board:
                     </span>
                     <a
-                        href={`https://careervivid.app/j/${slug}`}
+                        href={`https://careervivid.app/jobs/${slug}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 text-sm text-purple-600 hover:text-purple-700"
                     >
-                        careervivid.app/j/{slug}
+                        careervivid.app/jobs/{slug}
                         <ExternalLink size={12} />
                     </a>
                 </div>

@@ -38,6 +38,8 @@ import { ResumeCardSkeleton, InterviewHistoryCardSkeleton } from '../components/
 import DashboardSummaryCards from '../components/Dashboard/DashboardSummaryCards';
 import DashboardPreviewSection, { DraggableSectionHeader } from '../components/Dashboard/DashboardPreviewSection';
 import ReorderDashboardModal, { SectionItem } from '../components/Dashboard/ReorderDashboardModal';
+import { useMyCommunityPosts } from '../hooks/useMyCommunityPosts';
+import DashboardPostCard from '../components/Dashboard/DashboardPostCard';
 
 // Lazy load modal to optimize dashboard load time
 const InterviewReportModal = React.lazy(() => import('../components/InterviewReportModal'));
@@ -48,6 +50,7 @@ const Dashboard: React.FC = () => {
     const { practiceHistory, isLoading: isLoadingHistory, deletePracticeHistory, updatePracticeHistory, addCompletedPractice } = usePracticeHistory();
     const { jobApplications, isLoading: isLoadingJobs, updateJobApplication, deleteJobApplication, deleteAllJobApplications } = useJobTracker();
     const { whiteboards, isLoading: isLoadingWhiteboards, deleteWhiteboard, duplicateWhiteboard, updateWhiteboard, createWhiteboard } = useWhiteboards();
+    const { posts: myCommunityPosts, isLoading: isLoadingCommunityPosts, deletePost: deleteCommunityPost } = useMyCommunityPosts();
     const { currentUser, logOut, isAdmin, userProfile, isPremium, aiUsage } = useAuth();
     const { t } = useTranslation();
     const { navPosition, toggleNavPosition } = useNavigation();
@@ -75,6 +78,7 @@ const Dashboard: React.FC = () => {
         { id: 'resumes', label: 'My Resumes' },
         { id: 'whiteboards', label: 'My Whiteboards' },
         { id: 'portfolios', label: 'Portfolios' },
+        { id: 'communityPosts', label: 'My Community Posts' },
         { id: 'jobTracker', label: 'Job Tracker' },
     ];
 
@@ -107,6 +111,7 @@ const Dashboard: React.FC = () => {
         resumes: 'My Resumes',
         whiteboards: 'My Whiteboards',
         portfolios: 'Portfolios',
+        communityPosts: 'My Community Posts',
         jobTracker: 'Job Tracker',
     };
 
@@ -478,7 +483,7 @@ const Dashboard: React.FC = () => {
 
     const closeConfirmModal = () => setConfirmModal({ ...confirmModal, isOpen: false });
 
-    const confirmItemDelete = (id: string, type: 'resume' | 'practice' | 'job' | 'portfolio') => {
+    const confirmItemDelete = (id: string, type: 'resume' | 'practice' | 'job' | 'portfolio' | 'post', coverImage?: string) => {
         setConfirmModal({
             isOpen: true,
             title: t('dashboard.confirm_delete_title', { type }),
@@ -488,6 +493,7 @@ const Dashboard: React.FC = () => {
                 if (type === 'portfolio') deletePortfolio(id);
                 if (type === 'practice') deletePracticeHistory(id);
                 if (type === 'job') deleteJobApplication(id);
+                if (type === 'post') deleteCommunityPost(id, coverImage);
                 closeConfirmModal();
             },
             confirmText: t('dashboard.delete')
@@ -865,6 +871,28 @@ const Dashboard: React.FC = () => {
                                                 </button>
                                             </div>
                                         )}
+                                    </React.Fragment>
+                                );
+                            case 'communityPosts':
+                                return (
+                                    <React.Fragment key={sectionId}>
+                                        <DashboardPreviewSection
+                                            title={sectionNames.communityPosts}
+                                            items={myCommunityPosts}
+                                            viewMode={viewMode}
+                                            onLongPress={() => setIsReorderModalOpen(true)}
+                                            onViewAll={() => navigate('/community')}
+                                            onTitleChange={(name) => handleSectionNameChange('communityPosts', name)}
+                                            emptyMessage="You haven't written any community posts yet. Share your experience!"
+                                            renderItem={(post) => (
+                                                <DashboardPostCard
+                                                    key={post.id}
+                                                    post={post}
+                                                    onDelete={deleteCommunityPost}
+                                                    onDragStart={() => { }}
+                                                />
+                                            )}
+                                        />
                                     </React.Fragment>
                                 );
                             case 'portfolios':

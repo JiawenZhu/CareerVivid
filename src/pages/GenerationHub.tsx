@@ -37,7 +37,7 @@ const placeholderPrompts = [
 ];
 
 const GenerationHub: React.FC = () => {
-    const { currentUser } = useAuth();
+    const { currentUser, userProfile } = useAuth();
     const { navPosition } = useNavigation();
     const { resumes, addAIGeneratedResume, updateResume, deleteResume, duplicateResume, isLoading: isLoadingResumes } = useResumes();
     const [prompt, setPrompt] = useState('');
@@ -129,8 +129,12 @@ const GenerationHub: React.FC = () => {
         };
     }, []);
 
-    const handleGenerate = async (inputContent: string) => {
-        if (!inputContent.trim() || !currentUser) return;
+    // Dual-Path Generation handler
+    const handleGenerate = async (payload: { type: 'prompt', value: string } | { type: 'template', templateId: string }) => {
+        if (!currentUser) return;
+
+        // Skip logic if empty prompt
+        if (payload.type === 'prompt' && !payload.value.trim()) return;
 
         if (resumes.length === 0) {
             sessionStorage.setItem('isFirstResume', 'true');
@@ -141,21 +145,46 @@ const GenerationHub: React.FC = () => {
         setIsLoading(true);
         setError('');
         try {
-            let aiData;
+            let resumeData;
 
-            if (isFileImport) {
-                aiData = await parseResume(currentUser.uid, inputContent, 'English');
+            if (payload.type === 'template') {
+                // PATH A: STATIC TEMPLATE BYPASSING AI
+                const { getSystemTemplate } = await import('../services/templateService');
+                const { interpolateTemplate } = await import('../utils/templateInterpolator');
+
+                let templateString = '';
+                try {
+                    templateString = await getSystemTemplate(payload.templateId);
+                } catch (e) {
+                    console.warn("Template not found in DB, falling back to basic...", e);
+                    // Minimal fallback if DB isn't seeded yet
+                    templateString = JSON.stringify({
+                        personalDetails: { jobTitle: "Professional", firstName: "{{USER_NAME}}", email: "{{USER_EMAIL}}" },
+                        professionalSummary: "{{USER_SUMMARY}}",
+                        employmentHistory: [], education: [], skills: [], languages: [], websites: []
+                    });
+                }
+
+                // Inject user profile data
+                const hydratedString = interpolateTemplate(templateString, userProfile || currentUser);
+                resumeData = JSON.parse(hydratedString);
+
             } else {
-                aiData = await generateResumeFromPrompt(currentUser.uid, inputContent);
+                // PATH B: AI GENERATION
+                if (isFileImport) {
+                    resumeData = await parseResume(currentUser.uid, payload.value, 'English');
+                } else {
+                    resumeData = await generateResumeFromPrompt(currentUser.uid, payload.value);
+                }
             }
 
-            if (!aiData || typeof aiData !== 'object' || !aiData.personalDetails) {
-                console.error("Invalid data structure from AI:", aiData);
-                throw new Error("AI failed to generate a valid resume structure. Please try a more specific prompt.");
+            if (!resumeData || typeof resumeData !== 'object' || !resumeData.personalDetails) {
+                console.error("Invalid data structure:", resumeData);
+                throw new Error("Failed to generate a valid resume structure.");
             }
 
-            const title = `${aiData.personalDetails.jobTitle || 'New'} Resume`;
-            addAIGeneratedResume(aiData, title);
+            const title = `${resumeData.personalDetails.jobTitle || 'New'} Resume`;
+            addAIGeneratedResume(resumeData, title);
         } catch (e) {
             setError(e instanceof Error ? e.message : 'An unknown error occurred.');
             setIsLoading(false);
@@ -164,12 +193,12 @@ const GenerationHub: React.FC = () => {
 
     const handlePromptSubmit = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
-        handleGenerate(prompt);
+        handleGenerate({ type: 'prompt', value: prompt });
     };
 
     const handleFileProcessed = (text: string) => {
         setIsFileImport(true);
-        handleGenerate(text);
+        handleGenerate({ type: 'prompt', value: text });
     };
 
     const handleTextChange = (text: string) => {
@@ -178,9 +207,11 @@ const GenerationHub: React.FC = () => {
     };
 
     const handleRoleSelect = (roleName: string) => {
-        const industryName = selectedIndustry?.name;
-        const fullPrompt = `Create a professional resume for the role of '${roleName}'. This role is in the '${industryName}' industry. The resume should be tailored to highlight key qualifications, skills, and experiences relevant to this specific career path.`;
-        handleGenerate(fullPrompt);
+        // We use a standardized template ID format based on the role name
+        const safeTemplateId = `template_${roleName.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
+        // Note: For roles we don't have hardcoded templates for yet, getSystemTemplate will throw 
+        // and trigger the basic fallback, which is acceptable for v1 of this architecture.
+        handleGenerate({ type: 'template', templateId: safeTemplateId });
     };
 
     const handleDeleteClick = (id: string) => {

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { useAuth } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CartProvider } from './features/commerce/context/CartContext';
 import { Loader2 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
@@ -60,6 +60,7 @@ const HRPartnerPage = React.lazy(() => import('./pages/partners/HRPartnerPage'))
 const BusinessPartnerDashboard = React.lazy(() => import('./pages/BusinessPartnerDashboard'));
 const JobPostingEditor = React.lazy(() => import('./pages/JobPostingEditor'));
 const JobMarketPage = React.lazy(() => import('./pages/JobMarketPage'));
+const PublicJobBoardPage = React.lazy(() => import('./pages/PublicJobBoardPage'));
 const IntegrationsPage = React.lazy(() => import('./pages/IntegrationsPage'));
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'));
 const PermissionDeniedPage = React.lazy(() => import('./pages/PermissionDeniedPage'));
@@ -73,6 +74,14 @@ const ClientPortalPage = React.lazy(() => import('./pages/ClientPortalPage'));
 const ServicePortfolioPage = React.lazy(() => import('./pages/ServicePortfolioPage'));
 const ServicesPage = React.lazy(() => import('./pages/ServicesPage'));
 const MerchantProductSubmission = React.lazy(() => import('./pages/MerchantProductSubmission'));
+
+// Community
+const CommunityDashboard = React.lazy(() => import('./pages/community/CommunityDashboard'));
+const CommunityEditor = React.lazy(() => import('./pages/community/CommunityEditor'));
+const CommunityPostPage = React.lazy(() => import('./pages/community/CommunityPostPage'));
+const CommunityGuidelinesPage = React.lazy(() => import('./pages/community/CommunityGuidelinesPage'));
+const MyPostsPage = React.lazy(() => import('./pages/community/MyPostsPage'));
+const ApiDocsPage = React.lazy(() => import('./pages/ApiDocsPage'));
 
 import { SUPPORTED_LANGUAGES } from './constants';
 // import i18n from './i18n'; // Used in navigation.ts
@@ -100,12 +109,32 @@ import SEOHelper from './components/SEOHelper';
 import ProtectedRoute from './components/ProtectedRoute'; // [NEW] Protected Route Wrapper
 import { NavigationProvider } from './contexts/NavigationContext';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const { currentUser, userProfile, loading, isAdmin, isAdminLoading, isEmailVerified } = useAuth();
+  const [isExtension, setIsExtension] = useState(false);
   useGuestDataMigration(); // Global guest data migration
 
+  // Run one-time initialization tasks
+  useEffect(() => {
+    if (isAdmin) {
+      // Seed system templates in Firestore for dual-path generation
+      import('./services/templateService').then(({ seedSystemTemplates }) => {
+        seedSystemTemplates().catch(console.error);
+      });
+    }
+  }, [isAdmin]);
+
+  // Check if we log in through the extension
+  useEffect(() => {
+    const checkContext = async () => {
+      const context = await isExtensionContext();
+      setIsExtension(context);
+    };
+    checkContext();
+  }, []);
+
   // Extension Context Check
-  if (isExtensionContext()) {
+  if (isExtension) {
     return (
       <ThemeProvider>
         <ExtensionLayout />
@@ -157,6 +186,18 @@ const App: React.FC = () => {
       </ThemeProvider>
     )
   }
+
+  // Public Job Board Route
+  if (path.startsWith('/jobs/')) {
+    return (
+      <ThemeProvider>
+        <Suspense fallback={<LoadingFallback />}>
+          <PublicJobBoardPage />
+        </Suspense>
+      </ThemeProvider>
+    )
+  }
+
 
   // Portfolio Routing Helper
   // Supports: /portfolio/edit/ID, /portfolio/USERNAME/edit/ID
@@ -415,6 +456,47 @@ const App: React.FC = () => {
       );
     }
 
+    // Community Platform
+    else if (path === '/community') {
+      content = (
+        <ProtectedRoute>
+          <CommunityDashboard />
+        </ProtectedRoute>
+      );
+    }
+    else if (path === '/community/guidelines') {
+      content = (
+        <ProtectedRoute>
+          <CommunityGuidelinesPage />
+        </ProtectedRoute>
+      );
+    }
+    else if (path === '/community/new') {
+      content = (
+        <ProtectedRoute>
+          <CommunityEditor />
+        </ProtectedRoute>
+      );
+    }
+    else if (path === '/my-posts' || path === '/community/my-posts') {
+      content = (
+        <ProtectedRoute>
+          <MyPostsPage />
+        </ProtectedRoute>
+      );
+    }
+    else if (path.startsWith('/community/post/')) {
+      content = (
+        <ProtectedRoute>
+          <CommunityPostPage />
+        </ProtectedRoute>
+      );
+    }
+    // Developer API Docs — public
+    else if (path === '/developers/api' || path === '/developers') {
+      content = <ApiDocsPage />;
+    }
+
     // Commerce / Checkout (Was in Auth block)
     else if (path === '/commerce') {
       content = <ProtectedRoute><CommerceDashboard /></ProtectedRoute>;
@@ -516,7 +598,7 @@ const App: React.FC = () => {
           <div className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-200 font-sans">
             <Helmet
               titleTemplate="%s | CareerVivid"
-              defaultTitle="CareerVivid | Build Your Personal Brand & Accelerate Your Career"
+              defaultTitle="CareerVivid | Open-Source AI Career Platform & Resume Builder"
             />
             <SEOHelper />
             <Suspense fallback={<LoadingFallback />}>
@@ -527,6 +609,13 @@ const App: React.FC = () => {
         </NavigationProvider>
       </CartProvider>
     </ThemeProvider>
+  );
+};
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 };
 

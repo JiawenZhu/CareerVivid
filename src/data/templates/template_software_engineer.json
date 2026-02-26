@@ -1,0 +1,28 @@
+{
+    "personalDetails": {
+        "jobTitle": "Software Engineer",
+        "firstName": "{{USER_NAME}}",
+        "lastName": "",
+        "email": "{{USER_EMAIL}}",
+        "phone": "{{personalDetails.phone}}",
+        "address": "",
+        "city": "",
+        "postalCode": "",
+        "country": ""
+    },
+    "professionalSummary": "{{USER_SUMMARY}}",
+    "employmentHistory": [
+        {
+            "jobTitle": "Senior Developer",
+            "employer": "Tech Company Inc.",
+            "startDate": "2020",
+            "endDate": "Present",
+            "city": "Remote",
+            "description": "Led development of core features and improved system performance."
+        }
+    ],
+    "education": [],
+    "skills": ["JavaScript", "React", "TypeScript", "Node.js"],
+    "languages": [],
+    "websites": []
+}

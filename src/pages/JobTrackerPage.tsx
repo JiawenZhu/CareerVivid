@@ -64,10 +64,11 @@ const JobTrackerPage: React.FC = () => {
     return (
         <AppLayout>
             <div className="bg-gray-100 dark:bg-gray-900 min-h-screen">
-                <header className={`bg-white dark:bg-gray-800 shadow-sm dark:border-b dark:border-gray-700 ${navPosition === 'side' ? 'md:hidden' : ''}`}>
+                <header className="bg-white dark:bg-gray-800 shadow-sm dark:border-b dark:border-gray-700">
                     <div className="max-w-full mx-auto py-4 px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-4">
+                            {/* Back arrow + title — hidden on desktop when sidebar is active */}
+                            <div className={`flex items-center gap-4 ${navPosition === 'side' ? 'md:hidden' : ''}`}>
                                 <a href="/" title={t('nav.dashboard')} className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
                                     <ArrowLeft size={24} />
                                 </a>
@@ -76,6 +77,10 @@ const JobTrackerPage: React.FC = () => {
                                     <p className="text-gray-500 dark:text-gray-400 mt-1">{t('job_tracker.subtitle')}</p>
                                 </div>
                             </div>
+                            {/* Title shown inline in side-nav mode */}
+                            {navPosition === 'side' && (
+                                <h1 className="hidden md:block text-2xl font-bold text-gray-900 dark:text-gray-100">{t('job_tracker.title')}</h1>
+                            )}
                             <button
                                 onClick={() => setIsAddModalOpen(true)}
                                 className="flex items-center gap-2 bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-primary-700 transition-colors"

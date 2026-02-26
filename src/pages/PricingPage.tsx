@@ -10,71 +10,10 @@ import { httpsCallable } from 'firebase/functions';
 import { loadStripe } from '@stripe/stripe-js';
 import { trackUsage } from '../services/trackingService';
 import { navigate } from '../utils/navigation';
+import { PricingComparison } from '../components/Landing/PricingComparison';
 
 
-// Pricing plans with correct IDs from Stripe
-const pricingPlans = [
-    {
-        name: 'Free',
-        subtitle: 'Get started with basic features.',
-        price: '$0',
-        duration: 'forever',
-        priceId: null, // No Stripe price for free tier
-        features: [
-            'Create & Edit 2 Resumes',
-            'Create 1 Portfolio Website',
-            'All Professional Templates',
-            '10 AI Credits/Month',
-            'AI Content Generation',
-            'Image Exports',
-        ],
-        cta: 'Get Started',
-        resumeLimit: 2,
-    },
-    {
-        name: 'The 7-Day Sprint',
-        subtitle: 'Perfect for a quick resume overhaul.',
-        price: '$6.90',
-        originalPrice: '$13.80',
-        discount: '50% OFF',
-        duration: 'one-time',
-        priceId: 'price_1SXEhfEqIOIAAUV0gMU2RsIN',
-        features: [
-            'Create & Edit up to 100 Resumes',
-            'Create up to 8 Portfolio Websites',
-            'All Professional Templates',
-            '100 AI Credits/Month',
-            'AI Content Generation',
-            'AI Photo Editing',
-            'Unlimited Downloads',
-            '7 Days Access',
-        ],
-        cta: 'Get Started',
-        resumeLimit: 100,
-    },
-    {
-        name: 'Pro Monthly',
-        subtitle: 'Continuous AI coaching for your entire job search.',
-        price: '$14.90',
-        originalPrice: '$29.80',
-        discount: '50% OFF',
-        duration: '/month',
-        priceId: 'price_1SXF15EqIOIAAUV01eD0To1q',
-        features: [
-            'Create & Edit Unlimited Resumes',
-            'Create up to 8 Portfolio Websites',
-            'All Professional Templates',
-            '300 AI Credits/Month',
-            'AI Content Generation',
-            'AI Photo Editing',
-            'Unlimited Downloads',
-            'Unlimited Interview Practice',
-        ],
-        cta: 'Get Started',
-        popular: true,
-        resumeLimit: 9999,
-    },
-];
+
 
 // Use live key for production
 const STRIPE_PUBLISHABLE_KEY = 'pk_live_51STFUtRJNflGxv32CayeCcXNHhUP08C5ECNWVVpBJsTUEWGuCOk4RAbvW9nHioDwk0vyQGgKDmBQeyZu5oGFcOel00UsdE352Z';
@@ -150,55 +89,11 @@ const PricingPage: React.FC = () => {
 
                     {error && <p className="mt-8 text-center text-red-500 bg-red-100 dark:bg-red-900/20 p-3 rounded-lg">{error}</p>}
 
-                    <div className="mt-16 flex justify-center">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl">
-                            {pricingPlans.map((plan: any) => (
-                                <div key={plan.name} className={`relative rounded-3xl p-8 border ${plan.popular ? 'border-primary-500 border-2' : 'border-gray-200 dark:border-gray-800'} bg-white dark:bg-gray-900 shadow-lg flex flex-col transform hover:-translate-y-1 transition-transform`}>
-                                    {plan.popular && (
-                                        <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 z-10">
-                                            <span className="bg-primary-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-sm">{t('pricing.most_popular')}</span>
-                                        </div>
-                                    )}
-
-                                    {plan.discount && (
-                                        <div className="absolute top-0 right-0 p-6 z-10">
-                                            <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded rotate-12 inline-block transform shadow-sm">
-                                                {plan.discount}
-                                            </span>
-                                        </div>
-                                    )}
-
-                                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-2">{plan.name}</h3>
-
-                                    <div className="mt-4 flex flex-col">
-                                        {plan.originalPrice && (
-                                            <span className="text-sm line-through text-gray-400">
-                                                {plan.originalPrice}
-                                            </span>
-                                        )}
-                                        <div className="flex items-baseline gap-1">
-                                            <span className="text-4xl font-extrabold text-gray-900 dark:text-white">{plan.price}</span>
-                                            <span className="text-sm font-medium text-gray-500 dark:text-gray-400"> {plan.duration}</span>
-                                        </div>
-                                    </div>
-
-                                    <ul className="mt-8 space-y-4 text-sm text-gray-600 dark:text-gray-300 flex-grow">
-                                        {plan.features.map((feature: string) => (
-                                            <li key={feature} className="flex items-start">
-                                                <CheckCircle className="flex-shrink-0 w-5 h-5 text-primary-500 mr-3 mt-0.5" />
-                                                <span>{feature}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                    <button
-                                        onClick={() => handleChoosePlan(plan.priceId)}
-                                        disabled={plan.priceId !== null && loadingPriceId === plan.priceId}
-                                        className={`mt-8 block w-full text-center rounded-xl px-6 py-3 text-sm font-bold transition-colors disabled:opacity-50 ${plan.popular ? 'bg-primary-600 text-white hover:bg-primary-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
-                                        {(plan.priceId !== null && loadingPriceId === plan.priceId) ? <Loader2 className="animate-spin mx-auto" /> : t('pricing.cta_get_started')}
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
+                    <div className="mt-8 -mx-4 sm:mx-0">
+                        <PricingComparison
+                            onCloudUpgrade={() => handleChoosePlan('price_1SXF15EqIOIAAUV01eD0To1q')}
+                            isLoading={loadingPriceId !== null}
+                        />
                     </div>
                 </div>
             </main>

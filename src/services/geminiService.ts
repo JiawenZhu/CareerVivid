@@ -1,6 +1,7 @@
 import { ResumeData, TranscriptEntry, InterviewAnalysis, JobApplicationData, ResumeMatchAnalysis } from '../types';
 import { trackUsage } from './trackingService';
 import { reportError } from './errorService';
+import { AI_CREDIT_COSTS } from '../config/creditCosts';
 
 // --- Configuration ---
 const PROXY_URL = import.meta.env.VITE_GEMINI_PROXY_URL || 'https://us-west1-jastalk-firebase.cloudfunctions.net/geminiProxy';
@@ -416,6 +417,39 @@ export const editProfilePhoto = async (userId: string, base64Image: string, mime
     }
 };
 
+export const generateImage = async (userId: string, prompt: string, modelType: 'standard' | 'pro' = 'standard'): Promise<string> => {
+    try {
+        const apiModel = modelType === 'pro' ? 'gemini-3-pro-image-preview' : 'gemini-2.5-flash-image';
+        const requiredCredits = modelType === 'pro' ? 20 : 10;
+
+        const result = await callGeminiProxy({
+            modelName: apiModel,
+            contents: prompt,
+            config: { responseModalities: ["IMAGE"] }
+        });
+
+        const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 1000;
+        await trackUsage(userId, 'image_generation_prompt', { tokenUsage, deductCredits: requiredCredits });
+
+        const candidates = result.response?.candidates;
+        if (candidates && candidates[0]?.content?.parts) {
+            for (const part of candidates[0].content.parts) {
+                if (part.inlineData) {
+                    const base64ImageBytes = part.inlineData.data;
+                    const outputMimeType = part.inlineData.mimeType || 'image/png';
+                    return `data:${outputMimeType};base64,${base64ImageBytes}`;
+                }
+            }
+        }
+        throw new Error("AI did not return an image.");
+
+    } catch (error) {
+        console.error("Error generating image:", error);
+        reportError(error as Error, { functionName: 'generateImage' });
+        throw new Error("Failed to generate image with AI.");
+    }
+};
+
 export const generateResumeFromPrompt = async (userId: string, prompt: string): Promise<Partial<ResumeData>> => {
     try {
         const fullPrompt = `Generate a complete, professional resume based on the following description: "${prompt}". The resume should be tailored for this role and must include a professional summary, a list of 8-10 relevant technical and soft skills, 2-3 detailed example employment history entries with 3-4 achievement-oriented bullet points each, and a relevant education entry. Use realistic but placeholder personal details (e.g., John Doe, anytown, etc.). Respond with a structured JSON object that strictly conforms to the provided schema. Ensure all required fields are populated.`;
@@ -676,7 +710,8 @@ export const generateJobPrepNotes = async (userId: string, job: JobApplicationDa
         });
 
         const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
-        await trackUsage(userId, 'job_prep_generation', { tokenUsage });
+        // "Generate All Prep Notes" is a bulk operation — costs JOB_PREP_NOTES_ALL (10) credits.
+        await trackUsage(userId, 'job_prep_generation', { tokenUsage, deductCredits: AI_CREDIT_COSTS.JOB_PREP_NOTES_ALL });
 
         return JSON.parse(result.text.trim());
     } catch (error) {

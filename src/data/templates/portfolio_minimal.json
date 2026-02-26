@@ -1,0 +1,12 @@
+{
+    "hero": {
+        "headline": "{{USER_NAME}}",
+        "subheadline": "{{USER_SUMMARY}}",
+        "avatarUrl": "{{photoURL}}"
+    },
+    "about": "{{USER_SUMMARY}}",
+    "experience": [],
+    "projects": [],
+    "skills": ["React", "TypeScript", "UI/UX"],
+    "socialLinks": []
+}

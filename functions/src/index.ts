@@ -33,6 +33,7 @@ export { grantAcademicPartnerRole } from "./admin";
 export * from './scheduled';
 export * from './email';
 export * as jobs from "./jobs";
+export { getCompanyJobs } from "./jobs";
 export * from './stripe';
 export * from './stripeConnect';
 export { onUserCreated, onPartnerApplicationUpdated, onApplicationCreated } from "./triggers";

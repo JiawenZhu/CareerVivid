@@ -10,7 +10,7 @@ interface NavigationContextType {
 const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
 
 export const NavigationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [navPosition, setNavPosition] = useState<NavPosition>('top');
+    const [navPosition, setNavPosition] = useState<NavPosition>('side');
 
     useEffect(() => {
         const stored = localStorage.getItem('careervivid_nav_layout');

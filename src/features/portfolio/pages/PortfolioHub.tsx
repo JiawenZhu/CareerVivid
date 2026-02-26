@@ -165,7 +165,37 @@ const PortfolioHub: React.FC = () => {
 
             console.log('[PortfolioHub] Creating portfolio...', { promptToUse, templateIdToUse, specificThemeId });
 
-            const generatedData = await generatePortfolioFromPrompt(promptToUse, currentUser.uid);
+            let generatedData: any;
+
+            if (type === 'template') {
+                // PATH A: STATIC TEMPLATE BYPASSING AI
+                const { getSystemTemplate } = await import('../../../services/templateService');
+                const { interpolateTemplate } = await import('../../../utils/templateInterpolator');
+
+                let templateString = '';
+                try {
+                    // Use specificThemeId if visual theme, else use templateIdToUse
+                    const targetId = specificThemeId || templateIdToUse;
+                    templateString = await getSystemTemplate(targetId);
+                } catch (e) {
+                    console.warn(`Template ${templateIdToUse} not found in DB, falling back to minimal...`, e);
+                    // Minimal fallback portfolio
+                    templateString = JSON.stringify({
+                        hero: { headline: "{{USER_NAME}}", subheadline: "{{USER_SUMMARY}}", avatarUrl: "" },
+                        about: "{{USER_SUMMARY}}",
+                        experience: [], projects: [], skills: [], socialLinks: []
+                    });
+                }
+
+                // Try to grab user profile from context if it exists, otherwise fallback to currentUser
+                // (Note: userProfile needs to be exposed in PortfolioHub if not already)
+                const hydratedString = interpolateTemplate(templateString, currentUser);
+                generatedData = JSON.parse(hydratedString);
+
+            } else {
+                // PATH B: AI GENERATION
+                generatedData = await generatePortfolioFromPrompt(promptToUse, currentUser.uid);
+            }
 
             if (templateIdToUse) {
                 generatedData.templateId = templateIdToUse as any;

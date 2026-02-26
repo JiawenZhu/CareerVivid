@@ -18,12 +18,12 @@ const Footer: React.FC<FooterProps> = ({ variant = 'default', policyPath = '/pol
             }`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-                    <div className="flex items-center gap-2">
-                        <Logo className={`h-8 w-8 ${isBrutalist ? 'text-white' : ''}`} />
-                        <span className={`text-xl font-bold ${isBrutalist ? 'text-white font-mono tracking-tighter' : 'text-gray-900 dark:text-white'}`}>CareerVivid</span>
+                    <div className="flex items-center">
+                        <Logo className={`h-8 w-auto ${isBrutalist ? 'text-white' : ''}`} />
                     </div>
-                    <div className={`flex gap-6 ${isBrutalist ? 'text-white font-mono text-sm' : 'text-gray-500 dark:text-gray-400'}`}>
+                    <div className={`flex flex-wrap justify-center gap-6 ${isBrutalist ? 'text-white font-mono text-sm' : 'text-gray-500 dark:text-gray-400'}`}>
                         <button onClick={() => navigate('/')} className={`transition-colors ${isBrutalist ? 'hover:text-green-400 hover:underline uppercase' : 'hover:text-primary-500'}`}>Features</button>
+                        <button onClick={() => navigate('/community')} className={`transition-colors ${isBrutalist ? 'hover:text-green-400 hover:underline uppercase' : 'hover:text-primary-500'}`}>Community</button>
                         <button onClick={() => navigate('/pricing')} className={`transition-colors ${isBrutalist ? 'hover:text-green-400 hover:underline uppercase' : 'hover:text-primary-500'}`}>Pricing</button>
                         <button onClick={() => navigate('/contact')} className={`transition-colors ${isBrutalist ? 'hover:text-green-400 hover:underline uppercase' : 'hover:text-primary-500'}`}>Support</button>
                         <button onClick={() => navigate('/terms')} className={`transition-colors ${isBrutalist ? 'hover:text-green-400 hover:underline uppercase' : 'hover:text-primary-500'}`}>Terms</button>

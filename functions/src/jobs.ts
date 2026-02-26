@@ -780,3 +780,76 @@ export const deleteUserJob = functions.region('us-west1').https.onCall(async (da
         throw new functions.https.HttpsError('internal', `Failed to delete job: ${error.message}`);
     }
 });
+
+// HTTP Function to get jobs for a specific company by slug (Used by Embed Widget)
+export const getCompanyJobs = functions.region('us-west1').runWith({
+    timeoutSeconds: 30,
+    memory: "256MB"
+}).https.onRequest(async (req, res) => {
+    corsHandler(req, res, async () => {
+        // Handle preflight explicitly
+        if (req.method === 'OPTIONS') {
+            res.set('Access-Control-Allow-Origin', '*');
+            res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+            res.set('Access-Control-Allow-Headers', 'Content-Type');
+            res.status(204).send('');
+            return;
+        }
+
+        if (req.method !== 'GET') {
+            res.status(405).json({ error: 'Method Not Allowed' });
+            return;
+        }
+
+        const companySlug = req.query.company as string;
+
+        if (!companySlug) {
+            res.status(400).json({ error: 'Missing company slug parameter' });
+            return;
+        }
+
+        try {
+            console.log(`[getCompanyJobs] Fetching jobs for company slug: ${companySlug}`);
+
+            // 1. Find the company profile matching the slug
+            const profilesSnap = await db.collection('companyProfiles')
+                .where('slug', '==', companySlug)
+                .limit(1)
+                .get();
+
+            if (profilesSnap.empty) {
+                console.log(`[getCompanyJobs] Company not found for slug: ${companySlug}`);
+                res.json([]);
+                return; // Not an error, just no jobs
+            }
+
+            const companyDoc = profilesSnap.docs[0];
+            const hrUserId = companyDoc.data().hrUserId;
+
+            if (!hrUserId) {
+                console.log(`[getCompanyJobs] No hrUserId found for company profile: ${companyDoc.id}`);
+                res.json([]);
+                return;
+            }
+
+            // 2. Query published jobs for this hrUserId
+            const jobsSnap = await db.collection('jobPostings')
+                .where('hrUserId', '==', hrUserId)
+                .where('status', '==', 'published')
+                .orderBy('createdAt', 'desc')
+                .get();
+
+            const jobs = jobsSnap.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            console.log(`[getCompanyJobs] Returned ${jobs.length} jobs for ${companySlug}`);
+            res.json(jobs);
+        } catch (error: any) {
+            console.error('[getCompanyJobs] Error:', error);
+            res.status(500).json({ error: 'Internal server error while fetching jobs' });
+        }
+    });
+});
+

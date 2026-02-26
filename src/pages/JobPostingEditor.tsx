@@ -98,6 +98,11 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
             const baseJobData = {
                 ...formData,
                 hrUserId: currentUser.uid,
+                // Mark this job as an internal business-partner listing.
+                // This ensures the "Apply Now" button (not "Apply Externally") is shown
+                // on the Job Market page and no false "Partner" badges appear on scraped jobs.
+                isPartnerJob: true,
+                source: 'internal' as const,
                 // Filter out empty strings from arrays
                 responsibilities: (formData.responsibilities || []).filter(r => r.trim()),
                 requirements: (formData.requirements || []).filter(r => r.trim()),

@@ -13,7 +13,8 @@
     "sync-translations": "zx sync_translations.mjs",
     "dev:extension": "vite build --watch --config vite.extension.config.ts",
     "build:extension": "zx scripts/build-extension.mjs",
-    "clean": "zx scripts/clean.mjs"
+    "clean": "zx scripts/clean.mjs",
+    "seed:templates": "node scripts/seedTemplates.js"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -30,6 +31,7 @@
     "@types/three": "^0.182.0",
     "canvas-confetti": "^1.9.4",
     "compression": "^1.8.1",
+    "date-fns": "^4.1.0",
     "express": "^5.2.1",
     "fabric": "^7.2.0",
     "firebase": "^12.6.0",
@@ -50,13 +52,17 @@
     "react-dropzone": "^14.3.8",
     "react-i18next": "^14.0.5",
     "react-icons": "^5.5.0",
+    "react-intersection-observer": "^10.0.3",
     "react-is": "^19.2.4",
+    "react-markdown": "^10.1.0",
     "react-qr-code": "^2.0.18",
     "react-router-dom": "^7.9.6",
     "react-sketch-canvas": "^6.2.0",
     "react-textarea-autosize": "^8.5.9",
     "reactflow": "^11.11.4",
     "recharts": "^3.7.0",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.1",
     "three": "^0.182.0"
   },
   "devDependencies": {

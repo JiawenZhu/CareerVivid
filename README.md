@@ -124,7 +124,14 @@ A fully customizable home for all your CareerVivid tools.
    VITE_GEMINI_PROXY_URL=your_gemini_proxy_url
    ```
 
-4. **Run the App**
+4. **Seed Database Templates (Required for Generation)**
+   CareerVivid uses a hybrid generation approach. To ensure local templates are uploaded to your Firestore database:
+   ```bash
+   FIREBASE_SERVICE_ACCOUNT_KEY=./path/to/your-service-account.json npm run seed:templates
+   ```
+   *Note: You must generate a private key from Firebase Console > Project Settings > Service Accounts.*
+
+5. **Run the App**
    ```bash
    npm run dev
    ```

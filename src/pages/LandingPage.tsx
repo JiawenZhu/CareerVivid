@@ -5,7 +5,8 @@ import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
 import HeroVideo from '../components/HeroVideo';
 import { navigate } from '../utils/navigation';
-import { ArrowRight, CheckCircle2, Wand2, LayoutTemplate, Mic, Globe, Star, Loader2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Wand2, LayoutTemplate, Mic, Globe, Star, Loader2, Github, Users, Building, ChevronDown, Check } from 'lucide-react';
+import { PricingComparison } from '../components/Landing/PricingComparison';
 import { subscribeToLandingPageSettings, DEFAULT_LANDING_PAGE_SETTINGS } from '../services/systemSettingsService';
 
 const LandingPage: React.FC = () => {
@@ -62,18 +63,19 @@ const LandingPage: React.FC = () => {
                                     <span className="flex h-2 w-2 rounded-full bg-primary-500 animate-pulse"></span>
                                     {t('landing.badge_new')}
                                 </div>
-                                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-[1.1] mb-6">
-                                    {t('landing.hero_title_1')} <br className="hidden lg:block" />
-                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-blue-600 dark:from-primary-400 dark:to-blue-400">{t('landing.hero_title_2')}</span> <br className="hidden lg:block" />
-                                    {t('landing.hero_title_3')}
+                                <h1 className="text-6xl sm:text-7xl lg:text-8xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-[1.1] mb-8">
+                                    Supercharge your <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-blue-600 dark:from-primary-400 dark:to-blue-400">career</span>.
                                 </h1>
-                                <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed max-w-lg">
-                                    {t('landing.hero_subtitle')}
+                                <p className="text-2xl lg:text-3xl text-gray-600 dark:text-gray-300 mb-10 leading-relaxed max-w-2xl font-medium">
+                                    Open-source for developers, seamlessly hosted for professionals. Build an ATS-optimized resume, stunning portfolio, and practice interviews with AI.
                                 </p>
-                                <div className="flex flex-col sm:flex-row gap-4 mb-10">
-                                    <button onClick={() => navigate('/signup')} className="px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-full font-bold text-lg transition-all transform hover:scale-105 shadow-lg hover:shadow-primary-500/25 flex items-center justify-center gap-2">
-                                        {t('landing.get_started')} <ArrowRight size={20} />
+                                <div className="flex flex-col sm:flex-row gap-6 mb-12">
+                                    <button onClick={() => navigate('/signup')} className="px-10 py-5 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-extrabold text-xl transition-all transform hover:scale-105 shadow-xl hover:shadow-primary-500/30 flex items-center justify-center gap-3">
+                                        Start for Free (Hosted) <ArrowRight size={24} />
                                     </button>
+                                    <a href="https://github.com/Jastalk/CareerVivid" target="_blank" rel="noopener noreferrer" className="px-10 py-5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-900 dark:text-white rounded-2xl font-extrabold text-xl transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-md">
+                                        <Github size={24} /> Star on GitHub
+                                    </a>
                                 </div>
                                 <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                                     <div className="flex -space-x-2">
@@ -137,14 +139,14 @@ const LandingPage: React.FC = () => {
                                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-xl flex items-center justify-center mb-6">
                                     <LayoutTemplate size={24} />
                                 </div>
-                                <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900 dark:text-white">{t('landing.feature_editor_title')}</h2>
-                                <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                                <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-8 text-gray-900 dark:text-white tracking-tight">{t('landing.feature_editor_title')}</h2>
+                                <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-10 font-medium leading-relaxed">
                                     {t('landing.feature_editor_desc')}
                                 </p>
-                                <ul className="space-y-4">
+                                <ul className="space-y-5">
                                     {[t('landing.feature_editor_1'), t('landing.feature_editor_2'), t('landing.feature_editor_3')].map((item, i) => (
-                                        <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-200">
-                                            <CheckCircle2 size={20} className="text-green-500" /> {item}
+                                        <li key={i} className="flex items-center gap-4 text-lg text-gray-700 dark:text-gray-200 font-medium">
+                                            <CheckCircle2 size={24} className="text-green-500 flex-shrink-0" /> {item}
                                         </li>
                                     ))}
                                 </ul>
@@ -161,23 +163,23 @@ const LandingPage: React.FC = () => {
                                 <div className="w-12 h-12 bg-pink-100 dark:bg-pink-900/30 text-pink-600 rounded-xl flex items-center justify-center mb-6">
                                     <Globe size={24} />
                                 </div>
-                                <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900 dark:text-white">{t('landing.feature_portfolio_title') || "Your Personal Portfolio Website"}</h2>
-                                <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                                <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-8 text-gray-900 dark:text-white tracking-tight">{t('landing.feature_portfolio_title') || "Your Personal Portfolio Website"}</h2>
+                                <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-10 font-medium leading-relaxed">
                                     {t('landing.feature_portfolio_desc') || "Instantly generate a stunning, mobile-responsive personal website from your resume. Showcase your projects, skills, and experience with a unique URL."}
                                 </p>
-                                <ul className="space-y-4">
+                                <ul className="space-y-5">
                                     {[
                                         t('landing.feature_portfolio_1') || "One-Click Publish from Resume",
                                         t('landing.feature_portfolio_2') || "Beautiful, Professional Themes",
                                         t('landing.feature_portfolio_3') || "Custom Username URL (careervivid.app/portfolio/you)"
                                     ].map((item, i) => (
-                                        <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-200">
-                                            <CheckCircle2 size={20} className="text-pink-500" /> {item}
+                                        <li key={i} className="flex items-center gap-4 text-lg text-gray-700 dark:text-gray-200 font-medium">
+                                            <CheckCircle2 size={24} className="text-pink-500 flex-shrink-0" /> {item}
                                         </li>
                                     ))}
                                 </ul>
-                                <button onClick={() => navigate('/auth')} className="mt-8 px-6 py-3 bg-pink-600 hover:bg-pink-700 text-white rounded-full font-bold transition-all shadow-lg hover:shadow-pink-500/25 flex items-center gap-2">
-                                    {t('landing.cta_build_portfolio') || "Build Your Website"} <ArrowRight size={18} />
+                                <button onClick={() => navigate('/auth')} className="mt-10 px-8 py-4 bg-pink-600 hover:bg-pink-700 text-white rounded-2xl font-extrabold text-lg transition-all shadow-lg hover:shadow-pink-500/25 flex items-center gap-3">
+                                    {t('landing.cta_build_portfolio') || "Build Your Website"} <ArrowRight size={20} />
                                 </button>
                             </div>
                             <div className="order-2 relative">
@@ -211,8 +213,8 @@ const LandingPage: React.FC = () => {
                                 <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 text-purple-600 rounded-xl flex items-center justify-center mb-6">
                                     <Wand2 size={24} />
                                 </div>
-                                <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900 dark:text-white">{t('landing.feature_ai_title')}</h2>
-                                <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                                <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-8 text-gray-900 dark:text-white tracking-tight">{t('landing.feature_ai_title')}</h2>
+                                <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-10 font-medium leading-relaxed">
                                     {t('landing.feature_ai_desc')}
                                 </p>
                                 <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800">
@@ -283,12 +285,12 @@ const LandingPage: React.FC = () => {
                                 <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 rounded-xl flex items-center justify-center mb-6">
                                     <Mic size={24} />
                                 </div>
-                                <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900 dark:text-white">{t('landing.feature_interview_title')}</h2>
-                                <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                                <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-8 text-gray-900 dark:text-white tracking-tight">{t('landing.feature_interview_title')}</h2>
+                                <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-10 font-medium leading-relaxed">
                                     {t('landing.feature_interview_desc')}
                                 </p>
-                                <button onClick={() => navigate('/interview-studio')} className="text-primary-600 font-semibold hover:text-primary-700 flex items-center gap-2 group">
-                                    {t('landing.feature_interview_cta')} <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                <button onClick={() => navigate('/interview-studio')} className="text-primary-600 font-extrabold text-xl hover:text-primary-700 flex items-center gap-3 group">
+                                    {t('landing.feature_interview_cta')} <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
                                 </button>
                             </div>
                         </div>
@@ -301,8 +303,8 @@ const LandingPage: React.FC = () => {
                         <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-2xl mb-8">
                             <Globe size={32} />
                         </div>
-                        <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900 dark:text-white">{t('landing.feature_translate_title')}</h2>
-                        <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-12">
+                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-8 text-gray-900 dark:text-white tracking-tight">{t('landing.feature_translate_title')}</h2>
+                        <p className="text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-14 font-medium leading-relaxed">
                             {t('landing.feature_translate_desc')}
                         </p>
                         <div className="flex flex-wrap justify-center gap-4 text-sm font-medium text-gray-500 dark:text-gray-400">
@@ -315,18 +317,114 @@ const LandingPage: React.FC = () => {
                     </div>
                 </section>
 
+                {/* --- Pricing Section --- */}
+                <PricingComparison />
+
+                {/* --- Teams & Education Section --- */}
+                <section className="py-24 bg-slate-50 dark:bg-slate-900/50">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="grid md:grid-cols-2 gap-16 items-center">
+                            <div className="order-2 md:order-1 relative">
+                                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6">
+                                    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100 dark:border-gray-700">
+                                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center text-blue-600">
+                                            <Users size={24} />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-gray-900 dark:text-white">Career Center Admin</h4>
+                                            <p className="text-sm text-gray-500">Managing 150+ Students</p>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                                            <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Class of 2026 Cohort</span>
+                                            <span className="text-xs bg-green-100 text-green-700 font-bold px-2 py-1 rounded-full">100% Active</span>
+                                        </div>
+                                        <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+                                            <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Engineering Bootcamp</span>
+                                            <span className="text-xs bg-blue-100 text-blue-700 font-bold px-2 py-1 rounded-full">50 Seats Allocated</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="order-1 md:order-2">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 mb-6 tracking-wider uppercase">
+                                    <Building size={14} /> For Teams & Education
+                                </div>
+                                <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-8 text-gray-900 dark:text-white tracking-tight">Empower your entire cohort.</h2>
+                                <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-10 font-medium leading-relaxed">
+                                    CareerVivid is built for bootcamps, universities, and career centers. Assign the <code className="bg-gray-200 dark:bg-gray-800 px-3 py-1 rounded text-lg text-primary-600 dark:text-primary-400">academic_partner</code> role to instructors and seamlessly allocate AI credits to students.
+                                </p>
+                                <ul className="space-y-5 mb-10">
+                                    <li className="flex items-center gap-4 text-lg text-gray-700 dark:text-gray-200 font-medium">
+                                        <CheckCircle2 size={24} className="text-blue-500 flex-shrink-0" /> Centralized Admin Dashboard
+                                    </li>
+                                    <li className="flex items-center gap-4 text-lg text-gray-700 dark:text-gray-200 font-medium">
+                                        <CheckCircle2 size={24} className="text-blue-500 flex-shrink-0" /> Custom AI Token Limits per Student
+                                    </li>
+                                    <li className="flex items-center gap-4 text-lg text-gray-700 dark:text-gray-200 font-medium">
+                                        <CheckCircle2 size={24} className="text-blue-500 flex-shrink-0" /> View cohort-level job placement statistics
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* --- FAQ Section --- */}
+                <section className="py-24 bg-white dark:bg-gray-950">
+                    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="text-center mb-16">
+                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">Frequently Asked Questions</h2>
+                            <div className="flex items-center justify-center gap-3 text-gray-500 font-bold text-xl">
+                                <Check size={24} className="text-green-500" /> Trusted by developers and professionals worldwide.
+                            </div>
+                        </div>
+
+                        <div className="space-y-6">
+                            <details className="group bg-gray-50 dark:bg-gray-900 rounded-3xl p-8 cursor-pointer border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors [&_summary::-webkit-details-marker]:hidden">
+                                <summary className="flex justify-between items-center font-extrabold text-2xl text-gray-900 dark:text-white">
+                                    Can I host this myself for free?
+                                    <ChevronDown className="transition-transform group-open:rotate-180" size={28} />
+                                </summary>
+                                <p className="mt-6 text-xl text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                                    Yes! CareerVivid is strictly open-source core. You can clone the repository from GitHub and run it locally. Note that you will need to set up your own Firebase instance and provide your own Gemini API key for AI features.
+                                </p>
+                            </details>
+                            <details className="group bg-gray-50 dark:bg-gray-900 rounded-3xl p-8 cursor-pointer border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors [&_summary::-webkit-details-marker]:hidden">
+                                <summary className="flex justify-between items-center font-extrabold text-2xl text-gray-900 dark:text-white">
+                                    Do I need my own AI API key for the Cloud version?
+                                    <ChevronDown className="transition-transform group-open:rotate-180" size={28} />
+                                </summary>
+                                <p className="mt-6 text-xl text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                                    No. The managed SaaS version of CareerVivid (Cloud) includes a generous monthly token allocation handled through our secure, scalable proxy. Zero API key configuration required.
+                                </p>
+                            </details>
+                            <details className="group bg-gray-50 dark:bg-gray-900 rounded-3xl p-8 cursor-pointer border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors [&_summary::-webkit-details-marker]:hidden">
+                                <summary className="flex justify-between items-center font-extrabold text-2xl text-gray-900 dark:text-white">
+                                    How does team pricing work for bootcamps?
+                                    <ChevronDown className="transition-transform group-open:rotate-180" size={28} />
+                                </summary>
+                                <p className="mt-6 text-xl text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                                    We offer custom bulk pricing for educational institutions and bootcamps. Instructors receive a dedicated dashboard to invite students via email links and allocate AI credits automatically.
+                                </p>
+                            </details>
+                        </div>
+                    </div>
+                </section>
+
                 {/* --- CTA Section --- */}
                 <section className="py-24 relative overflow-hidden bg-gray-900 dark:bg-black">
                     <div className="absolute inset-0 bg-gradient-to-r from-primary-900/20 to-purple-900/20"></div>
                     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-                        <h2 className="text-4xl sm:text-5xl font-extrabold text-white mb-8 tracking-tight">
+                        <h2 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white mb-10 tracking-tight leading-tight">
                             {t('landing.cta_title')}
                         </h2>
-                        <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+                        <p className="text-2xl text-gray-300 mb-12 max-w-3xl mx-auto font-medium leading-relaxed">
                             {t('landing.cta_desc')}
                         </p>
-                        <div className="flex flex-col sm:flex-row justify-center gap-4">
-                            <button onClick={() => navigate('/auth')} className="px-8 py-4 bg-white text-gray-900 rounded-full font-bold text-lg hover:bg-gray-100 transition-colors">
+                        <div className="flex flex-col sm:flex-row justify-center gap-6">
+                            <button onClick={() => navigate('/auth')} className="px-10 py-5 bg-white text-gray-900 rounded-2xl font-extrabold text-xl hover:bg-gray-100 transition-colors shadow-2xl">
                                 {t('landing.cta_button')}
                             </button>
                         </div>

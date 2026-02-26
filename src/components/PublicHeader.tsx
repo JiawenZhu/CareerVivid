@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Sun, Moon, Menu, X, ChevronDown, Briefcase, Users, FileText, Zap, Link as LinkIcon } from 'lucide-react';
+import { Sun, Moon, Menu, X, ChevronDown, Briefcase, Users, FileText, Zap, Link as LinkIcon, Terminal } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { navigate } from '../utils/navigation';
@@ -157,7 +157,26 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'default', contex
                                             <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : 'text-gray-500 dark:text-gray-400'}`}>{t('nav.career_blog_desc')}</p>
                                         </div>
                                     </a>
-                                    {/* ... other resource links ... */}
+                                    {/* Professional API Link */}
+                                    <a href="/developers/api" className={`flex items-start gap-3 p-3 transition-colors group/item ${isBrutalist ? 'hover:bg-blue-200 border-2 border-transparent hover:border-black' : 'rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
+                                        <div className={`p-2 ${isBrutalist ? 'bg-black text-white rounded-none' : 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-md group-hover/item:bg-blue-100 dark:group-hover/item:bg-blue-900/50'}`}>
+                                            <Terminal size={18} strokeWidth={isBrutalist ? 3 : 2} />
+                                        </div>
+                                        <div>
+                                            <div className={`text-sm ${isBrutalist ? 'font-black text-black uppercase' : 'font-semibold text-gray-900 dark:text-white'}`}>Professional API</div>
+                                            <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : 'text-gray-500 dark:text-gray-400'}`}>Developer documentation</p>
+                                        </div>
+                                    </a>
+                                    {/* Community Link */}
+                                    <a href="/community" className={`flex items-start gap-3 p-3 transition-colors group/item ${isBrutalist ? 'hover:bg-orange-200 border-2 border-transparent hover:border-black' : 'rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
+                                        <div className={`p-2 ${isBrutalist ? 'bg-black text-white rounded-none' : 'bg-orange-50 dark:bg-orange-900/30 text-orange-600 rounded-md group-hover/item:bg-orange-100 dark:group-hover/item:bg-orange-900/50'}`}>
+                                            <Users size={18} strokeWidth={isBrutalist ? 3 : 2} />
+                                        </div>
+                                        <div>
+                                            <div className={`text-sm ${isBrutalist ? 'font-black text-black uppercase' : 'font-semibold text-gray-900 dark:text-white'}`}>Community</div>
+                                            <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : 'text-gray-500 dark:text-gray-400'}`}>Join the discussion</p>
+                                        </div>
+                                    </a>
                                 </>
                             )}
                         </div>
@@ -176,12 +195,11 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'default', contex
                 <div className="flex items-center justify-between h-20">
                     {/* Logo */}
                     {/* Logo - Always Original Style */}
-                    <a href="/" className="flex items-center gap-2 group">
+                    <a href="/" className="flex items-center group">
                         <div className="relative shrink-0">
                             <div className="absolute inset-0 bg-primary-500/20 rounded-full blur-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <Logo className="h-8 w-8 relative z-10 object-contain" />
+                            <Logo className="h-8 w-auto relative z-10 object-contain" />
                         </div>
-                        <span className={`text-xl font-bold tracking-tight ${isBrutalist ? 'text-black' : 'text-gray-900 dark:text-white'}`}>CareerVivid</span>
                     </a>
 
                     {/* Desktop Nav */}
@@ -325,8 +343,12 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'default', contex
                                 <a href="/services#estimator" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : 'text-sm text-gray-600 dark:text-gray-400'}`}>Service Estimates</a>
                             </div>
 
-                            <a href="/blog" onClick={() => setIsMenuOpen(false)} className={`block py-2 ${isBrutalist ? 'text-lg font-black uppercase text-black hover:bg-cyan-200 px-2 -mx-2' : 'text-base font-semibold text-gray-900 dark:text-white'}`}>{t('nav.blog')}</a>
-                            <a href="/contact" onClick={() => setIsMenuOpen(false)} className={`block py-2 ${isBrutalist ? 'text-lg font-black uppercase text-black hover:bg-pink-200 px-2 -mx-2' : 'text-base font-semibold text-gray-900 dark:text-white'}`}>{t('nav.contact')}</a>
+                            <div className={`pl-4 ${isBrutalist ? 'border-l-4 border-black ml-1 my-2 space-y-2' : 'border-l-2 border-gray-100 dark:border-gray-800 space-y-3 my-2'}`}>
+                                <p className={`text-xs uppercase tracking-wider mb-2 ${isBrutalist ? 'font-black text-gray-500' : 'text-gray-400 font-semibold'}`}>Resources</p>
+                                <a href="/blog" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : 'text-sm text-gray-600 dark:text-gray-400'}`}>{t('nav.blog')}</a>
+                                <a href="/developers/api" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : 'text-sm text-gray-600 dark:text-gray-400'}`}>Professional API</a>
+                                <a href="/contact" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : 'text-sm text-gray-600 dark:text-gray-400'}`}>{t('nav.contact')}</a>
+                            </div>
                         </div>
 
                         {/* 3. Utilities */}

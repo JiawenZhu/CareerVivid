@@ -190,7 +190,7 @@ export interface UserProfile {
 
 export type TrackEventType =
   | 'sign_in' | 'sign_out'
-  | 'ai_assistant_query' | 'image_generation' | 'diagram_generation'
+  | 'ai_assistant_query' | 'image_generation' | 'image_generation_prompt' | 'diagram_generation'
   | 'interview_start' | 'interview_analysis'
   | 'resume_suggestion' | 'question_generation'
   | 'resume_parse_text' | 'resume_parse_file' | 'resume_generate_prompt'
@@ -419,8 +419,21 @@ export interface JobPosting {
   applicationCount: number;
 
   // Integration
+  /** @legacy Use `isPartnerJob` for new code. */
   source?: 'internal' | 'google';
+  /** @legacy Use `externalUrl` for new code. */
   applyUrl?: string;
+
+  // --- B2B Partner Job fields ---
+  /**
+   * `true`  → Job is posted by a CareerVivid Business Partner.
+   *            Show the primary "Apply Now" button that triggers the internal modal.
+   * `false` → Job is scraped/aggregated from the internet.
+   *            Show "Apply Externally" (or disable if `externalUrl` is absent).
+   */
+  isPartnerJob?: boolean;
+  /** Original listing URL for scraped/external jobs. Fallback to `applyUrl`. */
+  externalUrl?: string;
 
   // Public Job Board
   companySlug?: string; // URL-friendly company identifier (e.g., "turbo-ai")

@@ -50,7 +50,7 @@ export const JobCard: React.FC<JobCardProps> = ({
                                 <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors">
                                     {job.jobTitle}
                                 </h3>
-                                {job.source !== 'google' && (
+                                {job.isPartnerJob === true && (
                                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300">
                                         Partner
                                     </span>
@@ -112,26 +112,18 @@ export const JobCard: React.FC<JobCardProps> = ({
                         )}
                     </button>
 
-                    {/* Show "Apply Externally" if job has an external apply URL, otherwise show "Apply Now" for partner jobs */}
-                    {job.applyUrl ? (
-                        <a
-                            href={job.applyUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium transition-colors shadow-sm"
-                        >
-                            Apply Externally
-                            <ExternalLink className="w-4 h-4" />
-                        </a>
-                    ) : (
+                    {/* ── Apply Button — partner jobs only ───────────────── */}
+                    {job.isPartnerJob === true ? (
                         <button
-                            onClick={(e) => onApply(job, e)}
-                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium transition-colors shadow-sm"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onApply(job, e);
+                            }}
+                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors shadow-sm w-full"
                         >
                             {isApplied ? 'Reapply' : 'Apply Now'}
                         </button>
-                    )}
+                    ) : null}
 
                     <button
                         onClick={(e) => onMockInterview(job, e)}

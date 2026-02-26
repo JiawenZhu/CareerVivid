@@ -65,16 +65,16 @@ export const getAIUsage = async (userId: string): Promise<AIUsageData> => {
  * Increment AI usage count for a user
  * Throws error if limit is reached
  */
-export const incrementAIUsage = async (userId: string): Promise<void> => {
+export const incrementAIUsage = async (userId: string, amount: number = 1): Promise<void> => {
     const usage = await getAIUsage(userId);
 
-    if (usage.count >= usage.monthlyLimit) {
+    if (usage.count + amount > usage.monthlyLimit) {
         throw new Error('Monthly AI usage limit reached');
     }
 
     const userRef = doc(db, 'users', userId);
     await updateDoc(userRef, {
-        'aiUsage.count': increment(1)
+        'aiUsage.count': increment(amount)
     });
 };
 

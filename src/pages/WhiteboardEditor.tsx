@@ -230,6 +230,12 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id }) => {
                 setTimeout(() => {
                     excalidrawAPIRef.current?.scrollToContent(newElements, { fitToViewport: true });
                 }, 100);
+
+                // Explicitly save so the diagram persists to Firestore immediately.
+                // We can't rely solely on the onChange debounce because programmatic
+                // updateScene() calls may not always trigger it reliably.
+                const appState = excalidrawAPIRef.current.getAppState?.() ?? latestAppStateRef.current;
+                await performSave(newCombined, appState);
             }
         } catch (err) {
             console.error("AI Diagram Generation error:", err);

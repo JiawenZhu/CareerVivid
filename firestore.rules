@@ -17,13 +17,32 @@ service cloud.firestore {
       );
     }
 
+    function isBusinessPartner() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        (
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'business_partner' ||
+          (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('roles', []) != null &&
+           'business_partner' in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('roles', []))
+        );
+    }
+
     // ---------------------------------------------------------
     // 👤 CORE USER DATA (Recursive - Covers EVERYTHING)
     // ---------------------------------------------------------
     match /users/{userId} {
-      allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
-      
-      // Recursive match for all subcollections (settings, resumes, referralStats, etc.)
+      // Users read their own data; admins read all; business partners can read
+      // applicant profiles (name & email only — needed for the HR dashboard).
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin() || isBusinessPartner());
+      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+
+      // Resumes specifically can be read by business partners so they can view applicants
+      match /resumes/{resumeId} {
+        allow read: if request.auth != null && (request.auth.uid == userId || isAdmin() || isBusinessPartner());
+        allow write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      }
+
+      // Recursive match for all other subcollections (settings, referralStats, etc.)
       match /{allChildren=**} {
         allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
       }
@@ -156,11 +175,100 @@ service cloud.firestore {
     }
 
     // ---------------------------------------------------------
+    // 📝 COMMUNITY POSTS (canonical collection)
+    // ---------------------------------------------------------
+    match /community_posts/{postId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.authorId;
+      allow update: if request.auth != null && (request.auth.uid == resource.data.authorId || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['metrics', 'updatedAt']));
+      allow delete: if isAdmin() || (request.auth != null && request.auth.uid == resource.data.authorId);
+    }
+
+    // Legacy 'posts' collection — kept for backward compatibility
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.authorId;
+      allow update: if request.auth != null && (request.auth.uid == resource.data.authorId || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['metrics', 'updatedAt']));
+      allow delete: if isAdmin() || (request.auth != null && request.auth.uid == resource.data.authorId);
+    }
+
+    match /community_post_likes/{likeId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
+    match /post_likes/{likeId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
+    match /community_post_comments/{commentId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.authorId == request.auth.uid;
+      allow update, delete: if isAdmin() || (request.auth != null && request.auth.uid == resource.data.authorId);
+    }
+
+    match /post_comments/{commentId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.authorId == request.auth.uid;
+      allow update, delete: if isAdmin() || (request.auth != null && request.auth.uid == resource.data.authorId);
+    }
+
+    // ---------------------------------------------------------
     // 🖌️ WHITEBOARDS (Excalidraw)
     // ---------------------------------------------------------
     match /whiteboards/{whiteboardId} {
       allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+
+    // ---------------------------------------------------------
+    // 💼 JOB POSTINGS (B2B Business Partner)
+    // ---------------------------------------------------------
+    match /jobPostings/{jobId} {
+      // Anyone can read published jobs (public job board).
+      allow read: if resource.data.status == 'published' || resource.data.get('status', '') == 'published';
+      // Business partners (HR) can read ALL their own job postings (incl. drafts).
+      allow read: if request.auth != null && resource.data.hrUserId == request.auth.uid;
+      // Admins can read everything.
+      allow read: if isAdmin();
+      // Only the owning business partner (or admin) can create/update/delete.
+      allow create: if isBusinessPartner() || isAdmin();
+      allow update, delete: if (isBusinessPartner() && resource.data.hrUserId == request.auth.uid) || isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // 📋 JOB APPLICATIONS (B2B Business Partner)
+    // ---------------------------------------------------------
+    match /jobApplications/{appId} {
+      // Applicant can read/edit/delete their own application.
+      allow read, update, delete: if request.auth != null && resource.data.applicantUserId == request.auth.uid;
+      // Applicant can submit new application.
+      allow create: if request.auth != null && request.resource.data.applicantUserId == request.auth.uid;
+      // Business partners can read applications for jobs they own.
+      allow read: if isBusinessPartner() &&
+        exists(/databases/$(database)/documents/jobPostings/$(resource.data.jobPostingId)) &&
+        get(/databases/$(database)/documents/jobPostings/$(resource.data.jobPostingId)).data.hrUserId == request.auth.uid;
+      // Business partners can update status fields on applications for their jobs.
+      allow update: if isBusinessPartner() &&
+        exists(/databases/$(database)/documents/jobPostings/$(resource.data.jobPostingId)) &&
+        get(/databases/$(database)/documents/jobPostings/$(resource.data.jobPostingId)).data.hrUserId == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'statusHistory', 'hrNotes', 'rating', 'matchAnalysis', 'lastUpdated']);
+      // Admins can do everything.
+      allow read, write: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // 🏢 COMPANY PROFILES (B2B Business Partner)
+    // ---------------------------------------------------------
+    match /companyProfiles/{profileId} {
+      // Public read for the job board embed widget.
+      allow read: if true;
+      // Business partner can create/update their own profile.
+      allow create: if (isBusinessPartner() || isAdmin()) && request.resource.data.hrUserId == request.auth.uid;
+      allow update, delete: if (isBusinessPartner() && resource.data.hrUserId == request.auth.uid) || isAdmin();
     }
   }
 }

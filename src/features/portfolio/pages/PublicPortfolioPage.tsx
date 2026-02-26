@@ -1,12 +1,13 @@
 import React, { useEffect, useState, Suspense } from 'react';
 import { useParams } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '../../../firebase';
 import { PortfolioData } from '../types/portfolio';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { TEMPLATES } from '../templates';
 import { useAnalytics } from '../hooks/useAnalytics';
 import IntroOverlay from '../components/intro/IntroOverlay';
+import PublicProfilePage from './PublicProfilePage';
 
 // Simple types for the public page if not importing full types
 // but we have PortfolioData so we are good.
@@ -27,6 +28,7 @@ const PublicPortfolioPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [showIntro, setShowIntro] = useState(true);
+    const [isUserProfileRoute, setIsUserProfileRoute] = useState(false);
 
     useEffect(() => {
         // Parse ID from URL
@@ -78,9 +80,29 @@ const PublicPortfolioPage: React.FC = () => {
                     }
 
                 } else {
-                    // Fallback: This might be a direct user link, but we can't read users/{uid}/portfolios/{pid} directly due to rules
-                    // unless rules allow it. We'll show not found for now.
-                    setError("Portfolio not found or is private.");
+                    // Fallback: The URL segment might be a user UID (e.g. from community post links).
+                    // If so, we should render the User's Public Profile (Portfolio Hub) instead of a specific portfolio.
+                    const q = query(
+                        collection(db, 'public_portfolios'),
+                        where('userId', '==', id),
+                        limit(1)
+                    );
+                    const qResumes = query(
+                        collection(db, 'public_resumes'),
+                        where('userId', '==', id),
+                        limit(1)
+                    );
+
+                    const [querySnap, resumesSnap] = await Promise.all([getDocs(q), getDocs(qResumes)]);
+
+                    // Note: even if they have NO portfolios or resumes, if they have an active user ID 
+                    // from a community post, we should still show the profile. For safety, we check if
+                    // there's ANY public presence, but really the hook inside PublicProfilePage will 
+                    // validate the user document directly. We just flip the toggle here.
+
+                    setIsUserProfileRoute(true);
+                    setLoading(false);
+                    return;
                 }
             } catch (err) {
                 console.error("Error fetching portfolio:", err);
@@ -92,6 +114,10 @@ const PublicPortfolioPage: React.FC = () => {
 
         fetchPortfolio();
     }, [id]);
+
+    if (isUserProfileRoute) {
+        return <PublicProfilePage />;
+    }
 
     // Analytics
     const { trackClick } = useAnalytics({

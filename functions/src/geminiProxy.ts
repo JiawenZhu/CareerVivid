@@ -49,6 +49,57 @@ export const streamGeminiResponse = onRequest(
       }
 
       try {
+        const isImageMode = config?.responseModalities?.includes("IMAGE") || modelName.startsWith("imagen") || modelName.includes("-image");
+        const isImagenPredict = modelName.startsWith("imagen");
+
+        if (isImageMode && isImagenPredict) {
+          // Imagen models and specific image-preview models use the predict endpoint REST API
+          const fetchFn = globalThis.fetch;
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:predict?key=${geminiApiKey.value()}`;
+
+          // Format content into instances array
+          const promptText = typeof contents === 'string' ? contents : JSON.stringify(contents);
+          const bodyPayload = {
+            instances: [{ prompt: promptText }],
+            parameters: { sampleCount: 1 }
+          };
+
+          const fetchRes = await fetchFn(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(bodyPayload)
+          });
+
+          const data = await fetchRes.json();
+          if (!fetchRes.ok) {
+            throw new Error(data.error?.message || "Imagen API Error");
+          }
+
+          const base64Image = data.predictions?.[0]?.bytesBase64Encoded;
+          const mimeType = data.predictions?.[0]?.mimeType || "image/png";
+
+          if (!base64Image) {
+            throw new Error("No image data returned from model API.");
+          }
+
+          // Return in the format expected by the frontend based on SDK response
+          const mockedResponse = {
+            candidates: [{
+              content: {
+                parts: [{
+                  inlineData: { mimeType, data: base64Image }
+                }]
+              }
+            }]
+          };
+
+          res.setHeader("Content-Type", "text/plain");
+          res.setHeader("Transfer-Encoding", "chunked");
+          res.write(`\n${END_MARKER}${JSON.stringify({ response: mockedResponse, text: "" })}`);
+          res.end();
+          return;
+        }
+
         const genAI = new GoogleGenerativeAI(geminiApiKey.value());
         const model = genAI.getGenerativeModel({
           model: modelName,
@@ -57,8 +108,6 @@ export const streamGeminiResponse = onRequest(
         });
 
         let result;
-        const isImageMode = config?.responseModalities?.includes("IMAGE");
-
         if (isImageMode) {
           const response = await model.generateContent({ contents });
           result = { stream: [], response: Promise.resolve(response.response) }; // Mock stream interface

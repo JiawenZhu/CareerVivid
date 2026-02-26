@@ -2,28 +2,38 @@ import { db, analytics } from '../firebase';
 import { collection, addDoc, serverTimestamp, doc, increment, setDoc } from 'firebase/firestore';
 import { TrackEventType } from '../types';
 import { logEvent } from 'firebase/analytics';
+import { AI_CREDIT_COSTS } from '../config/creditCosts';
 
 
 
 interface TrackMetadata {
   tokenUsage?: number;
+  deductCredits?: number;
   [key: string]: any;
 }
 
-const CREDIT_CONSUMING_EVENTS: TrackEventType[] = [
-  'resume_generate_prompt',
-  'resume_suggestion',
-  'interview_analysis',
-  'question_generation',
-  'job_prep_generation',
-  'job_prep_regeneration',
-  'job_parse_description',
-  'resume_match_analysis',
-  'portfolio_generation',
-  'portfolio_refinement',
-  'image_generation',
-  'ai_assistant_query'
-];
+// Map event types to their weighted credit costs.
+// Falls back to 1 credit for any unlisted event.
+const EVENT_CREDIT_MAP: Partial<Record<TrackEventType, number>> = {
+  'resume_generate_prompt': AI_CREDIT_COSTS.RESUME_FULL_GENERATE,
+  'resume_suggestion': AI_CREDIT_COSTS.RESUME_BULLET_EDIT,
+  'resume_parse_text': AI_CREDIT_COSTS.RESUME_PARSE_TEXT,
+  'resume_parse_file': AI_CREDIT_COSTS.RESUME_PARSE_FILE,
+  'resume_match_analysis': AI_CREDIT_COSTS.RESUME_MATCH_ANALYSIS,
+  'portfolio_generation': AI_CREDIT_COSTS.PORTFOLIO_GENERATE,
+  'portfolio_refinement': AI_CREDIT_COSTS.PORTFOLIO_REFINE,
+  'job_parse_description': AI_CREDIT_COSTS.JOB_PARSE_DESCRIPTION,
+  'job_prep_generation': AI_CREDIT_COSTS.JOB_PREP_NOTES_SINGLE,
+  'job_prep_regeneration': AI_CREDIT_COSTS.JOB_PREP_NOTES_SINGLE,
+  'interview_analysis': AI_CREDIT_COSTS.INTERVIEW_STUDIO_SESSION,
+  'question_generation': AI_CREDIT_COSTS.INTERVIEW_QUESTION_GEN,
+  'image_generation': AI_CREDIT_COSTS.IMAGE_STANDARD,
+  'image_generation_prompt': AI_CREDIT_COSTS.IMAGE_STANDARD, // overridden by deductCredits in call
+  'ai_assistant_query': AI_CREDIT_COSTS.AI_ASSISTANT_QUERY,
+  'diagram_generation': AI_CREDIT_COSTS.DIAGRAM_GENERATION,
+};
+
+const CREDIT_CONSUMING_EVENTS = Object.keys(EVENT_CREDIT_MAP) as TrackEventType[];
 
 export const trackUsage = async (userId: string, eventType: TrackEventType, metadata: TrackMetadata = {}) => {
   if (!userId) {
@@ -65,11 +75,11 @@ export const trackUsage = async (userId: string, eventType: TrackEventType, meta
 
   // 3. Deduct AI Credit (Critical Path)
   if (CREDIT_CONSUMING_EVENTS.includes(eventType)) {
-    // console.log(`[TrackUsage] Deducting credit for ${eventType}...`);
     try {
       const { incrementAIUsage } = await import('./aiUsageService');
-      await incrementAIUsage(userId);
-      // console.log(`[TrackUsage] Credit deducted successfully for ${eventType}`);
+      // Use explicit override → weighted cost from config → safe fallback of 1
+      const deductAmount = metadata.deductCredits ?? EVENT_CREDIT_MAP[eventType] ?? 1;
+      await incrementAIUsage(userId, deductAmount);
     } catch (err) {
       console.error(`Failed to deduct credit for ${eventType}:`, err);
     }
