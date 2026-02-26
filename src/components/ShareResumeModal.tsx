@@ -1,8 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Globe, Lock, Check, Share2, ExternalLink } from 'lucide-react';
+import { X, Copy, Globe, Lock, Check, Share2, ExternalLink, Users, Loader2 } from 'lucide-react';
 import { ResumeData, ShareConfig, SharePermission } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../firebase';
 
 interface ShareResumeModalProps {
   isOpen: boolean;
@@ -19,6 +21,12 @@ const ShareResumeModal: React.FC<ShareResumeModalProps> = ({ isOpen, onClose, re
   });
   const [copied, setCopied] = useState(false);
 
+  // Community share state
+  const [showCommunityCaption, setShowCommunityCaption] = useState(false);
+  const [caption, setCaption] = useState('');
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [publishSuccess, setPublishSuccess] = useState(false);
+
   // Construct the share URL. Using history router approach.
   // Format: base/shared/<userId>/<resumeId>
   const shareUrl = currentUser
@@ -34,6 +42,9 @@ const ShareResumeModal: React.FC<ShareResumeModalProps> = ({ isOpen, onClose, re
   useEffect(() => {
     if (!isOpen) {
       setCopied(false);
+      setShowCommunityCaption(false);
+      setCaption('');
+      setPublishSuccess(false);
     } else {
       const handleKeyDown = (event: KeyboardEvent) => {
         if (event.key === 'Escape') {
@@ -61,6 +72,45 @@ const ShareResumeModal: React.FC<ShareResumeModalProps> = ({ isOpen, onClose, re
     navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handlePublishToCommunity = async () => {
+    if (!currentUser) return;
+    setIsPublishing(true);
+    try {
+      const resumeTitle = [resume.personalDetails?.firstName, resume.personalDetails?.lastName].filter(Boolean).join(' ');
+
+      const payload: Record<string, any> = {
+        type: 'resume',
+        assetId: resume.id,
+        assetUrl: shareUrl,
+        caption: caption.trim() || '',
+        title: resumeTitle ? `${resumeTitle}'s Resume` : 'Shared Resume',
+        content: caption.trim() || `Check out my resume!`,
+        tags: ['resume', 'showcase'],
+        readTime: 1,
+        authorId: currentUser.uid,
+        authorName: currentUser.displayName || 'Anonymous',
+        authorAvatar: currentUser.photoURL || '',
+        metrics: { likes: 0, comments: 0, views: 0 },
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      };
+
+      // Strip undefined values
+      Object.keys(payload).forEach(key => {
+        if (payload[key] === undefined) delete payload[key];
+      });
+
+      await addDoc(collection(db, 'community_posts'), payload);
+      setPublishSuccess(true);
+      setShowCommunityCaption(false);
+      setTimeout(() => setPublishSuccess(false), 4000);
+    } catch (err) {
+      console.error('Error publishing resume to community:', err);
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -154,7 +204,7 @@ const ShareResumeModal: React.FC<ShareResumeModalProps> = ({ isOpen, onClose, re
                     onChange={(e) => handlePermissionChange(e.target.value as SharePermission)}
                     className="w-full appearance-none p-3 pr-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent cursor-pointer"
                   >
-                    <option value="viewer">Viewer (Can view & download)</option>
+                    <option value="viewer">Viewer (Can view &amp; download)</option>
                     <option value="commenter">Commenter (Can add comments)</option>
                     <option value="editor">Editor (Can make changes)</option>
                   </select>
@@ -181,6 +231,54 @@ const ShareResumeModal: React.FC<ShareResumeModalProps> = ({ isOpen, onClose, re
                 <a href={shareUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:underline font-medium">
                   Open public link <ExternalLink size={14} />
                 </a>
+              </div>
+
+              {/* ── Community Publish Section ────────────────────────── */}
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                {publishSuccess ? (
+                  <div className="flex items-center gap-2 justify-center text-green-600 dark:text-green-400 font-semibold text-sm py-2 bg-green-50 dark:bg-green-950/30 rounded-lg">
+                    <Check size={16} />
+                    Published to Community Feed!
+                  </div>
+                ) : showCommunityCaption ? (
+                  <div className="space-y-3 animate-in slide-in-from-top-2 duration-200">
+                    <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Add a caption <span className="lowercase font-normal">(optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={caption}
+                      onChange={e => setCaption(e.target.value)}
+                      placeholder="e.g., Check out my updated resume for 2026!"
+                      maxLength={200}
+                      className="w-full p-2.5 text-sm bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setShowCommunityCaption(false)}
+                        className="flex-1 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handlePublishToCommunity}
+                        disabled={isPublishing}
+                        className="flex-1 py-2 text-sm font-bold text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                      >
+                        {isPublishing ? <Loader2 size={14} className="animate-spin" /> : <Users size={14} />}
+                        {isPublishing ? 'Publishing…' : 'Publish'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setShowCommunityCaption(true)}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-semibold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/30 hover:bg-primary-100 dark:hover:bg-primary-950/50 border border-primary-200 dark:border-primary-800 rounded-lg transition-all cursor-pointer"
+                  >
+                    <Users size={16} />
+                    Share to Community Feed
+                  </button>
+                )}
               </div>
             </div>
           )}

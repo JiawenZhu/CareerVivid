@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Globe, Lock, Check, Share2, ExternalLink, AlertCircle } from 'lucide-react';
+import { X, Copy, Globe, Lock, Check, Share2, ExternalLink, AlertCircle, Users, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, deleteDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 
 interface SharePortfolioModalProps {
@@ -25,6 +25,12 @@ const SharePortfolioModal: React.FC<SharePortfolioModalProps> = ({
     const [copied, setCopied] = useState(false);
     const [loading, setLoading] = useState(false);
     const [isOutOfSync, setIsOutOfSync] = useState(false);
+
+    // Community share state
+    const [showCommunityCaption, setShowCommunityCaption] = useState(false);
+    const [caption, setCaption] = useState('');
+    const [isPublishing, setIsPublishing] = useState(false);
+    const [publishSuccess, setPublishSuccess] = useState(false);
 
     // Construct the share URL using headline as slug if available
     const userSlug = portfolioData?.hero?.headline
@@ -70,11 +76,6 @@ const SharePortfolioModal: React.FC<SharePortfolioModalProps> = ({
         try {
             if (enabled) {
                 // Publish
-                // If we have data passed (from Editor), use it. Otherwise, we might need to fetch it (from Dashboard scenario? logic TBD)
-                // For now, assuming if we are in Dashboard we might only have ID. 
-                // Ideally, we should fetch private data then copy. 
-                // BUT, if we are in Editor, we have 'portfolioData'. 
-
                 // Use headline as username/slug if available (from hero section), otherwise fallback to email prefix
                 const userSlug = portfolioData?.hero?.headline
                     ? portfolioData.hero.headline.replace(/\s+/g, '') // Basic slugify: remove spaces
@@ -137,11 +138,50 @@ const SharePortfolioModal: React.FC<SharePortfolioModalProps> = ({
         setTimeout(() => setCopied(false), 2000);
     };
 
+    const handlePublishToCommunity = async () => {
+        if (!currentUser) return;
+        setIsPublishing(true);
+        try {
+            const payload: Record<string, any> = {
+                type: 'portfolio',
+                assetId: portfolioId,
+                assetUrl: shareUrl,
+                caption: caption.trim() || '',
+                title: portfolioTitle || 'Shared Portfolio',
+                content: caption.trim() || `Check out my portfolio!`,
+                tags: ['portfolio', 'showcase'],
+                readTime: 1,
+                authorId: currentUser.uid,
+                authorName: currentUser.displayName || 'Anonymous',
+                authorAvatar: currentUser.photoURL || '',
+                metrics: { likes: 0, comments: 0, views: 0 },
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+            };
+
+            Object.keys(payload).forEach(key => {
+                if (payload[key] === undefined) delete payload[key];
+            });
+
+            await addDoc(collection(db, 'community_posts'), payload);
+            setPublishSuccess(true);
+            setShowCommunityCaption(false);
+            setTimeout(() => setPublishSuccess(false), 4000);
+        } catch (err) {
+            console.error('Error publishing portfolio to community:', err);
+        } finally {
+            setIsPublishing(false);
+        }
+    };
+
     useEffect(() => {
         if (!isOpen) {
             setCopied(false);
             setIsPublic(false);
-            setIsOutOfSync(false); // Reset
+            setIsOutOfSync(false);
+            setShowCommunityCaption(false);
+            setCaption('');
+            setPublishSuccess(false);
         } else {
             const handleKeyDown = (event: KeyboardEvent) => {
                 if (event.key === 'Escape') {
@@ -259,6 +299,54 @@ const SharePortfolioModal: React.FC<SharePortfolioModalProps> = ({
                                 <a href={shareUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-sm text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
                                     Open public link <ExternalLink size={14} />
                                 </a>
+                            </div>
+
+                            {/* ── Community Publish Section ────────────────────────── */}
+                            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                                {publishSuccess ? (
+                                    <div className="flex items-center gap-2 justify-center text-green-600 dark:text-green-400 font-semibold text-sm py-2 bg-green-50 dark:bg-green-950/30 rounded-lg">
+                                        <Check size={16} />
+                                        Published to Community Feed!
+                                    </div>
+                                ) : showCommunityCaption ? (
+                                    <div className="space-y-3 animate-in slide-in-from-top-2 duration-200">
+                                        <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                            Add a caption <span className="lowercase font-normal">(optional)</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={caption}
+                                            onChange={e => setCaption(e.target.value)}
+                                            placeholder="e.g., Check out my new minimalist React portfolio!"
+                                            maxLength={200}
+                                            className="w-full p-2.5 text-sm bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                        />
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => setShowCommunityCaption(false)}
+                                                className="flex-1 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                onClick={handlePublishToCommunity}
+                                                disabled={isPublishing}
+                                                className="flex-1 py-2 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                                            >
+                                                {isPublishing ? <Loader2 size={14} className="animate-spin" /> : <Users size={14} />}
+                                                {isPublishing ? 'Publishing…' : 'Publish'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={() => setShowCommunityCaption(true)}
+                                        className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 hover:bg-indigo-100 dark:hover:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800 rounded-lg transition-all cursor-pointer"
+                                    >
+                                        <Users size={16} />
+                                        Share to Community Feed
+                                    </button>
+                                )}
                             </div>
                         </div>
                     )}

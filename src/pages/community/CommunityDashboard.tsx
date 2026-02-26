@@ -1,11 +1,12 @@
-import React, { lazy, Suspense, useEffect } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { navigate } from '../../utils/navigation';
-import { useCommunity } from '../../hooks/useCommunity';
+import { useCommunity, CommunityPostType } from '../../hooks/useCommunity';
 import { usePopularTags, useHiringCompanies } from '../../hooks/useCommunityMeta';
 import {
     Home, TrendingUp, Briefcase, FileText,
-    Loader2, PenLine, Hash, ExternalLink, Terminal
+    Loader2, PenLine, Hash, ExternalLink, Terminal,
+    Globe, PenTool, StickyNote
 } from 'lucide-react';
 
 const PostCard = lazy(() => import('../../components/Community/PostCard'));
@@ -44,7 +45,8 @@ const TAG_COLORS = [
 ];
 
 const CommunityDashboard: React.FC = () => {
-    const { posts, loading, isFetchingNextPage, hasMore, error, fetchMorePosts } = useCommunity();
+    const [typeFilter, setTypeFilter] = useState<CommunityPostType | undefined>(undefined);
+    const { posts, loading, isFetchingNextPage, hasMore, error, fetchMorePosts } = useCommunity(typeFilter);
     const { tags: popularTags, loading: tagsLoading } = usePopularTags();
     const { companies, loading: companiesLoading } = useHiringCompanies();
 
@@ -115,6 +117,35 @@ const CommunityDashboard: React.FC = () => {
                                 onClick={() => navigate('/developers/api')}
                             />
                         </nav>
+
+                        {/* Showcases Filter */}
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-4">
+                            <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3 px-1">
+                                Showcases
+                            </h3>
+                            <div className="space-y-1">
+                                {[
+                                    { type: undefined as CommunityPostType | undefined, icon: <Home size={16} />, label: 'All Posts' },
+                                    { type: 'article' as CommunityPostType, icon: <StickyNote size={16} />, label: '📝 Articles' },
+                                    { type: 'resume' as CommunityPostType, icon: <FileText size={16} />, label: '📄 Resumes' },
+                                    { type: 'portfolio' as CommunityPostType, icon: <Globe size={16} />, label: '🌐 Portfolios' },
+                                    { type: 'whiteboard' as CommunityPostType, icon: <PenTool size={16} />, label: '🖌️ Whiteboards' },
+                                ].map(item => (
+                                    <button
+                                        key={item.label}
+                                        onClick={() => setTypeFilter(item.type)}
+                                        className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer
+                                            ${typeFilter === item.type
+                                                ? 'bg-primary-50 dark:bg-primary-950/50 text-primary-700 dark:text-primary-300'
+                                                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                                            }`}
+                                    >
+                                        <span className={typeFilter === item.type ? 'text-primary-500' : 'text-gray-400'}>{item.icon}</span>
+                                        {item.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
 
                         {/* Popular Tags */}
                         <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm">

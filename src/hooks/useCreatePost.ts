@@ -52,6 +52,7 @@ export const useCreatePost = () => {
                 authorName: currentUser.displayName || (userProfile as any)?.name || 'Anonymous',
                 authorAvatar: currentUser.photoURL || '',
                 authorRole: (userProfile as any)?.role || '',
+                type: 'article', // Default type for standard articles
                 title: input.title.trim(),
                 content: input.content.trim(),
                 tags: input.tags,

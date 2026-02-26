@@ -15,11 +15,14 @@ import {
     increment,
     getDocs,
     startAfter,
+    where,
     QueryDocumentSnapshot,
     DocumentData,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
+
+export type CommunityPostType = 'article' | 'resume' | 'portfolio' | 'whiteboard';
 
 export interface CommunityPost {
     id: string;
@@ -39,12 +42,17 @@ export interface CommunityPost {
     };
     createdAt: any;
     updatedAt: any;
+    // Polymorphic asset fields
+    type: CommunityPostType;
+    assetId?: string;   // ID of the resume / portfolio / whiteboard
+    assetUrl?: string;  // Public link to the asset (e.g. /shared/uid/id)
+    caption?: string;   // Short message the user adds when sharing
 }
 
 const PAGE_SIZE = 10;
 const COLLECTION = 'community_posts';
 
-export const useCommunity = () => {
+export const useCommunity = (typeFilter?: CommunityPostType) => {
     const [posts, setPosts] = useState<CommunityPost[]>([]);
     const [loading, setLoading] = useState(true);
     const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
@@ -55,10 +63,13 @@ export const useCommunity = () => {
 
     // Initial fetch — realtime for first page
     useEffect(() => {
+        const constraints: any[] = [];
+        if (typeFilter) constraints.push(where('type', '==', typeFilter));
+        constraints.push(orderBy('createdAt', 'desc'), limit(PAGE_SIZE));
+
         const q = query(
             collection(db, COLLECTION),
-            orderBy('createdAt', 'desc'),
-            limit(PAGE_SIZE)
+            ...constraints
         );
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -80,7 +91,7 @@ export const useCommunity = () => {
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [typeFilter]);
 
     // Cursor-based next page fetch
     const fetchMorePosts = useCallback(async () => {
@@ -89,11 +100,13 @@ export const useCommunity = () => {
         setIsFetchingNextPage(true);
 
         try {
+            const constraints: any[] = [];
+            if (typeFilter) constraints.push(where('type', '==', typeFilter));
+            constraints.push(orderBy('createdAt', 'desc'), startAfter(lastVisible), limit(PAGE_SIZE));
+
             const q = query(
                 collection(db, COLLECTION),
-                orderBy('createdAt', 'desc'),
-                startAfter(lastVisible),
-                limit(PAGE_SIZE)
+                ...constraints
             );
 
             const snapshot = await getDocs(q);

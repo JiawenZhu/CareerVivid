@@ -400,7 +400,9 @@ const PortfolioHub: React.FC = () => {
                     <SharePortfolioModal
                         isOpen={!!shareModalPortfolio}
                         onClose={() => setShareModalPortfolio(null)}
-                        portfolio={shareModalPortfolio}
+                        portfolioId={shareModalPortfolio.id}
+                        portfolioTitle={shareModalPortfolio.hero?.headline || 'Portfolio'}
+                        portfolioData={shareModalPortfolio}
                     />
                 )}
 
