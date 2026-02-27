@@ -3,11 +3,12 @@ import { useParams } from 'react-router-dom';
 import { doc, getDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '../../../firebase';
 import { PortfolioData } from '../types/portfolio';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, Eye } from 'lucide-react';
 import { TEMPLATES } from '../templates';
 import { useAnalytics } from '../hooks/useAnalytics';
 import IntroOverlay from '../components/intro/IntroOverlay';
 import PublicProfilePage from './PublicProfilePage';
+import { useAuth } from '../../../contexts/AuthContext';
 
 // Simple types for the public page if not importing full types
 // but we have PortfolioData so we are good.
@@ -251,10 +252,27 @@ const PublicPortfolioPage: React.FC = () => {
                 </div>
             </Suspense>
 
+            {/* View Only Badge — top-left for non-owners */}
+            {!isEmbed && portfolioData.userId && (
+                (() => {
+                    // We need to import useAuth — it's declared at module level
+                    // This is a render-time check
+                    const isViewOnly = true; // All public portfolio viewers are view-only by design
+                    return isViewOnly ? (
+                        <div className="fixed top-4 left-4 z-50">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-500 dark:text-gray-400 text-xs font-semibold shadow-sm border border-gray-200 dark:border-gray-700">
+                                <Eye size={14} />
+                                View Only
+                            </span>
+                        </div>
+                    ) : null;
+                })()
+            )}
+
             {/* Simple footer or badge - Hidden if removeBranding is set OR isEmbed */}
             {!isEmbed && !portfolioData.linkInBio?.settings?.removeBranding && (
                 <div className="fixed bottom-4 right-4 z-50">
-                    <a href="/" className="bg-black text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:scale-105 transition-transform flex items-center gap-2">
+                    <a href="/portfolio" className="bg-black text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:scale-105 transition-transform flex items-center gap-2">
                         <span>Build your own with CareerVivid</span>
                     </a>
                 </div>

@@ -3,7 +3,7 @@ import { Excalidraw, exportToSvg } from '@excalidraw/excalidraw';
 import '@excalidraw/excalidraw/index.css';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import { ChevronLeft, Save, Loader2, Sparkles } from 'lucide-react';
+import { ChevronLeft, Save, Loader2, Sparkles, Eye, ExternalLink } from 'lucide-react';
 import { navigate } from '../utils/navigation';
 import { useWhiteboards } from '../hooks/useWhiteboards';
 import { WhiteboardData, ExcalidrawFileData } from '../types';
@@ -32,6 +32,7 @@ const PERSISTED_PREF_KEYS = [
 
 interface WhiteboardEditorProps {
     id?: string;
+    isReadOnly?: boolean; // <-- New prop for view-only mode
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -120,7 +121,7 @@ const saveUserPrefs = (appState: Record<string, any>) => {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id }) => {
+const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id, isReadOnly = false }) => {
     const { fetchWhiteboard, updateWhiteboard } = useWhiteboards();
     const { currentUser } = useAuth();
 
@@ -130,6 +131,9 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id }) => {
     const [title, setTitle] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [isDiagramModalOpen, setIsDiagramModalOpen] = useState(false);
+
+    // Ownership-derived read-only state
+    const [derivedReadOnly, setDerivedReadOnly] = useState(isReadOnly);
 
     const excalidrawAPIRef = useRef<any>(null);
     const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -168,6 +172,13 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id }) => {
                     lastSavedElementsHashRef.current = JSON.stringify(
                         (data.excalidrawData?.elements ?? []).map((el: any) => el.id + ':' + el.version)
                     );
+
+                    // Derive read-only from ownership
+                    if (!isReadOnly && currentUser && data.userId !== currentUser.uid) {
+                        setDerivedReadOnly(true);
+                    } else {
+                        setDerivedReadOnly(isReadOnly);
+                    }
                 } else {
                     setError('Whiteboard not found');
                 }
@@ -185,7 +196,7 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id }) => {
     // ─── Core Save (fully async, with thumbnail) ─────────────────────────────
     const performSave = useCallback(
         async (elements: readonly any[], appState: Record<string, any>) => {
-            if (!id) return;
+            if (!id || derivedReadOnly) return; // Block save in read-only mode
             setIsSaving(true);
             try {
                 const excalidrawData = buildExcalidrawPayload(elements, appState);
@@ -210,12 +221,13 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id }) => {
                 setIsSaving(false);
             }
         },
-        [id]
+        [id, derivedReadOnly]
     );
 
     // ─── AI Diagram Generation ───────────────────────────────────────────────
     const handleGenerateDiagram = async (prompt: string) => {
         if (!currentUser) throw new Error("Must be logged in to generate diagrams.");
+        if (derivedReadOnly) throw new Error("Cannot generate diagrams in read-only mode.");
         try {
             const diagramData = await generateExcalidrawDiagram(currentUser.uid, prompt);
             const newElements = diagramData.elements || [];
@@ -232,8 +244,6 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id }) => {
                 }, 100);
 
                 // Explicitly save so the diagram persists to Firestore immediately.
-                // We can't rely solely on the onChange debounce because programmatic
-                // updateScene() calls may not always trigger it reliably.
                 const appState = excalidrawAPIRef.current.getAppState?.() ?? latestAppStateRef.current;
                 await performSave(newCombined, appState);
             }
@@ -246,14 +256,15 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id }) => {
     // ─── Debounced onChange ──────────────────────────────────────────────────
     const handleChange = useCallback(
         (elements: readonly any[], appState: Record<string, any>) => {
+            // Skip save entirely in read-only mode
+            if (derivedReadOnly) return;
+
             // Skip the very first fire (Excalidraw fires onChange on hydration)
             if (isFirstRender.current) {
                 isFirstRender.current = false;
                 return;
             }
 
-            // Only save when elements actually changed (ignore viewport pan, zoom, selection)
-            // Use id+version as a fast fingerprint — avoids full JSON diff on every mouse move
             const currentHash = JSON.stringify(
                 elements.filter((el: any) => !el.isDeleted).map((el: any) => el.id + ':' + el.version)
             );
@@ -263,17 +274,16 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id }) => {
             latestElementsRef.current = elements;
             latestAppStateRef.current = appState;
 
-            if (!elementsChanged) return; // nothing to save
+            if (!elementsChanged) return;
 
             hasPendingChanges.current = true;
             if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
             saveTimeoutRef.current = setTimeout(() => performSave(elements, appState), SAVE_DELAY_MS);
         },
-        [performSave]
+        [performSave, derivedReadOnly]
     );
 
     // ─── Synchronous Unmount Force-Save ─────────────────────────────────────
-    // We use a ref to the save function so the cleanup can call it without stale closures
     const performSaveRef = useRef(performSave);
     useEffect(() => { performSaveRef.current = performSave; }, [performSave]);
 
@@ -281,8 +291,8 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id }) => {
         return () => {
             if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
 
-            // Force-save on unmount using static imports (no dynamic import() delay!)
-            if (hasPendingChanges.current && id) {
+            // Force-save on unmount — only if NOT read-only
+            if (hasPendingChanges.current && id && !derivedReadOnly) {
                 console.log('[Whiteboard] Unmount force-save triggered');
                 const payload = buildExcalidrawPayload(latestElementsRef.current, latestAppStateRef.current);
                 const excalidrawJson = toFirestoreJson(payload);
@@ -299,11 +309,11 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id }) => {
             }
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [id]);
+    }, [id, derivedReadOnly]);
 
     // ─── Title Editing ───────────────────────────────────────────────────────
     const handleTitleBlur = () => {
-        if (!id || title === whiteboard?.title) return;
+        if (!id || title === whiteboard?.title || derivedReadOnly) return;
         updateDoc(doc(db, 'whiteboards', id), { title, updatedAt: Date.now() })
             .catch(err => console.error('Title save failed:', err));
         setWhiteboard(prev => prev ? { ...prev, title } : prev);
@@ -331,8 +341,7 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id }) => {
     }
 
     // ─── Merge fetched data + saved user prefs ───────────────────────────────
-    const savedPrefs = loadUserPrefs();
-    // Parse the JSON string back into the ExcalidrawFileData object
+    const savedPrefs = derivedReadOnly ? {} : loadUserPrefs(); // Don't apply editing prefs in read-only
     const excalidrawData = fromFirestoreJson((whiteboard as any).excalidrawJson) ?? whiteboard.excalidrawData;
     const initialData = {
         elements: serializeElements(excalidrawData?.elements ?? []),
@@ -342,7 +351,7 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id }) => {
         } as any,
     };
 
-    console.log('[Whiteboard] Rendering with', initialData.elements.length, 'elements');
+    console.log('[Whiteboard] Rendering with', initialData.elements.length, 'elements', derivedReadOnly ? '(READ-ONLY)' : '');
 
     // ─── Editor ──────────────────────────────────────────────────────────────
     return (
@@ -355,7 +364,7 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id }) => {
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <button
-                        onClick={() => navigate('/')}
+                        onClick={() => navigate(derivedReadOnly ? '/community' : '/')}
                         style={{
                             display: 'flex', alignItems: 'center', gap: '4px', padding: '8px',
                             borderRadius: '8px', border: 'none', backgroundColor: 'transparent',
@@ -363,28 +372,69 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id }) => {
                         }}
                     >
                         <ChevronLeft size={20} />
-                        <span>Dashboard</span>
+                        <span>{derivedReadOnly ? 'Back' : 'Dashboard'}</span>
                     </button>
                     <div style={{ width: '1px', height: '24px', backgroundColor: '#e5e7eb' }} />
-                    <input
-                        type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        onBlur={handleTitleBlur}
-                        onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
-                        style={{
-                            fontWeight: 700, fontSize: '18px', backgroundColor: 'transparent',
-                            border: 'none', outline: 'none', color: '#111827', width: '300px',
-                        }}
-                        placeholder="Untitled Whiteboard"
-                    />
+
+                    {derivedReadOnly ? (
+                        /* Read-only: static title, no editing */
+                        <span style={{ fontWeight: 700, fontSize: '18px', color: '#111827' }}>
+                            {title || 'Untitled Whiteboard'}
+                        </span>
+                    ) : (
+                        /* Owner: editable title */
+                        <input
+                            type="text"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            onBlur={handleTitleBlur}
+                            onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+                            style={{
+                                fontWeight: 700, fontSize: '18px', backgroundColor: 'transparent',
+                                border: 'none', outline: 'none', color: '#111827', width: '300px',
+                            }}
+                            placeholder="Untitled Whiteboard"
+                        />
+                    )}
+
+                    {/* View Only Badge */}
+                    {derivedReadOnly && (
+                        <span style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '4px',
+                            padding: '4px 10px', borderRadius: '9999px',
+                            backgroundColor: '#f3f4f6', color: '#6b7280',
+                            fontSize: '12px', fontWeight: 600,
+                        }}>
+                            <Eye size={14} />
+                            View Only
+                        </span>
+                    )}
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#9ca3af', fontSize: '13px' }}>
-                    {isSaving
-                        ? <><Loader2 size={14} className="animate-spin" /> Saving...</>
-                        : <><Save size={14} /> Saved</>
-                    }
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    {derivedReadOnly ? (
+                        /* CTA for viewers */
+                        <a
+                            href="/whiteboard"
+                            style={{
+                                display: 'flex', alignItems: 'center', gap: '6px',
+                                padding: '6px 14px', borderRadius: '8px',
+                                backgroundColor: '#4f46e5', color: '#ffffff',
+                                fontSize: '13px', fontWeight: 600, textDecoration: 'none',
+                            }}
+                        >
+                            Create your own on CareerVivid
+                            <ExternalLink size={14} />
+                        </a>
+                    ) : (
+                        /* Save status for owners */
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#9ca3af', fontSize: '13px' }}>
+                            {isSaving
+                                ? <><Loader2 size={14} className="animate-spin" /> Saving...</>
+                                : <><Save size={14} /> Saved</>
+                            }
+                        </span>
+                    )}
                 </div>
             </header>
 
@@ -392,25 +442,30 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id }) => {
             <div className="flex-1 relative excalidraw-container-wrapper">
                 <Excalidraw
                     initialData={initialData}
-                    onChange={handleChange}
+                    onChange={derivedReadOnly ? undefined : handleChange}
                     excalidrawAPI={(api: any) => { excalidrawAPIRef.current = api; }}
+                    viewModeEnabled={derivedReadOnly}
                 />
 
-                {/* AI Generate Button — inside canvas wrapper so it layers above Excalidraw */}
-                <button
-                    onClick={() => setIsDiagramModalOpen(true)}
-                    className="absolute top-3 right-28 z-[9999] flex items-center gap-2 bg-gradient-to-r from-primary-500 to-indigo-500 hover:from-primary-600 hover:to-indigo-600 text-white px-4 py-2 rounded-xl font-medium shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5 active:scale-95 text-sm pointer-events-auto"
-                >
-                    <Sparkles size={16} />
-                    AI Generate
-                </button>
+                {/* AI Generate Button — ONLY for owners */}
+                {!derivedReadOnly && (
+                    <button
+                        onClick={() => setIsDiagramModalOpen(true)}
+                        className="absolute top-3 right-28 z-[9999] flex items-center gap-2 bg-gradient-to-r from-primary-500 to-indigo-500 hover:from-primary-600 hover:to-indigo-600 text-white px-4 py-2 rounded-xl font-medium shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5 active:scale-95 text-sm pointer-events-auto"
+                    >
+                        <Sparkles size={16} />
+                        AI Generate
+                    </button>
+                )}
             </div>
 
-            <GenerateDiagramModal
-                isOpen={isDiagramModalOpen}
-                onClose={() => setIsDiagramModalOpen(false)}
-                onGenerate={handleGenerateDiagram}
-            />
+            {!derivedReadOnly && (
+                <GenerateDiagramModal
+                    isOpen={isDiagramModalOpen}
+                    onClose={() => setIsDiagramModalOpen(false)}
+                    onGenerate={handleGenerateDiagram}
+                />
+            )}
         </div>
     );
 };

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Edit3, Copy, Trash2, PenTool } from 'lucide-react';
+import { Edit3, Copy, Trash2, PenTool, Share2 } from 'lucide-react';
 import { WhiteboardData } from '../../types';
 import { navigate } from '../../utils/navigation';
 
@@ -8,14 +8,15 @@ interface WhiteboardCardProps {
     onUpdate: (id: string, data: Partial<WhiteboardData>) => void;
     onDuplicate: (id: string) => void;
     onDelete: (id: string) => void;
+    onShare?: (whiteboard: WhiteboardData) => void;
     onDragStart: (e: React.DragEvent<HTMLDivElement>) => void;
 }
 
-const WhiteboardCard: React.FC<WhiteboardCardProps> = ({ whiteboard, onUpdate, onDuplicate, onDelete, onDragStart }) => {
+const WhiteboardCard: React.FC<WhiteboardCardProps> = ({ whiteboard, onUpdate, onDuplicate, onDelete, onShare, onDragStart }) => {
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [title, setTitle] = useState(whiteboard.title);
 
-    const hasDrawing = whiteboard.elements && (whiteboard.elements as any[]).length > 0;
+    const hasDrawing = whiteboard.excalidrawData?.elements && whiteboard.excalidrawData.elements.length > 0;
     const hasThumbnail = !!whiteboard.thumbnailSvg;
 
     const navigateToEdit = () => {
@@ -86,6 +87,9 @@ const WhiteboardCard: React.FC<WhiteboardCardProps> = ({ whiteboard, onUpdate, o
                     <button onClick={() => onDuplicate(whiteboard.id)} title="Duplicate Whiteboard" className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"><Copy size={16} /></button>
                     <button onClick={() => onDelete(whiteboard.id)} title="Delete Whiteboard" className="p-2 rounded-md hover:bg-red-100 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 transition-colors"><Trash2 size={16} /></button>
                 </div>
+                {onShare && (
+                    <button onClick={() => onShare(whiteboard)} title="Share Whiteboard" className="p-2 rounded-md hover:bg-primary-100 dark:hover:bg-primary-900/30 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"><Share2 size={16} /></button>
+                )}
             </div>
         </div>
     );

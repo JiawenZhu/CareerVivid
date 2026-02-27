@@ -27,6 +27,9 @@ const LanguageSelect: React.FC = () => {
     // Change language in i18next
     (i18n as any).changeLanguage(code);
 
+    // Persist language preference across the platform
+    localStorage.setItem('i18nextLng', code);
+
     // Update URL to include new language
     const currentPath = window.location.pathname;
 

@@ -6,8 +6,19 @@ import { usePopularTags, useHiringCompanies } from '../../hooks/useCommunityMeta
 import {
     Home, TrendingUp, Briefcase, FileText,
     Loader2, PenLine, Hash, ExternalLink, Terminal,
-    Globe, PenTool, StickyNote
+    Globe, PenTool, StickyNote, UserPlus, LayoutDashboard, Sparkles
 } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
+import LanguageSelect from '../../components/LanguageSelect';
+import SearchBar from '../../components/Community/SearchBar';
+import { liteClient as algoliasearch } from 'algoliasearch/lite';
+
+// Initialize Algolia client
+// TODO: Replace with env variables in production
+const appId = import.meta.env.VITE_ALGOLIA_APP_ID || 'dummy_app_id';
+const apiKey = import.meta.env.VITE_ALGOLIA_SEARCH_KEY || 'dummy_search_key';
+const searchClient = algoliasearch(appId, apiKey);
 
 const PostCard = lazy(() => import('../../components/Community/PostCard'));
 
@@ -49,6 +60,54 @@ const CommunityDashboard: React.FC = () => {
     const { posts, loading, isFetchingNextPage, hasMore, error, fetchMorePosts } = useCommunity(typeFilter);
     const { tags: popularTags, loading: tagsLoading } = usePopularTags();
     const { companies, loading: companiesLoading } = useHiringCompanies();
+    const { currentUser } = useAuth();
+    const { t } = useTranslation();
+
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
+    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [searchError, setSearchError] = useState<string | null>(null);
+
+    const handleSearchChange = async (query: string) => {
+        setSearchQuery(query);
+        setSearchError(null);
+        if (!query.trim()) {
+            setSearchResults([]);
+            return;
+        }
+
+        if (appId === 'dummy_app_id' || apiKey === 'dummy_search_key') {
+            setSearchError('Search is currently unavailable: Missing Algolia credentials.');
+            setSearchResults([]);
+            return;
+        }
+
+        setIsSearching(true);
+        try {
+            const { results } = await searchClient.search({
+                requests: [
+                    {
+                        indexName: 'community_posts',
+                        query: query,
+                        hitsPerPage: 20
+                    }
+                ]
+            });
+            const firstResult = results[0] as any;
+            const hits = firstResult.hits;
+            // Map Algolia hits to match our CommunityPost interface structure
+            const mappedHits = hits.map((hit: any) => ({
+                id: hit.objectID,
+                ...hit,
+                _highlightResult: hit._highlightResult // Keep highlighting meta
+            }));
+            setSearchResults(mappedHits);
+        } catch (err) {
+            console.error('Algolia Search Error:', err);
+        } finally {
+            setIsSearching(false);
+        }
+    };
 
     const { ref: sentinelRef, inView } = useInView({
         threshold: 0,
@@ -56,32 +115,53 @@ const CommunityDashboard: React.FC = () => {
     });
 
     useEffect(() => {
-        if (inView && hasMore && !isFetchingNextPage) {
+        if (inView && hasMore && !isFetchingNextPage && !searchQuery) {
             fetchMorePosts();
         }
-    }, [inView, hasMore, isFetchingNextPage, fetchMorePosts]);
+    }, [inView, hasMore, isFetchingNextPage, fetchMorePosts, searchQuery]);
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pt-8 pb-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 {/* Page Header */}
-                <header className="mb-8 flex items-center justify-between">
-                    <div>
+                <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex-1 max-w-lg">
                         <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-                            Community
+                            {t('nav.community')}
                         </h1>
-                        <p className="text-base text-gray-500 dark:text-gray-400 mt-1">
-                            Connect, share, and grow your career.
+                        <p className="text-base text-gray-500 dark:text-gray-400 mt-1 mb-4 md:mb-0">
+                            {t('nav.community_desc')}
                         </p>
                     </div>
-                    <button
-                        onClick={() => navigate('/community/new')}
-                        className="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all duration-200 shadow-md shadow-primary-500/20 cursor-pointer"
-                    >
-                        <PenLine size={18} />
-                        <span>Write Article</span>
-                    </button>
+
+                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                        <div className="w-full sm:w-64">
+                            <SearchBar onSearchChange={handleSearchChange} isSearching={isSearching} />
+                        </div>
+
+                        <div className="flex items-center gap-2 self-end sm:self-auto">
+                            <LanguageSelect />
+
+                            {currentUser && (
+                                <button
+                                    onClick={() => navigate('/dashboard')}
+                                    className="hidden lg:flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-medium transition-all duration-200 shadow-sm cursor-pointer"
+                                >
+                                    <LayoutDashboard size={18} />
+                                    <span>{t('common.dashboard', 'Dashboard')}</span>
+                                </button>
+                            )}
+
+                            <button
+                                onClick={() => navigate('/community/new')}
+                                className="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all duration-200 shadow-md shadow-primary-500/20 cursor-pointer whitespace-nowrap"
+                            >
+                                <PenLine size={18} />
+                                <span>{t('community.feed.write_article')}</span>
+                            </button>
+                        </div>
+                    </div>
                 </header>
 
                 <div className="flex flex-col lg:flex-row gap-8 items-start">
@@ -92,28 +172,33 @@ const CommunityDashboard: React.FC = () => {
                         <nav className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
                             <NavItem
                                 icon={<Home size={18} />}
-                                label="Home"
+                                label={t('community.sidebar.home')}
                                 active
                                 onClick={() => { }}
                             />
                             <NavItem
+                                icon={<Sparkles size={18} />}
+                                label={t('community.sidebar.product_features', 'Platform Overview')}
+                                onClick={() => navigate('/product')}
+                            />
+                            <NavItem
                                 icon={<TrendingUp size={18} />}
-                                label="Trending"
+                                label={t('community.sidebar.trending')}
                                 onClick={() => { }}
                             />
                             <NavItem
                                 icon={<Briefcase size={18} />}
-                                label="Job Listings"
+                                label={t('community.sidebar.job_listings')}
                                 onClick={() => navigate('/job-market')}
                             />
                             <NavItem
                                 icon={<FileText size={18} />}
-                                label="Guidelines"
+                                label={t('community.sidebar.guidelines')}
                                 onClick={() => navigate('/community/guidelines')}
                             />
                             <NavItem
                                 icon={<Terminal size={18} />}
-                                label="Professional API"
+                                label={t('community.sidebar.professional_api')}
                                 onClick={() => navigate('/developers/api')}
                             />
                         </nav>
@@ -121,15 +206,15 @@ const CommunityDashboard: React.FC = () => {
                         {/* Showcases Filter */}
                         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-4">
                             <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3 px-1">
-                                Showcases
+                                {t('community.sidebar.showcases')}
                             </h3>
                             <div className="space-y-1">
                                 {[
-                                    { type: undefined as CommunityPostType | undefined, icon: <Home size={16} />, label: 'All Posts' },
-                                    { type: 'article' as CommunityPostType, icon: <StickyNote size={16} />, label: '📝 Articles' },
-                                    { type: 'resume' as CommunityPostType, icon: <FileText size={16} />, label: '📄 Resumes' },
-                                    { type: 'portfolio' as CommunityPostType, icon: <Globe size={16} />, label: '🌐 Portfolios' },
-                                    { type: 'whiteboard' as CommunityPostType, icon: <PenTool size={16} />, label: '🖌️ Whiteboards' },
+                                    { type: undefined as CommunityPostType | undefined, icon: <Home size={16} />, label: t('community.sidebar.all_posts') },
+                                    { type: 'article' as CommunityPostType, icon: <StickyNote size={16} />, label: `📝 ${t('community.sidebar.articles')}` },
+                                    { type: 'resume' as CommunityPostType, icon: <FileText size={16} />, label: `📄 ${t('community.sidebar.resumes')}` },
+                                    { type: 'portfolio' as CommunityPostType, icon: <Globe size={16} />, label: `🌐 ${t('community.sidebar.portfolios')}` },
+                                    { type: 'whiteboard' as CommunityPostType, icon: <PenTool size={16} />, label: `🖌️ ${t('community.sidebar.whiteboards')}` },
                                 ].map(item => (
                                     <button
                                         key={item.label}
@@ -150,7 +235,7 @@ const CommunityDashboard: React.FC = () => {
                         {/* Popular Tags */}
                         <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm">
                             <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">
-                                Popular Tags
+                                {t('community.sidebar.popular_tags')}
                             </h3>
                             {tagsLoading ? (
                                 <div className="space-y-2">
@@ -176,33 +261,71 @@ const CommunityDashboard: React.FC = () => {
 
                     {/* ── Center Column: Feed ──────────────────────────────── */}
                     <main className="flex-1 min-w-0">
-                        {error && (
+                        {error && !searchQuery && (
                             <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl mb-6 border border-red-100 dark:border-red-800 text-sm font-medium">
                                 {error}
                             </div>
                         )}
 
-                        {loading && (
+                        {loading && !searchQuery && (
                             <div className="space-y-5">
                                 {[1, 2, 3].map(i => <PostCardSkeleton key={i} />)}
                             </div>
                         )}
 
-                        {!loading && posts.length === 0 && (
+                        {isSearching && searchQuery && (
+                            <div className="space-y-5">
+                                {[1, 2].map(i => <PostCardSkeleton key={i} />)}
+                            </div>
+                        )}
+
+                        {/* Search Results */}
+                        {searchError && searchQuery && (
+                            <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-400 rounded-xl mb-6 border border-yellow-100 dark:border-yellow-800 text-sm font-medium">
+                                ⚠️ {searchError}
+                            </div>
+                        )}
+
+                        {searchQuery && !isSearching && !searchError && searchResults.length > 0 && (
+                            <div className="space-y-5">
+                                <Suspense fallback={<PostCardSkeleton />}>
+                                    {searchResults.map((post) => (
+                                        <PostCard key={post.id} post={post as any} />
+                                    ))}
+                                </Suspense>
+                            </div>
+                        )}
+
+                        {searchQuery && !isSearching && !searchError && searchResults.length === 0 && (
                             <div className="text-center py-20 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800">
-                                <div className="text-5xl mb-4" role="img" aria-label="seedling">🌱</div>
-                                <p className="text-xl font-bold text-gray-900 dark:text-white mb-2">No posts yet!</p>
-                                <p className="text-gray-500 mb-6 text-sm">Be the first to share knowledge with the community.</p>
+                                <div className="text-5xl mb-4" role="img" aria-label="sad">🔍</div>
+                                <p className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t('community.search_no_results', 'No results found')}</p>
+                                <p className="text-gray-500 mb-6 text-sm">We couldn't find anything matching "{searchQuery}"</p>
                                 <button
-                                    onClick={() => navigate('/community/new')}
-                                    className="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all cursor-pointer"
+                                    onClick={() => setSearchQuery('')}
+                                    className="px-6 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-semibold transition-all cursor-pointer text-sm"
                                 >
-                                    Publish First Article
+                                    Clear Search
                                 </button>
                             </div>
                         )}
 
-                        {!loading && posts.length > 0 && (
+                        {/* Default Firebase Feed */}
+                        {!loading && !searchQuery && posts.length === 0 && (
+                            <div className="text-center py-20 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800">
+                                <div className="text-5xl mb-4" role="img" aria-label="seedling">🌱</div>
+                                <p className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t('community.feed.empty_title')}</p>
+                                <p className="text-gray-500 mb-6 text-sm">{t('community.feed.empty_desc')}</p>
+                                <button
+                                    onClick={() => navigate('/community/new')}
+                                    className="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all cursor-pointer"
+                                >
+                                    {t('community.feed.publish_first')}
+                                </button>
+                            </div>
+                        )}
+
+                        {!loading && !searchQuery && posts.length > 0 && (
                             <div className="space-y-5">
                                 <Suspense fallback={<PostCardSkeleton />}>
                                     {posts.map(post => (
@@ -221,7 +344,7 @@ const CommunityDashboard: React.FC = () => {
 
                                 {!hasMore && !isFetchingNextPage && (
                                     <p className="text-center text-gray-400 dark:text-gray-600 text-sm py-8 font-medium">
-                                        You've reached the end ✨
+                                        {t('community.feed.reached_end')}
                                     </p>
                                 )}
                             </div>
@@ -230,29 +353,49 @@ const CommunityDashboard: React.FC = () => {
 
                     {/* ── Right Column: Widgets ─────────────────────────── */}
                     <aside className="hidden xl:flex flex-col gap-5 w-72 shrink-0 sticky top-24">
-                        {/* Write CTA */}
-                        <div className="bg-gradient-to-br from-primary-600 to-blue-600 rounded-2xl p-6 text-white relative overflow-hidden">
-                            <div className="absolute -top-6 -right-6 w-24 h-24 bg-white/10 rounded-full" />
-                            <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-white/10 rounded-full" />
-                            <div className="relative z-10">
-                                <p className="text-2xl mb-1">✍️</p>
-                                <h3 className="font-extrabold text-xl mb-2">Write an Article</h3>
-                                <p className="text-white/80 text-sm mb-5 leading-relaxed">
-                                    Build your brand. Share insights. Get discovered.
-                                </p>
-                                <button
-                                    onClick={() => navigate('/community/new')}
-                                    className="w-full py-2.5 bg-white text-primary-700 rounded-xl font-bold text-sm transition-all hover:bg-gray-50 cursor-pointer"
-                                >
-                                    Start Writing →
-                                </button>
+                        {currentUser ? (
+                            /* Write CTA */
+                            <div className="bg-gradient-to-br from-primary-600 to-blue-600 rounded-2xl p-6 text-white relative overflow-hidden">
+                                <div className="absolute -top-6 -right-6 w-24 h-24 bg-white/10 rounded-full" />
+                                <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-white/10 rounded-full" />
+                                <div className="relative z-10">
+                                    <p className="text-2xl mb-1">✍️</p>
+                                    <h3 className="font-extrabold text-xl mb-2">{t('community.feed.write_article')}</h3>
+                                    <p className="text-white/80 text-sm mb-5 leading-relaxed">
+                                        {t('community.feed.write_cta_desc')}
+                                    </p>
+                                    <button
+                                        onClick={() => navigate('/community/new')}
+                                        className="w-full py-2.5 bg-white text-primary-700 rounded-xl font-bold text-sm transition-all hover:bg-gray-50 cursor-pointer"
+                                    >
+                                        {t('community.feed.start_writing')}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        ) : (
+                            /* Guest Signup CTA */
+                            <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-500 to-blue-500" />
+                                <div className="relative z-10">
+                                    <h3 className="font-extrabold text-xl mb-2 text-gray-900 dark:text-white">{t('community.guestCta.join_community')}</h3>
+                                    <p className="text-gray-500 dark:text-gray-400 text-sm mb-5 leading-relaxed">
+                                        {t('community.guestCta.welcome_message')}
+                                    </p>
+                                    <button
+                                        onClick={() => navigate('/signup?redirect=/community')}
+                                        className="w-full py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold text-sm transition-all shadow-md shadow-primary-500/20 flex items-center justify-center gap-2 cursor-pointer"
+                                    >
+                                        <UserPlus size={16} />
+                                        {t('community.guestCta.sign_up_free')}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Hiring Companies */}
                         <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm">
                             <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                <Briefcase size={14} /> Companies Hiring
+                                <Briefcase size={14} /> {t('community.companies.companies_hiring')}
                             </h3>
                             {companiesLoading ? (
                                 <div className="space-y-4">
@@ -280,7 +423,7 @@ const CommunityDashboard: React.FC = () => {
                                                 <p className="font-bold text-gray-900 dark:text-white text-sm truncate">{company.name}</p>
                                                 {company.hiringFor && (
                                                     <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                                        Hiring: {company.hiringFor}
+                                                        {t('community.companies.hiring', { role: company.hiringFor })}
                                                     </p>
                                                 )}
                                             </div>
@@ -290,7 +433,7 @@ const CommunityDashboard: React.FC = () => {
                                         onClick={() => navigate('/job-market')}
                                         className="w-full text-center text-sm text-primary-600 dark:text-primary-400 font-semibold hover:underline flex items-center justify-center gap-1 cursor-pointer pt-1"
                                     >
-                                        View all jobs <ExternalLink size={13} />
+                                        {t('community.companies.view_all_jobs')} <ExternalLink size={13} />
                                     </button>
                                 </div>
                             )}

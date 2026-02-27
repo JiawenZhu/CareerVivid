@@ -525,5 +525,48 @@
     "need_access": "Need Access?",
     "contact_support": "If you believe you should have access to this page, please contact our support team.",
     "contact_us": "Contact Us"
+  },
+  "community": {
+    "sidebar": {
+      "home": "Inicio",
+      "trending": "Tendencias",
+      "job_listings": "Ofertas de Empleo",
+      "guidelines": "Directrices",
+      "professional_api": "API Profesional",
+      "showcases": "Exhibiciones",
+      "all_posts": "Todas las Publicaciones",
+      "articles": "Artículos",
+      "resumes": "Currículums",
+      "portfolios": "Portafolios",
+      "whiteboards": "Pizarras Blanca",
+      "popular_tags": "Etiquetas Populares",
+      "product_features": "Resumen de la Plataforma"
+    },
+    "feed": {
+      "write_article": "Escribir Artículo",
+      "write_cta_desc": "Construye tu marca. Comparte ideas. Hazte descubrir.",
+      "start_writing": "Empezar a Escribir →",
+      "min_read": "min de lectura",
+      "likes": "Me gusta",
+      "comments": "Comentarios",
+      "view_portfolio": "Ver Portafolio",
+      "view_resume": "Ver Currículum",
+      "empty_title": "¡Aún no hay publicaciones!",
+      "empty_desc": "Sé el primero en compartir conocimientos con la comunidad.",
+      "publish_first": "Publicar Primer Artículo",
+      "reached_end": "Has llegado al final ✨"
+    },
+    "guestCta": {
+      "join_community": "Únete a la Comunidad",
+      "welcome_message": "¡Bienvenido a CareerVivid! Crea una cuenta para compartir tu currículum, practicar diseño de sistemas y conectar con profesionales.",
+      "sign_up_free": "Regístrate Gratis"
+    },
+    "searchPlaceholder": "Buscar artículos, currículums...",
+    "search_no_results": "No se han encontrado resultados",
+    "companies": {
+      "companies_hiring": "Empresas Contratando",
+      "view_all_jobs": "Ver todos los empleos",
+      "hiring": "Contratando: {{role}}"
+    }
   }
 }

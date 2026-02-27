@@ -5,8 +5,9 @@ import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
 import HeroVideo from '../components/HeroVideo';
 import { navigate } from '../utils/navigation';
-import { ArrowRight, CheckCircle2, Wand2, LayoutTemplate, Mic, Globe, Star, Loader2, Github, Users, Building, ChevronDown, Check } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Wand2, LayoutTemplate, Mic, Globe, Star, Loader2, Github, Users, Building, ChevronDown, Check, Terminal } from 'lucide-react';
 import { PricingComparison } from '../components/Landing/PricingComparison';
+import CommunityShowcaseHero from '../components/Landing/CommunityShowcaseHero';
 import { subscribeToLandingPageSettings, DEFAULT_LANDING_PAGE_SETTINGS } from '../services/systemSettingsService';
 
 const LandingPage: React.FC = () => {
@@ -53,9 +54,11 @@ const LandingPage: React.FC = () => {
             </Helmet>
             <PublicHeader />
             <main className="flex-grow">
+                {/* --- Master Showcase Hero (Community First) --- */}
+                <CommunityShowcaseHero />
 
-                {/* --- Hero Section --- */}
-                <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+                {/* --- Legacy Hero Section --- */}
+                <section className="relative pt-8 pb-20 lg:pt-12 lg:pb-32 overflow-hidden bg-white dark:bg-gray-950">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                         <div className="grid lg:grid-cols-2 gap-12 items-center">
                             <div className="text-left">
@@ -150,6 +153,80 @@ const LandingPage: React.FC = () => {
                                         </li>
                                     ))}
                                 </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Section A-Community: Community Feed */}
+                <section className="py-24 bg-white dark:bg-gray-950">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="grid md:grid-cols-2 gap-16 items-center">
+                            <div className="order-1">
+                                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 text-orange-600 rounded-xl flex items-center justify-center mb-6">
+                                    <Users size={24} />
+                                </div>
+                                <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-8 text-gray-900 dark:text-white tracking-tight">Showcase your work to the world.</h2>
+                                <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-10 font-medium leading-relaxed">
+                                    Publish your AI-generated resumes, system design whiteboards, and portfolios directly to the CareerVivid Community. Get feedback, build your personal brand, and get discovered by top tech companies.
+                                </p>
+                                <ul className="space-y-5">
+                                    {[
+                                        "Share Excalidraw whiteboards",
+                                        "1-Click publish to feed",
+                                        "Engage with other developers"
+                                    ].map((item, i) => (
+                                        <li key={i} className="flex items-center gap-4 text-lg text-gray-700 dark:text-gray-200 font-medium">
+                                            <CheckCircle2 size={24} className="text-orange-500 flex-shrink-0" /> {item}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <button onClick={() => navigate('/community')} className="mt-10 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white rounded-2xl font-extrabold text-lg transition-all shadow-lg hover:shadow-orange-500/25 flex items-center gap-3">
+                                    Explore the Community <ArrowRight size={20} />
+                                </button>
+                            </div>
+                            <div className="order-2 relative">
+                                <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                                    {/* Abstract representation of a community feed */}
+                                    <div className="space-y-6">
+                                        <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-orange-400 to-pink-500"></div>
+                                                <div>
+                                                    <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded mb-1"></div>
+                                                    <div className="h-3 w-16 bg-gray-100 dark:bg-gray-800 rounded"></div>
+                                                </div>
+                                            </div>
+                                            <div className="h-24 w-full bg-blue-50 dark:bg-blue-900/20 rounded-lg mb-4 border border-blue-100 dark:border-blue-800/30 flex items-center justify-center">
+                                                <Terminal className="text-blue-400" size={32} />
+                                            </div>
+                                            <div className="flex gap-4">
+                                                <div className="h-6 w-12 bg-gray-100 dark:bg-gray-800 rounded-full"></div>
+                                                <div className="h-6 w-12 bg-gray-100 dark:bg-gray-800 rounded-full"></div>
+                                            </div>
+                                        </div>
+                                        <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 opacity-70">
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-400 to-teal-500"></div>
+                                                <div>
+                                                    <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded mb-1"></div>
+                                                    <div className="h-3 w-20 bg-gray-100 dark:bg-gray-800 rounded"></div>
+                                                </div>
+                                            </div>
+                                            <div className="h-16 w-full bg-gray-100 dark:bg-gray-800 rounded-lg mb-4"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {/* Floating Badge */}
+                                <div className="absolute -top-6 -right-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 flex items-center gap-3 animate-bounce-slow delay-700 z-10">
+                                    <div className="bg-orange-100 dark:bg-orange-900/30 p-2 rounded-lg text-orange-600">
+                                        <Star size={24} className="fill-current" />
+                                    </div>
+                                    <div>
+                                        <div className="text-sm font-bold text-gray-900 dark:text-white">Get Discovered</div>
+                                        <div className="text-xs text-gray-500 dark:text-gray-400">Build your brand</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

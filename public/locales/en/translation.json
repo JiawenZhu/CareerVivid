@@ -526,5 +526,48 @@
     "need_access": "Need Access?",
     "contact_support": "If you believe you should have access to this page, please contact our support team.",
     "contact_us": "Contact Us"
+  },
+  "community": {
+    "sidebar": {
+      "home": "Home",
+      "trending": "Trending",
+      "job_listings": "Job Listings",
+      "guidelines": "Guidelines",
+      "professional_api": "Professional API",
+      "showcases": "Showcases",
+      "all_posts": "All Posts",
+      "articles": "Articles",
+      "resumes": "Resumes",
+      "portfolios": "Portfolios",
+      "whiteboards": "Whiteboards",
+      "popular_tags": "Popular Tags",
+      "product_features": "Platform Overview"
+    },
+    "feed": {
+      "write_article": "Write Article",
+      "write_cta_desc": "Build your brand. Share insights. Get discovered.",
+      "start_writing": "Start Writing →",
+      "min_read": "min read",
+      "likes": "Likes",
+      "comments": "Comments",
+      "view_portfolio": "View Portfolio",
+      "view_resume": "View Resume",
+      "empty_title": "No posts yet!",
+      "empty_desc": "Be the first to share knowledge with the community.",
+      "publish_first": "Publish First Article",
+      "reached_end": "You've reached the end ✨"
+    },
+    "guestCta": {
+      "join_community": "Join the Community",
+      "welcome_message": "Welcome to CareerVivid! Create an account to share your resume, practice system design, and connect with professionals.",
+      "sign_up_free": "Sign Up for Free"
+    },
+    "searchPlaceholder": "Search articles, resumes...",
+    "search_no_results": "No results found",
+    "companies": {
+      "companies_hiring": "Companies Hiring",
+      "view_all_jobs": "View all jobs",
+      "hiring": "Hiring: {{role}}"
+    }
   }
 }

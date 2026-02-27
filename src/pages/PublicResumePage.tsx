@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, Suspense, useLayoutEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Download, MessageSquare, PenTool, Loader2, AlertCircle, LayoutDashboard, User as UserIcon, LogOut, User, X, Send } from 'lucide-react';
+import { Download, MessageSquare, PenTool, Loader2, AlertCircle, LayoutDashboard, User as UserIcon, LogOut, User, X, Send, Eye, ExternalLink, Copy } from 'lucide-react';
 import { ResumeData } from '../types';
 import ResumePreview from '../components/ResumePreview';
 import PublicHeader from '../components/PublicHeader';
@@ -67,6 +67,13 @@ const PublicResumePage: React.FC = () => {
                         <Logo className="h-8 w-8" />
                         <span className="text-xl font-bold text-gray-900 dark:text-white hidden sm:inline">CareerVivid</span>
                     </a>
+                    {/* View Only Badge — shown to non-owners */}
+                    {routeParams && currentUser?.uid !== routeParams.userId && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-xs font-semibold">
+                            <Eye size={14} />
+                            View Only
+                        </span>
+                    )}
                 </div>
                 <div className="flex items-center gap-2 md:gap-4">
                     <button
@@ -76,6 +83,17 @@ const PublicResumePage: React.FC = () => {
                         <LayoutDashboard size={18} />
                         Back to Dashboard
                     </button>
+
+                    {/* Create your own CTA — shown to non-owners */}
+                    {routeParams && currentUser?.uid !== routeParams.userId && (
+                        <a
+                            href="/dashboard"
+                            className="hidden md:flex items-center gap-1.5 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 px-3 py-1.5 rounded-lg transition-colors"
+                        >
+                            Create your own
+                            <ExternalLink size={14} />
+                        </a>
+                    )}
 
 
 
@@ -419,8 +437,10 @@ const PublicResumePage: React.FC = () => {
     const viewerIsPremium = currentUser && (isPremium || isAdmin);
     const canDownload = ownerIsPremium || viewerIsPremium;
 
-    // --- EDITOR MODE ---
-    if (permission === 'editor') {
+    // --- EDITOR MODE (owner-only) ---
+    // Only the actual document owner gets editor access. Non-owners are downgraded to viewer.
+    const isOwner = !!(currentUser && routeParams && currentUser.uid === routeParams.userId);
+    if (permission === 'editor' && isOwner) {
         const queryPart = window.location.search.substring(1);
         const params = new URLSearchParams(queryPart);
         const initialViewMode = (params.get('viewMode') as 'edit' | 'preview') || 'edit';
@@ -450,13 +470,80 @@ const PublicResumePage: React.FC = () => {
 
             {/* Toolbar */}
             <div className={`bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 pb-4 px-4 shadow-sm sticky z-30 ${currentUser ? 'top-20 pt-4' : 'top-0 pt-24'}`}>
-                {/* ... existing toolbar content ... */}
+                <div className="max-w-5xl mx-auto flex justify-between items-center">
+                    <div>
+                        <h1 className="text-xl font-bold text-gray-900 dark:text-white truncate max-w-sm">{resume.title}</h1>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                            {permission === 'commenter' ? 'You can add comments and annotations.' : 'View only mode.'}
+                        </p>
+                    </div>
+                    <div className="flex gap-2">
+                        {permission === 'commenter' && (
+                            <button
+                                onClick={() => setShowComments(!showComments)}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${showComments
+                                    ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
+                                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
+                                    }`}
+                            >
+                                <MessageSquare size={18} />
+                                <span className="hidden sm:inline">Comments</span>
+                                {comments.length > 0 && (
+                                    <span className="bg-primary-500 text-white text-xs px-2 py-0.5 rounded-full">
+                                        {comments.length}
+                                    </span>
+                                )}
+                            </button>
+                        )}
+                        <button
+                            onClick={handleDownload}
+                            disabled={isExporting}
+                            className="flex items-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50"
+                        >
+                            {isExporting ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
+                            <span className="hidden sm:inline">Download PDF</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {/* Content */}
             <main className="flex-grow p-4 sm:p-8 relative" ref={previewContainerRef}>
                 <div className={`max-w-5xl mx-auto flex justify-center transition-all duration-300 ${showComments ? 'mr-[320px]' : ''}`}>
-                    {/* ... existing ResumePreview content ... */}
+                    <div
+                        className="bg-white shadow-xl max-w-[824px] print:shadow-none"
+                        style={{
+                            transform: `scale(${scale})`,
+                            transformOrigin: 'top center',
+                            margin: '0 auto',
+                            marginBottom: `${(1 - scale) * -100}%`
+                        }}
+                    >
+                        <div ref={previewRef} className="bg-white">
+                            <ResumePreview resume={resume} template={resume.templateId} />
+
+                            {/* Anti-screenshot blur overlay */}
+                            <div
+                                ref={blurOverlayRef}
+                                className="absolute inset-0 z-50 bg-white/30 backdrop-blur-[24px] pointer-events-none flex-col items-center justify-center gap-4 hidden transition-opacity duration-300"
+                            >
+                                <div className="bg-white/90 dark:bg-gray-900/90 p-6 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm text-center border border-gray-200 dark:border-gray-800">
+                                    <div className="w-16 h-16 bg-primary-100 dark:bg-primary-900/50 rounded-full flex items-center justify-center mb-4">
+                                        <Copy className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                                        Screenshot Protected
+                                    </h3>
+                                    <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">
+                                        This document is protected. Please use the official download button to save a high-quality PDF.
+                                    </p>
+                                    <p className="text-xs text-gray-500 font-medium">
+                                        Press ESC to dismiss
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </main>
 

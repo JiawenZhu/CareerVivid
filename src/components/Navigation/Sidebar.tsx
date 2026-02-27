@@ -16,6 +16,7 @@ import {
     ChevronDown,
     ChevronUp,
     Users,
+    CreditCard,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Logo from '../Logo';
@@ -101,6 +102,15 @@ const Sidebar: React.FC = () => {
 
             {/* ── Utility Section ── */}
             <div className="mt-auto flex flex-col gap-1 px-4 pt-3 pb-2 border-t border-gray-200 dark:border-gray-800">
+
+                {/* Subscription Link */}
+                <button
+                    onClick={() => navigate('/subscription')}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-colors text-sm w-full text-left"
+                >
+                    <CreditCard size={18} />
+                    <span>Subscription & Billing</span>
+                </button>
 
                 {/* Community Link */}
                 <button

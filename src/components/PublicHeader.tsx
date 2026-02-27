@@ -204,6 +204,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'default', contex
 
                     {/* Desktop Nav */}
                     <nav className="hidden md:flex items-center gap-8 h-full">
+                        <NavItem name="Community" href="/" />
                         {context !== 'bio-link' && <NavItem name={t('nav.product')} hasDropdown />}
                         <NavItem name="Services" href="/services" />
                         <NavItem name={t('nav.use_cases')} hasDropdown />

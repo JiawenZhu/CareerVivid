@@ -40,6 +40,28 @@ service cloud.firestore {
       match /resumes/{resumeId} {
         allow read: if request.auth != null && (request.auth.uid == userId || isAdmin() || isBusinessPartner());
         allow write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+
+        // 💬 Comments on Resumes
+        match /comments/{commentId} {
+          allow read: if request.auth != null && (request.auth.uid == userId || isAdmin() || isBusinessPartner())
+                      || get(/databases/$(database)/documents/users/$(userId)/resumes/$(resumeId)).data.shareConfig.enabled == true;
+          allow delete: if request.auth != null && (request.auth.uid == userId || isAdmin());
+          allow create, update: if request.auth != null && (
+            request.auth.uid == userId || isAdmin() ||
+            get(/databases/$(database)/documents/users/$(userId)/resumes/$(resumeId)).data.shareConfig.enabled == true
+          );
+        }
+
+        // 🎯 Annotations on Resumes
+        match /annotations/{annotationId} {
+          allow read: if request.auth != null && (request.auth.uid == userId || isAdmin() || isBusinessPartner())
+                      || get(/databases/$(database)/documents/users/$(userId)/resumes/$(resumeId)).data.shareConfig.enabled == true;
+          allow delete: if request.auth != null && (request.auth.uid == userId || isAdmin());
+          allow create, update: if request.auth != null && (
+            request.auth.uid == userId || isAdmin() ||
+            get(/databases/$(database)/documents/users/$(userId)/resumes/$(resumeId)).data.shareConfig.enabled == true
+          );
+        }
       }
 
       // Recursive match for all other subcollections (settings, referralStats, etc.)
@@ -210,6 +232,7 @@ service cloud.firestore {
       allow update, delete: if isAdmin() || (request.auth != null && request.auth.uid == resource.data.authorId);
     }
 
+
     match /post_comments/{commentId} {
       allow read: if true;
       allow create: if request.auth != null && request.resource.data.authorId == request.auth.uid;
@@ -220,8 +243,11 @@ service cloud.firestore {
     // 🖌️ WHITEBOARDS (Excalidraw)
     // ---------------------------------------------------------
     match /whiteboards/{whiteboardId} {
+      // Owner: full access
       allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      // Public read: anyone can view if the whiteboard is marked public (for community feed links)
+      allow read: if resource.data.isPublic == true;
     }
 
     // ---------------------------------------------------------

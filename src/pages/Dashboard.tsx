@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useResumes } from '../hooks/useResumes';
 import { usePortfolios } from '../hooks/usePortfolios';
 import { useWhiteboards } from '../hooks/useWhiteboards';
-import { ResumeData, PracticeHistoryEntry, JobApplicationData, Folder } from '../types';
+import { ResumeData, PracticeHistoryEntry, JobApplicationData, Folder, WhiteboardData } from '../types';
 import { PortfolioData } from '../features/portfolio/types/portfolio';
 import { PlusCircle, FileText, Mic, Briefcase, GripVertical, LayoutDashboard, Loader2, Globe, Plus, User as UserIcon, LogOut, ChevronDown, FolderPlus, Trash2, PenTool, LayoutGrid, List, ChevronRight, PanelLeft, Github } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -23,6 +23,7 @@ import PortfolioCard from '../components/PortfolioCard';
 import Logo from '../components/Logo';
 import ShareResumeModal from '../components/ShareResumeModal';
 import SharePortfolioModal from '../components/SharePortfolioModal';
+import ShareWhiteboardModal from '../components/ShareWhiteboardModal';
 import FolderReorderModal from '../components/FolderReorderModal';
 import { useTranslation } from 'react-i18next';
 import LanguageSelect from '../components/LanguageSelect';
@@ -59,6 +60,7 @@ const Dashboard: React.FC = () => {
     const [selectedJobApplication, setSelectedJobApplication] = useState<JobApplicationData | null>(null);
     const [shareModalResume, setShareModalResume] = useState<ResumeData | null>(null);
     const [shareModalPortfolio, setShareModalPortfolio] = useState<PortfolioData | null>(null);
+    const [shareModalWhiteboard, setShareModalWhiteboard] = useState<WhiteboardData | null>(null);
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false); // New State for limit modal
 
     const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: () => { }, confirmText: 'Confirm' });
@@ -854,6 +856,7 @@ const Dashboard: React.FC = () => {
                                                     onDelete={deleteWhiteboard}
                                                     onDuplicate={duplicateWhiteboard}
                                                     onUpdate={updateWhiteboard}
+                                                    onShare={(w) => setShareModalWhiteboard(w)}
                                                     onDragStart={(e) => e.preventDefault()}
                                                 />
                                             )}
@@ -981,6 +984,16 @@ const Dashboard: React.FC = () => {
                             portfolioId={shareModalPortfolio.id}
                             portfolioTitle={shareModalPortfolio.title}
                             portfolioData={shareModalPortfolio}
+                        />
+                    )
+                }
+
+                {
+                    shareModalWhiteboard && (
+                        <ShareWhiteboardModal
+                            isOpen={!!shareModalWhiteboard}
+                            onClose={() => setShareModalWhiteboard(null)}
+                            whiteboard={shareModalWhiteboard}
                         />
                     )
                 }

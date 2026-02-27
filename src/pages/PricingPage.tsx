@@ -11,6 +11,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { trackUsage } from '../services/trackingService';
 import { navigate } from '../utils/navigation';
 import { PricingComparison } from '../components/Landing/PricingComparison';
+import CreditCalculator from '../components/Landing/CreditCalculator';
 
 
 
@@ -94,6 +95,9 @@ const PricingPage: React.FC = () => {
                             onCloudUpgrade={() => handleChoosePlan('price_1SXF15EqIOIAAUV01eD0To1q')}
                             isLoading={loadingPriceId !== null}
                         />
+                        <div className="mt-20">
+                            <CreditCalculator />
+                        </div>
                     </div>
                 </div>
             </main>

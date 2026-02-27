@@ -217,6 +217,31 @@ const AppContent: React.FC = () => {
     );
   }
 
+  // Community — read-only routes render instantly (no auth wait)
+  const isCommunityPostRoute = path.startsWith('/community/post/');
+  if (path === '/' || path === '/community' || path === '/community/guidelines' || isCommunityPostRoute) {
+    return (
+      <ThemeProvider>
+        <CartProvider>
+          <NavigationProvider>
+            <div className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-200 font-sans">
+              <Helmet
+                titleTemplate="%s | CareerVivid"
+                defaultTitle="CareerVivid Community | Connect, Share, and Grow Your Career"
+              />
+              <SEOHelper />
+              <Suspense fallback={<LoadingFallback />}>
+                {(path === '/' || path === '/community') && <CommunityDashboard />}
+                {path === '/community/guidelines' && <CommunityGuidelinesPage />}
+                {isCommunityPostRoute && <CommunityPostPage />}
+              </Suspense>
+            </div>
+          </NavigationProvider>
+        </CartProvider>
+      </ThemeProvider>
+    );
+  }
+
   if (loading || isAdminLoading) {
     return <LoadingFallback />;
   }
@@ -456,21 +481,7 @@ const AppContent: React.FC = () => {
       );
     }
 
-    // Community Platform
-    else if (path === '/community') {
-      content = (
-        <ProtectedRoute>
-          <CommunityDashboard />
-        </ProtectedRoute>
-      );
-    }
-    else if (path === '/community/guidelines') {
-      content = (
-        <ProtectedRoute>
-          <CommunityGuidelinesPage />
-        </ProtectedRoute>
-      );
-    }
+    // Community Platform — write-only routes (require auth)
     else if (path === '/community/new') {
       content = (
         <ProtectedRoute>
@@ -482,13 +493,6 @@ const AppContent: React.FC = () => {
       content = (
         <ProtectedRoute>
           <MyPostsPage />
-        </ProtectedRoute>
-      );
-    }
-    else if (path.startsWith('/community/post/')) {
-      content = (
-        <ProtectedRoute>
-          <CommunityPostPage />
         </ProtectedRoute>
       );
     }
@@ -576,13 +580,9 @@ const AppContent: React.FC = () => {
       content = <ProtectedRoute><JobPostingEditor jobId={jobId} /></ProtectedRoute>;
     }
 
-    // Root Path
-    else if (path === '/' || path === '') {
-      if (currentUser) {
-        content = <Dashboard />;
-      } else {
-        content = <LandingPage />;
-      }
+    // New Landing Page Location
+    else if (path === '/product') {
+      content = <LandingPage />;
     }
 
     // Fallback

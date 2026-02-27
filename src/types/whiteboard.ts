@@ -25,6 +25,8 @@ export interface WhiteboardData {
     excalidrawData: ExcalidrawFileData;
     /** Pre-rendered SVG string for fast dashboard card previews */
     thumbnailSvg?: string;
+    /** Whether this whiteboard is publicly viewable */
+    isPublic?: boolean;
     createdAt: number;
     updatedAt: number;
     section?: string;

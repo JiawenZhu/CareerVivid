@@ -16,6 +16,7 @@ import {
     getDocs,
     startAfter,
     where,
+    runTransaction,
     QueryDocumentSnapshot,
     DocumentData,
 } from 'firebase/firestore';
@@ -161,29 +162,46 @@ export const useCommunity = (typeFilter?: CommunityPostType) => {
         }
     };
 
-    // Optimistic like/unlike
+    // Atomic like/unlike using Firestore transaction
+    // Prevents race conditions when multiple users like simultaneously
     const toggleLike = async (postId: string) => {
         if (!currentUser) throw new Error('Must be logged in to like.');
 
         const likeId = `${postId}_${currentUser.uid}`;
-        const likeRef = doc(db, 'post_likes', likeId);
+        const likeRef = doc(db, 'community_post_likes', likeId);
         const postRef = doc(db, COLLECTION, postId);
 
         try {
-            const likeSnap = await getDoc(likeRef);
-            if (likeSnap.exists()) {
-                await deleteDoc(likeRef);
-                await updateDoc(postRef, { 'metrics.likes': increment(-1) });
-                return false;
-            } else {
-                await setDoc(likeRef, {
-                    postId,
-                    userId: currentUser.uid,
-                    createdAt: serverTimestamp()
-                });
-                await updateDoc(postRef, { 'metrics.likes': increment(1) });
-                return true;
-            }
+            const result = await runTransaction(db, async (transaction) => {
+                const likeSnap = await transaction.get(likeRef);
+                const postSnap = await transaction.get(postRef);
+
+                if (!postSnap.exists()) throw new Error('Post not found.');
+
+                const currentLikes = postSnap.data()?.metrics?.likes ?? 0;
+
+                if (likeSnap.exists()) {
+                    // Unlike: remove like doc and decrement counter (floor at 0)
+                    transaction.delete(likeRef);
+                    transaction.update(postRef, {
+                        'metrics.likes': Math.max(0, currentLikes - 1),
+                    });
+                    return false;
+                } else {
+                    // Like: create like doc and increment counter
+                    transaction.set(likeRef, {
+                        postId,
+                        userId: currentUser.uid,
+                        createdAt: serverTimestamp(),
+                    });
+                    transaction.update(postRef, {
+                        'metrics.likes': currentLikes + 1,
+                    });
+                    return true;
+                }
+            });
+
+            return result;
         } catch (err) {
             console.error('Error toggling like:', err);
             throw err;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LayoutDashboard, Plus, PenTool } from 'lucide-react';
 import { useWhiteboards } from '../hooks/useWhiteboards';
@@ -6,11 +6,14 @@ import { useNavigation } from '../contexts/NavigationContext';
 import WhiteboardCard from '../components/Dashboard/WhiteboardCard';
 import { navigate } from '../utils/navigation';
 import AppLayout from '../components/Layout/AppLayout';
+import ShareWhiteboardModal from '../components/ShareWhiteboardModal';
+import { WhiteboardData } from '../types';
 
 const WhiteboardsPage: React.FC = () => {
     const { t } = useTranslation();
     const { navPosition } = useNavigation();
     const { whiteboards, deleteWhiteboard, duplicateWhiteboard, updateWhiteboard, createWhiteboard } = useWhiteboards();
+    const [shareModalWhiteboard, setShareModalWhiteboard] = useState<WhiteboardData | null>(null);
 
     const handleCreateWhiteboard = async () => {
         const id = await createWhiteboard();
@@ -56,6 +59,7 @@ const WhiteboardsPage: React.FC = () => {
                                         onDelete={deleteWhiteboard}
                                         onDuplicate={duplicateWhiteboard}
                                         onUpdate={updateWhiteboard}
+                                        onShare={(w) => setShareModalWhiteboard(w)}
                                         onDragStart={(e) => e.preventDefault()}
                                     />
                                 ))
@@ -74,6 +78,14 @@ const WhiteboardsPage: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {shareModalWhiteboard && (
+                <ShareWhiteboardModal
+                    isOpen={!!shareModalWhiteboard}
+                    onClose={() => setShareModalWhiteboard(null)}
+                    whiteboard={shareModalWhiteboard}
+                />
+            )}
         </AppLayout>
     );
 };

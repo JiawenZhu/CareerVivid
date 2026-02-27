@@ -525,5 +525,48 @@
     "need_access": "Need Access?",
     "contact_support": "If you believe you should have access to this page, please contact our support team.",
     "contact_us": "Contact Us"
+  },
+  "community": {
+    "sidebar": {
+      "home": "首页",
+      "trending": "热门推荐",
+      "job_listings": "职位列表",
+      "guidelines": "社区指南",
+      "professional_api": "专业 API",
+      "showcases": "作品展示",
+      "all_posts": "所有帖子",
+      "articles": "文章",
+      "resumes": "简历",
+      "portfolios": "个人网站",
+      "whiteboards": "白板",
+      "popular_tags": "热门标签",
+      "product_features": "平台概览"
+    },
+    "feed": {
+      "write_article": "撰写文章",
+      "write_cta_desc": "建立个人品牌。分享见解。让别人发现你。",
+      "start_writing": "开始撰写 →",
+      "min_read": "分钟阅读",
+      "likes": "点赞",
+      "comments": "评论",
+      "view_portfolio": "查看作品集",
+      "view_resume": "查看简历",
+      "empty_title": "暂无帖子！",
+      "empty_desc": "成为第一个与社区分享知识的人。",
+      "publish_first": "发布第一篇文章",
+      "reached_end": "到底啦 ✨"
+    },
+    "guestCta": {
+      "join_community": "加入社区",
+      "welcome_message": "欢迎来到 CareerVivid！创建账户即可分享简历、练习系统设计并扩大您的人脉。",
+      "sign_up_free": "免费注册"
+    },
+    "searchPlaceholder": "搜索文章、简历...",
+    "search_no_results": "未找到结果",
+    "companies": {
+      "companies_hiring": "企业招聘",
+      "view_all_jobs": "查看所有职位",
+      "hiring": "招聘：{{role}}"
+    }
   }
 }
