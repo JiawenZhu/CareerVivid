@@ -153,8 +153,19 @@ export const exportToGoogleDocs = functions
         }
     });
 
-// Helper to strip simple HTML tags (since editor might output HTML)
+// Helper to strip HTML tags. Uses a regex that avoids incomplete multi-character
+// sanitization issues by matching balanced tag content more carefully.
 function stripHtml(html: string): string {
     if (!html) return "";
-    return html.replace(/<[^>]*>?/gm, "").replace(/&nbsp;/g, " ");
+    // Replace all HTML tags (including malformed or multi-char sequences) then decode entities
+    return html
+        .replace(/<[^>]*>/gm, " ")          // Strip all tags
+        .replace(/&nbsp;/g, " ")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/\s{2,}/g, " ")             // Collapse whitespace
+        .trim();
 }

@@ -98,6 +98,18 @@ const SignUpPage: React.FC = () => {
         setLoading(true);
         setError('');
         setSuccess('');
+
+        // Safe redirect helper — only allow relative paths to prevent open redirect
+        const getSafeRedirect = () => {
+            const redirectParams = new URLSearchParams(window.location.search);
+            const r = redirectParams.get('redirect');
+            if (!r) return null;
+            const decoded = decodeURIComponent(r);
+            // Only allow relative paths starting with '/' (no protocol, no external domains)
+            if (/^\/[^/\\]/.test(decoded) || decoded === '/') return decoded;
+            return null;
+        };
+
         try {
             const cred = await createUserWithEmailAndPassword(auth, email, password);
             const actionCodeSettings = {
@@ -140,10 +152,13 @@ const SignUpPage: React.FC = () => {
             trackUsage(cred.user.uid, 'sign_in', { signup: true });
 
             // Check for redirect param
-            const redirectParams = new URLSearchParams(window.location.search);
-            const redirectUrl = redirectParams.get('redirect');
+            const redirectUrl = new URLSearchParams(window.location.search).get('redirect');
             if (redirectUrl) {
-                window.location.href = decodeURIComponent(redirectUrl);
+                const decoded = decodeURIComponent(redirectUrl);
+                // Only allow relative paths — prevents open redirect
+                if (/^\/[^/\\]/.test(decoded) || decoded === '/') {
+                    window.location.href = decoded;
+                }
             }
         } catch (err: any) {
             handleAuthError(err);
@@ -203,10 +218,13 @@ const SignUpPage: React.FC = () => {
             }
 
             // Check for redirect param
-            const redirectParams = new URLSearchParams(window.location.search);
-            const redirectUrl = redirectParams.get('redirect');
+            const redirectUrl = new URLSearchParams(window.location.search).get('redirect');
             if (redirectUrl) {
-                window.location.href = decodeURIComponent(redirectUrl);
+                const decoded = decodeURIComponent(redirectUrl);
+                // Only allow relative paths — prevents open redirect
+                if (/^\/[^/\\]/.test(decoded) || decoded === '/') {
+                    window.location.href = decoded;
+                }
             }
         } catch (err: any) {
             handleAuthError(err);

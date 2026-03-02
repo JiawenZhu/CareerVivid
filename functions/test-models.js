@@ -1,5 +1,5 @@
 require("dotenv").config({ path: "../.env" });
-console.log("Key length:", process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.length : 0);
+// Note: API key details intentionally not logged for security reasons.
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
