@@ -1,11 +1,14 @@
 <div align="center">
-  <img src="public/assets/resume-banner.png" alt="CareerVivid Banner" width="100%" />
+  <video width="100%" autoplay loop muted playsinline>
+    <source src="https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Fcommunity_assets%2Fcommunity_github_video%2F0301.mp4?alt=media&token=311ccb2d-c95f-4c7c-871b-66a4da08fc71" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
   
   # CareerVivid
   
   **Personal Brand Building & Career Growth Platform**
   
-  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
   [![Status](https://img.shields.io/badge/Status-Active-success.svg)]()
   [![Firebase](https://img.shields.io/badge/Firebase-Firestore%20%2B%20Auth-orange.svg)]()
   [![AI](https://img.shields.io/badge/AI-Gemini%202.5%20Flash-blue.svg)]()
@@ -138,4 +141,4 @@ A fully customizable home for all your CareerVivid tools.
 
 ## License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License v3.0 — see the [LICENSE](LICENSE) file for details.
