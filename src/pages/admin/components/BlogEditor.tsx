@@ -13,6 +13,7 @@ import AIImprovementPanel from '../../../components/AIImprovementPanel';
 import AIImageEditModal from '../../../components/AIImageEditModal';
 import AutoResizeTextarea from '../../../components/AutoResizeTextarea';
 import { uploadImage, dataURLtoBlob } from '../../../services/storageService';
+import { parseGEOContent, getGEOTemplate } from '../../../utils/geoFormatting';
 
 // --- Helper Components ---
 
@@ -212,8 +213,11 @@ const BlogEditor: React.FC<{ post?: BlogPost; onSave: () => void; onCancel: () =
                 coverImageUrl = await uploadImage(blob, path);
             }
 
+            const geo = parseGEOContent(formData.content || '');
             const postData = {
                 ...formData,
+                content: geo.content,
+                faqs: geo.faqs,
                 coverImage: coverImageUrl,
                 updatedAt: serverTimestamp()
             };
@@ -531,6 +535,18 @@ const BlogEditor: React.FC<{ post?: BlogPost; onSave: () => void; onCancel: () =
                                     className="mt-3 flex items-center gap-2 text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
                                 >
                                     <Wand2 size={16} /> Improve Content with AI
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        if (window.confirm("Replace existing content with the GEO-optimized template?")) {
+                                            setFormData({ ...formData, content: getGEOTemplate(formData.title || "Article Title") });
+                                        }
+                                    }}
+                                    className="mt-3 ml-4 flex items-center gap-2 text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+                                >
+                                    <Sparkles size={16} /> Apply GEO Template
                                 </button>
 
                                 {activeAIField === 'content' && currentUser && (

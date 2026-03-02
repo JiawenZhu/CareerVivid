@@ -1,5 +1,6 @@
 import { doc, getDoc, updateDoc, Timestamp, increment } from 'firebase/firestore';
 import { db } from '../firebase';
+import { FREE_PLAN_CREDIT_LIMIT, SPRINT_PLAN_CREDIT_LIMIT, MONTHLY_PLAN_CREDIT_LIMIT } from '../config/creditCosts';
 
 export interface AIUsageData {
     count: number;
@@ -26,7 +27,7 @@ export const getAIUsage = async (userId: string): Promise<AIUsageData> => {
         const defaultUsage: AIUsageData = {
             count: 0,
             lastResetDate: Timestamp.now(),
-            monthlyLimit: 10 // Default for free users
+            monthlyLimit: FREE_PLAN_CREDIT_LIMIT // Default for free users
         };
 
         await updateDoc(userRef, { aiUsage: defaultUsage });
@@ -40,10 +41,10 @@ export const getAIUsage = async (userId: string): Promise<AIUsageData> => {
         (now.getMonth() - lastReset.getMonth());
 
     // Determine correct limit based on plan
-    let expectedLimit = 10;
+    let expectedLimit = FREE_PLAN_CREDIT_LIMIT;
     const plan = userData.plan || 'free';
-    if (plan === 'pro_sprint') expectedLimit = 100;
-    else if (plan === 'pro_monthly') expectedLimit = 300;
+    if (plan === 'pro_sprint') expectedLimit = SPRINT_PLAN_CREDIT_LIMIT;
+    else if (plan === 'pro_monthly') expectedLimit = MONTHLY_PLAN_CREDIT_LIMIT;
 
     // Self-healing: If limit is incorrect (e.g. user upgraded but DB didn't sync), fix it.
     // Also reset if month passed.
@@ -91,12 +92,12 @@ export const canUseAI = async (userId: string): Promise<boolean> => {
  */
 export const updateAILimit = async (userId: string, plan: 'free' | 'pro_sprint' | 'pro_monthly'): Promise<void> => {
     const userRef = doc(db, 'users', userId);
-    let limit = 10; // Default for free
+    let limit = FREE_PLAN_CREDIT_LIMIT; // Default for free
 
     if (plan === 'pro_sprint') {
-        limit = 100;
+        limit = SPRINT_PLAN_CREDIT_LIMIT;
     } else if (plan === 'pro_monthly') {
-        limit = 300;
+        limit = MONTHLY_PLAN_CREDIT_LIMIT;
     }
 
     await updateDoc(userRef, {

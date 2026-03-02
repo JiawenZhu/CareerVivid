@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Wand2, LayoutTemplate, Mic, FileText, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { FREE_PLAN_CREDIT_LIMIT, SPRINT_PLAN_CREDIT_LIMIT, MONTHLY_PLAN_CREDIT_LIMIT } from '../../config/creditCosts';
 
 // Base constants for credit costs
 const COSTS = {
@@ -12,9 +13,9 @@ const COSTS = {
 };
 
 const TIERS = {
-    free: { name: 'Free', limit: 100, color: 'bg-green-500' },
-    weekly: { name: '7-Day Sprint', limit: 666, color: 'bg-primary-500' },
-    monthly: { name: 'Monthly Pro', limit: 888, color: 'bg-purple-500' }
+    free: { name: 'Free', limit: FREE_PLAN_CREDIT_LIMIT, color: 'bg-green-500' },
+    weekly: { name: '7-Day Sprint', limit: SPRINT_PLAN_CREDIT_LIMIT, color: 'bg-primary-500' },
+    monthly: { name: 'Monthly Pro', limit: MONTHLY_PLAN_CREDIT_LIMIT, color: 'bg-purple-500' }
 };
 
 type TierKey = keyof typeof TIERS;

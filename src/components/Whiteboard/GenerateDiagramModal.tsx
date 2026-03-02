@@ -30,8 +30,8 @@ const GenerateDiagramModal: React.FC<GenerateDiagramModalProps> = ({ isOpen, onC
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-            <div className="bg-white dark:bg-gray-900 w-full max-w-lg rounded-2xl shadow-xl overflow-hidden flex flex-col">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+            <div className="bg-white dark:bg-gray-900 w-full max-w-[500px] m-auto h-fit shrink-0 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
                 {/* Header */}
                 <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-800">
                     <div className="flex items-center gap-2">
@@ -48,7 +48,7 @@ const GenerateDiagramModal: React.FC<GenerateDiagramModalProps> = ({ isOpen, onC
                 </div>
 
                 {/* Body */}
-                <div className="p-5 flex flex-col gap-4">
+                <div className="p-5 flex flex-col gap-4 overflow-y-auto">
                     <p className="text-sm text-gray-600 dark:text-gray-300">
                         Describe the system, flowchart, or diagram you want to build. Our AI will automatically translate it onto your canvas.
                     </p>
@@ -73,7 +73,7 @@ const GenerateDiagramModal: React.FC<GenerateDiagramModalProps> = ({ isOpen, onC
                 </div>
 
                 {/* Footer */}
-                <div className="p-5 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-3 rounded-b-2xl">
+                <div className="p-5 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800 flex flex-row justify-end gap-3 w-full rounded-b-2xl">
                     <button
                         onClick={onClose}
                         disabled={isGenerating}

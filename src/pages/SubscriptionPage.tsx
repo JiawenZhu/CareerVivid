@@ -6,6 +6,7 @@ import { ArrowLeft, Check, CreditCard, Calendar, X, CheckCircle, Sparkles, Home,
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebase';
 import { trackUsage } from '../services/trackingService';
+import { FREE_PLAN_CREDIT_LIMIT, SPRINT_PLAN_CREDIT_LIMIT, MONTHLY_PLAN_CREDIT_LIMIT } from '../config/creditCosts';
 import ConfirmationModal from '../components/ConfirmationModal';
 import RetentionModal from '../components/RetentionModal';
 import CancellationFeedbackModal from '../components/CancellationFeedbackModal';
@@ -112,7 +113,7 @@ const SubscriptionPage: React.FC = () => {
                 "Create & Edit up to 15 Resumes",
                 "Create up to 8 Portfolio Websites",
                 t('subscription.features.all_templates'),
-                "300 AI Credits/Month",
+                `${MONTHLY_PLAN_CREDIT_LIMIT} AI Credits/Month`,
                 t('subscription.features.ai_content'),
                 t('subscription.features.ai_photo'),
                 t('subscription.features.unlimited_downloads'),
@@ -133,7 +134,7 @@ const SubscriptionPage: React.FC = () => {
                 "Create 1 Portfolio Website",
                 t('subscription.features.all_templates'),
                 t('subscription.features.ai_content'),
-                "10 AI Credits/Month",
+                `${FREE_PLAN_CREDIT_LIMIT} AI Credits/Month`,
                 t('subscription.features.image_exports')
             ],
             current: currentPlan === 'free' || !currentPlan,
@@ -167,7 +168,7 @@ const SubscriptionPage: React.FC = () => {
                 "Create & Edit up to 100 Resumes",
                 "Create up to 8 Portfolio Websites",
                 t('subscription.features.all_templates'),
-                "100 AI Credits/Month",
+                `${SPRINT_PLAN_CREDIT_LIMIT} AI Credits/Month`,
                 t('subscription.features.ai_content'),
                 t('subscription.features.ai_photo'),
                 t('subscription.features.unlimited_downloads'),
@@ -188,7 +189,7 @@ const SubscriptionPage: React.FC = () => {
                 "Create & Edit Unlimited Resumes",
                 "Create up to 8 Portfolio Websites",
                 t('subscription.features.all_templates'),
-                "300 AI Credits/Month",
+                `${MONTHLY_PLAN_CREDIT_LIMIT} AI Credits/Month`,
                 t('subscription.features.ai_content'),
                 t('subscription.features.ai_photo'),
                 t('subscription.features.unlimited_downloads'),

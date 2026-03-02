@@ -35,7 +35,13 @@
       }
     ],
     "rewrites": [
-
+      {
+        "source": "/community/post/**",
+        "run": {
+          "serviceId": "injectcommunitymeta",
+          "region": "us-west1"
+        }
+      },
       {
         "source": "/zh/shared/**",
         "destination": "/index.html"

@@ -108,7 +108,7 @@ const CommunityShowcaseHero: React.FC = () => {
                             </span>
                         </h1>
                         <p className="text-xl md:text-3xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto font-medium leading-relaxed mb-10 drop-shadow-sm">
-                            Join 10,000+ professionals sharing AI-optimized resumes, system design whiteboards, and career insights.
+                            Establish your authority in the tech industry. Publish articles to build your personal brand, showcase your dynamic resume, and master system design. Join a network of ambitious professionals shaping tomorrow.
                         </p>
                     </motion.div>
 

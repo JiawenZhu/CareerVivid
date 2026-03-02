@@ -5,10 +5,15 @@ import { navigate } from '../../utils/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { ArrowLeft, Heart, MessageSquare, BookOpen, Loader2, Send } from 'lucide-react';
+import remarkBreaks from 'remark-breaks';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { Helmet } from 'react-helmet-async';
+import { ArrowLeft, Heart, MessageSquare, BookOpen, Loader2, Send, Linkedin, Edit, Trash2, MoreVertical, X, Check } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { CommunityPost, useCommunity } from '../../hooks/useCommunity';
 import { usePostComments } from '../../hooks/usePostComments';
+import { generateGEOStructuredData } from '../../utils/geoUtils';
 
 const COLLECTION = 'community_posts';
 
@@ -18,7 +23,7 @@ const CommunityPostPage: React.FC = () => {
 
     const { currentUser } = useAuth();
     const { toggleLike } = useCommunity();
-    const { comments, loading: commentsLoading, submitting, addComment } = usePostComments(postId);
+    const { comments, loading: commentsLoading, submitting, addComment, updateComment, deleteComment } = usePostComments(postId);
 
     const [post, setPost] = useState<CommunityPost | null>(null);
     const [loading, setLoading] = useState(true);
@@ -26,6 +31,10 @@ const CommunityPostPage: React.FC = () => {
     const [isLiked, setIsLiked] = useState(false);
     const [likesCount, setLikesCount] = useState(0);
     const [commentText, setCommentText] = useState('');
+
+    // Comment Edit State
+    const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+    const [editingCommentText, setEditingCommentText] = useState('');
 
     // Check if user already liked this post
     useEffect(() => {
@@ -97,6 +106,32 @@ const CommunityPostPage: React.FC = () => {
         }
     };
 
+    const handleEditComment = (commentId: string, currentText: string) => {
+        setEditingCommentId(commentId);
+        setEditingCommentText(currentText);
+    };
+
+    const handleSaveEditComment = async (commentId: string) => {
+        if (!editingCommentText.trim()) return;
+        try {
+            await updateComment(commentId, editingCommentText);
+            setEditingCommentId(null);
+            setEditingCommentText('');
+        } catch (err) {
+            console.error('Failed to update comment:', err);
+        }
+    };
+
+    const handleDeleteComment = async (commentId: string) => {
+        if (window.confirm('Are you sure you want to delete this comment?')) {
+            try {
+                await deleteComment(commentId);
+            } catch (err) {
+                console.error('Failed to delete comment:', err);
+            }
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
@@ -125,16 +160,37 @@ const CommunityPostPage: React.FC = () => {
         ? formatDistanceToNow(post.createdAt.toDate(), { addSuffix: true })
         : 'Recently';
 
+    const shareUrl = `https://careervivid.app/community/post/${postId}`;
+
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+            <Helmet>
+                <title>{post.title} | CareerVivid Community</title>
+                <meta property="og:title" content={post.title} />
+                <meta property="og:type" content="article" />
+                <meta property="og:url" content={shareUrl} />
+                {post.coverImage && <meta property="og:image" content={post.coverImage} />}
+                <meta property="og:description" content={post.content?.replace(/[#_*`[\]]/g, '').substring(0, 150) || 'Check out this post on CareerVivid Community.'} />
+                <script type="application/ld+json">
+                    {JSON.stringify(generateGEOStructuredData({
+                        title: post.title,
+                        content: post.content,
+                        coverImage: post.coverImage,
+                        authorName: post.authorName,
+                        authorAvatar: post.authorAvatar,
+                        createdAt: post.createdAt,
+                        updatedAt: post.updatedAt
+                    }, post.faqs))}
+                </script>
+            </Helmet>
             {/* Top nav */}
             <div className="sticky top-0 z-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800">
                 <div className="max-w-4xl mx-auto px-4 h-14 flex items-center gap-3">
                     <button
-                        onClick={() => navigate('/community')}
+                        onClick={() => navigate(window.history.state?.from || '/community')}
                         className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
                     >
-                        <ArrowLeft size={18} /> Community
+                        <ArrowLeft size={18} /> Back
                     </button>
                 </div>
             </div>
@@ -142,13 +198,13 @@ const CommunityPostPage: React.FC = () => {
             <article className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
                 {/* Cover image */}
                 {post.coverImage && (
-                    <div className="w-full aspect-video overflow-hidden rounded-2xl mb-8 shadow-lg">
+                    <div className="w-full aspect-video overflow-hidden rounded-xl mb-8 shadow-lg">
                         <img src={post.coverImage} alt={post.title} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                     </div>
                 )}
 
                 {/* Title */}
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 dark:text-white leading-tight mb-6">
+                <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
                     {post.title}
                 </h1>
 
@@ -189,12 +245,87 @@ const CommunityPostPage: React.FC = () => {
                 )}
 
                 {/* Body */}
-                <div className="prose prose-lg dark:prose-invert max-w-none mb-12 prose-headings:font-black prose-code:text-primary-600 dark:prose-code:text-primary-400 prose-pre:bg-gray-900 prose-pre:dark:bg-gray-800">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
+                <div className="prose prose-lg max-w-none prose-slate dark:prose-invert 
+                    leading-loose tracking-[0.015em]
+                    prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:mb-8 
+                    prose-headings:font-bold prose-headings:tracking-tight prose-headings:mt-10 prose-headings:mb-4 prose-headings:text-gray-900 dark:prose-headings:text-white
+                    prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
+                    prose-ul:list-disc prose-ul:pl-6 prose-ol:list-decimal prose-ol:pl-6
+                    prose-li:my-2 prose-li:leading-relaxed prose-li:text-gray-700 dark:prose-li:text-gray-300
+                    prose-a:text-primary-600 dark:prose-a:text-primary-400 prose-a:no-underline hover:prose-a:underline
+                    prose-code:bg-gray-100 dark:prose-code:bg-gray-800/60 prose-code:text-primary-600 dark:prose-code:text-primary-400 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:font-mono prose-code:font-medium prose-code:before:content-none prose-code:after:content-none
+                    prose-pre:bg-gray-900 dark:prose-pre:bg-[#0d1117] prose-pre:text-gray-100 prose-pre:rounded-xl prose-pre:shadow-sm prose-pre:p-5
+                    prose-blockquote:border-l-4 prose-blockquote:border-primary-500 prose-blockquote:bg-gray-50 dark:prose-blockquote:bg-gray-900/50 prose-blockquote:py-2 prose-blockquote:px-5 prose-blockquote:not-italic prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300 prose-blockquote:rounded-r-lg
+                    prose-img:rounded-xl prose-img:shadow-md
+                    prose-hr:border-gray-200 dark:prose-hr:border-gray-800
+                    mb-12"
+                >
+                    <ReactMarkdown
+                        remarkPlugins={[remarkGfm, remarkBreaks]}
+                        components={{
+                            br({ ...props }: any) {
+                                return <span className="block h-6 content-['']" aria-hidden="true" {...props} />;
+                            },
+                            code({ node, inline, className, children, ...props }: any) {
+                                const match = /language-(\w+)/.exec(className || '');
+                                return !inline && match ? (
+                                    <SyntaxHighlighter
+                                        style={vscDarkPlus as any}
+                                        language={match[1]}
+                                        PreTag="div"
+                                        className="!m-0 !rounded-xl !bg-[#0d1117] shadow-sm text-sm"
+                                        {...props}
+                                    >
+                                        {String(children).replace(/\n$/, '')}
+                                    </SyntaxHighlighter>
+                                ) : (
+                                    <code className="bg-gray-100 dark:bg-gray-800/80 rounded-md px-1.5 py-0.5 text-[0.9em] font-mono text-primary-600 dark:text-primary-400" {...props}>
+                                        {children}
+                                    </code>
+                                );
+                            },
+                            a({ node, href, children, ...props }: any) {
+                                if (!href) return <a {...props}>{children}</a>;
+                                const isVideo = /\.(mp4|webm)$/i.test(href.split('?')[0]);
+                                const isAudio = /\.(mp3|wav|ogg)$/i.test(href.split('?')[0]);
+
+                                if (isVideo) {
+                                    return (
+                                        <div className="w-full my-6 rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-800 bg-black">
+                                            <video controls className="w-full aspect-video outline-none">
+                                                <source src={href} />
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        </div>
+                                    );
+                                }
+
+                                if (isAudio) {
+                                    return (
+                                        <div className="w-full my-6 p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center gap-2">
+                                            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Audio Attachment</span>
+                                            <audio controls className="w-full max-w-md outline-none">
+                                                <source src={href} />
+                                                Your browser does not support the audio element.
+                                            </audio>
+                                        </div>
+                                    );
+                                }
+
+                                return (
+                                    <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:text-primary-700 underline underline-offset-2 transition-colors" {...props}>
+                                        {children}
+                                    </a>
+                                );
+                            }
+                        }}
+                    >
+                        {post.content}
+                    </ReactMarkdown>
                 </div>
 
                 {/* Like / comment actions */}
-                <div className="flex items-center gap-3 pt-6 border-t border-gray-100 dark:border-gray-800 mb-12">
+                <div className="flex items-center gap-3 pt-6 border-t border-gray-100 dark:border-gray-800 mb-12 flex-wrap">
                     <button
                         onClick={handleLike}
                         className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm transition-all cursor-pointer ${isLiked ? 'bg-pink-50 dark:bg-pink-950/50 text-pink-600 dark:text-pink-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
@@ -205,6 +336,16 @@ const CommunityPostPage: React.FC = () => {
                     <a href="#comments" className="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all cursor-pointer">
                         <MessageSquare size={18} />
                         {comments.length} Comments
+                    </a>
+
+                    <a
+                        href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm bg-[#0a66c2] hover:bg-[#0a66c2]/90 text-white transition-all cursor-pointer ml-auto"
+                    >
+                        <Linkedin size={18} />
+                        Share to LinkedIn
                     </a>
                 </div>
 
@@ -274,14 +415,62 @@ const CommunityPostPage: React.FC = () => {
                                                 </div>
                                             )}
                                         </button>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-baseline gap-2 mb-1">
-                                                <button onClick={() => navigate(`/portfolio/${comment.authorId}`)} className="font-semibold text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors text-sm cursor-pointer">
-                                                    {comment.authorName}
-                                                </button>
-                                                <span className="text-xs text-gray-400 dark:text-gray-500">{commentDate}</span>
+                                        <div className="flex-1 min-w-0 group relative">
+                                            <div className="flex items-baseline justify-between gap-2 mb-1">
+                                                <div className="flex items-baseline gap-2">
+                                                    <button onClick={() => navigate(`/portfolio/${comment.authorId}`)} className="font-semibold text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors text-sm cursor-pointer">
+                                                        {comment.authorName}
+                                                    </button>
+                                                    <span className="text-xs text-gray-400 dark:text-gray-500">{commentDate}</span>
+                                                </div>
+
+                                                {currentUser?.uid === comment.authorId && editingCommentId !== comment.id && (
+                                                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <button
+                                                            onClick={() => handleEditComment(comment.id, comment.content)}
+                                                            className="text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 text-xs font-medium flex items-center gap-1 transition-colors"
+                                                        >
+                                                            <Edit size={12} /> Edit
+                                                        </button>
+                                                        <span className="text-gray-300 dark:text-gray-700">|</span>
+                                                        <button
+                                                            onClick={() => handleDeleteComment(comment.id)}
+                                                            className="text-gray-400 hover:text-red-500 text-xs font-medium flex items-center gap-1 transition-colors"
+                                                        >
+                                                            <Trash2 size={12} /> Delete
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
-                                            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{comment.content}</p>
+
+                                            {editingCommentId === comment.id ? (
+                                                <div className="mt-2">
+                                                    <textarea
+                                                        value={editingCommentText}
+                                                        onChange={(e) => setEditingCommentText(e.target.value)}
+                                                        className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-shadow resize-none"
+                                                        rows={2}
+                                                        autoFocus
+                                                    />
+                                                    <div className="flex items-center gap-2 justify-end mt-2">
+                                                        <button
+                                                            onClick={() => setEditingCommentId(null)}
+                                                            className="px-3 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleSaveEditComment(comment.id)}
+                                                            disabled={submitting || !editingCommentText.trim()}
+                                                            className="px-3 py-1.5 text-xs font-bold text-white bg-primary-600 hover:bg-primary-700 rounded-lg shadow-sm transition-colors disabled:opacity-50"
+                                                        >
+                                                            Save
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{comment.content}</p>
+                                            )}
                                         </div>
                                     </div>
                                 );

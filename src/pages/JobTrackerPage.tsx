@@ -69,9 +69,9 @@ const JobTrackerPage: React.FC = () => {
                         <div className="flex justify-between items-center">
                             {/* Back arrow + title — hidden on desktop when sidebar is active */}
                             <div className={`flex items-center gap-4 ${navPosition === 'side' ? 'md:hidden' : ''}`}>
-                                <a href="/" title={t('nav.dashboard')} className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <button onClick={() => navigate('/dashboard')} title={t('nav.dashboard')} className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
                                     <ArrowLeft size={24} />
-                                </a>
+                                </button>
                                 <div>
                                     <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{t('job_tracker.title')}</h1>
                                     <p className="text-gray-500 dark:text-gray-400 mt-1">{t('job_tracker.subtitle')}</p>

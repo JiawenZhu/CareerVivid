@@ -78,6 +78,7 @@ const MerchantProductSubmission = React.lazy(() => import('./pages/MerchantProdu
 // Community
 const CommunityDashboard = React.lazy(() => import('./pages/community/CommunityDashboard'));
 const CommunityEditor = React.lazy(() => import('./pages/community/CommunityEditor'));
+const EditPost = React.lazy(() => import('./pages/community/EditPost'));
 const CommunityPostPage = React.lazy(() => import('./pages/community/CommunityPostPage'));
 const CommunityGuidelinesPage = React.lazy(() => import('./pages/community/CommunityGuidelinesPage'));
 const MyPostsPage = React.lazy(() => import('./pages/community/MyPostsPage'));
@@ -227,7 +228,7 @@ const AppContent: React.FC = () => {
             <div className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-200 font-sans">
               <Helmet
                 titleTemplate="%s | CareerVivid"
-                defaultTitle="CareerVivid Community | Connect, Share, and Grow Your Career"
+                defaultTitle="CareerVivid Community | Build Your Brand & Network"
               />
               <SEOHelper />
               <Suspense fallback={<LoadingFallback />}>
@@ -489,6 +490,13 @@ const AppContent: React.FC = () => {
         </ProtectedRoute>
       );
     }
+    else if (path.startsWith('/community/edit/')) {
+      content = (
+        <ProtectedRoute>
+          <EditPost />
+        </ProtectedRoute>
+      );
+    }
     else if (path === '/my-posts' || path === '/community/my-posts') {
       content = (
         <ProtectedRoute>
@@ -598,7 +606,7 @@ const AppContent: React.FC = () => {
           <div className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-200 font-sans">
             <Helmet
               titleTemplate="%s | CareerVivid"
-              defaultTitle="CareerVivid | Open-Source AI Career Platform & Resume Builder"
+              defaultTitle="CareerVivid Community | Build Your Brand & Network"
             />
             <SEOHelper />
             <Suspense fallback={<LoadingFallback />}>

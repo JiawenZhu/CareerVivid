@@ -8,6 +8,8 @@ import {
     doc,
     runTransaction,
     where,
+    deleteDoc,
+    updateDoc
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -97,11 +99,61 @@ export const usePostComments = (postId: string) => {
         }
     }, [currentUser, postId]);
 
+    // Update existing comment
+    const updateComment = useCallback(async (commentId: string, newContent: string) => {
+        if (!currentUser || !commentId || !newContent.trim()) return;
+        setSubmitting(true);
+        try {
+            const commentRef = doc(db, COMMENTS_COLLECTION, commentId);
+            await updateDoc(commentRef, {
+                content: newContent.trim(),
+                updatedAt: serverTimestamp(),
+            });
+        } catch (err) {
+            console.error('Error updating comment:', err);
+            throw err;
+        } finally {
+            setSubmitting(false);
+        }
+    }, [currentUser]);
+
+    // Atomic deleteComment and counter decrement
+    const deleteComment = useCallback(async (commentId: string) => {
+        if (!currentUser || !postId || !commentId) return;
+        setSubmitting(true);
+        try {
+            await runTransaction(db, async (transaction) => {
+                const postRef = doc(db, POSTS_COLLECTION, postId);
+                const postSnap = await transaction.get(postRef);
+                const commentRef = doc(db, COMMENTS_COLLECTION, commentId);
+
+                if (!postSnap.exists()) {
+                    // If the post is gone, just delete the comment orchestrator-wise
+                    transaction.delete(commentRef);
+                    return;
+                }
+
+                const currentComments = postSnap.data()?.metrics?.comments ?? 0;
+                transaction.delete(commentRef);
+                transaction.update(postRef, {
+                    'metrics.comments': Math.max(0, currentComments - 1),
+                });
+            });
+        } catch (err) {
+            console.error('Error deleting comment:', err);
+            throw err;
+        } finally {
+            setSubmitting(false);
+        }
+    }, [currentUser, postId]);
+
     return {
         comments,
         loading,
         hasMore,
         submitting,
         addComment,
+        updateComment,
+        deleteComment,
     };
 };

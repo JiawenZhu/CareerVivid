@@ -10,6 +10,7 @@ import { WhiteboardData, ExcalidrawFileData } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { generateExcalidrawDiagram } from '../services/geminiService';
 import GenerateDiagramModal from '../components/Whiteboard/GenerateDiagramModal';
+import BoardOnboarding from '../components/Whiteboard/BoardOnboarding';
 
 const SAVE_DELAY_MS = 2000;
 const PREFS_STORAGE_KEY = 'excalidraw-user-prefs';
@@ -364,7 +365,7 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id, isReadOnly = fa
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <button
-                        onClick={() => navigate(derivedReadOnly ? '/community' : '/')}
+                        onClick={() => navigate(derivedReadOnly ? '/community' : '/dashboard')}
                         style={{
                             display: 'flex', alignItems: 'center', gap: '4px', padding: '8px',
                             borderRadius: '8px', border: 'none', backgroundColor: 'transparent',
@@ -416,6 +417,7 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id, isReadOnly = fa
                         /* CTA for viewers */
                         <a
                             href="/whiteboard"
+                            onClick={(e) => { e.preventDefault(); navigate('/whiteboard'); }}
                             style={{
                                 display: 'flex', alignItems: 'center', gap: '6px',
                                 padding: '6px 14px', borderRadius: '8px',
@@ -451,10 +453,10 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id, isReadOnly = fa
                 {!derivedReadOnly && (
                     <button
                         onClick={() => setIsDiagramModalOpen(true)}
-                        className="absolute top-3 right-28 z-[9999] flex items-center gap-2 bg-gradient-to-r from-primary-500 to-indigo-500 hover:from-primary-600 hover:to-indigo-600 text-white px-4 py-2 rounded-xl font-medium shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5 active:scale-95 text-sm pointer-events-auto"
+                        className="absolute top-3 right-[100px] sm:right-28 z-[9999] flex items-center justify-center bg-gradient-to-r from-primary-500 to-indigo-500 hover:from-primary-600 hover:to-indigo-600 text-white w-10 h-10 rounded-full md:w-auto md:h-auto md:px-4 md:py-2 md:rounded-xl font-medium shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5 active:scale-95 text-sm pointer-events-auto"
                     >
                         <Sparkles size={16} />
-                        AI Generate
+                        <span className="hidden md:inline ml-2">AI Generate</span>
                     </button>
                 )}
             </div>
@@ -466,6 +468,8 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id, isReadOnly = fa
                     onGenerate={handleGenerateDiagram}
                 />
             )}
+
+            {!derivedReadOnly && <BoardOnboarding />}
         </div>
     );
 };

@@ -32,7 +32,7 @@
     "career_blog": "Career Blog",
     "career_blog_desc": "Guides & strategies",
     "community": "Community",
-    "community_desc": "Join 10k+ members",
+    "community_desc": "Join {{members}}+ members",
     "help_support": "Help & Support",
     "help_support_desc": "FAQ & Contact"
   },
@@ -42,7 +42,7 @@
     "hero_title_1": "The AI-Powered",
     "hero_title_2": "Resume Builder",
     "hero_title_3": "& Interview Coach.",
-    "hero_subtitle": "Build ATS-friendly resumes, practice with AI interviews, and land your dream job faster.",
+    "hero_subtitle": "Build your personal brand, showcase your resume, practice system design, and network with top tech professionals to unlock new opportunities.",
     "cta_build": "Build My Resume (Free)",
     "get_started": "Get Started",
     "cta_demo": "View Demo",
@@ -559,7 +559,7 @@
     },
     "guestCta": {
       "join_community": "Join the Community",
-      "welcome_message": "Welcome to CareerVivid! Create an account to share your resume, practice system design, and connect with professionals.",
+      "welcome_message": "Welcome to CareerVivid — where visibility becomes opportunity.\n\nAn article a day keeps obscurity away.\nAn article a day builds your brand your way.\nAn article a day grows your voice — and your pay.\n\nCreate your account to showcase your resume, master system design, and connect with ambitious professionals shaping tomorrow.",
       "sign_up_free": "Sign Up for Free"
     },
     "searchPlaceholder": "Search articles, resumes...",

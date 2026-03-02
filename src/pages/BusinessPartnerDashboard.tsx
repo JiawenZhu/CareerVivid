@@ -327,7 +327,7 @@ const BusinessPartnerDashboard: React.FC = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
                         <div className="flex items-center gap-3">
-                            <a href="/" className="flex items-center gap-2">
+                            <a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }} className="flex items-center gap-2">
                                 <Logo className="h-8 w-8" />
                                 <span className="text-xl font-bold text-gray-900 dark:text-white">CareerVivid</span>
                             </a>

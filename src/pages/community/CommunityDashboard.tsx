@@ -1,24 +1,31 @@
-import React, { lazy, Suspense, useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState, useCallback } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { navigate } from '../../utils/navigation';
-import { useCommunity, CommunityPostType } from '../../hooks/useCommunity';
+import { useCommunity, CommunityPostType, CommunitySortMode } from '../../hooks/useCommunity';
 import { usePopularTags, useHiringCompanies } from '../../hooks/useCommunityMeta';
 import {
     Home, TrendingUp, Briefcase, FileText,
     Loader2, PenLine, Hash, ExternalLink, Terminal,
-    Globe, PenTool, StickyNote, UserPlus, LayoutDashboard, Sparkles
+    Globe, PenTool, StickyNote, UserPlus, LayoutDashboard, Sparkles, Menu, X,
+    Star, Github
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import LanguageSelect from '../../components/LanguageSelect';
 import SearchBar from '../../components/Community/SearchBar';
+import AnimatedCommunityTitle from '../../components/Community/AnimatedCommunityTitle';
+import { displayTag, slugifyTag } from '../../utils/tagUtils';
 import { liteClient as algoliasearch } from 'algoliasearch/lite';
+
+import CommunityMobileDrawer from '../../components/Community/CommunityMobileDrawer';
+import { useCommunityStats } from '../../hooks/useCommunityMeta';
 
 // Initialize Algolia client
 // TODO: Replace with env variables in production
 const appId = import.meta.env.VITE_ALGOLIA_APP_ID || 'dummy_app_id';
 const apiKey = import.meta.env.VITE_ALGOLIA_SEARCH_KEY || 'dummy_search_key';
 const searchClient = algoliasearch(appId, apiKey);
+const REPO_URL = 'https://github.com/Jastalk/CareerVivid';
 
 const PostCard = lazy(() => import('../../components/Community/PostCard'));
 
@@ -43,6 +50,26 @@ const PostCardSkeleton = () => (
     </div>
 );
 
+interface MobileTabProps {
+    label: string;
+    icon: React.ReactNode;
+    active: boolean;
+    onClick: () => void;
+}
+
+const MobileTab: React.FC<MobileTabProps> = ({ label, icon, active, onClick }) => (
+    <button
+        onClick={onClick}
+        className={`flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap text-sm font-bold transition-all shrink-0 snap-start
+            ${active
+                ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900 shadow-md'
+                : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-800'}`}
+    >
+        {icon}
+        {label}
+    </button>
+);
+
 // ── Tag pill colors — rotates for visual variety ──────────────────────────────
 const TAG_COLORS = [
     'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950',
@@ -57,22 +84,62 @@ const TAG_COLORS = [
 
 const CommunityDashboard: React.FC = () => {
     const [typeFilter, setTypeFilter] = useState<CommunityPostType | undefined>(undefined);
-    const { posts, loading, isFetchingNextPage, hasMore, error, fetchMorePosts } = useCommunity(typeFilter);
+    const [activeTag, setActiveTag] = useState<string>('');
+    const [sortMode, setSortMode] = useState<CommunitySortMode>('newest');
+
+    // Read URL params on mount and on back/forward navigation
+    useEffect(() => {
+        const readParams = () => {
+            const params = new URLSearchParams(window.location.search);
+            setActiveTag(params.get('tag') || '');
+            setSortMode((params.get('sort') as CommunitySortMode) || 'newest');
+        };
+        readParams();
+        window.addEventListener('popstate', readParams);
+        return () => window.removeEventListener('popstate', readParams);
+    }, []);
+
+    const { posts, loading, isFetchingNextPage, hasMore, error, fetchMorePosts } = useCommunity({
+        typeFilter,
+    });
     const { tags: popularTags, loading: tagsLoading } = usePopularTags();
     const { companies, loading: companiesLoading } = useHiringCompanies();
     const { currentUser } = useAuth();
     const { t } = useTranslation();
 
+    const { memberCount, loading: statsLoading } = useCommunityStats();
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearching, setIsSearching] = useState(false);
     const [searchResults, setSearchResults] = useState<any[]>([]);
     const [searchError, setSearchError] = useState<string | null>(null);
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
 
-    const handleSearchChange = async (query: string) => {
-        setSearchQuery(query);
+    // Track scroll position to pause title animation
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 20) {
+                if (!isScrolled) setIsScrolled(true);
+            } else {
+                if (isScrolled) setIsScrolled(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [isScrolled]);
+
+    const performAlgoliaSearch = useCallback(async (query: string, tag?: string, sort?: CommunitySortMode) => {
         setSearchError(null);
-        if (!query.trim()) {
+
+        // Define which index to use
+        const indexName = sort === 'trending' ? 'community_posts_trending' : 'community_posts';
+
+        // If no query and no tag and not trending, we show the default Firestore feed
+        if (!query.trim() && !tag && sort !== 'trending') {
             setSearchResults([]);
+            setIsSearching(false);
             return;
         }
 
@@ -84,11 +151,18 @@ const CommunityDashboard: React.FC = () => {
 
         setIsSearching(true);
         try {
+            const cleanTag = tag ? tag.replace(/^#+/, '') : '';
+            // Instead of brittle facetFilters, we combine the tag into the text query
+            // for robust, case-insensitive matching.
+            const combinedQuery = [cleanTag, query].filter(Boolean).join(' ');
+
+            console.log("Executing Algolia Search with Query:", combinedQuery);
+
             const { results } = await searchClient.search({
                 requests: [
                     {
-                        indexName: 'community_posts',
-                        query: query,
+                        indexName: indexName,
+                        query: combinedQuery,
                         hitsPerPage: 20
                     }
                 ]
@@ -104,10 +178,20 @@ const CommunityDashboard: React.FC = () => {
             setSearchResults(mappedHits);
         } catch (err) {
             console.error('Algolia Search Error:', err);
+            setSearchError('Search failed. Please try again later.');
         } finally {
             setIsSearching(false);
         }
-    };
+    }, [appId, apiKey]);
+
+    // Reactive search triggered by query, tag, or sort changes
+    useEffect(() => {
+        performAlgoliaSearch(searchQuery, activeTag, sortMode);
+    }, [searchQuery, activeTag, sortMode, performAlgoliaSearch]);
+
+    const handleSearchChange = useCallback((query: string) => {
+        setSearchQuery(query);
+    }, []);
 
     const { ref: sentinelRef, inView } = useInView({
         threshold: 0,
@@ -122,44 +206,99 @@ const CommunityDashboard: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pt-8 pb-16">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Mobile Drawer Navigation */}
+            <CommunityMobileDrawer
+                isOpen={isMobileDrawerOpen}
+                onClose={() => setIsMobileDrawerOpen(false)}
+                typeFilter={typeFilter}
+                setTypeFilter={setTypeFilter}
+                popularTags={popularTags}
+                tagsLoading={tagsLoading}
+            />
 
-                {/* Page Header */}
-                <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex-1 max-w-lg">
-                        <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-                            {t('nav.community')}
-                        </h1>
-                        <p className="text-base text-gray-500 dark:text-gray-400 mt-1 mb-4 md:mb-0">
-                            {t('nav.community_desc')}
-                        </p>
+            <div className="max-w-7xl mx-auto px-0 md:px-6 lg:px-8">
+
+                <header className="mb-6 md:mb-8 flex flex-col lg:flex-row lg:items-center justify-between gap-4 lg:gap-8 w-full relative z-20 px-4 md:px-0">
+                    <div className="shrink-0 flex flex-col">
+                        <div className="flex items-center justify-between w-full lg:w-auto">
+                            <AnimatedCommunityTitle isPaused={isSearchFocused || isMobileDrawerOpen || isScrolled} />
+
+                            {/* Mobile Hamburger Menu */}
+                            <button
+                                onClick={() => setIsMobileDrawerOpen(true)}
+                                className="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors cursor-pointer"
+                                aria-label="Open mobile menu"
+                            >
+                                <Menu size={24} />
+                            </button>
+                        </div>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mt-3 md:mt-2">
+                            <p className="text-base text-gray-500 dark:text-gray-400 max-w-lg">
+                                {t('nav.community_desc' as string, {
+                                    members: statsLoading ? '...' : memberCount.toLocaleString(),
+                                    defaultValue: 'Join {{members}}+ members'
+                                })}
+                            </p>
+                            <a
+                                href={REPO_URL}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group relative flex items-center gap-2 px-3.5 py-1.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:border-primary-500 dark:hover:border-primary-400 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md overflow-hidden shrink-0"
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-r from-primary-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <Star size={13} className="text-yellow-400 fill-yellow-400" />
+                                <span className="text-xs font-bold text-gray-700 dark:text-gray-300">Star on GitHub</span>
+                                <Github size={14} className="text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
+                            </a>
+                        </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                        <div className="w-full sm:w-64">
-                            <SearchBar onSearchChange={handleSearchChange} isSearching={isSearching} />
+                    <div className="flex-1 flex flex-col sm:flex-row items-center justify-end w-full gap-3">
+                        <div className="flex-1 w-full max-w-xl lg:max-w-3xl">
+                            <SearchBar
+                                onSearchChange={handleSearchChange}
+                                isSearching={isSearching}
+                                onFocus={() => setIsSearchFocused(true)}
+                                onBlur={() => setIsSearchFocused(false)}
+                            />
                         </div>
 
-                        <div className="flex items-center gap-2 self-end sm:self-auto">
+                        <div className="flex items-center gap-2 self-end sm:self-auto shrink-0 flex-wrap justify-end">
                             <LanguageSelect />
 
-                            {currentUser && (
-                                <button
-                                    onClick={() => navigate('/dashboard')}
-                                    className="hidden lg:flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-medium transition-all duration-200 shadow-sm cursor-pointer"
-                                >
-                                    <LayoutDashboard size={18} />
-                                    <span>{t('common.dashboard', 'Dashboard')}</span>
-                                </button>
+                            {currentUser ? (
+                                <>
+                                    <button
+                                        onClick={() => navigate('/dashboard')}
+                                        className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-medium transition-all duration-200 shadow-sm cursor-pointer text-sm"
+                                    >
+                                        <LayoutDashboard size={16} className="sm:w-[18px] sm:h-[18px]" />
+                                        <span className="hidden sm:inline">{t('common.dashboard', 'Dashboard')}</span>
+                                    </button>
+                                    <button
+                                        onClick={() => navigate('/community/new')}
+                                        className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all duration-200 shadow-md shadow-primary-500/20 cursor-pointer whitespace-nowrap text-sm"
+                                    >
+                                        <PenLine size={16} className="sm:w-[18px] sm:h-[18px]" />
+                                        <span className="hidden xs:inline">{t('community.feed.write_article', 'Write')}</span>
+                                    </button>
+                                </>
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => navigate('/signin?redirect=/community')}
+                                        className="px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+                                    >
+                                        {t('auth.login', 'Sign In')}
+                                    </button>
+                                    <button
+                                        onClick={() => navigate('/signup?redirect=/community')}
+                                        className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all shadow-md shadow-primary-500/20 text-sm cursor-pointer whitespace-nowrap"
+                                    >
+                                        {t('auth.signup', 'Sign Up')}
+                                    </button>
+                                </div>
                             )}
-
-                            <button
-                                onClick={() => navigate('/community/new')}
-                                className="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all duration-200 shadow-md shadow-primary-500/20 cursor-pointer whitespace-nowrap"
-                            >
-                                <PenLine size={18} />
-                                <span>{t('community.feed.write_article')}</span>
-                            </button>
                         </div>
                     </div>
                 </header>
@@ -173,8 +312,8 @@ const CommunityDashboard: React.FC = () => {
                             <NavItem
                                 icon={<Home size={18} />}
                                 label={t('community.sidebar.home')}
-                                active
-                                onClick={() => { }}
+                                active={!activeTag && sortMode === 'newest'}
+                                onClick={() => navigate('/community')}
                             />
                             <NavItem
                                 icon={<Sparkles size={18} />}
@@ -184,7 +323,8 @@ const CommunityDashboard: React.FC = () => {
                             <NavItem
                                 icon={<TrendingUp size={18} />}
                                 label={t('community.sidebar.trending')}
-                                onClick={() => { }}
+                                active={sortMode === 'trending' && !activeTag}
+                                onClick={() => navigate('/community?sort=trending')}
                             />
                             <NavItem
                                 icon={<Briefcase size={18} />}
@@ -245,15 +385,24 @@ const CommunityDashboard: React.FC = () => {
                                 </div>
                             ) : (
                                 <div className="flex flex-wrap gap-2">
-                                    {popularTags.map((entry, i) => (
-                                        <span
-                                            key={entry.tag}
-                                            className={`inline-flex items-center gap-1 text-sm font-semibold px-3 py-1 rounded-full cursor-pointer transition-colors duration-150 ${TAG_COLORS[i % TAG_COLORS.length]}`}
-                                        >
-                                            <Hash size={12} />
-                                            {entry.tag}
-                                        </span>
-                                    ))}
+                                    {popularTags.map((entry, i) => {
+                                        const slug = slugifyTag(entry.tag);
+                                        const isActive = activeTag === slug;
+                                        return (
+                                            <button
+                                                key={entry.tag}
+                                                onClick={() => navigate(`/community?tag=${slug}`)}
+                                                className={`inline-flex items-center gap-1 text-sm font-semibold px-3 py-1 rounded-full transition-colors duration-150 cursor-pointer
+                                                    ${isActive
+                                                        ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 ring-1 ring-primary-400'
+                                                        : TAG_COLORS[i % TAG_COLORS.length]
+                                                    }`}
+                                            >
+                                                <Hash size={12} />
+                                                {entry.tag}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>
@@ -261,58 +410,74 @@ const CommunityDashboard: React.FC = () => {
 
                     {/* ── Center Column: Feed ──────────────────────────────── */}
                     <main className="flex-1 min-w-0">
+
+                        {/* Active Tag / Sort Filter Banner */}
+                        {(activeTag || sortMode === 'trending') && !loading && (
+                            <div className="mx-4 md:mx-0 mb-4 flex items-center gap-2 px-4 py-2.5 bg-primary-50 dark:bg-primary-950/40 border border-primary-200 dark:border-primary-800 rounded-xl">
+                                <span className="text-sm font-semibold text-primary-700 dark:text-primary-300 flex items-center gap-1.5 flex-1">
+                                    {activeTag && <><Hash size={14} />Showing: <span className="font-bold">#{displayTag(activeTag)}</span></>}
+                                    {sortMode === 'trending' && !activeTag && <><TrendingUp size={14} />Showing Trending (last 30 days)</>}
+                                    {sortMode === 'trending' && activeTag && <span className="ml-1 text-xs opacity-70">· Trending</span>}
+                                </span>
+                                <button
+                                    onClick={() => navigate('/community')}
+                                    className="flex items-center gap-1 text-xs font-bold text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-200 transition-colors cursor-pointer"
+                                >
+                                    <X size={14} /> Clear
+                                </button>
+                            </div>
+                        )}
+
                         {error && !searchQuery && (
-                            <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl mb-6 border border-red-100 dark:border-red-800 text-sm font-medium">
+                            <div className="px-4 md:px-0 p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl mb-6 border border-red-100 dark:border-red-800 text-sm font-medium mx-4 md:mx-0">
                                 {error}
                             </div>
                         )}
 
                         {loading && !searchQuery && (
-                            <div className="space-y-5">
+                            <div className="flex flex-col gap-4 md:space-y-5 px-3 md:px-0">
                                 {[1, 2, 3].map(i => <PostCardSkeleton key={i} />)}
                             </div>
                         )}
 
-                        {isSearching && searchQuery && (
-                            <div className="space-y-5">
-                                {[1, 2].map(i => <PostCardSkeleton key={i} />)}
-                            </div>
+                        {/* Search Results / Tag Filter Results / Trending Results */}
+                        {(searchQuery || activeTag || sortMode === 'trending') && !loading && !searchError && (
+                            <>
+                                {isSearching ? (
+                                    <div className="flex flex-col gap-4 md:space-y-5 px-3 md:px-0">
+                                        {[1, 2].map(i => <PostCardSkeleton key={i} />)}
+                                    </div>
+                                ) : searchResults.length > 0 ? (
+                                    <div className="flex flex-col gap-4 md:space-y-5 px-3 md:px-0">
+                                        <Suspense fallback={<div className="px-3 md:px-0"><PostCardSkeleton /></div>}>
+                                            {searchResults.map((post) => (
+                                                <PostCard key={post.id} post={post as any} />
+                                            ))}
+                                        </Suspense>
+                                    </div>
+                                ) : (
+                                    <div className="mx-4 md:mx-0 text-center py-20 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800">
+                                        <div className="text-5xl mb-4" role="img" aria-label="sad">🔍</div>
+                                        <p className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t('community.search_no_results', 'No results found')}</p>
+                                        <p className="text-gray-500 mb-6 text-sm">
+                                            {activeTag
+                                                ? `We couldn't find any posts tagged with #${activeTag}`
+                                                : `We couldn't find anything matching "${searchQuery}"`}
+                                        </p>
+                                        <button
+                                            onClick={() => navigate('/community')}
+                                            className="px-6 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-semibold transition-all cursor-pointer text-sm"
+                                        >
+                                            Clear All Filters
+                                        </button>
+                                    </div>
+                                )}
+                            </>
                         )}
 
-                        {/* Search Results */}
-                        {searchError && searchQuery && (
-                            <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-400 rounded-xl mb-6 border border-yellow-100 dark:border-yellow-800 text-sm font-medium">
-                                ⚠️ {searchError}
-                            </div>
-                        )}
-
-                        {searchQuery && !isSearching && !searchError && searchResults.length > 0 && (
-                            <div className="space-y-5">
-                                <Suspense fallback={<PostCardSkeleton />}>
-                                    {searchResults.map((post) => (
-                                        <PostCard key={post.id} post={post as any} />
-                                    ))}
-                                </Suspense>
-                            </div>
-                        )}
-
-                        {searchQuery && !isSearching && !searchError && searchResults.length === 0 && (
-                            <div className="text-center py-20 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800">
-                                <div className="text-5xl mb-4" role="img" aria-label="sad">🔍</div>
-                                <p className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t('community.search_no_results', 'No results found')}</p>
-                                <p className="text-gray-500 mb-6 text-sm">We couldn't find anything matching "{searchQuery}"</p>
-                                <button
-                                    onClick={() => setSearchQuery('')}
-                                    className="px-6 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-semibold transition-all cursor-pointer text-sm"
-                                >
-                                    Clear Search
-                                </button>
-                            </div>
-                        )}
-
-                        {/* Default Firebase Feed */}
-                        {!loading && !searchQuery && posts.length === 0 && (
-                            <div className="text-center py-20 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800">
+                        {/* Default Firebase Feed (Newest / Type Filtered) */}
+                        {!loading && !searchQuery && !activeTag && sortMode !== 'trending' && posts.length === 0 && (
+                            <div className="mx-4 md:mx-0 text-center py-20 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800">
                                 <div className="text-5xl mb-4" role="img" aria-label="seedling">🌱</div>
                                 <p className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t('community.feed.empty_title')}</p>
                                 <p className="text-gray-500 mb-6 text-sm">{t('community.feed.empty_desc')}</p>
@@ -325,9 +490,9 @@ const CommunityDashboard: React.FC = () => {
                             </div>
                         )}
 
-                        {!loading && !searchQuery && posts.length > 0 && (
-                            <div className="space-y-5">
-                                <Suspense fallback={<PostCardSkeleton />}>
+                        {!loading && !searchQuery && !activeTag && sortMode !== 'trending' && posts.length > 0 && (
+                            <div className="flex flex-col gap-4 md:space-y-5 px-3 md:px-0">
+                                <Suspense fallback={<div className="px-3 md:px-0"><PostCardSkeleton /></div>}>
                                     {posts.map(post => (
                                         <PostCard key={post.id} post={post} />
                                     ))}
@@ -378,7 +543,7 @@ const CommunityDashboard: React.FC = () => {
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-500 to-blue-500" />
                                 <div className="relative z-10">
                                     <h3 className="font-extrabold text-xl mb-2 text-gray-900 dark:text-white">{t('community.guestCta.join_community')}</h3>
-                                    <p className="text-gray-500 dark:text-gray-400 text-sm mb-5 leading-relaxed">
+                                    <p className="whitespace-pre-line text-gray-500 dark:text-gray-400 text-sm mb-5 leading-relaxed">
                                         {t('community.guestCta.welcome_message')}
                                     </p>
                                     <button

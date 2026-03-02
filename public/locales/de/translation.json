@@ -30,7 +30,7 @@
     "career_blog": "Career Blog",
     "career_blog_desc": "Guides & strategies",
     "community": "Community",
-    "community_desc": "Join 10k+ members",
+    "community_desc": "Jetzt {{members}}+ Mitgliedern beitreten",
     "help_support": "Help & Support",
     "help_support_desc": "FAQ & Contact",
     "bio_links": "Link in Bio",

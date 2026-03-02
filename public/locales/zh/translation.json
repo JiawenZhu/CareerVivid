@@ -30,7 +30,7 @@
     "career_blog": "职业博客",
     "career_blog_desc": "指南与策略",
     "community": "社区",
-    "community_desc": "加入 10k+ 成员",
+    "community_desc": "加入 {{members}}+ 成员",
     "help_support": "帮助与支持",
     "help_support_desc": "常见问题与联系方式",
     "bio_links": "Link in Bio",
