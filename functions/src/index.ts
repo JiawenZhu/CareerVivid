@@ -48,6 +48,8 @@ export * from "./tts";
 export * from "./deepResearch";
 export * from "./linkedin";
 export { injectCommunityMeta } from "./meta-injector";
+export { renderSeoContent } from "./seo/renderSeoContent";
+export { generateSitemap } from "./seo/generateSitemap";
 
 
 const getFunctionConfig = () => {

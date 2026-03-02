@@ -199,7 +199,7 @@
     "q9": "What languages does the platform support?",
     "a9": "CareerVivid supports resume creation and interface translation in over 36 languages, helping you apply for jobs globally.",
     "q10": "How can I contact support?",
-    "a10": "If you have any other questions or need assistance, you can reach out to our support team using the contact form below or email us at support@careervivid.com."
+    "a10": "If you have any other questions or need assistance, you can reach out to our support team using the contact form below or email us at support@careervivid.app."
   },
   "profile": {
     "title": "Profile Settings",
@@ -559,7 +559,7 @@
     },
     "guestCta": {
       "join_community": "Join the Community",
-      "welcome_message": "Welcome to CareerVivid — where visibility becomes opportunity.\n\nAn article a day keeps obscurity away.\nAn article a day builds your brand your way.\nAn article a day grows your voice — and your pay.\n\nCreate your account to showcase your resume, master system design, and connect with ambitious professionals shaping tomorrow.",
+      "welcome_message": "Welcome to CareerVivid — where visibility becomes opportunity.\n\nAn article a day keeps obscurity away.\nAn article a day builds your brand your way.\nAn article a day grows your voice — and your pay.\n\nCreate your account to showcase your ideas and  design, and connect with ambitious professionals shaping tomorrow.",
       "sign_up_free": "Sign Up for Free"
     },
     "searchPlaceholder": "Search articles, resumes...",

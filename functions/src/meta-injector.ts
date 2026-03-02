@@ -46,6 +46,64 @@ export const injectCommunityMeta = onRequest(
             const imageUrl = post.coverImage || 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Fog_image.png?alt=media';
             const canonicalUrl = `https://careervivid.app/community/post/${postId}`;
 
+            // --- GEO Optimization: Structured Data ---
+            const publishDate = post.createdAt?.toDate ? post.createdAt.toDate().toISOString() : (post.createdAt?.seconds ? new Date(post.createdAt.seconds * 1000).toISOString() : new Date().toISOString());
+
+            // Extract FAQs for GEO (FAQPage Schema)
+            const faqs: any[] = [];
+            const faqHeaderRegex = /(?:^|\n)(?:#+)\s*Frequently Asked Questions\s*\n([\s\S]*)$/i;
+            const faqMatch = (post.content || '').match(faqHeaderRegex);
+            if (faqMatch) {
+                const qnaRegex = /(?:\*\*Q:?|### Q:?|Q:?)\s*(.*?)\n(?:\*\*A:?|A:?)\s*(.*?)(?=\n(?:\*\*Q|### Q|Q)|$)/gs;
+                let qnaMatch;
+                while ((qnaMatch = qnaRegex.exec(faqMatch[1])) !== null) {
+                    if (qnaMatch[1] && qnaMatch[2]) {
+                        faqs.push({
+                            "@type": "Question",
+                            "name": qnaMatch[1].trim(),
+                            "acceptedAnswer": {
+                                "@type": "Answer",
+                                "text": qnaMatch[2].trim()
+                            }
+                        });
+                    }
+                }
+            }
+
+            const structuredData = {
+                "@context": "https://schema.org",
+                "@graph": [
+                    {
+                        "@type": "Article",
+                        "@id": `${canonicalUrl}#article`,
+                        "headline": title.substring(0, 110),
+                        "description": description,
+                        "image": [imageUrl],
+                        "datePublished": publishDate,
+                        "author": {
+                            "@type": "Person",
+                            "name": post.authorName || "CareerVivid Community"
+                        },
+                        "publisher": {
+                            "@type": "Organization",
+                            "name": "CareerVivid",
+                            "logo": {
+                                "@type": "ImageObject",
+                                "url": "https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Flogo_light_mode.png?alt=media"
+                            }
+                        }
+                    }
+                ]
+            };
+
+            if (faqs.length > 0) {
+                (structuredData["@graph"] as any).push({
+                    "@type": "FAQPage",
+                    "@id": `${canonicalUrl}#faq`,
+                    "mainEntity": faqs
+                });
+            }
+
             // Return a clean HTML shell with dynamic meta tags
             // This includes enough script to boot the SPA normally
             const html = `<!DOCTYPE html>
@@ -76,13 +134,18 @@ export const injectCommunityMeta = onRequest(
     <meta name="twitter:description" content="${description}" />
     <meta name="twitter:image" content="${imageUrl}" />
 
+    <!-- GEO / SEO Structured Data -->
+    <script type="application/ld+json">
+        ${JSON.stringify(structuredData)}
+    </script>
+
     <link rel="icon" href="https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Flogo_light_mode.png?alt=media" />
     
     <!-- Styles -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Primary App Entry -->
-    <script type="module" src="/src/entry-client.tsx"></script>
+    <!-- Primary App Entry (Stable Production Path) -->
+    <script type="module" src="/assets/main.js"></script>
     <script>
         window.__PRELOADED_POST__ = ${JSON.stringify({ title, description, imageUrl })};
     </script>

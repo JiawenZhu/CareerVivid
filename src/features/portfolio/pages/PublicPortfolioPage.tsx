@@ -81,26 +81,10 @@ const PublicPortfolioPage: React.FC = () => {
                     }
 
                 } else {
-                    // Fallback: The URL segment might be a user UID (e.g. from community post links).
-                    // If so, we should render the User's Public Profile (Portfolio Hub) instead of a specific portfolio.
-                    const q = query(
-                        collection(db, 'public_portfolios'),
-                        where('userId', '==', id),
-                        limit(1)
-                    );
-                    const qResumes = query(
-                        collection(db, 'public_resumes'),
-                        where('userId', '==', id),
-                        limit(1)
-                    );
-
-                    const [querySnap, resumesSnap] = await Promise.all([getDocs(q), getDocs(qResumes)]);
-
-                    // Note: even if they have NO portfolios or resumes, if they have an active user ID 
-                    // from a community post, we should still show the profile. For safety, we check if
-                    // there's ANY public presence, but really the hook inside PublicProfilePage will 
-                    // validate the user document directly. We just flip the toggle here.
-
+                    // The segment didn't match a portfolio doc ID.
+                    // Treat it as a user UID → render the Public User Profile.
+                    // The usePublicProfile hook inside PublicProfilePage will
+                    // validate whether the user actually exists in Firestore.
                     setIsUserProfileRoute(true);
                     setLoading(false);
                     return;
@@ -116,45 +100,35 @@ const PublicPortfolioPage: React.FC = () => {
         fetchPortfolio();
     }, [id]);
 
-    if (isUserProfileRoute) {
-        return <PublicProfilePage />;
-    }
+    // ── ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS ──────────────
 
-    // Analytics
+    // Analytics (no-op when portfolioData is null)
     const { trackClick } = useAnalytics({
         portfolioId: portfolioData?.id,
         ownerId: portfolioData?.userId,
-        enabled: !!portfolioData
+        enabled: !!portfolioData && !isUserProfileRoute
     });
 
-    // Check for embed mode and theme/orientation overrides - MUST be before any early returns
+    // URL params for embed/theme/orientation/flip overrides
     const urlParams = new URLSearchParams(window.location.search);
     const isEmbed = urlParams.get('embed') === 'true';
     const themeOverride = urlParams.get('theme');
     const orientationOverride = urlParams.get('orientation');
-
-    // Allow explicitly forcing the flip state (true = back/QR, false = front/info)
-    // If param is present, it sets the initial state.
     const flippedParam = urlParams.get('flipped');
     const initialFlipped = flippedParam !== null ? flippedParam === 'true' : undefined;
 
     const [isFlipped, setIsFlipped] = useState<boolean | undefined>(initialFlipped);
 
-    // Update state if URL changes (e.g. navigation)
     useEffect(() => {
         if (flippedParam !== null) {
             setIsFlipped(flippedParam === 'true');
         }
     }, [flippedParam]);
 
-    // Apply theme and orientation overrides if provided (used by BusinessCardPage iframe)
-    // Using useMemo BEFORE early returns to comply with Rules of Hooks
     const displayData = React.useMemo(() => {
         if (!portfolioData) return null;
         let result = { ...portfolioData };
-        if (themeOverride) {
-            result.templateId = themeOverride as any;
-        }
+        if (themeOverride) result.templateId = themeOverride as any;
         if (orientationOverride) {
             result.businessCard = {
                 ...(result.businessCard || {}),
@@ -163,6 +137,12 @@ const PublicPortfolioPage: React.FC = () => {
         }
         return result;
     }, [portfolioData, themeOverride, orientationOverride]);
+
+    // ── CONDITIONAL RENDERS (after all hooks) ────────────────────────────────
+
+    if (isUserProfileRoute) {
+        return <PublicProfilePage />;
+    }
 
     if (loading) {
         return (

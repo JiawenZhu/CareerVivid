@@ -8,8 +8,10 @@ import { BlockNoteView } from '@blocknote/mantine';
 import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
 import { uploadImage } from '../../services/storageService';
-import { Image, X, ArrowLeft, Loader2, Wand2 } from 'lucide-react';
+import { Image, X, ArrowLeft, Loader2, Wand2, Linkedin, Send, Sparkles } from 'lucide-react';
 import AICoverImageModal from '../../components/AICoverImageModal';
+import { generateLinkedInPost } from '../../services/researchBotService';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 const MAX_TAGS = 4;
 const COLLECTION = 'community_posts';
@@ -31,6 +33,16 @@ const EditPost: React.FC = () => {
     const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
     const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
     const [showAIModal, setShowAIModal] = useState(false);
+
+    // LinkedIn Automation State
+    const [linkedInPostText, setLinkedInPostText] = useState('');
+    const [linkedInArticleUrl, setLinkedInArticleUrl] = useState('');
+    const [isGeneratingLinkedIn, setIsGeneratingLinkedIn] = useState(false);
+    const [isPublishingLinkedIn, setIsPublishingLinkedIn] = useState(false);
+    const [linkedInStatus, setLinkedInStatus] = useState('');
+    const [isLinkedInConnected, setIsLinkedInConnected] = useState(false);
+    const [isVerifyingLinkedIn, setIsVerifyingLinkedIn] = useState(true);
+    const [showLinkedInModal, setShowLinkedInModal] = useState(false);
 
     // Initial load
     useEffect(() => {
@@ -91,6 +103,55 @@ const EditPost: React.FC = () => {
             abortController.abort();
         };
     }, [postId, currentUser?.uid]);
+
+    // LinkedIn connection verification
+    useEffect(() => {
+        const checkConnection = async () => {
+            if (!currentUser) return;
+            try {
+                const docSnap = await getDoc(doc(db, 'users', currentUser.uid, 'integrations', 'linkedin'));
+                if (docSnap.exists() && docSnap.data().connected) {
+                    setIsLinkedInConnected(true);
+                }
+            } catch (err) {
+                console.error('LinkedIn check failed:', err);
+            } finally {
+                setIsVerifyingLinkedIn(false);
+            }
+        };
+        checkConnection();
+    }, [currentUser]);
+
+    // Handle LinkedIn OAuth Callback
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+        const state = params.get('state');
+
+        if (code && state === currentUser?.uid && !isLinkedInConnected) {
+            const completeHandshake = async () => {
+                setLinkedInStatus('Completing LinkedIn connection...');
+                try {
+                    const functions = getFunctions(undefined, 'us-west1');
+                    const handleLinkedInCallback = httpsCallable(functions, 'handleLinkedInCallback');
+                    await handleLinkedInCallback({
+                        code,
+                        state,
+                        redirectUri: window.location.origin + window.location.pathname
+                    });
+                    setIsLinkedInConnected(true);
+                    setLinkedInStatus('LinkedIn connected successfully! 🎉');
+                    // Clean URL
+                    window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+                    setTimeout(() => setLinkedInStatus(''), 4000);
+                } catch (err: any) {
+                    console.error('LinkedIn Handshake Failed:', err);
+                    setLinkedInStatus(`Connection failed: ${err.message}`);
+                }
+            };
+            completeHandshake();
+        }
+    }, [currentUser, isLinkedInConnected]);
 
     // Helper to safely serialize media blocks before markdown conversion
     const prepareBlocksForMarkdown = (blocks: any[]): any[] => {
@@ -215,6 +276,49 @@ const EditPost: React.FC = () => {
         setTags(tags.filter(tag => tag !== tagToRemove));
     };
 
+    const handleConnectLinkedIn = async () => {
+        setLinkedInStatus('Initiating LinkedIn connection...');
+        try {
+            const functions = getFunctions(undefined, 'us-west1');
+            const getLinkedInAuthUrl = httpsCallable(functions, 'getLinkedInAuthUrl');
+            const result: any = await getLinkedInAuthUrl({
+                redirectUri: window.location.origin + window.location.pathname
+            });
+            if (result.data?.url) {
+                window.location.href = result.data.url;
+            }
+        } catch (err: any) {
+            console.error('Failed to get auth URL:', err);
+            setLinkedInStatus(`Error: ${err.message}`);
+        }
+    };
+
+    const handlePublishLinkedIn = async () => {
+        setIsPublishingLinkedIn(true);
+        setLinkedInStatus('Publishing to LinkedIn...');
+
+        try {
+            const functions = getFunctions(undefined, 'us-west1');
+            const publishLinkedInPost = httpsCallable(functions, 'publishLinkedInPost');
+
+            await publishLinkedInPost({
+                text: linkedInPostText,
+                articleUrl: linkedInArticleUrl
+            });
+
+            setLinkedInStatus('Successfully posted to LinkedIn! 🚀');
+            setTimeout(() => {
+                setShowLinkedInModal(false);
+                navigate(window.history.state?.from || `/community/post/${postId}`);
+            }, 3000);
+        } catch (error: any) {
+            console.error('LinkedIn Publishing Error:', error);
+            setLinkedInStatus(`Error: ${error.message || 'Failed to post.'}`);
+        } finally {
+            setIsPublishingLinkedIn(false);
+        }
+    };
+
     const handleSave = async () => {
         if (!title.trim() || !content.trim()) {
             setLocalError('Please provide a title and some content.');
@@ -250,7 +354,19 @@ const EditPost: React.FC = () => {
             }
 
             await updateDoc(docRef, payload);
-            navigate(window.history.state?.from || `/community/post/${postId}`);
+
+            // Trigger LinkedIn post generation
+            setLinkedInArticleUrl(`https://careervivid.app/community/post/${postId}`);
+            setShowLinkedInModal(true);
+            setIsGeneratingLinkedIn(true);
+            try {
+                const socialText = await generateLinkedInPost(title, content);
+                setLinkedInPostText(socialText);
+            } catch (err) {
+                console.error("LinkedIn generation failed", err);
+            } finally {
+                setIsGeneratingLinkedIn(false);
+            }
         } catch (err: any) {
             console.error('Save failed:', err);
             setLocalError(err.message || 'Failed to save changes.');
@@ -425,6 +541,88 @@ const EditPost: React.FC = () => {
                     onClose={() => setShowAIModal(false)}
                     onError={(title, msg) => setLocalError(`${title}: ${msg}`)}
                 />
+            )}
+
+            {/* LinkedIn Preview Modal */}
+            {showLinkedInModal && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                        <div className="p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <Linkedin size={24} className="text-[#0A66C2]" />
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Review LinkedIn Post</h3>
+                            </div>
+                            <button
+                                onClick={() => navigate(window.history.state?.from || `/community/post/${postId}`)}
+                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="p-6">
+                            {isGeneratingLinkedIn ? (
+                                <div className="py-12 flex flex-col items-center justify-center text-center">
+                                    <Sparkles size={48} className="text-blue-500 mb-4 animate-bounce" />
+                                    <h4 className="text-gray-900 dark:text-white font-medium mb-2">AI is drafting your LinkedIn post...</h4>
+                                    <p className="text-gray-500 dark:text-gray-400 text-sm">Optimizing for maximum engagement.</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Refine your AI-generated post before sharing:</p>
+                                    <textarea
+                                        value={linkedInPostText}
+                                        onChange={(e) => setLinkedInPostText(e.target.value)}
+                                        className="w-full h-64 p-4 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-[#0A66C2] focus:border-transparent outline-none resize-none font-sans text-sm leading-relaxed"
+                                        placeholder="LinkedIn post text..."
+                                        disabled={!isLinkedInConnected || isPublishingLinkedIn}
+                                    />
+
+                                    <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 p-3 rounded-lg text-sm flex gap-2 items-center">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />
+                                        <span>Post will link to: <strong>{linkedInArticleUrl}</strong></span>
+                                    </div>
+
+                                    {linkedInStatus && (
+                                        <div className={`p-3 rounded-lg text-sm text-center font-medium ${linkedInStatus.includes('Error') || linkedInStatus.includes('failed') ? 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400'}`}>
+                                            {linkedInStatus}
+                                        </div>
+                                    )}
+
+                                    {!isVerifyingLinkedIn && !isLinkedInConnected && (
+                                        <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 p-4 rounded-xl border border-amber-100 dark:border-amber-900/30 flex flex-col items-center gap-3">
+                                            <p className="text-sm font-medium text-center">Link your LinkedIn account to enable one-click social sharing.</p>
+                                            <button
+                                                onClick={handleConnectLinkedIn}
+                                                className="bg-[#0A66C2] text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-[#004182] transition-colors shadow-sm cursor-pointer"
+                                            >
+                                                <Linkedin size={18} />
+                                                Connect LinkedIn
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    <div className="flex justify-between items-center pt-4">
+                                        <button
+                                            onClick={() => navigate(window.history.state?.from || `/community/post/${postId}`)}
+                                            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-sm font-medium"
+                                        >
+                                            Skip for now
+                                        </button>
+                                        <button
+                                            onClick={handlePublishLinkedIn}
+                                            disabled={isPublishingLinkedIn || !linkedInPostText || !isLinkedInConnected}
+                                            className="bg-[#0A66C2] hover:bg-[#004182] text-white px-6 py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                        >
+                                            {isPublishingLinkedIn ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                                            Post to LinkedIn
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

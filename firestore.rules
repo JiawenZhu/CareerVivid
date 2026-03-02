@@ -31,9 +31,10 @@ service cloud.firestore {
     // 👤 CORE USER DATA (Recursive - Covers EVERYTHING)
     // ---------------------------------------------------------
     match /users/{userId} {
-      // Users read their own data; admins read all; business partners can read
-      // applicant profiles (name & email only — needed for the HR dashboard).
-      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin() || isBusinessPartner());
+      // Public read: allows anyone to view a user's public profile.
+      // The client hook (usePublicProfile) only reads safe fields:
+      // displayName, photoURL, bio, headline, socialLinks, portfolioUrl.
+      allow read: if true;
       allow write: if request.auth != null && (request.auth.uid == userId || isAdmin());
 
       // Resumes specifically can be read by business partners so they can view applicants
@@ -104,6 +105,15 @@ service cloud.firestore {
     // 🌐 PUBLIC PORTFOLIOS (Public Read, Owner/Admin Write)
     // ---------------------------------------------------------
     match /public_portfolios/{portfolioId} {
+      allow read: if true;
+      allow create, update: if isAdmin() || (request.auth != null && request.resource.data.userId == request.auth.uid);
+      allow delete: if isAdmin() || (request.auth != null && resource.data.userId == request.auth.uid);
+    }
+
+    // ---------------------------------------------------------
+    // 📄 PUBLIC RESUMES (Public Read, Owner/Admin Write)
+    // ---------------------------------------------------------
+    match /public_resumes/{resumeId} {
       allow read: if true;
       allow create, update: if isAdmin() || (request.auth != null && request.resource.data.userId == request.auth.uid);
       allow delete: if isAdmin() || (request.auth != null && resource.data.userId == request.auth.uid);

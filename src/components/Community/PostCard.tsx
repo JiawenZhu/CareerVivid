@@ -541,17 +541,19 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 </button>
 
                 {/* LinkedIn Share */}
-                <a
-                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={e => e.stopPropagation()}
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
+                        window.open(url, '_blank', 'noopener,noreferrer');
+                    }}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 text-[#0a66c2] hover:bg-[#0a66c2]/10 cursor-pointer"
                     aria-label="Share to LinkedIn"
                 >
                     <Linkedin size={17} />
                     <span className="hidden sm:inline">Share</span>
-                </a>
+                </button>
             </div>
 
             {/* Read time (articles) or asset type label */}

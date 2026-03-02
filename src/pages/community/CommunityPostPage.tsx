@@ -338,15 +338,16 @@ const CommunityPostPage: React.FC = () => {
                         {comments.length} Comments
                     </a>
 
-                    <a
-                        href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    <button
+                        onClick={() => {
+                            const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
+                            window.open(url, '_blank', 'noopener,noreferrer');
+                        }}
                         className="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm bg-[#0a66c2] hover:bg-[#0a66c2]/90 text-white transition-all cursor-pointer ml-auto"
                     >
                         <Linkedin size={18} />
                         Share to LinkedIn
-                    </a>
+                    </button>
                 </div>
 
                 {/* Comments section */}

@@ -21,6 +21,11 @@
         "source": "/register",
         "destination": "/signup",
         "type": 301
+      },
+      {
+        "source": "/support",
+        "destination": "/contact",
+        "type": 301
       }
     ],
     "headers": [
@@ -36,11 +41,29 @@
     ],
     "rewrites": [
       {
+        "source": "/sitemap.xml",
+        "function": "generateSitemap",
+        "region": "us-west1"
+      },
+      {
         "source": "/community/post/**",
-        "run": {
-          "serviceId": "injectcommunitymeta",
-          "region": "us-west1"
-        }
+        "function": "renderSeoContent",
+        "region": "us-west1"
+      },
+      {
+        "source": "/shared/**",
+        "function": "renderSeoContent",
+        "region": "us-west1"
+      },
+      {
+        "source": "/portfolio/**",
+        "function": "renderSeoContent",
+        "region": "us-west1"
+      },
+      {
+        "source": "/whiteboard/**",
+        "function": "renderSeoContent",
+        "region": "us-west1"
       },
       {
         "source": "/zh/shared/**",

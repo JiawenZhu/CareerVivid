@@ -16,6 +16,9 @@ import SearchBar from '../../components/Community/SearchBar';
 import AnimatedCommunityTitle from '../../components/Community/AnimatedCommunityTitle';
 import { displayTag, slugifyTag } from '../../utils/tagUtils';
 import { liteClient as algoliasearch } from 'algoliasearch/lite';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
+
 
 import CommunityMobileDrawer from '../../components/Community/CommunityMobileDrawer';
 import { useCommunityStats } from '../../hooks/useCommunityMeta';
@@ -169,12 +172,64 @@ const CommunityDashboard: React.FC = () => {
             });
             const firstResult = results[0] as any;
             const hits = firstResult.hits;
-            // Map Algolia hits to match our CommunityPost interface structure
-            const mappedHits = hits.map((hit: any) => ({
+
+            // Map Algolia hits — many fields may be missing if docs were indexed before those fields existed
+            let mappedHits = hits.map((hit: any) => ({
                 id: hit.objectID,
                 ...hit,
-                _highlightResult: hit._highlightResult // Keep highlighting meta
+                authorId: hit.authorId || hit.userId || hit.author_id || hit.ownerId || null,
+                _highlightResult: hit._highlightResult
             }));
+
+            // For ANY hit missing authorId OR missing assetUrl/assetId on asset-type posts,
+            // fetch the full document from Firestore to hydrate the missing fields.
+            const ASSET_TYPES = new Set(['resume', 'portfolio', 'whiteboard']);
+            const incompleteIds = mappedHits
+                .filter((h: any) =>
+                    !h.authorId ||
+                    (ASSET_TYPES.has(h.type) && !h.assetUrl && !h.assetId)
+                )
+                .map((h: any) => h.id);
+
+            if (incompleteIds.length > 0) {
+                try {
+                    const fetches = incompleteIds.map((postId: string) =>
+                        getDoc(doc(db, 'community_posts', postId))
+                    );
+                    const snaps = await Promise.all(fetches);
+                    // Build a map of postId → full Firestore data
+                    const firestoreMap: Record<string, Record<string, any>> = {};
+                    snaps.forEach(docSnap => {
+                        if (docSnap.exists()) {
+                            firestoreMap[docSnap.id] = docSnap.data() as Record<string, any>;
+                        }
+                    });
+
+                    // Merge: Algolia data wins for fields it has; Firestore fills the gaps
+                    mappedHits = mappedHits.map((h: any) => {
+                        const fs = firestoreMap[h.id];
+                        if (!fs) return h;
+                        return {
+                            // Start with Firestore data as base (has all fields)
+                            ...fs,
+                            // Overlay the mapped hit (Algolia + our id/authorId fixes)
+                            ...h,
+                            // Resolve the critical missing fields from Firestore
+                            authorId: h.authorId || fs['authorId'] || null,
+                            assetUrl: h.assetUrl || fs['assetUrl'] || null,
+                            assetId: h.assetId || fs['assetId'] || null,
+                            type: h.type || fs['type'] || 'article',
+                            // Rich asset data is too large for Algolia — always use Firestore
+                            resumeData: fs['resumeData'] || h.resumeData || null,
+                            portfolioData: fs['portfolioData'] || h.portfolioData || null,
+                            whiteboardData: fs['whiteboardData'] || h.whiteboardData || null,
+                        };
+                    });
+                } catch (fetchErr) {
+                    console.warn('[Search] Firestore hydration fallback failed:', fetchErr);
+                }
+            }
+
             setSearchResults(mappedHits);
         } catch (err) {
             console.error('Algolia Search Error:', err);
