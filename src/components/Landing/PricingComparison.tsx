@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Check, X, Loader2, Zap } from 'lucide-react';
 import { navigate } from '../../utils/navigation';
 import { useAuth } from '../../contexts/AuthContext';
+import { FREE_PLAN_CREDIT_LIMIT, SPRINT_PLAN_CREDIT_LIMIT, MONTHLY_PLAN_CREDIT_LIMIT } from '../../config/creditCosts';
 
 interface PricingComparisonProps {
     onCloudUpgrade?: () => void;
@@ -49,7 +50,7 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                     <div className="text-center mb-6">
                         <h3 className="text-3xl font-extrabold text-gray-900 dark:text-white">Free Starter</h3>
                         <div className="text-sm text-green-600 dark:text-green-400 font-bold tracking-widest mt-2 flex items-center justify-center gap-1">
-                            <Zap size={16} /> 100 STARTING CREDITS
+                            <Zap size={16} /> {FREE_PLAN_CREDIT_LIMIT} STARTING CREDITS
                         </div>
                     </div>
                     <div className="text-center mb-8">
@@ -59,7 +60,7 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                     <ul className="space-y-4 mb-8 flex-grow text-gray-700 dark:text-gray-300 font-medium">
                         <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-0.5" size={20} /> Unlimited manual Resumes & Portfolios</li>
                         <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-0.5" size={20} /> Community Feed Access</li>
-                        <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-0.5" size={20} /> 100 non-renewing AI credits included</li>
+                        <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-0.5" size={20} /> {FREE_PLAN_CREDIT_LIMIT} AI credits included</li>
                     </ul>
                     <button onClick={() => navigate('/signup')} className="w-full py-4 rounded-2xl font-bold text-lg text-center border-2 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                         Start for Free
@@ -71,7 +72,7 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                     <div className="text-center mb-6">
                         <h3 className="text-3xl font-extrabold text-gray-900 dark:text-white">The 7-Day Sprint</h3>
                         <div className="text-sm text-primary-600 dark:text-primary-400 font-bold tracking-widest mt-2 flex items-center justify-center gap-1">
-                            <Zap size={16} className="fill-current" /> 666 CREDITS / WEEK
+                            <Zap size={16} className="fill-current" /> {SPRINT_PLAN_CREDIT_LIMIT} CREDITS / WEEK
                         </div>
                     </div>
                     <div className="text-center mb-8 flex items-baseline justify-center gap-1">
@@ -81,7 +82,7 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
 
                     <ul className="space-y-4 mb-8 flex-grow text-gray-700 dark:text-gray-300 font-medium">
                         <li className="flex items-start gap-3"><Check className="text-primary-500 flex-shrink-0 mt-0.5" size={20} /> Everything in Free</li>
-                        <li className="flex items-start gap-3"><Check className="text-primary-500 flex-shrink-0 mt-0.5" size={20} /> 666 premium AI credits refilled weekly</li>
+                        <li className="flex items-start gap-3"><Check className="text-primary-500 flex-shrink-0 mt-0.5" size={20} /> {SPRINT_PLAN_CREDIT_LIMIT} premium AI credits refilled weekly</li>
                         <li className="flex items-start gap-3"><Check className="text-primary-500 flex-shrink-0 mt-0.5" size={20} /> Access to Nano Banana Image Generation</li>
                         <li className="flex items-start gap-3"><Check className="text-primary-500 flex-shrink-0 mt-0.5" size={20} /> Priority Support</li>
                     </ul>
@@ -100,7 +101,7 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                     <div className="text-center mb-6">
                         <h3 className="text-3xl font-extrabold text-gray-900 dark:text-white">Monthly Pro</h3>
                         <div className="text-sm text-purple-600 dark:text-purple-400 font-bold tracking-widest mt-2 flex items-center justify-center gap-1">
-                            <Zap size={16} className="fill-current" /> 888 CREDITS / MONTH
+                            <Zap size={16} className="fill-current" /> {MONTHLY_PLAN_CREDIT_LIMIT} CREDITS / MONTH
                         </div>
                     </div>
                     <div className="text-center mb-8 flex items-baseline justify-center gap-1">
@@ -110,7 +111,7 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
 
                     <ul className="space-y-4 mb-8 flex-grow text-gray-700 dark:text-gray-300 font-medium">
                         <li className="flex items-start gap-3"><Check className="text-purple-500 flex-shrink-0 mt-0.5" size={20} /> Best value for active job seekers</li>
-                        <li className="flex items-start gap-3"><Check className="text-purple-500 flex-shrink-0 mt-0.5" size={20} /> 888 premium AI credits refilled monthly</li>
+                        <li className="flex items-start gap-3"><Check className="text-purple-500 flex-shrink-0 mt-0.5" size={20} /> {MONTHLY_PLAN_CREDIT_LIMIT} premium AI credits refilled monthly</li>
                         <li className="flex items-start gap-3"><Check className="text-purple-500 flex-shrink-0 mt-0.5" size={20} /> Full Interview Studio access</li>
                         <li className="flex items-start gap-3"><Check className="text-purple-500 flex-shrink-0 mt-0.5" size={20} /> Dedicated account management</li>
                     </ul>

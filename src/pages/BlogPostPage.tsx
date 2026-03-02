@@ -6,6 +6,8 @@ import Footer from '../components/Footer';
 import { BlogPost } from '../types';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+import { Helmet } from 'react-helmet-async';
+import { generateGEOStructuredData } from '../utils/geoUtils';
 import { Loader2, Calendar, User, ArrowLeft, Facebook, Twitter, Linkedin } from 'lucide-react';
 import { navigate } from '../utils/navigation';
 import ArticleAudioPlayer from '../components/blog/ArticleAudioPlayer';
@@ -145,6 +147,24 @@ const BlogPostPage: React.FC<{ postId: string }> = ({ postId }) => {
 
     return (
         <div className="bg-white dark:bg-gray-950 min-h-screen flex flex-col font-sans">
+            <Helmet>
+                <title>{post.title} | CareerVivid Blog</title>
+                <meta name="description" content={post.excerpt} />
+                <meta property="og:title" content={post.title} />
+                <meta property="og:type" content="article" />
+                <meta property="og:url" content={`${window.location.origin}/blog/${post.id}`} />
+                {post.coverImage && <meta property="og:image" content={post.coverImage} />}
+                <meta property="og:description" content={post.excerpt} />
+                <script type="application/ld+json">
+                    {JSON.stringify(generateGEOStructuredData({
+                        title: post.title,
+                        content: post.content,
+                        coverImage: post.coverImage,
+                        authorName: post.author,
+                        createdAt: post.publishedAt,
+                    }, post.faqs))}
+                </script>
+            </Helmet>
             <PublicHeader />
             <main className="flex-grow pt-24 pb-20">
                 <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

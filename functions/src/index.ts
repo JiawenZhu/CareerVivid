@@ -46,6 +46,8 @@ export { exportToGoogleDocs } from "./googleDocs";
 export * from "./stitchCommerce";
 export * from "./tts";
 export * from "./deepResearch";
+export * from "./linkedin";
+export { injectCommunityMeta } from "./meta-injector";
 
 
 const getFunctionConfig = () => {

@@ -1,11 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { navigate } from '../../utils/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCreatePost } from '../../hooks/useCreatePost';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { Image, X, ArrowLeft, Loader2, Eye, Edit3, Wand2 } from 'lucide-react';
+import { useCreateBlockNote } from '@blocknote/react';
+import { BlockNoteView } from '@blocknote/mantine';
+import '@blocknote/core/fonts/inter.css';
+import '@blocknote/mantine/style.css';
+import { uploadImage } from '../../services/storageService';
+import { Image, X, ArrowLeft, Loader2, Wand2, RefreshCcw, Sparkles } from 'lucide-react';
 import AICoverImageModal from '../../components/AICoverImageModal';
+import { getGEOTemplate } from '../../utils/geoFormatting';
 
 const MAX_TAGS = 4;
 
@@ -15,14 +19,115 @@ const CommunityEditor: React.FC = () => {
 
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
+    const [initialContentLoaded, setInitialContentLoaded] = useState(false);
     const [tags, setTags] = useState<string[]>([]);
     const [tagInput, setTagInput] = useState('');
     const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
     const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
     const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
-    const [isPreview, setIsPreview] = useState(false);
     const [showAIModal, setShowAIModal] = useState(false);
     const [localError, setLocalError] = useState<string | null>(null);
+
+    // Auto-save draft logic
+
+    React.useEffect(() => {
+        const draft = localStorage.getItem('careervivid_post_draft');
+        if (draft) {
+            try {
+                const parsed = JSON.parse(draft);
+                if (parsed.title) setTitle(parsed.title);
+                if (parsed.content) setContent(parsed.content);
+                if (parsed.tags) setTags(parsed.tags);
+            } catch (e) {
+                console.error('Failed to parse draft', e);
+            }
+        }
+        setInitialContentLoaded(true);
+    }, []);
+
+    React.useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (title || content || tags.length > 0) {
+                localStorage.setItem('careervivid_post_draft', JSON.stringify({ title, content, tags }));
+            }
+        }, 1000);
+        return () => clearTimeout(timeout);
+    }, [title, content, tags]);
+
+    // Helper to safely serialize media blocks before markdown conversion
+    const prepareBlocksForMarkdown = (blocks: any[]): any[] => {
+        return blocks.map(block => {
+            if (block.type === 'video' || block.type === 'audio' || block.type === 'file') {
+                const url = block.props.url || '';
+                const isVideo = block.type === 'video' || url.includes('type=video') || /\.(mp4|webm|mov)(\?|$)/i.test(url);
+                const isAudio = block.type === 'audio' || url.includes('type=audio') || /\.(mp3|wav|ogg)(\?|$)/i.test(url);
+
+                const linkText = isVideo ? 'video attachment' : isAudio ? 'audio attachment' : 'file attachment';
+
+                return {
+                    id: block.id,
+                    type: 'paragraph',
+                    props: { textColor: "default", backgroundColor: "default", textAlignment: "left" },
+                    content: [
+                        { type: 'link', href: url, content: linkText }
+                    ],
+                    children: block.children ? prepareBlocksForMarkdown(block.children) : []
+                };
+            }
+
+            return {
+                ...block,
+                children: block.children ? prepareBlocksForMarkdown(block.children) : []
+            };
+        });
+    };
+
+    // Initialize BlockNote
+    const editor = useCreateBlockNote({
+        uploadFile: async (file: File) => {
+            if (!currentUser) throw new Error("Must be logged in to upload media.");
+            try {
+                const path = `public/community_post_images/${currentUser.uid}/${Date.now()}_${file.name || 'media'}`;
+                const url = await uploadImage(file, path);
+
+                // Auto-detect MIME type as requested
+                if (file.type.startsWith('video/')) {
+                    return `${url}?type=video`;
+                }
+                if (file.type.startsWith('audio/')) {
+                    return `${url}?type=audio`;
+                }
+                return url;
+            } catch (err) {
+                console.error("Upload failed", err);
+                throw new Error("Failed to upload media.");
+            }
+        },
+    });
+
+    // Hydrate initial draft content into BlockNote once
+    useEffect(() => {
+        if (initialContentLoaded && content && editor) {
+            // Only hydrate if the editor is virtually empty
+            if (editor.document.length === 1 && editor.document[0].content === undefined) {
+                try {
+                    const blocks = editor.tryParseMarkdownToBlocks(content);
+                    editor.replaceBlocks(editor.document, blocks);
+                } catch (err) {
+                    console.error("Failed to parse draft back into BlockNote", err);
+                }
+            }
+        }
+    }, [initialContentLoaded, editor]); // intentionally omitting 'content' to prevent rewriting during typing
+
+    const handleEditorChange = async () => {
+        if (!editor) return;
+
+        // Pre-process standard links to protect media blocks during Markdown conversion
+        const processedBlocks = prepareBlocksForMarkdown(editor.document);
+        const markdown = await editor.blocksToMarkdownLossy(processedBlocks);
+        setContent(markdown);
+    };
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -79,6 +184,7 @@ const CommunityEditor: React.FC = () => {
 
         const id = await publishPost({ title, content, tags, coverImageFile, coverImageUrl });
         if (id) {
+            localStorage.removeItem('careervivid_post_draft');
             navigate('/community');
         }
     };
@@ -101,19 +207,29 @@ const CommunityEditor: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-3">
                     <button
-                        onClick={() => setIsPreview(p => !p)}
-                        className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors cursor-pointer"
-                    >
-                        {isPreview ? <Edit3 size={16} /> : <Eye size={16} />}
-                        {isPreview ? 'Edit' : 'Preview'}
-                    </button>
-                    <button
                         onClick={handlePublish}
                         disabled={isPublishing || !title.trim() || !content.trim()}
                         className="flex items-center gap-2 px-5 py-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg font-bold text-sm transition-colors shadow-sm cursor-pointer"
                     >
                         {isPublishing ? <Loader2 size={16} className="animate-spin" /> : null}
                         {isPublishing ? 'Publishing…' : 'Publish'}
+                    </button>
+                    <button
+                        onClick={() => {
+                            if (window.confirm("Replace existing content with the GEO-optimized template?")) {
+                                const template = getGEOTemplate(title || "Article Title");
+                                try {
+                                    const blocks = editor.tryParseMarkdownToBlocks(template);
+                                    editor.replaceBlocks(editor.document, blocks);
+                                } catch (err) {
+                                    console.error("Failed to apply template", err);
+                                }
+                            }
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 border border-indigo-200 dark:border-indigo-900/50 text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/10 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg font-bold text-sm transition-colors cursor-pointer"
+                        title="Apply GEO-optimized content structure"
+                    >
+                        <Sparkles size={16} /> GEO Template
                     </button>
                 </div>
             </header>
@@ -166,64 +282,47 @@ const CommunityEditor: React.FC = () => {
                     )}
 
                     <div className="px-8 sm:px-12 flex-1 flex flex-col pb-12">
-                        {isPreview ? (
-                            /* ── Preview mode ── */
-                            <div className="pt-8 prose prose-lg dark:prose-invert max-w-none">
-                                <h1 className="font-black text-4xl sm:text-5xl !mb-4">{title || 'Untitled'}</h1>
-                                {tags.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 mb-8 not-prose">
-                                        {tags.map(t => (
-                                            <span key={t} className="text-sm text-gray-500 font-medium">#{t}</span>
-                                        ))}
-                                    </div>
-                                )}
-                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                    {content || '*Nothing written yet…*'}
-                                </ReactMarkdown>
-                            </div>
-                        ) : (
-                            /* ── Edit mode ── */
-                            <>
-                                {/* Title */}
-                                <textarea
-                                    placeholder="Article title…"
-                                    value={title}
-                                    onChange={e => setTitle(e.target.value)}
-                                    rows={2}
-                                    className="w-full mt-8 text-3xl sm:text-4xl lg:text-5xl font-black bg-transparent border-0 focus:ring-0 placeholder-gray-200 dark:placeholder-gray-700 text-gray-900 dark:text-white resize-none leading-tight"
-                                />
+                        {/* Title */}
+                        <textarea
+                            placeholder="Article title…"
+                            value={title}
+                            onChange={e => setTitle(e.target.value)}
+                            rows={2}
+                            className="w-full mt-8 text-3xl sm:text-4xl lg:text-5xl font-black bg-transparent border-0 focus:ring-0 placeholder-gray-200 dark:placeholder-gray-700 text-gray-900 dark:text-white resize-none leading-tight outline-none"
+                        />
 
-                                {/* Tags */}
-                                <div className="flex flex-wrap items-center gap-2 py-4 border-b border-gray-100 dark:border-gray-800 mb-6">
-                                    {tags.map(tag => (
-                                        <span key={tag} className="flex items-center gap-1 px-2.5 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                            #{tag}
-                                            <button onClick={() => removeTag(tag)} className="hover:text-red-500 transition-colors ml-0.5 cursor-pointer" aria-label={`Remove tag ${tag}`}>
-                                                <X size={13} />
-                                            </button>
-                                        </span>
-                                    ))}
-                                    {tags.length < MAX_TAGS && (
-                                        <input
-                                            type="text"
-                                            placeholder={tags.length === 0 ? 'Add up to 4 tags (press Enter)…' : 'Add tag…'}
-                                            value={tagInput}
-                                            onChange={e => setTagInput(e.target.value)}
-                                            onKeyDown={handleTagKeyDown}
-                                            className="flex-1 min-w-[150px] bg-transparent border-0 focus:ring-0 text-sm font-medium placeholder-gray-300 dark:placeholder-gray-600 text-gray-900 dark:text-white py-1"
-                                        />
-                                    )}
-                                </div>
-
-                                {/* Content */}
-                                <textarea
-                                    placeholder="Write your article here… Markdown is supported."
-                                    value={content}
-                                    onChange={e => setContent(e.target.value)}
-                                    className="w-full flex-1 min-h-[400px] text-base lg:text-lg leading-[1.8] font-normal bg-transparent border-0 focus:ring-0 placeholder-gray-300 dark:placeholder-gray-600 text-gray-800 dark:text-gray-200 resize-y"
+                        {/* Tags */}
+                        <div className="flex flex-wrap items-center gap-2 py-4 border-b border-gray-100 dark:border-gray-800 mb-6">
+                            {tags.map(tag => (
+                                <span key={tag} className="flex items-center gap-1 px-2.5 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                    #{tag}
+                                    <button onClick={() => removeTag(tag)} className="hover:text-red-500 transition-colors ml-0.5 cursor-pointer" aria-label={`Remove tag ${tag}`}>
+                                        <X size={13} />
+                                    </button>
+                                </span>
+                            ))}
+                            {tags.length < MAX_TAGS && (
+                                <input
+                                    type="text"
+                                    placeholder={tags.length === 0 ? 'Add up to 4 tags (press Enter)…' : 'Add tag…'}
+                                    value={tagInput}
+                                    onChange={e => setTagInput(e.target.value)}
+                                    onKeyDown={handleTagKeyDown}
+                                    className="flex-1 min-w-[150px] bg-transparent border-0 focus:ring-0 outline-none text-sm font-medium placeholder-gray-300 dark:placeholder-gray-600 text-gray-900 dark:text-white py-1"
                                 />
-                            </>
-                        )}
+                            )}
+                        </div>
+
+                        {/* Content using BlockNote */}
+                        <div className="flex-1 min-h-[500px] mb-8 -ml-12 mt-4 cursor-text">
+                            {initialContentLoaded && (
+                                <BlockNoteView
+                                    editor={editor}
+                                    onChange={handleEditorChange}
+                                    theme={document.documentElement.classList.contains('dark') ? 'dark' : 'light'}
+                                />
+                            )}
+                        </div>
                     </div>
                 </div>
             </main>

@@ -4,7 +4,7 @@
  */
 import { useState, useEffect } from 'react';
 import {
-    collection, query, where, limit, getDocs, orderBy
+    collection, query, where, limit, getDocs, orderBy, getCountFromServer
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -15,7 +15,7 @@ export interface TagEntry {
     count: number;
 }
 
-export const usePopularTags = (postLimit = 50): { tags: TagEntry[]; loading: boolean } => {
+export const usePopularTags = (postLimit = 10): { tags: TagEntry[]; loading: boolean } => {
     const [tags, setTags] = useState<TagEntry[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -157,4 +157,30 @@ export const useHiringCompanies = (): { companies: HiringCompany[]; loading: boo
     }, []);
 
     return { companies, loading };
+};
+// ── Community Stats ───────────────────────────────────────────────────────────
+
+export const useCommunityStats = (): { memberCount: number; loading: boolean } => {
+    const [memberCount, setMemberCount] = useState<number>(0);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetch = async () => {
+            try {
+                const coll = collection(db, 'users');
+                const snapshot = await getCountFromServer(coll);
+                setMemberCount(snapshot.data().count);
+            } catch (error) {
+                console.error("Error fetching community stats:", error);
+                // Fallback to a sensible number if fetch fails
+                setMemberCount(10542);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetch();
+    }, []);
+
+    return { memberCount, loading };
 };

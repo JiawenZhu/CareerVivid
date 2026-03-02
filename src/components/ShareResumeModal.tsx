@@ -95,6 +95,7 @@ const ShareResumeModal: React.FC<ShareResumeModalProps> = ({ isOpen, onClose, re
         metrics: { likes: 0, comments: 0, views: 0 },
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
+        resumeData: resume, // Full snapshot of resume for live rendering in community feed
       };
 
       // Strip undefined values

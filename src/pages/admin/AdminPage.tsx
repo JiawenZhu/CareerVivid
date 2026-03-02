@@ -13,7 +13,8 @@ import ErrorManagement from './components/ErrorManagement';
 import EmailTool from './components/EmailTool';
 import PartnerApplicationManagement from './components/PartnerApplicationManagement';
 import LandingPageManagement from './components/LandingPageManagement';
-import { Layout } from 'lucide-react';
+import { Layout, Bot } from 'lucide-react';
+import AdminCommunityBot from './AdminCommunityBot';
 
 const AdminDashboardPage: React.FC = () => {
     const { logOut } = useAuth();
@@ -35,6 +36,7 @@ const AdminDashboardPage: React.FC = () => {
             case 'tools': return <EmailTool />;
             case 'partners': return <PartnerApplicationManagement />;
             case 'landing': return <LandingPageManagement />;
+            case 'community_bot': return <AdminCommunityBot />;
             default: return null;
         }
     };
@@ -60,6 +62,7 @@ const AdminDashboardPage: React.FC = () => {
                         { id: 'tools', label: 'Tools', icon: Mail },
                         { id: 'partners', label: 'Partners', icon: Users },
                         { id: 'landing', label: 'Landing Page', icon: Layout },
+                        { id: 'community_bot', label: 'Community Bot', icon: Bot },
                     ].map(tab => (
                         <button
                             key={tab.id}

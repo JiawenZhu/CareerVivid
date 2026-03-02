@@ -193,9 +193,9 @@ const IntegrationsPage: React.FC = () => {
             <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b-4 border-black shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
-                        <a href="/dashboard" className="flex items-center gap-2">
+                        <a href="/dashboard" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }} className="flex items-center gap-2">
                             <Logo className="h-8 w-8" />
-                            <span className="text-xl font-black text-black">CareerVivid</span>
+                            <span className="text-xl font-bold text-gray-900 dark:text-white hidden sm:inline">CareerVivid</span>
                         </a>
                         <button
                             onClick={() => navigate('/dashboard')}

@@ -3,6 +3,10 @@
  * Single source of truth for all AI feature pricing.
  * Users receive 300 credits/month on Pro Monthly plan.
  */
+export const FREE_PLAN_CREDIT_LIMIT = 100;
+export const SPRINT_PLAN_CREDIT_LIMIT = 666;
+export const MONTHLY_PLAN_CREDIT_LIMIT = 888;
+
 export const AI_CREDIT_COSTS = {
     // --- Resume ---
     RESUME_FULL_GENERATE: 5,     // Generate a full resume from a prompt

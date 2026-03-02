@@ -182,9 +182,9 @@ export interface UserProfile {
 
   // AI Usage Tracking
   aiUsage?: {
-    count: number;        // Current month's usage (0-10 for free users)
+    count: number;        // Current month's usage (0-100 for free users)
     lastResetDate: any;   // Firestore Timestamp - when counter was last reset
-    monthlyLimit: number; // 10 for free, -1 for premium (unlimited)
+    monthlyLimit: number; // 100 for free, -1 for premium (unlimited)
   };
 }
 
@@ -321,6 +321,11 @@ export interface ContactMessage {
   timestamp: any; // Firestore Timestamp
 }
 
+export interface FAQEntry {
+  question: string;
+  answer: string;
+}
+
 export interface BlogPost {
   id: string;
   title: string;
@@ -332,6 +337,7 @@ export interface BlogPost {
   coverImage: string;
   publishedAt: any; // Firestore Timestamp
   readTime?: string;
+  faqs?: FAQEntry[];
 }
 
 export interface Comment {

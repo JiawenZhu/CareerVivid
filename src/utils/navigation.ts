@@ -60,11 +60,11 @@ export const getPathFromUrl = () => {
 };
 
 // Navigation utility that uses History API and preserves language
-export const navigate = (path: string) => {
+export const navigate = (path: string, state: any = {}) => {
     // If path already starts with a language code, use it as is
     const parts = path.split('/').filter(p => p);
     if (parts.length > 0 && SUPPORTED_LANGUAGES.some(l => l.code === parts[0])) {
-        window.history.pushState({}, '', path);
+        window.history.pushState(state, '', path);
         window.dispatchEvent(new PopStateEvent('popstate'));
         return;
     }
@@ -88,6 +88,6 @@ export const navigate = (path: string) => {
         fullPath = `/${normalizedLang}${cleanPath}`;
     }
 
-    window.history.pushState({}, '', fullPath);
+    window.history.pushState(state, '', fullPath);
     window.dispatchEvent(new PopStateEvent('popstate'));
 };

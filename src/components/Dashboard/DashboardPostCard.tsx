@@ -17,7 +17,7 @@ const DashboardPostCard: React.FC<DashboardPostCardProps> = ({ post, onDelete, o
             className="bg-white dark:bg-gray-800 rounded-xl shadow-soft hover:shadow-lg transition-all duration-300 flex flex-col cursor-grab active:cursor-grabbing transform hover:-translate-y-1 h-full"
         >
             <div
-                onClick={() => navigate(`/community/post/${post.id}`)}
+                onClick={() => navigate(`/community/post/${post.id}`, { from: window.location.pathname })}
                 className="block border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/40 flex-grow cursor-pointer rounded-t-xl overflow-hidden"
             >
                 {post.coverImage ? (
@@ -49,7 +49,7 @@ const DashboardPostCard: React.FC<DashboardPostCardProps> = ({ post, onDelete, o
 
             <div className="p-2 flex gap-1 items-center bg-gray-50 dark:bg-gray-800/50 rounded-b-xl border-t border-gray-100 dark:border-gray-700">
                 <button
-                    onClick={(e) => { e.stopPropagation(); navigate(`/community/edit/${post.id}`); }}
+                    onClick={(e) => { e.stopPropagation(); navigate(`/community/edit/${post.id}`, { from: window.location.pathname }); }}
                     title="Edit Post"
                     className="p-2 block rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
                 >

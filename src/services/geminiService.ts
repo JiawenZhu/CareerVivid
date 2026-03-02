@@ -7,7 +7,7 @@ import { AI_CREDIT_COSTS } from '../config/creditCosts';
 const PROXY_URL = import.meta.env.VITE_GEMINI_PROXY_URL || 'https://us-west1-jastalk-firebase.cloudfunctions.net/geminiProxy';
 
 // --- Proxy Helper ---
-interface ProxyPayload {
+export interface ProxyPayload {
     modelName?: string;
     contents: any;
     config?: any;
@@ -68,7 +68,7 @@ const retryOperation = async <T>(operation: () => Promise<T>, retries = 3, delay
     }
 };
 
-const callGeminiProxy = async (payload: ProxyPayload): Promise<{ text: string, response: any }> => {
+export const callGeminiProxy = async (payload: ProxyPayload): Promise<{ text: string, response: any }> => {
     return requestQueue.add(() => retryOperation(async () => {
         try {
             // Normalize 'contents' to be Content[] as required by Gemini API

@@ -19,11 +19,15 @@ import {
     runTransaction,
     QueryDocumentSnapshot,
     DocumentData,
+    Timestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { ResumeData, WhiteboardData, FAQEntry } from '../types';
+import { PortfolioData } from '../features/portfolio/types/portfolio';
 
 export type CommunityPostType = 'article' | 'resume' | 'portfolio' | 'whiteboard';
+export type CommunitySortMode = 'newest' | 'trending';
 
 export interface CommunityPost {
     id: string;
@@ -47,13 +51,24 @@ export interface CommunityPost {
     type: CommunityPostType;
     assetId?: string;   // ID of the resume / portfolio / whiteboard
     assetUrl?: string;  // Public link to the asset (e.g. /shared/uid/id)
+    assetThumbnail?: string; // Snapshot URL or SVG string
     caption?: string;   // Short message the user adds when sharing
+    resumeData?: ResumeData; // Full snapshot of resume for live rendering
+    portfolioData?: PortfolioData; // Full snapshot of portfolio for live rendering
+    whiteboardData?: WhiteboardData; // Full snapshot of whiteboard for live rendering
+    faqs?: FAQEntry[];
 }
 
 const PAGE_SIZE = 10;
 const COLLECTION = 'community_posts';
 
-export const useCommunity = (typeFilter?: CommunityPostType) => {
+export interface UseCommunityOptions {
+    typeFilter?: CommunityPostType;
+}
+
+export const useCommunity = (options: UseCommunityOptions = {}) => {
+    const { typeFilter } = options;
+
     const [posts, setPosts] = useState<CommunityPost[]>([]);
     const [loading, setLoading] = useState(true);
     const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
@@ -62,15 +77,34 @@ export const useCommunity = (typeFilter?: CommunityPostType) => {
     const [lastVisible, setLastVisible] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
     const { currentUser } = useAuth();
 
+    // Build shared constraints — deterministic, used in both initial fetch & pagination
+    const buildConstraints = useCallback((afterDoc?: QueryDocumentSnapshot<DocumentData> | null) => {
+        const constraints: any[] = [];
+
+        if (typeFilter) {
+            constraints.push(where('type', '==', typeFilter));
+        }
+
+        constraints.push(orderBy('createdAt', 'desc'));
+
+        if (afterDoc) {
+            constraints.push(startAfter(afterDoc));
+        }
+
+        constraints.push(limit(PAGE_SIZE));
+        return constraints;
+    }, [typeFilter]);
+
     // Initial fetch — realtime for first page
     useEffect(() => {
-        const constraints: any[] = [];
-        if (typeFilter) constraints.push(where('type', '==', typeFilter));
-        constraints.push(orderBy('createdAt', 'desc'), limit(PAGE_SIZE));
+        setLoading(true);
+        setPosts([]);
+        setLastVisible(null);
+        setHasMore(true);
 
         const q = query(
             collection(db, COLLECTION),
-            ...constraints
+            ...buildConstraints()
         );
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -92,7 +126,7 @@ export const useCommunity = (typeFilter?: CommunityPostType) => {
         });
 
         return () => unsubscribe();
-    }, [typeFilter]);
+    }, [buildConstraints]);
 
     // Cursor-based next page fetch
     const fetchMorePosts = useCallback(async () => {
@@ -101,13 +135,9 @@ export const useCommunity = (typeFilter?: CommunityPostType) => {
         setIsFetchingNextPage(true);
 
         try {
-            const constraints: any[] = [];
-            if (typeFilter) constraints.push(where('type', '==', typeFilter));
-            constraints.push(orderBy('createdAt', 'desc'), startAfter(lastVisible), limit(PAGE_SIZE));
-
             const q = query(
                 collection(db, COLLECTION),
-                ...constraints
+                ...buildConstraints(lastVisible)
             );
 
             const snapshot = await getDocs(q);
@@ -132,7 +162,7 @@ export const useCommunity = (typeFilter?: CommunityPostType) => {
         } finally {
             setIsFetchingNextPage(false);
         }
-    }, [lastVisible, isFetchingNextPage, hasMore]);
+    }, [lastVisible, isFetchingNextPage, hasMore, buildConstraints]);
 
     // Create a new post
     const createPost = async (postData: Partial<CommunityPost>) => {
@@ -154,7 +184,7 @@ export const useCommunity = (typeFilter?: CommunityPostType) => {
                 if (payload[key] === undefined) delete payload[key];
             });
 
-            const docRef = await addDoc(collection(db, 'posts'), payload);
+            const docRef = await addDoc(collection(db, COLLECTION), payload);
             return docRef.id;
         } catch (err: any) {
             console.error('Error creating post:', err);

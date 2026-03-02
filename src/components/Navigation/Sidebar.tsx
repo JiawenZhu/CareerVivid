@@ -24,6 +24,7 @@ import { useNavigation } from '../../contexts/NavigationContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { navigate } from '../../utils/navigation';
+import AIUsageProgressBar from '../AIUsageProgressBar';
 
 const SUPPORTED_LANGUAGES = [
     { code: 'en', label: 'English' },
@@ -38,7 +39,7 @@ const SUPPORTED_LANGUAGES = [
 const Sidebar: React.FC = () => {
     const { t, i18n } = useTranslation();
     const { toggleNavPosition } = useNavigation();
-    const { currentUser, logOut } = useAuth();
+    const { currentUser, logOut, aiUsage, isPremium } = useAuth();
     const { theme, setTheme } = useTheme();
     const [langOpen, setLangOpen] = useState(false);
     const currentPath = window.location.pathname;
@@ -68,7 +69,7 @@ const Sidebar: React.FC = () => {
 
             {/* ── Header / Logo ── */}
             <div className="flex items-center justify-between h-16 sm:h-20 px-6 border-b border-gray-200 dark:border-gray-800 shrink-0">
-                <a href="/dashboard" className="flex items-center">
+                <a href="/dashboard" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }} className="flex items-center">
                     <Logo className="h-8 w-auto" />
                 </a>
                 <button
@@ -102,6 +103,21 @@ const Sidebar: React.FC = () => {
 
             {/* ── Utility Section ── */}
             <div className="mt-auto flex flex-col gap-1 px-4 pt-3 pb-2 border-t border-gray-200 dark:border-gray-800">
+
+                {/* AI Credits */}
+                {aiUsage && (
+                    <div
+                        className="mb-2 px-1 cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => navigate('/subscription')}
+                    >
+                        <AIUsageProgressBar
+                            used={aiUsage.count || 0}
+                            limit={aiUsage.limit || 10}
+                            isPremium={isPremium}
+                            variant="minimal"
+                        />
+                    </div>
+                )}
 
                 {/* Subscription Link */}
                 <button

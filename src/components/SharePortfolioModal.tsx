@@ -146,6 +146,7 @@ const SharePortfolioModal: React.FC<SharePortfolioModalProps> = ({
                 type: 'portfolio',
                 assetId: portfolioId,
                 assetUrl: shareUrl,
+                assetThumbnail: portfolioData?.projects?.[0]?.thumbnailUrl || '',
                 caption: caption.trim() || '',
                 title: portfolioTitle || 'Shared Portfolio',
                 content: caption.trim() || `Check out my portfolio!`,
@@ -157,6 +158,7 @@ const SharePortfolioModal: React.FC<SharePortfolioModalProps> = ({
                 metrics: { likes: 0, comments: 0, views: 0 },
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
+                portfolioData: portfolioData, // Full snapshot of portfolio for live rendering
             };
 
             Object.keys(payload).forEach(key => {

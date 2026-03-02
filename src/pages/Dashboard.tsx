@@ -4,7 +4,7 @@ import { usePortfolios } from '../hooks/usePortfolios';
 import { useWhiteboards } from '../hooks/useWhiteboards';
 import { ResumeData, PracticeHistoryEntry, JobApplicationData, Folder, WhiteboardData } from '../types';
 import { PortfolioData } from '../features/portfolio/types/portfolio';
-import { PlusCircle, FileText, Mic, Briefcase, GripVertical, LayoutDashboard, Loader2, Globe, Plus, User as UserIcon, LogOut, ChevronDown, FolderPlus, Trash2, PenTool, LayoutGrid, List, ChevronRight, PanelLeft, Github } from 'lucide-react';
+import { PlusCircle, FileText, Mic, Briefcase, GripVertical, LayoutDashboard, Loader2, Globe, Plus, User as UserIcon, LogOut, ChevronDown, FolderPlus, Trash2, PenTool, LayoutGrid, List, ChevronRight, PanelLeft, Github, Users, MessageSquare } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '../contexts/NavigationContext';
 import AppLayout from '../components/Layout/AppLayout';
@@ -631,7 +631,11 @@ const Dashboard: React.FC = () => {
                     <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center h-16 sm:h-20">
                             <div className="flex items-center gap-4">
-                                <a href="/" className="flex items-center gap-2">
+                                <a
+                                    href="/dashboard"
+                                    onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }}
+                                    className="flex items-center gap-2"
+                                >
                                     <Logo className="h-8 w-8" />
                                     <span className="text-xl font-bold text-gray-900 dark:text-white hidden sm:inline">CareerVivid</span>
                                 </a>
@@ -669,6 +673,9 @@ const Dashboard: React.FC = () => {
                                     title="Toggle Sidebar"
                                 >
                                     <PanelLeft size={20} />
+                                </button>
+                                <button onClick={() => navigate('/community')} className="flex items-center gap-2 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 font-semibold py-2 px-3 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-900/80 transition-colors cursor-pointer">
+                                    <Users size={20} /> <span className="hidden md:inline">{t('nav.community', 'Community')}</span>
                                 </button>
                                 <button onClick={() => navigate('/interview-studio')} className="flex items-center gap-2 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300 font-semibold py-2 px-3 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-900/80 transition-colors">
                                     <Mic size={20} /> <span className="hidden md:inline">{t('nav.interview_studio')}</span>
@@ -727,7 +734,7 @@ const Dashboard: React.FC = () => {
                                     {isUserMenuOpen && (
                                         <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-20 border dark:border-gray-700">
                                             <div className="py-1">
-                                                <a href="/profile" onClick={handleStep2Click} className="relative block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                <button onClick={() => { handleStep2Click(); navigate('/profile'); }} className="w-full text-left relative block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                     {t('dashboard.profile')}
                                                     {/* Step 2 Arrow: Pointing LEFT to Profile Link (from Right side) */}
                                                     {!isPremium && upgradeStep === 2 && (
@@ -738,11 +745,11 @@ const Dashboard: React.FC = () => {
                                                             <span className="text-orange-500 font-bold text-xs whitespace-nowrap">Click Here</span>
                                                         </div>
                                                     )}
-                                                </a>
-                                                {isPremium && <a href="/referrals" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Referrals</a>}
-                                                {(userProfile?.roles?.includes('academic_partner') || userProfile?.role === 'academic_partner') && <a href="/academic-partner" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.academic_partner')}</a>}
-                                                {(userProfile?.roles?.includes('business_partner') || userProfile?.role === 'business_partner') && <a href="/business-partner/dashboard" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Business Partner</a>}
-                                                {isAdmin && <a href="/admin" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.admin')}</a>}
+                                                </button>
+                                                {isPremium && <button onClick={() => navigate('/referrals')} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Referrals</button>}
+                                                {(userProfile?.roles?.includes('academic_partner') || userProfile?.role === 'academic_partner') && <button onClick={() => navigate('/academic-partner')} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.academic_partner')}</button>}
+                                                {(userProfile?.roles?.includes('business_partner') || userProfile?.role === 'business_partner') && <button onClick={() => navigate('/business-partner/dashboard')} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Business Partner</button>}
+                                                {isAdmin && <button onClick={() => navigate('/admin')} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.admin')}</button>}
                                                 <button onClick={logOut} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.sign_out')}</button>
                                             </div>
                                         </div>
@@ -766,6 +773,27 @@ const Dashboard: React.FC = () => {
                     </div>
                 </header>
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    {/* Mobile-Only: Community Posts Premium Card */}
+                    <div className="block md:hidden w-full mb-4">
+                        <a
+                            onClick={(e) => { e.preventDefault(); navigate('/my-posts'); }}
+                            className="block bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-5 shadow-lg shadow-blue-500/30 text-white relative overflow-hidden active:scale-95 transition-transform cursor-pointer group"
+                        >
+                            {/* Decorative element */}
+                            <MessageSquare className="absolute -bottom-4 -right-4 w-32 h-32 text-white/10 transform -rotate-12 group-hover:scale-110 transition-transform duration-500 pointer-events-none" />
+
+                            <div className="flex items-center gap-3 relative z-10">
+                                <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
+                                    <MessageSquare size={20} className="text-white" />
+                                </div>
+                                <span className="font-medium text-blue-100">My Posts</span>
+                            </div>
+                            <div className="text-4xl font-bold mt-4 relative z-10">
+                                {myCommunityPosts?.length || 0}
+                            </div>
+                        </a>
+                    </div>
+
                     {/* Summary Cards */}
                     <DashboardSummaryCards
                         resumeCount={resumes.length}

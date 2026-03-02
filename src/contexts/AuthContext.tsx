@@ -4,6 +4,7 @@ import { onAuthStateChanged, User, signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { doc, getDoc, onSnapshot, updateDoc, setDoc } from 'firebase/firestore';
 import { trackUsage } from '../services/trackingService';
+import { FREE_PLAN_CREDIT_LIMIT, SPRINT_PLAN_CREDIT_LIMIT, MONTHLY_PLAN_CREDIT_LIMIT } from '../config/creditCosts';
 import { navigate } from '../utils/navigation';
 import { UserProfile } from '../types';
 
@@ -109,17 +110,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsPremium(isPremiumNow);
 
         // Set AI Usage with plan-specific limits
-        const aiUsageData = userData.aiUsage || { count: 0, monthlyLimit: 10 };
-        let monthlyLimit = 10; // Default for free users
+        const aiUsageData = userData.aiUsage || { count: 0, monthlyLimit: FREE_PLAN_CREDIT_LIMIT };
+        let monthlyLimit = FREE_PLAN_CREDIT_LIMIT; // Default for free users
 
         // Only calculate based on plan if userData exists
         if (isPremiumNow && userData?.plan) {
           if (userData.plan === 'pro_sprint') {
-            monthlyLimit = 100; // Sprint: 100 AI Credits/month
+            monthlyLimit = SPRINT_PLAN_CREDIT_LIMIT; // Sprint: 666 AI Credits/month
           } else if (userData.plan === 'pro_monthly') {
-            monthlyLimit = 300; // Monthly: 300 AI Credits/month
+            monthlyLimit = MONTHLY_PLAN_CREDIT_LIMIT; // Monthly: 888 AI Credits/month
           } else {
-            monthlyLimit = aiUsageData.monthlyLimit || 10;
+            monthlyLimit = aiUsageData.monthlyLimit || FREE_PLAN_CREDIT_LIMIT;
           }
         }
 
@@ -221,12 +222,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const usage = await getAIUsage(currentUser.uid);
 
       // Calculate limit based on plan (with null safety)
-      let limit = 10; // Default free
+      let limit = FREE_PLAN_CREDIT_LIMIT; // Default free
       if (userProfile?.plan) {
         if (userProfile.plan === 'pro_sprint') {
-          limit = 100;
+          limit = SPRINT_PLAN_CREDIT_LIMIT;
         } else if (userProfile.plan === 'pro_monthly') {
-          limit = 300;
+          limit = MONTHLY_PLAN_CREDIT_LIMIT;
         }
       }
 

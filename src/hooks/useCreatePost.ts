@@ -7,6 +7,8 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { parseGEOContent } from '../utils/geoFormatting';
+import { FAQEntry } from '../types';
 
 export interface CreatePostInput {
     title: string;
@@ -47,6 +49,7 @@ export const useCreatePost = () => {
             }
 
             // Build a clean payload — no explicit undefined values
+            const geo = parseGEOContent(input.content);
             const payload: Record<string, any> = {
                 authorId: currentUser.uid,
                 authorName: currentUser.displayName || (userProfile as any)?.name || 'Anonymous',
@@ -54,10 +57,11 @@ export const useCreatePost = () => {
                 authorRole: (userProfile as any)?.role || '',
                 type: 'article', // Default type for standard articles
                 title: input.title.trim(),
-                content: input.content.trim(),
+                content: geo.content.trim(),
                 tags: input.tags,
                 readTime: calculateReadTime(input.content),
                 metrics: { likes: 0, comments: 0, views: 0 },
+                faqs: geo.faqs,
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
             };

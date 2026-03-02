@@ -55,7 +55,7 @@ const PolicyPage: React.FC = () => {
                 },
                 {
                     question: 'What happens to my data after a refund?',
-                    answer: 'After a refund is processed, your account will be downgraded to the Free plan. Your resumes and data will be preserved, but you will be subject to Free plan limitations (2 resumes max, 10 AI credits per month). You can continue to access and export your data at any time.'
+                    answer: 'After a refund is processed, your account will be downgraded to the Free plan. Your resumes and data will be preserved, but you will be subject to Free plan limitations (2 resumes max, 100 AI credits per month). You can continue to access and export your data at any time.'
                 },
                 {
                     question: 'Can I get a partial refund for monthly subscriptions?',

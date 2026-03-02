@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { ResumeData, UserProfile } from '../../../types';
 import ThemeToggle from '../../../components/ThemeToggle';
 import { EXPORT_OPTIONS, SUPPORTED_TRANSLATE_LANGUAGES } from '../../../constants';
+import { navigate } from '../../../utils/navigation';
 
 interface EditorHeaderProps {
     resume: ResumeData;
@@ -54,9 +55,9 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
             <div className="flex items-center justify-between h-16 px-4 sm:px-6">
                 <div className="flex items-center gap-2">
                     {!isShared && (
-                        <a href="/" title="Back to Dashboard" className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <button onClick={() => navigate('/dashboard')} title="Back to Dashboard" className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
                             <ArrowLeft size={20} />
-                        </a>
+                        </button>
                     )}
                     {isShared ? (
                         <div className="flex items-center gap-2">

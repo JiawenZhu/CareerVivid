@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useRef, useState, useLayoutEffect } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { Heart, MessageSquare, BookOpen, FileText, Globe, PenTool, AlertTriangle, ExternalLink, Send, Loader2 } from 'lucide-react';
+import { Heart, MessageSquare, BookOpen, FileText, Globe, PenTool, AlertTriangle, ExternalLink, Send, Loader2, Linkedin } from 'lucide-react';
 import { navigate } from '../../utils/navigation';
+import { slugifyTag } from '../../utils/tagUtils';
 import { CommunityPost, useCommunity } from '../../hooks/useCommunity';
 import { useAuth } from '../../contexts/AuthContext';
 import { doc, getDoc } from 'firebase/firestore';
@@ -9,6 +10,12 @@ import { db } from '../../firebase';
 import { usePostComments, PostComment } from '../../hooks/usePostComments';
 import { useTranslation } from 'react-i18next';
 import { enUS, es, fr, de, zhCN } from 'date-fns/locale';
+import ResumePreview from '../ResumePreview';
+import { TEMPLATES } from '../../features/portfolio/templates';
+import LinkTreeVisual from '../../features/portfolio/templates/linkinbio/LinkTreeVisual';
+import { getTheme } from '../../features/portfolio/styles/themes';
+import { PortfolioData } from '../../features/portfolio/types/portfolio';
+import { WhiteboardData } from '../../types';
 
 const localeMap: Record<string, any> = {
     en: enUS,
@@ -60,6 +67,34 @@ interface PostCardProps {
     post: CommunityPost;
 }
 
+// Helper to strip markdown for the feed snippet preview
+const stripMarkdown = (text: string) => {
+    if (!text) return '';
+    return text
+        // Remove code blocks
+        .replace(/```[\s\S]*?```/g, '')
+        // Remove Images: ![alt](url) -> ""
+        .replace(/!\[.*?\]\(.*?\)/g, '')
+        // Remove raw image links starting with !http (sometimes BlockNote emits this)
+        .replace(/!https?:\/\/\S+/g, '')
+        // Replace Links with just their text: [text](url) -> "text"
+        .replace(/\[(.*?)\]\(.*?\)/g, '$1')
+        // Replace headings: # Heading -> Heading
+        .replace(/#{1,6}\s+(.*)/g, '$1')
+        // Replace Bold/Italic: **text** -> text
+        .replace(/(\*\*|__)(.*?)\1/g, '$2')
+        .replace(/(\*|_)(.*?)\1/g, '$2')
+        // Remove raw urls (http:// or https://) entirely
+        .replace(/https?:\/\/\S+/g, '')
+        // Remove "video attachment", "audio attachment", "file attachment" text
+        .replace(/(video|audio|file)\s+attachment/gi, '')
+        // Remove remaining formatting characters
+        .replace(/[`~>]/g, '')
+        // Replace newlines with spaces
+        .replace(/\n+/g, ' ')
+        .trim();
+};
+
 // ── Comment Item ─────────────────────────────────────────────────────────────
 const CommentItem: React.FC<{ comment: PostComment; currentLocale: any }> = ({ comment, currentLocale }) => {
     const formattedDate = comment.createdAt?.toDate
@@ -110,15 +145,174 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     const [likesCount, setLikesCount] = React.useState(post.metrics?.likes ?? 0);
     const [showComments, setShowComments] = React.useState(false);
     const [commentText, setCommentText] = React.useState('');
+    const [showFullContent, setShowFullContent] = React.useState(false);
+
+    // ── Visual Snapshot Component ──────────────────────────────────────
+    const VisualSnapshot = () => {
+        const postType = post.type;
+        const thumbnail = post.assetThumbnail;
+        const previewContainerRef = useRef<HTMLDivElement>(null);
+        const [scale, setScale] = useState(0.2);
+
+        useLayoutEffect(() => {
+            const calculateScale = () => {
+                if (previewContainerRef.current) {
+                    const parentWidth = previewContainerRef.current.offsetWidth;
+                    // For Resumes, the ResumePreview is roughly 824px wide
+                    // For Portfolios: Link-in-Bio is 430px, standard is 1200px
+                    let baseWidth = 824;
+
+                    if (post.type === 'portfolio' && post.portfolioData) {
+                        baseWidth = post.portfolioData.mode === 'linkinbio' ? 430 : 1200;
+                    }
+
+                    if (parentWidth > 0) {
+                        setScale(parentWidth / baseWidth);
+                    }
+                }
+            };
+
+            calculateScale();
+            const resizeObserver = new ResizeObserver(calculateScale);
+            if (previewContainerRef.current) {
+                resizeObserver.observe(previewContainerRef.current);
+            }
+
+            return () => resizeObserver.disconnect();
+        }, [post.type, post.portfolioData?.mode]);
+
+        if (postType === 'portfolio') {
+            const portfolio = post.portfolioData;
+            if (portfolio) {
+                const isBioLink = portfolio.mode === 'linkinbio';
+                // Adjust aspect ratio for bio links on mobile to fit the container better
+                const aspectClass = isBioLink ? 'aspect-[3/4] sm:aspect-[9/16]' : 'aspect-[4/3] sm:aspect-video';
+                const originalWidth = isBioLink ? 430 : 1200;
+                const originalHeight = isBioLink ? 932 : 675;
+
+                // For the feed, we want to maintain the card's aspect ratio,
+                // but if it's a bio link, it might look better centered or cropped.
+                // However, we'll try to follow the dashboard logic as closely as possible.
+
+                const CurrentTemplate = TEMPLATES[portfolio.templateId as keyof typeof TEMPLATES] || TEMPLATES.minimalist;
+                const bioLinkTheme = isBioLink && portfolio.linkInBio?.themeId ? getTheme(portfolio.linkInBio.themeId) : undefined;
+
+                return (
+                    <div ref={previewContainerRef} className={`w-full h-full bg-gray-100 dark:bg-gray-900 group-hover:bg-gray-200 dark:group-hover:bg-gray-800/50 transition-colors flex items-center justify-center overflow-hidden relative`}>
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: `${originalWidth}px`,
+                                height: `${originalHeight}px`,
+                                transform: `scale(${scale})`,
+                                transformOrigin: 'top left',
+                            }}
+                        >
+                            {isBioLink && portfolio.linkInBio && bioLinkTheme ? (
+                                <LinkTreeVisual data={portfolio} />
+                            ) : (
+                                <CurrentTemplate data={portfolio} />
+                            )}
+                        </div>
+                    </div>
+                );
+            }
+
+            if (thumbnail) {
+                return (
+                    <img
+                        src={thumbnail}
+                        alt={post.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                );
+            }
+        }
+
+        if (postType === 'whiteboard') {
+            const whiteboard = post.whiteboardData;
+            const svgThumbnail = whiteboard?.thumbnailSvg || thumbnail;
+
+            if (svgThumbnail?.startsWith('<svg')) {
+                return (
+                    <div className="w-full h-full bg-white dark:bg-gray-950 flex items-center justify-center p-2 overflow-hidden relative group-hover:bg-gray-50 dark:group-hover:bg-gray-900 transition-colors">
+                        <div
+                            className="w-full h-full flex items-center justify-center [&_svg]:max-w-full [&_svg]:max-h-full [&_svg]:w-auto [&_svg]:h-auto"
+                            dangerouslySetInnerHTML={{ __html: svgThumbnail }}
+                        />
+                        {/* Subtle grid pattern for whiteboard feel */}
+                        <div className="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(#000 0.5px, transparent 0.5px)', backgroundSize: '10px 10px' }}></div>
+                    </div>
+                );
+            }
+        }
+
+        if (postType === 'resume') {
+            if (post.resumeData) {
+                return (
+                    <div ref={previewContainerRef} className="w-full h-full bg-gray-50 dark:bg-gray-900 flex items-center justify-center overflow-hidden relative">
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '824px',
+                                height: '1165px',
+                                transform: `scale(${scale})`,
+                                transformOrigin: 'top left',
+                            }}
+                        >
+                            <ResumePreview resume={post.resumeData} template={post.resumeData.templateId} />
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="w-full h-full bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/20 flex items-center justify-center relative overflow-hidden">
+                    {/* Stylized Doc UI */}
+                    <div className="w-[120px] h-[160px] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col p-3 gap-2 transform -rotate-2 group-hover:rotate-0 transition-transform duration-300">
+                        <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                            <FileText size={16} />
+                        </div>
+                        <div className="h-1.5 w-full bg-gray-100 dark:bg-gray-700 rounded" />
+                        <div className="h-1 w-3/4 bg-gray-50 dark:bg-gray-700/50 rounded" />
+                        <div className="mt-auto space-y-1">
+                            <div className="h-0.5 w-full bg-gray-50 dark:bg-gray-700/30 rounded" />
+                            <div className="h-0.5 w-full bg-gray-50 dark:bg-gray-700/30 rounded" />
+                        </div>
+                    </div>
+                    {/* Background acccents */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-blue-400/10 dark:bg-blue-400/5 rounded-full blur-3xl -z-1" />
+                </div>
+            );
+        }
+
+        // Fallback for all types if thumbnail missing
+        const Icon = ASSET_CONFIG[postType as keyof typeof ASSET_CONFIG]?.icon || FileText;
+        return (
+            <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-gray-50 dark:bg-gray-900/50 group-hover:bg-gray-100 dark:group-hover:bg-gray-800 transition-colors">
+                <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 group-hover:scale-110 transition-transform duration-300">
+                    <Icon size={32} />
+                </div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                    {postType} Preview
+                </p>
+            </div>
+        );
+    };
+
 
     // Check if the current user already liked this post
     React.useEffect(() => {
-        if (!currentUser) return;
+        if (!currentUser?.uid) return;
         const likeId = `${post.id}_${currentUser.uid}`;
         getDoc(doc(db, 'community_post_likes', likeId)).then(snap => {
             if (snap.exists()) setIsLiked(true);
         }).catch(() => { });
-    }, [currentUser, post.id]);
+    }, [currentUser?.uid, post.id]);
 
     // Sync likes count when post data updates from realtime listener
     React.useEffect(() => {
@@ -178,9 +372,23 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     const postType = post.type || 'article';
     const isAssetCard = postType !== 'article';
     const assetCfg = isAssetCard ? ASSET_CONFIG[postType as keyof typeof ASSET_CONFIG] : null;
-    const isAssetDisabled = isAssetCard && !post.assetUrl;
 
-    const shareUrl = typeof window !== 'undefined' ? `${window.location.origin}/community/post/${post.id}` : '';
+    // Helper to resolve asset URL even if it's missing from search index
+    const getResolvedAssetUrl = () => {
+        if (post.assetUrl) return post.assetUrl;
+        if (!isAssetCard || !post.assetId) return '';
+
+        // Reconstruct based on App.tsx routing rules
+        if (postType === 'whiteboard') return `${window.location.origin}/whiteboard/${post.assetId}`;
+        if (postType === 'portfolio') return `${window.location.origin}/portfolio/${post.assetId}`;
+        if (postType === 'resume') return `${window.location.origin}/shared/${post.authorId}/${post.assetId}`;
+        return '';
+    };
+
+    const resolvedAssetUrl = getResolvedAssetUrl();
+    const isAssetDisabled = isAssetCard && !resolvedAssetUrl;
+
+    const shareUrl = `https://careervivid.app/community/post/${post.id}`;
 
     // Highlight text helper
     const renderHighlightedText = (text: string, highlightResult?: any) => {
@@ -196,17 +404,17 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     // Determine click handler
     const handleCardClick = () => {
         if (isAssetDisabled) return;
-        if (isAssetCard && post.assetUrl) {
-            const url = new URL(post.assetUrl, window.location.origin);
-            navigate(url.pathname);
+        if (isAssetCard && resolvedAssetUrl) {
+            const url = new URL(resolvedAssetUrl, window.location.origin);
+            navigate(url.pathname, { from: window.location.pathname });
         } else {
-            navigate(`/community/post/${post.id}`);
+            navigate(`/community/post/${post.id}`, { from: window.location.pathname });
         }
     };
 
     // ── Author row (shared across all types) ───────────────────────────
     const AuthorRow = (
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 mb-3 md:mb-4">
             <button
                 onClick={e => { e.stopPropagation(); navigate(`/portfolio/${post.authorId}`); }}
                 className="shrink-0 rounded-full focus-visible:ring-2 focus-visible:ring-primary-500 cursor-pointer"
@@ -287,7 +495,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                     {comments.slice(0, 5).map(c => <CommentItem key={c.id} comment={c} currentLocale={currentLocale} />)}
                     {comments.length > 5 && (
                         <button
-                            onClick={() => navigate(`/community/post/${post.id}#comments`)}
+                            onClick={() => navigate(`/community/post/${post.id}#comments`, { from: window.location.pathname })}
                             className="text-sm text-primary-600 dark:text-primary-400 font-medium pt-3 hover:underline cursor-pointer"
                         >
                             View all {comments.length} {t('community.feed.comments').toLowerCase()} →
@@ -331,14 +539,27 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                     <MessageSquare size={17} />
                     <span>{post.metrics?.comments ?? 0}</span>
                 </button>
+
+                {/* LinkedIn Share */}
+                <a
+                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={e => e.stopPropagation()}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 text-[#0a66c2] hover:bg-[#0a66c2]/10 cursor-pointer"
+                    aria-label="Share to LinkedIn"
+                >
+                    <Linkedin size={17} />
+                    <span className="hidden sm:inline">Share</span>
+                </a>
             </div>
 
             {/* Read time (articles) or asset type label */}
-            <span className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 font-medium">
+            <span className="flex items-center gap-1 text-[10px] md:text-xs text-gray-400 dark:text-gray-500 font-medium whitespace-nowrap">
                 {isAssetCard ? (
-                    <>{assetCfg && <assetCfg.icon size={14} />} Showcase</>
+                    <>{assetCfg && <assetCfg.icon size={12} className="md:w-3.5 md:h-3.5" />} Showcase</>
                 ) : (
-                    <><BookOpen size={14} /> {post.readTime ?? 1} {t('community.feed.min_read')}</>
+                    <><BookOpen size={12} className="md:w-3.5 md:h-3.5" /> {post.readTime ?? 1} {t('community.feed.min_read')}</>
                 )}
             </span>
         </div>
@@ -348,7 +569,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     if (isAssetDisabled) {
         return (
             <article className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden opacity-70">
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                     {AuthorRow}
                     <div className="flex items-center gap-3 p-4 bg-gray-100 dark:bg-gray-800 rounded-xl">
                         <AlertTriangle size={20} className="text-gray-400 shrink-0" />
@@ -374,13 +595,20 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         return (
             <article
                 onClick={handleCardClick}
-                className={`group rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200 overflow-hidden cursor-pointer ${assetCfg.bgPattern}`}
+                className={`group rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700 transition-all duration-200 overflow-hidden cursor-pointer ${assetCfg.bgPattern}`}
             >
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                     {AuthorRow}
 
+                    {/* Visual Preview */}
+                    <div className="relative w-full aspect-[4/3] sm:aspect-video rounded-xl overflow-hidden mb-4 md:mb-5 border border-gray-200/50 dark:border-gray-700/50 shadow-inner bg-white dark:bg-gray-900">
+                        <VisualSnapshot />
+                        {/* Overlay gradient */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                    </div>
+
                     {/* Caption / Title */}
-                    <h2 className="text-xl font-extrabold text-gray-900 dark:text-white mb-2 leading-snug">
+                    <h2 className="text-lg md:text-xl font-extrabold text-gray-900 dark:text-white mb-2 leading-snug">
                         {post.title}
                     </h2>
 
@@ -394,12 +622,13 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                     {post.tags?.length > 0 && (
                         <div className="flex flex-wrap gap-1.5 mb-4">
                             {post.tags.map((tag, i) => (
-                                <span
+                                <button
                                     key={tag}
-                                    className={`inline-flex items-center gap-0.5 text-xs font-semibold px-2 py-0.5 rounded-md ${TAG_COLORS[i % TAG_COLORS.length]}`}
+                                    onClick={(e) => { e.stopPropagation(); navigate(`/community?tag=${slugifyTag(tag)}`); }}
+                                    className={`inline-flex items-center gap-0.5 text-xs font-semibold px-2 py-0.5 rounded-md cursor-pointer hover:opacity-80 transition-opacity ${TAG_COLORS[i % TAG_COLORS.length]}`}
                                 >
                                     #{tag}
-                                </span>
+                                </button>
                             ))}
                         </div>
                     )}
@@ -422,21 +651,16 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     }
 
     // ── Default: Article card ──────────────────────────────────────────
-    const snippet = post.content
-        ?.replace(/```[\s\S]*?```/g, '') // strip code blocks
-        ?.replace(/#+\s/g, '')           // strip md headings
-        ?.replace(/[_*`[\]()]/g, '')     // strip inline md
-        ?.trim()
-        ?.slice(0, 180) ?? '';
+    const snippet = stripMarkdown(post.content || '').slice(0, 180);
 
     return (
         <article
-            onClick={() => navigate(`/community/post/${post.id}`)}
-            className="group bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200 overflow-hidden cursor-pointer"
+            onClick={() => navigate(`/community/post/${post.id}`, { from: window.location.pathname })}
+            className="group bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700 transition-all duration-200 overflow-hidden cursor-pointer"
         >
             {/* Cover image — aspect-video prevents stretch */}
             {post.coverImage && (
-                <div className="w-full aspect-video overflow-hidden">
+                <div className="w-full aspect-[4/3] sm:aspect-video overflow-hidden">
                     <img
                         src={post.coverImage}
                         alt={post.title}
@@ -447,11 +671,11 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 </div>
             )}
 
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
                 {AuthorRow}
 
                 {/* Title */}
-                <h2 className="text-xl font-extrabold text-gray-900 dark:text-white mb-3 leading-snug group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                <h2 className="text-lg md:text-xl font-extrabold text-gray-900 dark:text-white mb-3 leading-snug group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                     {post.title}
                 </h2>
 
@@ -459,12 +683,13 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 {post.tags?.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mb-3">
                         {post.tags.map((tag, i) => (
-                            <span
+                            <button
                                 key={tag}
-                                className={`inline-flex items-center gap-0.5 text-xs font-semibold px-2 py-0.5 rounded-md ${TAG_COLORS[i % TAG_COLORS.length]}`}
+                                onClick={(e) => { e.stopPropagation(); navigate(`/community?tag=${slugifyTag(tag)}`); }}
+                                className={`inline-flex items-center gap-0.5 text-xs font-semibold px-2 py-0.5 rounded-md cursor-pointer hover:opacity-80 transition-opacity ${TAG_COLORS[i % TAG_COLORS.length]}`}
                             >
                                 #{tag}
-                            </span>
+                            </button>
                         ))}
                     </div>
                 )}

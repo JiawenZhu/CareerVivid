@@ -63,7 +63,7 @@ const PublicResumePage: React.FC = () => {
         <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 shadow-sm sticky top-0 z-40 h-20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex justify-between items-center">
                 <div className="flex items-center gap-4">
-                    <a href="/dashboard" className="flex items-center gap-2">
+                    <a href="/dashboard" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }} className="flex items-center gap-2">
                         <Logo className="h-8 w-8" />
                         <span className="text-xl font-bold text-gray-900 dark:text-white hidden sm:inline">CareerVivid</span>
                     </a>
@@ -88,6 +88,7 @@ const PublicResumePage: React.FC = () => {
                     {routeParams && currentUser?.uid !== routeParams.userId && (
                         <a
                             href="/dashboard"
+                            onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }}
                             className="hidden md:flex items-center gap-1.5 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 px-3 py-1.5 rounded-lg transition-colors"
                         >
                             Create your own

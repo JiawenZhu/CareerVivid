@@ -76,6 +76,7 @@ const ShareWhiteboardModal: React.FC<ShareWhiteboardModalProps> = ({ isOpen, onC
                 type: 'whiteboard',
                 assetId: whiteboard.id,
                 assetUrl: shareUrl,
+                assetThumbnail: whiteboard.thumbnailSvg || '',
                 caption: caption.trim() || '',
                 title: whiteboard.title || 'Shared Whiteboard',
                 content: caption.trim() || `Check out my system design!`,
@@ -87,6 +88,7 @@ const ShareWhiteboardModal: React.FC<ShareWhiteboardModalProps> = ({ isOpen, onC
                 metrics: { likes: 0, comments: 0, views: 0 },
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
+                whiteboardData: whiteboard, // Full snapshot of whiteboard for live rendering
             };
 
             Object.keys(payload).forEach(key => {
