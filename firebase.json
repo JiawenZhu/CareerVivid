@@ -46,6 +46,11 @@
         "region": "us-west1"
       },
       {
+        "source": "/community",
+        "function": "renderSeoContent",
+        "region": "us-west1"
+      },
+      {
         "source": "/community/post/**",
         "function": "renderSeoContent",
         "region": "us-west1"

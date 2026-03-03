@@ -1,19 +1,15 @@
 import { onRequest } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
+import { isbot } from "isbot";
+import { algoliasearch } from "algoliasearch";
 
 const db = admin.firestore();
-
-// ── Bot detection ─────────────────────────────────────────────────────────────
-const BOT_UA_REGEX = /googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebot|facebookexternalhit|twitterbot|linkedinbot|rogerbot|embedly|quora link preview|showyoubot|outbrain|pinterest\/0\.|pinterestbot|slackbot|vkshare|w3c_validator|whatsapp|applebot|discordbot|telegrambot|redditbot|bitrixbot|xing-contenttabreceiver/i;
-
-const isBot = (userAgent: string): boolean => BOT_UA_REGEX.test(userAgent);
 
 // ── Cache index.html per function instance (warm requests pay ~0 overhead) ────
 let cachedIndexHtml: string | null = null;
 
 async function getIndexHtml(): Promise<string> {
     if (cachedIndexHtml) return cachedIndexHtml;
-    // Fetch the static index.html — NOT subject to any hosting rewrites
     const response = await fetch("https://careervivid.app/index.html", {
         headers: { "X-Internal-Fetch": "1" }
     });
@@ -188,7 +184,6 @@ async function handlePortfolio(uid: string): Promise<string> {
     if (!snap.exists) throw new Error("not_found");
     const user = snap.data() as any;
 
-    // Also try to get the portfolio document
     const portfolioSnap = await db.collection("users").doc(uid).collection("portfolio").limit(1).get();
     const portfolio = portfolioSnap.empty ? null : portfolioSnap.docs[0].data() as any;
 
@@ -221,17 +216,13 @@ async function handlePortfolio(uid: string): Promise<string> {
 }
 
 async function handleWhiteboard(parts: string[]): Promise<string> {
-    // Path: /whiteboard/:uid/:whiteboardId OR /whiteboard/:whiteboardId
-    // Try fetching from a global collection first; fall back to user-owned
     let whiteboardData: any = null;
-    let whiteboardId = parts[parts.length - 1];
+    const whiteboardId = parts[parts.length - 1];
 
-    // Try direct lookup in a global whiteboards collection
     const directSnap = await db.collection("whiteboards").doc(whiteboardId).get();
     if (directSnap.exists) {
         whiteboardData = directSnap.data();
     } else if (parts.length >= 2) {
-        // Try user-owned: /whiteboard/:uid/:id
         const uid = parts[parts.length - 2];
         const userSnap = await db.collection("users").doc(uid).collection("whiteboards").doc(whiteboardId).get();
         if (userSnap.exists) whiteboardData = userSnap.data();
@@ -261,6 +252,82 @@ async function handleWhiteboard(parts: string[]): Promise<string> {
     return buildHtml({ title, description, canonicalUrl, imageUrl, structuredData, bodyContent, siteSuffix: "CareerVivid Whiteboard" });
 }
 
+// ── Community feed handler — serves a semantic article list to AI bots ────────
+async function handleCommunityFeed(): Promise<string> {
+    const appId = process.env.ALGOLIA_APP_ID;
+    const searchKey = process.env.ALGOLIA_SEARCH_KEY;
+
+    let articles: { id: string; title: string; author: string; snippet: string }[] = [];
+
+    if (appId && searchKey) {
+        try {
+            const client = algoliasearch(appId, searchKey);
+            const result = await client.search({
+                requests: [{
+                    indexName: "community_posts",
+                    query: "",
+                    hitsPerPage: 20,
+                    attributesToRetrieve: ["objectID", "title", "authorName", "content", "type"],
+                }]
+            });
+            const firstResult = (result.results[0] as any);
+            const hits: any[] = firstResult?.hits ?? [];
+            articles = hits
+                .filter((h: any) => !h.type || h.type === "article")
+                .map((h: any) => ({
+                    id: h.objectID,
+                    title: (h.title || "Untitled Article").trim(),
+                    author: h.authorName || "CareerVivid Community",
+                    snippet: stripMarkdown(h.content || "").substring(0, 120),
+                }));
+        } catch (err) {
+            console.warn("[handleCommunityFeed] Algolia query failed:", err);
+        }
+    } else {
+        console.warn("[handleCommunityFeed] Missing ALGOLIA_APP_ID or ALGOLIA_SEARCH_KEY.");
+    }
+
+    const title = "CareerVivid Community – Career Articles & Resources";
+    const description = "Explore the latest career advice, resume tips, portfolio showcases, and professional development articles from the CareerVivid community.";
+    const canonicalUrl = `${BASE_URL}/community`;
+
+    const structuredData = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: title,
+        description,
+        url: canonicalUrl,
+        publisher: { "@type": "Organization", name: "CareerVivid", logo: { "@type": "ImageObject", url: LOGO_URL } },
+        hasPart: articles.map(a => ({
+            "@type": "Article",
+            name: a.title,
+            url: `${BASE_URL}/community/post/${a.id}`,
+            author: { "@type": "Person", name: a.author },
+        }))
+    };
+
+    const listItems = articles.length > 0
+        ? articles.map(a => `
+    <li style="padding:14px 0;border-bottom:1px solid #f0f0f0;">
+      <a href="${BASE_URL}/community/post/${esc(a.id)}" style="font-size:1rem;font-weight:600;color:#4f46e5;text-decoration:none;">
+        ${esc(a.title)}
+      </a>
+      <p style="margin:4px 0 0;font-size:0.85rem;color:#888;">${esc(a.author)}${a.snippet ? " · " + esc(a.snippet) + "…" : ""}</p>
+    </li>`).join("")
+        : `<li style="color:#888;padding:16px 0;">No articles found.</li>`;
+
+    const bodyContent = `
+        <h1 style="font-size:2rem;font-weight:800;margin-bottom:8px;">${esc(title)}</h1>
+        <p style="font-size:1rem;color:#555;margin-bottom:24px;">${esc(description)}</p>
+        <ul style="list-style:none;padding:0;margin:0;">${listItems}
+        </ul>
+        <p style="margin-top:24px;font-size:0.85rem;color:#aaa;">
+          <a href="${BASE_URL}/community" style="color:#4f46e5;">View all articles →</a>
+        </p>`;
+
+    return buildHtml({ title, description, canonicalUrl, imageUrl: DEFAULT_OG_IMAGE, structuredData, bodyContent, siteSuffix: "CareerVivid" });
+}
+
 // ── Main Function ─────────────────────────────────────────────────────────────
 export const renderSeoContent = onRequest(
     {
@@ -277,7 +344,7 @@ export const renderSeoContent = onRequest(
         // ── Human traffic: serve the SPA's index.html directly ───────────
         // IMPORTANT: Do NOT redirect — the rewrite would re-trigger this
         // function, causing an infinite redirect loop.
-        if (!isBot(ua)) {
+        if (!isbot(ua)) {
             try {
                 const indexHtml = await getIndexHtml();
                 res.set("Cache-Control", "public, max-age=300, s-maxage=600");
@@ -299,6 +366,12 @@ export const renderSeoContent = onRequest(
                 // /community/post/:postId
                 html = await handleArticle(parts[2]);
 
+            } else if (routeType === "community" && !parts[1]) {
+                // /community  (root feed for bots — article discovery list)
+                // Cache aggressively: bots hit this a lot, and content changes gradually.
+                res.set("Cache-Control", "public, max-age=600, s-maxage=3600");
+                html = await handleCommunityFeed();
+
             } else if (routeType === "shared" && parts[1] && parts[2]) {
                 // /shared/:uid/:resumeId
                 html = await handleResume(parts[1], parts[2]);
@@ -312,12 +385,14 @@ export const renderSeoContent = onRequest(
                 html = await handleWhiteboard(parts.slice(1));
 
             } else {
-                // Unknown route — serve generic fallback
                 res.status(404).send("Not Found");
                 return;
             }
 
-            res.set("Cache-Control", "public, max-age=300, s-maxage=600");
+            // Default cache: 5 min client, 10 min CDN (individual posts/profiles)
+            if (!res.getHeader("Cache-Control")) {
+                res.set("Cache-Control", "public, max-age=300, s-maxage=600");
+            }
             res.set("X-Rendered-By", "renderSeoContent");
             res.status(200).type("html").send(html);
 
