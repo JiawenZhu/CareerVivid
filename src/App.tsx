@@ -83,6 +83,8 @@ const CommunityPostPage = React.lazy(() => import('./pages/community/CommunityPo
 const CommunityGuidelinesPage = React.lazy(() => import('./pages/community/CommunityGuidelinesPage'));
 const MyPostsPage = React.lazy(() => import('./pages/community/MyPostsPage'));
 const ApiDocsPage = React.lazy(() => import('./pages/ApiDocsPage'));
+const DeveloperSettings = React.lazy(() => import('./pages/DeveloperSettings'));
+
 
 import { SUPPORTED_LANGUAGES } from './constants';
 // import i18n from './i18n'; // Used in navigation.ts
@@ -508,6 +510,16 @@ const AppContent: React.FC = () => {
     else if (path === '/developers/api' || path === '/developers') {
       content = <ApiDocsPage />;
     }
+
+    // Developer Settings (API Key management) — protected
+    else if (path === '/developer') {
+      content = (
+        <ProtectedRoute>
+          <DeveloperSettings />
+        </ProtectedRoute>
+      );
+    }
+
 
     // Commerce / Checkout (Was in Auth block)
     else if (path === '/commerce') {

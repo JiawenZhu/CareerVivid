@@ -50,6 +50,9 @@ export * from "./linkedin";
 export { injectCommunityMeta } from "./meta-injector";
 export { renderSeoContent } from "./seo/renderSeoContent";
 export { generateSitemap } from "./seo/generateSitemap";
+export { manageApiKey } from "./manageApiKey";
+export { publishPost } from "./publishPost";
+
 
 
 const getFunctionConfig = () => {

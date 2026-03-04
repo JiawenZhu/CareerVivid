@@ -1,0 +1,22 @@
+{
+  "name": "careervivid-mcp-server",
+  "version": "1.0.0",
+  "description": "CareerVivid MCP Server — publish articles and diagrams directly from AI coding agents",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node index.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
