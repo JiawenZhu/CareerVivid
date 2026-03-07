@@ -1,0 +1,57 @@
+---
+title: CareerVivid - End-to-End Publishing & AI Sync Workflow
+---
+
+sequenceDiagram
+    autonumber
+    actor Dev as Developer
+    participant CLI as CareerVivid CLI
+    participant MCP as AI Agent (MCP)
+    box rgb(30, 27, 75) CareerVivid Cloud
+        participant API as Core API Gateway
+        participant Auth as Firebase Auth
+        participant AI as Gemini AI Engine
+        participant DB as Firestore DB
+    end
+    participant Web as Web/Portfolio UI
+
+    %% Authentication Phase
+    note over Dev,Auth: 1. Secure Authentication Flow
+    Dev->>CLI: Runs `cv auth`
+    CLI->>Auth: Initiates Browser OAuth
+    Auth-->>Dev: Prompts Google/GitHub Login
+    Dev->>Auth: Approves Access
+    Auth-->>CLI: Returns Secure Session Token & Config
+
+    %% Authoring & Publishing Phase
+    note over Dev,DB: 2. Content Authoring & API Publishing
+    Dev->>CLI: Runs `cv publish system-design.mmd`
+    alt Agent-Driven Path
+        Dev->>MCP: "Publish this diagram using the MCP tool"
+        MCP->>API: POST /api/publish (Tool Call)
+    else CLI Path
+        CLI->>API: POST /api/publish (Payload w/ Token)
+    end
+    
+    API->>API: Validates Mermaid/Markdown Syntax
+    
+    %% AI Enhancement (Optional)
+    opt AI Enhancement Enabled
+        API->>AI: Send Content for SEO Optimization
+        AI-->>API: Returns Optimized Output & Tags
+    end
+
+    API->>DB: Stores Content Document
+    DB-->>API: Returns Post ID & Timestamp
+    API-->>CLI: 201 Created (Live URL)
+    API-->>MCP: Tool Call Success (Live URL)
+    
+    CLI-->>Dev: Prints Success & Live Link in Terminal
+
+    %% Viewing & Syncing Phase
+    note over Dev,Web: 3. Community Distribution & Portfolio Sync
+    Dev->>Web: Visits https://careervivid.app/community
+    Web->>API: Fetch Latest Feed
+    API->>DB: Query Recent Posts
+    DB-->>API: Returns Aggregated Feed
+    API-->>Web: Real-time UI Update

@@ -80,9 +80,9 @@ const VisualTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpda
                     style={{ color: textMuted }}
                     tagName="p"
                 />
-                <div className="flex gap-4 flex-wrap">
+                <div className="flex flex-wrap items-center gap-5 pt-4">
                     {/* Dynamic Buttons */}
-                    {hero.buttons?.map((btn, idx) => (
+                    {(hero.buttons || []).map((btn, idx) => (
                         <div key={btn.id} className="relative group/btn">
                             {onUpdate && (
                                 <button
@@ -150,11 +150,11 @@ const VisualTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpda
                         className="text-4xl font-bold block"
                         tagName="h2"
                     />
-                    <span style={{ color: textMuted }}>{projects.length} Projects</span>
+                    <span style={{ color: textMuted }}>{(projects || []).length} Projects</span>
                 </div>
 
-                <div className={`grid ${responsiveClass('grid-cols-1', 'md:grid-cols-2')} gap-8`}>
-                    {projects.map((project, idx) => (
+                <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+                    {(projects || []).map((project, idx) => (
                         <div key={project.id} className={`group relative rounded-2xl overflow-hidden aspect-[4/3] bg-gray-800 ${idx % 3 === 0 ? responsiveClass('', 'md:col-span-2 md:aspect-[21/9]') : ''}`}>
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity z-10"></div>
                             {project.thumbnailUrl ? (

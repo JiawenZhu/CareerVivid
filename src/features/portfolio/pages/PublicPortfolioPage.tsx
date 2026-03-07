@@ -211,7 +211,7 @@ const PublicPortfolioPage: React.FC = () => {
             onClick={handleGlobalClick}
         >
             {/* Intro / Splash Screen - Hide in embed mode */}
-            {!isEmbed && portfolioData.linkInBio?.introPage?.enabled && showIntro && (
+            {!isEmbed && portfolioData?.linkInBio?.introPage?.enabled && showIntro && (
                 <IntroOverlay
                     config={portfolioData.linkInBio.introPage}
                     onEnter={() => setShowIntro(false)}

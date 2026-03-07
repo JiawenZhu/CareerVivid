@@ -49,6 +49,8 @@ export interface CommunityPost {
     updatedAt: any;
     // Polymorphic asset fields
     type: CommunityPostType;
+    dataFormat?: 'markdown' | 'mermaid' | 'blocknote_json'; // format of the content field
+    source?: 'api' | 'spa';  // how the post was published
     assetId?: string;   // ID of the resume / portfolio / whiteboard
     assetUrl?: string;  // Public link to the asset (e.g. /shared/uid/id)
     assetThumbnail?: string; // Snapshot URL or SVG string
@@ -75,7 +77,7 @@ export const useCommunity = (options: UseCommunityOptions = {}) => {
     const [hasMore, setHasMore] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [lastVisible, setLastVisible] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
-    const { currentUser } = useAuth();
+    const { currentUser, userProfile } = useAuth();
 
     // Build shared constraints — deterministic, used in both initial fetch & pagination
     const buildConstraints = useCallback((afterDoc?: QueryDocumentSnapshot<DocumentData> | null) => {
@@ -169,10 +171,20 @@ export const useCommunity = (options: UseCommunityOptions = {}) => {
         if (!currentUser) throw new Error('Must be logged in to post.');
 
         try {
+            let authorName = 'Community Member'; // Default fallback
+
+            if (userProfile?.displayName && userProfile.displayName !== 'Anonymous Developer' && userProfile.displayName !== 'Community Member') {
+                authorName = userProfile.displayName;
+            } else if (currentUser.displayName) {
+                authorName = currentUser.displayName;
+            } else if ((userProfile as any)?.name) {
+                authorName = (userProfile as any)?.name;
+            }
+
             const payload: Record<string, any> = {
                 ...postData,
                 authorId: currentUser.uid,
-                authorName: currentUser.displayName || 'Anonymous',
+                authorName: authorName,
                 authorAvatar: currentUser.photoURL || '',
                 metrics: { likes: 0, comments: 0, views: 0 },
                 createdAt: serverTimestamp(),
@@ -247,5 +259,6 @@ export const useCommunity = (options: UseCommunityOptions = {}) => {
         fetchMorePosts,
         createPost,
         toggleLike,
+        userProfile,
     };
 };

@@ -37,6 +37,42 @@
             "value": "same-origin-allow-popups"
           }
         ]
+      },
+      {
+        "source": "**/*.@(eot|otf|ttf|ttc|woff|font.css)",
+        "headers": [
+          {
+            "key": "Access-Control-Allow-Origin",
+            "value": "*"
+          }
+        ]
+      },
+      {
+        "source": "/assets/main.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(js|css)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=31536000"
+          }
+        ]
+      },
+      {
+        "source": "/index.html",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
       }
     ],
     "rewrites": [
@@ -168,6 +204,26 @@
       {
         "source": "/api/publish",
         "function": "publishPost",
+        "region": "us-west1"
+      },
+      {
+        "source": "/api/portfolio/init",
+        "function": "initPortfolio",
+        "region": "us-west1"
+      },
+      {
+        "source": "/api/portfolio/projects",
+        "function": "updatePortfolioProjects",
+        "region": "us-west1"
+      },
+      {
+        "source": "/api/portfolio/hero",
+        "function": "updatePortfolioHero",
+        "region": "us-west1"
+      },
+      {
+        "source": "/api/portfolio/assets",
+        "function": "uploadPortfolioAsset",
         "region": "us-west1"
       },
       {

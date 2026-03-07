@@ -1,0 +1,78 @@
+---
+title: CareerVivid - Comprehensive CLI Architecture & Distribution
+---
+
+flowchart TB
+    %% Styling
+    classDef npm fill:#cb3837,stroke:#fff,stroke-width:2px,color:#fff
+    classDef cli fill:#1e1b4b,stroke:#a855f7,stroke-width:2px,color:#fff
+    classDef commands fill:#1e3a8a,stroke:#3b82f6,stroke-width:2px,color:#fff
+    classDef api fill:#14532d,stroke:#22c55e,stroke-width:2px,color:#fff
+    classDef env fill:#4c1d95,stroke:#8b5cf6,stroke-width:2px,color:#fff
+
+    %% Distribution
+    subgraph Distribution [📦 Package Distribution]
+         direction LR
+         NPMRegistry[npmjs.com/package/careervivid]
+         NPMInstall[npm install -g careervivid]
+         NPMRegistry -.->|Global Install| NPMInstall
+    end
+
+    %% Internal CLI Structure
+    subgraph Core [💻 CareerVivid CLI Core Program]
+        direction TB
+        Commander[Command Parser - Commander.js]
+        ConfigStore[Local Config Store ~/.careervivid]
+        OutputFormatter[Rich Terminal UI - Ora & Chalk]
+        
+        Commander <--> ConfigStore
+        Commander --> OutputFormatter
+    end
+
+    %% Sub-commands
+    subgraph Commands [⚡ Available Commands]
+        direction LR
+        cmdAuth[cv auth]
+        cmdPublish[cv publish]
+        cmdPortfolio[cv portfolio]
+        cmdConfig[cv config]
+    end
+
+    %% User Environment
+    subgraph UserEnv [🖥️ Developer Workspace]
+        direction TB
+        Terminal[Secure Terminal Session]
+        MarkdownFiles[Local Markdown Articles .md]
+        MermaidFiles[Local Mermaid Diagrams .mmd]
+    end
+
+    %% Backend APIs
+    subgraph BackendAPIs [🌐 CareerVivid Core APIs]
+        direction TB
+        ApiAuth[SSO Authentication API]
+        ApiPublish[Community Publish API]
+        ApiPortfolio[Portfolio Management API]
+    end
+
+    %% Flow logic
+    NPMInstall ==>|Executes| Terminal
+    
+    Terminal -->|Runs 'cv'| Commander
+    Terminal -->|Authors| MarkdownFiles
+    Terminal -->|Designs| MermaidFiles
+    
+    MarkdownFiles -.->|File Input| cmdPublish
+    MermaidFiles -.->|File Input| cmdPublish
+    
+    Commander --> Commands
+    
+    cmdAuth ===|Browser OAuth| ApiAuth
+    cmdPublish ===|Validated Payload| ApiPublish
+    cmdPortfolio ===|Sync Projects/Assets| ApiPortfolio
+
+    %% Applying styles
+    class Distribution npm
+    class Core cli
+    class Commands commands
+    class BackendAPIs api
+    class UserEnv env

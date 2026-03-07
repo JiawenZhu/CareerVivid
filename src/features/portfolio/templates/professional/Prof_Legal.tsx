@@ -86,7 +86,7 @@ const LegalTrust: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileVi
                         <div className="mt-12">
                             <h3 className="text-sm font-sans font-bold uppercase text-slate-500 mb-4 tracking-widest">Education & Bar Admissions</h3>
                             <ul className="space-y-4">
-                                {education.map(edu => (
+                                {(education || []).map(edu => (
                                     <li key={edu.id} className="flex items-start gap-3 text-slate-300">
                                         <Award size={18} className="text-amber-600 mt-1 flex-shrink-0" />
                                         <div>
@@ -119,7 +119,7 @@ const LegalTrust: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileVi
                 </h2>
 
                 <div className={`grid ${responsiveClass('grid-cols-1', 'md:grid-cols-3')} gap-8`}>
-                    {projects.map((caseStudy, idx) => (
+                    {(projects || []).map((caseStudy, idx) => (
                         <div key={caseStudy.id} className="bg-slate-800 p-8 border-t-4 border-amber-600 hover:bg-slate-800/80 transition-colors group">
                             <div className="text-amber-600/20 font-sans font-bold text-6xl mb-4 select-none group-hover:text-amber-600/40 transition-colors">
                                 {(idx + 1).toString().padStart(2, '0')}
@@ -154,7 +154,7 @@ const LegalTrust: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileVi
                 <div className="max-w-4xl mx-auto">
                     <h2 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-8 text-center">Professional History</h2>
                     <div className="space-y-0">
-                        {timeline.map((job) => (
+                        {(timeline || []).map((job) => (
                             <div key={job.id} className={`flex ${responsiveClass('flex-col', 'md:flex-row md:items-center')} py-6 border-b border-slate-900 last:border-0 hover:bg-slate-900/50 transition-colors px-4 -mx-4 rounded`}>
                                 <div className="w-48 text-amber-600 font-bold mb-1 md:mb-0 shrink-0">
                                     {job.startDate} — {job.endDate}

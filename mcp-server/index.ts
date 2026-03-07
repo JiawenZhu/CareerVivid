@@ -31,7 +31,7 @@ import { z } from "zod";
 
 // ── Read configuration from env ───────────────────────────────────────────────
 const CV_API_KEY = process.env.CV_API_KEY || "";
-const CV_API_URL = process.env.CV_API_URL || "https://careervivid.app/api/publish";
+const CV_API_URL = process.env.CV_API_URL || "https://careervivid.app/api";
 
 if (!CV_API_KEY) {
     process.stderr.write(
@@ -111,7 +111,7 @@ server.tool(
         let statusCode: number;
 
         try {
-            const response = await fetch(CV_API_URL, {
+            const response = await fetch(`${CV_API_URL}/publish`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -171,6 +171,96 @@ server.tool(
                 }],
                 isError: true,
             };
+        }
+    }
+);
+
+server.tool(
+    "init_careervivid_portfolio",
+    "Creates a foundational CareerVivid developer portfolio site.",
+    {
+        title: z.string().describe("Brand title for the portfolio"),
+        templateId: z.string().optional().describe("Template ID (e.g. 'minimalist', 'developer')"),
+    },
+    async ({ title, templateId }) => {
+        try {
+            const response = await fetch(`${CV_API_URL}/portfolio/init`, {
+                method: "POST", headers: { "Content-Type": "application/json", "x-api-key": CV_API_KEY },
+                body: JSON.stringify({ title, templateId })
+            });
+            const data: any = await response.json();
+            if (!response.ok) return { content: [{ type: "text" as const, text: `❌ Init failed: ${data.error}` }], isError: true };
+            return { content: [{ type: "text" as const, text: `✅ Portfolio created!\nID: ${data.portfolioId}\nURL: ${data.url}` }] };
+        } catch (err: any) {
+            return { content: [{ type: "text" as const, text: `❌ Error: ${err.message}` }], isError: true };
+        }
+    }
+);
+
+server.tool(
+    "add_project_to_portfolio",
+    "Add a new case study or project to an existing portfolio. AI should use this after reading a local codebase.",
+    {
+        portfolioId: z.string().describe("The ID of the portfolio to update"),
+        projects: z.array(z.record(z.string(), z.any())).describe("Array of project objects containing title, description, link, imageUrl, etc."),
+        techStack: z.array(z.string()).optional().describe("Array of technologies used in the projects to append to the portfolio's overall tech stack"),
+    },
+    async ({ portfolioId, projects, techStack }) => {
+        try {
+            const response = await fetch(`${CV_API_URL}/portfolio/projects`, {
+                method: "PATCH", headers: { "Content-Type": "application/json", "x-api-key": CV_API_KEY },
+                body: JSON.stringify({ portfolioId, projects, techStack })
+            });
+            const data: any = await response.json();
+            if (!response.ok) return { content: [{ type: "text" as const, text: `❌ Sync failed: ${data.error}` }], isError: true };
+            return { content: [{ type: "text" as const, text: `✅ Projects successfully synced to portfolio ${portfolioId}!` }] };
+        } catch (err: any) {
+            return { content: [{ type: "text" as const, text: `❌ Error: ${err.message}` }], isError: true };
+        }
+    }
+);
+
+server.tool(
+    "upload_portfolio_image",
+    "Upload a base64 encoded image (e.g. UI screenshot) to the user's portfolio storage bucket.",
+    {
+        image: z.string().describe("Base64 encoded image string (without the data:image/png;base64, prefix)"),
+        path: z.string().describe("Target file path/name (e.g. 'projects/my-app-screenshot.png')"),
+        mimeType: z.string().describe("MIME type of the image (e.g. 'image/png')"),
+    },
+    async ({ image, path, mimeType }) => {
+        try {
+            const response = await fetch(`${CV_API_URL}/portfolio/assets`, {
+                method: "POST", headers: { "Content-Type": "application/json", "x-api-key": CV_API_KEY },
+                body: JSON.stringify({ image, path, mimeType })
+            });
+            const data: any = await response.json();
+            if (!response.ok) return { content: [{ type: "text" as const, text: `❌ Upload failed: ${data.error}` }], isError: true };
+            return { content: [{ type: "text" as const, text: `✅ Upload successful!\nURL: ${data.downloadUrl}` }] };
+        } catch (err: any) {
+            return { content: [{ type: "text" as const, text: `❌ Error: ${err.message}` }], isError: true };
+        }
+    }
+);
+
+server.tool(
+    "suggest_portfolio_theme",
+    "Analyzes the project 'vibe' and instantly applies a new CSS theme to the portfolio.",
+    {
+        portfolioId: z.string().describe("The ID of the portfolio to update"),
+        theme: z.record(z.string(), z.any()).describe("Theme object containing primaryColor, typography, and darkMode toggle"),
+    },
+    async ({ portfolioId, theme }) => {
+        try {
+            const response = await fetch(`${CV_API_URL}/portfolio/hero`, {
+                method: "PATCH", headers: { "Content-Type": "application/json", "x-api-key": CV_API_KEY },
+                body: JSON.stringify({ portfolioId, theme })
+            });
+            const data: any = await response.json();
+            if (!response.ok) return { content: [{ type: "text" as const, text: `❌ Theme update failed: ${data.error}` }], isError: true };
+            return { content: [{ type: "text" as const, text: `✅ Vibe theme successfully applied!` }] };
+        } catch (err: any) {
+            return { content: [{ type: "text" as const, text: `❌ Error: ${err.message}` }], isError: true };
         }
     }
 );

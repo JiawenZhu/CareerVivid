@@ -74,7 +74,7 @@ export default function EmailPracticeSettings() {
     }
 
     return (
-        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-[#161b22] p-6 lg:p-8 rounded-2xl border border-gray-200/60 dark:border-gray-800 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] transition-shadow duration-300">
             <div className="flex items-center gap-2 mb-4">
                 <Mail className="w-5 h-5 text-indigo-500" />
                 <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Scheduled Practice Interviews</h2>

@@ -4,6 +4,8 @@ import { WhiteboardData } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { doc, updateDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
+import { deepStripUndefined } from '../utils/firebaseUtils';
+import Toast from './Toast';
 
 interface ShareWhiteboardModalProps {
     isOpen: boolean;
@@ -22,6 +24,7 @@ const ShareWhiteboardModal: React.FC<ShareWhiteboardModalProps> = ({ isOpen, onC
     const [caption, setCaption] = useState('');
     const [isPublishing, setIsPublishing] = useState(false);
     const [publishSuccess, setPublishSuccess] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const shareUrl = `${window.location.origin}/whiteboard/${whiteboard.id}`;
 
@@ -33,6 +36,7 @@ const ShareWhiteboardModal: React.FC<ShareWhiteboardModalProps> = ({ isOpen, onC
             setShowCommunityCaption(false);
             setCaption('');
             setPublishSuccess(false);
+            setError(null);
         }
     }, [isOpen, whiteboard.isPublic]);
 
@@ -85,22 +89,20 @@ const ShareWhiteboardModal: React.FC<ShareWhiteboardModalProps> = ({ isOpen, onC
                 authorId: currentUser.uid,
                 authorName: currentUser.displayName || 'Anonymous',
                 authorAvatar: currentUser.photoURL || '',
+                authorRole: (currentUser as any)?.role || '',
                 metrics: { likes: 0, comments: 0, views: 0 },
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
-                whiteboardData: whiteboard, // Full snapshot of whiteboard for live rendering
+                whiteboardData: deepStripUndefined(whiteboard), // Deeply strip undefined values
             };
-
-            Object.keys(payload).forEach(key => {
-                if (payload[key] === undefined) delete payload[key];
-            });
 
             await addDoc(collection(db, 'community_posts'), payload);
             setPublishSuccess(true);
             setShowCommunityCaption(false);
             setTimeout(() => setPublishSuccess(false), 4000);
-        } catch (err) {
+        } catch (err: any) {
             console.error('Error publishing whiteboard to community:', err);
+            setError(err.message || 'Failed to share to community feed.');
         } finally {
             setIsPublishing(false);
         }
@@ -224,6 +226,7 @@ const ShareWhiteboardModal: React.FC<ShareWhiteboardModalProps> = ({ isOpen, onC
                     )}
                 </div>
             </div>
+            {error && <Toast message={error} onClose={() => setError(null)} />}
         </div>
     );
 };

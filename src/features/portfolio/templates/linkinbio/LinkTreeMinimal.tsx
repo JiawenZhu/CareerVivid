@@ -214,12 +214,12 @@ const LinkTreeMinimal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
 
                 {/* Links Section */}
                 <div className="flex flex-col gap-3 mb-8 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100">
-                    {linkInBio.links
+                    {(linkInBio.links || [])
                         .filter(link => link.enabled)
                         .sort((a, b) => (a.order || 0) - (b.order || 0))
                         .map(renderButton)}
 
-                    {linkInBio.links.filter(l => l.enabled).length === 0 && !data.attachedResumeId && onEdit && (
+                    {(linkInBio.links || []).filter(l => l.enabled).length === 0 && !data.attachedResumeId && onEdit && (
                         <div className="text-center py-12 text-gray-400">
                             <Icons.LinkIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
                             <p className="text-sm">No links yet. Click to add your first link!</p>
@@ -235,9 +235,9 @@ const LinkTreeMinimal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
                 </div>
 
                 {/* Social Links */}
-                {linkInBio.showSocial && data.socialLinks.length > 0 && (
+                {linkInBio.showSocial && (data.socialLinks || []).length > 0 && (
                     <div className="flex items-center justify-center gap-4 mb-6 animate-in fade-in duration-700 delay-200">
-                        {data.socialLinks.slice(0, 6).map(social => {
+                        {(data.socialLinks || []).slice(0, 6).map(social => {
                             // Map common social platforms to icons
                             const getSocialIcon = (label?: string) => {
                                 const lower = (label || '').toLowerCase();

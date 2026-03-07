@@ -49,7 +49,7 @@ const WriterEditorial: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMob
                     className={`${responsiveClass('text-3xl', 'md:text-5xl')} font-bold leading-tight mb-12 cursor-pointer hover:bg-yellow-100/50 hover:text-black transition-colors rounded px-2 -mx-2`}
                     title="Click to edit about me"
                 >
-                    {about.slice(0, 150)}{about.length > 150 ? '...' : ''}
+                    {(about || '').slice(0, 150)}{(about || '').length > 150 ? '...' : ''}
                 </h1>
                 <div className="flex items-center gap-4">
                     <a href={`mailto:${data.contactEmail}`} className="inline-flex items-center gap-2 px-6 py-3 bg-black text-white font-sans font-medium hover:bg-gray-800 transition-colors">
@@ -69,8 +69,8 @@ const WriterEditorial: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMob
                         <h2 className="text-sm font-bold font-sans uppercase tracking-widest">Selected Publications</h2>
                     </div>
 
-                    <div className="space-y-20">
-                        {projects.map(project => (
+                    <div className="space-y-24">
+                        {(projects || []).map(project => (
                             <article key={project.id} className="group cursor-pointer">
                                 <div className={`flex ${responsiveClass('flex-col', 'md:flex-row')} gap-12 items-start`}>
                                     <div className="flex-1">
@@ -104,8 +104,8 @@ const WriterEditorial: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMob
             {/* Experience as a clean list */}
             <section className="py-24 max-w-3xl mx-auto px-6">
                 <h2 className="text-sm font-bold font-sans uppercase tracking-widest mb-12 border-b border-black pb-4 inline-block">Experience</h2>
-                <ul className="space-y-8">
-                    {timeline.map(job => (
+                <div className="space-y-12">
+                    {(timeline || []).map(job => (
                         <li key={job.id} className={`grid ${responsiveClass('grid-cols-1', 'md:grid-cols-[1fr_3fr]')} gap-4`}>
                             <div className="text-sm font-sans font-medium text-gray-500">{job.startDate} — {job.endDate}</div>
                             <div>
@@ -115,7 +115,7 @@ const WriterEditorial: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMob
                             </div>
                         </li>
                     ))}
-                </ul>
+                </div>
             </section>
 
             <footer id="contact" className="bg-[#1a1a1a] text-white py-20 px-6 text-center">

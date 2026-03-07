@@ -24,7 +24,7 @@ export const parseGEOContent = (markdown: string): GEOParseResult => {
 
     // 1. Check for TL;DR / Key Takeaways at the start
     // Looking for a header followed by at least 3 bullet points
-    const tldrRegex = /^(?:#+|(\*\*))(?:\s*)(?:TL;DR|Key Takeaways)(?:.*)\n(?:(?:\s*[-*+]\s+.*\n?){3,})/i;
+    const tldrRegex = /^(?:#+|(\*\*))(?:\s*)(?:TL;DR|Key Takeaways|How it was built|Architecture Highlights|Vibe Coding Stack)(?:.*)\n(?:(?:\s*[-*+]\s+.*\n?){3,})/i;
     const hasTLDR = tldrRegex.test(content);
 
     // 2. Extract FAQ section

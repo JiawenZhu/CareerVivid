@@ -139,18 +139,18 @@ const SaaSModern: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileVi
                     <div className="bg-slate-900 rounded-3xl p-8 border border-slate-800 shadow-sm text-white overflow-hidden relative min-h-[280px]">
                         <div className="absolute top-0 right-0 p-32 bg-indigo-500/20 blur-3xl rounded-full" />
                         <h3 className="text-lg font-bold mb-6 relative z-10 flex items-center gap-2"><Code size={18} /> Tech Stack</h3>
-                        <div className="flex flex-wrap gap-2 relative z-10">
-                            {techStack.slice(0, 8).map(skill => (
-                                <span key={skill.id} className="px-3 py-1 bg-white/10 rounded-full text-xs font-medium backdrop-blur-sm border border-white/5">
+                        <div className="flex flex-wrap gap-3">
+                            {(techStack || []).slice(0, 8).map(skill => (
+                                <div key={skill.id} className="flex items-center gap-2 bg-indigo-500/10 text-indigo-400 px-3 py-1 rounded-full text-sm border border-indigo-500/20">
                                     {skill.name}
-                                </span>
+                                </div>
                             ))}
                         </div>
                     </div>
 
                     {/* Card 3: Experience Stat */}
                     <div className="bg-indigo-600 rounded-3xl p-8 shadow-lg text-white flex flex-col justify-center items-center text-center min-h-[200px]">
-                        <div className="text-6xl font-bold mb-2 tracking-tighter">{timeline.length}+</div>
+                        <div className="text-6xl font-bold mb-2 tracking-tighter">{(timeline || []).length}+</div>
                         <div className="text-indigo-200 font-medium">Years of Experience</div>
                     </div>
 
@@ -175,7 +175,7 @@ const SaaSModern: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileVi
                 <div className="max-w-6xl mx-auto">
                     <h2 className="text-3xl font-bold text-slate-900 mb-12">Recent Projects</h2>
                     <div className={`grid ${responsiveClass('grid-cols-1', 'md:grid-cols-2')} gap-12`}>
-                        {projects.map(project => (
+                        {(projects || []).map(project => (
                             <div key={project.id} className="group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl transition-all duration-300">
                                 <div className="aspect-video bg-slate-200 relative overflow-hidden">
                                     {project.thumbnailUrl ? (
@@ -208,7 +208,7 @@ const SaaSModern: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileVi
                                         {project.description}
                                     </p>
                                     <div className="flex flex-wrap gap-2">
-                                        {project.tags?.map(tag => (
+                                        {(project.tags || []).map(tag => (
                                             <span key={tag} className="px-2 py-1 bg-slate-50 border border-slate-100 text-slate-500 text-xs font-semibold rounded uppercase">
                                                 {tag}
                                             </span>

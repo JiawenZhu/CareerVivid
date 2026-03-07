@@ -75,7 +75,7 @@ const AcademicResearch: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMo
                                 onClick={() => setActiveTab('publications')}
                                 className={`w-full text-left px-4 py-2 rounded text-sm font-medium transition-colors ${activeTab === 'publications' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-100'}`}
                             >
-                                Publications ({projects.length})
+                                Publications ({(projects || []).length})
                             </button>
                         </li>
                         <li>
@@ -124,8 +124,8 @@ const AcademicResearch: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMo
                         <section>
                             <h2 className="text-2xl font-bold text-slate-900 mb-6 border-b border-slate-200 pb-2">Research Interests</h2>
                             <div className="flex flex-wrap gap-2">
-                                {data.techStack.map(skill => (
-                                    <span key={skill.id} className="px-3 py-1 bg-slate-100 text-slate-700 text-sm rounded border border-slate-200">
+                                {(data.techStack || []).map(skill => (
+                                    <span key={skill.id} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                                         {skill.name}
                                     </span>
                                 ))}
@@ -135,7 +135,7 @@ const AcademicResearch: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMo
                         <section>
                             <h2 className="text-2xl font-bold text-slate-900 mb-6 border-b border-slate-200 pb-2">Education</h2>
                             <div className="space-y-4">
-                                {education.map(edu => (
+                                {(education || []).map(edu => (
                                     <div key={edu.id} className="flex gap-4">
                                         <div className="mt-1"><GraduationCap size={20} className="text-slate-400" /></div>
                                         <div>
@@ -154,7 +154,7 @@ const AcademicResearch: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMo
                     <div className="space-y-8 animate-fade-in">
                         <h2 className="text-3xl font-bold text-slate-900 border-b border-slate-200 pb-2">Publications</h2>
                         <div className="space-y-6">
-                            {projects.map((pub, idx) => (
+                            {(projects || []).map((pub, idx) => (
                                 <div key={pub.id} className="pl-4 border-l-4 border-slate-200 hover:border-blue-500 transition-colors bg-white rounded p-4 hover:shadow-sm">
                                     <div className="text-sm text-slate-500 font-bold mb-1">[{(idx + 1)}]</div>
                                     <h3 className="text-xl font-bold text-slate-800 mb-2">{pub.title}</h3>
@@ -173,7 +173,7 @@ const AcademicResearch: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMo
                                     </div>
                                 </div>
                             ))}
-                            {projects.length === 0 && <p className="text-slate-500 italic">No publications listed.</p>}
+                            {(!projects || projects.length === 0) && <p className="text-slate-500 italic">No publications listed.</p>}
                         </div>
                     </div>
                 )}
@@ -183,7 +183,7 @@ const AcademicResearch: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMo
                         <h2 className="text-3xl font-bold text-slate-900 border-b border-slate-200 pb-2">Curriculum Vitae</h2>
 
                         <div className="space-y-12">
-                            {timeline.map((job) => (
+                            {(timeline || []).map((job) => (
                                 <div key={job.id} className={`grid ${responsiveClass('grid-cols-1', 'md:grid-cols-[1fr_3fr]')} gap-4`}>
                                     <div className={`text-slate-500 font-medium text-sm ${responsiveClass('', 'text-right border-slate-200 md:border-r md:pr-4')}`}>
                                         {job.startDate} — {job.endDate}

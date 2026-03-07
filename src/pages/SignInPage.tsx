@@ -11,6 +11,7 @@ import { Eye, EyeOff, ArrowLeft, Loader2, Mail, Lock, ChevronRight } from 'lucid
 import { trackUsage } from '../services/trackingService';
 import Logo from '../components/Logo';
 import { navigate } from '../utils/navigation';
+import { useAuth } from '../contexts/AuthContext';
 
 const SignInPage: React.FC = () => {
     const { t } = useTranslation();
@@ -21,6 +22,51 @@ const SignInPage: React.FC = () => {
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+    const { currentUser } = useAuth();
+    const [cliPort, setCliPort] = useState<string | null>(null);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const port = params.get('cli_port');
+        if (port) {
+            setCliPort(port);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (currentUser && cliPort) {
+            const handleCliAuth = async () => {
+                setLoading(true);
+                try {
+                    const { getFunctions, httpsCallable } = await import('firebase/functions');
+                    const functions = getFunctions(undefined, "us-west1");
+                    const manageApiKey = httpsCallable<{ action: string }, { key: string }>(
+                        functions,
+                        "manageApiKey"
+                    );
+
+                    let result = await manageApiKey({ action: "get" });
+                    if (!result.data.key) {
+                        result = await manageApiKey({ action: "generate" });
+                    }
+
+                    const key = result.data.key;
+                    if (!key) throw new Error("Failed to retrieve API key.");
+
+                    const callbackUrl = `http://127.0.0.1:${cliPort}/callback?token=${encodeURIComponent(key)}`;
+
+                    setTimeout(() => {
+                        window.location.href = callbackUrl;
+                    }, 800);
+                } catch (err: any) {
+                    console.error("CLI auth error:", err);
+                    setError("CLI Authentication failed. " + (err.message || "Unknown error"));
+                    setLoading(false);
+                }
+            };
+            handleCliAuth();
+        }
+    }, [currentUser, cliPort]);
 
     const loadingMessages = [
         t('auth.loading_secure'),
@@ -77,6 +123,8 @@ const SignInPage: React.FC = () => {
             const redirectUrl = params.get('redirect');
             if (redirectUrl) {
                 window.location.href = decodeURIComponent(redirectUrl);
+            } else if (!cliPort) {
+                navigate('/dashboard');
             }
         } catch (err: any) {
             handleAuthError(err);
@@ -110,6 +158,8 @@ const SignInPage: React.FC = () => {
             const redirectUrl = params.get('redirect');
             if (redirectUrl) {
                 window.location.href = decodeURIComponent(redirectUrl);
+            } else if (!cliPort) {
+                navigate('/dashboard');
             }
         } catch (err: any) {
             handleAuthError(err);
@@ -140,7 +190,7 @@ const SignInPage: React.FC = () => {
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mt-6">{t('auth.please_wait')}</h1>
             <div className="h-6 mt-2">
                 <p key={loadingMessageIndex} className="text-gray-600 dark:text-gray-400 animate-fade-in font-medium">
-                    {loadingMessages[loadingMessageIndex]}
+                    {cliPort && currentUser ? "Authorizing CLI and sending credentials..." : loadingMessages[loadingMessageIndex]}
                 </p>
             </div>
         </div>

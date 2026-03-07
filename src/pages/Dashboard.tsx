@@ -615,7 +615,7 @@ const Dashboard: React.FC = () => {
 
     return (
         <AppLayout>
-            <div className="bg-gray-100 dark:bg-gray-950 min-h-screen">
+            <div className="bg-[#f8f9fa] dark:bg-[#0a0c10] min-h-screen">
                 {/* Upgrade Modal for Site Limits */}
                 <ConfirmationModal
                     isOpen={isUpgradeModalOpen}
@@ -627,7 +627,7 @@ const Dashboard: React.FC = () => {
                     cancelText="Maybe Later"
                     variant="default"
                 />
-                <header className={`bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 shadow-sm sticky top-0 z-20 ${navPosition === 'side' ? 'md:hidden' : ''}`}>
+                <header className={`bg-white/80 dark:bg-[#0a0c10]/80 backdrop-blur-md border-b border-gray-200/60 dark:border-gray-800/60 shadow-sm sticky top-0 z-20 ${navPosition === 'side' ? 'md:hidden' : ''}`}>
                     <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center h-16 sm:h-20">
                             <div className="flex items-center gap-4">
@@ -745,6 +745,9 @@ const Dashboard: React.FC = () => {
                                                             <span className="text-orange-500 font-bold text-xs whitespace-nowrap">Click Here</span>
                                                         </div>
                                                     )}
+                                                </button>
+                                                <button onClick={() => navigate('/developer')} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                    Developer Settings (API/MCP)
                                                 </button>
                                                 {isPremium && <button onClick={() => navigate('/referrals')} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Referrals</button>}
                                                 {(userProfile?.roles?.includes('academic_partner') || userProfile?.role === 'academic_partner') && <button onClick={() => navigate('/academic-partner')} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.academic_partner')}</button>}

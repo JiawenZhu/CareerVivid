@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { useResumes } from '../hooks/useResumes';
 import { usePracticeHistory } from '../hooks/useJobHistory';
-import { EmailAuthProvider, reauthenticateWithCredential, updatePassword, deleteUser } from 'firebase/auth';
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword, deleteUser, updateProfile } from 'firebase/auth';
 import { ArrowLeft, KeyRound, Trash2, Loader2, User as UserIcon, CreditCard, Mail } from 'lucide-react';
 import { functions } from '../firebase';
 import { httpsCallable } from 'firebase/functions';
@@ -53,6 +53,39 @@ const ProfilePage: React.FC = () => {
         const step = localStorage.getItem('upgrade_guide_step');
         return step === '3';
     });
+
+    // Display Name Edit State
+    const [displayName, setDisplayName] = useState('');
+    const [isEditingName, setIsEditingName] = useState(false);
+    const [nameLoading, setNameLoading] = useState(false);
+    const [nameError, setNameError] = useState('');
+    const [nameSuccess, setNameSuccess] = useState('');
+
+    useEffect(() => {
+        if (currentUser?.displayName) {
+            setDisplayName(currentUser.displayName);
+        } else if (userProfile?.displayName && userProfile.displayName !== 'Anonymous Developer' && userProfile.displayName !== 'Community Member') {
+            setDisplayName(userProfile.displayName);
+        }
+    }, [currentUser, userProfile]);
+
+    const handleUpdateName = async () => {
+        if (!currentUser) return;
+        setNameLoading(true);
+        setNameError('');
+        setNameSuccess('');
+        try {
+            await updateProfile(currentUser, { displayName });
+            await updateUserProfile({ displayName });
+            setIsEditingName(false);
+            setNameSuccess(t('profile.name_updated', 'Name updated successfully.'));
+            setTimeout(() => setNameSuccess(''), 3000);
+        } catch (error: any) {
+            setNameError(error.message.replace('Firebase: ', ''));
+        } finally {
+            setNameLoading(false);
+        }
+    };
 
     useEffect(() => {
         if (userProfile?.emailPreferences) {
@@ -199,9 +232,9 @@ const ProfilePage: React.FC = () => {
     );
 
     return (
-        <div className="bg-gray-100 dark:bg-gray-900 min-h-screen">
+        <div className="bg-[#f8f9fa] dark:bg-[#0a0c10] min-h-screen">
             {isDeleteModalOpen && <DeleteConfirmationModal />}
-            <header className="bg-white dark:bg-gray-800 shadow-sm dark:border-b dark:border-gray-700">
+            <header className="bg-white dark:bg-[#161b22] border-b border-gray-200/60 dark:border-gray-800 sticky top-0 z-30">
                 <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex items-center gap-4">
                     <button onClick={() => navigate('/dashboard')} title="Back to Dashboard" className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
                         <ArrowLeft size={24} />
@@ -210,9 +243,9 @@ const ProfilePage: React.FC = () => {
                 </div>
             </header>
             <main className="py-10">
-                <div className="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-8">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
                     {/* Account Info Section */}
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                    <div className="bg-white dark:bg-[#161b22] p-6 lg:p-8 rounded-2xl border border-gray-200/60 dark:border-gray-800 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] transition-shadow duration-300">
                         <div className="flex items-center mb-4">
                             <UserIcon className="text-primary-500 h-6 w-6 mr-3" />
                             <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('profile.account_info')}</h2>
@@ -220,8 +253,51 @@ const ProfilePage: React.FC = () => {
                         <p className="text-gray-600 dark:text-gray-300">
                             <strong>{t('profile.email')}:</strong> {currentUser?.email}
                         </p>
+
+                        <div className="mt-4">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Display Name
+                            </label>
+                            {isEditingName ? (
+                                <div className="flex items-center gap-2 max-w-sm">
+                                    <input
+                                        type="text"
+                                        value={displayName}
+                                        onChange={(e) => setDisplayName(e.target.value)}
+                                        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-[#0a0c10] focus:ring-2 focus:ring-primary-500/50 transition-colors"
+                                    />
+                                    <button
+                                        onClick={handleUpdateName}
+                                        disabled={nameLoading}
+                                        className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm font-medium disabled:opacity-50 flex items-center gap-2 transition-colors"
+                                    >
+                                        {nameLoading && <Loader2 size={14} className="animate-spin" />}
+                                        Save
+                                    </button>
+                                    <button
+                                        onClick={() => setIsEditingName(false)}
+                                        className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 text-sm font-medium transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-3">
+                                    <p className="text-gray-500 dark:text-gray-400 font-medium">@{userProfile?.displayName || currentUser?.displayName || 'Community Member'}</p>
+                                    <button
+                                        onClick={() => setIsEditingName(true)}
+                                        className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
+                                    >
+                                        Edit
+                                    </button>
+                                </div>
+                            )}
+                            {nameError && <p className="text-red-500 text-sm mt-1">{nameError}</p>}
+                            {nameSuccess && <p className="text-green-500 text-sm mt-1">{nameSuccess}</p>}
+                        </div>
+
                         {currentUser?.providerData[0]?.providerId === 'google.com' && (
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-6 pt-4 border-t border-gray-200 dark:border-gray-800">
                                 {t('profile.google_signin_note')}
                             </p>
                         )}
@@ -232,15 +308,15 @@ const ProfilePage: React.FC = () => {
 
                     {/* Change Password Section */}
                     {currentUser?.providerData[0]?.providerId === 'password' && (
-                        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                        <div className="bg-white dark:bg-[#161b22] p-6 lg:p-8 rounded-2xl border border-gray-200/60 dark:border-gray-800 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] transition-shadow duration-300">
                             <div className="flex items-center mb-4">
                                 <KeyRound className="text-primary-500 h-6 w-6 mr-3" />
                                 <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('profile.change_password')}</h2>
                             </div>
-                            <form onSubmit={handleChangePassword} className="space-y-4">
-                                <input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} placeholder={t('profile.current_password')} required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700" />
-                                <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder={t('profile.new_password')} required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700" />
-                                <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder={t('profile.confirm_password')} required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700" />
+                            <form onSubmit={handleChangePassword} className="space-y-4 max-w-md">
+                                <input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} placeholder={t('profile.current_password')} required className="w-full px-4 py-2.5 border border-gray-200/60 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#0a0c10] focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-colors" />
+                                <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder={t('profile.new_password')} required className="w-full px-4 py-2.5 border border-gray-200/60 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#0a0c10] focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-colors" />
+                                <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder={t('profile.confirm_password')} required className="w-full px-4 py-2.5 border border-gray-200/60 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#0a0c10] focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-colors" />
                                 {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
                                 {passwordSuccess && <p className="text-green-500 text-sm">{passwordSuccess}</p>}
                                 <button type="submit" disabled={passwordLoading} className="bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-primary-700 flex items-center gap-2 disabled:bg-primary-300">
@@ -252,7 +328,7 @@ const ProfilePage: React.FC = () => {
                     )}
 
                     {/* Manage Subscription Section */}
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                    <div className="bg-white dark:bg-[#161b22] p-6 lg:p-8 rounded-2xl border border-gray-200/60 dark:border-gray-800 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] transition-shadow duration-300">
                         <div className="flex items-center mb-4">
                             <CreditCard className="text-primary-500 h-6 w-6 mr-3" />
                             <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('profile.payment_subscription')}</h2>
@@ -261,9 +337,10 @@ const ProfilePage: React.FC = () => {
                             <p className="text-gray-600 dark:text-gray-300">
                                 <strong>{t('profile.current_plan')}:</strong> <span className="font-semibold text-primary-600 dark:text-primary-400">
                                     {isPremium ? (
-                                        userProfile?.plan === 'pro_sprint' ? t('profile.plan_sprint') :
-                                            userProfile?.plan === 'pro_monthly' ? t('profile.plan_monthly') :
-                                                t('profile.plan_premium')
+                                        userProfile?.plan === 'pro' ? 'Pro' :
+                                            userProfile?.plan === 'pro_max' ? 'Pro Max' :
+                                                userProfile?.plan === 'enterprise' ? 'Enterprise' :
+                                                    t('profile.plan_premium')
                                     ) : t('profile.plan_free')}
                                 </span>
                             </p>
@@ -292,7 +369,8 @@ const ProfilePage: React.FC = () => {
                     </div>
 
                     {/* Danger Zone Section */}
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-red-300 dark:border-red-700">
+                    <div className="bg-white dark:bg-[#161b22] p-6 lg:p-8 rounded-2xl border border-red-200 dark:border-red-900/40 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] transition-shadow duration-300 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-bl-full pointer-events-none"></div>
                         <div className="flex items-center mb-4">
                             <Trash2 className="text-red-500 h-6 w-6 mr-3" />
                             <h2 className="text-2xl font-bold text-red-600 dark:text-red-400">{t('profile.danger_zone')}</h2>

@@ -52,8 +52,8 @@ export { renderSeoContent } from "./seo/renderSeoContent";
 export { generateSitemap } from "./seo/generateSitemap";
 export { manageApiKey } from "./manageApiKey";
 export { publishPost } from "./publishPost";
-
-
+export { verifyAuth } from "./verifyAuth";
+export { initPortfolio, updatePortfolioProjects, updatePortfolioHero, uploadPortfolioAsset, onPortfolioProjectsUpdated } from "./portfolioApi";
 
 const getFunctionConfig = () => {
   try {

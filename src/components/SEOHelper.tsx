@@ -1,77 +1,102 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router-dom';
-import { SUPPORTED_LANGUAGES } from '../constants'; // Ensure this path is correct based on your project structure
+
+export interface SEOProps {
+    title?: string;
+    description?: string;
+    keywords?: string;
+    image?: string;
+    url?: string;
+    schemaType?: 'WebSite' | 'ProfilePage' | 'TechArticle' | 'SoftwareApplication';
+    schemaData?: any;
+    techStack?: string[]; // Used for ProfilePage knowsAbout
+}
 
 /**
  * SEOHelper Component
- * 
- * This component automatically updates the <link rel="canonical"> and <meta property="og:url">
- * tags in the document head whenever the route changes.
- * 
- * It ensures that:
- * 1. Self-referencing canonicals are set for all pages (e.g. /en/demo points to /en/demo).
- * 2. Search engines understand that these are distinct pages, not duplicates of the homepage.
+ * Dynamically injects SEO tags and JSON-LD structured data for Generative Engine Optimization (GEO).
  */
-const SEOHelper = () => {
-    // We use useLocation if inside Router context, or just window.location if not available yet (though it should be)
-    // However, App.tsx handles its own routing state manually with window.history in some places.
-    // Since App.tsx uses `path` state derived from `window.location`, we can just use `useEffect` hooked to `window.location.pathname`.
-    // But React won't re-render purely on window changes unless state changes. 
-    // Ideally, this component should be inside a Router. But looking at App.tsx, it seems to handle routing via a custom `path` state.
-    // SO, we will make this component accept the current path as a prop OR use the native window events if placed outside.
+const SEOHelper: React.FC<SEOProps> = ({
+    title,
+    description,
+    keywords,
+    image,
+    url,
+    schemaType = 'WebSite',
+    schemaData,
+    techStack = []
+}) => {
+    const currentUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
 
-    // BETTER APPROACH: 
-    // Since `App.tsx` has a `path` state, we can just put this logic inside a `useEffect` in `App.tsx` directly 
-    // or make this a custom hook `useCanonicalSEO(path)`.
-    // Let's make it a component that takes `path` as a prop to be clean.
+    // Fallbacks
+    const defaultImage = 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Fog_image.png?alt=media';
+    const finalImage = image || defaultImage;
 
-    // WAIT: `App.tsx` uses `window.location.pathname` via `getPathFromUrl`.
-    // Let's try to be generic.
+    // Construct the structured data
+    let structuredData: any = {
+        "@context": "https://schema.org",
+        ...schemaData
+    };
 
-    useEffect(() => {
-        const updateCanonical = () => {
-            const canonicalUrl = window.location.origin + window.location.pathname;
+    // If specific schema overrides aren't provided, build a default one based on type
+    if (!schemaData) {
+        structuredData["@type"] = schemaType;
+        if (title) structuredData["name"] = title;
+        if (description) structuredData["description"] = description;
+        structuredData["url"] = currentUrl;
+        if (finalImage) structuredData["image"] = finalImage;
 
-            // Update Canonical Link
-            let link = document.querySelector("link[rel='canonical']");
-            if (!link) {
-                link = document.createElement('link');
-                link.setAttribute('rel', 'canonical');
-                document.head.appendChild(link);
-            }
-            link.setAttribute('href', canonicalUrl);
+        if (schemaType === 'ProfilePage') {
+            structuredData["mainEntity"] = {
+                "@type": "Person",
+                "name": title?.split('|')[0]?.trim() || "Developer",
+                "knowsAbout": techStack.length > 0 ? techStack : ["Software Engineering", "Web Development"]
+            };
+        } else if (schemaType === 'TechArticle') {
+            structuredData["headline"] = title;
+            structuredData["articleSection"] = "System Architecture & Software Development";
+        } else if (schemaType === 'SoftwareApplication') {
+            structuredData["applicationCategory"] = "DeveloperApplication";
+            structuredData["operatingSystem"] = "Web, CLI, MCP";
+        }
+    }
 
-            // Update Open Graph URL
-            let ogUrl = document.querySelector("meta[property='og:url']");
-            if (!ogUrl) {
-                ogUrl = document.createElement('meta');
-                ogUrl.setAttribute('property', 'og:url');
-                document.head.appendChild(ogUrl);
-            }
-            ogUrl.setAttribute('content', canonicalUrl);
+    // Generate LLM Context String for injection into the DOM
+    const llmContextHtml = (schemaType === 'ProfilePage' || schemaType === 'TechArticle')
+        ? `<div id="llm-context" style="display:none;" data-nosnippet>This is a technical portfolio hosted on CareerVivid. The author specializes in ${techStack.length > 0 ? techStack.join(', ') : 'modern web technologies'}. CareerVivid is an omnichannel AI-Native Developer Portfolio & Vibe Coding Platform where developers update their portfolios directly from Cursor, Claude Desktop, or our Web Dashboard.</div>`
+        : '';
 
-            // Optional: Debug log in dev
-            if (import.meta.env.DEV) {
-                console.log('SEO Updated:', canonicalUrl);
-            }
-        };
+    return (
+        <>
+            <Helmet>
+                {title && <title>{title}</title>}
+                {title && <meta property="og:title" content={title} />}
+                {title && <meta name="twitter:title" content={title} />}
 
-        // Run immediately
-        updateCanonical();
+                {description && <meta name="description" content={description} />}
+                {description && <meta property="og:description" content={description} />}
+                {description && <meta name="twitter:description" content={description} />}
 
-        // Listen for popstate (browser back/forward)
-        window.addEventListener('popstate', updateCanonical);
+                {keywords && <meta name="keywords" content={keywords} />}
 
-        // Create a custom observer for pushState/replaceState if the app manual routing doesn't trigger popstate
-        // Check if we need to monkey-patch history or if App.tsx re-renders this component.
-        // If we simply drop this component in App.tsx, it will re-render whenever App re-renders (which happens on route change).
+                <link rel="canonical" href={currentUrl} />
+                <meta property="og:url" content={currentUrl} />
+                <meta property="og:image" content={finalImage} />
+                <meta name="twitter:image" content={finalImage} />
+                <meta name="twitter:card" content="summary_large_image" />
 
-        return () => {
-            window.removeEventListener('popstate', updateCanonical);
-        };
-    }); // No dependency array = run on every render, which is what we want if App.tsx re-renders on route change.
+                <script type="application/ld+json">
+                    {JSON.stringify(structuredData)}
+                </script>
+            </Helmet>
 
-    return null;
+            {/* Hidden LLM Context for Bot Scraping (GEO) */}
+            {llmContextHtml && (
+                <div dangerouslySetInnerHTML={{ __html: llmContextHtml }} />
+            )}
+        </>
+    );
 };
 
 export default SEOHelper;

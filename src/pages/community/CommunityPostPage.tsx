@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { doc, onSnapshot, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { navigate } from '../../utils/navigation';
@@ -14,6 +14,69 @@ import { useAuth } from '../../contexts/AuthContext';
 import { CommunityPost, useCommunity } from '../../hooks/useCommunity';
 import { usePostComments } from '../../hooks/usePostComments';
 import { generateGEOStructuredData } from '../../utils/geoUtils';
+
+// ── Mermaid Diagram Renderer ──────────────────────────────────────────────────
+const MermaidDiagram: React.FC<{ chart: string }> = ({ chart }) => {
+    const ref = useRef<HTMLDivElement>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [svg, setSvg] = useState<string | null>(null);
+
+    useEffect(() => {
+        let cancelled = false;
+        const render = async () => {
+            try {
+                const mermaid = (await import('mermaid')).default;
+                mermaid.initialize({
+                    startOnLoad: false,
+                    securityLevel: 'loose', // Support all diagram types securely
+                    theme: 'dark',
+                    themeVariables: {
+                        primaryColor: '#0f172a',
+                        primaryTextColor: '#f8fafc',
+                        primaryBorderColor: '#334155',
+                        lineColor: '#64748b',
+                        secondaryColor: '#1e293b',
+                        clusterBkg: '#0d1117',
+                        clusterBorder: '#30363d',
+                    },
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                });
+                const id = `mermaid-${Date.now()}`;
+                const { svg: rendered } = await mermaid.render(id, chart);
+                if (!cancelled) setSvg(rendered);
+            } catch (e: any) {
+                if (!cancelled) setError(e.message ?? 'Failed to render diagram');
+            }
+        };
+        render();
+        return () => { cancelled = true; };
+    }, [chart]);
+
+    if (error) {
+        return (
+            <div className="rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-6">
+                <p className="text-sm font-semibold text-red-700 dark:text-red-400 mb-2">Diagram rendering error</p>
+                <pre className="text-xs text-red-600 dark:text-red-300 overflow-x-auto">{error}</pre>
+            </div>
+        );
+    }
+
+    if (!svg) {
+        return (
+            <div className="flex items-center justify-center h-64 rounded-xl bg-gray-900 border border-gray-800">
+                <Loader2 size={28} className="animate-spin text-gray-500" />
+            </div>
+        );
+    }
+
+    return (
+        <div
+            ref={ref}
+            className="w-full overflow-x-auto rounded-xl bg-[#0d1117] border border-gray-800 p-6 [&_svg]:max-w-full [&_svg]:h-auto [&_svg]:mx-auto [&_svg]:block"
+            dangerouslySetInnerHTML={{ __html: svg }}
+        />
+    );
+};
 
 const COLLECTION = 'community_posts';
 
@@ -227,8 +290,12 @@ const CommunityPostPage: React.FC = () => {
                             {post.authorRole && <span>{post.authorRole}</span>}
                             {post.authorRole && <span>·</span>}
                             <span>{formattedDate}</span>
-                            <span>·</span>
-                            <span className="flex items-center gap-1"><BookOpen size={13} /> {post.readTime ?? 1} min read</span>
+                            {post.dataFormat !== 'mermaid' && (
+                                <>
+                                    <span>·</span>
+                                    <span className="flex items-center gap-1"><BookOpen size={13} /> {post.readTime ?? 1} min read</span>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -245,7 +312,12 @@ const CommunityPostPage: React.FC = () => {
                 )}
 
                 {/* Body */}
-                <div className="prose prose-lg max-w-none prose-slate dark:prose-invert 
+                {post.dataFormat === 'mermaid' ? (
+                    <div className="mb-12">
+                        <MermaidDiagram chart={post.content || ''} />
+                    </div>
+                ) : (
+                    <div className="prose prose-lg max-w-none prose-slate dark:prose-invert 
                     leading-loose tracking-[0.015em]
                     prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:mb-8 
                     prose-headings:font-bold prose-headings:tracking-tight prose-headings:mt-10 prose-headings:mb-4 prose-headings:text-gray-900 dark:prose-headings:text-white
@@ -259,71 +331,71 @@ const CommunityPostPage: React.FC = () => {
                     prose-img:rounded-xl prose-img:shadow-md
                     prose-hr:border-gray-200 dark:prose-hr:border-gray-800
                     mb-12"
-                >
-                    <ReactMarkdown
-                        remarkPlugins={[remarkGfm, remarkBreaks]}
-                        components={{
-                            br({ ...props }: any) {
-                                return <span className="block h-6 content-['']" aria-hidden="true" {...props} />;
-                            },
-                            code({ node, inline, className, children, ...props }: any) {
-                                const match = /language-(\w+)/.exec(className || '');
-                                return !inline && match ? (
-                                    <SyntaxHighlighter
-                                        style={vscDarkPlus as any}
-                                        language={match[1]}
-                                        PreTag="div"
-                                        className="!m-0 !rounded-xl !bg-[#0d1117] shadow-sm text-sm"
-                                        {...props}
-                                    >
-                                        {String(children).replace(/\n$/, '')}
-                                    </SyntaxHighlighter>
-                                ) : (
-                                    <code className="bg-gray-100 dark:bg-gray-800/80 rounded-md px-1.5 py-0.5 text-[0.9em] font-mono text-primary-600 dark:text-primary-400" {...props}>
-                                        {children}
-                                    </code>
-                                );
-                            },
-                            a({ node, href, children, ...props }: any) {
-                                if (!href) return <a {...props}>{children}</a>;
-                                const isVideo = /\.(mp4|webm)$/i.test(href.split('?')[0]);
-                                const isAudio = /\.(mp3|wav|ogg)$/i.test(href.split('?')[0]);
-
-                                if (isVideo) {
-                                    return (
-                                        <div className="w-full my-6 rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-800 bg-black">
-                                            <video controls className="w-full aspect-video outline-none">
-                                                <source src={href} />
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        </div>
-                                    );
-                                }
-
-                                if (isAudio) {
-                                    return (
-                                        <div className="w-full my-6 p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center gap-2">
-                                            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Audio Attachment</span>
-                                            <audio controls className="w-full max-w-md outline-none">
-                                                <source src={href} />
-                                                Your browser does not support the audio element.
-                                            </audio>
-                                        </div>
-                                    );
-                                }
-
-                                return (
-                                    <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:text-primary-700 underline underline-offset-2 transition-colors" {...props}>
-                                        {children}
-                                    </a>
-                                );
-                            }
-                        }}
                     >
-                        {post.content}
-                    </ReactMarkdown>
-                </div>
+                        <ReactMarkdown
+                            remarkPlugins={[remarkGfm, remarkBreaks]}
+                            components={{
+                                br({ ...props }: any) {
+                                    return <span className="block h-6 content-['']" aria-hidden="true" {...props} />;
+                                },
+                                code({ node, inline, className, children, ...props }: any) {
+                                    const match = /language-(\w+)/.exec(className || '');
+                                    return !inline && match ? (
+                                        <SyntaxHighlighter
+                                            style={vscDarkPlus as any}
+                                            language={match[1]}
+                                            PreTag="div"
+                                            className="!m-0 !rounded-xl !bg-[#0d1117] shadow-sm text-sm"
+                                            {...props}
+                                        >
+                                            {String(children).replace(/\n$/, '')}
+                                        </SyntaxHighlighter>
+                                    ) : (
+                                        <code className="bg-gray-100 dark:bg-gray-800/80 rounded-md px-1.5 py-0.5 text-[0.9em] font-mono text-primary-600 dark:text-primary-400" {...props}>
+                                            {children}
+                                        </code>
+                                    );
+                                },
+                                a({ node, href, children, ...props }: any) {
+                                    if (!href) return <a {...props}>{children}</a>;
+                                    const isVideo = /\.(mp4|webm)$/i.test(href.split('?')[0]);
+                                    const isAudio = /\.(mp3|wav|ogg)$/i.test(href.split('?')[0]);
 
+                                    if (isVideo) {
+                                        return (
+                                            <div className="w-full my-6 rounded-xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-800 bg-black">
+                                                <video controls className="w-full aspect-video outline-none">
+                                                    <source src={href} />
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                            </div>
+                                        );
+                                    }
+
+                                    if (isAudio) {
+                                        return (
+                                            <div className="w-full my-6 p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center gap-2">
+                                                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Audio Attachment</span>
+                                                <audio controls className="w-full max-w-md outline-none">
+                                                    <source src={href} />
+                                                    Your browser does not support the audio element.
+                                                </audio>
+                                            </div>
+                                        );
+                                    }
+
+                                    return (
+                                        <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:text-primary-700 underline underline-offset-2 transition-colors" {...props}>
+                                            {children}
+                                        </a>
+                                    );
+                                }
+                            }}
+                        >
+                            {post.content}
+                        </ReactMarkdown>
+                    </div>
+                )}
                 {/* Like / comment actions */}
                 <div className="flex items-center gap-3 pt-6 border-t border-gray-100 dark:border-gray-800 mb-12 flex-wrap">
                     <button

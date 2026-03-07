@@ -198,12 +198,12 @@ const LinkTreeCorporate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
 
                 {/* Links Section */}
                 <div className="flex flex-col gap-3 mb-6 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100">
-                    {linkInBio.links
+                    {(linkInBio.links || [])
                         .filter((link: any) => link.enabled)
                         .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
                         .map(renderButton)}
 
-                    {linkInBio.links.filter((l: any) => l.enabled).length === 0 && !data.attachedResumeId && onEdit && (
+                    {(linkInBio.links || []).filter((l: any) => l.enabled).length === 0 && !data.attachedResumeId && onEdit && (
                         <div
                             className="text-center py-16 bg-white dark:bg-gray-900 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 cursor-pointer hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all group"
                             onClick={() => onEdit('links')}
@@ -219,11 +219,11 @@ const LinkTreeCorporate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
             {/* Contact Card */}
             <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 p-6 mb-6 animate-in fade-in duration-700 delay-200">
                 {/* Social Links */}
-                {linkInBio.showSocial && data.socialLinks.length > 0 && (
+                {linkInBio.showSocial && (data.socialLinks || []).length > 0 && (
                     <div className="mb-6 pb-6 border-b border-gray-200 dark:border-gray-800">
                         <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-500 uppercase tracking-wider mb-4">Connect</h3>
                         <div className="flex flex-wrap gap-2">
-                            {data.socialLinks.slice(0, 6).map(social => {
+                            {(data.socialLinks || []).slice(0, 6).map(social => {
                                 const getSocialIcon = (label?: string) => {
                                     const lower = (label || '').toLowerCase();
                                     if (lower.includes('github')) return <Icons.Github size={18} />;

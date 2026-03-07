@@ -2,9 +2,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, User, signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
-import { doc, getDoc, onSnapshot, updateDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, updateDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { trackUsage } from '../services/trackingService';
-import { FREE_PLAN_CREDIT_LIMIT, SPRINT_PLAN_CREDIT_LIMIT, MONTHLY_PLAN_CREDIT_LIMIT } from '../config/creditCosts';
+import { FREE_PLAN_CREDIT_LIMIT, PRO_PLAN_CREDIT_LIMIT, PRO_MAX_PLAN_CREDIT_LIMIT, ENTERPRISE_PLAN_CREDIT_LIMIT } from '../config/creditCosts';
 import { navigate } from '../utils/navigation';
 import { UserProfile } from '../types';
 
@@ -90,37 +90,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const now = Date.now();
         const expiresAtMillis = userData.expiresAt?.toMillis ? userData.expiresAt.toMillis() : null;
 
-        // Sprint: Must have expiresAt and not be expired
-        const isSprintValid = userData.plan === 'pro_sprint' && expiresAtMillis !== null
-          ? expiresAtMillis > now
-          : false;
-
-        // Monthly: Check BOTH subscription status AND expiresAt (if exists)
-        // If expiresAt exists, it takes precedence even if Stripe says active
-        const isMonthlyActive = userData.plan === 'pro_monthly' && (
-          expiresAtMillis !== null
-            ? expiresAtMillis > now // If we have expiry date, check it
-            : (userData.stripeSubscriptionStatus === 'active' || userData.stripeSubscriptionStatus === 'trialing')
-        );
+        // All paid plans are active if plan is present
+        const isPaidPlan = userData.plan === 'pro' || userData.plan === 'pro_max' || userData.plan === 'enterprise';
 
         // Legacy: Only use isPremium if there's NO expiresAt (true backward compat)
         const hasLegacyPremium = expiresAtMillis === null && userData.promotions?.isPremium === true;
 
-        const isPremiumNow = isSprintValid || isMonthlyActive || hasLegacyPremium;
+        const isPremiumNow = isPaidPlan || hasLegacyPremium;
         setIsPremium(isPremiumNow);
 
         // Set AI Usage with plan-specific limits
         const aiUsageData = userData.aiUsage || { count: 0, monthlyLimit: FREE_PLAN_CREDIT_LIMIT };
-        let monthlyLimit = FREE_PLAN_CREDIT_LIMIT; // Default for free users
+        let monthlyLimit = FREE_PLAN_CREDIT_LIMIT;
 
-        // Only calculate based on plan if userData exists
-        if (isPremiumNow && userData?.plan) {
-          if (userData.plan === 'pro_sprint') {
-            monthlyLimit = SPRINT_PLAN_CREDIT_LIMIT; // Sprint: 666 AI Credits/month
-          } else if (userData.plan === 'pro_monthly') {
-            monthlyLimit = MONTHLY_PLAN_CREDIT_LIMIT; // Monthly: 888 AI Credits/month
-          } else {
-            monthlyLimit = aiUsageData.monthlyLimit || FREE_PLAN_CREDIT_LIMIT;
+        // New SaaS Pivot Tier Mapping
+        if (userData?.plan) {
+          switch (userData.plan) {
+            case 'pro':
+              monthlyLimit = PRO_PLAN_CREDIT_LIMIT;
+              break;
+            case 'pro_max':
+              monthlyLimit = PRO_MAX_PLAN_CREDIT_LIMIT;
+              break;
+            case 'enterprise':
+              // Enterprise is pooled: limit = seats * 1200
+              monthlyLimit = (userData.seats || 1) * ENTERPRISE_PLAN_CREDIT_LIMIT;
+              break;
+            default:
+              monthlyLimit = aiUsageData.monthlyLimit || FREE_PLAN_CREDIT_LIMIT;
           }
         }
 
@@ -130,13 +127,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
 
         // AUTO-CLEANUP: Reset expired users to free plan
-        if (!isPremiumNow && (userData.plan === 'pro_sprint' || userData.plan === 'pro_monthly')) {
+        // AUTO-CLEANUP: Reset expired users to free plan (if they still have legacy plan IDs)
+        if (!isPremiumNow && (userData.plan as any === 'pro_sprint' || userData.plan as any === 'pro_monthly')) {
           if (expiresAtMillis !== null && expiresAtMillis < now) {
             // Plan expired, reset to free
             try {
               await updateDoc(userDocRef, {
                 plan: 'free',
-                role: 'user', // DOWNGRADE: Reset role to user so they lose Partner status
+                role: 'user',
                 stripeSubscriptionStatus: null,
                 promotions: {
                   ...userData.promotions,
@@ -150,7 +148,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
       } else {
-        // New users default to free tier
+        // New users default to free tier — create doc if it doesn't exist
+        const defaultProfile: Partial<UserProfile> = {
+          uid: currentUser.uid,
+          email: currentUser.email || '',
+          displayName: currentUser.displayName || '',
+          plan: 'free',
+          role: 'user',
+          createdAt: serverTimestamp(),
+          promotions: { isPremium: false },
+          aiUsage: { count: 0, lastResetDate: serverTimestamp(), monthlyLimit: FREE_PLAN_CREDIT_LIMIT }
+        };
+        try {
+          // Use setDoc with merge: true to avoid overwriting existing data if listener just haven't caught up
+          await setDoc(userDocRef, defaultProfile, { merge: true });
+        } catch (err) {
+          console.error('Failed to initialize user profile:', err);
+        }
         setIsPremium(false);
         setUserProfile(null);
       }
@@ -222,12 +236,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const usage = await getAIUsage(currentUser.uid);
 
       // Calculate limit based on plan (with null safety)
-      let limit = FREE_PLAN_CREDIT_LIMIT; // Default free
+      let limit = FREE_PLAN_CREDIT_LIMIT;
       if (userProfile?.plan) {
-        if (userProfile.plan === 'pro_sprint') {
-          limit = SPRINT_PLAN_CREDIT_LIMIT;
-        } else if (userProfile.plan === 'pro_monthly') {
-          limit = MONTHLY_PLAN_CREDIT_LIMIT;
+        switch (userProfile.plan) {
+          case 'pro':
+            limit = PRO_PLAN_CREDIT_LIMIT;
+            break;
+          case 'pro_max':
+            limit = PRO_MAX_PLAN_CREDIT_LIMIT;
+            break;
+          case 'enterprise':
+            limit = (userProfile.seats || 1) * ENTERPRISE_PLAN_CREDIT_LIMIT;
+            break;
         }
       }
 

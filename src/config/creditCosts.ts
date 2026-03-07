@@ -3,39 +3,33 @@
  * Single source of truth for all AI feature pricing.
  * Users receive 300 credits/month on Pro Monthly plan.
  */
-export const FREE_PLAN_CREDIT_LIMIT = 100;
-export const SPRINT_PLAN_CREDIT_LIMIT = 666;
-export const MONTHLY_PLAN_CREDIT_LIMIT = 888;
+// --- Tier Limits (Monthly) ---
+export const FREE_PLAN_CREDIT_LIMIT = 50;    // 100 on signup, 50 recurring/mo
+export const PRO_PLAN_CREDIT_LIMIT = 666;   // $6/mo
+export const PRO_MAX_PLAN_CREDIT_LIMIT = 888; // $8/mo
+export const ENTERPRISE_PLAN_CREDIT_LIMIT = 1200; // $12/seat (Pooled)
 
 export const AI_CREDIT_COSTS = {
-    // --- Resume ---
-    RESUME_FULL_GENERATE: 5,     // Generate a full resume from a prompt
-    RESUME_BULLET_EDIT: 1,       // AI-assisted bullet/suggestion edit
-    RESUME_PARSE_TEXT: 1,        // Parse resume from pasted text
-    RESUME_PARSE_FILE: 1,        // Parse resume from uploaded file
-    RESUME_MATCH_ANALYSIS: 3,    // Match resume against a job description
+    // --- Developer Tools ---
+    CLI_PUBLISH: 0,              // Markdown/Mermaid via CLI
+    REACTFLOW_CONVERSION: 5,     // Snapshot to ReactFlow
+    ARCHITECTURE_AUTO_GEN: 10,   // Architecture Auto-Gen
+    CODE_REVIEW: 5,              // Automated Code Review (Portfolio Review)
 
-    // --- Portfolio ---
-    PORTFOLIO_GENERATE: 5,       // Full portfolio generation
-    PORTFOLIO_REFINE: 2,         // AI refinement of an existing portfolio
-
-    // --- Job Tracker ---
-    JOB_MATCH_ANALYSIS: 3,       // Alias for resume_match_analysis in job context
-    JOB_PARSE_DESCRIPTION: 1,    // Parse a raw job posting
-    JOB_PREP_NOTES_SINGLE: 3,    // Generate prep notes for one section
-    JOB_PREP_NOTES_ALL: 10,      // Generate all prep notes at once
+    // --- Portfolio & Content ---
+    PORTFOLIO_GENERATE: 5,
+    PORTFOLIO_REFINE: 2,
+    BLOG_COVER_STANDARD: 10,
+    BLOG_COVER_PRO: 20,
+    BULLET_EDIT: 2,              // AI Bullet refinement (Bullet/Refinement Edit)
 
     // --- Interview Studio ---
-    INTERVIEW_STUDIO_SESSION: 10, // Initialize a new mock interview session
-    INTERVIEW_QUESTION_GEN: 2,    // Generate interview questions
+    TECH_INTERVIEW_VOICE: 15,    // Technical System Design Voice Interview
+    INTERVIEW_QUESTION_GEN: 2,
 
     // --- AI Image Generation ---
-    IMAGE_STANDARD: 10,          // Standard image (gemini-2.5-flash-image)
-    IMAGE_PRO: 20,               // Pro image (gemini-3-pro-image-preview)
-
-    // --- Other AI Tools ---
-    AI_ASSISTANT_QUERY: 1,       // General AI chat assistant
-    DIAGRAM_GENERATION: 3,       // Generate a whiteboard/architecture diagram
+    IMAGE_STANDARD: 10,
+    IMAGE_PRO: 20,
 } as const;
 
 export type AICreditCostKey = keyof typeof AI_CREDIT_COSTS;

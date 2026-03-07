@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Wand2, LayoutTemplate, Mic, FileText, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { FREE_PLAN_CREDIT_LIMIT, SPRINT_PLAN_CREDIT_LIMIT, MONTHLY_PLAN_CREDIT_LIMIT } from '../../config/creditCosts';
+import { FREE_PLAN_CREDIT_LIMIT, PRO_PLAN_CREDIT_LIMIT, PRO_MAX_PLAN_CREDIT_LIMIT, ENTERPRISE_PLAN_CREDIT_LIMIT } from '../../config/creditCosts';
 
 // Base constants for credit costs
 const COSTS = {
@@ -14,8 +14,9 @@ const COSTS = {
 
 const TIERS = {
     free: { name: 'Free', limit: FREE_PLAN_CREDIT_LIMIT, color: 'bg-green-500' },
-    weekly: { name: '7-Day Sprint', limit: SPRINT_PLAN_CREDIT_LIMIT, color: 'bg-primary-500' },
-    monthly: { name: 'Monthly Pro', limit: MONTHLY_PLAN_CREDIT_LIMIT, color: 'bg-purple-500' }
+    pro: { name: 'Pro', limit: PRO_PLAN_CREDIT_LIMIT, color: 'bg-primary-500' },
+    pro_max: { name: 'Pro Max', limit: PRO_MAX_PLAN_CREDIT_LIMIT, color: 'bg-purple-500' },
+    enterprise: { name: 'Enterprise', limit: ENTERPRISE_PLAN_CREDIT_LIMIT, color: 'bg-indigo-600' }
 };
 
 type TierKey = keyof typeof TIERS;
@@ -32,7 +33,7 @@ const CreditCalculator: React.FC = () => {
     });
 
     // Currently selected tier for visualization
-    const [selectedTier, setSelectedTier] = useState<TierKey>('weekly');
+    const [selectedTier, setSelectedTier] = useState<TierKey>('pro');
 
     const handleCountChange = (key: keyof typeof counts, value: number) => {
         setCounts(prev => ({ ...prev, [key]: Math.max(0, value) }));

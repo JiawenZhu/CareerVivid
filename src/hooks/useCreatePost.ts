@@ -48,14 +48,25 @@ export const useCreatePost = () => {
                 finalCoverImageUrl = await getDownloadURL(snap.ref);
             }
 
-            // Build a clean payload — no explicit undefined values
+            // Process content for GEO metadata (FAQs)
             const geo = parseGEOContent(input.content);
+
+            let authorName = 'Community Member';
+            if (userProfile?.displayName && userProfile.displayName !== 'Anonymous Developer' && userProfile.displayName !== 'Community Member') {
+                authorName = userProfile.displayName;
+            } else if (currentUser.displayName) {
+                authorName = currentUser.displayName;
+            } else if ((userProfile as any)?.name) {
+                authorName = (userProfile as any)?.name;
+            }
+
+            // Build a clean payload — no explicit undefined values
             const payload: Record<string, any> = {
                 authorId: currentUser.uid,
-                authorName: currentUser.displayName || (userProfile as any)?.name || 'Anonymous',
+                authorName: authorName,
                 authorAvatar: currentUser.photoURL || '',
-                authorRole: (userProfile as any)?.role || '',
-                type: 'article', // Default type for standard articles
+                authorRole: userProfile?.role || (userProfile as any)?.role || '',
+                type: 'article',
                 title: input.title.trim(),
                 content: geo.content.trim(),
                 tags: input.tags,

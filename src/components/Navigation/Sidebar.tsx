@@ -128,6 +128,15 @@ const Sidebar: React.FC = () => {
                     <span>Subscription & Billing</span>
                 </button>
 
+                {/* Developer Settings Link */}
+                <button
+                    onClick={() => navigate('/developer')}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-colors text-sm w-full text-left"
+                >
+                    <Monitor size={18} />
+                    <span>Developer Settings (API/MCP)</span>
+                </button>
+
                 {/* Community Link */}
                 <button
                     onClick={() => navigate('/community')}

@@ -44,11 +44,11 @@ const UXFolio: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileView 
             <section id="work" className="px-6 pb-20 md:px-12 max-w-screen-2xl mx-auto">
                 <div className="flex items-baseline justify-between mb-12 border-b border-black pb-4">
                     <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400">Selected Works</h2>
-                    <span className="text-xs font-bold text-gray-400">{projects.length} PROJECTS</span>
+                    <span className="text-xs font-bold text-gray-400">{(projects || []).length} PROJECTS</span>
                 </div>
 
-                <div className={`grid ${responsiveClass('grid-cols-1 gap-y-12', 'md:grid-cols-2 gap-x-12 gap-y-24')}`}>
-                    {projects.map((project, index) => (
+                <div className="grid md:grid-cols-2 gap-12">
+                    {(projects || []).map((project, index) => (
                         <div
                             key={project.id}
                             className={`group cursor-pointer ${index % 2 === 1 ? 'md:mt-24' : ''}`} // Offset effect for masonry feel
@@ -129,9 +129,9 @@ const UXFolio: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileView 
                             </div>
                             <div>
                                 <h3 className="text-sm font-bold uppercase mb-4 text-gray-400">Connect</h3>
-                                <div className="space-y-2 text-lg">
-                                    {data.socialLinks.map((link, i) => (
-                                        <a key={i} href={link.url} target="_blank" rel="noreferrer" className="block hover:underline">
+                                <div className="flex items-center gap-6">
+                                    {(data.socialLinks || []).map((link, i) => (
+                                        <a href={link.url} key={link.id} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-white transition-colors">
                                             {link.label}
                                         </a>
                                     ))}

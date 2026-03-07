@@ -1,0 +1,38 @@
+graph TD
+    subgraph "Local Environment (CLI)"
+        CLI["CareerVivid CLI (Commander.js)"]
+        LocalServer["Local HTTP Server (Callback)"]
+        UpdateNotifier["Update Notifier / postinstall"]
+    end
+
+    subgraph "Backend (Google Cloud Functions)"
+        VerifyAuth["verifyAuth (Node.js)"]
+        PublishPost["publishPost (Node.js)"]
+        AuthUtils["authUtils (Shared Identity Logic)"]
+    end
+
+    subgraph "Frontend (Vite + React)"
+        ErrorHandler["Dynamic Import Error Handler (entry-client.tsx)"]
+        ProfileEditor["Profile Name Editor (Auth + Firestore Sync)"]
+        SignInDetect["SignIn Detect (cli_port flow)"]
+    end
+
+    subgraph "External Services"
+        FirebaseAuth["Firebase Auth"]
+        Firestore["Firestore Database"]
+        NPM["npm Registry (v1.1.13)"]
+    end
+
+    %% Flows
+    CLI -->|opens browser| SignInDetect
+    SignInDetect -->|Success| LocalServer
+    LocalServer -->|API Key| CLI
+    CLI -->|verifyAuth| VerifyAuth
+    VerifyAuth -->|fallback identity| AuthUtils
+    AuthUtils -->|fetch| FirebaseAuth
+    AuthUtils -->|fetch| Firestore
+    CLI -->|cv publish| PublishPost
+    ErrorHandler -->|detect stale chunk| ErrorHandler
+    ErrorHandler -->|force reload| ErrorHandler
+    UpdateNotifier -->|check| NPM
+    UpdateNotifier -->|cv update| NPM

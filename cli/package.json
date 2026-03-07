@@ -1,0 +1,68 @@
+{
+  "name": "careervivid",
+  "version": "1.2.0",
+  "description": "Official CLI for CareerVivid — publish articles, diagrams, and portfolio updates from your terminal or AI agent",
+  "type": "module",
+  "bin": {
+    "cv": "dist/index.js",
+    "careervivid": "dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "node --loader ts-node/esm src/index.ts",
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build",
+    "postinstall": "node ./dist/postinstall.js"
+  },
+  "dependencies": {
+    "boxen": "^8.0.1",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "enquirer": "^2.4.1",
+    "gradient-string": "^3.0.0",
+    "mermaid": "^11.12.3",
+    "open": "^10.1.0",
+    "ora": "^8.1.0",
+    "semver": "^7.6.3",
+    "update-notifier": "^7.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/semver": "^7.5.8",
+    "@types/update-notifier": "^6.0.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "careervivid",
+    "cli",
+    "developer-tools",
+    "publish",
+    "portfolio",
+    "ai-agent",
+    "mcp"
+  ],
+  "author": "CareerVivid",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jastalk/CareerVivid.git",
+    "directory": "cli"
+  },
+  "homepage": "https://careervivid.app",
+  "bugs": {
+    "url": "https://github.com/Jastalk/CareerVivid/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

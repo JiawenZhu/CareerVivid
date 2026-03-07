@@ -3,7 +3,7 @@ import { MessageSquare, X, Send, Bot, Sparkles, HelpCircle } from 'lucide-react'
 import { generalChat } from '../services/geminiService';
 import { useResumes } from '../hooks/useResumes';
 import { useAuth } from '../contexts/AuthContext';
-import { FREE_PLAN_CREDIT_LIMIT, MONTHLY_PLAN_CREDIT_LIMIT } from '../config/creditCosts';
+import { FREE_PLAN_CREDIT_LIMIT, PRO_PLAN_CREDIT_LIMIT } from '../config/creditCosts';
 
 type ChatMessage = {
     role: 'user' | 'model';
@@ -11,7 +11,7 @@ type ChatMessage = {
 };
 
 const FAQs = [
-    { question: "How credit works?", answer: `Free users get ${FREE_PLAN_CREDIT_LIMIT} credits/month. Pro Month gets ${MONTHLY_PLAN_CREDIT_LIMIT} credits! 1 credit = 1 AI response. Chat is free!` },
+    { question: "How credit works?", answer: `Free users get ${FREE_PLAN_CREDIT_LIMIT} credits/month. Pro Month gets ${PRO_PLAN_CREDIT_LIMIT} credits! 1 credit = 1 AI response. Chat is free!` },
     { question: "How to export PDF?", answer: "Go to your Resume Dashboard, click 'Download' on any resume card." },
     { question: "Can I customize the design?", answer: "Yes! Use the 'Design' tab in the editor to change fonts, colors, and layouts." },
     { question: "How to upgrade?", answer: "Go to Profile -> Payment & Subscription -> Click on Manage Payment & Subscription button." }

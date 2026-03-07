@@ -23,6 +23,10 @@ export const useAnalytics = ({ portfolioId, ownerId, enabled }: UseAnalyticsProp
 
     // Track Page View
     useEffect(() => {
+        // DISABLE LOGGING FOR NOW TO PREVENT PERMISSION ERRORS ON PUBLIC PORTFOLIOS
+        // We will migrate this to a public-safe endpoint later.
+        return;
+
         if (!enabled || !portfolioId || !ownerId || hasLoggedView.current) return;
 
         const logView = async () => {

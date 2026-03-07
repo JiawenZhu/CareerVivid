@@ -80,8 +80,8 @@ const BentoPersonal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobil
                 {/* Tech Stack / Tools Tile */}
                 <div className={`bg-white rounded-3xl p-6 col-span-1 ${responsiveClass('', 'md:col-span-1 md:row-span-2')} shadow-sm border border-gray-200/50 flex flex-col overflow-hidden`}>
                     <div className="font-bold text-gray-400 text-xs uppercase tracking-wider mb-4">My Stack</div>
-                    <div className="flex-1 flex flex-wrap content-start gap-2">
-                        {data.techStack.map(skill => (
+                    <div className="flex flex-wrap gap-2">
+                        {(data.techStack || []).map(skill => (
                             <span key={skill.id} className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-600 hover:bg-rose-50 hover:text-rose-500 transition-colors" title={skill.name}>
                                 <span className="text-xs font-bold">{skill.name.slice(0, 2)}</span>
                             </span>
@@ -99,7 +99,7 @@ const BentoPersonal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobil
                         className="text-gray-600 text-lg md:text-xl font-medium cursor-pointer hover:bg-gray-50 rounded p-2 -m-2 transition-colors w-full"
                         title="Click to edit about me"
                     >
-                        "{about.slice(0, 120)}{about.length > 120 && '...'}"
+                        "{(about || '').slice(0, 120)}{(about || '').length > 120 && '...'}"
                     </p>
                 </div>
 
@@ -115,8 +115,8 @@ const BentoPersonal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobil
                         <span className="bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold shadow-sm">Featured Work</span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 h-full pt-10">
-                        {projects.slice(0, 4).map(proj => (
+                    <div className="grid grid-cols-2 gap-4">
+                        {(projects || []).slice(0, 4).map(proj => (
                             <div
                                 key={proj.id}
                                 className="bg-gray-100 rounded-xl overflow-hidden relative aspect-square group/item cursor-pointer"

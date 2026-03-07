@@ -355,18 +355,20 @@ const EditPost: React.FC = () => {
 
             await updateDoc(docRef, payload);
 
-            // Trigger LinkedIn post generation
-            setLinkedInArticleUrl(`https://careervivid.app/community/post/${postId}`);
-            setShowLinkedInModal(true);
-            setIsGeneratingLinkedIn(true);
-            try {
-                const socialText = await generateLinkedInPost(title, content);
-                setLinkedInPostText(socialText);
-            } catch (err) {
-                console.error("LinkedIn generation failed", err);
-            } finally {
-                setIsGeneratingLinkedIn(false);
-            }
+            navigate(`/community/post/${postId}`);
+
+            // TODO: Re-enable LinkedIn sharing once the integration is stable
+            // setLinkedInArticleUrl(`https://careervivid.app/community/post/${postId}`);
+            // setShowLinkedInModal(true);
+            // setIsGeneratingLinkedIn(true);
+            // try {
+            //     const socialText = await generateLinkedInPost(title, content);
+            //     setLinkedInPostText(socialText);
+            // } catch (err) {
+            //     console.error("LinkedIn generation failed", err);
+            // } finally {
+            //     setIsGeneratingLinkedIn(false);
+            // }
         } catch (err: any) {
             console.error('Save failed:', err);
             setLocalError(err.message || 'Failed to save changes.');

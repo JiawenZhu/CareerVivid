@@ -4,6 +4,8 @@ import { X, Copy, Globe, Lock, Check, Share2, ExternalLink, AlertCircle, Users, 
 import { useAuth } from '../contexts/AuthContext';
 import { doc, getDoc, setDoc, deleteDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
+import { deepStripUndefined } from '../utils/firebaseUtils';
+import Toast from './Toast';
 
 interface SharePortfolioModalProps {
     isOpen: boolean;
@@ -31,6 +33,7 @@ const SharePortfolioModal: React.FC<SharePortfolioModalProps> = ({
     const [caption, setCaption] = useState('');
     const [isPublishing, setIsPublishing] = useState(false);
     const [publishSuccess, setPublishSuccess] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     // Construct the share URL using headline as slug if available
     const userSlug = portfolioData?.hero?.headline
@@ -155,22 +158,20 @@ const SharePortfolioModal: React.FC<SharePortfolioModalProps> = ({
                 authorId: currentUser.uid,
                 authorName: currentUser.displayName || 'Anonymous',
                 authorAvatar: currentUser.photoURL || '',
+                authorRole: (currentUser as any)?.role || '',
                 metrics: { likes: 0, comments: 0, views: 0 },
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
-                portfolioData: portfolioData, // Full snapshot of portfolio for live rendering
+                portfolioData: deepStripUndefined(portfolioData), // Deeply strip undefined values
             };
-
-            Object.keys(payload).forEach(key => {
-                if (payload[key] === undefined) delete payload[key];
-            });
 
             await addDoc(collection(db, 'community_posts'), payload);
             setPublishSuccess(true);
             setShowCommunityCaption(false);
             setTimeout(() => setPublishSuccess(false), 4000);
-        } catch (err) {
+        } catch (err: any) {
             console.error('Error publishing portfolio to community:', err);
+            setError(err.message || 'Failed to share to community feed. The portfolio data might be too large or invalid.');
         } finally {
             setIsPublishing(false);
         }
@@ -184,6 +185,7 @@ const SharePortfolioModal: React.FC<SharePortfolioModalProps> = ({
             setShowCommunityCaption(false);
             setCaption('');
             setPublishSuccess(false);
+            setError(null);
         } else {
             const handleKeyDown = (event: KeyboardEvent) => {
                 if (event.key === 'Escape') {
@@ -354,6 +356,7 @@ const SharePortfolioModal: React.FC<SharePortfolioModalProps> = ({
                     )}
                 </div>
             </div>
+            {error && <Toast message={error} onClose={() => setError(null)} />}
         </div>
     );
 };

@@ -21,6 +21,8 @@ const STRIPE_PUBLISHABLE_KEY = 'pk_live_51STFUtRJNflGxv32CayeCcXNHhUP08C5ECNWVVp
 const stripePromise = STRIPE_PUBLISHABLE_KEY.startsWith('pk_') ? loadStripe(STRIPE_PUBLISHABLE_KEY) : null;
 
 
+import EnterpriseCalculator from '../components/Landing/EnterpriseCalculator';
+
 const PricingPage: React.FC = () => {
     const { t } = useTranslation();
     const { currentUser } = useAuth();
@@ -30,13 +32,11 @@ const PricingPage: React.FC = () => {
     const handleChoosePlan = async (priceId: string | null) => {
         setError('');
 
-        // Check if user is logged in
         if (!currentUser) {
             navigate('/signup');
             return;
         }
 
-        // Free tier - just navigate to dashboard
         if (!priceId) {
             navigate('/');
             return;
@@ -45,10 +45,8 @@ const PricingPage: React.FC = () => {
         setLoadingPriceId(priceId);
 
         try {
-            // Track checkout session start
             await trackUsage(currentUser.uid, 'checkout_session_start', { priceId });
 
-            // Call Cloud Function to create checkout session
             const createCheckoutSession = httpsCallable(functions, 'createCheckoutSession');
             const result: any = await createCheckoutSession({
                 priceId,
@@ -56,7 +54,6 @@ const PricingPage: React.FC = () => {
                 cancelUrl: `${window.location.origin}/#/pricing`,
             });
 
-            // Redirect to Stripe Checkout
             if (result.data.url) {
                 window.location.href = result.data.url;
             } else {
@@ -80,11 +77,13 @@ const PricingPage: React.FC = () => {
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
                             </span>
-                            Limited Time Offer: 50% OFF All Plans
+                            DevTool Launch: 50% OFF All Plans
                         </div>
-                        <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight">{t('pricing.title')}</h1>
-                        <p className="mt-6 text-xl text-gray-600 dark:text-gray-400">
-                            {t('pricing.subtitle')}
+                        <h1 className="text-4xl sm:text-6xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">
+                            Automated Architecture & <span className="text-primary-600">Living Documentation</span>
+                        </h1>
+                        <p className="mt-6 text-xl text-gray-600 dark:text-gray-400 font-medium">
+                            Scale your knowledge with MCP Syncing, CLI integration, and high-volume AI credits designed for modern engineering teams.
                         </p>
                     </div>
 
@@ -95,7 +94,16 @@ const PricingPage: React.FC = () => {
                             onCloudUpgrade={() => handleChoosePlan('price_1SXF15EqIOIAAUV01eD0To1q')}
                             isLoading={loadingPriceId !== null}
                         />
-                        <div className="mt-20">
+
+                        <div className="mt-32">
+                            <div className="text-center mb-12">
+                                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Estimate Team Usage</h2>
+                                <p className="text-gray-600 dark:text-gray-400 mt-2">Scale your engineering team with pooled credits at just $12 per seat.</p>
+                            </div>
+                            <EnterpriseCalculator />
+                        </div>
+
+                        <div className="mt-24">
                             <CreditCalculator />
                         </div>
                     </div>

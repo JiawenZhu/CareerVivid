@@ -84,6 +84,7 @@ export interface PortfolioProject {
     id: string;
     title: string;
     description: string;
+    link?: string; // "Documentation / External Link"
     demoUrl?: string; // "Project URL"
     repoUrl?: string; // "GitHub Link"
     thumbnailUrl?: string; // "Thumbnail Image"

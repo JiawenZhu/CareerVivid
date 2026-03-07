@@ -1,6 +1,12 @@
 import { onRequest } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import cors from "cors";
+import {
+    resolveAuth,
+    getUserProfile,
+    BRAND_LOGO_URL,
+    DEFAULT_AVATAR,
+} from "./utils/authUtils.js";
 
 const db = admin.firestore();
 const corsHandler = cors({ origin: true });
@@ -11,62 +17,6 @@ const ALLOWED_FORMATS = ["blocknote_json", "markdown", "mermaid"] as const;
 
 type PostType = typeof ALLOWED_TYPES[number];
 type DataFormat = typeof ALLOWED_FORMATS[number];
-
-// ── Dual-Mode Auth Middleware ─────────────────────────────────────────────────
-async function resolveAuth(req: any): Promise<{ uid: string; displayName: string | null; email: string | null } | null> {
-    // Method 1: Firebase ID Token (standard SPA clients)
-    const authHeader: string = req.headers.authorization || "";
-    if (authHeader.startsWith("Bearer ")) {
-        try {
-            const token = authHeader.slice(7);
-            const decoded = await admin.auth().verifyIdToken(token);
-            const userRecord = await admin.auth().getUser(decoded.uid);
-            return {
-                uid: decoded.uid,
-                displayName: userRecord.displayName || null,
-                email: userRecord.email || null,
-            };
-        } catch {
-            return null;
-        }
-    }
-
-    // Method 2: API Key (AI agents / MCP)
-    const apiKey: string = (req.headers["x-api-key"] || "").toString().trim();
-    if (apiKey) {
-        // Scan users/{uid}/private/apiKeys for a matching key
-        // NOTE: This uses a collectionGroup query for efficiency.
-        // The Firestore collection path is: users/{uid}/private -> document "apiKeys" with field "key"
-        // We must query across all users' private subcollections.
-        try {
-            const snap = await db
-                .collectionGroup("private")
-                .where("key", "==", apiKey)
-                .limit(1)
-                .get();
-
-            if (snap.empty) return null;
-
-            // The parent of "private" doc is the user doc
-            const privateDoc = snap.docs[0];
-            // Path: users/{uid}/private/apiKeys → parent.parent is /users/{uid}
-            const userDocRef = privateDoc.ref.parent.parent;
-            if (!userDocRef) return null;
-
-            const uid = userDocRef.id;
-            const userRecord = await admin.auth().getUser(uid);
-            return {
-                uid,
-                displayName: userRecord.displayName || null,
-                email: userRecord.email || null,
-            };
-        } catch {
-            return null;
-        }
-    }
-
-    return null;
-}
 
 // ── Payload Validation ────────────────────────────────────────────────────────
 interface ValidationError { field: string; message: string }
@@ -129,17 +79,17 @@ export const publishPost = onRequest(
                 return;
             }
 
-            // ── Authenticate ──────────────────────────────────────────────
-            const author = await resolveAuth(req);
-            if (!author) {
+            // ── Authenticate ───────────────────────────────────────────────
+            const authResult = await resolveAuth(req);
+            if (!authResult) {
                 res.status(401).json({
                     error: "Unauthorized.",
-                    hint: "Provide a Firebase ID token in the Authorization: Bearer <token> header, or a CareerVivid API key in the x-api-key header."
+                    hint: "Provide a Firebase ID token in the Authorization: Bearer <token> header, or a CareerVivid API key in the x-api-key header.",
                 });
                 return;
             }
 
-            // ── Validate Payload ─────────────────────────────────────────
+            // ── Validate Payload ───────────────────────────────────────────
             const body = req.body || {};
             const validationErrors = validatePayload(body);
             if (validationErrors.length > 0) {
@@ -151,44 +101,86 @@ export const publishPost = onRequest(
                         dataFormat: "markdown",
                         title: "How I Built a 3-Service Microarchitecture",
                         content: "# Introduction\n\nHere is my article body...",
-                        tags: ["architecture", "typescript", "firebase"]
-                    }
+                        tags: ["architecture", "typescript", "firebase"],
+                    },
                 });
                 return;
             }
 
-            // ── Fetch author profile for display name ────────────────────
-            let authorName = author.displayName || "CareerVivid Community";
-            try {
-                const userDoc = await db.collection("users").doc(author.uid).get();
-                if (userDoc.exists) {
-                    const userData = userDoc.data() as any;
-                    authorName = userData.displayName || userData.name || authorName;
+            // ── Validate Mermaid Syntax ────────────────────────────────────
+            if (body.dataFormat === "mermaid") {
+                try {
+                    // Dynamically import mermaid to avoid issues if blocknote/markdown is used
+                    const { default: mermaid } = await import("mermaid");
+                    mermaid.initialize({ startOnLoad: false });
+                    await mermaid.parse(body.content);
+                } catch (err: any) {
+                    const msg = err.message || "Unknown Mermaid parsing error";
+                    // In headless Node.js, valid syntaxes may still fail during DOMPurify sanitization.
+                    // If it passed Jison syntax checking and reached DOMPurify, it's valid enough.
+                    if (!msg.includes("DOMPurify") && !msg.includes("window is not defined")) {
+                        res.status(400).json({
+                            error: "Invalid Mermaid syntax. Please fix the following errors.",
+                            fields: [{
+                                field: "content",
+                                message: msg
+                            }]
+                        });
+                        return;
+                    }
                 }
-            } catch { /* non-fatal */ }
+            }
 
-            // ── Build & Save Document ────────────────────────────────────
+            // ── Fetch User Profile + Admin Status ──────────────────────────
+            const profile = await getUserProfile(authResult.uid);
+
+            // ── RBAC: isOfficialPost ───────────────────────────────────────
+            const isOfficialPost = body.isOfficialPost === true;
+
+            let authorName: string;
+            let authorAvatar: string;
+
+            if (isOfficialPost) {
+                if (!profile.isAdmin) {
+                    res.status(403).json({
+                        error: "Forbidden. You do not have permission to publish as the CareerVivid Community.",
+                        hint: "Remove the isOfficialPost flag to publish under your own name.",
+                    });
+                    return;
+                }
+                // Admin publishing an official post → use brand identity
+                authorName = "CareerVivid Community";
+                authorAvatar = BRAND_LOGO_URL;
+            } else {
+                // Regular user (or admin without flag) → use real identity
+                authorName = profile.name;
+                authorAvatar = profile.avatar;
+            }
+
+            // ── Build & Save Document ──────────────────────────────────────
             const type: PostType = body.type;
             const dataFormat: DataFormat = body.dataFormat;
-
             const now = admin.firestore.FieldValue.serverTimestamp();
+
             const postData: Record<string, any> = {
                 type,
                 dataFormat,
                 title: body.title.trim(),
                 content: body.content,
                 tags: body.tags || [],
-                authorId: author.uid,
+                authorId: authResult.uid,
                 authorName,
-                authorEmail: author.email || null,
+                authorAvatar,
+                authorEmail: profile.email,
+                isOfficialPost: isOfficialPost && profile.isAdmin,
                 isPublic: true,
                 metrics: { likes: 0, comments: 0, views: 0 },
-                source: "api",          // distinguish from SPA-created posts
+                source: "api",
                 createdAt: now,
                 updatedAt: now,
             };
 
-            // Optional fields forwarded from payload
+            // Optional fields
             if (body.coverImage) postData.coverImage = body.coverImage;
             if (body.assetId) postData.assetId = body.assetId;
 
@@ -198,7 +190,7 @@ export const publishPost = onRequest(
                 success: true,
                 postId: docRef.id,
                 url: `https://careervivid.app/community/post/${docRef.id}`,
-                message: "Post published successfully. It will appear in the community feed shortly."
+                message: "Post published successfully. It will appear in the community feed shortly.",
             });
         });
     }

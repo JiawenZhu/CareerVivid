@@ -10,7 +10,7 @@ interface JobApplicationCardProps {
 }
 
 const JobApplicationCard: React.FC<JobApplicationCardProps> = ({ job, onClick, onDelete, onDragStart }) => (
-    <div draggable onDragStart={onDragStart} onClick={onClick} className="bg-white dark:bg-gray-800 rounded-xl shadow-soft hover:shadow-lg transition-all duration-300 flex flex-col p-4 relative group cursor-pointer transform hover:-translate-y-1">
+    <div draggable onDragStart={onDragStart} onClick={onClick} className="bg-white dark:bg-[#161b22] rounded-2xl border border-gray-200/60 dark:border-gray-800 transition-all duration-300 hover:border-primary-500/30 dark:hover:border-primary-400/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] flex flex-col p-5 relative group cursor-pointer overflow-hidden">
         <div className="flex justify-between items-start mb-2">
             <div>
                 <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">{job.jobTitle}</h3>

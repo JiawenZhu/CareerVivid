@@ -56,31 +56,39 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
     ];
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
             {cards.map((card, index) => (
                 <div
                     key={index}
                     onClick={() => navigate(card.link)}
-                    className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg cursor-pointer group"
+                    className="relative bg-white dark:bg-[#161b22] p-5 rounded-2xl border border-gray-200/60 dark:border-gray-800 transition-all duration-300 hover:border-primary-500/30 dark:hover:border-primary-400/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] cursor-pointer group overflow-hidden"
                 >
-                    <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 font-sans">
-                            {card.title}
-                        </h3>
-                        <div className={`p-2 rounded-lg transition-transform duration-300 ease-out group-hover:scale-110 ${card.bg}`}>
+                    {/* Subtle Top Gradient Line */}
+                    <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                    <div className="flex justify-between items-center mb-5">
+                        <div className={`p-2.5 rounded-xl ${card.bg} border border-white/50 dark:border-white/5`}>
                             <card.icon className={`w-5 h-5 ${card.color}`} />
                         </div>
+                        <h3 className="text-[13px] font-semibold text-gray-500 dark:text-gray-400 font-sans tracking-wide uppercase">
+                            {card.title}
+                        </h3>
                     </div>
 
-                    {card.isAction ? (
-                        <div className="flex items-center gap-2 text-primary-600 dark:text-primary-400 font-bold mt-2">
-                            {card.actionText}
+                    <div className="flex items-end justify-between">
+                        {card.isAction ? (
+                            <div className="flex items-center gap-2 text-primary-600 dark:text-primary-400 font-bold text-sm bg-primary-50 dark:bg-primary-500/10 px-3 py-1.5 rounded-lg border border-primary-100 dark:border-primary-500/20 group-hover:bg-primary-100 dark:group-hover:bg-primary-500/20 transition-colors">
+                                {card.actionText}
+                            </div>
+                        ) : (
+                            <div className="text-3xl font-extrabold text-gray-900 dark:text-gray-100 font-sans tracking-tight">
+                                {card.count}
+                            </div>
+                        )}
+                        <div className="w-8 h-8 rounded-full bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                            <Plus className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-primary-500 dark:group-hover:text-primary-400" />
                         </div>
-                    ) : (
-                        <div className="text-3xl font-bold text-gray-900 dark:text-white font-sans">
-                            {card.count}
-                        </div>
-                    )}
+                    </div>
                 </div>
             ))}
         </div>

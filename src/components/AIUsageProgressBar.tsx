@@ -32,12 +32,20 @@ const AIUsageProgressBar: React.FC<AIUsageProgressBarProps> = ({
         return 'text-gray-700 dark:text-gray-400';
     };
 
+    // New: Helper to get plan label
+    const getPlanLabel = () => {
+        if (limit === 1200 || limit > 888) return 'Enterprise';
+        if (limit === 888) return 'Pro Max';
+        if (limit === 666) return 'Pro';
+        return 'Community';
+    };
+
     if (variant === 'compact') {
         return (
             <button
                 onClick={onUpgradeClick}
                 className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                title={`${remaining} credits remaining`}
+                title={`${remaining} credits remaining (${getPlanLabel()})`}
             >
                 <Sparkles className="text-blue-500 dark:text-blue-400" size={14} />
                 <span className={`text-xs font-semibold ${getTextColor()}`}>
@@ -51,7 +59,7 @@ const AIUsageProgressBar: React.FC<AIUsageProgressBarProps> = ({
         return (
             <div className="w-full flex flex-col gap-1 py-1" onClick={onUpgradeClick}>
                 <div className="flex items-center justify-between px-1">
-                    <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">AI Credits</span>
+                    <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{getPlanLabel()} Credits</span>
                     <span className={`text-[10px] font-bold ${getTextColor()}`}>{used}/{limit}</span>
                 </div>
                 <div className="relative w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
@@ -66,16 +74,16 @@ const AIUsageProgressBar: React.FC<AIUsageProgressBarProps> = ({
 
     const containerClasses = variant === 'default'
         ? "bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-sm"
-        : "w-full"; // Minimal has no card wrapper
+        : "w-full";
 
     return (
         <div className={containerClasses}>
             <div className={`flex items-center justify-between ${variant === 'default' ? 'mb-1.5' : 'mb-1'}`}>
                 <div className="flex items-center gap-1.5">
                     <Sparkles className="text-blue-500 dark:text-blue-400" size={14} />
-                    <span className="text-xs font-semibold text-gray-900 dark:text-white">AI Credits</span>
+                    <span className="text-xs font-semibold text-gray-900 dark:text-white">{getPlanLabel()} AI Credits</span>
                 </div>
-                {remaining <= Math.min(limit * 0.3, 10) && remaining > 0 && !isPremium && (
+                {remaining <= Math.min(limit * 0.3, 20) && remaining > 0 && !isPremium && (
                     <button
                         onClick={onUpgradeClick}
                         className="text-[10px] px-1.5 py-0.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded hover:from-amber-600 hover:to-amber-700 transition-all font-semibold"
@@ -86,22 +94,22 @@ const AIUsageProgressBar: React.FC<AIUsageProgressBarProps> = ({
             </div>
 
             {/* Progress Bar */}
-            <div className={`relative w-full ${variant === 'default' ? 'h-1.5 mb-1.5' : 'h-1.5 mb-1'} bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden`}>
+            <div className={`relative w-full ${variant === 'default' ? 'h-1.5 mb-1.5' : 'h-2 mb-1'} bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden shadow-inner`}>
                 <div
-                    className={`h-full bg-gradient-to-r ${getBarColor()} transition-all duration-300`}
+                    className={`h-full bg-gradient-to-r ${getBarColor()} transition-all duration-500`}
                     style={{ width: `${Math.min(percentage, 100)}%` }}
                 />
             </div>
 
             {/* Usage Text */}
-            <div className="flex items-center justify-between text-[10px]">
-                <span className={`font-medium ${getTextColor()}`}>
-                    {used}/{limit} used
+            <div className="flex items-center justify-between text-[10px] uppercase tracking-tighter">
+                <span className={`font-black ${getTextColor()}`}>
+                    {used} / {limit} USED
                 </span>
                 {remaining > 0 ? (
-                    <span className="text-gray-500 dark:text-gray-500">{remaining} left</span>
+                    <span className="text-gray-500 dark:text-gray-500 font-bold">{remaining} LEFT</span>
                 ) : (
-                    <span className="text-red-600 dark:text-red-400 font-semibold">Limit reached</span>
+                    <span className="text-red-600 dark:text-red-400 font-black">LIMIT REACHED</span>
                 )}
             </div>
         </div>

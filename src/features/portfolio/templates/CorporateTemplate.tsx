@@ -98,12 +98,14 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                             <Mail size={18} />
                             <a href={`mailto:${data.contactEmail}`} className="hover:text-white truncate transition-colors">{data.contactEmail}</a>
                         </div>
-                        {data.socialLinks?.map(link => (
-                            <div key={link.id} className="flex items-center gap-3 opacity-80 hover:opacity-100 transition-opacity">
-                                <Globe size={18} />
-                                <a href={link.url} target="_blank" rel="noreferrer" className="truncate">{link.label || 'Website'}</a>
-                            </div>
-                        ))}
+                        <div className="flex gap-4">
+                            {(data.socialLinks || []).map(link => (
+                                <div key={link.id} className="flex items-center gap-3 opacity-80 hover:opacity-100 transition-opacity">
+                                    <Globe size={18} />
+                                    <a href={link.url} target="_blank" rel="noreferrer" className="truncate">{link.label || 'Website'}</a>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     <div className="mb-12">
@@ -115,7 +117,7 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                             tagName="h2"
                         />
                         <div className="flex flex-wrap gap-2">
-                            {techStack.map(skill => (
+                            {(techStack || []).map(skill => (
                                 <span key={skill.id} className="bg-white/10 px-2 py-1 rounded text-sm text-white/90 border border-white/5">
                                     {skill.name}
                                 </span>
@@ -125,15 +127,15 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
 
                     <div className="mb-12">
                         <h2 className="text-xs font-bold uppercase tracking-widest opacity-50 mb-4 border-b border-white/20 pb-2">Education</h2>
-                        <div className="space-y-4">
-                            {education.map(edu => (
+                        <div className="space-y-8">
+                            {(education || []).map(edu => (
                                 <div key={edu.id}>
                                     <div className="font-bold">{edu.school}</div>
                                     <div className="opacity-80 text-sm">{edu.degree}</div>
                                     <div className="opacity-60 text-xs mt-1">{edu.endDate}</div>
                                 </div>
                             ))}
-                            {education.length === 0 && <p className="opacity-40 italic text-sm">No education listed</p>}
+                            {(!education || education.length === 0) && <p className="opacity-40 italic text-sm">No education listed</p>}
                         </div>
                     </div>
                 </aside>
@@ -168,8 +170,8 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                             style={{ borderColor: `${textColor}20` }}
                             tagName="h2"
                         />
-                        <div className="space-y-10">
-                            {timeline.map((job, idx) => (
+                        <div className="space-y-8">
+                            {(timeline || []).map((job, idx) => (
                                 <div key={job.id} className="relative pl-8 border-l-2" style={{ borderColor: `${textColor}10` }}>
                                     <div
                                         className="absolute -left-[9px] top-0 w-4 h-4 rounded-full border-2 border-white"
@@ -209,7 +211,7 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                                     </p>
                                 </div>
                             ))}
-                            {timeline.length === 0 && <p className="opacity-40 italic">No experience listed.</p>}
+                            {(!timeline || timeline.length === 0) && <p className="opacity-40 italic">No experience listed.</p>}
                         </div>
                     </section>
 
@@ -223,8 +225,8 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                             style={{ borderColor: `${textColor}20` }}
                             tagName="h2"
                         />
-                        <div className="grid gap-6">
-                            {data.projects?.map((proj, idx) => (
+                        <div className="grid md:grid-cols-2 gap-8">
+                            {(data.projects || []).map((proj, idx) => (
                                 <div key={proj.id} className="group p-6 rounded-lg border transition-all hover:shadow-md" style={{ borderColor: `${textColor}10`, backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : 'white' }}>
                                     <div className="flex justify-between items-start mb-2">
                                         <h3

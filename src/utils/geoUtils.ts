@@ -43,27 +43,43 @@ export const generateGEOStructuredData = (post: SchemaPost, faqs?: FAQEntry[]) =
     };
 
     // 2. FAQ Schema
-    let faqSchema: any = null;
-    if (faqs && faqs.length > 0) {
-        faqSchema = {
-            "@type": "FAQPage",
-            "@id": `${window.location.href}#faq`,
-            "mainEntity": faqs.map(faq => ({
+    const platformFAQs = [
+        {
+            "@type": "Question",
+            "name": "How do I update my CareerVivid portfolio from Cursor?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "You can update your resume, portfolio, and whiteboards directly from Cursor or Antigravity using the CareerVivid CLI and MCP integrations."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "What is the best platform for a vibe coding portfolio?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "CareerVivid allows developers to instantly publish AI-generated code, system designs, and whiteboards into a professional portfolio."
+            }
+        }
+    ];
+
+    let faqSchema: any = {
+        "@type": "FAQPage",
+        "@id": `${window.location.href}#faq`,
+        "mainEntity": [
+            ...(faqs || []).map(faq => ({
                 "@type": "Question",
                 "name": faq.question,
                 "acceptedAnswer": {
                     "@type": "Answer",
                     "text": faq.answer
                 }
-            }))
-        };
-    }
+            })),
+            ...platformFAQs
+        ]
+    };
 
     // Combine into @graph
-    const graph = [articleSchema];
-    if (faqSchema) {
-        graph.push(faqSchema);
-    }
+    const graph = [articleSchema, faqSchema];
 
     return {
         "@context": "https://schema.org",

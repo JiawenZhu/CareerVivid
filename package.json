@@ -51,6 +51,7 @@
     "jspdf": "^4.0.0",
     "lucide-react": "^0.344.0",
     "mammoth": "^1.11.0",
+    "mermaid": "^11.12.3",
     "pdfjs-dist": "^5.4.449",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -75,7 +76,7 @@
     "use-debounce": "^10.1.0"
   },
   "devDependencies": {
-    "@google-cloud/translate": "^8.1.0",
+    "@google-cloud/translate": "^9.3.0",
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.19",
@@ -89,7 +90,7 @@
     "@typescript-eslint/parser": "^6.15.0",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.18",
-    "eslint": "^10.0.0",
+    "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.5",
     "fast-xml-parser": "^5.3.4",
@@ -105,7 +106,15 @@
     "@mapbox/node-pre-gyp": "^2.0.3",
     "fast-xml-parser": "^5.3.4",
     "ajv": "^8.18.0",
-    "minimatch": "^10.2.1"
+    "minimatch": "^10.2.1",
+    "dompurify": "^3.3.2",
+    "lodash-es": "^4.17.23",
+    "mermaid": "^11.12.3",
+    "@tootallnate/once": "^3.0.1",
+    "nanoid": "^3.3.11",
+    "@excalidraw/mermaid-to-excalidraw": {
+      "nanoid": "^5.0.9"
+    }
   },
   "engines": {
     "node": ">=20.0.0"

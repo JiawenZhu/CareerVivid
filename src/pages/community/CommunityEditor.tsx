@@ -291,19 +291,20 @@ const CommunityEditor: React.FC = () => {
         const id = await publishPost({ title, content, tags, coverImageFile, coverImageUrl });
         if (id) {
             localStorage.removeItem('careervivid_post_draft');
+            navigate(`/community/post/${id}`);
 
-            // Trigger LinkedIn post generation
-            setLinkedInArticleUrl(`https://careervivid.app/community/post/${id}`);
-            setShowLinkedInModal(true);
-            setIsGeneratingLinkedIn(true);
-            try {
-                const socialText = await generateLinkedInPost(title, content);
-                setLinkedInPostText(socialText);
-            } catch (err) {
-                console.error("LinkedIn generation failed", err);
-            } finally {
-                setIsGeneratingLinkedIn(false);
-            }
+            // TODO: Re-enable LinkedIn sharing once the integration is stable
+            // setLinkedInArticleUrl(`https://careervivid.app/community/post/${id}`);
+            // setShowLinkedInModal(true);
+            // setIsGeneratingLinkedIn(true);
+            // try {
+            //     const socialText = await generateLinkedInPost(title, content);
+            //     setLinkedInPostText(socialText);
+            // } catch (err) {
+            //     console.error("LinkedIn generation failed", err);
+            // } finally {
+            //     setIsGeneratingLinkedIn(false);
+            // }
         }
     };
 

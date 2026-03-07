@@ -79,8 +79,8 @@ const CreativeDark: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobile
 
             {/* Work Gallery */}
             <section className="py-20 bg-black px-4 md:px-8">
-                <div className="max-w-7xl mx-auto space-y-40">
-                    {projects.map((project, index) => (
+                <div className="grid md:grid-cols-2 gap-10">
+                    {(projects || []).map((project, index) => (
                         <div key={project.id} className={`flex ${responsiveClass('flex-col', 'md:flex-row')} gap-8 md:gap-20 items-center ${index % 2 === 1 ? responsiveClass('', 'md:flex-row-reverse') : ''}`}>
                             <div className={`${responsiveClass('w-full', 'md:w-3/5')} group cursor-pointer relative`}>
                                 <div className={`overflow-hidden ${responsiveClass('aspect-[16/9]', 'md:aspect-[3/2]')} bg-neutral-900`}>

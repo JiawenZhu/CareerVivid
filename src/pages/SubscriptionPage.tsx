@@ -6,7 +6,7 @@ import { ArrowLeft, Check, CreditCard, Calendar, X, CheckCircle, Sparkles, Home,
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebase';
 import { trackUsage } from '../services/trackingService';
-import { FREE_PLAN_CREDIT_LIMIT, SPRINT_PLAN_CREDIT_LIMIT, MONTHLY_PLAN_CREDIT_LIMIT } from '../config/creditCosts';
+import { FREE_PLAN_CREDIT_LIMIT, PRO_PLAN_CREDIT_LIMIT, PRO_MAX_PLAN_CREDIT_LIMIT, ENTERPRISE_PLAN_CREDIT_LIMIT } from '../config/creditCosts';
 import ConfirmationModal from '../components/ConfirmationModal';
 import RetentionModal from '../components/RetentionModal';
 import CancellationFeedbackModal from '../components/CancellationFeedbackModal';
@@ -113,13 +113,13 @@ const SubscriptionPage: React.FC = () => {
                 "Create & Edit up to 15 Resumes",
                 "Create up to 8 Portfolio Websites",
                 t('subscription.features.all_templates'),
-                `${MONTHLY_PLAN_CREDIT_LIMIT} AI Credits/Month`,
+                `${ENTERPRISE_PLAN_CREDIT_LIMIT} AI Credits/Month`,
                 t('subscription.features.ai_content'),
                 t('subscription.features.ai_photo'),
                 t('subscription.features.unlimited_downloads'),
                 t('subscription.features.unlimited_practice')
             ],
-            current: currentPlan === 'pro_monthly',
+            current: (currentPlan as any) === 'enterprise',
             popular: false,
         }
     ] : [
@@ -134,68 +134,72 @@ const SubscriptionPage: React.FC = () => {
                 "Create 1 Portfolio Website",
                 t('subscription.features.all_templates'),
                 t('subscription.features.ai_content'),
-                `${FREE_PLAN_CREDIT_LIMIT} AI Credits/Month`,
+                `100 AI Credits/Month`,
                 t('subscription.features.image_exports')
             ],
             current: currentPlan === 'free' || !currentPlan,
         },
         {
-            id: 'download_once',
-            name: t('subscription.plans.download_once'),
-            price: '$1.99',
-            originalPrice: '$3.98',
-            discount: '50% OFF',
-            period: 'one-time',
-            priceId: 'price_1ScLPERJNflGxv32Wxtpvg62',
-            features: [
-                t('subscription.features.pdf_credit'),
-                t('subscription.features.use_any_resume'),
-                t('subscription.features.no_expiration'),
-                t('subscription.features.no_subscription')
-            ],
-            current: false,
-            popular: false,
-        },
-        {
-            id: 'sprint',
-            name: t('subscription.plans.sprint'),
-            price: '$6.90',
-            originalPrice: '$13.80',
-            discount: '50% OFF',
-            period: 'one-time',
-            priceId: 'price_1ScLNsRJNflGxv32cvu6cTsK',
-            features: [
-                "Create & Edit up to 100 Resumes",
-                "Create up to 8 Portfolio Websites",
-                t('subscription.features.all_templates'),
-                `${SPRINT_PLAN_CREDIT_LIMIT} AI Credits/Month`,
-                t('subscription.features.ai_content'),
-                t('subscription.features.ai_photo'),
-                t('subscription.features.unlimited_downloads'),
-                t('subscription.features.access_7_days')
-            ],
-            current: currentPlan === 'pro_sprint',
-            popular: false,
-        },
-        {
-            id: 'monthly',
-            name: t('subscription.plans.monthly'),
-            price: '$14.90',
-            originalPrice: '$29.80',
+            id: 'pro',
+            name: 'Pro',
+            price: '$6',
+            originalPrice: '$12',
             discount: '50% OFF',
             period: '/month',
-            priceId: 'price_1ScLOaRJNflGxv32BwQnSBs0',
+            priceId: 'price_1SXF15EqIOIAAUV01eD0To1q',
             features: [
                 "Create & Edit Unlimited Resumes",
                 "Create up to 8 Portfolio Websites",
                 t('subscription.features.all_templates'),
-                `${MONTHLY_PLAN_CREDIT_LIMIT} AI Credits/Month`,
+                `${PRO_PLAN_CREDIT_LIMIT} AI Credits/Month`,
+                "CLI Access",
                 t('subscription.features.ai_content'),
                 t('subscription.features.ai_photo'),
-                t('subscription.features.unlimited_downloads'),
-                t('subscription.features.unlimited_practice')
+                t('subscription.features.unlimited_downloads')
             ],
-            current: currentPlan === 'pro_monthly',
+            current: (currentPlan as any) === 'pro',
+            popular: false,
+        },
+        {
+            id: 'pro_max',
+            name: 'Pro Max',
+            price: '$8',
+            originalPrice: '$16',
+            discount: '50% OFF',
+            period: '/month',
+            priceId: 'price_1SXF1PEqIOIAAUV0p4gG4mH7',
+            features: [
+                "Create & Edit Unlimited Resumes",
+                "Create up to 8 Portfolio Websites",
+                t('subscription.features.all_templates'),
+                `${PRO_MAX_PLAN_CREDIT_LIMIT} AI Credits/Month`,
+                "Advanced CLI features",
+                "High-capacity AI usage",
+                "Priority Support",
+                "Everything in Pro"
+            ],
+            current: (currentPlan as any) === 'pro_max',
+            popular: false,
+        },
+        {
+            id: 'enterprise',
+            name: 'Enterprise',
+            price: '$12',
+            originalPrice: '$24',
+            discount: '50% OFF',
+            period: '/seat/month',
+            priceId: 'price_1SXF24EqIOIAAUV0f9X3S3oA',
+            features: [
+                "Pooled Team Credits",
+                "Team Workspaces",
+                t('subscription.features.all_templates'),
+                `${ENTERPRISE_PLAN_CREDIT_LIMIT} Credits per seat`,
+                "Centralized Billing",
+                "Custom Solutions",
+                "Admin Dashboard",
+                "SLA Support"
+            ],
+            current: (currentPlan as any) === 'enterprise',
             popular: true,
         },
     ];
@@ -229,7 +233,7 @@ const SubscriptionPage: React.FC = () => {
     const handleCancelClick = () => {
         setFeedbackData(null); // Reset feedback
         // Only show retention flow for Monthly subscriptions
-        if (currentPlan === 'pro_monthly') {
+        if ((currentPlan as any) === 'pro' || (currentPlan as any) === 'pro_max' || (currentPlan as any) === 'enterprise') {
             setCancelStep('offer_10');
         } else {
             setCancelStep('feedback'); // Non-monthly go straight to feedback
@@ -437,12 +441,7 @@ const SubscriptionPage: React.FC = () => {
                                 <div>
                                     <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">{t('subscription.current_plan')}</h2>
                                     <p className="text-3xl font-bold text-primary-600">{pricingPlans.find(p => p.current)?.name || t('subscription.plans.free')}</p>
-                                    {currentPlan === 'pro_sprint' && expiresAt && (
-                                        <p className={`text-sm mt-2 ${isExpired ? 'text-red-600' : 'text-gray-600 dark:text-gray-400'}`}>
-                                            {isExpired ? t('subscription.expired_on') : t('subscription.expires_on')} {formatDate(expiresAt)}
-                                        </p>
-                                    )}
-                                    {currentPlan === 'pro_monthly' && subscriptionStatus && (
+                                    {((currentPlan as any) === 'pro' || (currentPlan as any) === 'pro_max' || (currentPlan as any) === 'enterprise') && subscriptionStatus && (
                                         <div className="mt-2">
                                             <p className="text-sm text-gray-600 dark:text-gray-400">
                                                 {t('subscription.status')} <span className="capitalize">{subscriptionStatus.replace('_', ' ')}</span>

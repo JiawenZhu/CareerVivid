@@ -156,7 +156,7 @@ const MinimalTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
                 </p>
 
                 <div className="mt-8 flex flex-wrap gap-2">
-                    {techStack.map((skill, idx) => (
+                    {(techStack || []).map((skill, idx) => (
                         <span
                             key={skill.id}
                             onClick={() => onEdit?.(`techStack.${idx}.name`)}
@@ -185,7 +185,7 @@ const MinimalTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
                     tagName="h2"
                 />
                 <div className="grid gap-10">
-                    {projects.map((project, idx) => (
+                    {(projects || []).map((project, idx) => (
                         <div key={project.id} className="group border-l-2 border-gray-100 pl-6 hover:border-black transition-colors duration-300">
                             <h3
                                 onClick={() => onEdit?.(`projects.${idx}.title`)}
@@ -249,7 +249,7 @@ const MinimalTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
                     tagName="h2"
                 />
                 <div className="space-y-8">
-                    {timeline.map((job, idx) => (
+                    {(timeline || []).map((job, idx) => (
                         <div key={job.id} className="grid grid-cols-[100px_1fr] gap-4">
                             <div className="text-sm text-gray-500">
                                 <InlineEdit value={job.startDate} fieldId={`timeline.${idx}.startDate`} onFocus={onEdit} />

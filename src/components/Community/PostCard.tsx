@@ -232,6 +232,19 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         }
 
         if (postType === 'whiteboard') {
+            // API-published mermaid diagram — show an SVG preview badge
+            if (post.dataFormat === 'mermaid') {
+                return (
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-[#0d1117] relative overflow-hidden">
+                        <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(#10b981 0.5px, transparent 0.5px)', backgroundSize: '14px 14px' }} />
+                        <div className="p-4 bg-emerald-900/40 rounded-2xl shadow-inner border border-emerald-800/50">
+                            <PenTool size={30} className="text-emerald-400" />
+                        </div>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">Whiteboard Diagram</p>
+                    </div>
+                );
+            }
+
             const whiteboard = post.whiteboardData;
             const svgThumbnail = whiteboard?.thumbnailSvg || thumbnail;
 
@@ -386,7 +399,9 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     };
 
     const resolvedAssetUrl = getResolvedAssetUrl();
-    const isAssetDisabled = isAssetCard && !resolvedAssetUrl;
+    // API-published whiteboards (diagrams with no assetId) should link to the post detail page, not an asset page
+    const isApiWhiteboard = postType === 'whiteboard' && post.dataFormat === 'mermaid';
+    const isAssetDisabled = isAssetCard && !resolvedAssetUrl && !isApiWhiteboard;
 
     const shareUrl = `https://careervivid.app/community/post/${post.id}`;
 
@@ -404,6 +419,11 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     // Determine click handler
     const handleCardClick = () => {
         if (isAssetDisabled) return;
+        // API-published whiteboards link to the post detail page
+        if (isApiWhiteboard) {
+            navigate(`/community/post/${post.id}`, { from: window.location.pathname });
+            return;
+        }
         if (isAssetCard && resolvedAssetUrl) {
             const url = new URL(resolvedAssetUrl, window.location.origin);
             navigate(url.pathname, { from: window.location.pathname });
@@ -641,7 +661,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                         className={`w-full flex items-center justify-center gap-2.5 py-3 rounded-xl font-bold text-sm transition-all duration-200 shadow-sm ${assetCfg.btnClass} cursor-pointer`}
                     >
                         <AssetIcon size={18} />
-                        {t(assetCfg.labelKey)}
+                        {isApiWhiteboard ? 'View Diagram' : t(assetCfg.labelKey)}
                         <ExternalLink size={14} className="opacity-60" />
                     </button>
 

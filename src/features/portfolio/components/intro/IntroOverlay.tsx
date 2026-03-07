@@ -20,6 +20,7 @@ const IntroOverlay: React.FC<IntroOverlayProps> = ({ config, onEnter, position =
     // Resolve Active Asset (Multi-asset support)
     // Priority: Explicit Active ID -> First Asset -> Legacy Config (fallback)
     const activeAsset = React.useMemo(() => {
+        if (!config) return { type: 'image' } as any;
         if (config.assets && config.assets.length > 0) {
             return config.assets.find(a => a.id === config.activeAssetId) || config.assets[0];
         }
@@ -27,14 +28,14 @@ const IntroOverlay: React.FC<IntroOverlayProps> = ({ config, onEnter, position =
     }, [config]);
 
     // Use activeAsset for content properties, but config for shared properties (like button style)
-    const contentType = activeAsset.type || 'image';
-    const contentUrl = activeAsset.contentUrl;
-    const mobileContentUrl = activeAsset.mobileContentUrl;
-    const objectFit = activeAsset.objectFit || 'cover';
-    const mobileObjectFit = activeAsset.mobileObjectFit || 'cover';
+    const contentType = activeAsset?.type || 'image';
+    const contentUrl = activeAsset?.contentUrl;
+    const mobileContentUrl = activeAsset?.mobileContentUrl;
+    const objectFit = activeAsset?.objectFit || 'cover';
+    const mobileObjectFit = activeAsset?.mobileObjectFit || 'cover';
     // Game Specific
-    const gameType = activeAsset.gameType;
-    const embedCode = activeAsset.embedCode;
+    const gameType = activeAsset?.gameType;
+    const embedCode = activeAsset?.embedCode;
 
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768);

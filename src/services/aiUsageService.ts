@@ -1,6 +1,6 @@
-import { doc, getDoc, updateDoc, Timestamp, increment } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, Timestamp, increment, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
-import { FREE_PLAN_CREDIT_LIMIT, SPRINT_PLAN_CREDIT_LIMIT, MONTHLY_PLAN_CREDIT_LIMIT } from '../config/creditCosts';
+import { FREE_PLAN_CREDIT_LIMIT, PRO_PLAN_CREDIT_LIMIT, PRO_MAX_PLAN_CREDIT_LIMIT, ENTERPRISE_PLAN_CREDIT_LIMIT } from '../config/creditCosts';
 
 export interface AIUsageData {
     count: number;
@@ -26,25 +26,31 @@ export const getAIUsage = async (userId: string): Promise<AIUsageData> => {
     if (!aiUsage) {
         const defaultUsage: AIUsageData = {
             count: 0,
-            lastResetDate: Timestamp.now(),
+            lastResetDate: serverTimestamp() as any, // Initialize with server time
             monthlyLimit: FREE_PLAN_CREDIT_LIMIT // Default for free users
         };
 
         await updateDoc(userRef, { aiUsage: defaultUsage });
-        return defaultUsage;
+        return { ...defaultUsage, lastResetDate: Timestamp.now() };
     }
 
     // Check if month has passed, reset if needed
     const now = new Date();
-    const lastReset = aiUsage.lastResetDate.toDate();
+    const lastReset = aiUsage.lastResetDate?.toDate ? aiUsage.lastResetDate.toDate() : new Date();
     const monthsPassed = (now.getFullYear() - lastReset.getFullYear()) * 12 +
         (now.getMonth() - lastReset.getMonth());
 
     // Determine correct limit based on plan
     let expectedLimit = FREE_PLAN_CREDIT_LIMIT;
     const plan = userData.plan || 'free';
-    if (plan === 'pro_sprint') expectedLimit = SPRINT_PLAN_CREDIT_LIMIT;
-    else if (plan === 'pro_monthly') expectedLimit = MONTHLY_PLAN_CREDIT_LIMIT;
+
+    if (plan === 'pro') expectedLimit = PRO_PLAN_CREDIT_LIMIT;
+    else if (plan === 'pro_max') expectedLimit = PRO_MAX_PLAN_CREDIT_LIMIT;
+    else if (plan === 'enterprise') expectedLimit = ENTERPRISE_PLAN_CREDIT_LIMIT;
+    else if (plan === 'pro_sprint' || plan === 'pro_monthly') {
+        // Migration fallback for legacy plans
+        expectedLimit = PRO_PLAN_CREDIT_LIMIT;
+    }
 
     // Self-healing: If limit is incorrect (e.g. user upgraded but DB didn't sync), fix it.
     // Also reset if month passed.
@@ -90,14 +96,18 @@ export const canUseAI = async (userId: string): Promise<boolean> => {
 /**
  * Update monthly limit based on user's plan
  */
-export const updateAILimit = async (userId: string, plan: 'free' | 'pro_sprint' | 'pro_monthly'): Promise<void> => {
+export const updateAILimit = async (userId: string, plan: string): Promise<void> => {
     const userRef = doc(db, 'users', userId);
-    let limit = FREE_PLAN_CREDIT_LIMIT; // Default for free
+    let limit = FREE_PLAN_CREDIT_LIMIT;
 
-    if (plan === 'pro_sprint') {
-        limit = SPRINT_PLAN_CREDIT_LIMIT;
-    } else if (plan === 'pro_monthly') {
-        limit = MONTHLY_PLAN_CREDIT_LIMIT;
+    if (plan === 'pro') {
+        limit = PRO_PLAN_CREDIT_LIMIT;
+    } else if (plan === 'pro_max') {
+        limit = PRO_MAX_PLAN_CREDIT_LIMIT;
+    } else if (plan === 'enterprise') {
+        limit = ENTERPRISE_PLAN_CREDIT_LIMIT;
+    } else if (plan === 'pro_sprint' || plan === 'pro_monthly') {
+        limit = PRO_PLAN_CREDIT_LIMIT;
     }
 
     await updateDoc(userRef, {

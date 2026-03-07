@@ -84,7 +84,7 @@ const CommunityGuidelinesPage = React.lazy(() => import('./pages/community/Commu
 const MyPostsPage = React.lazy(() => import('./pages/community/MyPostsPage'));
 const ApiDocsPage = React.lazy(() => import('./pages/ApiDocsPage'));
 const DeveloperSettings = React.lazy(() => import('./pages/DeveloperSettings'));
-
+const BillingDashboard = React.lazy(() => import('./pages/BillingDashboard'));
 
 import { SUPPORTED_LANGUAGES } from './constants';
 // import i18n from './i18n'; // Used in navigation.ts
@@ -323,8 +323,9 @@ const AppContent: React.FC = () => {
 
     // -- Authentication Routes --
     if (path === '/signin' || path.startsWith('/signin?')) {
-      if (currentUser) {
-        const params = new URLSearchParams(window.location.search);
+      const params = new URLSearchParams(window.location.search);
+      const cliPort = params.get('cli_port');
+      if (currentUser && !cliPort) {
         const redirect = params.get('redirect');
         content = <AuthRedirect target={redirect ? decodeURIComponent(redirect) : '/dashboard'} />;
       } else {
@@ -423,11 +424,11 @@ const AppContent: React.FC = () => {
       );
     }
 
-    // Subscription
-    else if (path === '/subscription') {
+    // Subscription / Billing
+    else if (path === '/subscription' || path === '/billing') {
       content = (
         <ProtectedRoute>
-          <SubscriptionPage />
+          <BillingDashboard />
         </ProtectedRoute>
       );
     }
@@ -519,7 +520,6 @@ const AppContent: React.FC = () => {
         </ProtectedRoute>
       );
     }
-
 
     // Commerce / Checkout (Was in Auth block)
     else if (path === '/commerce') {

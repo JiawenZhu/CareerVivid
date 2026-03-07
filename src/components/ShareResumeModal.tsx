@@ -5,6 +5,8 @@ import { ResumeData, ShareConfig, SharePermission } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
+import { deepStripUndefined } from '../utils/firebaseUtils';
+import Toast from './Toast';
 
 interface ShareResumeModalProps {
   isOpen: boolean;
@@ -26,6 +28,7 @@ const ShareResumeModal: React.FC<ShareResumeModalProps> = ({ isOpen, onClose, re
   const [caption, setCaption] = useState('');
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishSuccess, setPublishSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Construct the share URL. Using history router approach.
   // Format: base/shared/<userId>/<resumeId>
@@ -45,6 +48,7 @@ const ShareResumeModal: React.FC<ShareResumeModalProps> = ({ isOpen, onClose, re
       setShowCommunityCaption(false);
       setCaption('');
       setPublishSuccess(false);
+      setError(null);
     } else {
       const handleKeyDown = (event: KeyboardEvent) => {
         if (event.key === 'Escape') {
@@ -92,23 +96,20 @@ const ShareResumeModal: React.FC<ShareResumeModalProps> = ({ isOpen, onClose, re
         authorId: currentUser.uid,
         authorName: currentUser.displayName || 'Anonymous',
         authorAvatar: currentUser.photoURL || '',
+        authorRole: (currentUser as any)?.role || '',
         metrics: { likes: 0, comments: 0, views: 0 },
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-        resumeData: resume, // Full snapshot of resume for live rendering in community feed
+        resumeData: deepStripUndefined(resume), // Deeply strip undefined values
       };
-
-      // Strip undefined values
-      Object.keys(payload).forEach(key => {
-        if (payload[key] === undefined) delete payload[key];
-      });
 
       await addDoc(collection(db, 'community_posts'), payload);
       setPublishSuccess(true);
       setShowCommunityCaption(false);
       setTimeout(() => setPublishSuccess(false), 4000);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error publishing resume to community:', err);
+      setError(err.message || 'Failed to share to community feed.');
     } finally {
       setIsPublishing(false);
     }
@@ -285,6 +286,7 @@ const ShareResumeModal: React.FC<ShareResumeModalProps> = ({ isOpen, onClose, re
           )}
         </div>
       </div>
+      {error && <Toast message={error} onClose={() => setError(null)} />}
     </div>
   );
 };

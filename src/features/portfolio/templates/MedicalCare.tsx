@@ -91,7 +91,7 @@ const MedicalCare: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
                         <GraduationCap size={18} /> Education & Formatting
                     </h2>
                     <div className={`grid ${responsiveClass('', 'md:grid-cols-2')} gap-8`}>
-                        {education.map((edu, idx) => (
+                        {(education || []).map((edu, idx) => (
                             <div key={edu.id} className="flex gap-4">
                                 <div className="flex-shrink-0 w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 font-bold border border-slate-100">
                                     {idx + 1}
@@ -140,7 +140,7 @@ const MedicalCare: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
                 </div>
 
                 <div className="border-l-2 border-slate-200 ml-3 md:ml-6 space-y-12">
-                    {timeline.map((job) => (
+                    {(timeline || []).map((job) => (
                         <div key={job.id} className="relative pl-8 md:pl-12">
                             <div className="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-white border-4 border-teal-500" />
                             <div className="bg-slate-50 p-6 rounded-xl hover:shadow-md transition-shadow border border-slate-100">
@@ -180,8 +180,8 @@ const MedicalCare: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
                 <section className="py-16 px-6 md:px-12 bg-slate-50 border-t border-slate-100">
                     <div className="max-w-5xl mx-auto">
                         <h2 className="text-2xl font-bold text-slate-900 mb-8">Publications & Research</h2>
-                        <div className="grid gap-4">
-                            {projects.map(pub => (
+                        <div className="space-y-6">
+                            {(projects || []).map(pub => (
                                 <div key={pub.id} className="bg-white p-6 rounded-lg border border-slate-200 hover:border-teal-300 transition-colors group">
                                     <h3
                                         onClick={() => onEdit?.(`projects.${pub.id}.title`)}
@@ -195,8 +195,8 @@ const MedicalCare: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
                                     >
                                         {pub.description}
                                     </p>
-                                    <div className="mt-4 flex gap-2">
-                                        {pub.tags.map(tag => (
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {(pub.tags || []).map(tag => (
                                             <span key={tag} className="px-2 py-0.5 bg-slate-100 text-slate-500 text-xs rounded uppercase font-bold">
                                                 {tag}
                                             </span>

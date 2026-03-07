@@ -157,7 +157,7 @@ export interface UserProfile {
   stripeSubscriptionStatus?: 'active' | 'trialing' | 'past_due' | 'canceled' | 'unpaid' | 'active_canceling' | null;
   source?: string;
   // Plan and limits
-  plan?: 'free' | 'pro_sprint' | 'pro_monthly';
+  plan?: 'free' | 'pro' | 'pro_max' | 'enterprise';
   resumeLimit?: number; // 2 (free), 8 (sprint), or 15 (monthly)
   expiresAt?: any; // Firestore Timestamp - for sprint plan
   promotions: {
@@ -166,6 +166,11 @@ export interface UserProfile {
   };
   emailPreferences?: EmailPreferences;
   updatedAt?: any; // Added for tracking when plan changes
+
+  // Team & Enterprise Fields
+  teamWorkspaceId?: string; // ID of the enterprise team
+  seats?: number;           // Number of seats for Enterprise tier
+  adminUid?: string;        // UID of the team admin
 
   // Partner Fields
   role?: 'user' | 'admin' | 'academic_partner' | 'business_partner'; // Deprecated - kept for backward compatibility
@@ -182,9 +187,9 @@ export interface UserProfile {
 
   // AI Usage Tracking
   aiUsage?: {
-    count: number;        // Current month's usage (0-100 for free users)
+    count: number;        // Current month's usage (aggregated sum)
     lastResetDate: any;   // Firestore Timestamp - when counter was last reset
-    monthlyLimit: number; // 100 for free, -1 for premium (unlimited)
+    monthlyLimit: number; // 50 (free), 666 (pro), 888 (pro_max), or pooled limit
   };
 }
 

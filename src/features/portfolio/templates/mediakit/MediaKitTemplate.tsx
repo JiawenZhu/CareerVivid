@@ -64,8 +64,8 @@ const MediaKitTemplate: React.FC<PortfolioTemplateProps> = ({ data, onUpdate }) 
                                     <MapPin size={14} /> {data.location}
                                 </span>
                             )}
-                            {data.socialLinks?.find(l => !l.platform && l.label === 'Website')?.url && (
-                                <a href={data.socialLinks.find(l => !l.platform && l.label === 'Website')?.url} target="_blank" rel="noreferrer" className="flex items-center gap-1 bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm hover:bg-white/20 transition-colors">
+                            {(socialLinks || []).find(l => !l.platform && l.label === 'Website')?.url && (
+                                <a href={(socialLinks || []).find(l => !l.platform && l.label === 'Website')?.url} target="_blank" rel="noreferrer" className="flex items-center gap-1 bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm hover:bg-white/20 transition-colors">
                                     <Globe size={14} /> Website
                                 </a>
                             )}

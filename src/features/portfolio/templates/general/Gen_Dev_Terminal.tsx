@@ -94,8 +94,8 @@ const DevTerminal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
                             <span className="text-zinc-700">r-x</span>
                         </div>
                         <div className={`grid gap-3 ${responsiveClass('grid-cols-1', 'sm:grid-cols-2 md:grid-cols-4 md:gap-4')}`}>
-                            {techStack.map(skill => (
-                                <div key={skill.id} className="flex items-center gap-2 text-zinc-300 hover:text-emerald-300 transition-colors group">
+                            {(techStack || []).map((skill, idx) => (
+                                <div key={skill.id || `skill-${idx}`} className="flex items-center gap-2 text-zinc-300 hover:text-emerald-300 transition-colors group">
                                     <div className="w-2 h-2 bg-emerald-500/50 rounded-full group-hover:bg-emerald-400" />
                                     {skill.name}
                                 </div>
@@ -123,13 +123,13 @@ const DevTerminal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
                             <span>$ git log --oneline --graph</span>
                         </div>
                         <div className="grid gap-6">
-                            {projects.map(project => (
-                                <div key={project.id} className="border border-zinc-800 bg-zinc-900/30 rounded p-4 hover:border-emerald-500/30 transition-all group">
+                            {(projects || []).map((project, idx) => (
+                                <div key={project.id || `proj-${idx}`} className="border border-zinc-800 bg-zinc-900/30 rounded p-4 hover:border-emerald-500/30 transition-all group">
                                     <div className={`flex justify-between items-start mb-2 ${responsiveClass('flex-col gap-2', 'sm:flex-row sm:gap-0')}`}>
                                         <div className="flex items-center gap-2">
                                             <GitBranch size={16} className="text-emerald-500 shrink-0" />
                                             <h3
-                                                onClick={() => onEdit?.(`projects.${project.id}.title`)}
+                                                onClick={() => onEdit?.(`projects.${project.id || idx}.title`)}
                                                 className="font-bold text-lg text-emerald-100 group-hover:text-emerald-400 transition-colors cursor-pointer break-words"
                                             >
                                                 {project.title}
@@ -138,12 +138,17 @@ const DevTerminal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
                                         <span className={`text-xs text-zinc-600 font-mono px-2 py-0.5 border border-zinc-800 rounded ${responsiveClass('self-start', 'sm:self-auto')}`}>Public</span>
                                     </div>
                                     <p
-                                        onClick={() => onEdit?.(`projects.${project.id}.description`)}
+                                        onClick={() => onEdit?.(`projects.${project.id || idx}.description`)}
                                         className="text-zinc-400 mb-4 text-sm pl-6 border-l border-zinc-800/50 ml-2 cursor-pointer hover:text-emerald-300 hover:border-emerald-500/50 transition-colors"
                                     >
                                         {project.description}
                                     </p>
                                     <div className="flex flex-wrap items-center gap-4 pl-6 ml-2 text-sm text-zinc-500">
+                                        {project.link && (
+                                            <a href={project.link} target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-emerald-400 transition-colors">
+                                                <ExternalLink size={14} /> Documentation
+                                            </a>
+                                        )}
                                         {project.demoUrl && (
                                             <a href={project.demoUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-emerald-400 transition-colors">
                                                 <ExternalLink size={14} /> Live Demo
@@ -158,7 +163,7 @@ const DevTerminal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
                                     </div>
                                 </div>
                             ))}
-                            {projects.length === 0 && <span className="text-zinc-600 italic">// No repos found</span>}
+                            {(!projects || projects.length === 0) && <span className="text-zinc-600 italic">// No repos found</span>}
                         </div>
                     </section>
 
@@ -168,20 +173,20 @@ const DevTerminal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
                             <span>$ history | grep 'work'</span>
                         </div>
                         <div className="space-y-6">
-                            {timeline.map((job, idx) => (
-                                <div key={job.id} className="relative pl-6 border-l border-zinc-800 hover:border-emerald-500/50 transition-colors">
+                            {(timeline || []).map((job, idx) => (
+                                <div key={job.id || `job-${idx}`} className="relative pl-6 border-l border-zinc-800 hover:border-emerald-500/50 transition-colors">
                                     <div className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-zinc-800 border-2 border-zinc-950" />
                                     <div className={`flex mb-1 ${responsiveClass('flex-col', 'sm:flex-row sm:justify-between sm:items-baseline')}`}>
                                         <h3
-                                            onClick={() => onEdit?.(`timeline.${job.id}.jobTitle`)}
+                                            onClick={() => onEdit?.(`timeline.${job.id || idx}.jobTitle`)}
                                             className={`text-emerald-200 font-bold flex gap-1 cursor-pointer hover:text-emerald-400 ${responsiveClass('text-base flex-col', 'md:text-lg sm:flex-row sm:items-center sm:gap-2')}`}
                                         >
-                                            {job.jobTitle} <span className="text-zinc-500 font-normal text-sm hover:text-zinc-400" onClick={(e) => { e.stopPropagation(); onEdit?.(`timeline.${job.id}.employer`); }}>@ {job.employer}</span>
+                                            {job.jobTitle} <span className="text-zinc-500 font-normal text-sm hover:text-zinc-400" onClick={(e) => { e.stopPropagation(); onEdit?.(`timeline.${job.id || idx}.employer`); }}>@ {job.employer}</span>
                                         </h3>
                                         <span className={`text-zinc-600 text-xs font-mono ${responsiveClass('mb-2', 'sm:mb-0')}`}>{job.startDate} — {job.endDate}</span>
                                     </div>
                                     <p
-                                        onClick={() => onEdit?.(`timeline.${job.id}.description`)}
+                                        onClick={() => onEdit?.(`timeline.${job.id || idx}.description`)}
                                         className="text-zinc-400 text-sm cursor-pointer hover:text-emerald-300 transition-colors"
                                     >
                                         {job.description}

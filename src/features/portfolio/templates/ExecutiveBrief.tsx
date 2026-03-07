@@ -85,7 +85,7 @@ const ExecutiveBrief: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobi
                     </div>
 
                     <div className={`grid ${responsiveClass('grid-cols-1', 'md:grid-cols-2 lg:grid-cols-3')} gap-8`}>
-                        {projects.map((proj, idx) => (
+                        {(projects || []).map((proj, idx) => (
                             <div key={proj.id} className="p-8 bg-slate-50 rounded-lg border border-slate-100 hover:border-[#2c3e50] transition-colors group">
                                 <div className="text-4xl font-extrabold text-slate-200 mb-4 group-hover:text-[#2c3e50]/20 transition-colors">{(idx + 1).toString().padStart(2, '0')}</div>
                                 <h3
@@ -100,8 +100,8 @@ const ExecutiveBrief: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobi
                                 >
                                     {proj.description}
                                 </p>
-                                <div className="flex gap-2">
-                                    {proj.tags.slice(0, 2).map(tag => (
+                                <div className="flex flex-wrap gap-2 mb-4">
+                                    {(proj.tags || []).slice(0, 2).map(tag => (
                                         <span key={tag} className="px-2 py-1 bg-white border border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-500 rounded">
                                             {tag}
                                         </span>
@@ -121,7 +121,7 @@ const ExecutiveBrief: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobi
                 </div>
 
                 <div className="space-y-0 border-l-2 border-slate-200 ml-3">
-                    {timeline.map((job) => (
+                    {(timeline || []).map((job) => (
                         <div key={job.id} className="relative pl-8 pb-12 last:pb-0">
                             <div className="absolute -left-[9px] top-1 w-4 h-4 bg-white border-4 border-[#2c3e50] rounded-full"></div>
                             <div className={`flex ${responsiveClass('flex-col', 'sm:flex-row sm:items-baseline')} justify-between mb-2`}>
@@ -157,8 +157,8 @@ const ExecutiveBrief: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobi
                         <h2 className="text-lg font-bold uppercase tracking-widest text-slate-400 mb-8 flex items-center gap-2">
                             <Award size={18} /> Education
                         </h2>
-                        <ul className="space-y-6">
-                            {education.map(edu => (
+                        <div className="space-y-8">
+                            {(education || []).map(edu => (
                                 <li key={edu.id} className="border-l border-slate-600 pl-6">
                                     <div
                                         onClick={() => onEdit?.(`education.${edu.id}.school`)}
@@ -175,7 +175,7 @@ const ExecutiveBrief: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobi
                                     <div className="text-sm text-slate-500 uppercase tracking-wider">{edu.endDate}</div>
                                 </li>
                             ))}
-                        </ul>
+                        </div>
                     </div>
 
                     <div>
