@@ -111,6 +111,7 @@ import { useGuestDataMigration } from './hooks/useGuestDataMigration';
 import SEOHelper from './components/SEOHelper';
 import ProtectedRoute from './components/ProtectedRoute'; // [NEW] Protected Route Wrapper
 import { NavigationProvider } from './contexts/NavigationContext';
+import PWABadge from './components/PWABadge';
 
 const AppContent: React.FC = () => {
   const { currentUser, userProfile, loading, isAdmin, isAdminLoading, isEmailVerified } = useAuth();
@@ -635,6 +636,7 @@ const App: React.FC = () => {
   return (
     <AuthProvider>
       <AppContent />
+      <PWABadge />
     </AuthProvider>
   );
 };
