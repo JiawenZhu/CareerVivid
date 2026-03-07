@@ -1,0 +1,44 @@
+%%{init: {'theme': 'dark', 'themeVariables': { 'fontFamily': 'Inter, sans-serif' }}}%%
+sequenceDiagram
+    participant User as Terminal / User
+    participant CLI as GWS Core
+    participant Cache as Local Cache (~/.config/gws)
+    participant Discovery as Google Discovery Service
+    participant API as Google Workspace APIs
+    participant Armor as Cloud Model Armor
+
+    rect rgb(31, 41, 55)
+        note right of User: Phase 1: Dynamic Tree Construction
+        User->>CLI: Execute: gws drive files list
+        CLI->>CLI: Read argv[1] (Service = 'drive')
+        
+        CLI->>Cache: Check for cached Discovery Doc
+        alt Cache Miss or Expired (>24h)
+            CLI->>Discovery: Fetch Discovery Document for 'drive'
+            Discovery-->>CLI: Return JSON Schema
+            CLI->>Cache: Write schema to cache
+        else Cache Hit
+            Cache-->>CLI: Return cached schema
+        end
+
+        CLI->>CLI: Build clap::Command tree dynamically
+    end
+
+    rect rgb(55, 65, 81)
+        note right of User: Phase 2: Execution & Authentication
+        CLI->>CLI: Re-parse remaining argv (files list --params ...)
+        CLI->>Cache: Read OAuth Credentials / Tokens
+        CLI->>CLI: Construct HTTP Request & Sign Headers
+        
+        CLI->>API: Execute HTTPS Request
+        API-->>CLI: Return JSON Response
+    end
+
+    rect rgb(31, 41, 55)
+        note right of User: Phase 3: Agent Safety & Output
+        opt --sanitize flag or GOOGLE_WORKSPACE_CLI_SANITIZE_TEMPLATE is set
+            CLI->>Armor: Send API JSON Response for prompt injection scan
+            Armor-->>CLI: Return sanitized JSON or Block
+        end
+        CLI-->>User: Output structured JSON
+    end

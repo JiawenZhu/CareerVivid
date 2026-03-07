@@ -260,6 +260,29 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id, isReadOnly = fa
             // Skip save entirely in read-only mode
             if (derivedReadOnly) return;
 
+            // Force tools to be "sticky" by default
+            if (
+                appState.activeTool &&
+                appState.activeTool.type !== 'selection' &&
+                appState.activeTool.type !== 'eraser' &&
+                appState.activeTool.type !== 'hand' &&
+                appState.activeTool.locked === false
+            ) {
+                // Defer to avoid synchronous React update warnings
+                setTimeout(() => {
+                    excalidrawAPIRef.current?.updateScene({
+                        appState: {
+                            ...appState,
+                            viewBackgroundColor: appState.viewBackgroundColor,
+                            activeTool: {
+                                ...appState.activeTool,
+                                locked: true,
+                            },
+                        },
+                    });
+                }, 0);
+            }
+
             // Skip the very first fire (Excalidraw fires onChange on hydration)
             if (isFirstRender.current) {
                 isFirstRender.current = false;

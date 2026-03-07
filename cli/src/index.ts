@@ -30,12 +30,11 @@ import { registerPublishCommand } from "./commands/publish.js";
 import { registerConfigCommand } from "./commands/config.js";
 import { registerUpdateCommand } from "./commands/update.js";
 import { checkForUpdates } from "./updates.js";
-import {
-    registerWhiteboardCommand,
-    registerNewCommand,
-    registerListTemplatesCommand,
-} from "./commands/whiteboard.js";
+import { registerListTemplatesCommand, registerNewCommand, registerWhiteboardCommand } from "./commands/whiteboard.js";
 import { registerPortfolioCommand } from "./commands/portfolio.js";
+import { registerWorkspaceCommand } from "./commands/workspace.js";
+import { registerProfileCommand } from "./commands/profile.js";
+import { registerJobsCommand } from "./commands/jobs.js";
 
 const program = new Command();
 
@@ -44,7 +43,7 @@ program
     .description(
         "CareerVivid CLI — publish articles, diagrams, and portfolio updates from your terminal or AI agent"
     )
-    .version("1.2.0", "-v, --version", "Print CLI version")
+    .version("1.3.0", "-v, --version", "Print CLI version")
     .addHelpText("before", getHelpHeader())
     .helpOption("-h, --help", "Show help");
 
@@ -55,6 +54,9 @@ registerConfigCommand(program);
 registerUpdateCommand(program);
 registerWhiteboardCommand(program);
 registerPortfolioCommand(program);
+registerWorkspaceCommand(program);
+registerProfileCommand(program);
+registerJobsCommand(program);
 
 // Shortcuts for whiteboard creation
 registerNewCommand(program);
