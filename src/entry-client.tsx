@@ -6,21 +6,28 @@ import { AuthProvider } from './contexts/AuthContext';
 import './i18n'; // Initialize i18next
 
 // HANDLE DYNAMIC IMPORT ERRORS
-// This catches "Failed to fetch dynamically imported module" errors that happen
-// when a user is on an old version of the site and navigates to a new route
-// whose JS chunk hash has changed.
-window.addEventListener('error', (event) => {
-  if (event.message?.includes('Failed to fetch dynamically imported module')) {
+// Catches "Failed to fetch dynamically imported module" via unhandled promise rejections
+window.addEventListener('unhandledrejection', (event) => {
+  if (event.reason?.message?.includes('Failed to fetch dynamically imported module')) {
     const lastReload = sessionStorage.getItem('last_chunk_reload');
     const now = Date.now();
-
-    // Prevent infinite reload loops (only reload if last reload was > 10s ago)
     if (!lastReload || now - parseInt(lastReload) > 10000) {
       sessionStorage.setItem('last_chunk_reload', now.toString());
       window.location.reload();
     }
   }
-}, true);
+});
+
+// Catches Vite-specific preload errors
+window.addEventListener('vite:preloadError', (event) => {
+  console.log('Caught vite:preloadError, reloading page to fetch new chunks...');
+  const lastReload = sessionStorage.getItem('last_chunk_reload_vite');
+  const now = Date.now();
+  if (!lastReload || now - parseInt(lastReload) > 10000) {
+    sessionStorage.setItem('last_chunk_reload_vite', now.toString());
+    window.location.reload();
+  }
+});
 
 // FORCE UNREGISTER SERVICE WORKERS
 // This resolves issues where browsers serve old cached versions of the app

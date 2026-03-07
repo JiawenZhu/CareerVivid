@@ -28,7 +28,7 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
         { name: 'Architecture Auto-Gen', free: '10 Credits', pro: '10 Credits', proMax: '10 Credits', enterprise: '10 Credits' },
         { name: 'Living Documentation Sync', free: false, pro: true, proMax: true, enterprise: true },
         { name: 'Private Team Workspaces', free: false, pro: false, proMax: false, enterprise: true },
-        { name: 'Nano Banana Pro (Iterative)', free: false, pro: false, proMax: '20 Credits', enterprise: '20 Credits' },
+        { name: 'Nano Banana 2 (Iterative)', free: false, pro: false, proMax: '20 Credits', enterprise: '20 Credits' },
         { name: 'Technical Voice Interviews', free: '15 Credits', pro: '15 Credits', proMax: '15 Credits', enterprise: '15 Credits' },
         { name: 'Portfolio Review Analysis', free: '5 Credits', pro: '5 Credits', proMax: '5 Credits', enterprise: '5 Credits' },
         { name: 'Advanced RBAC & SSO', free: false, pro: false, proMax: false, enterprise: true },
@@ -110,7 +110,7 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                     <ul className="space-y-3 mb-8 flex-grow text-sm font-medium text-gray-600 dark:text-gray-400">
                         <li className="flex items-start gap-2"><Check className="text-purple-500 flex-shrink-0" size={18} /> Private Posts</li>
                         <li className="flex items-start gap-2"><Check className="text-purple-500 flex-shrink-0" size={18} /> Advanced ReactFlow</li>
-                        <li className="flex items-start gap-2"><Check className="text-purple-500 flex-shrink-0" size={18} /> Nano Banana Pro</li>
+                        <li className="flex items-start gap-2"><Check className="text-purple-500 flex-shrink-0" size={18} /> Nano Banana 2</li>
                     </ul>
                     <button onClick={handleUpgradeClick} className="w-full py-3 rounded-xl font-bold bg-purple-600 text-white hover:bg-purple-700 transition-colors shadow-lg shadow-purple-500/20">
                         Get Pro Max

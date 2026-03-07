@@ -419,7 +419,7 @@ export const editProfilePhoto = async (userId: string, base64Image: string, mime
 
 export const generateImage = async (userId: string, prompt: string, modelType: 'standard' | 'pro' = 'standard'): Promise<string> => {
     try {
-        const apiModel = modelType === 'pro' ? 'gemini-3-pro-image-preview' : 'gemini-2.5-flash-image';
+        const apiModel = modelType === 'pro' ? 'gemini-3.1-flash-image-preview' : 'gemini-2.5-flash-image';
         const requiredCredits = modelType === 'pro' ? 20 : 10;
 
         const result = await callGeminiProxy({

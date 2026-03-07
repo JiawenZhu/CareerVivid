@@ -210,7 +210,7 @@ const AICoverImageModal: React.FC<AICoverImageModalProps> = ({
                             >
                                 <div className="flex justify-between items-start mb-1">
                                     <h4 className="font-bold text-gray-900 text-sm flex items-center gap-1">
-                                        Nano Banana Pro <Sparkles size={12} className="text-yellow-500" />
+                                        Nano Banana 2 <Sparkles size={12} className="text-yellow-500" />
                                     </h4>
                                     <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">20 Credits</span>
                                 </div>

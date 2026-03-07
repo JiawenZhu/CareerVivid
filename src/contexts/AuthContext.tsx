@@ -186,8 +186,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const adminDocRef = doc(db, 'admins', currentUser.uid);
           // We blindly set (merge) to ensure the record exists without needing read permissions first if rules are strict
           await setDoc(adminDocRef, { role: 'admin', email: currentUser.email }, { merge: true });
-        } catch (e) {
-          console.warn("Self-healing admin check failed (likely permissions), but UI access is granted via hardcode.", e);
+        } catch (e: any) {
+          if (e?.code !== 'permission-denied') {
+            console.warn("Self-healing admin check failed, but UI access is still granted.", e);
+          }
         }
         setIsAdminLoading(false);
         adminCheckDone = true;
