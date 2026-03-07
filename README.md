@@ -11,7 +11,7 @@
   [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
   [![Status](https://img.shields.io/badge/Status-Active-success.svg)]()
   [![Firebase](https://img.shields.io/badge/Firebase-Firestore%20%2B%20Auth-orange.svg)]()
-  [![AI](https://img.shields.io/badge/AI-Gemini%202.5%20Flash-blue.svg)]()
+  [![AI](https://img.shields.io/badge/AI-Gemini%202.5%20%26%203.0-blue.svg)]()
 </div>
 
 ## About
@@ -78,7 +78,7 @@ A fully customizable home for all your CareerVivid tools.
 | Styling | Tailwind CSS |
 | Auth & Database | Firebase Auth + Firestore |
 | Storage | Firebase Storage |
-| AI | Google Gemini 2.5 Flash (via Cloud Run proxy) |
+| AI | Google Gemini 2.5 & 3.0 (via Cloud Run proxy) |
 | Canvas | Excalidraw |
 | Drag & Drop | @dnd-kit |
 | PDF Export | jsPDF + html2canvas |
