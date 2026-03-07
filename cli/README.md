@@ -14,6 +14,9 @@
 - [Commands](#commands)
   - [cv publish](#cv-publish)
   - [cv whiteboard](#cv-whiteboard)
+  - [cv workspace](#cv-workspace)
+  - [cv profile](#cv-profile)
+  - [cv jobs](#cv-jobs)
   - [cv auth](#cv-auth)
   - [cv config](#cv-config)
 - [Whiteboard Templates](#whiteboard-templates)
@@ -115,6 +118,46 @@ Print all available built-in Mermaid templates. (Also available as `cv whiteboar
 ```bash
 cv list-templates
 ```
+
+### `cv workspace` (or `cv gws`)
+
+Manage your Google Workspace integration.
+
+| Subcommand | Description |
+|---|---|
+| `cv workspace check` | Verify GWS CLI installation and OAuth status |
+
+---
+
+### `cv profile`
+
+Manage your CareerVivid profile.
+
+| Subcommand | Description |
+|---|---|
+| `cv profile export` | Export resume data to other formats (e.g. `gdoc`) |
+
+```bash
+# Export to Google Docs
+cv profile export --format gdoc
+```
+
+---
+
+### `cv jobs`
+
+Automate your job application tracking.
+
+| Subcommand | Description |
+|---|---|
+| `cv jobs sync-gmail` | Scan Gmail for applications and sync to a Google Sheet |
+
+```bash
+# Sync recent applications to Google Sheets
+cv jobs sync-gmail
+```
+
+---
 
 ### `cv whiteboard`
 
