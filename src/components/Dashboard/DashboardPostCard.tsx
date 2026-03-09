@@ -2,6 +2,12 @@ import React from 'react';
 import { Edit3, Trash2, Eye, MessageSquare, Heart } from 'lucide-react';
 import { CommunityPost } from '../../hooks/useCommunity';
 import { navigate } from '../../utils/navigation';
+import { useState } from 'react';
+import { useWorkspaceItemActions } from '../../hooks/useWorkspaceItemActions';
+import { SidebarContextMenu } from '../Navigation/SidebarContextMenu';
+import { createPortal } from 'react-dom';
+import ConfirmationModal from '../ConfirmationModal';
+import MoveToModal from '../Navigation/MoveToModal';
 
 interface DashboardPostCardProps {
     post: CommunityPost;
@@ -10,11 +16,34 @@ interface DashboardPostCardProps {
 }
 
 const DashboardPostCard: React.FC<DashboardPostCardProps> = ({ post, onDelete, onDragStart }) => {
+    const {
+        isDeleteModalOpen,
+        setIsDeleteModalOpen,
+        isMoveModalOpen,
+        setIsMoveModalOpen,
+        isEditing,
+        setIsEditing,
+        handleRename,
+        handleDelete,
+        confirmDelete,
+        onMove,
+        confirmMove,
+        nodes
+    } = useWorkspaceItemActions(`post-${post.id}`, post.title);
+
+    const [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
+
+    const handleContextMenu = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setContextMenu({ x: e.clientX, y: e.clientY });
+    };
+
     return (
         <div
             draggable={!!onDragStart}
             onDragStart={onDragStart}
-            className="bg-white dark:bg-[#161b22] rounded-2xl border border-gray-200/60 dark:border-gray-800 transition-all duration-300 hover:border-primary-500/30 dark:hover:border-primary-400/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] flex flex-col cursor-grab active:cursor-grabbing overflow-hidden group h-full"
+            onContextMenu={handleContextMenu}
+            className="bg-white dark:bg-[#161b22] rounded-2xl border border-gray-200/60 dark:border-gray-800 transition-all duration-300 hover:border-primary-500/30 dark:hover:border-primary-400/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] flex flex-col cursor-grab active:cursor-grabbing overflow-hidden group h-full relative"
         >
             <div
                 onClick={() => navigate(`/community/post/${post.id}`, { from: window.location.pathname })}
@@ -56,13 +85,61 @@ const DashboardPostCard: React.FC<DashboardPostCardProps> = ({ post, onDelete, o
                     <Edit3 size={16} />
                 </button>
                 <button
-                    onClick={(e) => { e.stopPropagation(); onDelete(post.id, post.coverImage); }}
+                    onClick={(e) => { e.stopPropagation(); handleDelete(); }}
                     title="Delete Post"
                     className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                 >
                     <Trash2 size={16} />
                 </button>
             </div>
+
+            {/* Context Menu */}
+            {contextMenu && createPortal(
+                <SidebarContextMenu
+                    x={contextMenu.x}
+                    y={contextMenu.y}
+                    nodeTitle={post.title}
+                    onClose={() => setContextMenu(null)}
+                    onRename={() => {
+                        navigate(`/community/edit/${post.id}`, { from: window.location.pathname });
+                        setContextMenu(null);
+                    }}
+                    onDelete={() => {
+                        handleDelete();
+                        setContextMenu(null);
+                    }}
+                    onMove={() => {
+                        onMove();
+                        setContextMenu(null);
+                    }}
+                />,
+                document.body
+            )}
+
+            {/* Modals */}
+            <ConfirmationModal
+                isOpen={isDeleteModalOpen}
+                title="Delete Post"
+                message={`Are you sure you want to delete "${post.title}"? This will remove it from the community feed.`}
+                confirmText="Delete"
+                variant="danger"
+                onConfirm={() => {
+                    confirmDelete();
+                    onDelete(post.id, post.coverImage);
+                }}
+                onCancel={() => setIsDeleteModalOpen(false)}
+            />
+
+            <MoveToModal
+                isOpen={isMoveModalOpen}
+                currentNodeId={`post-${post.id}`}
+                currentNodeText={post.title}
+                nodes={nodes}
+                onClose={() => setIsMoveModalOpen(false)}
+                onSelect={(targetId) => {
+                    confirmMove(targetId);
+                }}
+            />
         </div>
     );
 };

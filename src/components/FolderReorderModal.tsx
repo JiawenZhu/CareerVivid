@@ -17,7 +17,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { X, GripVertical, Check } from 'lucide-react';
-import { Folder } from '../pages/Dashboard'; // Importing Folder type from Dashboard
+import { Folder } from '../types';
 
 interface FolderReorderModalProps {
     isOpen: boolean;

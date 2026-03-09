@@ -28,6 +28,7 @@ import FolderReorderModal from '../components/FolderReorderModal';
 import { useTranslation } from 'react-i18next';
 import LanguageSelect from '../components/LanguageSelect';
 import AIUsageProgressBar from '../components/AIUsageProgressBar';
+import { useSidebarStore } from '../store/useSidebarStore';
 
 // Extracted Components
 import ResumeCard from '../components/Dashboard/ResumeCard';
@@ -55,6 +56,7 @@ const Dashboard: React.FC = () => {
     const { currentUser, logOut, isAdmin, userProfile, isPremium, aiUsage } = useAuth();
     const { t } = useTranslation();
     const { navPosition, toggleNavPosition } = useNavigation();
+    const dashboardTitle = useSidebarStore(state => state.getNodeTitle('/dashboard')) || 'Dashboard';
 
     const [selectedJobForReport, setSelectedJobForReport] = useState<PracticeHistoryEntry | null>(null);
     const [selectedJobApplication, setSelectedJobApplication] = useState<JobApplicationData | null>(null);
@@ -76,12 +78,12 @@ const Dashboard: React.FC = () => {
 
     // Dashboard Sections Reordering State
     const SECTIONS_CONFIG: SectionItem[] = [
-        { id: 'interviewStudio', label: 'Interview Studio Sessions' },
+        { id: 'interviewStudio', label: 'Technical Interview Simulator Sessions' },
         { id: 'resumes', label: 'My Resumes' },
         { id: 'whiteboards', label: 'My Whiteboards' },
         { id: 'portfolios', label: 'Portfolios' },
         { id: 'communityPosts', label: 'My Community Posts' },
-        { id: 'jobTracker', label: 'Job Tracker' },
+        { id: 'jobTracker', label: 'Career Pipeline' },
     ];
 
     const DEFAULT_ORDER = SECTIONS_CONFIG.map(s => s.id);
@@ -109,12 +111,12 @@ const Dashboard: React.FC = () => {
 
     // Custom Section Names (persisted)
     const DEFAULT_SECTION_NAMES: Record<string, string> = {
-        interviewStudio: 'Interview Studio Sessions',
+        interviewStudio: 'Technical Interview Simulator Sessions',
         resumes: 'My Resumes',
         whiteboards: 'My Whiteboards',
         portfolios: 'Portfolios',
         communityPosts: 'My Community Posts',
-        jobTracker: 'Job Tracker',
+        jobTracker: 'Career Pipeline',
     };
 
     const [sectionNames, setSectionNames] = useState<Record<string, string>>(() => {
@@ -776,6 +778,13 @@ const Dashboard: React.FC = () => {
                     </div>
                 </header>
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    {/* Dynamic Header synced with Sidebar */}
+                    <div className="mb-8">
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-all">
+                            {dashboardTitle}
+                        </h1>
+                    </div>
+
                     {/* Mobile-Only: Community Posts Premium Card */}
                     <div className="block md:hidden w-full mb-4">
                         <a

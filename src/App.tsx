@@ -74,6 +74,7 @@ const ClientPortalPage = React.lazy(() => import('./pages/ClientPortalPage'));
 const ServicePortfolioPage = React.lazy(() => import('./pages/ServicePortfolioPage'));
 const ServicesPage = React.lazy(() => import('./pages/ServicesPage'));
 const MerchantProductSubmission = React.lazy(() => import('./pages/MerchantProductSubmission'));
+const FolderView = React.lazy(() => import('./pages/FolderView'));
 
 // Community
 const CommunityDashboard = React.lazy(() => import('./pages/community/CommunityDashboard'));
@@ -87,6 +88,8 @@ const DeveloperSettings = React.lazy(() => import('./pages/DeveloperSettings'));
 const BillingDashboard = React.lazy(() => import('./pages/BillingDashboard'));
 
 import { SUPPORTED_LANGUAGES } from './constants';
+import { DndProvider } from 'react-dnd';
+import { MultiBackend, getBackendOptions } from '@minoru/react-dnd-treeview';
 // import i18n from './i18n'; // Used in navigation.ts
 
 
@@ -111,12 +114,15 @@ import { useGuestDataMigration } from './hooks/useGuestDataMigration';
 import SEOHelper from './components/SEOHelper';
 import ProtectedRoute from './components/ProtectedRoute'; // [NEW] Protected Route Wrapper
 import { NavigationProvider } from './contexts/NavigationContext';
+import { useNavigation } from './contexts/NavigationContext';
+import { useWorkspaceSync } from './hooks/useWorkspaceSync';
 import PWABadge from './components/PWABadge';
 
 const AppContent: React.FC = () => {
   const { currentUser, userProfile, loading, isAdmin, isAdminLoading, isEmailVerified } = useAuth();
   const [isExtension, setIsExtension] = useState(false);
   useGuestDataMigration(); // Global guest data migration
+  useWorkspaceSync(); // Global sync of workspace items to sidebar nodes
 
   // Run one-time initialization tasks
   useEffect(() => {
@@ -231,9 +237,10 @@ const AppContent: React.FC = () => {
             <div className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-200 font-sans">
               <Helmet
                 titleTemplate="%s | CareerVivid"
-                defaultTitle="CareerVivid Community | Build Your Brand & Network"
+                defaultTitle="CareerVivid | The Interactive 'Learning by Doing' Developer Platform"
               />
               <SEOHelper />
+              {path === '/' && <AuthRedirect target="/dashboard" />}
               <Suspense fallback={<LoadingFallback />}>
                 {(path === '/' || path === '/community') && <CommunityDashboard />}
                 {path === '/community/guidelines' && <CommunityGuidelinesPage />}
@@ -443,6 +450,24 @@ const AppContent: React.FC = () => {
       );
     }
 
+    // Dynamic Nested Folder View
+    else if (path.startsWith('/folder/')) {
+      content = (
+        <ProtectedRoute>
+          <FolderView />
+        </ProtectedRoute>
+      );
+    }
+
+    // Static Create & Build Hub
+    else if (path === '/hub' || path === '/folder/create-build-hub') {
+      content = (
+        <ProtectedRoute>
+          <FolderView />
+        </ProtectedRoute>
+      );
+    }
+
     // -- Public / Shared Routes --
 
     // Editor (Handles its own auth/guest logic mostly, but /edit/:id usually implies protected found in auth block)
@@ -634,10 +659,12 @@ const AppContent: React.FC = () => {
 };
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <AppContent />
-      <PWABadge />
-    </AuthProvider>
+    <DndProvider backend={MultiBackend} options={getBackendOptions()}>
+      <AuthProvider>
+        <AppContent />
+        <PWABadge />
+      </AuthProvider>
+    </DndProvider>
   );
 };
 

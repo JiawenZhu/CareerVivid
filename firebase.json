@@ -231,7 +231,8 @@
         "destination": "/index.html"
       }
 
-    ]
+    ],
+    "maxVersionRetained": 5
   },
   "firestore": {
     "rules": "firestore.rules",

@@ -72,7 +72,7 @@ const ExtensionLogin: React.FC = () => {
                             }`}
                     >
                         <BarChart3 size={12} className="text-purple-500" />
-                        Job Tracker
+                        Career Pipeline
                     </button>
                 </div>
 

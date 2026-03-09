@@ -144,6 +144,21 @@ export interface EmailPreferences {
   lastSentAt?: any; // Firestore Timestamp
 }
 
+export type SidebarNodeType = 'system' | 'custom-folder' | 'custom-file' | 'resume' | 'portfolio' | 'whiteboard' | 'post';
+
+export interface SidebarNode {
+  id: string;           // Unique identifier (e.g., path or UUID)
+  parent: string | 0;   // 0 indicates root level, otherwise references parent id
+  text: string;         // The display title
+  droppable?: boolean;   // Whether this node can accept children
+  data: {
+    isSystemNode: boolean;
+    type: SidebarNodeType;
+    isHidden: boolean;
+    icon?: string;
+  };
+}
+
 // --- Admin & User Management Types ---
 export interface UserProfile {
   uid: string;
@@ -166,6 +181,7 @@ export interface UserProfile {
   };
   emailPreferences?: EmailPreferences;
   updatedAt?: any; // Added for tracking when plan changes
+  sidebarNodes?: SidebarNode[]; // Flat array representing the nested tree structure
 
   // Team & Enterprise Fields
   teamWorkspaceId?: string; // ID of the enterprise team

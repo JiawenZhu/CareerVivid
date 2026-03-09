@@ -2,6 +2,12 @@ import React from 'react';
 import { ExternalLink, Trash2, Sparkles, BarChart } from 'lucide-react';
 import { PracticeHistoryEntry } from '../../types';
 import { navigate } from '../../utils/navigation';
+import { useState } from 'react';
+import { useWorkspaceItemActions } from '../../hooks/useWorkspaceItemActions';
+import { SidebarContextMenu } from '../Navigation/SidebarContextMenu';
+import { createPortal } from 'react-dom';
+import ConfirmationModal from '../ConfirmationModal';
+import MoveToModal from '../Navigation/MoveToModal';
 
 interface InterviewHistoryCardProps {
     entry: PracticeHistoryEntry;
@@ -11,6 +17,23 @@ interface InterviewHistoryCardProps {
 }
 
 const InterviewHistoryCard: React.FC<InterviewHistoryCardProps> = ({ entry, onShowReport, onDelete, onDragStart }) => {
+    const {
+        isDeleteModalOpen,
+        setIsDeleteModalOpen,
+        isMoveModalOpen,
+        setIsMoveModalOpen,
+        isEditing,
+        setIsEditing,
+        handleRename,
+        handleDelete,
+        confirmDelete,
+        onMove,
+        confirmMove,
+        nodes
+    } = useWorkspaceItemActions(`interview-${entry.id}`, entry.job.title);
+
+    const [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
+
     const handlePracticeAgain = () => {
         sessionStorage.setItem('practiceJob', JSON.stringify(entry));
         navigate('/interview-studio');
@@ -22,8 +45,18 @@ const InterviewHistoryCard: React.FC<InterviewHistoryCardProps> = ({ entry, onSh
         return date.toLocaleDateString();
     };
 
+    const handleContextMenu = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setContextMenu({ x: e.clientX, y: e.clientY });
+    };
+
     return (
-        <div draggable onDragStart={onDragStart} className="bg-white dark:bg-[#161b22] rounded-2xl border border-gray-200/60 dark:border-gray-800 transition-all duration-300 hover:border-primary-500/30 dark:hover:border-primary-400/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] flex flex-col p-5 relative group cursor-grab active:cursor-grabbing overflow-hidden">
+        <div
+            draggable
+            onDragStart={onDragStart}
+            onContextMenu={handleContextMenu}
+            className="bg-white dark:bg-[#161b22] rounded-2xl border border-gray-200/60 dark:border-gray-800 transition-all duration-300 hover:border-primary-500/30 dark:hover:border-primary-400/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] flex flex-col p-5 relative group cursor-grab active:cursor-grabbing overflow-hidden"
+        >
             <div className="flex justify-between items-start mb-2">
                 <div>
                     <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100 flex items-center">
@@ -42,7 +75,7 @@ const InterviewHistoryCard: React.FC<InterviewHistoryCardProps> = ({ entry, onSh
 
             <div className="mt-auto flex justify-between items-center">
                 <button
-                    onClick={() => onDelete(entry.id)}
+                    onClick={handleDelete}
                     className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                     title="Delete this history entry"
                 >
@@ -64,8 +97,59 @@ const InterviewHistoryCard: React.FC<InterviewHistoryCardProps> = ({ entry, onSh
                     </button>
                 </div>
             </div>
+
+            {/* Context Menu */}
+            {contextMenu && createPortal(
+                <SidebarContextMenu
+                    x={contextMenu.x}
+                    y={contextMenu.y}
+                    nodeTitle={entry.job.title}
+                    onClose={() => setContextMenu(null)}
+                    onRename={() => {
+                        // Rename might not apply to history title easily without database changes,
+                        // but we'll leave the option or hide it if necessary.
+                        // For now we'll allow it via the hook's text.
+                        setIsEditing(true);
+                        setContextMenu(null);
+                    }}
+                    onDelete={() => {
+                        handleDelete();
+                        setContextMenu(null);
+                    }}
+                    onMove={() => {
+                        onMove();
+                        setContextMenu(null);
+                    }}
+                />,
+                document.body
+            )}
+
+            {/* Modals */}
+            <ConfirmationModal
+                isOpen={isDeleteModalOpen}
+                title="Delete Interview Entry"
+                message={`Are you sure you want to delete the interview history for "${entry.job.title}"? This cannot be undone.`}
+                confirmText="Delete"
+                variant="danger"
+                onConfirm={() => {
+                    confirmDelete();
+                    onDelete(entry.id);
+                }}
+                onCancel={() => setIsDeleteModalOpen(false)}
+            />
+
+            <MoveToModal
+                isOpen={isMoveModalOpen}
+                currentNodeId={`interview-${entry.id}`}
+                currentNodeText={entry.job.title}
+                nodes={nodes}
+                onClose={() => setIsMoveModalOpen(false)}
+                onSelect={(targetId) => {
+                    confirmMove(targetId);
+                }}
+            />
         </div>
     );
-}
+};
 
 export default InterviewHistoryCard;

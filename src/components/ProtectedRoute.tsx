@@ -38,14 +38,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const currentPath = window.location.pathname;
     const currentSearch = window.location.search;
     const fullPath = currentPath + currentSearch;
-    
+
     // Encode the redirect URL
     const redirectParam = encodeURIComponent(fullPath);
-    
+
     // Use window.location.href for a hard redirect to ensure clean state
     // This is more reliable than pushState for cross-component navigation
     window.location.href = `/signin?redirect=${redirectParam}`;
-    
+
     // Return loading state while redirect happens
     return (
       <div className="flex flex-col justify-center items-center h-screen bg-gray-50 dark:bg-gray-900">

@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
-import { Edit3, Copy, Trash2, PenTool, Share2 } from 'lucide-react';
+import { Edit3, Copy, Trash2, PenTool, Share2, Folder } from 'lucide-react';
 import { WhiteboardData } from '../../types';
 import { navigate } from '../../utils/navigation';
+import { useWorkspaceItemActions } from '../../hooks/useWorkspaceItemActions';
+import { SidebarContextMenu } from '../Navigation/SidebarContextMenu';
+import { createPortal } from 'react-dom';
+import ConfirmationModal from '../ConfirmationModal';
+import MoveToModal from '../Navigation/MoveToModal';
 
 interface WhiteboardCardProps {
     whiteboard: WhiteboardData;
@@ -13,6 +18,23 @@ interface WhiteboardCardProps {
 }
 
 const WhiteboardCard: React.FC<WhiteboardCardProps> = ({ whiteboard, onUpdate, onDuplicate, onDelete, onShare, onDragStart }) => {
+    const {
+        isDeleteModalOpen,
+        setIsDeleteModalOpen,
+        isMoveModalOpen,
+        setIsMoveModalOpen,
+        isEditing,
+        setIsEditing,
+        handleRename,
+        handleDelete,
+        confirmDelete,
+        onMove,
+        confirmMove,
+        nodes
+    } = useWorkspaceItemActions(`whiteboard-${whiteboard.id}`, whiteboard.title);
+
+    const [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
+
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [title, setTitle] = useState(whiteboard.title);
 
@@ -32,8 +54,18 @@ const WhiteboardCard: React.FC<WhiteboardCardProps> = ({ whiteboard, onUpdate, o
         setIsEditingTitle(false);
     };
 
+    const handleContextMenu = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setContextMenu({ x: e.clientX, y: e.clientY });
+    };
+
     return (
-        <div draggable onDragStart={onDragStart} className="bg-white dark:bg-[#161b22] rounded-2xl border border-gray-200/60 dark:border-gray-800 transition-all duration-300 hover:border-primary-500/30 dark:hover:border-primary-400/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] flex flex-col cursor-grab active:cursor-grabbing overflow-hidden group">
+        <div
+            draggable
+            onDragStart={onDragStart}
+            onContextMenu={handleContextMenu}
+            className="bg-white dark:bg-[#161b22] rounded-2xl border border-gray-200/60 dark:border-gray-800 transition-all duration-300 hover:border-primary-500/30 dark:hover:border-primary-400/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] flex flex-col cursor-grab active:cursor-grabbing overflow-hidden group relative"
+        >
             <div onClick={!isEditingTitle ? navigateToEdit : undefined} className="block p-4 border-b border-gray-100 dark:border-gray-800/60 group-hover:bg-gray-50/50 dark:group-hover:bg-[#1a2029] transition-colors flex-grow cursor-pointer">
                 {/* Thumbnail Preview or Empty Placeholder */}
                 <div
@@ -85,12 +117,61 @@ const WhiteboardCard: React.FC<WhiteboardCardProps> = ({ whiteboard, onUpdate, o
                 <div className="flex gap-1.5">
                     <button onClick={navigateToEdit} title="Edit Whiteboard" className="p-2 block rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"><Edit3 size={16} /></button>
                     <button onClick={() => onDuplicate(whiteboard.id)} title="Duplicate Whiteboard" className="p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"><Copy size={16} /></button>
-                    <button onClick={() => onDelete(whiteboard.id)} title="Delete Whiteboard" className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"><Trash2 size={16} /></button>
+                    <button onClick={onMove} title="Move to Folder" className="p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"><Folder size={16} /></button>
+                    <button onClick={handleDelete} title="Delete Whiteboard" className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"><Trash2 size={16} /></button>
                 </div>
                 {onShare && (
                     <button onClick={() => onShare(whiteboard)} title="Share Whiteboard" className="p-2 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-500/10 text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"><Share2 size={16} /></button>
                 )}
             </div>
+
+            {/* Context Menu */}
+            {contextMenu && createPortal(
+                <SidebarContextMenu
+                    x={contextMenu.x}
+                    y={contextMenu.y}
+                    nodeTitle={whiteboard.title}
+                    onClose={() => setContextMenu(null)}
+                    onRename={() => {
+                        setIsEditingTitle(true);
+                        setContextMenu(null);
+                    }}
+                    onDelete={() => {
+                        handleDelete();
+                        setContextMenu(null);
+                    }}
+                    onMove={() => {
+                        onMove();
+                        setContextMenu(null);
+                    }}
+                />,
+                document.body
+            )}
+
+            {/* Modals */}
+            <ConfirmationModal
+                isOpen={isDeleteModalOpen}
+                title="Delete Whiteboard"
+                message={`Are you sure you want to delete "${whiteboard.title}"? This will remove it from your workspace and any folders.`}
+                confirmText="Delete"
+                variant="danger"
+                onConfirm={() => {
+                    confirmDelete();
+                    onDelete(whiteboard.id);
+                }}
+                onCancel={() => setIsDeleteModalOpen(false)}
+            />
+
+            <MoveToModal
+                isOpen={isMoveModalOpen}
+                currentNodeId={`whiteboard-${whiteboard.id}`}
+                currentNodeText={whiteboard.title}
+                nodes={nodes}
+                onClose={() => setIsMoveModalOpen(false)}
+                onSelect={(targetId) => {
+                    confirmMove(targetId);
+                }}
+            />
         </div>
     );
 };

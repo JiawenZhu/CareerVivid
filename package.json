@@ -29,6 +29,7 @@
     "@gsap/react": "^2.1.2",
     "@mantine/core": "^8.3.15",
     "@mantine/hooks": "^8.3.15",
+    "@minoru/react-dnd-treeview": "^3.5.3",
     "@react-three/drei": "^9.121.0",
     "@react-three/fiber": "^8.18.0",
     "@stripe/stripe-js": "^4.3.0",
@@ -55,6 +56,7 @@
     "node-pty": "^1.1.0",
     "pdfjs-dist": "^5.4.449",
     "react": "^18.2.0",
+    "react-dnd": "^16.0.1",
     "react-dom": "^18.2.0",
     "react-draggable": "^4.5.0",
     "react-dropzone": "^14.3.8",
@@ -74,13 +76,18 @@
     "remark-breaks": "^4.0.0",
     "remark-gfm": "^4.0.1",
     "three": "^0.182.0",
-    "use-debounce": "^10.1.0"
+    "use-debounce": "^10.1.0",
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@google-cloud/translate": "^9.3.0",
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.19",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/canvas-confetti": "^1.9.0",
     "@types/chrome": "^0.1.36",
     "@types/fabric": "^5.3.0",
@@ -95,6 +102,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.5",
     "fast-xml-parser": "^5.3.4",
+    "jsdom": "^28.1.0",
     "lighthouse": "^12.6.1",
     "postcss": "^8.4.35",
     "react-helmet-async": "^2.0.5",
@@ -102,6 +110,7 @@
     "typescript": "^5.2.2",
     "vite": "^7.2.7",
     "vite-plugin-pwa": "^0.19.8",
+    "vitest": "^4.0.18",
     "zx": "^8.8.5"
   },
   "overrides": {

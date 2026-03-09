@@ -1,22 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
-    FileText,
     Mic,
-    LayoutDashboard,
     Globe,
     Briefcase,
     PenTool,
     PanelLeftClose,
-    Github,
     LogOut,
     LogIn,
     Sun,
     Moon,
     Monitor,
-    ChevronDown,
-    ChevronUp,
     Users,
     CreditCard,
+    Plus,
+    Settings2,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Logo from '../Logo';
@@ -25,6 +22,10 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { navigate } from '../../utils/navigation';
 import AIUsageProgressBar from '../AIUsageProgressBar';
+import { CustomSidebarNode } from './CustomSidebarNode';
+import { Tree, NodeModel } from '@minoru/react-dnd-treeview';
+import { useSidebarStore } from '../../store/useSidebarStore';
+import { SidebarNode } from '../../types';
 
 const SUPPORTED_LANGUAGES = [
     { code: 'en', label: 'English' },
@@ -36,38 +37,139 @@ const SUPPORTED_LANGUAGES = [
     { code: 'ko', label: '한국어' },
 ];
 
+const generateDefaultNodes = (t: any): SidebarNode[] => {
+    return [
+        { id: '/dashboard', parent: 0, text: 'Dashboard', droppable: false, data: { isSystemNode: true, type: 'system', isHidden: false } },
+        { id: '/my-posts', parent: 0, text: t('nav.my_posts', 'My Posts'), droppable: false, data: { isSystemNode: true, type: 'system', isHidden: false } },
+        { id: 'create-hub', parent: 0, text: t('nav.create_build_hub', 'Create & Build Hub'), droppable: true, data: { isSystemNode: false, type: 'custom-folder', isHidden: false } },
+        { id: '/newresume', parent: 'create-hub', text: t('nav.resumes', 'Resumes'), droppable: false, data: { isSystemNode: true, type: 'system', isHidden: false } },
+        { id: '/portfolio', parent: 'create-hub', text: t('nav.portfolios', 'Portfolios'), droppable: false, data: { isSystemNode: true, type: 'system', isHidden: false } },
+        { id: '/whiteboard', parent: 'create-hub', text: t('nav.whiteboards', 'Whiteboards'), droppable: false, data: { isSystemNode: true, type: 'system', isHidden: false } },
+        { id: '/interview-studio', parent: 'create-hub', text: t('nav.interview_studio', 'Interview Studio'), droppable: false, data: { isSystemNode: true, type: 'system', isHidden: false } },
+        { id: '/job-tracker', parent: 'create-hub', text: t('dashboard.job_tracker', 'Job Tracker'), droppable: false, data: { isSystemNode: true, type: 'system', isHidden: false } },
+    ];
+};
+
 const Sidebar: React.FC = () => {
     const { t, i18n } = useTranslation();
     const { toggleNavPosition } = useNavigation();
-    const { currentUser, logOut, aiUsage, isPremium } = useAuth();
+    const { currentUser, userProfile, updateUserProfile, logOut, aiUsage, isPremium } = useAuth();
     const { theme, setTheme } = useTheme();
-    const [langOpen, setLangOpen] = useState(false);
     const currentPath = window.location.pathname;
 
-    const navItems = [
-        { name: t('dashboard.dashboard', 'Dashboard'), icon: <LayoutDashboard size={20} />, path: '/dashboard' },
-        { name: t('nav.resumes', 'Resumes'), icon: <FileText size={20} />, path: '/newresume' },
-        { name: t('nav.portfolios', 'Portfolios'), icon: <Globe size={20} />, path: '/portfolio' },
-        { name: t('nav.whiteboards', 'Whiteboards'), icon: <PenTool size={20} />, path: '/whiteboard' },
-        { name: t('nav.interview_studio', 'Interview Studio'), icon: <Mic size={20} />, path: '/interview-studio' },
-        { name: t('dashboard.job_tracker', 'Job Tracker'), icon: <Briefcase size={20} />, path: '/job-tracker' },
-        { name: t('nav.my_posts', 'My Posts'), icon: <FileText size={20} />, path: '/my-posts' },
-    ];
+    const [isEditMode, setIsEditMode] = useState(false);
+    const { nodes, setNodes, isInitialized, setIsInitialized } = useSidebarStore();
+    const [treeData, setTreeData] = useState<SidebarNode[]>([]);
+    const lastSavedNodesRef = useRef<string>('');
 
-    const themeOptions: { value: 'light' | 'dark' | 'system'; icon: React.ReactNode; label: string }[] = [
+    useEffect(() => {
+        // Initialize from profile or defaults
+        if (userProfile && !isInitialized) {
+            let initialNodes: SidebarNode[] = [];
+
+            if (userProfile.sidebarNodes && userProfile.sidebarNodes.length > 0) {
+                initialNodes = userProfile.sidebarNodes;
+
+                // Self-healing: Ensure system nodes are never lost
+                const defaultNodes = generateDefaultNodes(t);
+                const systemNodes = defaultNodes.filter(n => n.data?.isSystemNode);
+                const missingSystemNodes = systemNodes.filter(sysNode => !initialNodes.some(n => n.id === sysNode.id));
+
+                if (missingSystemNodes.length > 0) {
+                    initialNodes = [...missingSystemNodes, ...initialNodes];
+                }
+            } else {
+                initialNodes = generateDefaultNodes(t);
+            }
+
+            lastSavedNodesRef.current = JSON.stringify(initialNodes);
+            setNodes(initialNodes);
+            setTreeData(initialNodes);
+            setIsInitialized(true);
+        } else if (isInitialized && nodes.length > 0) {
+            setTreeData(nodes); // sync local treeData with zustand store
+        }
+    }, [userProfile, nodes, setNodes, t, isInitialized, setIsInitialized]);
+
+    // Handle dropping an item
+    const handleDrop = async (newTree: NodeModel<SidebarNode['data']>[]) => {
+        const typedTree = newTree as SidebarNode[];
+
+        // Optimistically update both state and store
+        setTreeData(typedTree);
+        setNodes(typedTree);
+
+        if (!userProfile) return;
+
+        try {
+            console.log("Saving sidebar changes to profile...", typedTree);
+            lastSavedNodesRef.current = JSON.stringify(typedTree);
+            await updateUserProfile({
+                sidebarNodes: typedTree
+            });
+            console.log("Sidebar changes saved successfully.");
+        } catch (err) {
+            console.error("Failed to save sidebar data", err);
+        }
+    };
+
+    // Global save when store changes externally (like renaming or visibility toggle)
+    const handleGlobalSave = useCallback(async () => {
+        if (!userProfile) return;
+        try {
+            const currentNodesStr = JSON.stringify(nodes);
+            if (currentNodesStr !== lastSavedNodesRef.current) {
+                lastSavedNodesRef.current = currentNodesStr;
+                await updateUserProfile({ sidebarNodes: nodes });
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }, [nodes, updateUserProfile, userProfile]);
+
+    // Debounce or tie save to end of edit mode for renaming/toggles to avoid spamming Firestore
+    useEffect(() => {
+        if (isInitialized && !isEditMode && nodes.length > 0 && userProfile) {
+            handleGlobalSave();
+        }
+    }, [isInitialized, isEditMode, handleGlobalSave, nodes, userProfile]);
+
+    const handleAddFolder = () => {
+        const newFolderId = `folder-${Date.now()}`;
+        const newFolder: SidebarNode = {
+            id: newFolderId,
+            parent: 0,
+            text: 'New Folder',
+            droppable: true,
+            data: {
+                isSystemNode: false,
+                type: 'custom-folder',
+                isHidden: false
+            }
+        };
+        const newNodes = [...nodes, newFolder];
+        setNodes(newNodes);
+        setTreeData(newNodes);
+
+        if (userProfile) {
+            lastSavedNodesRef.current = JSON.stringify(newNodes);
+            updateUserProfile({ sidebarNodes: newNodes }).catch(err => {
+                console.error("Failed to save new folder to profile", err);
+            });
+        }
+    };
+
+    const themeOptions = [
         { value: 'light', icon: <Sun size={14} />, label: 'Light' },
         { value: 'dark', icon: <Moon size={14} />, label: 'Dark' },
         { value: 'system', icon: <Monitor size={14} />, label: 'System' },
-    ];
-
-    const currentLang = SUPPORTED_LANGUAGES.find(l => l.code === i18n.language) ?? SUPPORTED_LANGUAGES[0];
+    ] as const;
 
     if (!currentUser) return null;
 
     return (
         <aside className="fixed inset-y-0 left-0 w-64 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-r border-gray-200 dark:border-gray-800 hidden md:flex flex-col z-30 transition-transform duration-300">
-
-            {/* ── Header / Logo ── */}
+            {/* Header / Logo */}
             <div className="flex items-center justify-between h-16 sm:h-20 px-6 border-b border-gray-200 dark:border-gray-800 shrink-0">
                 <a href="/dashboard" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }} className="flex items-center">
                     <Logo className="h-8 w-auto" />
@@ -81,163 +183,135 @@ const Sidebar: React.FC = () => {
                 </button>
             </div>
 
-            {/* ── Main Navigation ── */}
-            <nav className="flex-1 px-4 py-6 overflow-y-auto space-y-1">
-                {navItems.map((item) => {
-                    const isActive = currentPath === item.path || currentPath.startsWith(item.path + '/');
-                    return (
+            {/* Main Navigation Tree */}
+            <nav className="flex-1 px-2 py-4 overflow-y-auto space-y-1 relative">
+                <div className="flex items-center justify-between px-2 group mb-2">
+                    <span className="text-xs font-bold tracking-wider text-gray-500 dark:text-gray-400 uppercase">
+                        Navigation
+                    </span>
+                    <div className="flex items-center gap-1">
                         <button
-                            key={item.path}
-                            onClick={() => navigate(item.path)}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${isActive
-                                ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400'
-                                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
-                                }`}
+                            onClick={handleAddFolder}
+                            className="p-1 rounded-md text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                            title="New Folder"
                         >
-                            {item.icon}
-                            <span>{item.name}</span>
+                            <Plus size={14} />
                         </button>
-                    );
-                })}
+                        <button
+                            onClick={() => setIsEditMode(!isEditMode)}
+                            className={`p-1 rounded-md transition-colors ${isEditMode
+                                ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400 opacity-100'
+                                : 'opacity-0 group-hover:opacity-100 focus:opacity-100 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300'
+                                }`}
+                            title={isEditMode ? "Done Editing" : "Edit Navigation"}
+                        >
+                            <Settings2 size={14} />
+                        </button>
+                    </div>
+                </div>
+
+                <div className="relative min-h-[300px]">
+                    {treeData.length > 0 ? (
+                        <Tree
+                            tree={treeData}
+                            rootId={0}
+                            onDrop={(newTree) => {
+                                handleDrop(newTree);
+                            }}
+                            canDrop={(tree, { dragSource, dropTargetId, dropTarget }) => {
+                                if (!isEditMode) return false;
+                                return true;
+                            }}
+                            classes={{
+                                root: "min-h-[300px] mb-20",
+                                draggingSource: "opacity-30",
+                                dropTarget: "bg-indigo-50/50 dark:bg-indigo-500/5 ring-2 ring-indigo-500/50 rounded-lg",
+                            }}
+                            render={(node, { depth, isOpen, onToggle }) => (
+                                <div className="mb-0.5 relative">
+                                    <CustomSidebarNode
+                                        node={node}
+                                        depth={depth}
+                                        isOpen={isOpen}
+                                        onToggle={onToggle}
+                                        isEditMode={isEditMode}
+                                    />
+                                    {!isEditMode && (currentPath === node.id || currentPath.startsWith(node.id + '/')) && node.data?.type !== 'custom-folder' && (
+                                        <div className="absolute inset-0 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg pointer-events-none -z-10" />
+                                    )}
+                                    {!isEditMode && (currentPath === node.id || currentPath.startsWith(node.id + '/')) && node.data?.type !== 'custom-folder' && (
+                                        <div className="absolute left-0 top-2 bottom-2 w-1 bg-indigo-600 dark:bg-indigo-400 rounded-r-md pointer-events-none" />
+                                    )}
+                                </div>
+                            )}
+                        />
+                    ) : (
+                        !isEditMode && <div className="p-4 text-sm text-center text-gray-400">Loading navigation...</div>
+                    )}
+
+                    {isEditMode && (
+                        <div className="mt-2 px-2">
+                            <button
+                                onClick={handleAddFolder}
+                                className="w-full flex items-center gap-2 py-2 px-3 text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors border border-dashed border-gray-300 dark:border-gray-700"
+                            >
+                                <Plus size={16} />
+                                <span>Add New Folder</span>
+                            </button>
+                        </div>
+                    )}
+                </div>
             </nav>
 
-            {/* ── Utility Section ── */}
+            {/* Utility Section */}
             <div className="mt-auto flex flex-col gap-1 px-4 pt-3 pb-2 border-t border-gray-200 dark:border-gray-800">
-
-                {/* AI Credits */}
                 {aiUsage && (
-                    <div
-                        className="mb-2 px-1 cursor-pointer hover:opacity-80 transition-opacity"
-                        onClick={() => navigate('/subscription')}
-                    >
-                        <AIUsageProgressBar
-                            used={aiUsage.count || 0}
-                            limit={aiUsage.limit || 10}
-                            isPremium={isPremium}
-                            variant="minimal"
-                        />
+                    <div className="mb-2 px-1 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate('/subscription')}>
+                        <AIUsageProgressBar used={aiUsage.count || 0} limit={aiUsage.limit || 10} isPremium={isPremium} variant="minimal" />
                     </div>
                 )}
-
-                {/* Subscription Link */}
-                <button
-                    onClick={() => navigate('/subscription')}
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-colors text-sm w-full text-left"
-                >
-                    <CreditCard size={18} />
-                    <span>Subscription & Billing</span>
+                <button onClick={() => navigate('/subscription')} className="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm w-full text-left">
+                    <CreditCard size={18} /><span>Subscription & Billing</span>
                 </button>
-
-                {/* Developer Settings Link */}
-                <button
-                    onClick={() => navigate('/developer')}
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-colors text-sm w-full text-left"
-                >
-                    <Monitor size={18} />
-                    <span>Developer Settings (API/MCP)</span>
+                <button onClick={() => navigate('/developer')} className="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm w-full text-left">
+                    <Monitor size={18} /><span>Developer Settings</span>
                 </button>
-
-                {/* Community Link */}
-                <button
-                    onClick={() => navigate('/community')}
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-colors text-sm w-full text-left"
-                >
-                    <Users size={18} />
-                    <span>Community</span>
+                <button onClick={() => navigate('/community')} className="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm w-full text-left">
+                    <Users size={18} /><span>Community</span>
                 </button>
-
-                {/* GitHub Link */}
-                <a
-                    href="https://github.com/Jastalk/CareerVivid"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-colors text-sm"
-                >
-                    <Github size={18} />
-                    <span>GitHub</span>
-                </a>
-
-                {/* Auth: Sign Out / Sign In */}
-                {currentUser ? (
-                    <button
-                        onClick={logOut}
-                        className="w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors text-sm"
-                    >
-                        <LogOut size={18} />
-                        <span>Sign out</span>
-                    </button>
-                ) : (
-                    <button
-                        onClick={() => navigate('/signin')}
-                        className="w-full flex items-center gap-3 px-3 py-2 rounded-lg font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors text-sm"
-                    >
-                        <LogIn size={18} />
-                        <span>Sign in / Sign up</span>
-                    </button>
-                )}
 
                 {/* Theme Toggle */}
                 <div className="flex items-center justify-between px-3 py-2">
                     <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Theme</span>
                     <div className="flex items-center gap-0.5 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
                         {themeOptions.map(opt => (
-                            <button
-                                key={opt.value}
-                                onClick={() => setTheme(opt.value)}
-                                title={opt.label}
-                                className={`p-1.5 rounded-md transition-all ${theme === opt.value
-                                    ? 'bg-indigo-500 text-white shadow-sm'
-                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100'
-                                    }`}
-                            >
+                            <button key={opt.value} onClick={() => setTheme(opt.value)} title={opt.label}
+                                className={`p-1.5 rounded-md transition-all ${theme === opt.value ? 'bg-indigo-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-800'}`}>
                                 {opt.icon}
                             </button>
                         ))}
                     </div>
                 </div>
 
-                {/* Language Selector */}
-                <div className="relative px-1">
-                    <button
-                        onClick={() => setLangOpen(o => !o)}
-                        className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                    >
-                        <div className="flex items-center gap-2">
-                            <Globe size={15} className="text-gray-400" />
-                            <span>{currentLang.label}</span>
-                        </div>
-                        {langOpen ? <ChevronUp size={14} className="text-gray-400" /> : <ChevronDown size={14} className="text-gray-400" />}
+                {currentUser ? (
+                    <button onClick={logOut} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors text-sm">
+                        <LogOut size={18} /><span>Sign out</span>
                     </button>
-
-                    {langOpen && (
-                        <div className="absolute bottom-full left-1 right-1 mb-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden z-50">
-                            {SUPPORTED_LANGUAGES.map(lang => (
-                                <button
-                                    key={lang.code}
-                                    onClick={() => { i18n.changeLanguage(lang.code); setLangOpen(false); }}
-                                    className={`w-full text-left px-4 py-2 text-sm transition-colors ${i18n.language === lang.code
-                                        ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 font-semibold'
-                                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-                                        }`}
-                                >
-                                    {lang.label}
-                                </button>
-                            ))}
-                        </div>
-                    )}
-                </div>
+                ) : (
+                    <button onClick={() => navigate('/signin')} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg font-semibold text-indigo-600 hover:bg-indigo-50 transition-colors text-sm">
+                        <LogIn size={18} /><span>Sign in / Sign up</span>
+                    </button>
+                )}
             </div>
 
-            {/* ── User Profile Card ── */}
+            {/* User Profile Card */}
             <div className="p-4 border-t border-gray-200 dark:border-gray-800 shrink-0">
                 <div onClick={() => navigate('/profile')} className="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                    <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center overflow-hidden shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center overflow-hidden shrink-0">
                         {currentUser.photoURL ? (
                             <img src={currentUser.photoURL} alt="User" className="w-full h-full object-cover" />
                         ) : (
-                            <span className="text-indigo-700 dark:text-indigo-300 font-bold text-sm">
-                                {currentUser.email?.[0].toUpperCase() || 'U'}
-                            </span>
+                            <span className="text-indigo-700 font-bold text-sm">{currentUser.email?.[0].toUpperCase() || 'U'}</span>
                         )}
                     </div>
                     <div className="flex-1 min-w-0">

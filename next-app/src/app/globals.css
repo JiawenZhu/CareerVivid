@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@plugin "@tailwindcss/typography";
+@plugin "@tailwindcss/container-queries";
+@plugin "@tailwindcss/forms";
+
+@theme {
+  --color-primary: #49e619;
+  --color-primary-dark: #3bc512;
+  --color-background-light: #f6f8f6;
+  --color-background-dark: #152111;
+  --color-surface-light: #ffffff;
+  --color-surface-dark: #1e2e1a;
+  --color-card-light: #ffffff;
+  --color-card-dark: #1f2b1b;
+  --color-text-main: #111b0e;
+  --color-text-main-light: #111b0e;
+  --color-text-main-dark: #f0f5ef;
+  --color-text-secondary: #5f974e;
+  --color-text-secondary-light: #5f974e;
+  --color-text-secondary-dark: #9abf8f;
+  --color-text-light: #f6f8f6;
+  --color-border-light: #d5e7d0;
+  --color-border-dark: #2a3d25;
+
+  --font-display: "Manrope", sans-serif;
+  --font-body: "Noto Sans", sans-serif;
+
+  --radius: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background-light);
+    color: var(--color-text-main);
+    font-family: var(--font-body);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body {
+      background-color: var(--color-background-dark);
+      color: var(--color-text-main-dark);
+    }
+  }
+}

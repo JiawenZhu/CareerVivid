@@ -1,8 +1,13 @@
 import React, { useState, useRef, useLayoutEffect } from 'react';
-import { Edit3, Copy, Trash2, Share2 } from 'lucide-react';
+import { Edit3, Copy, Trash2, Share2, Folder } from 'lucide-react';
 import { ResumeData } from '../../types';
 import ResumePreview from '../ResumePreview';
 import { navigate } from '../../utils/navigation';
+import { useWorkspaceItemActions } from '../../hooks/useWorkspaceItemActions';
+import { SidebarContextMenu } from '../Navigation/SidebarContextMenu';
+import { createPortal } from 'react-dom';
+import ConfirmationModal from '../ConfirmationModal';
+import MoveToModal from '../Navigation/MoveToModal';
 
 interface ResumeCardProps {
     resume: ResumeData;
@@ -40,6 +45,23 @@ const ResumeCard: React.FC<ResumeCardProps> = ({ resume, onUpdate, onDuplicate, 
         return () => resizeObserver.disconnect();
     }, []);
 
+    const {
+        isDeleteModalOpen,
+        setIsDeleteModalOpen,
+        isMoveModalOpen,
+        setIsMoveModalOpen,
+        isEditing,
+        setIsEditing,
+        handleRename,
+        handleDelete,
+        confirmDelete,
+        onMove,
+        confirmMove,
+        nodes
+    } = useWorkspaceItemActions(`resume-${resume.id}`, resume.title);
+
+    const [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
+
     const navigateToEdit = () => {
         navigate(`/edit/${resume.id}`);
     };
@@ -53,8 +75,18 @@ const ResumeCard: React.FC<ResumeCardProps> = ({ resume, onUpdate, onDuplicate, 
         setIsEditingTitle(false);
     };
 
+    const handleContextMenu = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setContextMenu({ x: e.clientX, y: e.clientY });
+    };
+
     return (
-        <div draggable onDragStart={onDragStart} className="bg-white dark:bg-[#161b22] rounded-2xl border border-gray-200/60 dark:border-gray-800 transition-all duration-300 hover:border-primary-500/30 dark:hover:border-primary-400/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] flex flex-col cursor-grab active:cursor-grabbing overflow-hidden group">
+        <div
+            draggable
+            onDragStart={onDragStart}
+            onContextMenu={handleContextMenu}
+            className="bg-white dark:bg-[#161b22] rounded-2xl border border-gray-200/60 dark:border-gray-800 transition-all duration-300 hover:border-primary-500/30 dark:hover:border-primary-400/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] flex flex-col cursor-grab active:cursor-grabbing overflow-hidden group relative"
+        >
             <div onClick={!isEditingTitle ? navigateToEdit : undefined} className="block p-4 border-b border-gray-100 dark:border-gray-800/60 group-hover:bg-gray-50/50 dark:group-hover:bg-[#1a2029] transition-colors flex-grow cursor-pointer">
                 <div ref={previewContainerRef} className="w-full aspect-[210/297] bg-gray-200 dark:bg-gray-700 rounded-lg mb-4 overflow-hidden relative">
                     <div
@@ -96,10 +128,59 @@ const ResumeCard: React.FC<ResumeCardProps> = ({ resume, onUpdate, onDuplicate, 
                 <div className="flex gap-1.5">
                     <button onClick={navigateToEdit} title="Edit Resume" className="p-2 block rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"><Edit3 size={16} /></button>
                     <button onClick={() => onDuplicate(resume.id)} title="Duplicate Resume" className="p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"><Copy size={16} /></button>
-                    <button onClick={() => onDelete(resume.id)} title="Delete Resume" className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"><Trash2 size={16} /></button>
+                    <button onClick={onMove} title="Move to Folder" className="p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"><Folder size={16} /></button>
+                    <button onClick={handleDelete} title="Delete Resume" className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"><Trash2 size={16} /></button>
                 </div>
                 <button onClick={() => onShare(resume)} title="Share Resume" className="p-2 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-500/10 text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"><Share2 size={16} /></button>
             </div>
+
+            {/* Context Menu */}
+            {contextMenu && createPortal(
+                <SidebarContextMenu
+                    x={contextMenu.x}
+                    y={contextMenu.y}
+                    nodeTitle={resume.title}
+                    onClose={() => setContextMenu(null)}
+                    onRename={() => {
+                        setIsEditingTitle(true);
+                        setContextMenu(null);
+                    }}
+                    onDelete={() => {
+                        handleDelete();
+                        setContextMenu(null);
+                    }}
+                    onMove={() => {
+                        onMove();
+                        setContextMenu(null);
+                    }}
+                />,
+                document.body
+            )}
+
+            {/* Modals */}
+            <ConfirmationModal
+                isOpen={isDeleteModalOpen}
+                title="Delete Resume"
+                message={`Are you sure you want to delete "${resume.title}"? This will remove it from your workspace and any folders.`}
+                confirmText="Delete"
+                variant="danger"
+                onConfirm={() => {
+                    confirmDelete();
+                    onDelete(resume.id);
+                }}
+                onCancel={() => setIsDeleteModalOpen(false)}
+            />
+
+            <MoveToModal
+                isOpen={isMoveModalOpen}
+                currentNodeId={`resume-${resume.id}`}
+                currentNodeText={resume.title}
+                nodes={nodes}
+                onClose={() => setIsMoveModalOpen(false)}
+                onSelect={(targetId) => {
+                    confirmMove(targetId);
+                }}
+            />
         </div>
     );
 };

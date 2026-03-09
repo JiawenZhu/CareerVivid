@@ -26,7 +26,7 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
             isAction: false
         },
         {
-            title: 'Interview Studio Sessions',
+            title: 'Technical Interview Simulator Sessions',
             count: interviewCount,
             icon: Mic,
             color: 'text-purple-600',
@@ -44,7 +44,7 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
             isAction: false
         },
         {
-            title: 'Job Tracker',
+            title: 'Career Pipeline',
             count: jobCount > 0 ? jobCount : null,
             icon: Briefcase,
             color: 'text-indigo-600',

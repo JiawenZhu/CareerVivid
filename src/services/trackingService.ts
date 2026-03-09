@@ -15,22 +15,22 @@ interface TrackMetadata {
 // Map event types to their weighted credit costs.
 // Falls back to 1 credit for any unlisted event.
 const EVENT_CREDIT_MAP: Partial<Record<TrackEventType, number>> = {
-  'resume_generate_prompt': AI_CREDIT_COSTS.RESUME_FULL_GENERATE,
-  'resume_suggestion': AI_CREDIT_COSTS.RESUME_BULLET_EDIT,
-  'resume_parse_text': AI_CREDIT_COSTS.RESUME_PARSE_TEXT,
-  'resume_parse_file': AI_CREDIT_COSTS.RESUME_PARSE_FILE,
-  'resume_match_analysis': AI_CREDIT_COSTS.RESUME_MATCH_ANALYSIS,
+  'resume_generate_prompt': 0,
+  'resume_suggestion': AI_CREDIT_COSTS.BULLET_EDIT,
+  'resume_parse_text': 0,
+  'resume_parse_file': 0,
+  'resume_match_analysis': 0,
   'portfolio_generation': AI_CREDIT_COSTS.PORTFOLIO_GENERATE,
   'portfolio_refinement': AI_CREDIT_COSTS.PORTFOLIO_REFINE,
-  'job_parse_description': AI_CREDIT_COSTS.JOB_PARSE_DESCRIPTION,
-  'job_prep_generation': AI_CREDIT_COSTS.JOB_PREP_NOTES_SINGLE,
-  'job_prep_regeneration': AI_CREDIT_COSTS.JOB_PREP_NOTES_SINGLE,
-  'interview_analysis': AI_CREDIT_COSTS.INTERVIEW_STUDIO_SESSION,
+  'job_parse_description': 0,
+  'job_prep_generation': 0,
+  'job_prep_regeneration': 0,
+  'interview_analysis': AI_CREDIT_COSTS.TECH_INTERVIEW_VOICE,
   'question_generation': AI_CREDIT_COSTS.INTERVIEW_QUESTION_GEN,
   'image_generation': AI_CREDIT_COSTS.IMAGE_STANDARD,
-  'image_generation_prompt': AI_CREDIT_COSTS.IMAGE_STANDARD, // overridden by deductCredits in call
-  'ai_assistant_query': AI_CREDIT_COSTS.AI_ASSISTANT_QUERY,
-  'diagram_generation': AI_CREDIT_COSTS.DIAGRAM_GENERATION,
+  'image_generation_prompt': AI_CREDIT_COSTS.IMAGE_STANDARD,
+  'ai_assistant_query': 0,
+  'diagram_generation': 0,
 };
 
 const CREDIT_CONSUMING_EVENTS = Object.keys(EVENT_CREDIT_MAP) as TrackEventType[];

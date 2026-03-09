@@ -57,20 +57,23 @@ const LandingPage: React.FC = () => {
                 {/* --- Master Showcase Hero (Community First) --- */}
                 <CommunityShowcaseHero />
 
-                {/* --- Legacy Hero Section --- */}
+                {/* --- What is CareerVivid Hero Section --- */}
                 <section className="relative pt-8 pb-20 lg:pt-12 lg:pb-32 overflow-hidden bg-white dark:bg-gray-950">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                         <div className="grid lg:grid-cols-2 gap-12 items-center">
                             <div className="text-left">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-900/30 border border-primary-100 dark:border-primary-800 text-xs font-medium text-primary-700 dark:text-primary-300 mb-6">
                                     <span className="flex h-2 w-2 rounded-full bg-primary-500 animate-pulse"></span>
-                                    {t('landing.badge_new')}
+                                    Open-Source Community
                                 </div>
-                                <h1 className="text-6xl sm:text-7xl lg:text-8xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-[1.1] mb-8">
-                                    Supercharge your <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-blue-600 dark:from-primary-400 dark:to-blue-400">career</span>.
+                                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-[1.1] mb-6">
+                                    What is <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-blue-600 dark:from-primary-400 dark:to-blue-400">CareerVivid</span>?
                                 </h1>
-                                <p className="text-2xl lg:text-3xl text-gray-600 dark:text-gray-300 mb-10 leading-relaxed max-w-2xl font-medium">
-                                    Open-source for developers, seamlessly hosted for professionals. Build an ATS-optimized resume, stunning portfolio, and practice interviews with AI.
+                                <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-300 mb-6 leading-relaxed max-w-2xl font-medium">
+                                    CareerVivid is an open-source "learning by doing" community platform built for developers. It provides an interactive workspace where tech professionals can master system design, architecture, and coding by actively building projects alongside their personal AI agents.
+                                </p>
+                                <p className="text-lg text-gray-500 dark:text-gray-400 mb-10 leading-relaxed max-w-2xl">
+                                    Instead of passive video tutorials, CareerVivid unifies AI-assisted Markdown publishing and live Excalidraw whiteboarding to help you learn, document, and share real-world engineering skills in one place.
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-6 mb-12">
                                     <button onClick={() => navigate('/signup')} className="px-10 py-5 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-extrabold text-xl transition-all transform hover:scale-105 shadow-xl hover:shadow-primary-500/30 flex items-center justify-center gap-3">

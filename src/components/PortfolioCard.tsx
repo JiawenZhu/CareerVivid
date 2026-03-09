@@ -1,10 +1,15 @@
 import React, { useState, useRef, useLayoutEffect } from 'react';
-import { Edit3, Copy, Trash2, Share2 } from 'lucide-react';
+import { Edit3, Copy, Trash2, Share2, Folder } from 'lucide-react';
 import { PortfolioData } from '../features/portfolio/types/portfolio';
 import { navigate } from '../utils/navigation';
 import { TEMPLATES } from '../features/portfolio/templates';
 import LinkTreeVisual from '../features/portfolio/templates/linkinbio/LinkTreeVisual';
 import { getTheme } from '../features/portfolio/styles/themes';
+import { useWorkspaceItemActions } from '../hooks/useWorkspaceItemActions';
+import { SidebarContextMenu } from './Navigation/SidebarContextMenu';
+import { createPortal } from 'react-dom';
+import ConfirmationModal from './ConfirmationModal';
+import MoveToModal from './Navigation/MoveToModal';
 
 interface PortfolioCardProps {
     portfolio: PortfolioData;
@@ -23,6 +28,23 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
     onShare,
     onDragStart
 }) => {
+    const {
+        isDeleteModalOpen,
+        setIsDeleteModalOpen,
+        isMoveModalOpen,
+        setIsMoveModalOpen,
+        isEditing,
+        setIsEditing,
+        handleRename,
+        handleDelete,
+        confirmDelete,
+        onMove,
+        confirmMove,
+        nodes
+    } = useWorkspaceItemActions(`portfolio-${portfolio.id}`, portfolio.title);
+
+    const [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
+
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [title, setTitle] = useState(portfolio.title);
 
@@ -68,6 +90,11 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
         setIsEditingTitle(false);
     };
 
+    const handleContextMenu = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setContextMenu({ x: e.clientX, y: e.clientY });
+    };
+
     const CurrentTemplate = TEMPLATES[portfolio.templateId as keyof typeof TEMPLATES] || TEMPLATES.minimalist;
 
     // Get theme for bio-link preview
@@ -77,7 +104,8 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
         <div
             draggable
             onDragStart={onDragStart}
-            className="bg-white dark:bg-[#161b22] rounded-2xl border border-gray-200/60 dark:border-gray-800 transition-all duration-300 hover:border-primary-500/30 dark:hover:border-primary-400/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] flex flex-col cursor-grab active:cursor-grabbing overflow-hidden group"
+            onContextMenu={handleContextMenu}
+            className="bg-white dark:bg-[#161b22] rounded-2xl border border-gray-200/60 dark:border-gray-800 transition-all duration-300 hover:border-primary-500/30 dark:hover:border-primary-400/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] flex flex-col cursor-grab active:cursor-grabbing overflow-hidden group relative"
         >
             <div
                 onClick={!isEditingTitle ? navigateToEdit : undefined}
@@ -159,7 +187,14 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
                         <Copy size={16} />
                     </button>
                     <button
-                        onClick={() => onDelete(portfolio.id)}
+                        onClick={onMove}
+                        title="Move to Folder"
+                        className="p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+                    >
+                        <Folder size={16} />
+                    </button>
+                    <button
+                        onClick={handleDelete}
                         title="Delete Portfolio"
                         className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                     >
@@ -174,6 +209,54 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
                     <Share2 size={16} />
                 </button>
             </div>
+
+            {/* Context Menu */}
+            {contextMenu && createPortal(
+                <SidebarContextMenu
+                    x={contextMenu.x}
+                    y={contextMenu.y}
+                    nodeTitle={portfolio.title}
+                    onClose={() => setContextMenu(null)}
+                    onRename={() => {
+                        setIsEditingTitle(true);
+                        setContextMenu(null);
+                    }}
+                    onDelete={() => {
+                        handleDelete();
+                        setContextMenu(null);
+                    }}
+                    onMove={() => {
+                        onMove();
+                        setContextMenu(null);
+                    }}
+                />,
+                document.body
+            )}
+
+            {/* Modals */}
+            <ConfirmationModal
+                isOpen={isDeleteModalOpen}
+                title="Delete Portfolio"
+                message={`Are you sure you want to delete "${portfolio.title}"? This will remove it from your workspace and any folders.`}
+                confirmText="Delete"
+                variant="danger"
+                onConfirm={() => {
+                    confirmDelete();
+                    onDelete(portfolio.id);
+                }}
+                onCancel={() => setIsDeleteModalOpen(false)}
+            />
+
+            <MoveToModal
+                isOpen={isMoveModalOpen}
+                currentNodeId={`portfolio-${portfolio.id}`}
+                currentNodeText={portfolio.title}
+                nodes={nodes}
+                onClose={() => setIsMoveModalOpen(false)}
+                onSelect={(targetId) => {
+                    confirmMove(targetId);
+                }}
+            />
         </div>
     );
 };
