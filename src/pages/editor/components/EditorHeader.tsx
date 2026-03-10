@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Share2, Download, ChevronDown, FileText, Image as ImageIcon, Loader2, Languages, Eye, MoreVertical, Edit as EditIcon, Moon, Sun, Sparkles, Wand2 } from 'lucide-react';
 import CoverLetterManagerModal from './CoverLetterManagerModal';
 import TailorResumeModal from './TailorResumeModal';
@@ -46,9 +46,55 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
     const [isCoverLetterModalOpen, setIsCoverLetterModalOpen] = useState(false);
     const [isTailorModalOpen, setIsTailorModalOpen] = useState(false);
 
+    const [isDownloadClosing, setIsDownloadClosing] = useState(false);
+    const [isTranslateClosing, setIsTranslateClosing] = useState(false);
+    const [isMobileMoreClosing, setIsMobileMoreClosing] = useState(false);
+
     const desktopDownloadMenuRef = useRef<HTMLDivElement>(null);
     const translateMenuRef = useRef<HTMLDivElement>(null);
     const mobileMoreMenuRef = useRef<HTMLDivElement>(null);
+
+    const closeDownloadMenu = () => {
+        setIsDownloadClosing(true);
+        setTimeout(() => {
+            setIsDesktopDownloadMenuOpen(false);
+            setIsDownloadClosing(false);
+        }, 300);
+    };
+
+    const closeTranslateMenu = () => {
+        setIsTranslateClosing(true);
+        setTimeout(() => {
+            setIsTranslateMenuOpen(false);
+            setIsTranslateClosing(false);
+        }, 300);
+    };
+
+    const closeMobileMoreMenu = () => {
+        setIsMobileMoreClosing(true);
+        setTimeout(() => {
+            setIsMobileMoreMenuOpen(false);
+            setIsMobileMoreClosing(false);
+        }, 300);
+    };
+
+    // Click Outside Detection
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (isDesktopDownloadMenuOpen && !isDownloadClosing && desktopDownloadMenuRef.current && !desktopDownloadMenuRef.current.contains(event.target as Node)) {
+                closeDownloadMenu();
+            }
+            if (isTranslateMenuOpen && !isTranslateClosing && translateMenuRef.current && !translateMenuRef.current.contains(event.target as Node)) {
+                closeTranslateMenu();
+            }
+            if (isMobileMoreMenuOpen && !isMobileMoreClosing && mobileMoreMenuRef.current && !mobileMoreMenuRef.current.contains(event.target as Node)) {
+                closeMobileMoreMenu();
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isDesktopDownloadMenuOpen, isTranslateMenuOpen, isMobileMoreMenuOpen, isDownloadClosing, isTranslateClosing, isMobileMoreClosing]);
 
     return (
         <header className="relative flex-shrink-0 bg-white dark:bg-gray-800/50 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 z-40">
@@ -95,9 +141,11 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
 
                         <button
                             onClick={() => {
-                                setIsMobileMoreMenuOpen(!isMobileMoreMenuOpen);
-                                if (!isMobileMoreMenuOpen && onDismissGuideArrow) {
-                                    onDismissGuideArrow();
+                                if (isMobileMoreMenuOpen) {
+                                    closeMobileMoreMenu();
+                                } else {
+                                    setIsMobileMoreMenuOpen(true);
+                                    if (onDismissGuideArrow) onDismissGuideArrow();
                                 }
                             }}
                             className="p-3 rounded-xl bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-all animate-pulse-slow shadow-lg shadow-primary-500/20"
@@ -105,11 +153,11 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
                             <MoreVertical size={24} className="stroke-2" />
                         </button>
                         {isMobileMoreMenuOpen && (
-                            <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-20 border dark:border-gray-700">
+                            <div className={`absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-20 border dark:border-gray-700 origin-top-right ${isMobileMoreClosing ? 'animate-dropdown-out' : 'animate-dropdown-in'}`}>
                                 <div className="py-1">
                                     <p className="px-4 py-2 text-xs text-gray-400">View Mode</p>
-                                    <button onClick={() => { setViewMode('edit'); setIsMobileMoreMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"><EditIcon size={16} /> Edit</button>
-                                    <button onClick={() => { setViewMode('preview'); setIsMobileMoreMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"><Eye size={16} /> Preview</button>
+                                    <button onClick={() => { setViewMode('edit'); closeMobileMoreMenu(); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"><EditIcon size={16} /> Edit</button>
+                                    <button onClick={() => { setViewMode('preview'); closeMobileMoreMenu(); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"><Eye size={16} /> Preview</button>
                                     {/* Review Feedback Section - Mobile */}
                                     {!isShared && !isGuestMode && (hasAnnotations || commentsCount > 0) && (
                                         <>
@@ -118,7 +166,7 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
                                             <button
                                                 onClick={() => {
                                                     onToggleFeedback();
-                                                    setIsMobileMoreMenuOpen(false);
+                                                    closeMobileMoreMenu();
                                                 }}
                                                 className={`w-full text-left flex items-center gap-3 px-4 py-2 text-sm transition-colors ${showAnnotationOverlay
                                                     ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 font-semibold'
@@ -136,12 +184,12 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
                                     <div className="border-t my-1 dark:border-gray-600"></div>
                                     <p className="px-4 py-2 text-xs text-gray-400">Download</p>
                                     {EXPORT_OPTIONS.slice(0, 2).map(opt => (
-                                        <button key={opt.id} onClick={() => { onExport(opt.id); setIsMobileMoreMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                        <button key={opt.id} onClick={() => { onExport(opt.id); closeMobileMoreMenu(); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                             {opt.id === 'pdf' ? <FileText size={16} /> : <ImageIcon size={16} />} {opt.name}
                                         </button>
                                     ))}
                                     <div className="border-t my-1 dark:border-gray-600"></div>
-                                    <button onClick={() => { onToggleTheme(); setIsMobileMoreMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    <button onClick={() => { onToggleTheme(); closeMobileMoreMenu(); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                         {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />} Toggle Theme
                                     </button>
                                 </div>
@@ -155,7 +203,13 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
                     {/* DOWNLOAD MENU */}
                     <div className="relative" ref={desktopDownloadMenuRef}>
                         <button
-                            onClick={() => setIsDesktopDownloadMenuOpen(!isDesktopDownloadMenuOpen)}
+                            onClick={() => {
+                                if (isDesktopDownloadMenuOpen) {
+                                    closeDownloadMenu();
+                                } else {
+                                    setIsDesktopDownloadMenuOpen(true);
+                                }
+                            }}
                             className="flex items-center gap-2 bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg shadow-soft hover:bg-primary-700 transition-colors"
                         >
                             <Download size={18} />
@@ -163,7 +217,7 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
                             <ChevronDown size={18} />
                         </button>
                         {isDesktopDownloadMenuOpen && (
-                            <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-50 border dark:border-gray-700">
+                            <div className={`absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-50 border dark:border-gray-700 origin-top-right ${isDownloadClosing ? 'animate-dropdown-out' : 'animate-dropdown-in'}`}>
                                 <div className="py-1">
                                     {EXPORT_OPTIONS.map(opt => {
                                         let name = opt.name;
@@ -176,7 +230,7 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
                                         else if (opt.id === '4:5') { name = t('export.portrait'); rec = t('export.portrait_rec'); }
 
                                         return (
-                                            <button key={opt.id} onClick={() => { onExport(opt.id); setIsDesktopDownloadMenuOpen(false); }} className="w-full text-left flex items-start gap-3 px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                            <button key={opt.id} onClick={() => { onExport(opt.id); closeDownloadMenu(); }} className="w-full text-left flex items-start gap-3 px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                 {opt.id === 'pdf' ? <FileText className="mt-1" /> : <ImageIcon className="mt-1" />}
                                                 <div>
                                                     <p className="font-semibold">{name}</p>
@@ -195,7 +249,13 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
                     {!isShared && (
                         <div className="relative" ref={translateMenuRef}>
                             <button
-                                onClick={() => setIsTranslateMenuOpen(!isTranslateMenuOpen)}
+                                onClick={() => {
+                                    if (isTranslateMenuOpen) {
+                                        closeTranslateMenu();
+                                    } else {
+                                        setIsTranslateMenuOpen(true);
+                                    }
+                                }}
                                 disabled={isTranslating}
                                 className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
                             >
@@ -204,13 +264,13 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
                                 <ChevronDown size={14} className={`transition-transform ${isTranslateMenuOpen ? 'rotate-180' : ''}`} />
                             </button>
                             {isTranslateMenuOpen && (
-                                <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-50 border dark:border-gray-700 max-h-80 overflow-y-auto">
+                                <div className={`absolute left-1/2 -translate-x-1/2 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-50 border dark:border-gray-700 max-h-80 overflow-y-auto origin-top ${isTranslateClosing ? 'animate-dropdown-out' : 'animate-dropdown-in'}`}>
                                     <div className="py-1">
                                         <div className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 font-semibold">Translate Resume To:</div>
                                         {SUPPORTED_TRANSLATE_LANGUAGES.map(lang => (
                                             <button
                                                 key={lang.code}
-                                                onClick={() => { onTranslate(lang.code); setIsTranslateMenuOpen(false); }}
+                                                onClick={() => { onTranslate(lang.code); closeTranslateMenu(); }}
                                                 className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                                             >
                                                 {lang.name}

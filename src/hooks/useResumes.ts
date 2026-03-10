@@ -224,10 +224,18 @@ export const useResumes = () => {
                 ...cleanData,
                 updatedAt: serverTimestamp()
             });
-        } catch (error) {
-            console.error("Error updating resume:", error);
+        } catch (error: any) {
+            console.error("Error updating resume:", {
+                userId: currentUser?.uid,
+                resumeId: id,
+                message: error.message,
+                code: error.code,
+                stack: error.stack
+            });
+            if (error.message?.includes('insufficient permissions')) {
+                console.error("Firebase permissions error. Check the Firestore rules for path: users/" + currentUser?.uid + "/resumes/" + id);
+            }
             if (error instanceof TypeError && error.message.includes('circular structure')) {
-                // This log will help debug if the issue persists by showing the problematic object.
                 console.error("A circular reference was detected in the data being saved:", updatedData);
             }
         }

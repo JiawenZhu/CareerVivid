@@ -22,57 +22,16 @@ export const DraggableSectionHeader: React.FC<DraggableSectionHeaderProps> = ({
     hasItems = true,
     onTitleChange
 }) => {
-    // ─── Long Press Logic ───
-    const [countdown, setCountdown] = useState<number | null>(null);
-    const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-    const clearTimer = () => {
-        if (timerRef.current) clearInterval(timerRef.current);
-        timerRef.current = null;
-        setCountdown(null);
-    };
-
-    const startPress = () => {
-        if (!onLongPress) return;
-        let ticks = 2; // 2 seconds
-        setCountdown(ticks);
-        timerRef.current = setInterval(() => {
-            ticks -= 1;
-            if (ticks <= 0) {
-                clearTimer();
-                onLongPress();
-            } else {
-                setCountdown(ticks);
-            }
-        }, 1000);
-    };
-
-    // Cleanup on unmount
-    useEffect(() => {
-        return clearTimer;
-    }, []);
-
     return (
         <div className="flex items-center justify-between mb-4 px-1">
             <div className="flex items-center gap-2 relative">
-                {/* Render Grip Icon if onLongPress provided OR replace generic icon */}
+                {/* Immediate trigger for reorder modal */}
                 {onLongPress ? (
                     <div
-                        className="relative flex items-center justify-center p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 cursor-grab active:cursor-grabbing text-gray-400 select-none touch-none"
-                        onMouseDown={startPress}
-                        onMouseUp={clearTimer}
-                        onMouseLeave={clearTimer}
-                        onTouchStart={startPress}
-                        onTouchEnd={clearTimer}
+                        className="relative flex items-center justify-center p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer text-gray-400 select-none touch-none"
+                        onClick={onLongPress}
                     >
                         {viewMode === 'row' ? <GripHorizontal size={20} /> : <GripVertical size={20} />}
-
-                        {/* Countdown Badge Overlay */}
-                        {countdown !== null && (
-                            <div className="absolute -top-3 -right-3 w-5 h-5 bg-primary-500 text-white text-xs font-bold flex items-center justify-center rounded-full shadow-sm animate-pulse z-10">
-                                {countdown}
-                            </div>
-                        )}
                     </div>
                 ) : icon ? (
                     <span className="text-gray-400">{icon}</span>

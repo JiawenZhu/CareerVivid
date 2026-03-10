@@ -7,7 +7,7 @@ import {
 } from 'firebase/auth';
 import { auth, googleProvider, db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { Eye, EyeOff, ArrowLeft, Loader2, Mail, Lock, ChevronRight } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft, Loader2, Mail, Lock, ChevronRight, Users } from 'lucide-react';
 import { trackUsage } from '../services/trackingService';
 import Logo from '../components/Logo';
 import { navigate } from '../utils/navigation';
@@ -22,11 +22,19 @@ const SignInPage: React.FC = () => {
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+    const [isMissingUser, setIsMissingUser] = useState(false);
     const { currentUser } = useAuth();
     const [cliPort, setCliPort] = useState<string | null>(null);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
+        
+        // Handle pre-filled email (frictionless transition)
+        const emailParam = params.get('email');
+        if (emailParam) {
+            setEmail(decodeURIComponent(emailParam));
+        }
+
         const port = params.get('cli_port');
         if (port) {
             setCliPort(port);
@@ -92,11 +100,13 @@ const SignInPage: React.FC = () => {
     }, [loading]);
 
     const handleAuthError = (err: any) => {
+        setIsMissingUser(false);
         switch (err.code) {
             case 'auth/invalid-credential':
             case 'auth/user-not-found':
             case 'auth/wrong-password':
                 setError(t('auth.error_invalid'));
+                setIsMissingUser(true);
                 break;
             case 'auth/popup-closed-by-user':
                 break;
@@ -378,8 +388,20 @@ const SignInPage: React.FC = () => {
                         </div>
 
                         {error && (
-                            <div className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800">
-                                <p className="text-sm text-red-600 dark:text-red-400 text-center font-medium">{error}</p>
+                            <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 animate-slide-up">
+                                <p className="text-sm text-red-600 dark:text-red-400 text-center font-semibold mb-3">
+                                    {error}
+                                </p>
+                                {isMissingUser && (
+                                    <button
+                                        type="button"
+                                        onClick={() => navigate(`/signup?email=${encodeURIComponent(email)}`)}
+                                        className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 rounded-lg text-sm font-bold border border-red-200 dark:border-red-800/50 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all shadow-sm group"
+                                    >
+                                        Create a new account
+                                        <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+                                    </button>
+                                )}
                             </div>
                         )}
                         {success && (
@@ -429,16 +451,20 @@ const SignInPage: React.FC = () => {
                         </button>
                     </div>
 
-                    <div className="mt-8 text-center">
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {t('auth.dont_have_account')}{' '}
-                            <a
-                                href="/signup"
-                                className="font-bold text-primary-600 hover:text-primary-700 transition-colors inline-flex items-center gap-1"
-                            >
-                                {t('auth.sign_up_free')} <ChevronRight size={14} />
-                            </a>
+                    <div className="mt-8 pt-8 border-t border-gray-100 dark:border-gray-800 text-center">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 font-medium uppercase tracking-wider text-[10px]">
+                            Just exploring?
                         </p>
+                        <a
+                            href="/community"
+                            className="inline-flex items-center gap-2.5 px-6 py-2.5 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 text-gray-900 dark:text-white rounded-2xl border border-gray-200 dark:border-gray-700 transition-all group shadow-sm hover:shadow-md"
+                        >
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400 group-hover:scale-110 transition-transform">
+                                <Users size={16} />
+                            </div>
+                            <span className="font-bold text-sm">Explore Community</span>
+                            <ChevronRight size={14} className="text-gray-400 group-hover:translate-x-0.5 transition-transform" />
+                        </a>
                     </div>
                 </div>
             </div>

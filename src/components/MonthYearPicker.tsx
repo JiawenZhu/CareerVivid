@@ -24,9 +24,13 @@ const MonthYearPicker: React.FC<MonthYearPickerProps> = ({ label, value, onChang
   
   // Parse initial value or default to current date
   const parseDate = (dateStr: string) => {
-    if (!dateStr || dateStr.toLowerCase() === 'present') {
-        const now = new Date();
-        return { month: now.getMonth(), year: now.getFullYear(), isPresent: dateStr.toLowerCase() === 'present' };
+    if (!dateStr || (typeof dateStr === 'string' && dateStr.toLowerCase() === 'present')) {
+      const now = new Date();
+      return { 
+        month: now.getMonth(), 
+        year: now.getFullYear(), 
+        isPresent: dateStr?.toLowerCase?.() === 'present' 
+      };
     }
     const parts = dateStr.split(' ');
     if (parts.length === 2) {

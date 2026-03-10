@@ -38,8 +38,19 @@ export default defineConfig(({ mode }) => {
           ]
         },
         workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
+          globPatterns: ['**/*.{js,css,html}'],
           runtimeCaching: [
+            {
+              urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'images-cache',
+                expiration: {
+                  maxEntries: 20,
+                  maxAgeSeconds: 60 * 60 * 24 * 7, // 7 Days
+                },
+              },
+            },
             {
               urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
               handler: 'CacheFirst',
@@ -60,7 +71,7 @@ export default defineConfig(({ mode }) => {
               options: {
                 cacheName: 'firebase-storage-cache',
                 expiration: {
-                  maxEntries: 100,
+                  maxEntries: 50,
                   maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
                 },
                 cacheableResponse: {
@@ -83,7 +94,6 @@ export default defineConfig(({ mode }) => {
     build: {
       rollupOptions: {
         output: {
-          entryFileNames: `assets/main.js`,
           chunkFileNames: `assets/[name]-[hash].js`,
           assetFileNames: `assets/[name]-[hash].[ext]`
         }

@@ -1,6 +1,7 @@
 /// <reference types="vite-plugin-pwa/client" />
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
+import { RefreshCw, X, Info } from 'lucide-react';
 
 export default function PWABadge() {
     const {
@@ -15,35 +16,51 @@ export default function PWABadge() {
         },
     });
 
+    const [isAnimating, setIsAnimating] = useState(false);
+
     const close = () => {
         setNeedRefresh(false);
+    };
+
+    const handleUpdate = () => {
+        setIsAnimating(true);
+        // Small delay to show animation before reload
+        setTimeout(() => {
+            updateServiceWorker(true);
+        }, 300);
     };
 
     if (!needRefresh) return null;
 
     return (
-        <div className="fixed bottom-4 right-4 z-50 animate-fade-in">
-            <div className="bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 rounded-lg p-4 max-w-sm flex items-start gap-4" role="alert">
-                <div className="text-gray-900 dark:text-gray-100 mt-1">
-                    <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+        <div className="fixed bottom-6 right-6 z-[100] animate-bounce-in">
+            <div className="bg-white dark:bg-gray-900 shadow-2xl border border-primary-100 dark:border-primary-900/30 rounded-2xl p-5 max-w-sm flex items-start gap-4 transition-all hover:scale-[1.02] active:scale-95" role="alert">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center text-primary-600 dark:text-primary-400">
+                    <RefreshCw className={`w-5 h-5 ${isAnimating ? 'animate-spin' : ''}`} />
                 </div>
+                
                 <div className="flex-1">
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Update Available</h3>
-                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                        A new version of CareerVivid is ready.
-                    </p>
-                    <div className="mt-3 flex gap-2">
-                        <button
-                            onClick={() => updateServiceWorker(true)}
-                            className="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-md text-xs px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                    <div className="flex justify-between items-start">
+                        <h3 className="text-base font-bold text-gray-900 dark:text-white">Update Available</h3>
+                        <button 
+                            onClick={close}
+                            className="p-1 -mr-2 -mt-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
                         >
-                            Update Details
+                            <X size={16} />
                         </button>
+                    </div>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                        A new version of CareerVivid is ready with performance improvements and new features.
+                    </p>
+                    <div className="mt-4 flex gap-3">
                         <button
-                            onClick={() => close()}
-                            className="text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 font-medium rounded-md text-xs px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                            id="pwa-update-button"
+                            onClick={handleUpdate}
+                            className="flex-1 flex items-center justify-center gap-2 text-white bg-primary-600 hover:bg-primary-700 font-bold rounded-xl text-sm px-4 py-2.5 transition-all shadow-lg shadow-primary-500/25 active:scale-95 disabled:opacity-50"
+                            disabled={isAnimating}
                         >
-                            Dismiss
+                            <RefreshCw className={`w-4 h-4 ${isAnimating ? 'animate-spin' : ''}`} />
+                            <span>Update Now</span>
                         </button>
                     </div>
                 </div>

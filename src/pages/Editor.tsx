@@ -1,4 +1,5 @@
 import React from 'react';
+import { navigate } from '../utils/navigation';
 import { ResumeData } from '../types';
 import { useEditor } from '../hooks/useEditor';
 import { TEMPLATES } from '../templates';
@@ -11,6 +12,7 @@ import FeedbackModal from '../components/FeedbackModal';
 import UpgradeModal from '../components/UpgradeModal';
 import ShareResumeModal from '../components/ShareResumeModal';
 import { Sparkles, Loader2 } from 'lucide-react';
+import ExportSuccessModal from '../components/ExportSuccessModal';
 
 // Refactored Components
 import EditorHeader from './editor/components/EditorHeader';
@@ -98,7 +100,10 @@ const Editor: React.FC<EditorProps> = (props) => {
         toggleFeedbackOverlay,
         closeComments,
         handleConfirmNew,
-        updateResume
+        updateResume,
+        isExportSuccessModalOpen,
+        setIsExportSuccessModalOpen,
+        exportedDocUrl
     } = useEditor({
         resumeId,
         initialData,
@@ -236,6 +241,11 @@ const Editor: React.FC<EditorProps> = (props) => {
             {isShareModalOpen && resume && (
                 <ShareResumeModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} resume={resume} onUpdate={updateResume} />
             )}
+            <ExportSuccessModal
+                isOpen={isExportSuccessModalOpen}
+                onClose={() => setIsExportSuccessModalOpen(false)}
+                docUrl={exportedDocUrl}
+            />
             {toastMessage && <Toast message={toastMessage} onClose={() => setToastMessage(null)} />}
         </div>
     );

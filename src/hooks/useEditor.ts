@@ -63,6 +63,8 @@ export const useEditor = ({
     const [isExporting, setIsExporting] = useState(false);
     const [exportProgress, setExportProgress] = useState('');
     const [isTranslating, setIsTranslating] = useState(false);
+    const [isExportSuccessModalOpen, setIsExportSuccessModalOpen] = useState(false);
+    const [exportedDocUrl, setExportedDocUrl] = useState('');
 
     // Optimization & Preview States
     const [optimizationJob, setOptimizationJob] = useState<{ title: string; description: string; analysis?: ResumeMatchAnalysis } | null>(null);
@@ -110,7 +112,14 @@ export const useEditor = ({
             if (isShared && onSharedUpdate) {
                 onSharedUpdate(updatedData);
             } else if (isGuestMode) {
+                try {
                 localStorage.setItem('guestResume', JSON.stringify(newResumeState));
+            } catch (e) {
+                if (e instanceof Error && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+                    console.warn("Storage quota exceeded, clearing guestResume to free up space.");
+                    localStorage.removeItem('guestResume');
+                }
+            }
             } else {
                 updateResume(resume.id, updatedData);
             }
@@ -270,6 +279,8 @@ export const useEditor = ({
             const exportFn = httpsCallable(functions, 'exportToGoogleDocs');
             const response = await exportFn({ resumeData: resume, accessToken });
             const { docUrl } = response.data as any;
+            setExportedDocUrl(docUrl);
+            setIsExportSuccessModalOpen(true);
             window.open(docUrl, '_blank');
             setToastMessage("Resume Exported to Google Docs!");
         } catch (error: any) {
@@ -295,7 +306,11 @@ export const useEditor = ({
             const storageKey = `feedback_viewed_${currentUser!.uid}_${resume!.id}`;
             const currentTimestamp = Date.now();
             setLastFeedbackTimestamp(currentTimestamp);
-            localStorage.setItem(storageKey, JSON.stringify({ viewed: true, timestamp: currentTimestamp }));
+            try {
+                localStorage.setItem(storageKey, JSON.stringify({ viewed: true, timestamp: currentTimestamp }));
+            } catch (e) {
+                // Ignore storage errors for view tracking
+            }
         } else {
             setActiveTab(previousTab);
         }
@@ -370,7 +385,11 @@ export const useEditor = ({
             setShowGuideArrow(true);
             const newCount = guideArrowShownCount + 1;
             setGuideArrowShownCount(newCount);
-            localStorage.setItem('guideArrowShownCount', newCount.toString());
+            try {
+                localStorage.setItem('guideArrowShownCount', newCount.toString());
+            } catch (e) {
+                // Ignore storage errors for UI hints
+            }
             const timer = setTimeout(() => setShowGuideArrow(false), 5000);
             return () => clearTimeout(timer);
         }
@@ -525,6 +544,9 @@ export const useEditor = ({
         toggleFeedbackOverlay,
         closeComments,
         handleConfirmNew,
-        updateResume
+        updateResume,
+        isExportSuccessModalOpen,
+        setIsExportSuccessModalOpen,
+        exportedDocUrl
     };
 };
