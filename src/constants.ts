@@ -78,11 +78,11 @@ export const createNewResume = (): ResumeData => {
     templateId: 'Modern',
     personalDetails: { ...DEFAULT_PERSONAL_DETAILS },
     professionalSummary: DEFAULT_SUMMARY,
-    websites: [...DEFAULT_WEBSITES.map(w => ({ ...w, id: crypto.randomUUID() }))],
-    skills: [...DEFAULT_SKILLS.map(s => ({ ...s, id: crypto.randomUUID() }))],
-    employmentHistory: [...DEFAULT_EMPLOYMENT.map(e => ({ ...e, id: crypto.randomUUID() }))],
-    education: [...DEFAULT_EDUCATION.map(e => ({ ...e, id: crypto.randomUUID() }))],
-    languages: [...DEFAULT_LANGUAGES.map(l => ({ ...l, id: crypto.randomUUID() }))],
+    websites: [...DEFAULT_WEBSITES.map(w => ({ ...w, id: generateSafeUUID() }))],
+    skills: [...DEFAULT_SKILLS.map(s => ({ ...s, id: generateSafeUUID() }))],
+    employmentHistory: [...DEFAULT_EMPLOYMENT.map(e => ({ ...e, id: generateSafeUUID() }))],
+    education: [...DEFAULT_EDUCATION.map(e => ({ ...e, id: generateSafeUUID() }))],
+    languages: [...DEFAULT_LANGUAGES.map(l => ({ ...l, id: generateSafeUUID() }))],
     themeColor: '#2c3e50',
     titleFont: 'Montserrat',
     bodyFont: 'Crimson Text',
@@ -90,6 +90,18 @@ export const createNewResume = (): ResumeData => {
     sectionTitles: { ...DEFAULT_SECTION_TITLES },
     customIcons: { ...DEFAULT_ICONS },
   };
+};
+
+export const generateSafeUUID = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  // Fallback for insecure contexts (e.g., local network IP testing)
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
 };
 
 export const createBlankResume = (): ResumeData => {

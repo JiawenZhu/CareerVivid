@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { db } from '../../../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { generateSafeUUID } from '../../../constants';
 
 interface UseAnalyticsProps {
     portfolioId: string | undefined;
@@ -15,7 +16,7 @@ export const useAnalytics = ({ portfolioId, ownerId, enabled }: UseAnalyticsProp
     const getVisitorId = () => {
         let vid = localStorage.getItem('cv_visitor_id');
         if (!vid) {
-            vid = crypto.randomUUID();
+            vid = generateSafeUUID();
             localStorage.setItem('cv_visitor_id', vid);
         }
         return vid;

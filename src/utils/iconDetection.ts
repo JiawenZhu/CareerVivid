@@ -1,5 +1,6 @@
 
 import { WebsiteLink } from '../types';
+import { generateSafeUUID } from '../constants';
 
 /**
  * Detects the appropriate icon based on URL or label
@@ -57,7 +58,7 @@ export function detectIconFromUrl(url: string, label: string): string {
 export function createWebsiteLink(label: string = 'Website', url: string = ''): WebsiteLink {
   const icon = url ? detectIconFromUrl(url, label) : 'link';
   return {
-    id: crypto.randomUUID(),
+    id: generateSafeUUID(),
     label,
     url,
     icon

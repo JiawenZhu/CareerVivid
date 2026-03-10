@@ -54,7 +54,7 @@ export const CustomSidebarNode: React.FC<Props> = ({ node, depth, isOpen, onTogg
     const inputRef = useRef<HTMLInputElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const { isSystemNode, type, isHidden } = node.data!;
+    const { isSystemNode, type, isHidden, isCreationLink } = node.data!;
 
     useEffect(() => {
         if (isEditing && inputRef.current) {
@@ -116,7 +116,8 @@ export const CustomSidebarNode: React.FC<Props> = ({ node, depth, isOpen, onTogg
 
     return (
         <div
-            className={`relative flex items-center group py-2 pr-2 rounded-lg transition-colors
+            className={`relative items-center group py-2 pr-2 rounded-lg transition-colors
+        ${isCreationLink ? 'hidden md:flex' : 'flex'}
         ${isHidden && !isEditMode ? 'hidden' : ''}
         ${isHidden && isEditMode ? 'opacity-40' : 'opacity-100'}
         ${isEditMode ? 'bg-white dark:bg-gray-900 border-transparent hover:border-gray-200 dark:hover:border-gray-700 border' : 'hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer'}

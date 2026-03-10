@@ -1,11 +1,12 @@
 import { ResumeData } from '../../../types';
 import { PortfolioData } from '../types/portfolio';
+import { generateSafeUUID } from '../../../constants';
 
 export const mapResumeToPortfolio = (resume: ResumeData, userId: string): PortfolioData => {
     const now = Date.now();
 
     return {
-        id: crypto.randomUUID(),
+        id: generateSafeUUID(),
         userId,
         title: `${resume.title} - Portfolio`,
         templateId: 'minimalist', // Default start

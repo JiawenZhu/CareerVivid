@@ -1,4 +1,5 @@
 import { ResumeData, TranscriptEntry, InterviewAnalysis, JobApplicationData, ResumeMatchAnalysis } from '../types';
+import { generateSafeUUID } from '../constants';
 import { trackUsage } from './trackingService';
 import { reportError } from './errorService';
 import { AI_CREDIT_COSTS } from '../config/creditCosts';
@@ -260,7 +261,7 @@ export const parseResume = async (userId: string, resumeText: string, language: 
         const jsonText = result.text.trim();
         const parsedData = JSON.parse(jsonText);
 
-        const addId = (list: any[]) => { if (list) list.forEach((item: any) => item.id = crypto.randomUUID()); };
+        const addId = (list: any[]) => { if (list) list.forEach((item: any) => item.id = generateSafeUUID()); };
         addId(parsedData.websites);
         addId(parsedData.skills);
         addId(parsedData.languages);
@@ -297,7 +298,7 @@ export const parseResumeFromFile = async (userId: string, fileData: string, mime
         const jsonText = result.text.trim();
         const parsedData = JSON.parse(jsonText);
 
-        const addId = (list: any[]) => { if (list) list.forEach((item: any) => item.id = crypto.randomUUID()); };
+        const addId = (list: any[]) => { if (list) list.forEach((item: any) => item.id = generateSafeUUID()); };
         addId(parsedData.websites);
         addId(parsedData.skills);
         addId(parsedData.languages);
@@ -480,7 +481,7 @@ export const generateResumeFromPrompt = async (userId: string, prompt: string): 
         const jsonText = result.text.trim();
         const parsedData = JSON.parse(jsonText);
 
-        const addId = (list: any[]) => { if (list) list.forEach((item: any) => item.id = crypto.randomUUID()); };
+        const addId = (list: any[]) => { if (list) list.forEach((item: any) => item.id = generateSafeUUID()); };
         addId(parsedData.websites);
         addId(parsedData.skills);
         addId(parsedData.languages);

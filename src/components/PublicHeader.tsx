@@ -316,16 +316,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'default', contex
                         {/* 2. Navigation Links */}
                         <div className="space-y-1">
 
-                            {/* Product Group (Mobile) */}
-                            {context !== 'bio-link' && (
-                                <div className={`pl-4 ${isBrutalist ? 'border-l-4 border-black ml-1 my-2 space-y-2' : 'border-l-2 border-gray-100 dark:border-gray-800 space-y-3 my-2'}`}>
-                                    <p className={`text-xs uppercase tracking-wider mb-2 ${isBrutalist ? 'font-black text-gray-500' : 'text-gray-400 font-semibold'}`}>Products</p>
-                                    <a href="/newresume" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : 'text-sm text-gray-600 dark:text-gray-400'}`}>Resume Builder</a>
-                                    <a href="/portfolio" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : 'text-sm text-gray-600 dark:text-gray-400'}`}>Portfolio Builder</a>
-                                    <a href="/job-tracker" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : 'text-sm text-gray-600 dark:text-gray-400'}`}>Career Pipeline</a>
-                                    <a href="/bio-links" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : 'text-sm text-gray-600 dark:text-gray-400'}`}>Bio Links</a>
-                                </div>
-                            )}
+
 
                             <a href="/services" onClick={() => setIsMenuOpen(false)} className={`block py-2 ${isBrutalist ? 'text-lg font-black uppercase text-black hover:bg-indigo-200 px-2 -mx-2' : 'text-base font-semibold text-gray-900 dark:text-white'}`}>Services</a>
 

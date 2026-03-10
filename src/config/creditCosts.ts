@@ -30,6 +30,9 @@ export const AI_CREDIT_COSTS = {
     // --- AI Image Generation ---
     IMAGE_STANDARD: 10,
     IMAGE_PRO: 20,
+
+    // --- Job Prep ---
+    JOB_PREP_NOTES_ALL: 10,
 } as const;
 
 export type AICreditCostKey = keyof typeof AI_CREDIT_COSTS;

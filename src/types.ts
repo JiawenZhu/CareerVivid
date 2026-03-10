@@ -156,6 +156,7 @@ export interface SidebarNode {
     type: SidebarNodeType;
     isHidden: boolean;
     icon?: string;
+    isCreationLink?: boolean;
   };
 }
 

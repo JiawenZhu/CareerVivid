@@ -41,12 +41,12 @@ const generateDefaultNodes = (t: any): SidebarNode[] => {
     return [
         { id: '/dashboard', parent: 0, text: 'Dashboard', droppable: false, data: { isSystemNode: true, type: 'system', isHidden: false } },
         { id: '/my-posts', parent: 0, text: t('nav.my_posts', 'My Posts'), droppable: false, data: { isSystemNode: true, type: 'system', isHidden: false } },
-        { id: 'create-hub', parent: 0, text: t('nav.create_build_hub', 'Create & Build Hub'), droppable: true, data: { isSystemNode: false, type: 'custom-folder', isHidden: false } },
-        { id: '/newresume', parent: 'create-hub', text: t('nav.resumes', 'Resumes'), droppable: false, data: { isSystemNode: true, type: 'system', isHidden: false } },
-        { id: '/portfolio', parent: 'create-hub', text: t('nav.portfolios', 'Portfolios'), droppable: false, data: { isSystemNode: true, type: 'system', isHidden: false } },
-        { id: '/whiteboard', parent: 'create-hub', text: t('nav.whiteboards', 'Whiteboards'), droppable: false, data: { isSystemNode: true, type: 'system', isHidden: false } },
-        { id: '/interview-studio', parent: 'create-hub', text: t('nav.interview_studio', 'Interview Studio'), droppable: false, data: { isSystemNode: true, type: 'system', isHidden: false } },
-        { id: '/job-tracker', parent: 'create-hub', text: t('dashboard.job_tracker', 'Job Tracker'), droppable: false, data: { isSystemNode: true, type: 'system', isHidden: false } },
+        { id: 'create-hub', parent: 0, text: t('nav.create_build_hub', 'Create & Build Hub'), droppable: true, data: { isSystemNode: false, type: 'custom-folder', isHidden: false, isCreationLink: true } },
+        { id: '/newresume', parent: 'create-hub', text: t('nav.resumes', 'Resumes'), droppable: false, data: { isSystemNode: true, type: 'system', isHidden: false, isCreationLink: true } },
+        { id: '/portfolio', parent: 'create-hub', text: t('nav.portfolios', 'Portfolios'), droppable: false, data: { isSystemNode: true, type: 'system', isHidden: false, isCreationLink: true } },
+        { id: '/whiteboard', parent: 'create-hub', text: t('nav.whiteboards', 'Whiteboards'), droppable: false, data: { isSystemNode: true, type: 'system', isHidden: false, isCreationLink: true } },
+        { id: '/interview-studio', parent: 'create-hub', text: t('nav.interview_studio', 'Interview Studio'), droppable: false, data: { isSystemNode: true, type: 'system', isHidden: false, isCreationLink: true } },
+        { id: '/job-tracker', parent: 'create-hub', text: t('dashboard.job_tracker', 'Job Tracker'), droppable: false, data: { isSystemNode: true, type: 'system', isHidden: false, isCreationLink: true } },
     ];
 };
 

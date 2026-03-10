@@ -1,6 +1,7 @@
 import { PortfolioData } from '../types/portfolio';
 import { GoogleGenAI } from "@google/genai";
 import { trackUsage } from '../../../services/trackingService';
+import { generateSafeUUID } from '../../../constants';
 
 const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || (window as any)?.ENV?.VITE_GOOGLE_API_KEY;
 
@@ -131,7 +132,7 @@ export const generatePortfolioFromPrompt = async (prompt: string, userId: string
 
         // Merge AI data with required fields
         const portfolioData: PortfolioData = {
-            id: crypto.randomUUID(),
+            id: generateSafeUUID(),
             userId,
             createdAt: now,
             updatedAt: now,
@@ -184,7 +185,7 @@ function generateFallbackPortfolio(prompt: string, userId: string): PortfolioDat
     const now = Date.now();
 
     const baseData: PortfolioData = {
-        id: crypto.randomUUID(),
+        id: generateSafeUUID(),
         userId,
         title: `${prompt} Portfolio`,
         templateId,

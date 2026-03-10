@@ -2,7 +2,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { ResumeData, PersonalDetails, WebsiteLink, Skill, EmploymentHistory, Education, Language } from '../types';
 import { parseResume } from '../services/geminiService';
-import { LANGUAGE_PROFICIENCY_LEVELS } from '../constants';
+import { LANGUAGE_PROFICIENCY_LEVELS, generateSafeUUID } from '../constants';
 import { PlusCircle, Trash2, Wand2, UploadCloud, User, Briefcase, GraduationCap, Link as LinkIcon, Star, CheckCircle, Loader2, Brush, Languages, Zap, ChevronDown, ChevronUp, GripVertical, Edit as EditIcon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { uploadImage, dataURLtoBlob } from '../services/storageService';
@@ -553,7 +553,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                         </div>
                     </div>
                 ))}
-                <button onClick={() => addArrayItem('skills', { id: crypto.randomUUID(), name: '', level: 'Intermediate' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16} /> {t('resume_form.add_skill')}</button>
+                <button onClick={() => addArrayItem('skills', { id: generateSafeUUID(), name: '', level: 'Intermediate' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16} /> {t('resume_form.add_skill')}</button>
             </FormSection>
 
             <FormSection title={t('resume_form.languages')} icon={<Languages className="text-primary-500" />}>
@@ -575,7 +575,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                         </div>
                     </div>
                 ))}
-                <button onClick={() => addArrayItem('languages', { id: crypto.randomUUID(), name: '', level: 'Intermediate' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16} /> {t('resume_form.add_language')}</button>
+                <button onClick={() => addArrayItem('languages', { id: generateSafeUUID(), name: '', level: 'Intermediate' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16} /> {t('resume_form.add_language')}</button>
             </FormSection>
 
             <FormSection title={t('resume_form.employment_history')} icon={<Briefcase className="text-primary-500" />}>
@@ -643,7 +643,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                         </div>
                     </div>
                 ))}
-                <button onClick={() => addArrayItem('employmentHistory', { id: crypto.randomUUID(), jobTitle: '', employer: '', city: '', startDate: '', endDate: '', description: '' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16} /> {t('resume_form.add_employment')}</button>
+                <button onClick={() => addArrayItem('employmentHistory', { id: generateSafeUUID(), jobTitle: '', employer: '', city: '', startDate: '', endDate: '', description: '' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16} /> {t('resume_form.add_employment')}</button>
             </FormSection>
 
             <FormSection title={t('resume_form.education')} icon={<GraduationCap className="text-primary-500" />}>
@@ -711,7 +711,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resume, onChange, tempPhoto, se
                         </div>
                     </div>
                 ))}
-                <button onClick={() => addArrayItem('education', { id: crypto.randomUUID(), school: '', degree: '', city: '', startDate: '', endDate: '', description: '' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16} /> {t('resume_form.add_education')}</button>
+                <button onClick={() => addArrayItem('education', { id: generateSafeUUID(), school: '', degree: '', city: '', startDate: '', endDate: '', description: '' })} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed"><PlusCircle size={16} /> {t('resume_form.add_education')}</button>
             </FormSection>
         </div >
     );
