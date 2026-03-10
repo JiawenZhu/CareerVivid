@@ -118,46 +118,18 @@ const InteractiveCodeBlock: React.FC<{ children: React.ReactNode, copyText: stri
 // Sidebar nav config
 // ─────────────────────────────────────────────────────────────────────────────
 
-const NAV_SECTIONS = [
-    {
-        label: 'Getting Started',
-        icon: <BookOpen size={15} />,
-        items: [
-            { id: 'introduction', label: 'Introduction' },
-            { id: 'authentication', label: 'Authentication' },
-            { id: 'base-url', label: 'Base URL & Versioning' },
-            { id: 'errors', label: 'Error Codes' },
-            { id: 'guidances', label: 'Best Practices & Guidances' },
-        ],
-    },
-    {
-        label: 'Articles',
-        icon: <FileText size={15} />,
-        items: [
-            { id: 'list-articles', label: 'List Articles', method: 'GET' },
-            { id: 'get-article', label: 'Get Article', method: 'GET' },
-            { id: 'create-article', label: 'Create Article', method: 'POST' },
-            { id: 'update-article', label: 'Update Article', method: 'PUT' },
-            { id: 'delete-article', label: 'Delete Article', method: 'DELETE' },
-        ],
-    },
-    {
-        label: 'Users',
-        icon: <KeyRound size={15} />,
-        items: [
-            { id: 'get-user', label: 'Get User', method: 'GET' },
-            { id: 'list-users', label: 'List Authors', method: 'GET' },
-        ],
-    },
-    {
-        label: 'Integrations & Tools',
-        icon: <Terminal size={15} />,
-        items: [
-            { id: 'integration-guide', label: 'MCP & CLI Guides' },
-            { id: 'agent-rules', label: 'AI Agent Rules' },
-        ],
-    },
-];
+import {
+    NAV_SECTIONS,
+    API_BASE_URL,
+    ERROR_CODES,
+    RATE_LIMIT_EXAMPLE,
+    IDEMPOTENCY_EXAMPLE,
+    ARTICLES_RESOURCES,
+    USER_RESOURCES,
+    AI_AGENT_RULES,
+    MCP_CONFIG_EXAMPLE,
+    PROMPT_EXAMPLE
+} from '../constants/apiDocsContent';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main Page Component
@@ -368,17 +340,7 @@ https://api.careervivid.app/v1/
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {[
-                                                ['200 OK', 'Success'],
-                                                ['201 Created', 'Resource created successfully'],
-                                                ['400 Bad Request', 'Invalid parameters or missing required fields'],
-                                                ['401 Unauthorized', 'Missing or invalid API key'],
-                                                ['403 Forbidden', 'You don\'t have permission for this action'],
-                                                ['404 Not Found', 'Resource not found'],
-                                                ['422 Unprocessable', 'Validation errors on submitted data'],
-                                                ['429 Too Many Requests', 'Rate limit exceeded — wait and retry'],
-                                                ['500 Server Error', 'CareerVivid server error'],
-                                            ].map(([status, meaning]) => (
+                                            {ERROR_CODES.map(({ status, meaning }) => (
                                                 <tr key={status} className="border-b border-gray-100 dark:border-gray-800 last:border-0">
                                                     <td className="py-2.5 pr-4"><code className="text-xs font-mono font-semibold text-gray-900 dark:text-gray-100">{status}</code></td>
                                                     <td className="py-2.5 text-gray-600 dark:text-gray-400 text-sm">{meaning}</td>
@@ -386,6 +348,7 @@ https://api.careervivid.app/v1/
                                             ))}
                                         </tbody>
                                     </table>
+
                                 </>
                             }
                             right={
@@ -434,36 +397,21 @@ https://api.careervivid.app/v1/
                                     <CodeSnippet
                                         title="Handling Rate Limits (Node.js)"
                                         language="javascript"
-                                        code={`async function fetchWithRetry(url, options, retries = 3) {
-  for (let i = 0; i < retries; i++) {
-    const res = await fetch(url, options);
-    
-    // Success
-    if (res.status !== 429) return res;
-    
-    // Rate limited, wait and retry
-    const delay = Math.pow(2, i) * 1000;
-    console.warn(\`Rate limited. Retrying in \${delay}ms...\`);
-    await new Promise(r => setTimeout(r, delay));
-  }
-  throw new Error("Max retries exceeded");
-}`}
+                                        code={RATE_LIMIT_EXAMPLE}
                                     />
                                     <div className="mt-4">
                                         <CodeSnippet
                                             title="Idempotency Header"
-                                            code={`curl -X POST "https://api.careervivid.app/v1/articles" \\
-  -H "api-key: cv_live_..." \\
-  -H "Idempotency-Key: uuid-v4-generated-string" \\
-  ...`}
+                                            code={IDEMPOTENCY_EXAMPLE}
                                         />
                                     </div>
+
                                 </>
                             }
                         />
 
                         {/* ════════════════════════════════════════════════════
-                         ARTICLES — SECTION HEADER
+                         ARTICLES
                         ════════════════════════════════════════════════════ */}
                         <div className="px-6 sm:px-10 py-6">
                             <div className="flex items-center gap-3 py-4">
@@ -473,360 +421,33 @@ https://api.careervivid.app/v1/
                             </div>
                         </div>
 
-                        {/* ═══════════════════════════════════════════════════
-                         LIST ARTICLES
-                        ═══════════════════════════════════════════════════ */}
-                        <DocSection
-                            left={
-                                <>
-                                    <SectionTitle id="list-articles" method="GET" path="/api/articles" />
-                                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
-                                        Retrieve a paginated list of the most recent published articles. Use query parameters to filter by tag, page, or results per page.
-                                    </p>
-                                    <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3">Query Parameters</h4>
-                                    <table className="w-full text-sm">
-                                        <tbody>
-                                            <ParamRow name="page" type="integer" description="Page number for pagination. Default: 1." />
-                                            <ParamRow name="per_page" type="integer" description="Number of articles per page. Default: 10. Max: 50." />
-                                            <ParamRow name="tag" type="string" description="Filter articles by a specific tag slug (e.g. react, system-design)." />
-                                            <ParamRow name="author_id" type="string" description="Filter articles by the author's Firebase UID." />
-                                            <ParamRow name="sort" type="string" description={`Sort order. Options: "latest" (default), "popular"`} />
-                                        </tbody>
-                                    </table>
-                                </>
-                            }
-                            right={
-                                <>
-                                    <CodeSnippet
-                                        title="cURL"
-                                        code={`curl "https://api.careervivid.app/v1/articles?page=1&per_page=3&tag=react" \\
-  -H "api-key: cv_live_xxxxxxxxxxxxxxxx"`}
-                                    />
-                                    <div className="mt-4">
-                                        <CodeSnippet
-                                            title="Response 200 OK"
-                                            code={`{
-  "articles": [
-    {
-      "id": "GNCDBKCcPQRNm8yOlBC8",
-      "title": "Why Your React Portfolio Isn't Getting You Interviews",
-      "slug": "why-your-react-portfolio-isnt-getting-you-interviews",
-      "author": {
-        "id": "seed_user_2",
-        "name": "Maya Patel",
-        "avatar": "https://i.pravatar.cc/150?u=maya_patel",
-        "role": "Frontend Lead @ Netflix"
-      },
-      "tags": ["react", "portfolio", "career-advice"],
-      "cover_image": "https://images.unsplash.com/photo-...",
-      "read_time": 5,
-      "metrics": {
-        "likes": 234,
-        "comments": 67,
-        "views": 5120
-      },
-      "created_at": "2026-02-18T00:00:00.000Z",
-      "updated_at": "2026-02-18T00:00:00.000Z"
-    }
-  ],
-  "meta": {
-    "page": 1,
-    "per_page": 3,
-    "total": 42
-  }
-}`}
-                                        />
-                                    </div>
-                                </>
-                            }
-                        />
+                        {ARTICLES_RESOURCES.map((resource, idx) => (
+                            <React.Fragment key={resource.id}>
+                                <ResourceSection resource={resource} />
+                                {idx < ARTICLES_RESOURCES.length - 1 && <Divider />}
+                            </React.Fragment>
+                        ))}
 
                         <Divider />
-
-                        {/* ═══════════════════════════════════════════════════
-                         GET ARTICLE
-                        ═══════════════════════════════════════════════════ */}
-                        <DocSection
-                            left={
-                                <>
-                                    <SectionTitle id="get-article" method="GET" path="/api/articles/:id" />
-                                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
-                                        Retrieve a single article by its unique ID. This endpoint returns the full article including the <code className="font-mono text-sm bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">body_markdown</code> field, suitable for rendering in your own interface.
-                                    </p>
-                                    <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3">Path Parameters</h4>
-                                    <table className="w-full text-sm">
-                                        <tbody>
-                                            <ParamRow name=":id" type="string" required description="The unique Firestore document ID of the article." />
-                                        </tbody>
-                                    </table>
-                                </>
-                            }
-                            right={
-                                <>
-                                    <CodeSnippet
-                                        title="cURL"
-                                        code={`curl "https://api.careervivid.app/v1/articles/GNCDBKCcPQRNm8yOlBC8" \\
-  -H "api-key: cv_live_xxxxxxxxxxxxxxxx"`}
-                                    />
-                                    <div className="mt-4">
-                                        <CodeSnippet
-                                            title="Response 200 OK"
-                                            code={`{
-  "id": "GNCDBKCcPQRNm8yOlBC8",
-  "title": "Why Your React Portfolio Isn't Getting You Interviews",
-  "body_markdown": "## The Brutal Truth\\n\\nI've reviewed 200+ portfolios...",
-  "author": {
-    "id": "seed_user_2",
-    "name": "Maya Patel",
-    "avatar": "https://i.pravatar.cc/150?u=maya_patel",
-    "role": "Frontend Lead @ Netflix"
-  },
-  "tags": ["react", "portfolio", "career-advice"],
-  "cover_image": null,
-  "read_time": 5,
-  "metrics": {
-    "likes": 234,
-    "comments": 67,
-    "views": 5121
-  },
-  "created_at": "2026-02-18T00:00:00.000Z",
-  "updated_at": "2026-02-25T01:14:32.000Z"
-}`}
-                                        />
-                                    </div>
-                                </>
-                            }
-                        />
-
-                        <Divider />
-
-                        {/* ═══════════════════════════════════════════════════
-                         CREATE ARTICLE
-                        ═══════════════════════════════════════════════════ */}
-                        <DocSection
-                            left={
-                                <>
-                                    <SectionTitle id="create-article" method="POST" path="/api/articles" />
-                                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
-                                        Publish a new community article. The article will be attributed to the user whose <code className="font-mono text-sm bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">api-key</code> is provided. Read time is calculated automatically.
-                                    </p>
-                                    <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3">Body Parameters (JSON)</h4>
-                                    <table className="w-full text-sm">
-                                        <tbody>
-                                            <ParamRow name="title" type="string" required description="The article title. Maximum 250 characters." />
-                                            <ParamRow name="body_markdown" type="string" required description="The full article content in Markdown format." />
-                                            <ParamRow name="tags" type="string[]" description="Array of tag slugs. Maximum 4 tags. E.g. ['react', 'career']." />
-                                            <ParamRow name="cover_image" type="string (URL)" description="A publicly accessible URL to use as the article's cover image." />
-                                            <ParamRow name="published" type="boolean" description="Set to false to save as a draft. Default: true." />
-                                        </tbody>
-                                    </table>
-                                </>
-                            }
-                            right={
-                                <>
-                                    <CodeSnippet
-                                        title="cURL"
-                                        code={`curl -X POST "https://api.careervivid.app/v1/articles" \\
-  -H "api-key: cv_live_xxxxxxxxxxxxxxxx" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "title": "Building Scalable React Apps in 2026",
-    "body_markdown": "## Introduction\\n\\nScalability starts with...",
-    "tags": ["react", "architecture", "performance"],
-    "cover_image": "https://example.com/cover.jpg",
-    "published": true
-  }'`}
-                                    />
-                                    <div className="mt-4">
-                                        <CodeSnippet
-                                            title="Response 201 Created"
-                                            code={`{
-  "id": "newDocumentId123abc",
-  "title": "Building Scalable React Apps in 2026",
-  "slug": "building-scalable-react-apps-in-2026",
-  "author": {
-    "id": "uid_of_api_key_owner",
-    "name": "Your Name"
-  },
-  "tags": ["react", "architecture", "performance"],
-  "read_time": 3,
-  "metrics": {
-    "likes": 0,
-    "comments": 0,
-    "views": 0
-  },
-  "created_at": "2026-02-25T20:14:00.000Z"
-}`}
-                                        />
-                                    </div>
-                                </>
-                            }
-                        />
-
-                        <Divider />
-
-                        {/* ═══════════════════════════════════════════════════
-                         UPDATE ARTICLE
-                        ═══════════════════════════════════════════════════ */}
-                        <DocSection
-                            left={
-                                <>
-                                    <SectionTitle id="update-article" method="PUT" path="/api/articles/:id" />
-                                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
-                                        Update an existing article. You may only update articles you authored. All fields are optional — only provided fields will be updated.
-                                    </p>
-                                    <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3">Body Parameters (JSON)</h4>
-                                    <table className="w-full text-sm">
-                                        <tbody>
-                                            <ParamRow name="title" type="string" description="Updated article title." />
-                                            <ParamRow name="body_markdown" type="string" description="Updated article body in Markdown." />
-                                            <ParamRow name="tags" type="string[]" description="Replace all tags with this new array." />
-                                            <ParamRow name="cover_image" type="string (URL)" description="Updated cover image URL. Pass null to remove." />
-                                            <ParamRow name="published" type="boolean" description="Toggle published/draft state." />
-                                        </tbody>
-                                    </table>
-                                </>
-                            }
-                            right={
-                                <CodeSnippet
-                                    title="Response 200 OK"
-                                    code={`{
-  "id": "GNCDBKCcPQRNm8yOlBC8",
-  "title": "Updated Title Here",
-  "updated_at": "2026-02-25T21:00:00.000Z",
-  "message": "Article updated successfully."
-}`}
-                                />
-                            }
-                        />
-
-                        <Divider />
-
-                        {/* ═══════════════════════════════════════════════════
-                         DELETE ARTICLE
-                        ═══════════════════════════════════════════════════ */}
-                        <DocSection
-                            left={
-                                <>
-                                    <SectionTitle id="delete-article" method="DELETE" path="/api/articles/:id" />
-                                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
-                                        Permanently delete an article. This action is <strong>irreversible</strong>. You may only delete articles you authored. Admins may delete any article.
-                                    </p>
-                                    <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3">Path Parameters</h4>
-                                    <table className="w-full text-sm">
-                                        <tbody>
-                                            <ParamRow name=":id" type="string" required description="The unique Firestore document ID of the article to delete." />
-                                        </tbody>
-                                    </table>
-                                </>
-                            }
-                            right={
-                                <>
-                                    <CodeSnippet
-                                        title="cURL"
-                                        code={`curl -X DELETE "https://api.careervivid.app/v1/articles/GNCDBKCcPQRNm8yOlBC8" \\
-  -H "api-key: cv_live_xxxxxxxxxxxxxxxx"`}
-                                    />
-                                    <div className="mt-4">
-                                        <CodeSnippet
-                                            title="Response 204 No Content"
-                                            code={`# Empty body returned on successful deletion`}
-                                        />
-                                    </div>
-                                </>
-                            }
-                        />
 
                         {/* ════════════════════════════════════════════════════
-                         USERS — SECTION HEADER
+                         USERS
                         ════════════════════════════════════════════════════ */}
                         <div className="px-6 sm:px-10 py-6">
                             <div className="flex items-center gap-3 py-4">
                                 <div className="h-px flex-1 bg-gray-100 dark:bg-gray-800" />
-                                <span className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-4">Users</span>
+                                <span className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-4">User Profiles</span>
                                 <div className="h-px flex-1 bg-gray-100 dark:bg-gray-800" />
                             </div>
                         </div>
 
-                        {/* ═══════════════════════════════════════════════════
-                         GET USER
-                        ═══════════════════════════════════════════════════ */}
-                        <DocSection
-                            left={
-                                <>
-                                    <SectionTitle id="get-user" method="GET" path="/api/users/:id" />
-                                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
-                                        Retrieve a public user profile by their CareerVivid UID or username. Returns publicly available profile information only.
-                                    </p>
-                                    <table className="w-full text-sm">
-                                        <tbody>
-                                            <ParamRow name=":id" type="string" required description="The user's Firebase UID or their CareerVivid username." />
-                                        </tbody>
-                                    </table>
-                                </>
-                            }
-                            right={
-                                <CodeSnippet
-                                    title="Response 200 OK"
-                                    code={`{
-  "id": "seed_user_2",
-  "name": "Maya Patel",
-  "username": "mayapatel",
-  "avatar": "https://i.pravatar.cc/150?u=maya_patel",
-  "role": "Frontend Lead @ Netflix",
-  "bio": "Building fast UIs at scale.",
-  "article_count": 12,
-  "joined_at": "2025-08-01T00:00:00.000Z",
-  "portfolio_url": "https://careervivid.app/portfolio/mayapatel"
-}`}
-                                />
-                            }
-                        />
+                        {USER_RESOURCES.map((resource, idx) => (
+                            <React.Fragment key={resource.id}>
+                                <ResourceSection resource={resource} />
+                                {idx < USER_RESOURCES.length - 1 && <Divider />}
+                            </React.Fragment>
+                        ))}
 
-                        <Divider />
-
-                        {/* ═══════════════════════════════════════════════════
-                         LIST AUTHORS
-                        ═══════════════════════════════════════════════════ */}
-                        <DocSection
-                            left={
-                                <>
-                                    <SectionTitle id="list-users" method="GET" path="/api/users" />
-                                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
-                                        Retrieve a list of active community authors. Useful for building author directories or contributor leaderboards.
-                                    </p>
-                                    <table className="w-full text-sm">
-                                        <tbody>
-                                            <ParamRow name="role" type="string" description={`Filter by role. Options: "author", "company"`} />
-                                            <ParamRow name="per_page" type="integer" description="Number of users per page. Default: 10. Max: 30." />
-                                        </tbody>
-                                    </table>
-                                </>
-                            }
-                            right={
-                                <CodeSnippet
-                                    title="Response 200 OK"
-                                    code={`{
-  "users": [
-    {
-      "id": "seed_user_2",
-      "name": "Maya Patel",
-      "username": "mayapatel",
-      "avatar": "https://i.pravatar.cc/150?u=maya_patel",
-      "role": "Frontend Lead @ Netflix",
-      "article_count": 12
-    },
-    { "...": "..." }
-  ],
-  "meta": {
-    "page": 1,
-    "per_page": 10,
-    "total": 38
-  }
-}`}
-                                />
-                            }
-                        />
 
                         {/* ════════════════════════════════════════════════════
                          INTEGRATIONS & TOOLS — SECTION HEADER
@@ -1114,7 +735,71 @@ https://api.careervivid.app/v1/
 // Layout Helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
+const ResourceSection: React.FC<{ resource: any }> = ({ resource }) => (
+    <DocSection
+        key={resource.id}
+        left={
+            <>
+                <SectionTitle id={resource.id} method={resource.method} path={resource.path} />
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
+                    {resource.description}
+                </p>
+
+                {resource.pathParams && (
+                    <>
+                        <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3">Path Parameters</h4>
+                        <table className="w-full text-sm mb-6">
+                            <tbody>
+                                {resource.pathParams.map((p: any) => (
+                                    <ParamRow key={p.name} {...p} />
+                                ))}
+                            </tbody>
+                        </table>
+                    </>
+                )}
+
+                {resource.queryParams && (
+                    <>
+                        <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3">Query Parameters</h4>
+                        <table className="w-full text-sm mb-6">
+                            <tbody>
+                                {resource.queryParams.map((p: any) => (
+                                    <ParamRow key={p.name} {...p} />
+                                ))}
+                            </tbody>
+                        </table>
+                    </>
+                )}
+
+                {resource.bodyParams && (
+                    <>
+                        <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3">Body Parameters (JSON)</h4>
+                        <table className="w-full text-sm mb-6">
+                            <tbody>
+                                {resource.bodyParams.map((p: any) => (
+                                    <ParamRow key={p.name} {...p} />
+                                ))}
+                            </tbody>
+                        </table>
+                    </>
+                )}
+            </>
+        }
+        right={
+            <>
+                {resource.curl && (
+                    <CodeSnippet title="cURL" code={resource.curl} />
+                )}
+                <div className={resource.curl ? "mt-4" : ""}>
+                    <CodeSnippet title="Response" code={resource.response} />
+                </div>
+            </>
+        }
+    />
+);
+
 const DocSection: React.FC<{ left: React.ReactNode; right: React.ReactNode }> = ({ left, right }) => (
+
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-0 group">
         {/* Left — description */}
         <div className="px-6 sm:px-10 py-10 xl:py-12 xl:border-r border-gray-100 dark:border-gray-800/60 xl:pr-10">

@@ -77,7 +77,7 @@ export const useCommunity = (options: UseCommunityOptions = {}) => {
     const [hasMore, setHasMore] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [lastVisible, setLastVisible] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
-    const { currentUser, userProfile } = useAuth();
+    const { currentUser, userProfile, isAdmin } = useAuth();
 
     // Build shared constraints — deterministic, used in both initial fetch & pagination
     const buildConstraints = useCallback((afterDoc?: QueryDocumentSnapshot<DocumentData> | null) => {
@@ -250,6 +250,92 @@ export const useCommunity = (options: UseCommunityOptions = {}) => {
         }
     };
 
+    const addComment = async (postId: string, content: string) => {
+        if (!currentUser) throw new Error('Must be logged in to comment.');
+
+        const commentRef = doc(collection(db, 'community_post_comments'));
+        const postRef = doc(db, COLLECTION, postId);
+
+        try {
+            await runTransaction(db, async (transaction) => {
+                const postSnap = await transaction.get(postRef);
+                if (!postSnap.exists()) throw new Error('Post not found.');
+
+                const currentComments = postSnap.data()?.metrics?.comments ?? 0;
+
+                // Denormalized author data for fast rendering
+                let authorName = 'Community Member';
+                if (userProfile?.displayName && userProfile.displayName !== 'Anonymous Developer') {
+                    authorName = userProfile.displayName;
+                } else if (currentUser.displayName) {
+                    authorName = currentUser.displayName;
+                }
+
+                transaction.set(commentRef, {
+                    postId,
+                    content,
+                    authorId: currentUser.uid,
+                    authorName,
+                    authorAvatar: currentUser.photoURL || '',
+                    createdAt: serverTimestamp(),
+                });
+
+                transaction.update(postRef, {
+                    'metrics.comments': currentComments + 1,
+                });
+            });
+        } catch (err) {
+            console.error('Error adding comment:', err);
+            throw err;
+        }
+    };
+
+    const deleteComment = async (postId: string, commentId: string) => {
+        if (!currentUser) throw new Error('Must be logged in to delete.');
+
+        const commentRef = doc(db, 'community_post_comments', commentId);
+        const postRef = doc(db, COLLECTION, postId);
+
+        try {
+            await runTransaction(db, async (transaction) => {
+                const commentSnap = await transaction.get(commentRef);
+                const postSnap = await transaction.get(postRef);
+
+                if (!commentSnap.exists()) throw new Error('Comment not found.');
+                if (!postSnap.exists()) throw new Error('Post not found.');
+
+                // Check ownership or admin
+                if (commentSnap.data().authorId !== currentUser.uid && !isAdmin) {
+                    throw new Error('Permission denied.');
+                }
+
+                const currentComments = postSnap.data()?.metrics?.comments ?? 0;
+
+                transaction.delete(commentRef);
+                transaction.update(postRef, {
+                    'metrics.comments': Math.max(0, currentComments - 1),
+                });
+            });
+        } catch (err) {
+            console.error('Error deleting comment:', err);
+            throw err;
+        }
+    };
+
+    const updateComment = async (commentId: string, newContent: string) => {
+        if (!currentUser || !commentId || !newContent.trim()) return;
+        try {
+            const commentRef = doc(db, 'community_post_comments', commentId);
+            await updateDoc(commentRef, {
+                content: newContent.trim(),
+                updatedAt: serverTimestamp(),
+            });
+        } catch (err) {
+            console.error('Error updating comment:', err);
+            throw err;
+        }
+    };
+
     return {
         posts,
         loading,
@@ -259,6 +345,47 @@ export const useCommunity = (options: UseCommunityOptions = {}) => {
         fetchMorePosts,
         createPost,
         toggleLike,
+        addComment,
+        updateComment,
+        deleteComment,
         userProfile,
     };
+};
+
+export interface CommunityComment {
+    id: string;
+    postId: string;
+    content: string;
+    authorId: string;
+    authorName: string;
+    authorAvatar?: string;
+    createdAt: any;
+}
+
+export const useComments = (postId: string) => {
+    const [comments, setComments] = useState<CommunityComment[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!postId) return;
+
+        const q = query(
+            collection(db, 'community_post_comments'),
+            where('postId', '==', postId),
+            orderBy('createdAt', 'asc')
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const commentsData = snapshot.docs.map(d => ({
+                id: d.id,
+                ...d.data()
+            })) as CommunityComment[];
+            setComments(commentsData);
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, [postId]);
+
+    return { comments, loading };
 };

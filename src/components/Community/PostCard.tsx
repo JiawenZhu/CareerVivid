@@ -3,11 +3,10 @@ import { formatDistanceToNow } from 'date-fns';
 import { Heart, MessageSquare, BookOpen, FileText, Globe, PenTool, AlertTriangle, ExternalLink, Send, Loader2, Linkedin } from 'lucide-react';
 import { navigate } from '../../utils/navigation';
 import { slugifyTag } from '../../utils/tagUtils';
-import { CommunityPost, useCommunity } from '../../hooks/useCommunity';
+import { CommunityPost, useCommunity, useComments } from '../../hooks/useCommunity';
 import { useAuth } from '../../contexts/AuthContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
-import { usePostComments, PostComment } from '../../hooks/usePostComments';
 import { useTranslation } from 'react-i18next';
 import { enUS, es, fr, de, zhCN } from 'date-fns/locale';
 import ResumePreview from '../ResumePreview';
@@ -97,7 +96,7 @@ const stripMarkdown = (text: string) => {
 };
 
 // ── Comment Item ─────────────────────────────────────────────────────────────
-const CommentItem: React.FC<{ comment: PostComment; currentLocale: any }> = ({ comment, currentLocale }) => {
+const CommentItem: React.FC<{ comment: any; currentLocale: any }> = ({ comment, currentLocale }) => {
     const formattedDate = comment.createdAt?.toDate
         ? formatDistanceToNow(comment.createdAt.toDate(), { addSuffix: true, locale: currentLocale })
         : 'Just now';
@@ -120,7 +119,7 @@ const CommentItem: React.FC<{ comment: PostComment; currentLocale: any }> = ({ c
 
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
     const { currentUser } = useAuth();
-    const { toggleLike } = useCommunity();
+    const { toggleLike, addComment } = useCommunity();
     const { t, i18n } = useTranslation();
     const currentLocale = localeMap[i18n.language?.split('-')[0]] || enUS;
 
@@ -315,7 +314,8 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         setLikesCount(post.metrics?.likes ?? 0);
     }, [post.metrics?.likes]);
 
-    const { comments, loading: commentsLoading, submitting, addComment } = usePostComments(showComments ? post.id : '');
+    const { comments, loading: commentsLoading } = useComments(showComments ? post.id : '');
+    const [submitting, setSubmitting] = useState(false);
 
     // Auth interceptor for guest interactions
     const handleProtectedAction = (actionFn: () => void, e?: React.MouseEvent | React.FormEvent) => {
@@ -352,11 +352,14 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     const handleSubmitComment = (e: React.FormEvent) => {
         handleProtectedAction(async () => {
             if (!commentText.trim()) return;
+            setSubmitting(true);
             try {
-                await addComment(commentText);
+                await addComment(post.id, commentText);
                 setCommentText('');
             } catch (err) {
                 console.error('Failed to post comment:', err);
+            } finally {
+                setSubmitting(false);
             }
         }, e);
     };

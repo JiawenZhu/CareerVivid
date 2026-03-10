@@ -159,7 +159,7 @@ function DashboardPreviewSection<T>({
             ) : viewMode === 'row' ? (
                 <div className="flex gap-5 overflow-x-auto pb-6 snap-x pt-2 pr-6 -mx-6 px-6 scrollbar-hide">
                     {items.map((item, index) => (
-                        <div key={index} className="snap-start shrink-0 w-[300px] md:w-[360px] transform-gpu">
+                        <div key={(item as any).id || index} className="snap-start shrink-0 w-[300px] md:w-[360px] transform-gpu">
                             {renderItem(item)}
                         </div>
                     ))}
