@@ -14,6 +14,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { CommunityPost, useCommunity } from '../../hooks/useCommunity';
 import { usePostComments } from '../../hooks/usePostComments';
 import { generateGEOStructuredData } from '../../utils/geoUtils';
+import UserProfileSnippet from '../../components/Community/UserProfileSnippet';
 
 // ── Mermaid Diagram Renderer ──────────────────────────────────────────────────
 const MermaidDiagram: React.FC<{ chart: string }> = ({ chart }) => {
@@ -272,32 +273,14 @@ const CommunityPostPage: React.FC = () => {
                 </h1>
 
                 {/* Author row */}
-                <div className="flex items-center gap-4 mb-8 pb-8 border-b border-gray-100 dark:border-gray-800">
-                    <button onClick={() => navigate(`/portfolio/${post.authorId}`)} className="shrink-0 cursor-pointer">
-                        {post.authorAvatar ? (
-                            <img src={post.authorAvatar} alt={post.authorName} className="w-12 h-12 rounded-full object-cover border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity" />
-                        ) : (
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-primary-500 to-blue-500 flex items-center justify-center text-white font-bold text-lg">
-                                {post.authorName?.charAt(0)?.toUpperCase()}
-                            </div>
-                        )}
-                    </button>
-                    <div>
-                        <button onClick={() => navigate(`/portfolio/${post.authorId}`)} className="font-bold text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer">
-                            {post.authorName}
-                        </button>
-                        <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2 flex-wrap">
-                            {post.authorRole && <span>{post.authorRole}</span>}
-                            {post.authorRole && <span>·</span>}
-                            <span>{formattedDate}</span>
-                            {post.dataFormat !== 'mermaid' && (
-                                <>
-                                    <span>·</span>
-                                    <span className="flex items-center gap-1"><BookOpen size={13} /> {post.readTime ?? 1} min read</span>
-                                </>
-                            )}
-                        </div>
-                    </div>
+                <div className="mb-8 pb-8 border-b border-gray-100 dark:border-gray-800">
+                    <UserProfileSnippet
+                        userId={post.authorId}
+                        fallbackName={post.authorName}
+                        fallbackAvatar={post.authorAvatar}
+                        fallbackRole={post.authorRole}
+                        timestamp={formattedDate}
+                    />
                 </div>
 
                 {/* Tags */}
@@ -387,6 +370,25 @@ const CommunityPostPage: React.FC = () => {
                                                     Your browser does not support the audio element.
                                                 </audio>
                                             </div>
+                                        );
+                                    }
+
+                                    // ── SPA Navigation for internal links ──
+                                    const isInternal = href.startsWith('/') || href.includes('careervivid.app');
+                                    if (isInternal) {
+                                        const path = href.startsWith('/') ? href : new URL(href).pathname;
+                                        return (
+                                            <a
+                                                href={href}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    navigate(path);
+                                                }}
+                                                className="text-primary-600 hover:text-primary-700 underline underline-offset-2 transition-colors cursor-pointer"
+                                                {...props}
+                                            >
+                                                {children}
+                                            </a>
                                         );
                                     }
 
@@ -485,23 +487,15 @@ const CommunityPostPage: React.FC = () => {
 
                                 return (
                                     <div key={comment.id} className="flex gap-3 py-4">
-                                        <button onClick={() => navigate(`/portfolio/${comment.authorId}`)} className="shrink-0 cursor-pointer">
-                                            {comment.authorAvatar ? (
-                                                <img src={comment.authorAvatar} alt={comment.authorName} className="w-10 h-10 rounded-full object-cover border border-gray-100 dark:border-gray-700" />
-                                            ) : (
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary-500 to-blue-500 flex items-center justify-center text-white font-bold text-sm">
-                                                    {comment.authorName?.charAt(0)?.toUpperCase() ?? '?'}
-                                                </div>
-                                            )}
-                                        </button>
                                         <div className="flex-1 min-w-0 group relative">
-                                            <div className="flex items-baseline justify-between gap-2 mb-1">
-                                                <div className="flex items-baseline gap-2">
-                                                    <button onClick={() => navigate(`/portfolio/${comment.authorId}`)} className="font-semibold text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors text-sm cursor-pointer">
-                                                        {comment.authorName}
-                                                    </button>
-                                                    <span className="text-xs text-gray-400 dark:text-gray-500">{commentDate}</span>
-                                                </div>
+                                            <div className="flex items-baseline justify-between gap-2 mb-2">
+                                                <UserProfileSnippet
+                                                    userId={comment.authorId}
+                                                    fallbackName={comment.authorName}
+                                                    fallbackAvatar={comment.authorAvatar}
+                                                    size="sm"
+                                                    timestamp={commentDate}
+                                                />
 
                                                 {currentUser?.uid === comment.authorId && editingCommentId !== comment.id && (
                                                     <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">

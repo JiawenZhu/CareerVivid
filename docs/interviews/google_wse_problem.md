@@ -71,3 +71,9 @@ For a Google-scale application, a single-machine approach won't suffice.
     - `ZRANGE inventory 0 0`: Retrieves the minimum price in $O(1)$.
     - `ZREM inventory <timestamp>`: Removes an entry in $O(\log N)$.
 - **Sharding**: Partition data by `ProductID` across different Redis clusters to handle massive throughput.
+
+---
+
+## Navigation
+- [Return to Series Overview](https://careervivid.app/community/post/X4A3G6x1Z2bv2KjlOtSh)
+- [Next: Visual Architecture & Interaction](https://careervivid.app/community/post/Eli0yart3zaXGUxS44fS)

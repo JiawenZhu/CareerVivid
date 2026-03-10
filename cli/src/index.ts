@@ -20,8 +20,10 @@
  */
 
 import { Command } from "commander";
+import { readFileSync, existsSync } from "fs";
 import chalk from "chalk";
-import { existsSync } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 import { CONFIG_FILE } from "./config.js";
 import { getHelpHeader, printWelcome } from "./branding.js";
 import { registerAuthCommand } from "./commands/auth.js";
@@ -36,6 +38,9 @@ import { registerWorkspaceCommand } from "./commands/workspace.js";
 import { registerProfileCommand } from "./commands/profile.js";
 import { registerJobsCommand } from "./commands/jobs.js";
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const pkg = JSON.parse(readFileSync(join(__dirname, "../package.json"), "utf-8"));
+
 const program = new Command();
 
 program
@@ -43,7 +48,7 @@ program
     .description(
         "CareerVivid CLI — publish articles, diagrams, and portfolio updates from your terminal or AI agent"
     )
-    .version("1.3.0", "-v, --version", "Print CLI version")
+    .version(pkg.version, "-v, --version", "Print CLI version")
     .addHelpText("before", getHelpHeader())
     .helpOption("-h, --help", "Show help");
 

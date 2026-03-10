@@ -47,7 +47,7 @@ export interface ApiError {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const CLI_VERSION = "1.3.0";
+const CLI_VERSION = "1.6.0";
 
 function requireApiKey(): string {
     const key = getApiKey();

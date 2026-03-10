@@ -16,6 +16,7 @@ import LinkTreeVisual from '../../features/portfolio/templates/linkinbio/LinkTre
 import { getTheme } from '../../features/portfolio/styles/themes';
 import { PortfolioData } from '../../features/portfolio/types/portfolio';
 import { WhiteboardData } from '../../types';
+import UserProfileSnippet from './UserProfileSnippet';
 
 const localeMap: Record<string, any> = {
     en: enUS,
@@ -103,33 +104,15 @@ const CommentItem: React.FC<{ comment: PostComment; currentLocale: any }> = ({ c
 
     return (
         <div className="flex gap-3 py-3">
-            <button
-                onClick={() => navigate(`/portfolio/${comment.authorId}`)}
-                className="shrink-0 cursor-pointer"
-            >
-                {comment.authorAvatar ? (
-                    <img
-                        src={comment.authorAvatar}
-                        alt={comment.authorName}
-                        className="w-8 h-8 rounded-full object-cover border border-gray-100 dark:border-gray-700"
-                    />
-                ) : (
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary-500 to-blue-500 flex items-center justify-center text-white font-bold text-xs">
-                        {comment.authorName?.charAt(0)?.toUpperCase() ?? '?'}
-                    </div>
-                )}
-            </button>
             <div className="flex-1 min-w-0">
-                <div className="flex items-baseline gap-2">
-                    <button
-                        onClick={() => navigate(`/portfolio/${comment.authorId}`)}
-                        className="text-sm font-semibold text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer"
-                    >
-                        {comment.authorName}
-                    </button>
-                    <span className="text-xs text-gray-400 dark:text-gray-500">{formattedDate}</span>
-                </div>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mt-0.5 leading-relaxed">{comment.content}</p>
+                <UserProfileSnippet
+                    userId={comment.authorId}
+                    fallbackName={comment.authorName}
+                    fallbackAvatar={comment.authorAvatar}
+                    size="sm"
+                    timestamp={formattedDate}
+                />
+                <p className="text-sm text-gray-700 dark:text-gray-300 mt-2 leading-relaxed ml-11">{comment.content}</p>
             </div>
         </div>
     );
@@ -434,44 +417,17 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
     // ── Author row (shared across all types) ───────────────────────────
     const AuthorRow = (
-        <div className="flex items-center gap-3 mb-3 md:mb-4">
-            <button
-                onClick={e => { e.stopPropagation(); navigate(`/portfolio/${post.authorId}`); }}
-                className="shrink-0 rounded-full focus-visible:ring-2 focus-visible:ring-primary-500 cursor-pointer"
-                aria-label={`View ${post.authorName}'s profile`}
-            >
-                {post.authorAvatar ? (
-                    <img
-                        src={post.authorAvatar}
-                        alt={post.authorName}
-                        loading="lazy"
-                        decoding="async"
-                        className="w-10 h-10 rounded-full object-cover border border-gray-100 dark:border-gray-700 hover:opacity-80 transition-opacity"
-                    />
-                ) : (
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary-500 to-blue-500 flex items-center justify-center text-white font-bold text-sm">
-                        {post.authorName?.charAt(0)?.toUpperCase() ?? '?'}
-                    </div>
-                )}
-            </button>
-            <div className="min-w-0">
-                <button
-                    onClick={e => { e.stopPropagation(); navigate(`/portfolio/${post.authorId}`); }}
-                    className="font-semibold text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-colors text-sm text-left cursor-pointer"
-                >
-                    {post.authorName}
-                </button>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                    {post.authorRole && <span>{post.authorRole} · </span>}
-                    {formattedDate}
-                </p>
-            </div>
-            {/* Type badge for asset cards */}
-            {isAssetCard && assetCfg && (
-                <span className={`ml-auto text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${assetCfg.badge}`}>
-                    {postType}
-                </span>
-            )}
+        <div className="mb-3 md:mb-4">
+            <UserProfileSnippet
+                userId={post.authorId}
+                fallbackName={post.authorName}
+                fallbackAvatar={post.authorAvatar}
+                fallbackRole={post.authorRole}
+                timestamp={formattedDate}
+                showTypeBadge={isAssetCard && !!assetCfg}
+                typeBadgeLabel={postType}
+                typeBadgeClass={assetCfg?.badge}
+            />
         </div>
     );
 

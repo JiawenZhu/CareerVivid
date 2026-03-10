@@ -1,6 +1,6 @@
 {
   "name": "careervivid",
-  "version": "1.3.0",
+  "version": "1.6.0",
   "description": "Official CLI for CareerVivid — publish articles, diagrams, and portfolio updates from your terminal or AI agent",
   "type": "module",
   "bin": {

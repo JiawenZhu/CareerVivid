@@ -67,6 +67,14 @@ service cloud.firestore {
     }
 
     // ---------------------------------------------------------
+    // 🛡️ ADMINS (Root Collection)
+    // ---------------------------------------------------------
+    match /admins/{adminId} {
+      allow read: if request.auth != null && (request.auth.uid == adminId || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
     // 🎟️ REFERRAL CODES (Root Collection)
     // ---------------------------------------------------------
     match /referralCodes/{code} {
@@ -222,13 +230,14 @@ service cloud.firestore {
     match /community_post_likes/{likeId} {
       allow read: if true;
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      // Use !exists or get().data.userId check to ensure owner can delete
+      allow delete: if request.auth != null && (isAdmin() || (exists(/databases/$(database)/documents/community_post_likes/$(likeId)) && get(/databases/$(database)/documents/community_post_likes/$(likeId)).data.userId == request.auth.uid));
     }
 
     match /post_likes/{likeId} {
       allow read: if true;
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && (isAdmin() || (exists(/databases/$(database)/documents/post_likes/$(likeId)) && get(/databases/$(database)/documents/post_likes/$(likeId)).data.userId == request.auth.uid));
     }
 
     match /community_post_comments/{commentId} {

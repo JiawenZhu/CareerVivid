@@ -11,8 +11,8 @@
  */
 
 import { Command } from "commander";
-import { readFileSync } from "fs";
-import { extname } from "path";
+import { readFileSync, lstatSync, readdirSync } from "fs";
+import { extname, join } from "path";
 import chalk from "chalk";
 import ora from "ora";
 import type { PublishPayload, DataFormat, PostType } from "../api.js";
@@ -37,162 +37,202 @@ async function readStdin(): Promise<string> {
     return Buffer.concat(chunks).toString("utf-8");
 }
 
+function getFiles(dir: string, recursive: boolean): string[] {
+    let results: string[] = [];
+    const list = readdirSync(dir);
+    for (const file of list) {
+        const path = join(dir, file);
+        const stat = lstatSync(path);
+        if (stat && stat.isDirectory()) {
+            if (recursive) {
+                results = results.concat(getFiles(path, recursive));
+            }
+        } else {
+            const ext = extname(path).toLowerCase();
+            if ([".md", ".mmd", ".mermaid"].includes(ext)) {
+                results.push(path);
+            }
+        }
+    }
+    return results;
+}
+
+interface PublishOptions {
+    title?: string;
+    type?: string;
+    format?: string;
+    tags?: string;
+    cover?: string;
+    official?: boolean;
+    dryRun?: boolean;
+    json?: boolean;
+    recursive?: boolean;
+}
+
+async function publishSingleFile(
+    filePath: string,
+    content: string,
+    opts: PublishOptions,
+    jsonMode: boolean
+): Promise<{ success: boolean; url?: string; postId?: string; title?: string }> {
+    const dryRun = !!opts.dryRun;
+
+    const format: DataFormat =
+        (opts.format as DataFormat) ||
+        (filePath !== "stdin" ? inferFormat(filePath) : "markdown");
+
+    const type: PostType = (opts.type as PostType) || inferType(format);
+
+    let title: string = opts.title || "";
+    if (!title && format === "markdown") {
+        const firstHeading = content.match(/^#\s+(.+)$/m);
+        if (firstHeading) {
+            title = firstHeading[1].trim();
+        }
+    }
+
+    if (!title) {
+        if (jsonMode || filePath === "stdin") {
+            // No interactive prompt for stdin or JSON mode
+            title = filePath === "stdin" ? "Untitled Post" : filePath;
+        } else {
+            const enquirer = (await import("enquirer")) as any;
+            const prompt = enquirer.default?.prompt || enquirer.prompt;
+            const answers = await prompt({
+                type: "input",
+                name: "title",
+                message: `Post title for ${chalk.cyan(filePath)}`,
+            });
+            title = (answers as any).title.trim();
+        }
+    }
+
+    const tags = opts.tags
+        ? opts.tags.split(",").map((t) => t.trim()).filter(Boolean)
+        : [];
+
+    const payload: PublishPayload = {
+        type,
+        dataFormat: format,
+        title,
+        content,
+        tags,
+        ...(opts.cover ? { coverImage: opts.cover } : {}),
+        ...(opts.official ? { isOfficialPost: true } : {}),
+    };
+
+    const result = await publishPost(payload, dryRun);
+
+    if (isApiError(result)) {
+        if (jsonMode) {
+            handleApiError(result, true);
+        } else {
+            console.error(chalk.red(`\n  ✖  Failed to publish ${filePath}: ${result.message}`));
+        }
+        return { success: false };
+    }
+
+    return {
+        success: true,
+        url: result.url,
+        postId: result.postId,
+        title: title
+    };
+}
+
 export function registerPublishCommand(program: Command): void {
     program
-        .command("publish [file]")
+        .command("publish [files...]")
         .description(
             [
-                "Publish a markdown or mermaid file to CareerVivid",
+                "Publish files or directories to CareerVivid",
                 "",
                 "  cv publish article.md",
-                "  cv publish diagram.mmd --type whiteboard",
-                "  cat article.md | cv publish - --title \"My Article\" --json",
+                "  cv publish docs/ --recursive",
+                "  cv publish part1.md part2.md --tags series",
+                "  cat article.md | cv publish - --title \"My Article\"",
             ].join("\n")
         )
-        .option("-t, --title <title>", "Post title (inferred from first heading if omitted)")
-        .option(
-            "--type <type>",
-            "Post type: article | whiteboard (default: inferred from format)",
-        )
-        .option(
-            "--format <format>",
-            "Content format: markdown | mermaid (default: inferred from file extension)"
-        )
-        .option("--tags <tags>", "Comma-separated tags, e.g. typescript,firebase,react")
+        .option("-t, --title <title>", "Post title (per file, inferred if omitted)")
+        .option("--type <type>", "Post type: article | whiteboard")
+        .option("--format <format>", "Content format: markdown | mermaid")
+        .option("--tags <tags>", "Comma-separated tags (max 5)")
         .option("--cover <url>", "URL to a cover image")
         .option("--official", "Publish as CareerVivid Community (admin only)")
-        .option("--dry-run", "Validate payload without publishing")
+        .option("-r, --recursive", "Recursively scan directories")
+        .option("--dry-run", "Validate without publishing")
         .option("--json", "Machine-readable JSON output")
-        .action(
-            async (
-                fileArg: string | undefined,
-                opts: {
-                    title?: string;
-                    type?: string;
-                    format?: string;
-                    tags?: string;
-                    cover?: string;
-                    official?: boolean;
-                    dryRun?: boolean;
-                    json?: boolean;
-                }
-            ) => {
+        .action(async (files: string[], opts: PublishOptions) => {
+            const jsonMode = !!opts.json;
+            const dryRun = !!opts.dryRun;
 
-                const jsonMode = !!opts.json;
-                const dryRun = !!opts.dryRun;
+            let fileList: string[] = [];
 
-                // ── Read content ────────────────────────────────────────────────────────
-                let content: string;
-                let filePath: string;
-
-                if (!fileArg || fileArg === "-") {
-                    if (!jsonMode) {
-                        console.log(`  ${chalk.dim("Reading from stdin... (Ctrl+D to finish)")}`);
-                    }
-                    content = await readStdin();
-                    filePath = "stdin";
-                } else {
+            if (files.length === 0 || files.includes("-")) {
+                fileList = ["stdin"];
+            } else {
+                for (const arg of files) {
                     try {
-                        content = readFileSync(fileArg, "utf-8");
-                        filePath = fileArg;
+                        const stat = lstatSync(arg);
+                        if (stat.isDirectory()) {
+                            fileList = fileList.concat(getFiles(arg, !!opts.recursive));
+                        } else {
+                            fileList.push(arg);
+                        }
                     } catch (err: any) {
-                        printError(`Cannot read file: ${err.message}`, undefined, jsonMode);
+                        printError(`Cannot find path: ${arg}`, undefined, jsonMode);
                         process.exit(1);
                     }
+                }
+            }
+
+            if (fileList.length === 0) {
+                printError("No files found to publish.", undefined, jsonMode);
+                process.exit(1);
+            }
+
+            if (!jsonMode && !dryRun) {
+                console.log(`\n  ${chalk.bold("Preparing to publish")} ${chalk.cyan(fileList.length)} ${fileList.length === 1 ? "file" : "files"}...`);
+            }
+
+            const results: any[] = [];
+            let successCount = 0;
+
+            for (const filePath of fileList) {
+                let content: string;
+                if (filePath === "stdin") {
+                    if (!jsonMode) console.log(`  ${chalk.dim("Reading from stdin... (Ctrl+D to finish)")}`);
+                    content = await readStdin();
+                } else {
+                    content = readFileSync(filePath, "utf-8");
                 }
 
                 if (!content.trim()) {
-                    printError("Content is empty.", undefined, jsonMode);
-                    process.exit(1);
+                    if (!jsonMode) console.log(chalk.yellow(`  ⚠  Skipping empty file: ${filePath}`));
+                    continue;
                 }
 
-                // ── Infer format and type ───────────────────────────────────────────────
-                const format: DataFormat =
-                    (opts.format as DataFormat) ||
-                    (filePath !== "stdin" ? inferFormat(filePath) : "markdown");
-
-                const type: PostType =
-                    (opts.type as PostType) || inferType(format);
-
-                // ── Infer title from first heading if not provided ─────────────────────
-                let title: string = opts.title || "";
-                if (!title && format === "markdown") {
-                    const firstHeading = content.match(/^#\s+(.+)$/m);
-                    if (firstHeading) {
-                        title = firstHeading[1].trim();
-                    }
-                }
-
-                if (!title) {
-                    if (jsonMode) {
-                        printError(
-                            "Title is required. Use --title <title> or add a # heading in your markdown.",
-                            undefined,
-                            true
-                        );
-                        process.exit(1);
-                    }
-
-                    // Interactive prompt fallback
-                    const enquirer = (await import("enquirer")) as any;
-                    const prompt = enquirer.default?.prompt || enquirer.prompt;
-                    const answers = await prompt({
-                        type: "input",
-                        name: "title",
-                        message: "Post title",
-                    });
-                    title = (answers as any).title.trim();
-                }
-
-                // ── Build payload ──────────────────────────────────────────────────────
-                const tags = opts.tags
-                    ? opts.tags.split(",").map((t) => t.trim()).filter(Boolean)
-                    : [];
-
-                if (tags.length > 5) {
-                    printError("Maximum 5 tags allowed.", undefined, jsonMode);
-                    process.exit(1);
-                }
-
-                const isOfficialPost = !!opts.official;
-
-                if (isOfficialPost && !jsonMode) {
-                    console.log(`\n  ${chalk.yellow("★")}  ${chalk.bold("Publishing as")} ${chalk.cyan("CareerVivid Community")} ${chalk.dim("(official post)")}`);
-                }
-
-                const payload: PublishPayload = {
-                    type,
-                    dataFormat: format,
-                    title,
-                    content,
-                    tags,
-                    ...(opts.cover ? { coverImage: opts.cover } : {}),
-                    ...(isOfficialPost ? { isOfficialPost: true } : {}),
-                };
-
-                // ── Publish ────────────────────────────────────────────────────────────
-                const spinner =
-                    jsonMode || dryRun
-                        ? null
-                        : ora(`${dryRun ? "Validating" : "Publishing"} ${type}...`).start();
-
-                const result = await publishPost(payload, dryRun);
+                const spinner = (!jsonMode && !dryRun) ? ora(`Publishing ${chalk.cyan(filePath)}...`).start() : null;
+                const res = await publishSingleFile(filePath, content, opts, jsonMode);
                 spinner?.stop();
 
-                if (isApiError(result)) {
-                    handleApiError(result, jsonMode);
+                if (res.success) {
+                    successCount++;
+                    results.push({ file: filePath, ...res });
+                    if (!jsonMode && !dryRun) {
+                        console.log(`  ${chalk.green("✔")}  Published: ${chalk.bold(res.title)}`);
+                        console.log(`     ${chalk.dim(res.url)}`);
+                    }
                 }
-
-                printSuccess(
-                    {
-                        Title: title,
-
-                        URL: result.url,
-                        "Post ID": result.postId,
-                        ...(dryRun ? { Note: "Dry run — not published" } : {}),
-                    },
-                    jsonMode
-                );
             }
-        );
+
+            if (jsonMode) {
+                console.log(JSON.stringify(results, null, 2));
+            } else if (!dryRun) {
+                console.log(`\n  ${chalk.green("Done!")} Successfully published ${chalk.bold(successCount)} of ${chalk.bold(fileList.length)} files.\n`);
+            } else {
+                console.log(`\n  ${chalk.yellow("Dry run complete.")} Validated ${chalk.bold(fileList.length)} files.\n`);
+            }
+        });
 }
+

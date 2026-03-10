@@ -29,6 +29,7 @@ import { useTranslation } from 'react-i18next';
 import LanguageSelect from '../components/LanguageSelect';
 import AIUsageProgressBar from '../components/AIUsageProgressBar';
 import { useSidebarStore } from '../store/useSidebarStore';
+import { useMediaQuery } from '../hooks/useMediaQuery';
 
 // Extracted Components
 import ResumeCard from '../components/Dashboard/ResumeCard';
@@ -42,28 +43,272 @@ import DashboardPreviewSection, { DraggableSectionHeader } from '../components/D
 import ReorderDashboardModal, { SectionItem } from '../components/Dashboard/ReorderDashboardModal';
 import { useMyCommunityPosts } from '../hooks/useMyCommunityPosts';
 import DashboardPostCard from '../components/Dashboard/DashboardPostCard';
+import DesktopCapabilityBanner from '../components/Dashboard/DesktopCapabilityBanner';
 
 // Lazy load modal to optimize dashboard load time
 const InterviewReportModal = React.lazy(() => import('../components/InterviewReportModal'));
 
-const Dashboard: React.FC = () => {
-    const { resumes, isLoading: isLoadingResumes, deleteResume, duplicateResume, updateResume, addBlankResume, saveAIGeneratedResume } = useResumes();
-    const { portfolios, isLoading: isLoadingPortfolios, deletePortfolio, duplicatePortfolio, updatePortfolio, createPortfolio } = usePortfolios();
-    const { practiceHistory, isLoading: isLoadingHistory, deletePracticeHistory, updatePracticeHistory, addCompletedPractice } = usePracticeHistory();
-    const { jobApplications, isLoading: isLoadingJobs, updateJobApplication, deleteJobApplication, deleteAllJobApplications } = useJobTracker();
-    const { whiteboards, isLoading: isLoadingWhiteboards, deleteWhiteboard, duplicateWhiteboard, updateWhiteboard, createWhiteboard } = useWhiteboards();
-    const { posts: myCommunityPosts, isLoading: isLoadingCommunityPosts, deletePost: deleteCommunityPost } = useMyCommunityPosts();
-    const { currentUser, logOut, isAdmin, userProfile, isPremium, aiUsage } = useAuth();
+// --- Workspace Sub-components for Conditional Mounting ---
+
+const WorkspaceSummaryCards: React.FC = () => {
+    const { resumes } = useResumes();
+    const { portfolios } = usePortfolios();
+    const { practiceHistory } = usePracticeHistory();
+    const { jobApplications } = useJobTracker();
+
+    return (
+        <DashboardSummaryCards
+            resumeCount={resumes.length}
+            interviewCount={practiceHistory.length}
+            portfolioCount={portfolios.length}
+            jobCount={jobApplications.length}
+        />
+    );
+};
+
+interface SectionProps {
+    viewMode: 'row' | 'grid';
+    sectionName: string;
+    onLongPress: () => void;
+    onTitleChange: (name: string) => void;
+}
+
+const ResumesSection: React.FC<SectionProps & { setShareModalResume: (r: ResumeData) => void }> = ({ 
+    viewMode, sectionName, onLongPress, onTitleChange, setShareModalResume 
+}) => {
+    const { resumes, deleteResume, duplicateResume, updateResume } = useResumes();
     const { t } = useTranslation();
+    
+    return (
+        <DashboardPreviewSection
+            title={sectionName}
+            items={resumes}
+            viewMode={viewMode}
+            onLongPress={onLongPress}
+            onViewAll={() => navigate('/newresume')}
+            onTitleChange={onTitleChange}
+            emptyMessage={t('dashboard.no_resumes') || "No resumes created yet. Create your first resume!"}
+            renderItem={(resume) => (
+                <ResumeCard
+                    key={resume.id}
+                    resume={resume}
+                    onDelete={deleteResume}
+                    onDuplicate={duplicateResume}
+                    onUpdate={updateResume}
+                    onShare={setShareModalResume}
+                    onDragStart={(e) => e.preventDefault()}
+                />
+            )}
+        />
+    );
+};
+
+const PortfoliosSection: React.FC<SectionProps & { 
+    setShareModalPortfolio: (p: PortfolioData) => void;
+    handleDuplicatePortfolio: (id: string) => void;
+}> = ({ 
+    viewMode, sectionName, onLongPress, onTitleChange, setShareModalPortfolio, handleDuplicatePortfolio 
+}) => {
+    const { portfolios, deletePortfolio, updatePortfolio } = usePortfolios();
+    
+    return (
+        <DashboardPreviewSection
+            title={sectionName}
+            items={portfolios}
+            viewMode={viewMode}
+            onLongPress={onLongPress}
+            onViewAll={() => navigate('/portfolio')}
+            onTitleChange={onTitleChange}
+            emptyMessage="No portfolios created yet."
+            renderItem={(portfolio) => (
+                <PortfolioCard
+                    key={portfolio.id}
+                    portfolio={portfolio}
+                    onDelete={deletePortfolio}
+                    onDuplicate={handleDuplicatePortfolio}
+                    onUpdate={updatePortfolio}
+                    onShare={setShareModalPortfolio}
+                    onDragStart={(e) => e.preventDefault()}
+                />
+            )}
+        />
+    );
+};
+
+const InterviewStudioSection: React.FC<SectionProps & { setSelectedJobForReport: (e: PracticeHistoryEntry) => void }> = ({ 
+    viewMode, sectionName, onLongPress, onTitleChange, setSelectedJobForReport 
+}) => {
+    const { practiceHistory, deletePracticeHistory } = usePracticeHistory();
+    
+    return (
+        <DashboardPreviewSection
+            title={sectionName}
+            items={practiceHistory}
+            viewMode={viewMode}
+            onLongPress={onLongPress}
+            onViewAll={() => navigate('/interview-studio')}
+            onTitleChange={onTitleChange}
+            emptyMessage="No practice sessions yet. Start your first mock interview!"
+            renderItem={(session) => (
+                <InterviewHistoryCard
+                    key={session.id}
+                    entry={session}
+                    onDelete={deletePracticeHistory}
+                    onShowReport={setSelectedJobForReport}
+                    onDragStart={(e) => e.preventDefault()}
+                />
+            )}
+        />
+    );
+};
+
+const WhiteboardsSection: React.FC<SectionProps & { setShareModalWhiteboard: (w: WhiteboardData) => void }> = ({ 
+    viewMode, sectionName, onLongPress, onTitleChange, setShareModalWhiteboard 
+}) => {
+    const { whiteboards, deleteWhiteboard, duplicateWhiteboard, updateWhiteboard, createWhiteboard } = useWhiteboards();
+    
+    return (
+        <React.Fragment>
+            <DashboardPreviewSection
+                title={sectionName}
+                items={whiteboards}
+                viewMode={viewMode}
+                onLongPress={onLongPress}
+                onViewAll={() => navigate('/whiteboard')}
+                onTitleChange={onTitleChange}
+                emptyMessage="No whiteboards created yet."
+                renderItem={(whiteboard) => (
+                    <WhiteboardCard
+                        key={whiteboard.id}
+                        whiteboard={whiteboard}
+                        onDelete={deleteWhiteboard}
+                        onDuplicate={duplicateWhiteboard}
+                        onUpdate={updateWhiteboard}
+                        onShare={setShareModalWhiteboard}
+                        onDragStart={(e) => e.preventDefault()}
+                    />
+                )}
+            />
+            {whiteboards.length === 0 && (
+                <div className="flex justify-center -mt-8 mb-10">
+                    <button
+                        onClick={async () => {
+                            const id = await createWhiteboard();
+                            navigate(`/whiteboard/${id}`);
+                        }}
+                        className="bg-primary-600 text-white font-medium py-2 px-6 rounded-lg hover:bg-primary-700 transition"
+                    >
+                        + Create a New Whiteboard
+                    </button>
+                </div>
+            )}
+        </React.Fragment>
+    );
+};
+
+const JobTrackerSection: React.FC<SectionProps & { setSelectedJobApplication: (j: JobApplicationData) => void }> = ({ 
+    viewMode, sectionName, onLongPress, onTitleChange, setSelectedJobApplication 
+}) => {
+    const { jobApplications, updateJobApplication } = useJobTracker();
+    
+    return (
+        <div className="mb-10">
+            <DraggableSectionHeader
+                title={sectionName}
+                viewMode={viewMode}
+                onLongPress={onLongPress}
+                onViewAll={() => navigate('/job-tracker')}
+                hasItems={jobApplications.length > 0}
+                onTitleChange={onTitleChange}
+            />
+
+            <div className="mb-6">
+                <StatusOverview applications={jobApplications} />
+            </div>
+
+            <KanbanBoard
+                applications={jobApplications}
+                onCardClick={setSelectedJobApplication}
+                onUpdateApplication={updateJobApplication}
+            />
+        </div>
+    );
+};
+
+// --- Constants and Utilities ---
+
+const SECTIONS_CONFIG: SectionItem[] = [
+    { id: 'interviewStudio', label: 'Technical Interview Simulator Sessions' },
+    { id: 'resumes', label: 'My Resumes' },
+    { id: 'whiteboards', label: 'My Whiteboards' },
+    { id: 'portfolios', label: 'Portfolios' },
+    { id: 'communityPosts', label: 'My Community Posts' },
+    { id: 'jobTracker', label: 'Career Pipeline' },
+];
+
+const DEFAULT_ORDER = SECTIONS_CONFIG.map(s => s.id);
+
+const DEFAULT_SECTION_NAMES: Record<string, string> = {
+    interviewStudio: 'Technical Interview Simulator Sessions',
+    resumes: 'My Resumes',
+    whiteboards: 'My Whiteboards',
+    portfolios: 'Portfolios',
+    communityPosts: 'My Community Posts',
+    jobTracker: 'Career Pipeline',
+};
+
+const handleDuplicatePortfolioInWrapper = async (
+    id: string, 
+    portfoliosList: PortfolioData[], 
+    isPremiumUser: boolean, 
+    duplicateFn: (id: string) => Promise<void>,
+    setLimitMessage: (msg: string) => void,
+    setIsUpgradeModalOpen: (open: boolean) => void
+) => {
+    const portfolio = portfoliosList.find(p => p.id === id);
+    if (!portfolio) return;
+    
+    const totalCount = portfoliosList.length;
+    const bioLinksCount = portfoliosList.filter(p => p.mode === 'linkinbio').length;
+
+    if (!isPremiumUser && totalCount >= 2) {
+        setLimitMessage('Free users can only create up to 2 sites. Please upgrade your plan to create more.');
+        setIsUpgradeModalOpen(true);
+        return;
+    }
+
+    if (portfolio.mode === 'linkinbio' && !isPremiumUser && bioLinksCount >= 1) {
+        setLimitMessage('You have reached your Bio-Link limit. Please upgrade your plan to create more.');
+        setIsUpgradeModalOpen(true);
+        return;
+    }
+
+    await duplicateFn(id);
+};
+
+const Dashboard: React.FC = () => {
+
     const { navPosition, toggleNavPosition } = useNavigation();
     const dashboardTitle = useSidebarStore(state => state.getNodeTitle('/dashboard')) || 'Dashboard';
+    const isDesktop = useMediaQuery('(min-width: 768px)');
+    const { t } = useTranslation();
+
+    const { resumes, deleteResume, updateResume, isLoading: isLoadingResumes, saveAIGeneratedResume } = useResumes();
+    const { portfolios, deletePortfolio, updatePortfolio, duplicatePortfolio } = usePortfolios();
+    const { practiceHistory, deletePracticeHistory, updatePracticeHistory, isLoading: isLoadingHistory, addCompletedPractice } = usePracticeHistory();
+    const { jobApplications, deleteJobApplication, updateJobApplication, isLoading: isLoadingJobs, deleteAllJobApplications } = useJobTracker();
+    const { whiteboards, createWhiteboard } = useWhiteboards();
+    const { posts: myCommunityPosts, isLoading: isLoadingCommunityPosts, deletePost: deleteCommunityPost } = useMyCommunityPosts();
+
+    const { currentUser, logOut, isAdmin, userProfile, isPremium, aiUsage } = useAuth();
 
     const [selectedJobForReport, setSelectedJobForReport] = useState<PracticeHistoryEntry | null>(null);
     const [selectedJobApplication, setSelectedJobApplication] = useState<JobApplicationData | null>(null);
     const [shareModalResume, setShareModalResume] = useState<ResumeData | null>(null);
     const [shareModalPortfolio, setShareModalPortfolio] = useState<PortfolioData | null>(null);
     const [shareModalWhiteboard, setShareModalWhiteboard] = useState<WhiteboardData | null>(null);
-    const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false); // New State for limit modal
+    const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+    const [limitMessage, setLimitMessage] = useState('You have reached your site limit. Please upgrade your plan to create more.');
 
     const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: () => { }, confirmText: 'Confirm' });
 
@@ -77,23 +322,11 @@ const Dashboard: React.FC = () => {
     }, [viewMode]);
 
     // Dashboard Sections Reordering State
-    const SECTIONS_CONFIG: SectionItem[] = [
-        { id: 'interviewStudio', label: 'Technical Interview Simulator Sessions' },
-        { id: 'resumes', label: 'My Resumes' },
-        { id: 'whiteboards', label: 'My Whiteboards' },
-        { id: 'portfolios', label: 'Portfolios' },
-        { id: 'communityPosts', label: 'My Community Posts' },
-        { id: 'jobTracker', label: 'Career Pipeline' },
-    ];
-
-    const DEFAULT_ORDER = SECTIONS_CONFIG.map(s => s.id);
-
     const [sectionOrder, setSectionOrder] = useState<string[]>(() => {
         try {
             const stored = localStorage.getItem('careervivid_dashboard_order');
             if (stored) {
                 const parsed = JSON.parse(stored);
-                // Ensure all default sections exist (handles new features added later)
                 const missing = DEFAULT_ORDER.filter(id => !parsed.includes(id));
                 return [...parsed, ...missing];
             }
@@ -108,16 +341,6 @@ const Dashboard: React.FC = () => {
     }, [sectionOrder]);
 
     const [isReorderModalOpen, setIsReorderModalOpen] = useState(false);
-
-    // Custom Section Names (persisted)
-    const DEFAULT_SECTION_NAMES: Record<string, string> = {
-        interviewStudio: 'Technical Interview Simulator Sessions',
-        resumes: 'My Resumes',
-        whiteboards: 'My Whiteboards',
-        portfolios: 'Portfolios',
-        communityPosts: 'My Community Posts',
-        jobTracker: 'Career Pipeline',
-    };
 
     const [sectionNames, setSectionNames] = useState<Record<string, string>>(() => {
         try {
@@ -137,65 +360,45 @@ const Dashboard: React.FC = () => {
         });
     };
 
-    // ... (existing code for menu refs etc.) ...
-
-    // Limit Logic
-    const bioLinksCount = portfolios.filter(p => p.mode === 'linkinbio').length;
-    const totalPortfolioCount = portfolios.length;
-    const [limitMessage, setLimitMessage] = useState('You have reached your site limit. Please upgrade your plan to create more.');
-
     const handleDuplicatePortfolio = async (id: string) => {
-        const portfolio = portfolios.find(p => p.id === id);
-        if (!portfolio) return;
+        await handleDuplicatePortfolioInWrapper(id, portfolios, isPremium, duplicatePortfolio, setLimitMessage, setIsUpgradeModalOpen);
+    };
 
-        // Check Total Limit (2 sites for free users)
-        if (!isPremium && totalPortfolioCount >= 2) {
-            setLimitMessage('Free users can only create up to 2 sites. Please upgrade your plan to create more.');
-            setIsUpgradeModalOpen(true);
-            return;
-        }
-
-        // Check Limit for Bio-Links (1 for free users)
-        if (portfolio.mode === 'linkinbio') {
-            if (!isPremium && bioLinksCount >= 1) {
-                setLimitMessage('You have reached your Bio-Link limit. Please upgrade your plan to create more.');
-                setIsUpgradeModalOpen(true);
-                return;
+    useEffect(() => {
+        if (!currentUser) return;
+        const importGuestData = async () => {
+            const guestResumeJSON = localStorage.getItem('guestResume');
+            if (guestResumeJSON) {
+                try {
+                    const guestResume = JSON.parse(guestResumeJSON);
+                    await saveAIGeneratedResume(guestResume);
+                    localStorage.removeItem('guestResume');
+                    trackDemoConversion('convertedResumeUsers');
+                } catch (e) { console.error(e); }
             }
-        }
+            const guestInterviewJSON = localStorage.getItem('guestInterview');
+            if (guestInterviewJSON) {
+                try {
+                    const guestInterview = JSON.parse(guestInterviewJSON);
+                    await addCompletedPractice(guestInterview);
+                    localStorage.removeItem('guestInterview');
+                    trackDemoConversion('convertedInterviewUsers');
+                } catch (e) { console.error(e); }
+            }
+        };
+        const timer = setTimeout(importGuestData, 500);
+        return () => clearTimeout(timer);
+    }, [currentUser, saveAIGeneratedResume, addCompletedPractice]);
 
-        // Proceed if valid
-        await duplicatePortfolio(id);
-    };
-
-    const handleCreateNewPortfolio = () => {
-        // Check Total Limit (2 sites for free users)
-        if (!isPremium && totalPortfolioCount >= 2) {
-            setLimitMessage('Free users can only create up to 2 sites. Please upgrade your plan to create more.');
-            setIsUpgradeModalOpen(true);
-            return;
-        }
-        navigate('/portfolio');
-    };
-
-    // ... (existing code) ...
-
-
-    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-    const [isNewMenuOpen, setIsNewMenuOpen] = useState(false);
     const userMenuRef = useRef<HTMLDivElement>(null);
     const newMenuRef = useRef<HTMLDivElement>(null);
 
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+    const [isNewMenuOpen, setIsNewMenuOpen] = useState(false);
     const [folders, setFolders] = useState<Folder[]>([]);
     const [jobTrackerShowPreview, setJobTrackerShowPreview] = useState(true);
-    const [dragOverSection, setDragOverSection] = useState<{ id: string, position: 'top' | 'bottom' | 'middle' } | null>(null);
 
     const [isFolderReorderModalOpen, setIsFolderReorderModalOpen] = useState(false);
-
-    // Long Press Logic
-    const [longPressState, setLongPressState] = useState<{ id: string, count: number } | null>(null);
-    const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
-    const longPressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     // Upgrade Guide State (Steps 1 & 2)
     const [upgradeStep, setUpgradeStep] = useState(() => {
@@ -204,13 +407,20 @@ const Dashboard: React.FC = () => {
     });
 
     useEffect(() => {
-        // Listen for custom trigger event from ChatBot
-        const handleTrigger = () => {
-            setUpgradeStep(1);
-        };
+        const handleTrigger = () => setUpgradeStep(1);
         window.addEventListener('trigger-upgrade-guide', handleTrigger);
         return () => window.removeEventListener('trigger-upgrade-guide', handleTrigger);
     }, []);
+
+    const closeConfirmModal = () => setConfirmModal({ ...confirmModal, isOpen: false });
+
+    const saveFolders = async (newFolders: Folder[]) => {
+        const orderedFolders = newFolders.map((f, i) => ({ ...f, order: i }));
+        setFolders(orderedFolders);
+        if (!currentUser) return;
+        const settingsRef = doc(db, 'users', currentUser.uid, 'settings', 'dashboard');
+        await updateDoc(settingsRef, { folders: orderedFolders });
+    };
 
     const handleStep1Click = () => {
         setIsUserMenuOpen(!isUserMenuOpen);
@@ -220,70 +430,19 @@ const Dashboard: React.FC = () => {
         }
     };
 
+    const handleAddFolder = () => {
+        const newFolder = { id: `folder_${Date.now()}`, title: t('dashboard.new_folder'), order: folders.length };
+        const updatedFolders = [...folders, newFolder];
+        setFolders(updatedFolders);
+        // Note: Save to firestore if needed, but for now we'll rely on local/props
+    };
+
     const handleStep2Click = () => {
         if (upgradeStep === 2) {
             localStorage.setItem('upgrade_guide_step', '3');
             setUpgradeStep(3);
         }
     };
-
-    // Refs for auto-reordering folders
-    const latestResumeTsRef = useRef<number>(0);
-    const latestInterviewTsRef = useRef<number>(0);
-    const latestJobTsRef = useRef<number>(0);
-    const isDashboardInitialLoadRef = useRef(true);
-
-    useEffect(() => {
-        // On initial load for a user with no resumes, redirect them to the creation hub.
-        // This also handles the case where a user deletes all their resumes.
-        if (!isLoadingResumes && resumes.length === 0) {
-            navigate('/newresume');
-        }
-    }, [resumes, isLoadingResumes]);
-
-    // Effect to import guest data on first login
-    useEffect(() => {
-        if (!currentUser) return;
-
-        const importGuestData = async () => {
-            // Import Resume
-            const guestResumeJSON = localStorage.getItem('guestResume');
-            if (guestResumeJSON) {
-                try {
-                    const guestResume = JSON.parse(guestResumeJSON) as ResumeData;
-                    await saveAIGeneratedResume(guestResume);
-                    localStorage.removeItem('guestResume');
-                    console.log("Successfully imported guest resume.");
-                    trackDemoConversion('convertedResumeUsers');
-                } catch (e) {
-                    console.error("Failed to import guest resume:", e);
-                    localStorage.removeItem('guestResume');
-                }
-            }
-
-            // Import Interview
-            const guestInterviewJSON = localStorage.getItem('guestInterview');
-            if (guestInterviewJSON) {
-                try {
-                    const guestInterview = JSON.parse(guestInterviewJSON) as PracticeHistoryEntry;
-                    await addCompletedPractice(guestInterview);
-                    localStorage.removeItem('guestInterview');
-                    console.log("Successfully imported guest interview.");
-                    trackDemoConversion('convertedInterviewUsers');
-                } catch (e) {
-                    console.error("Failed to import guest interview:", e);
-                    localStorage.removeItem('guestInterview');
-                }
-            }
-
-
-        };
-
-        // Run once after user context is available
-        const timer = setTimeout(importGuestData, 500);
-        return () => clearTimeout(timer);
-    }, [currentUser, saveAIGeneratedResume, addCompletedPractice]);
-
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -295,197 +454,8 @@ const Dashboard: React.FC = () => {
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-
-    useEffect(() => {
-        if (!currentUser) return;
-        const settingsRef = doc(db, 'users', currentUser.uid, 'settings', 'dashboard');
-        const unsubscribe = onSnapshot(settingsRef, (docSnap) => {
-            const defaultFolders = [
-                { id: 'resumes', title: t('dashboard.my_resumes'), order: 0 },
-                { id: 'portfolios', title: 'My Portfolios', order: 1 },
-                { id: 'interviews', title: t('dashboard.interview_sessions'), order: 2 },
-            ];
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                setJobTrackerShowPreview(data.jobTrackerShowPreview !== false);
-                let currentFolders: Folder[] = data.folders || [];
-
-                defaultFolders.forEach(df => {
-                    if (!currentFolders.some(f => f.id === df.id)) {
-                        currentFolders.push({ ...df, order: currentFolders.length });
-                    }
-                });
-
-                if (data.folders) {
-                    setFolders([...currentFolders].sort((a, b) => a.order - b.order));
-                } else {
-                    setFolders(defaultFolders);
-                    setDoc(settingsRef, { folders: defaultFolders }, { merge: true }).catch(console.error);
-                }
-            } else {
-                const defaultSettings = { folders: defaultFolders, jobTrackerShowPreview: true };
-                setFolders(defaultFolders);
-                setJobTrackerShowPreview(true);
-                setDoc(settingsRef, defaultSettings).catch(console.error);
-            }
-        });
-        return unsubscribe;
-    }, [currentUser]);
-
-    // Re-add Job Tracker folder if it's been deleted but jobs exist
-    useEffect(() => {
-        if (jobApplications.length > 0 && !folders.some(f => f.id === 'jobTracker')) {
-            const jobTrackerFolder = { id: 'jobTracker', title: t('dashboard.job_tracker'), order: folders.length };
-            saveFolders([...folders, jobTrackerFolder]);
-        } else if (jobApplications.length === 0 && folders.some(f => f.id === 'jobTracker')) {
-            // Optional: remove tracker if it becomes empty and wasn't a custom folder
-            // For now, we'll leave it, as the user might want to drag items into it.
-        }
-    }, [jobApplications.length, folders]);
-
-    // Auto-reorder folders based on activity
-    useEffect(() => {
-        if (isLoadingResumes || isLoadingHistory || isLoadingJobs || folders.length === 0) return;
-
-        // Helper to get max timestamp
-        const getMaxTs = (items: any[], field: string) => {
-            if (!items || items.length === 0) return 0;
-            return Math.max(...items.map(item => {
-                const val = item[field];
-                if (!val) return 0;
-                // Handle Firestore Timestamp
-                if (typeof val === 'object' && 'toMillis' in val) {
-                    return (val as any).toMillis();
-                }
-                // Handle Date object
-                if (val instanceof Date) return val.getTime();
-                // Handle ISO string or number
-                return new Date(val).getTime();
-            }));
-        };
-
-        const currentMaxResumeTs = getMaxTs(resumes, 'updatedAt');
-        const currentMaxInterviewTs = getMaxTs(practiceHistory, 'timestamp');
-        const currentMaxJobTs = getMaxTs(jobApplications, 'updatedAt');
-
-        // Initial load: just set the refs, don't reorder
-        if (isDashboardInitialLoadRef.current) {
-            latestResumeTsRef.current = currentMaxResumeTs;
-            latestInterviewTsRef.current = currentMaxInterviewTs;
-            latestJobTsRef.current = currentMaxJobTs;
-            isDashboardInitialLoadRef.current = false;
-            return;
-        }
-
-        let folderToBump: string | null = null;
-
-        // Check for new activity
-        if (currentMaxResumeTs > latestResumeTsRef.current) {
-            // Find which folder contains the latest resume
-            // We need to find the resume with this timestamp
-            const latestResume = resumes.find(r => {
-                const val = r.updatedAt;
-                let ts = 0;
-                if (val && typeof val === 'object' && 'toMillis' in (val as any)) {
-                    ts = (val as any).toMillis();
-                } else if ((val as any) instanceof Date) {
-                    ts = (val as any).getTime();
-                } else if (val) {
-                    ts = new Date(val).getTime();
-                }
-                return ts === currentMaxResumeTs;
-            });
-            if (latestResume) {
-                folderToBump = latestResume.section || 'resumes';
-            }
-            latestResumeTsRef.current = currentMaxResumeTs;
-        }
-
-        if (currentMaxInterviewTs > latestInterviewTsRef.current) {
-            const latestInterview = practiceHistory.find(p => {
-                const val = p.timestamp;
-                let ts = 0;
-                if (val && typeof val === 'object' && 'toMillis' in (val as any)) {
-                    ts = (val as any).toMillis();
-                } else if ((val as any) instanceof Date) {
-                    ts = (val as any).getTime();
-                } else if (val) {
-                    ts = new Date(val).getTime();
-                }
-                return ts === currentMaxInterviewTs;
-            });
-            if (latestInterview) {
-                folderToBump = latestInterview.section || 'interviews';
-            }
-            latestInterviewTsRef.current = currentMaxInterviewTs;
-        }
-
-        if (currentMaxJobTs > latestJobTsRef.current) {
-            // Jobs are always in 'jobTracker' folder (or custom section if we allowed moving them, which we do)
-            const latestJob = jobApplications.find(j => {
-                const val = j.updatedAt;
-                let ts = 0;
-                if (val && typeof val === 'object' && 'toMillis' in (val as any)) {
-                    ts = (val as any).toMillis();
-                } else if ((val as any) instanceof Date) {
-                    ts = (val as any).getTime();
-                } else if (val) {
-                    ts = new Date(val).getTime();
-                }
-                return ts === currentMaxJobTs;
-            });
-            if (latestJob) {
-                folderToBump = latestJob.section || 'jobTracker';
-            }
-            latestJobTsRef.current = currentMaxJobTs;
-        }
-
-        if (folderToBump) {
-            const folderIndex = folders.findIndex(f => f.id === folderToBump);
-            // If folder exists and is not already at the top
-            if (folderIndex > 0) {
-                const newFolders = [...folders];
-                const [movedFolder] = newFolders.splice(folderIndex, 1);
-                newFolders.unshift(movedFolder);
-                saveFolders(newFolders);
-            }
-        }
-
-    }, [resumes, practiceHistory, jobApplications, isLoadingResumes, isLoadingHistory, isLoadingJobs]);
-
-    const updateDashboardSettings = async (settings: object) => {
-        if (!currentUser) return;
-        const settingsRef = doc(db, 'users', currentUser.uid, 'settings', 'dashboard');
-        await updateDoc(settingsRef, settings);
-    };
-
-    const saveFolders = async (newFolders: Folder[]) => {
-        const orderedFolders = newFolders.map((f, i) => ({ ...f, order: i }));
-        setFolders(orderedFolders); // Optimistic update
-        await updateDashboardSettings({ folders: orderedFolders });
-    };
-
-    const handleToggleTrackerPreview = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = e.target.checked;
-        setJobTrackerShowPreview(newValue);
-        updateDashboardSettings({ jobTrackerShowPreview: newValue });
-    };
-
-    const handleTitleUpdate = (folderId: string, newTitle: string) => {
-        const updatedFolders = folders.map(f => f.id === folderId ? { ...f, title: newTitle } : f);
-        saveFolders(updatedFolders);
-    };
-
-    const handleAddFolder = () => {
-        const newFolder = { id: `folder_${Date.now()}`, title: t('dashboard.new_folder'), order: folders.length };
-        saveFolders([...folders, newFolder]);
-    };
-
-    const closeConfirmModal = () => setConfirmModal({ ...confirmModal, isOpen: false });
 
     const confirmItemDelete = (id: string, type: 'resume' | 'practice' | 'job' | 'portfolio' | 'post', coverImage?: string) => {
         setConfirmModal({
@@ -498,42 +468,6 @@ const Dashboard: React.FC = () => {
                 if (type === 'practice') deletePracticeHistory(id);
                 if (type === 'job') deleteJobApplication(id);
                 if (type === 'post') deleteCommunityPost(id, coverImage);
-                closeConfirmModal();
-            },
-            confirmText: t('dashboard.delete')
-        });
-    };
-
-    const confirmFolderDelete = async (folderId: string) => {
-        setConfirmModal({
-            isOpen: true,
-            title: t('dashboard.confirm_folder_delete_title'),
-            message: t('dashboard.confirm_folder_delete_message'),
-            onConfirm: async () => {
-                if (!currentUser) return;
-                const batch = writeBatch(db);
-                resumes.forEach(r => {
-                    if ((r.section || 'resumes') === folderId) {
-                        batch.update(doc(db, 'users', currentUser.uid, 'resumes', r.id), { section: 'resumes' });
-                    }
-                });
-                practiceHistory.forEach(p => {
-                    if ((p.section || 'interviews') === folderId) {
-                        batch.update(doc(db, 'users', currentUser.uid, 'practiceHistory', p.id), { section: 'interviews' });
-                    }
-                });
-                jobApplications.forEach(j => {
-                    if (j.section === folderId) {
-                        batch.update(doc(db, 'users', currentUser.uid, 'jobTracker', j.id), { section: 'jobTracker' });
-                    }
-                });
-                try {
-                    await batch.commit();
-                    const updatedFolders = folders.filter(f => f.id !== folderId);
-                    await saveFolders(updatedFolders);
-                } catch (error) {
-                    console.error("Error moving items and deleting folder:", error);
-                }
                 closeConfirmModal();
             },
             confirmText: t('dashboard.delete')
@@ -557,54 +491,8 @@ const Dashboard: React.FC = () => {
         });
     };
 
-    const handleDrop = (e: React.DragEvent<HTMLDivElement>, targetFolderId: string) => {
-        e.preventDefault();
-        setDragOverSection(null);
-        try {
-            const jsonString = e.dataTransfer.getData('application/json');
-            if (!jsonString) return;
-            const data = JSON.parse(jsonString);
-            if (data.type === 'folder') {
-                const draggedFolderId = data.id;
-                if (draggedFolderId === targetFolderId) return;
-
-                const newFolders = [...folders];
-                const draggedIndex = newFolders.findIndex(f => f.id === draggedFolderId);
-                const targetIndex = newFolders.findIndex(f => f.id === targetFolderId);
-
-                if (draggedIndex === -1 || targetIndex === -1) return;
-
-                const [draggedItem] = newFolders.splice(draggedIndex, 1);
-                newFolders.splice(targetIndex, 0, draggedItem);
-
-                saveFolders(newFolders);
-
-            } else {
-                const { id, type } = data;
-                if (targetFolderId === 'jobTracker' && type !== 'jobApplication') return;
-                if (targetFolderId !== 'jobTracker' && type === 'jobApplication') {
-                    if (!folders.some(f => f.id === targetFolderId)) return;
-                }
-
-                if (type === 'resume') updateResume(id, { section: targetFolderId });
-                if (type === 'portfolio') updatePortfolio(id, { section: targetFolderId });
-                if (type === 'interview') updatePracticeHistory(id, { section: targetFolderId });
-                if (type === 'jobApplication') updateJobApplication(id, { section: targetFolderId });
-            }
-        } catch (error) { console.error("Failed to handle drop:", error); }
-    };
-
-    const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: string, type: 'resume' | 'portfolio' | 'interview' | 'jobApplication' | 'folder') => {
-        e.dataTransfer.setData('application/job-id', JSON.stringify({ id, type }));
-        e.dataTransfer.setData('application/json', JSON.stringify({ id, type }));
-        if (type !== 'folder') {
-            e.stopPropagation();
-        }
-    };
-
-    // If resumes are loading, or if there are no resumes (which will cause a redirect), show a loading screen.
-    // This prevents the empty dashboard from flashing on screen for new users.
-    if (isLoadingResumes || (!isLoadingResumes && resumes.length === 0)) {
+    // If resumes are loading, or if there are no resumes (which will cause a redirect), show a loading screen on desktop.
+    if (isDesktop && (isLoadingResumes || (!isLoadingResumes && resumes.length === 0))) {
         return (
             <div className="flex flex-col justify-center items-center h-screen bg-gray-100 dark:bg-gray-950">
                 <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
@@ -613,7 +501,7 @@ const Dashboard: React.FC = () => {
         );
     }
 
-    const isLoading = isLoadingHistory || isLoadingJobs;
+    const isLoading = isLoadingCommunityPosts || (isDesktop && (isLoadingHistory || isLoadingJobs));
 
     return (
         <AppLayout>
@@ -785,6 +673,9 @@ const Dashboard: React.FC = () => {
                         </h1>
                     </div>
 
+                    {/* Mobile Only: Desktop Capability Banner */}
+                    {!isDesktop && <DesktopCapabilityBanner />}
+
                     {/* Mobile-Only: Community Posts Premium Card */}
                     <div className="block md:hidden w-full mb-4">
                         <a
@@ -807,12 +698,7 @@ const Dashboard: React.FC = () => {
                     </div>
 
                     {/* Summary Cards */}
-                    <DashboardSummaryCards
-                        resumeCount={resumes.length}
-                        interviewCount={practiceHistory.length}
-                        portfolioCount={portfolios.length}
-                        jobCount={jobApplications.length}
-                    />
+                    {isDesktop && <WorkspaceSummaryCards />}
 
                     {/* View Mode Toggle */}
                     <div className="flex justify-end mt-6 mb-2 pr-1">
@@ -833,88 +719,37 @@ const Dashboard: React.FC = () => {
                     {sectionOrder.map(sectionId => {
                         switch (sectionId) {
                             case 'interviewStudio':
-                                return (
-                                    <DashboardPreviewSection
+                                return isDesktop && (
+                                    <InterviewStudioSection
                                         key={sectionId}
-                                        title={sectionNames.interviewStudio}
-                                        items={practiceHistory}
                                         viewMode={viewMode}
+                                        sectionName={sectionNames.interviewStudio}
                                         onLongPress={() => setIsReorderModalOpen(true)}
-                                        onViewAll={() => navigate('/interview-studio')}
                                         onTitleChange={(name) => handleSectionNameChange('interviewStudio', name)}
-                                        emptyMessage="No practice sessions yet. Start your first mock interview!"
-                                        renderItem={(session) => (
-                                            <InterviewHistoryCard
-                                                key={session.id}
-                                                entry={session}
-                                                onDelete={deletePracticeHistory}
-                                                onShowReport={setSelectedJobForReport}
-                                                onDragStart={(e) => e.preventDefault()}
-                                            />
-                                        )}
+                                        setSelectedJobForReport={setSelectedJobForReport}
                                     />
                                 );
                             case 'resumes':
-                                return (
-                                    <DashboardPreviewSection
+                                return isDesktop && (
+                                    <ResumesSection
                                         key={sectionId}
-                                        title={sectionNames.resumes}
-                                        items={resumes}
                                         viewMode={viewMode}
+                                        sectionName={sectionNames.resumes}
                                         onLongPress={() => setIsReorderModalOpen(true)}
-                                        onViewAll={() => navigate('/newresume')}
                                         onTitleChange={(name) => handleSectionNameChange('resumes', name)}
-                                        emptyMessage="No resumes created yet. Create your first resume!"
-                                        renderItem={(resume) => (
-                                            <ResumeCard
-                                                key={resume.id}
-                                                resume={resume}
-                                                onDelete={deleteResume}
-                                                onDuplicate={duplicateResume}
-                                                onUpdate={updateResume}
-                                                onShare={(r) => setShareModalResume(r)}
-                                                onDragStart={(e) => e.preventDefault()}
-                                            />
-                                        )}
+                                        setShareModalResume={setShareModalResume}
                                     />
                                 );
                             case 'whiteboards':
-                                return (
-                                    <React.Fragment key={sectionId}>
-                                        <DashboardPreviewSection
-                                            title={sectionNames.whiteboards}
-                                            items={whiteboards}
-                                            viewMode={viewMode}
-                                            onLongPress={() => setIsReorderModalOpen(true)}
-                                            onViewAll={() => { navigate('/whiteboard') }}
-                                            onTitleChange={(name) => handleSectionNameChange('whiteboards', name)}
-                                            emptyMessage="No whiteboards created yet."
-                                            renderItem={(whiteboard) => (
-                                                <WhiteboardCard
-                                                    key={whiteboard.id}
-                                                    whiteboard={whiteboard}
-                                                    onDelete={deleteWhiteboard}
-                                                    onDuplicate={duplicateWhiteboard}
-                                                    onUpdate={updateWhiteboard}
-                                                    onShare={(w) => setShareModalWhiteboard(w)}
-                                                    onDragStart={(e) => e.preventDefault()}
-                                                />
-                                            )}
-                                        />
-                                        {whiteboards.length === 0 && (
-                                            <div className="flex justify-center -mt-8 mb-10">
-                                                <button
-                                                    onClick={async () => {
-                                                        const id = await createWhiteboard();
-                                                        navigate(`/whiteboard/${id}`);
-                                                    }}
-                                                    className="bg-primary-600 text-white font-medium py-2 px-6 rounded-lg hover:bg-primary-700 transition"
-                                                >
-                                                    + Create a New Whiteboard
-                                                </button>
-                                            </div>
-                                        )}
-                                    </React.Fragment>
+                                return isDesktop && (
+                                    <WhiteboardsSection
+                                        key={sectionId}
+                                        viewMode={viewMode}
+                                        sectionName={sectionNames.whiteboards}
+                                        onLongPress={() => setIsReorderModalOpen(true)}
+                                        onTitleChange={(name) => handleSectionNameChange('whiteboards', name)}
+                                        setShareModalWhiteboard={setShareModalWhiteboard}
+                                    />
                                 );
                             case 'communityPosts':
                                 return (
@@ -939,51 +774,27 @@ const Dashboard: React.FC = () => {
                                     </React.Fragment>
                                 );
                             case 'portfolios':
-                                return (
-                                    <DashboardPreviewSection
+                                return isDesktop && (
+                                    <PortfoliosSection
                                         key={sectionId}
-                                        title={sectionNames.portfolios}
-                                        items={portfolios}
                                         viewMode={viewMode}
+                                        sectionName={sectionNames.portfolios}
                                         onLongPress={() => setIsReorderModalOpen(true)}
-                                        onViewAll={() => navigate('/portfolio')}
                                         onTitleChange={(name) => handleSectionNameChange('portfolios', name)}
-                                        emptyMessage="No portfolios created yet."
-                                        renderItem={(portfolio) => (
-                                            <PortfolioCard
-                                                key={portfolio.id}
-                                                portfolio={portfolio}
-                                                onDelete={deletePortfolio}
-                                                onDuplicate={handleDuplicatePortfolio}
-                                                onUpdate={updatePortfolio}
-                                                onShare={(p) => setShareModalPortfolio(p)}
-                                                onDragStart={(e) => e.preventDefault()}
-                                            />
-                                        )}
+                                        setShareModalPortfolio={setShareModalPortfolio}
+                                        handleDuplicatePortfolio={handleDuplicatePortfolio}
                                     />
                                 );
                             case 'jobTracker':
-                                return (
-                                    <div key={sectionId} className="mb-10">
-                                        <DraggableSectionHeader
-                                            title={sectionNames.jobTracker}
-                                            viewMode={viewMode}
-                                            onLongPress={() => setIsReorderModalOpen(true)}
-                                            onViewAll={() => navigate('/job-tracker')}
-                                            hasItems={jobApplications.length > 0}
-                                            onTitleChange={(name) => handleSectionNameChange('jobTracker', name)}
-                                        />
-
-                                        <div className="mb-6">
-                                            <StatusOverview applications={jobApplications} />
-                                        </div>
-
-                                        <KanbanBoard
-                                            applications={jobApplications}
-                                            onCardClick={(job) => setSelectedJobApplication(job)}
-                                            onUpdateApplication={updateJobApplication}
-                                        />
-                                    </div>
+                                return isDesktop && (
+                                    <JobTrackerSection
+                                        key={sectionId}
+                                        viewMode={viewMode}
+                                        sectionName={sectionNames.jobTracker}
+                                        onLongPress={() => setIsReorderModalOpen(true)}
+                                        onTitleChange={(name) => handleSectionNameChange('jobTracker', name)}
+                                        setSelectedJobApplication={setSelectedJobApplication}
+                                    />
                                 );
                             default:
                                 return null;
