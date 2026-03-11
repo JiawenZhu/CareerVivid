@@ -77,6 +77,17 @@ async function publishSingleFile(
 ): Promise<{ success: boolean; url?: string; postId?: string; title?: string }> {
     const dryRun = !!opts.dryRun;
 
+    // ── Parse Frontmatter ───────────────────────────────────────────
+    let postId: string | undefined = undefined;
+    let cleanContent = content;
+
+    const frontmatterMatch = content.match(/^---\s*\n([\s\S]*?)\n---\s*\n/);
+    if (frontmatterMatch) {
+        const fm = frontmatterMatch[1];
+        postId = fm.match(/postId:\s*(\S+)/)?.[1];
+        cleanContent = content.slice(frontmatterMatch[0].length);
+    }
+
     const format: DataFormat =
         (opts.format as DataFormat) ||
         (filePath !== "stdin" ? inferFormat(filePath) : "markdown");
@@ -85,7 +96,7 @@ async function publishSingleFile(
 
     let title: string = opts.title || "";
     if (!title && format === "markdown") {
-        const firstHeading = content.match(/^#\s+(.+)$/m);
+        const firstHeading = cleanContent.match(/^#\s+(.+)$/m);
         if (firstHeading) {
             title = firstHeading[1].trim();
         }
@@ -115,21 +126,42 @@ async function publishSingleFile(
         type,
         dataFormat: format,
         title,
-        content,
+        content: cleanContent,
         tags,
         ...(opts.cover ? { coverImage: opts.cover } : {}),
         ...(opts.official ? { isOfficialPost: true } : {}),
     };
 
-    const result = await publishPost(payload, dryRun);
+    let result;
+    if (postId && !dryRun) {
+        const { updatePost } = await import("../api.js");
+        result = await updatePost(postId, payload);
+    } else {
+        result = await publishPost(payload, dryRun);
+    }
 
     if (isApiError(result)) {
         if (jsonMode) {
             handleApiError(result, true);
         } else {
-            console.error(chalk.red(`\n  ✖  Failed to publish ${filePath}: ${result.message}`));
+            console.error(chalk.red(`\n  ✖  Failed to ${postId ? "update" : "publish"} ${filePath}: ${result.message}`));
         }
         return { success: false };
+    }
+
+    // ── Write back postId if it's new ────────────────────────────────
+    if (!postId && !dryRun && filePath !== "stdin" && result.postId) {
+        const newFm = `---\npostId: ${result.postId}\n---\n\n`;
+        const updatedFileContent = newFm + content;
+        try {
+            const { writeFileSync } = await import("fs");
+            writeFileSync(filePath, updatedFileContent, "utf-8");
+        } catch (err) {
+            // Non-fatal error
+            if (!jsonMode) {
+                console.warn(chalk.yellow(`  ⚠  Could not write postId to ${filePath}`));
+            }
+        }
     }
 
     return {

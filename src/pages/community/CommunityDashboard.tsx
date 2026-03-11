@@ -1,7 +1,7 @@
 import React, { lazy, Suspense, useEffect, useState, useCallback } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { navigate } from '../../utils/navigation';
-import { useCommunity, CommunityPostType, CommunitySortMode } from '../../hooks/useCommunity';
+import { useCommunity, useCommunityFeed, CommunityPostType, CommunitySortMode } from '../../hooks/useCommunity';
 import { usePopularTags, useHiringCompanies } from '../../hooks/useCommunityMeta';
 import {
     Home, TrendingUp, Briefcase, FileText,
@@ -102,9 +102,10 @@ const CommunityDashboard: React.FC = () => {
         return () => window.removeEventListener('popstate', readParams);
     }, []);
 
-    const { posts, loading, isFetchingNextPage, hasMore, error, fetchMorePosts } = useCommunity({
+    const { posts, loading, isFetchingNextPage, hasMore, error, fetchMorePosts } = useCommunityFeed({
         typeFilter,
     });
+    const { userProfile } = useCommunity();
     const { tags: popularTags, loading: tagsLoading } = usePopularTags();
     const { companies, loading: companiesLoading } = useHiringCompanies();
     const { currentUser } = useAuth();
@@ -357,6 +358,29 @@ const CommunityDashboard: React.FC = () => {
                         </div>
                     </div>
                 </header>
+
+                {/* Mobile Filter Tabs (High Visibility) */}
+                <div className="md:hidden flex overflow-x-auto scrollbar-hide py-3 px-4 gap-2 mb-4 bg-white/50 dark:bg-gray-950/50 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800 sticky top-14 z-10 w-[calc(100%+2rem)] -mx-4">
+                    {[
+                        { type: undefined, icon: <Home size={16} />, label: t('community.sidebar.all_posts', 'All') },
+                        { type: 'article', icon: <StickyNote size={16} />, label: t('community.sidebar.articles', 'Articles') },
+                        { type: 'whiteboard', icon: <PenTool size={16} />, label: t('community.sidebar.whiteboards', 'Diagrams') },
+                        { type: 'resume', icon: <FileText size={16} />, label: t('community.sidebar.resumes', 'Resumes') },
+                        { type: 'portfolio', icon: <Globe size={16} />, label: t('community.sidebar.portfolios', 'Portfolios') },
+                    ].map(item => (
+                        <button
+                            key={item.label}
+                            onClick={() => setTypeFilter(item.type as CommunityPostType | undefined)}
+                            className={`shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold transition-all
+                                ${typeFilter === item.type
+                                    ? 'bg-primary-600 text-white shadow-md shadow-primary-500/20'
+                                    : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-800'}`}
+                        >
+                            {item.icon}
+                            {item.label}
+                        </button>
+                    ))}
+                </div>
 
                 <div className="flex flex-col lg:flex-row gap-8 items-start">
 

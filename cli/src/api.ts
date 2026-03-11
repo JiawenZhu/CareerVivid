@@ -131,6 +131,13 @@ export async function publishPost(
     return apiRequest<PublishResult>("POST", "publish", payload);
 }
 
+export async function updatePost(
+    postId: string,
+    payload: Partial<PublishPayload>
+): Promise<PublishResult | ApiError> {
+    return apiRequest<PublishResult>("PATCH", "publish", { ...payload, postId });
+}
+
 /**
  * Verify an API key against the /verifyAuth endpoint.
  * Optionally accepts a specific key (for set-key validation).

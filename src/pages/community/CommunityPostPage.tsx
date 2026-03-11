@@ -3,21 +3,243 @@ import { doc, onSnapshot, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { navigate } from '../../utils/navigation';
 import { formatDistanceToNow } from 'date-fns';
+import { enUS, es, fr, de, zhCN } from 'date-fns/locale';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Helmet } from 'react-helmet-async';
-import { ArrowLeft, Heart, MessageSquare, BookOpen, Loader2, Send, Linkedin, Edit, Trash2, MoreVertical, X, Check } from 'lucide-react';
+import { ArrowLeft, Heart, MessageSquare, BookOpen, Loader2, Send, Linkedin, Edit, Trash2, MoreVertical, X, Check, PenTool, Globe, FileText, ExternalLink, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { CommunityPost, useCommunity } from '../../hooks/useCommunity';
+import { CommunityPost, useCommunity, useCommunityFeed } from '../../hooks/useCommunity';
 import CommentSection from '../../components/Community/CommentSection';
 import { generateGEOStructuredData } from '../../utils/geoUtils';
 import UserProfileSnippet from '../../components/Community/UserProfileSnippet';
+import mermaid from 'mermaid';
+import ResumePreview from '../../components/ResumePreview';
+import { TEMPLATES } from '../../features/portfolio/templates';
+import LinkTreeVisual from '../../features/portfolio/templates/linkinbio/LinkTreeVisual';
+import { getTheme } from '../../features/portfolio/styles/themes';
+
+const localeMap: Record<string, any> = {
+    en: enUS,
+    es,
+    fr,
+    de,
+    zh: zhCN,
+};
 
 // ── Mermaid Diagram Renderer ──────────────────────────────────────────────────
-// ... (previous MermaidDiagram implementation matches)
+const MermaidDiagram: React.FC<{ chart: string }> = ({ chart }) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [svg, setSvg] = useState<string>('');
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const renderChart = async () => {
+            if (!containerRef.current || !chart) return;
+
+            try {
+                mermaid.initialize({
+                    startOnLoad: false,
+                    theme: 'dark',
+                    securityLevel: 'loose',
+                    fontFamily: 'Inter, sans-serif'
+                });
+
+                const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+                const { svg } = await mermaid.render(id, chart);
+                setSvg(svg);
+                setError(null);
+            } catch (err) {
+                console.error('Mermaid render error:', err);
+                setError('Could not render diagram');
+            }
+        };
+
+        renderChart();
+    }, [chart]);
+
+    if (error) {
+        return (
+            <div className="p-8 bg-rose-50 dark:bg-rose-950/20 rounded-2xl border border-rose-200 dark:border-rose-800 text-center">
+                <AlertTriangle className="mx-auto text-rose-500 mb-2" />
+                <p className="text-sm font-medium text-rose-600 dark:text-rose-400">{error}</p>
+                <pre className="mt-4 p-4 bg-black/10 rounded text-xs text-left overflow-auto max-h-40 font-mono text-gray-500">
+                    {chart}
+                </pre>
+            </div>
+        );
+    }
+
+    return (
+        <div 
+            ref={containerRef} 
+            className="w-full overflow-x-auto flex justify-center py-8 bg-gray-50 dark:bg-gray-900/50 rounded-3xl border border-gray-100 dark:border-gray-800"
+            dangerouslySetInnerHTML={{ __html: svg }} 
+        />
+    );
+};
+
+// ── Asset Preview Components ───────────────────────────────────────────
+const ResumePostView: React.FC<{ data: any, scale: number }> = ({ data, scale }) => {
+    return (
+        <div className="w-full flex justify-center py-10 bg-gray-50 dark:bg-gray-950 rounded-3xl border border-gray-100 dark:border-gray-800 overflow-hidden relative">
+            <div
+                style={{
+                    width: '824px',
+                    height: '1165px',
+                    transform: `scale(${scale})`,
+                    transformOrigin: 'top center',
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+                }}
+            >
+                <ResumePreview resume={data} template={data.templateId} />
+            </div>
+        </div>
+    );
+};
+
+const PortfolioPostView: React.FC<{ data: any, scale: number }> = ({ data, scale }) => {
+    const isBioLink = data.mode === 'linkinbio';
+    const originalWidth = isBioLink ? 430 : 1200;
+    const originalHeight = isBioLink ? 932 : 800;
+    
+    const CurrentTemplate = TEMPLATES[data.templateId as keyof typeof TEMPLATES] || TEMPLATES.minimalist;
+    const bioLinkTheme = isBioLink && data.linkInBio?.themeId ? getTheme(data.linkInBio.themeId) : undefined;
+
+    return (
+        <div className="w-full flex justify-center py-10 bg-gray-50 dark:bg-gray-950 rounded-3xl border border-gray-100 dark:border-gray-800 overflow-hidden relative">
+            <div
+                style={{
+                    width: `${originalWidth}px`,
+                    height: `${originalHeight}px`,
+                    transform: `scale(${scale})`,
+                    transformOrigin: 'top center',
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+                }}
+            >
+                {isBioLink && data.linkInBio && bioLinkTheme ? (
+                    <LinkTreeVisual data={data} />
+                ) : (
+                    <CurrentTemplate data={data} />
+                )}
+            </div>
+        </div>
+    );
+};
+
+// ── Post Content Renderer ────────────────────────────────────────────
+const PostContent: React.FC<{ post: any }> = ({ post }) => {
+    const [scale, setScale] = useState(0.8);
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const calculateScale = () => {
+            if (containerRef.current) {
+                const containerWidth = containerRef.current.offsetWidth;
+                let baseWidth = 824; 
+                if (post.type === 'portfolio' && post.portfolioData) {
+                    baseWidth = post.portfolioData.mode === 'linkinbio' ? 430 : 1200;
+                }
+                const padding = window.innerWidth < 768 ? 32 : 80;
+                const availableWidth = containerWidth - padding;
+                if (availableWidth < baseWidth) {
+                    setScale(availableWidth / baseWidth);
+                } else {
+                    setScale(post.type === 'portfolio' && post.portfolioData?.mode !== 'linkinbio' ? 0.7 : 0.9);
+                }
+            }
+        };
+        calculateScale();
+        window.addEventListener('resize', calculateScale);
+        return () => window.removeEventListener('resize', calculateScale);
+    }, [post.type, post.portfolioData]);
+
+    if (post.type === 'whiteboard') {
+        if (post.dataFormat === 'mermaid') {
+            return <MermaidDiagram chart={post.content} />;
+        }
+        const whiteboard = post.whiteboardData;
+        const svgContent = whiteboard?.thumbnailSvg || post.assetThumbnail;
+        if (svgContent?.startsWith('<svg')) {
+            return (
+                <div className="w-full bg-white dark:bg-gray-950 rounded-3xl border border-gray-100 dark:border-gray-800 p-4 md:p-8 flex items-center justify-center overflow-auto shadow-sm">
+                    <div 
+                        className="[&_svg]:max-w-full [&_svg]:h-auto flex items-center justify-center"
+                        dangerouslySetInnerHTML={{ __html: svgContent }} 
+                    />
+                </div>
+            );
+        }
+    }
+
+    if (post.type === 'resume' && post.resumeData) {
+        return (
+            <div ref={containerRef} className="w-full">
+                <ResumePostView data={post.resumeData} scale={scale} />
+            </div>
+        );
+    }
+    if (post.type === 'portfolio' && post.portfolioData) {
+        return (
+            <div ref={containerRef} className="w-full">
+                <PortfolioPostView data={post.portfolioData} scale={scale} />
+            </div>
+        );
+    }
+
+    return (
+        <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-a:text-primary-600 prose-img:rounded-3xl prose-pre:bg-gray-900 prose-pre:rounded-2xl prose-pre:p-0 prose-pre:border-0">
+            <ReactMarkdown 
+                remarkPlugins={[remarkGfm, remarkBreaks]}
+                components={{
+                    code({ node, inline, className, children, ...props }: any) {
+                        const match = /language-(\w+)/.exec(className || '');
+                        const language = match ? match[1] : '';
+                        const content = String(children).replace(/\n$/, '');
+
+                        if (!inline && language === 'mermaid') {
+                            return (
+                                <div className="my-8">
+                                    <MermaidDiagram chart={content} />
+                                </div>
+                            );
+                        }
+
+                        if (!inline && language) {
+                            return (
+                                <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 my-6 shadow-sm">
+                                    <SyntaxHighlighter
+                                        style={vscDarkPlus}
+                                        language={language}
+                                        PreTag="div"
+                                        className="!m-0 !p-6"
+                                        {...props}
+                                    >
+                                        {content}
+                                    </SyntaxHighlighter>
+                                </div>
+                            );
+                        }
+
+                        return (
+                            <code 
+                                className={`${className} bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded-md text-sm font-mono`} 
+                                {...props}
+                            >
+                                {children}
+                            </code>
+                        );
+                    }
+                }}
+            >
+                {post.content}
+            </ReactMarkdown>
+        </div>
+    );
+};
 
 const COLLECTION = 'community_posts';
 
@@ -27,6 +249,7 @@ const CommunityPostPage: React.FC = () => {
 
     const { currentUser } = useAuth();
     const { toggleLike } = useCommunity();
+    const { posts: allPosts } = useCommunityFeed();
 
     const [post, setPost] = useState<CommunityPost | null>(null);
     const [loading, setLoading] = useState(true);
@@ -189,8 +412,10 @@ const CommunityPostPage: React.FC = () => {
                     </div>
                 )}
 
-                {/* Body */}
-                {/* ... (Mermaid/Markdown body rendering same as before) ... */}
+                {/* Content */}
+                <div className="mb-12 md:mb-16">
+                    <PostContent post={post} />
+                </div>
 
                 {/* Like / action buttons */}
                 <div className="flex items-center gap-3 pt-6 border-t border-gray-100 dark:border-gray-800 mb-12 flex-wrap">

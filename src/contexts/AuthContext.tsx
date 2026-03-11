@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { onAuthStateChanged, User, signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { doc, getDoc, onSnapshot, updateDoc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -262,7 +262,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const value = {
+  const value = useMemo(() => ({
     currentUser,
     userProfile,
     loading,
@@ -274,7 +274,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     refreshAIUsage,
     logOut,
     updateUserProfile,
-  };
+  }), [
+    currentUser,
+    userProfile,
+    loading,
+    isAdmin,
+    isAdminLoading,
+    isEmailVerified,
+    isPremium,
+    aiUsage,
+    refreshAIUsage,
+    logOut,
+    updateUserProfile
+  ]);
 
   return (
     <AuthContext.Provider value={value}>

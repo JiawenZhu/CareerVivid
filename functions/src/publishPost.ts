@@ -74,10 +74,12 @@ export const publishPost = onRequest(
                 return;
             }
 
-            if (req.method !== "POST") {
-                res.status(405).json({ error: "Method Not Allowed. Use POST." });
+            if (req.method !== "POST" && req.method !== "PATCH") {
+                res.status(405).json({ error: "Method Not Allowed. Use POST or PATCH." });
                 return;
             }
+
+            const isUpdate = req.method === "PATCH";
 
             // ── Authenticate ───────────────────────────────────────────────
             const authResult = await resolveAuth(req);
@@ -105,6 +107,25 @@ export const publishPost = onRequest(
                     },
                 });
                 return;
+            }
+
+            // ── Update Mode Validation ──────────────────────────────────────
+            let existingDoc: admin.firestore.DocumentSnapshot | null = null;
+            if (isUpdate) {
+                if (!body.postId) {
+                    res.status(400).json({ error: "postId is required for updates (PATCH)." });
+                    return;
+                }
+                existingDoc = await db.collection("community_posts").doc(body.postId).get();
+                if (!existingDoc.exists) {
+                    res.status(404).json({ error: `Post with ID ${body.postId} not found.` });
+                    return;
+                }
+                // Ownership check
+                if (existingDoc.data()?.authorId !== authResult.uid) {
+                    res.status(403).json({ error: "Forbidden. You can only update your own posts." });
+                    return;
+                }
             }
 
             // ── Validate Mermaid Syntax ────────────────────────────────────
@@ -174,9 +195,6 @@ export const publishPost = onRequest(
                 authorEmail: profile.email,
                 isOfficialPost: isOfficialPost && profile.isAdmin,
                 isPublic: true,
-                metrics: { likes: 0, comments: 0, views: 0 },
-                source: "api",
-                createdAt: now,
                 updatedAt: now,
             };
 
@@ -184,14 +202,28 @@ export const publishPost = onRequest(
             if (body.coverImage) postData.coverImage = body.coverImage;
             if (body.assetId) postData.assetId = body.assetId;
 
-            const docRef = await db.collection("community_posts").add(postData);
+            if (isUpdate && body.postId) {
+                await db.collection("community_posts").doc(body.postId).update(postData);
+                res.status(200).json({
+                    success: true,
+                    postId: body.postId,
+                    url: `https://careervivid.app/community/post/${body.postId}`,
+                    message: "Post updated successfully.",
+                });
+            } else {
+                // New post fields
+                postData.metrics = { likes: 0, comments: 0, views: 0 };
+                postData.source = "api";
+                postData.createdAt = now;
 
-            res.status(201).json({
-                success: true,
-                postId: docRef.id,
-                url: `https://careervivid.app/community/post/${docRef.id}`,
-                message: "Post published successfully. It will appear in the community feed shortly.",
-            });
+                const docRef = await db.collection("community_posts").add(postData);
+                res.status(201).json({
+                    success: true,
+                    postId: docRef.id,
+                    url: `https://careervivid.app/community/post/${docRef.id}`,
+                    message: "Post published successfully.",
+                });
+            }
         });
     }
 );
