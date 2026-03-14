@@ -1,0 +1,114 @@
+# queries.gql
+
+# 🏠 Personalized Feed (Posts from people I follow)
+query getFollowingFeed($limit: Int = 20) @auth(level: USER) {
+  posts(
+    where: {
+      deletedAt: { isNull: true },
+      author: {
+        deletedAt: { isNull: true },
+        follows_on_following: {
+          exist: {
+            followerId: { eq_expr: "auth.uid" }
+          }
+        }
+      }
+    },
+    orderBy: [{ createdAt: DESC }],
+    limit: $limit
+  ) {
+    id
+    title
+    summary
+    coverImageUrl
+    tags
+    createdAt
+    likesCount
+    commentsCount
+    author {
+      id
+      username
+      displayName
+      avatarUrl
+    }
+  }
+}
+
+# 🌍 Global/Discovery Feed
+query getGlobalFeed($limit: Int = 20) @auth(level: PUBLIC) {
+  posts(
+    where: { deletedAt: { isNull: true } },
+    orderBy: [{ createdAt: DESC }],
+    limit: $limit
+  ) {
+    id
+    title
+    summary
+    coverImageUrl
+    tags
+    createdAt
+    likesCount
+    commentsCount
+    author {
+      username
+      displayName
+      avatarUrl
+    }
+  }
+}
+
+# 👤 User Profile (With Follow Stats)
+query getUserProfile($username: String!) @auth(level: PUBLIC) {
+  users(where: { 
+    username: { eq: $username },
+    deletedAt: { isNull: true }
+  }) {
+    id
+    username
+    displayName
+    avatarUrl
+    bio
+    followerCount
+    followingCount
+    postCount
+    isFollowing: follows_on_following(where: { followerId: { eq_expr: "auth.uid" } }) {
+      createdAt
+    }
+  }
+}
+
+# 📝 Post Details (With Comments)
+query getPostDetails($id: UUID!) @auth(level: PUBLIC) {
+  post(id: $id) {
+    id
+    title
+    content
+    coverImageUrl
+    tags
+    createdAt
+    likesCount
+    deletedAt
+    author {
+      username
+      displayName
+      avatarUrl
+      deletedAt
+    }
+    comments: comments_on_post(
+      where: { deletedAt: { isNull: true } },
+      orderBy: [{ createdAt: DESC }]
+    ) {
+      id
+      content
+      createdAt
+      author {
+        username
+        displayName
+        avatarUrl
+      }
+    }
+    isLiked: likes_on_post(where: { userId: { eq_expr: "auth.uid" } }) {
+      createdAt
+    }
+  }
+}

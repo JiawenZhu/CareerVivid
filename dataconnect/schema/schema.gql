@@ -1,0 +1,63 @@
+# schema.gql
+
+# 👤 Users (Mirror of Auth + Social Stats)
+type User @table(key: "id") {
+  id: String!
+  username: String! @unique
+  displayName: String
+  avatarUrl: String
+  bio: String
+  followerCount: Int! @default(value: 0)
+  followingCount: Int! @default(value: 0)
+  postCount: Int! @default(value: 0)
+  deletedAt: Timestamp # Soft Delete Support
+}
+
+# 📝 Posts (Community Blog Content)
+type Post @table(key: "id") {
+  id: UUID! @default(expr: "uuidV4()")
+  authorId: String!
+  author: User! @ref(fields: ["authorId"])
+  title: String!
+  content: String! # Markdown Content
+  summary: String
+  coverImageUrl: String
+  tags: [String]
+  likesCount: Int! @default(value: 0)
+  commentsCount: Int! @default(value: 0)
+  viewsCount: Int! @default(value: 0)
+  createdAt: Timestamp! @default(expr: "request.time")
+  updatedAt: Timestamp! @default(expr: "request.time")
+  deletedAt: Timestamp # Soft Delete Support
+}
+
+# 🤝 Social Graph (Follow Relationship)
+type Follow @table(key: ["followerId", "followingId"]) {
+  followerId: String!
+  followingId: String!
+  follower: User! @ref(fields: ["followerId"])
+  following: User! @ref(fields: ["followingId"])
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
+# ❤️ Likes
+type Like @table(key: ["userId", "postId"]) {
+  userId: String!
+  postId: UUID!
+  user: User! @ref(fields: ["userId"])
+  post: Post! @ref(fields: ["postId"])
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
+# 💬 Comments
+type Comment @table(key: "id") {
+  id: UUID! @default(expr: "uuidV4()")
+  authorId: String!
+  postId: UUID!
+  author: User! @ref(fields: ["authorId"])
+  post: Post! @ref(fields: ["postId"])
+  content: String!
+  createdAt: Timestamp! @default(expr: "request.time")
+  updatedAt: Timestamp! @default(expr: "request.time")
+  deletedAt: Timestamp # Soft Delete Support
+}

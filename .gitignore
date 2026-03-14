@@ -23,12 +23,19 @@ dist-ssr
 *.sln
 .sw?
 
+
 # Firebase
 .firebase/
 functions/lib/
 functions/node_modules/
 functions/firebase-tmp/
 .runtimeconfig.json
+
+# Data Connect
+dataconnect/.dataconnect/
+dataconnect-debug.log
+src/dataconnect-generated/
+src/dataconnect-admin-generated/
 
 # Build
 dist/

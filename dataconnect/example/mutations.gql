@@ -1,0 +1,101 @@
+# mutations.gql
+
+# 👤 Sync User from Auth
+mutation syncUser($id: String!, $username: String!, $displayName: String, $avatarUrl: String) @auth(level: USER) {
+  user_upsert(data: {
+    id: $id,
+    username: $username,
+    displayName: $displayName,
+    avatarUrl: $avatarUrl,
+    deletedAt: null
+  })
+}
+
+# 👤 Sync User from Backend (No user auth required)
+mutation syncUserBackend($id: String!, $username: String!, $displayName: String, $avatarUrl: String, $bio: String) @auth(level: PUBLIC) {
+  user_upsert(data: {
+    id: $id,
+    username: $username,
+    displayName: $displayName,
+    avatarUrl: $avatarUrl,
+    bio: $bio,
+    deletedAt: null
+  })
+}
+
+# 📝 Create a Post
+mutation createPost($title: String!, $content: String!, $summary: String, $coverImageUrl: String, $tags: [String!]) @auth(level: USER) {
+  post_insert(data: {
+    authorId_expr: "auth.uid",
+    title: $title,
+    content: $content,
+    summary: $summary,
+    coverImageUrl: $coverImageUrl,
+    tags: $tags
+  })
+}
+
+# 📝 Update a Post (Content only)
+mutation updatePost($id: UUID!, $title: String, $content: String, $summary: String, $coverImageUrl: String, $tags: [String!]) @auth(level: USER) {
+  post_update(id: $id, data: {
+    title: $title,
+    content: $content,
+    summary: $summary,
+    coverImageUrl: $coverImageUrl,
+    tags: $tags,
+    updatedAt_expr: "request.time"
+  })
+}
+
+# 📝 Soft Delete a Post
+mutation deletePost($id: UUID!) @auth(level: USER) {
+  post_update(id: $id, data: {
+    deletedAt_expr: "request.time"
+  })
+}
+
+# 🤝 Follow/Unfollow
+mutation followUser($followingId: String!) @auth(level: USER) {
+  follow_upsert(data: {
+    followerId_expr: "auth.uid",
+    followingId: $followingId
+  })
+}
+
+mutation unfollowUser($followingId: String!) @auth(level: USER) {
+  follow_delete(key: {
+    followerId_expr: "auth.uid",
+    followingId: $followingId
+  })
+}
+
+# ❤️ Like/Unlike
+mutation likePost($postId: UUID!) @auth(level: USER) {
+  like_upsert(data: {
+    userId_expr: "auth.uid",
+    postId: $postId
+  })
+}
+
+mutation unlikePost($postId: UUID!) @auth(level: USER) {
+  like_delete(key: {
+    userId_expr: "auth.uid",
+    postId: $postId
+  })
+}
+
+# 💬 Comment
+mutation addComment($postId: UUID!, $content: String!) @auth(level: USER) {
+  comment_insert(data: {
+    authorId_expr: "auth.uid",
+    postId: $postId,
+    content: $content
+  })
+}
+
+# 💬 Delete Comment (Soft Delete)
+mutation deleteComment($id: UUID!) @auth(level: USER) {
+  comment_update(id: $id, data: {
+    deletedAt_expr: "request.time"
+  })
+}

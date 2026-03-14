@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase';
-import { collection, query, onSnapshot, doc, updateDoc, deleteDoc, addDoc, serverTimestamp, orderBy, writeBatch } from 'firebase/firestore';
+import { collection, query, onSnapshot, doc, updateDoc, deleteDoc, addDoc, serverTimestamp, orderBy, writeBatch, getDocs } from 'firebase/firestore';
 import { navigate } from '../utils/navigation';
 import { PortfolioData } from '../features/portfolio/types/portfolio';
 
@@ -143,11 +143,10 @@ export const usePortfolios = () => {
         if (!currentUser) return;
         try {
             const portfoliosCol = collection(db, 'users', currentUser.uid, 'portfolios');
+            const snapshot = await getDocs(portfoliosCol);
             const batch = writeBatch(db);
-            const snapshot = await onSnapshot(portfoliosCol, (snap) => {
-                snap.docs.forEach(doc => {
-                    batch.delete(doc.ref);
-                });
+            snapshot.docs.forEach(doc => {
+                batch.delete(doc.ref);
             });
             await batch.commit();
         } catch (error) {

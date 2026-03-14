@@ -13,7 +13,7 @@ import { getHelpHeader } from "../branding.js";
 
 export function registerUpdateCommand(program: Command): void {
     program
-        .command("update")
+        .command("upgrade")
         .description("Upgrade the CareerVivid CLI to the latest version")
         .action(async () => {
             console.log(getHelpHeader());

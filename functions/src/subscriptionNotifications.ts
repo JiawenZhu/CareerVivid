@@ -34,7 +34,7 @@ export const sendSubscriptionNotifications = onSchedule({
     console.log("[SubscriptionNotifications] Starting daily subscription check...");
 
     const stripe = new Stripe(stripeSecretKey.value(), {
-        apiVersion: "2026-01-28.clover",
+        apiVersion: "2026-02-25.clover",
     });
 
     try {

@@ -1,17 +1,8 @@
 import axios from 'axios';
-import * as functions from "firebase-functions";
 
-const getTiktokConfig = () => {
-    try {
-        return functions.config().tiktok || {};
-    } catch {
-        return {};
-    }
-};
-
-const getClientKey = () => getTiktokConfig().client_key || 'PLACEHOLDER_CLIENT_KEY';
-const getClientSecret = () => getTiktokConfig().client_secret || 'PLACEHOLDER_CLIENT_SECRET';
-const getRedirectUri = () => getTiktokConfig().redirect_uri || 'PLACEHOLDER_REDIRECT_URI';
+const getClientKey = () => process.env.TIKTOK_CLIENT_KEY || 'PLACEHOLDER_CLIENT_KEY';
+const getClientSecret = () => process.env.TIKTOK_CLIENT_SECRET || 'PLACEHOLDER_CLIENT_SECRET';
+const getRedirectUri = () => process.env.TIKTOK_REDIRECT_URI || 'PLACEHOLDER_REDIRECT_URI';
 
 export const getAuthUrl = (state: string) => {
     const csrfState = state;

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
 import { BlogPost } from '../types';
-import { collection, query, onSnapshot } from 'firebase/firestore';
+import { collection, query, getDocs, orderBy, limit } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Loader2, Calendar, ArrowRight, AlertCircle, Clock } from 'lucide-react';
 import { navigate } from '../utils/navigation';
@@ -17,43 +17,29 @@ const BlogListPage: React.FC = () => {
 
     useEffect(() => {
         const postsCol = collection(db, 'blog_posts');
-        const q = query(postsCol);
+        // One-time fetch — blog posts don't need real-time updates.
+        // orderBy + limit on the server avoids over-reading.
+        const q = query(postsCol, orderBy('publishedAt', 'desc'), limit(50));
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const postsData = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            } as BlogPost));
-
-            // Robust Client-side sort
-            postsData.sort((a, b) => {
-                // Handle Firestore Timestamp, JS Date, string, or null/undefined
-                const getTime = (date: any) => {
-                    if (!date) return 0;
-                    if (typeof date.toMillis === 'function') return date.toMillis();
-                    if (date instanceof Date) return date.getTime();
-                    return new Date(date).getTime() || 0;
-                };
-
-                const dateA = getTime(a.publishedAt);
-                const dateB = getTime(b.publishedAt);
-                return dateB - dateA;
+        getDocs(q)
+            .then((snapshot) => {
+                const postsData = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                } as BlogPost));
+                setPosts(postsData);
+                setLoading(false);
+                setError(null);
+            })
+            .catch((err) => {
+                console.error("Error fetching posts:", err);
+                if (err.code === 'permission-denied') {
+                    setError("Access denied. Please check Firestore Security Rules to allow public reads on 'blog_posts'.");
+                } else {
+                    setError("Unable to load blog posts. Please check your connection.");
+                }
+                setLoading(false);
             });
-
-            setPosts(postsData);
-            setLoading(false);
-            setError(null);
-        }, (err) => {
-            console.error("Error fetching posts:", err);
-            if (err.code === 'permission-denied') {
-                setError("Access denied. Please check Firestore Security Rules to allow public reads on 'blog_posts'.");
-            } else {
-                setError("Unable to load blog posts. Please check your connection.");
-            }
-            setLoading(false);
-        });
-
-        return () => unsubscribe();
     }, []);
 
     // Ensure 'All' category is always present even if posts are empty, and use Set for unique values

@@ -36,7 +36,7 @@ export * as jobs from "./jobs";
 export { getCompanyJobs } from "./jobs";
 export * from './stripe';
 export * from './stripeConnect';
-export { onUserCreated, onPartnerApplicationUpdated, onApplicationCreated } from "./triggers";
+export { onUserCreated, onPartnerApplicationUpdated, onApplicationCreated, onUserProfileSync } from "./triggers";
 export { onEmailRequestCreated } from "./email";
 export { sendSubscriptionNotifications } from "./subscriptionNotifications";
 export { sendTestEmails } from "./sendTestEmails";
@@ -55,24 +55,12 @@ export { publishPost } from "./publishPost";
 export { verifyAuth } from "./verifyAuth";
 export { initPortfolio, updatePortfolioProjects, updatePortfolioHero, uploadPortfolioAsset, onPortfolioProjectsUpdated } from "./portfolioApi";
 
-const getFunctionConfig = () => {
-  try {
-    return functions.config().careervivid || {};
-  } catch (err) {
-    return {};
-  }
-};
-
-const functionConfig = getFunctionConfig();
-
 const APP_BASE_URL =
   process.env.CAREERVIVID_APP_URL ||
-  functionConfig.app_url ||
   "https://careervivid.app/";
 
 const PDF_PREVIEW_ROUTE =
   process.env.CAREERVIVID_PDF_ROUTE ||
-  functionConfig.pdf_route ||
   "/pdf-preview";
 
 const PDF_PREVIEW_URL = `${APP_BASE_URL}${PDF_PREVIEW_ROUTE}`;

@@ -15,7 +15,8 @@
  *   cv config show                    Print current configuration
  *   cv config set <key> <value>       Update a config value
  *   cv config get <key>               Print a config value
- *   cv update                         Upgrade the CLI to the latest version
+ *   cv upgrade                        Upgrade the CLI to the latest version
+ *   cv update [files...]              Update existing content on CareerVivid
  *   cv --help / cv --version
  */
 

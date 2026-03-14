@@ -8,19 +8,19 @@ import { navigate } from '../utils/navigation';
 import { ArrowRight, CheckCircle2, Wand2, LayoutTemplate, Mic, Globe, Star, Loader2, Github, Users, Building, ChevronDown, Check, Terminal } from 'lucide-react';
 import { PricingComparison } from '../components/Landing/PricingComparison';
 import CommunityShowcaseHero from '../components/Landing/CommunityShowcaseHero';
-import { subscribeToLandingPageSettings, DEFAULT_LANDING_PAGE_SETTINGS } from '../services/systemSettingsService';
+import { getLandingPageSettings, DEFAULT_LANDING_PAGE_SETTINGS } from '../services/systemSettingsService';
 
 const LandingPage: React.FC = () => {
     const { t, ready } = useTranslation();
     const [resumeSuffix, setResumeSuffix] = React.useState(DEFAULT_LANDING_PAGE_SETTINGS.featuredResumeSuffix);
 
     React.useEffect(() => {
-        const unsubscribe = subscribeToLandingPageSettings((settings) => {
+        // One-time fetch — settings rarely change, no real-time listener needed.
+        getLandingPageSettings().then((settings) => {
             if (settings?.featuredResumeSuffix) {
                 setResumeSuffix(settings.featuredResumeSuffix);
             }
         });
-        return () => unsubscribe();
     }, []);
 
     // Show loading state while i18n is initializing

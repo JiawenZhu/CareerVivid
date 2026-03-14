@@ -27,6 +27,7 @@ export interface PublishResult {
     postId: string;
     url: string;
     message: string;
+    title?: string;
 }
 
 export interface VerifyResult {
@@ -47,7 +48,7 @@ export interface ApiError {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const CLI_VERSION = "1.6.0";
+const CLI_VERSION = "1.10.0";
 
 function requireApiKey(): string {
     const key = getApiKey();
@@ -129,6 +130,12 @@ export async function publishPost(
         };
     }
     return apiRequest<PublishResult>("POST", "publish", payload);
+}
+
+export async function getPost(
+    postId: string
+): Promise<PublishResult | ApiError> {
+    return apiRequest<PublishResult>("GET", `publish/${postId}`);
 }
 
 export async function updatePost(

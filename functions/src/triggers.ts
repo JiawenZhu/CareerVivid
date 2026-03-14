@@ -1,5 +1,7 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { getDataConnect } from "firebase-admin/data-connect";
+import { syncUserBackend, connectorConfig } from "./dataconnect-generated";
 import { generateNeoBrutalistEmail } from "./emailTemplates";
 
 /**
@@ -399,7 +401,7 @@ async function analyzeResumeMatchServerSide(resumeText: string, jobDescription: 
     const { GoogleGenerativeAI } = await import('@google/generative-ai');
 
     // Get API key from environment
-    const apiKey = process.env.GEMINI_API_KEY || functions.config().gemini?.api_key;
+    const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
         console.error('[AutoMatch] GEMINI_API_KEY not configured');
@@ -464,3 +466,44 @@ Only return valid JSON, no markdown or extra text.`;
         };
     }
 }
+
+/**
+ * Trigger: On User Profile Updated (Firestore)
+ * Syncs user profile changes to Cloud SQL (Postgres) via Data Connect.
+ */
+export const onUserProfileSync = functions.region('us-west1').firestore
+    .document('users/{userId}')
+    .onWrite(async (change, context) => {
+        const userId = context.params.userId;
+        const newData = change.after.exists ? change.after.data() : null;
+
+        if (!newData) {
+            console.log(`User ${userId} deleted. Skipping SQL sync for now (soft delete suggested).`);
+            return null;
+        }
+
+        // Logic to extract username from email if not present
+        const username = newData.username || newData.email?.split('@')[0] || `user_${userId.substring(0, 5)}`;
+
+        try {
+            console.log(`[Sync] Syncing user ${userId} (@${username}) to Postgres...`);
+            
+            // Initialize Data Connect (Admin)
+            const dc = getDataConnect(connectorConfig);
+            
+            // Execute the administrative sync mutation
+            await syncUserBackend(dc, {
+                id: userId,
+                username: username,
+                displayName: newData.displayName || null,
+                avatarUrl: newData.photoURL || newData.avatarUrl || null,
+                bio: newData.bio || null
+            });
+
+            console.log(`[Sync] ✅ Successfully synced user ${userId} to Postgres.`);
+        } catch (error) {
+            console.error(`[Sync] ❌ Failed to sync user ${userId} to Postgres:`, error);
+        }
+
+        return null;
+    });
