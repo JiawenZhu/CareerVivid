@@ -6,6 +6,7 @@ import ResumePreview from '../components/ResumePreview';
 import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
 import AdvancedAnnotationCanvas from '../components/AdvancedAnnotationCanvas';
+import { PdfPageEditor } from '../components/PdfPageEditor';
 import { AnnotationObject, getLatestAnnotation } from '../services/annotationService';
 import { useAuth } from '../contexts/AuthContext';
 import Logo from '../components/Logo';
@@ -36,6 +37,7 @@ const PublicResumePage: React.FC = () => {
     const [isPreviewBlurred, setIsPreviewBlurred] = useState(false);
     const [toastMessage, setToastMessage] = useState<string | null>(null);
     const [comments, setComments] = useState<Comment[]>([]);
+    const [pdfToEdit, setPdfToEdit] = useState<{ buffer: Uint8Array; fileName: string } | null>(null);
     const isInitialLoadRef = useRef(true);
 
     const previewContainerRef = useRef<HTMLDivElement>(null);
@@ -357,7 +359,56 @@ const PublicResumePage: React.FC = () => {
         if (!downloadSuccessful) {
             try {
                 const html2canvas = (await import('html2canvas')).default;
-                const canvas = await html2canvas(previewRef.current, { scale: 3, useCORS: true });
+                
+                // Stable Capture: Force a fixed width to prevent layout shifts (e.g. link wrapping)
+                const container = previewRef.current;
+                const originalStyle = container?.getAttribute('style') || '';
+                
+                if (container) {
+                    // Force 800px width which is a safe high-res A4 standard
+                    container.style.width = '800px';
+                    container.style.minWidth = '800px';
+                    container.style.maxWidth = '800px';
+                    // Ensure the container is visible and scaled correctly for capture
+                    container.style.position = 'relative';
+                }
+
+                // Smart Trim: Detect the actual content height instead of full container
+                let actualHeight = container?.scrollHeight || 0;
+                
+                if (container) {
+                    // Find all elements with text or images
+                    const elements = container.querySelectorAll('h1, h2, h3, h4, h5, p, span, li, img');
+                    let maxBottom = 0;
+                    
+                    elements.forEach(el => {
+                        const rect = el.getBoundingClientRect();
+                        const containerRect = container.getBoundingClientRect();
+                        const bottom = rect.bottom - containerRect.top;
+                        if (bottom > maxBottom && (el.textContent?.trim() || el.tagName === 'IMG')) {
+                            maxBottom = bottom;
+                        }
+                    });
+                    
+                    // Add a small buffer (e.g., 20px) to the detected content bottom
+                    if (maxBottom > 0) {
+                        actualHeight = maxBottom + 20;
+                    }
+                }
+
+                const canvas = await html2canvas(container as HTMLElement, { 
+                    scale: 3, 
+                    useCORS: true,
+                    width: 800,
+                    windowWidth: 800,
+                    height: actualHeight > 0 ? actualHeight : undefined,
+                    windowHeight: actualHeight > 0 ? actualHeight : undefined
+                });
+
+                // Restore original styles
+                if (container) {
+                    container.setAttribute('style', originalStyle);
+                }
 
                 const { jsPDF } = await import('jspdf');
                 const imgData = canvas.toDataURL('image/png');
@@ -367,7 +418,14 @@ const PublicResumePage: React.FC = () => {
                 const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
                 pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
-                pdf.save(`${resume.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+                
+                // Instead of direct save, we now pass to the editor for post-processing
+                const pdfBuffer = pdf.output('arraybuffer');
+                setPdfToEdit({ 
+                    buffer: new Uint8Array(pdfBuffer), 
+                    fileName: `${resume.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf` 
+                });
+                
                 downloadSuccessful = true;
             } catch (err) {
                 console.error("Download failed:", err);
@@ -556,6 +614,15 @@ const PublicResumePage: React.FC = () => {
                     resumeId={routeParams.resumeId}
                     ownerId={routeParams.userId}
                     currentUser={currentUser}
+                />
+            )}
+
+            {/* PDF Editor Modal */}
+            {pdfToEdit && (
+                <PdfPageEditor
+                    initialBuffer={pdfToEdit.buffer}
+                    fileName={pdfToEdit.fileName}
+                    onClose={() => setPdfToEdit(null)}
                 />
             )}
 

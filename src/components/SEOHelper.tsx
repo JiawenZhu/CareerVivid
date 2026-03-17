@@ -11,6 +11,7 @@ export interface SEOProps {
     schemaType?: 'WebSite' | 'ProfilePage' | 'TechArticle' | 'SoftwareApplication';
     schemaData?: any;
     techStack?: string[]; // Used for ProfilePage knowsAbout
+    isRobotsAllowed?: boolean; // Control whether the page should be indexed
 }
 
 /**
@@ -25,9 +26,37 @@ const SEOHelper: React.FC<SEOProps> = ({
     url,
     schemaType = 'WebSite',
     schemaData,
-    techStack = []
+    techStack = [],
+    isRobotsAllowed = true
 }) => {
-    const currentUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
+    // Normalization helper to prevent duplicate content issues
+    const normalizeCanonicalUrl = (rawUrl: string): string => {
+        try {
+            const urlObj = new URL(rawUrl);
+            // Enforce primary domain and HTTPS
+            urlObj.protocol = 'https:';
+            urlObj.hostname = 'careervivid.app';
+            // Remove query parameters
+            urlObj.search = '';
+            // Remove trailing slash
+            let pathname = urlObj.pathname;
+            if (pathname !== '/' && pathname.endsWith('/')) {
+                pathname = pathname.slice(0, -1);
+            }
+            return `https://${urlObj.hostname}${pathname}`;
+        } catch {
+            // Fallback for relative paths or invalid URLs
+            let path = rawUrl.split('?')[0].split('#')[0];
+            if (path !== '/' && path.endsWith('/')) {
+                path = path.slice(0, -1);
+            }
+            if (!path.startsWith('/')) path = '/' + path;
+            return `https://careervivid.app${path}`;
+        }
+    };
+
+    const rawUrl = url || (typeof window !== 'undefined' ? window.location.href : 'https://careervivid.app/');
+    const canonicalUrl = normalizeCanonicalUrl(rawUrl);
 
     // Fallbacks
     const defaultImage = 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Fog_image.png?alt=media';
@@ -44,7 +73,7 @@ const SEOHelper: React.FC<SEOProps> = ({
         structuredData["@type"] = schemaType;
         if (title) structuredData["name"] = title;
         if (description) structuredData["description"] = description;
-        structuredData["url"] = currentUrl;
+        structuredData["url"] = canonicalUrl;
         if (finalImage) structuredData["image"] = finalImage;
 
         if (schemaType === 'ProfilePage') {
@@ -80,11 +109,13 @@ const SEOHelper: React.FC<SEOProps> = ({
 
                 {keywords && <meta name="keywords" content={keywords} />}
 
-                <link rel="canonical" href={currentUrl} />
-                <meta property="og:url" content={currentUrl} />
+                <link rel="canonical" href={canonicalUrl} />
+                <meta property="og:url" content={canonicalUrl} />
                 <meta property="og:image" content={finalImage} />
                 <meta name="twitter:image" content={finalImage} />
                 <meta name="twitter:card" content="summary_large_image" />
+
+                {!isRobotsAllowed && <meta name="robots" content="noindex, nofollow" />}
 
                 <script type="application/ld+json">
                     {JSON.stringify(structuredData)}

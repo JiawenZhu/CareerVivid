@@ -339,20 +339,29 @@ export const renderSeoContent = onRequest(
         const ua = (req.headers["user-agent"] || "").toString();
         const path = req.path || "/";
         const parts = path.replace(/^\//, "").split("/");
-        const routeType = parts[0]; // e.g. "community", "shared", "portfolio", "whiteboard"
+        
+        let language = "en";
+        let routeParts = parts;
+
+        // Check for language prefix (e.g., /zh/community/...)
+        const SUPPORTED_LANGS = ["es", "fr", "de", "zh", "ja", "ko"];
+        if (SUPPORTED_LANGS.includes(parts[0])) {
+            language = parts[0];
+            routeParts = parts.slice(1);
+        }
+
+        const routeType = routeParts[0]; // e.g. "community", "shared", "portfolio", "whiteboard"
 
         // ── Human traffic: serve the SPA's index.html directly ───────────
-        // IMPORTANT: Do NOT redirect — the rewrite would re-trigger this
-        // function, causing an infinite redirect loop.
         if (!isbot(ua)) {
             try {
                 const indexHtml = await getIndexHtml();
+                // Inject language to html tag if needed, but SPA usually handles this
                 res.set("Cache-Control", "public, max-age=300, s-maxage=600");
                 res.status(200).type("html").send(indexHtml);
             } catch {
-                // Fallback: minimal SPA shell if index.html fetch fails
                 res.status(200).type("html").send(
-                    `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>CareerVivid</title><script type="module" src="/assets/main.js"></script></head><body><div id="root"></div></body></html>`
+                    `<!DOCTYPE html><html lang="${language}"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>CareerVivid</title><script type="module" src="/assets/main.js"></script></head><body><div id="root"></div></body></html>`
                 );
             }
             return;
@@ -362,34 +371,25 @@ export const renderSeoContent = onRequest(
         try {
             let html: string;
 
-            if (routeType === "community" && parts[1] === "post" && parts[2]) {
-                // /community/post/:postId
-                html = await handleArticle(parts[2]);
-
-            } else if (routeType === "community" && !parts[1]) {
-                // /community  (root feed for bots — article discovery list)
-                // Cache aggressively: bots hit this a lot, and content changes gradually.
-                res.set("Cache-Control", "public, max-age=600, s-maxage=3600");
+            if (routeType === "community" && routeParts[1] === "post" && routeParts[2]) {
+                html = await handleArticle(routeParts[2]);
+            } else if (routeType === "community" && !routeParts[1]) {
                 html = await handleCommunityFeed();
-
-            } else if (routeType === "shared" && parts[1] && parts[2]) {
-                // /shared/:uid/:resumeId
-                html = await handleResume(parts[1], parts[2]);
-
-            } else if (routeType === "portfolio" && parts[1]) {
-                // /portfolio/:uid
-                html = await handlePortfolio(parts[1]);
-
+            } else if (routeType === "shared" && routeParts[1] && routeParts[2]) {
+                html = await handleResume(routeParts[1], routeParts[2]);
+            } else if (routeType === "portfolio" && routeParts[1]) {
+                html = await handlePortfolio(routeParts[1]);
             } else if (routeType === "whiteboard") {
-                // /whiteboard/:id  OR  /whiteboard/:uid/:id
-                html = await handleWhiteboard(parts.slice(1));
-
+                html = await handleWhiteboard(routeParts.slice(1));
             } else {
                 res.status(404).send("Not Found");
                 return;
             }
 
-            // Default cache: 5 min client, 10 min CDN (individual posts/profiles)
+            // Set the correct lang attribute in the generated HTML
+            html = html.replace('<html lang="en">', `<html lang="${language}">`);
+
+            // Default cache: 5 min client, 10 min CDN
             if (!res.getHeader("Cache-Control")) {
                 res.set("Cache-Control", "public, max-age=300, s-maxage=600");
             }

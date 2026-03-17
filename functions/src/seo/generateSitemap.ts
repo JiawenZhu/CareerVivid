@@ -41,6 +41,24 @@ const STATIC_ROUTES = [
     { loc: `${BASE_URL}/community/guidelines`, changefreq: "monthly", priority: "0.5" },
 ];
 
+// Add localized versions for each static route (excluding root which handles 'en' by default)
+const SUPPORTED_LANGUAGE_CODES = ["es", "fr", "de", "zh", "ja", "ko"];
+
+const LOCALIZED_STATIC_ROUTES = SUPPORTED_LANGUAGE_CODES.flatMap(code => {
+    return STATIC_ROUTES.map(route => {
+        const path = route.loc.replace(BASE_URL, "");
+        // If it's the home page, just /lang
+        const loc = path === "" ? `${BASE_URL}/${code}` : `${BASE_URL}/${code}${path}`;
+        return {
+            ...route,
+            loc,
+            priority: (parseFloat(route.priority) * 0.9).toFixed(1) // slightly lower priority for localized versions
+        };
+    });
+});
+
+const ALL_STATIC_ROUTES = [...STATIC_ROUTES, ...LOCALIZED_STATIC_ROUTES];
+
 export const generateSitemap = onRequest(
     {
         region: "us-west1",
@@ -57,7 +75,7 @@ export const generateSitemap = onRequest(
             const urlEntries: string[] = [];
 
             // 1. Static routes
-            for (const route of STATIC_ROUTES) {
+            for (const route of ALL_STATIC_ROUTES) {
                 urlEntries.push(`
   <url>
     <loc>${xmlEsc(route.loc)}</loc>

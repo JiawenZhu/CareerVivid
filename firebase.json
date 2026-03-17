@@ -108,11 +108,33 @@
       },
       {
         "source": "/zh/shared/**",
-        "destination": "/index.html"
+        "function": "renderSeoContent",
+        "region": "us-west1"
       },
       {
         "source": "/es/shared/**",
-        "destination": "/index.html"
+        "function": "renderSeoContent",
+        "region": "us-west1"
+      },
+      {
+        "source": "/zh/community",
+        "function": "renderSeoContent",
+        "region": "us-west1"
+      },
+      {
+        "source": "/zh/community/post/**",
+        "function": "renderSeoContent",
+        "region": "us-west1"
+      },
+      {
+        "source": "/es/community",
+        "function": "renderSeoContent",
+        "region": "us-west1"
+      },
+      {
+        "source": "/es/community/post/**",
+        "function": "renderSeoContent",
+        "region": "us-west1"
       },
       {
         "source": "/zh/demo",

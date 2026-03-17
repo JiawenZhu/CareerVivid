@@ -27,6 +27,12 @@ export default function PWABadge() {
         // Small delay to show animation before reload
         setTimeout(() => {
             updateServiceWorker(true);
+            
+            // Safety fallback: if the page hasn't reloaded in 2 seconds, force reload
+            // This handles cases where controllerchange doesn't fire as expected
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
         }, 300);
     };
 

@@ -82,7 +82,7 @@ export default defineConfig(({ mode }) => {
           ],
           cleanupOutdatedCaches: true,
           clientsClaim: true,
-          skipWaiting: true // Forces SW to activate immediately, we will manually orchestrate reload in UI
+          skipWaiting: false // Forces SW to enter 'waiting' state so prompt works correctly
         }
       })
     ],

@@ -1,32 +1,37 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-const dotenv = require("dotenv");
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import dotenv from "dotenv";
 dotenv.config();
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const apiKey = process.env.GEMINI_API_KEY;
+if (!apiKey) {
+  console.error("GEMINI_API_KEY is not set in .env");
+  process.exit(1);
+}
+
+const genAI = new GoogleGenerativeAI(apiKey);
 
 async function run() {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-    const result = await model.generateContent({
-        contents: [{role: "user", parts: [{text: "A cute banana"}]}],
-        generationConfig: { responseModalities: ["IMAGE"] }
-    });
-    console.log(result.response);
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+    const result = await model.generateContent("Say hello!");
+    console.log("Success for gemini-flash-latest!");
+    console.log("Response:", result.response.text());
   } catch(e) {
-    console.error("Test failed for gemini-2.5-flash:");
+    console.error("Test failed for gemini-flash-latest:");
     console.error(e.message);
   }
 
   try {
-    const model2 = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
-    const result2 = await model2.generateContent({
-        contents: [{role: "user", parts: [{text: "A cute banana"}]}],
-        generationConfig: { responseModalities: ["IMAGE"] }
-    });
-    console.log("Success for gemini-2.0-flash-exp!");
+    const model2 = genAI.getGenerativeModel({ model: "gemini-pro-latest" });
+    const result2 = await model2.generateContent("Say hello!");
+    console.log("Success for gemini-pro-latest!");
+    console.log("Response:", result2.response.text());
   } catch(e) {
-    console.error("Test failed for gemini-2.0-flash-exp:");
+    console.error("Test failed for gemini-pro-latest:");
     console.error(e.message);
   }
 }
 run();
+
+
+

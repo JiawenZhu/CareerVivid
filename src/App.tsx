@@ -239,8 +239,7 @@ const AppContent: React.FC = () => {
                 titleTemplate="%s | CareerVivid"
                 defaultTitle="CareerVivid | The Interactive 'Learning by Doing' Developer Platform"
               />
-              <SEOHelper />
-              {path === '/' && <AuthRedirect target="/dashboard" />}
+                <SEOHelper title="Community Guidelines" description="Rules and best practices for the CareerVivid community." />
               <Suspense fallback={<LoadingFallback />}>
                 {(path === '/' || path === '/community') && <CommunityDashboard />}
                 {path === '/community/guidelines' && <CommunityGuidelinesPage />}
@@ -646,7 +645,9 @@ const AppContent: React.FC = () => {
               titleTemplate="%s | CareerVivid"
               defaultTitle="CareerVivid Community | Build Your Brand & Network"
             />
-            <SEOHelper />
+            <SEOHelper 
+              isRobotsAllowed={!['/dashboard', '/profile', '/billing', '/subscription', '/developer', '/my-posts', '/commerce', '/checkout'].some(p => path.startsWith(p))}
+            />
             <Suspense fallback={<LoadingFallback />}>
               {content}
               {showChatbot && <ChatBot />}
