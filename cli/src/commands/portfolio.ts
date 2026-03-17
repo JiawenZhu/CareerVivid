@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import * as fs from "fs";
+import * as path from "path";
 import * as api from "../api.js";
 import { printSuccess, printError } from "../output.js";
 
@@ -36,14 +37,17 @@ export function registerPortfolioCommand(program: Command) {
         .action(async (file, options) => {
             const isJson = process.argv.includes("--json");
 
-            if (!fs.existsSync(file)) {
-                printError(`File not found: ${file}`, undefined, isJson);
+            const safeFile = path.basename(file);
+            const fullPath = path.join(process.cwd(), safeFile);
+
+            if (!fs.existsSync(fullPath)) {
+                printError(`File not found: ${fullPath}`, undefined, isJson);
                 process.exit(1);
             }
 
             let data;
             try {
-                data = JSON.parse(fs.readFileSync(file, "utf8"));
+                data = JSON.parse(fs.readFileSync(fullPath, "utf8"));
             } catch (err: any) {
                 printError(`Error parsing JSON: ${err.message}`, undefined, isJson);
                 process.exit(1);

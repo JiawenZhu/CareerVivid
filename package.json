@@ -48,7 +48,7 @@
     "framer-motion": "^12.25.0",
     "gsap": "^3.14.2",
     "html2canvas": "^1.4.1",
-    "i18next": "^23.10.0",
+    "i18next": "^24.1.2",
     "i18next-browser-languagedetector": "^7.2.0",
     "i18next-http-backend": "^2.5.0",
     "jspdf": "4.2.1",

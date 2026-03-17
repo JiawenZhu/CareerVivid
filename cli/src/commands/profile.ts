@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import * as fs from "fs";
+import * as path from "path";
 import chalk from "chalk";
 import ora from "ora";
 import boxen from "boxen";
@@ -45,16 +46,21 @@ export function registerProfileCommand(program: Command) {
                 ]
             };
 
-            if (file && fs.existsSync(file)) {
-                try {
-                    resumeData = JSON.parse(fs.readFileSync(file, "utf8"));
-                } catch (err: any) {
-                    printError(`Failed to parse resume file: ${err.message}`, undefined, isJson);
+            let safeFile = "";
+            if (file) {
+                safeFile = path.basename(file);
+                const fullPath = path.join(process.cwd(), safeFile);
+                if (fs.existsSync(fullPath)) {
+                    try {
+                        resumeData = JSON.parse(fs.readFileSync(fullPath, "utf8"));
+                    } catch (err: any) {
+                        printError(`Failed to parse resume file: ${err.message}`, undefined, isJson);
+                        process.exit(1);
+                    }
+                } else {
+                    printError(`File not found: ${fullPath}`, undefined, isJson);
                     process.exit(1);
                 }
-            } else if (file) {
-                printError(`File not found: ${file}`, undefined, isJson);
-                process.exit(1);
             }
 
             const title = `${resumeData.name.replace(/ /g, "_")}_Resume_Export`;

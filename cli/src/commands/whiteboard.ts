@@ -8,8 +8,8 @@
  *   cv whiteboard list-templates           List all available diagram templates
  */
 
-import { existsSync, writeFileSync } from "fs";
-import { resolve } from "path";
+import { existsSync, writeFileSync, readFileSync } from "fs";
+import { resolve, basename, join } from "path";
 import chalk from "chalk";
 import boxen from "boxen";
 import ora from "ora";
@@ -262,7 +262,8 @@ export function registerNewCommand(program: Command | any): void {
                 return;
             }
 
-            const outPath = resolve(process.cwd(), filename);
+            const safeFilename = basename(filename);
+            const outPath = join(process.cwd(), safeFilename);
 
             if (existsSync(outPath)) {
                 printError(`File already exists: ${filename}. Choose a different name or delete it first.`);
@@ -320,11 +321,14 @@ export function registerWhiteboardCommand(program: Command): void {
             const jsonMode = !!opts.json;
             const dryRun = !!opts.dryRun;
 
+            // Sanitize and resolve file path
+            const safeFile = basename(file);
+            const fullPath = join(process.cwd(), safeFile);
+
             // Read file
             let content: string;
             try {
-                const { readFileSync } = await import("fs");
-                content = readFileSync(file, "utf-8");
+                content = readFileSync(fullPath, "utf-8");
             } catch (err: any) {
                 printError(`Cannot read file: ${err.message}`, undefined, jsonMode);
                 process.exit(1);

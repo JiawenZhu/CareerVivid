@@ -5,13 +5,13 @@ import { createPortal } from 'react-dom';
 
 // Token-authenticated Firebase Storage URLs provided by user
 const VIDEO_URLS: Record<string, string> = {
-    en: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Fvideo_assets%2FEN_The_AI_Career_Copilot.mp4?alt=media&token=0da390a7-6de9-45b0-a9a0-a6d00a6766fa',
-    es: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Fvideo_assets%2FSP_CareerVivid__Acelerador_de_IA.mp4?alt=media&token=941bb5cb-827a-4618-b36e-74753afa5807',
-    zh: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Fvideo_assets%2FCH_CareerVivid%EF%BC%9A%E4%BD%A0%E7%9A%84_AI_%E8%81%8C%E4%B8%9A%E5%8A%A0%E9%80%9F%E5%99%A8.mp4?alt=media&token=f1d36e41-8ff8-4779-9187-c5c8bc7a816e',
-    ko: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Fvideo_assets%2FCareerVivid__%E1%84%83%E1%85%A1%E1%86%BC%E1%84%89%E1%85%B5%E1%86%AB%E1%84%8B%E1%85%B4_AI_%E1%84%80%E1%85%B5%E1%84%87%E1%85%A1%E1%86%AB_%E1%84%8F%E1%85%A5%E1%84%85%E1%85%B5%E1%84%8B%E1%85%A5_%E1%84%87%E1%85%A9%E1%84%8C%E1%85%A9_%E1%84%8C%E1%85%A9%E1%84%8C%E1%85%A9%E1%86%BC%E1%84%89%E1%85%A1.mp4?alt=media&token=6f0dab15-2798-4fcc-8883-2094c30f563b',
-    de: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Fvideo_assets%2FCareerVivid__Ihr_KI-Karriere-Copilot.mp4?alt=media&token=d63c45a7-9b36-4829-92a3-9f2e1fc81319',
-    ja: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Fvideo_assets%2FCareerVivid__%E3%81%82%E3%81%AA%E3%81%9F%E3%81%AEAI%E3%82%AD%E3%83%A3%E3%83%AA%E3%82%A2%E3%83%BB%E3%82%B3%E3%83%8F%E3%82%9A%E3%82%A4%E3%83%AD%E3%83%83%E3%83%88.mp4?alt=media&token=bb9fe2ad-a21b-45ca-a4b9-7532eaa9b9eb',
-    fr: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Fvideo_assets%2FCareerVivid___L_IA_pour_la_carrie%CC%80re.mp4?alt=media&token=c7a1b8c5-bfdb-4f8e-97ff-2b9e9cfe984d',
+    en: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Fvideo_assets%2FEN_The_AI_Career_Copilot.mp4?alt=media',
+    es: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Fvideo_assets%2FSP_CareerVivid__Acelerador_de_IA.mp4?alt=media',
+    zh: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Fvideo_assets%2FCH_CareerVivid%EF%BC%9A%E4%BD%A0%E7%9A%84_AI_%E8%81%8C%E4%B8%9A%E5%8A%A0%E9%80%9F%E5%99%A8.mp4?alt=media',
+    ko: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Fvideo_assets%2FCareerVivid__%E1%84%83%E1%85%A1%E1%86%BC%E1%84%89%E1%85%B5%E1%86%AB%E1%84%8B%E1%85%B4_AI_%E1%84%80%E1%85%B5%E1%84%87%E1%85%A1%E1%86%AB_%E1%84%8F%E1%85%A5%E1%84%85%E1%85%B5%E1%84%8B%E1%85%A5_%E1%84%87%E1%85%A9%E1%84%8C%E1%85%A9_%E1%84%8C%E1%85%A9%E1%84%8C%E1%85%A9%E1%86%BC%E1%84%89%E1%85%A1.mp4?alt=media',
+    de: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Fvideo_assets%2FCareerVivid__Ihr_KI-Karriere-Copilot.mp4?alt=media',
+    ja: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Fvideo_assets%2FCareerVivid__%E3%81%82%E3%81%AA%E3%81%9F%E3%81%AEAI%E3%82%AD%E3%83%A3%E3%83%AA%E3%82%A2%E3%83%BB%E3%82%B3%E3%83%8F%E3%82%9A%E3%82%A4%E3%83%AD%E3%83%83%E3%83%88.mp4?alt=media',
+    fr: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Fvideo_assets%2FCareerVivid___L_IA_pour_la_carrie%CC%80re.mp4?alt=media',
 };
 
 const HeroVideo: React.FC = () => {

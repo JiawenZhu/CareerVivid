@@ -249,7 +249,7 @@ const SignUpPage: React.FC = () => {
         }
 
         // Redirect with CLEAN URL (no query params)
-        const clientKey = 'aw1crl350g7yvps2';
+        const clientKey = import.meta.env.VITE_TIKTOK_CLIENT_KEY;
         const redirectUri = `${window.location.origin}/signup`; // Clean base URL
         const scope = 'user.info.basic,user.info.profile,user.info.stats,video.list';
         const url = `https://www.tiktok.com/v2/auth/authorize/?client_key=${clientKey}&response_type=code&scope=${scope}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${csrfState}`;

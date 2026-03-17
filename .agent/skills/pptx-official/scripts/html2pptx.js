@@ -118,12 +118,16 @@ function validateTextBoxPosition(slideData, bodyDimensions) {
 }
 
 // Helper: Add background to slide
-async function addBackground(slideData, targetSlide, tmpDir) {
+async function addBackground(slideData, targetSlide, baseDir) {
   if (slideData.background.type === 'image' && slideData.background.path) {
-    let imagePath = slideData.background.path.startsWith('file://')
-      ? slideData.background.path.replace('file://', '')
-      : slideData.background.path;
-    targetSlide.background = { path: imagePath };
+    let imagePath = slideData.background.path;
+    if (imagePath.startsWith('file://')) {
+      imagePath = path.basename(imagePath.replace('file://', ''));
+    } else {
+      imagePath = path.basename(imagePath);
+    }
+    const fullPath = path.join(baseDir, imagePath);
+    targetSlide.background = { path: fullPath };
   } else if (slideData.background.type === 'color' && slideData.background.value) {
     targetSlide.background = { color: slideData.background.value };
   }
@@ -133,9 +137,15 @@ async function addBackground(slideData, targetSlide, tmpDir) {
 function addElements(slideData, targetSlide, pres) {
   for (const el of slideData.elements) {
     if (el.type === 'image') {
-      let imagePath = el.src.startsWith('file://') ? el.src.replace('file://', '') : el.src;
+      let imagePath = el.src;
+      if (imagePath.startsWith('file://')) {
+        imagePath = path.basename(imagePath.replace('file://', ''));
+      } else {
+        imagePath = path.basename(imagePath);
+      }
+      const fullPath = path.join(baseDir, imagePath);
       targetSlide.addImage({
-        path: imagePath,
+        path: fullPath,
         x: el.position.x,
         y: el.position.y,
         w: el.position.w,

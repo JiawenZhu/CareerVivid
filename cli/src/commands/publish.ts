@@ -11,8 +11,8 @@
  */
 
 import { Command } from "commander";
-import { readFileSync, lstatSync, readdirSync } from "fs";
-import { extname, join } from "path";
+import { readFileSync, lstatSync, readdirSync, writeFileSync } from "fs";
+import { extname, join, basename, resolve } from "path";
 import chalk from "chalk";
 import ora from "ora";
 import type { PublishPayload, DataFormat, PostType } from "../api.js";
@@ -41,7 +41,9 @@ function getFiles(dir: string, recursive: boolean): string[] {
     let results: string[] = [];
     const list = readdirSync(dir);
     for (const file of list) {
-        const path = join(dir, file);
+        // Prevent traversing up
+        if (file === ".." || file === ".") continue;
+        const path = join(dir, basename(file));
         const stat = lstatSync(path);
         if (stat && stat.isDirectory()) {
             if (recursive) {
@@ -223,8 +225,9 @@ async function publishSingleFile(
         const newFm = `---\npostId: ${result.postId}\n---\n\n`;
         const updatedFileContent = newFm + content;
         try {
-            const { writeFileSync } = await import("fs");
-            writeFileSync(filePath, updatedFileContent, "utf-8");
+            // Ensure we are writing back to the safe path
+            const safePath = join(process.cwd(), basename(filePath));
+            writeFileSync(safePath, updatedFileContent, "utf-8");
         } catch (err) {
             // Non-fatal error
             if (!jsonMode) {
@@ -274,11 +277,13 @@ export function registerPublishCommand(program: Command): void {
             } else {
                 for (const arg of files) {
                     try {
-                        const stat = lstatSync(arg);
+                        const safeArg = basename(arg);
+                        const fullPath = join(process.cwd(), safeArg);
+                        const stat = lstatSync(fullPath);
                         if (stat.isDirectory()) {
-                            fileList = fileList.concat(getFiles(arg, !!opts.recursive));
+                            fileList = fileList.concat(getFiles(fullPath, !!opts.recursive));
                         } else {
-                            fileList.push(arg);
+                            fileList.push(fullPath);
                         }
                     } catch (err: any) {
                         printError(`Cannot find path: ${arg}`, undefined, jsonMode);
@@ -357,11 +362,13 @@ export function registerPublishCommand(program: Command): void {
 
             for (const arg of files) {
                 try {
-                    const stat = lstatSync(arg);
+                    const safeArg = basename(arg);
+                    const fullPath = join(process.cwd(), safeArg);
+                    const stat = lstatSync(fullPath);
                     if (stat.isDirectory()) {
-                        fileList = fileList.concat(getFiles(arg, !!opts.recursive));
+                        fileList = fileList.concat(getFiles(fullPath, !!opts.recursive));
                     } else {
-                        fileList.push(arg);
+                        fileList.push(fullPath);
                     }
                 } catch (err: any) {
                     printError(`Cannot find path: ${arg}`, undefined, jsonMode);

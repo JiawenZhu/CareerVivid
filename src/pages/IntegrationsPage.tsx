@@ -100,7 +100,7 @@ const IntegrationsPage: React.FC = () => {
         localStorage.setItem('tiktok_csrf_state', csrfState);
 
         // 2. Construct OAuth URL
-        const clientKey = 'aw1crl350g7yvps2'; // Production Client Key
+        const clientKey = import.meta.env.VITE_TIKTOK_CLIENT_KEY; // Production Client Key
         const redirectUri = `${window.location.origin}/dashboard/integrations`; // Auto-detect current domain
         const scope = 'user.info.basic,user.info.profile,user.info.stats,video.list';
 

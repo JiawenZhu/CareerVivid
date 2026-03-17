@@ -3,6 +3,9 @@ import * as admin from "firebase-admin";
 import { getDataConnect } from "firebase-admin/data-connect";
 import { syncUserBackend, connectorConfig } from "./dataconnect-generated";
 import { generateNeoBrutalistEmail } from "./emailTemplates";
+import { defineSecret } from "firebase-functions/params";
+
+const INITIAL_PARTNER_PASSWORD = defineSecret("INITIAL_PARTNER_PASSWORD");
 
 /**
  * Trigger: On User Created
@@ -123,10 +126,13 @@ export const onUserCreated = functions.region('us-west1').firestore
  * 1. Listen for status change to 'approved'.
  * 2. If 'business' type and approved:
  * 3. Check if user exists.
- * 4. If NEW: Create user (pwd: careervivid123456) + assign role.
+ * 4. If NEW: Create user (pwd: INITIAL_PARTNER_PASSWORD) + assign role.
  * 5. If EXISTING: Update role.
  */
-export const onPartnerApplicationUpdated = functions.region('us-west1').firestore
+export const onPartnerApplicationUpdated = functions
+    .runWith({ secrets: [INITIAL_PARTNER_PASSWORD] })
+    .region('us-west1')
+    .firestore
     .document('partner_applications/{appId}')
     .onUpdate(async (change, context) => {
         const newData = change.after.data();
@@ -156,7 +162,7 @@ export const onPartnerApplicationUpdated = functions.region('us-west1').firestor
                         userRecord = await admin.auth().createUser({
                             email: email,
                             emailVerified: true,
-                            password: 'careervivid123456',
+                            password: INITIAL_PARTNER_PASSWORD.value(),
                             displayName: name,
                             disabled: false
                         });
