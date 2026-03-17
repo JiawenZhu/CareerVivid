@@ -766,7 +766,8 @@ class BaseSchemaValidator:
         """Remove attributes and elements not in allowed namespaces."""
         # Create a clean copy
         xml_string = lxml.etree.tostring(xml_doc, encoding="unicode")
-        xml_copy = lxml.etree.fromstring(xml_string)
+        parser = lxml.etree.XMLParser(resolve_entities=False)
+        xml_copy = lxml.etree.fromstring(xml_string, parser)
 
         # Remove attributes not in allowed namespaces
         for elem in xml_copy.iter():
@@ -918,7 +919,8 @@ class BaseSchemaValidator:
 
         # Create a copy of the document to avoid modifying the original
         xml_string = lxml.etree.tostring(xml_doc, encoding="unicode")
-        xml_copy = lxml.etree.fromstring(xml_string)
+        parser = lxml.etree.XMLParser(resolve_entities=False)
+        xml_copy = lxml.etree.fromstring(xml_string, parser)
 
         def process_text_content(text, content_type):
             if not text:
