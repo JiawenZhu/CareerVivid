@@ -49,7 +49,7 @@
     "i18next": "^23.10.0",
     "i18next-browser-languagedetector": "^7.2.0",
     "i18next-http-backend": "^2.5.0",
-    "jspdf": "^4.0.0",
+    "jspdf": "^4.2.1",
     "lucide-react": "^0.344.0",
     "mammoth": "^1.11.0",
     "mermaid": "^11.12.3",
