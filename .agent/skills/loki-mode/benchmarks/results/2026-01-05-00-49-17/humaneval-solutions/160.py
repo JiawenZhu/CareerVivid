@@ -26,4 +26,47 @@ def do_algebra(operator, operand):
     expression = str(operand[0])
     for i, op in enumerate(operator):
         expression += ' ' + op + ' ' + str(operand[i + 1])
-    return eval(expression)
+    return _safe_eval(operator, operand)
+def _safe_eval(operator, operand):
+    ops = list(operator)
+    nums = [float(x) for x in operand]
+    
+    # Handle ** (Exponentiation)
+    i = 0
+    while i < len(ops):
+        if ops[i] == '**':
+            nums[i] = nums[i] ** nums[i+1]
+            nums.pop(i+1)
+            ops.pop(i)
+        else:
+            i += 1
+            
+    # Handle * (Multiplication) and // (Floor Division)
+    i = 0
+    while i < len(ops):
+        if ops[i] == '*':
+            nums[i] = nums[i] * nums[i+1]
+            nums.pop(i+1)
+            ops.pop(i)
+        elif ops[i] == '//':
+            nums[i] = int(nums[i] // nums[i+1])
+            nums.pop(i+1)
+            ops.pop(i)
+        else:
+            i += 1
+            
+    # Handle + (Addition) and - (Subtraction)
+    i = 0
+    while i < len(ops):
+        if ops[i] == '+':
+            nums[i] = nums[i] + nums[i+1]
+            nums.pop(i+1)
+            ops.pop(i)
+        elif ops[i] == '-':
+            nums[i] = nums[i] - nums[i+1]
+            nums.pop(i+1)
+            ops.pop(i)
+        else:
+            i += 1
+            
+    return int(nums[0])
