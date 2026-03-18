@@ -921,7 +921,11 @@ async function html2pptx(htmlFile, pres, options = {}) {
     let bodyDimensions;
     let slideData;
 
-    const filePath = path.isAbsolute(htmlFile) ? htmlFile : path.join(process.cwd(), htmlFile);
+    const resolvedPath = path.resolve(process.cwd(), htmlFile);
+    if (!resolvedPath.startsWith(process.cwd())) {
+      throw new Error("Invalid file path: Access restricted to current working directory");
+    }
+    const filePath = resolvedPath;
     const validationErrors = [];
 
     try {

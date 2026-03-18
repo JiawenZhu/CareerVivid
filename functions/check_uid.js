@@ -4,7 +4,7 @@ admin.initializeApp();
 const db = admin.firestore();
 
 async function check() {
-  const apiKey = "cv_live_cb6cc3bda448f5864554537218b5734e023df3c47da1b73c0e396caa1dfc0bf4";
+  const apiKey = process.env.CAREERVIVID_API_KEY || "YOUR_API_KEY_HERE";
   const snap = await db.collection("api_keys").where("key", "==", apiKey).get();
   if (snap.empty) {
     console.log("API Key not found!");

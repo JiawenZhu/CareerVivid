@@ -303,7 +303,7 @@ Analyze password reset security:
    - Account binding
 
 # Token manipulation
-https://target.com/reset?token=abc123&user=victim
+https://target.com/reset?token=REDACTED_DUMMY_TOKEN&user=victim
 # Try changing user parameter while using valid token
 
 # Host header injection
@@ -454,7 +454,7 @@ POST /forgot-password
 email=test@example.com
 
 # Step 2: Capture reset link
-https://target.com/reset?token=a1b2c3d4e5f6
+https://target.com/reset?token=REDACTED_DUMMY_TOKEN
 
 # Step 3: Test token properties
 # Reuse: Try using same token twice
@@ -462,7 +462,7 @@ https://target.com/reset?token=a1b2c3d4e5f6
 # Modification: Change characters in token
 
 # Step 4: Test for user parameter manipulation
-https://target.com/reset?token=a1b2c3d4e5f6&email=admin@example.com
+https://target.com/reset?token=REDACTED_DUMMY_TOKEN&email=admin@example.com
 # Check if admin's password can be reset with test user's token
 ```
 

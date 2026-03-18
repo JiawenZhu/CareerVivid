@@ -9,7 +9,7 @@ if (admin.apps.length === 0) {
 }
 
 const db = admin.firestore();
-const apiKey = "cv_live_748476f9c003f9c4877c54df20470116b69b0e37ee1308873bd261ad99d9a061";
+const apiKey = process.env.CAREERVIVID_API_KEY || "YOUR_API_KEY_HERE";
 
 async function run() {
     try {

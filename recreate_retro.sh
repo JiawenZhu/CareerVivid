@@ -1,5 +1,5 @@
 #!/bin/bash
-API_KEY="cv_live_cb6cc3bda448f5864554537218b5734e023df3c47da1b73c0e396caa1dfc0bf4"
+API_KEY="${CAREERVIVID_API_KEY:-YOUR_API_KEY_HERE}"
 API_URL="https://us-west1-jastalk-firebase.cloudfunctions.net"
 
 echo "Initializing new Portfolio..."

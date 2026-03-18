@@ -4,109 +4,109 @@ mutation @transaction {
       {
         id: "550e8400-e29b-41d4-a716-446655440000",
         title: "Quantum Paradox",
-        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fquantum_paradox.jpeg?alt=media&token=4142e2a1-bf43-43b5-b7cf-6616be3fd4e3",
+        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fquantum_paradox.jpeg?alt=media",
         genre: "sci-fi"
       },
       {
         id: "550e8400-e29b-41d4-a716-446655440001",
         title: "The Lone Outlaw",
-        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Flone_outlaw.jpeg?alt=media&token=15525ffc-208f-4b59-b506-ae8348e06e85",
+        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Flone_outlaw.jpeg?alt=media",
         genre: "western"
       },
       {
         id: "550e8400-e29b-41d4-a716-446655440002",
         title: "Celestial Harmony",
-        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fcelestial_harmony.jpeg?alt=media&token=3edf1cf9-c2f5-4c75-9819-36ff6a734c9a",
+        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fcelestial_harmony.jpeg?alt=media",
         genre: "romance"
       },
       {
         id: "550e8400-e29b-41d4-a716-446655440003",
         title: "Noir Mystique",
-        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fnoir_mystique.jpeg?alt=media&token=3299adba-cb98-4302-8b23-aeb679a4f913",
+        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fnoir_mystique.jpeg?alt=media",
         genre: "mystery"
       },
       {
         id: "550e8400-e29b-41d4-a716-446655440004",
         title: "The Forgotten Island",
-        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fforgotten_island.jpeg?alt=media&token=bc2b16e1-caed-4649-952c-73b6113f205c",
+        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fforgotten_island.jpeg?alt=media",
         genre: "adventure"
       },
       {
         id: "550e8400-e29b-41d4-a716-446655440005",
         title: "Digital Nightmare",
-        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fdigital_nightmare.jpeg?alt=media&token=335ec842-1ca4-4b09-abd1-e96d9f5c0c2f",
+        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fdigital_nightmare.jpeg?alt=media",
         genre: "horror"
       },
       {
         id: "550e8400-e29b-41d4-a716-446655440006",
         title: "Eclipse of Destiny",
-        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Feclipse_destiny.jpeg?alt=media&token=346649b3-cb5c-4d7e-b0d4-6f02e3df5959",
+        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Feclipse_destiny.jpeg?alt=media",
         genre: "fantasy"
       },
       {
         id: "550e8400-e29b-41d4-a716-446655440007",
         title: "Heart of Steel",
-        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fheart_steel.jpeg?alt=media&token=17883d71-329b-415a-86f8-dd4d9e941d7f",
+        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fheart_steel.jpeg?alt=media",
         genre: "sci-fi"
       },
       {
         id: "550e8400-e29b-41d4-a716-446655440008",
         title: "Rise of the Crimson Empire",
-        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Frise_crimson_empire.jpeg?alt=media&token=6faa73ad-7504-4146-8f3a-50b90f607f33",
+        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Frise_crimson_empire.jpeg?alt=media",
         genre: "action"
       },
       {
         id: "550e8400-e29b-41d4-a716-446655440009",
         title: "Silent Waves",
-        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fsilent_waves.jpeg?alt=media&token=bd626bf1-ec60-4e57-aa07-87ba14e35bb7",
+        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fsilent_waves.jpeg?alt=media",
         genre: "drama"
       },
       {
         id: "550e8400-e29b-41d4-a716-446655440010",
         title: "Echoes of the Past",
-        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fecho_of_past.jpeg?alt=media&token=d866aa27-8534-4d72-8988-9da4a1b9e452",
+        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fecho_of_past.jpeg?alt=media",
         genre: "historical"
       },
       {
         id: "550e8400-e29b-41d4-a716-446655440011",
         title: "Beyond the Horizon",
-        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fbeyond_horizon.jpeg?alt=media&token=31493973-0692-4e6e-8b88-afb1aaea17ee",
+        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fbeyond_horizon.jpeg?alt=media",
         genre: "sci-fi"
       },
       {
         id: "550e8400-e29b-41d4-a716-446655440012",
         title: "Shadows and Lies",
-        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fshadows_lies.jpeg?alt=media&token=01afb80d-caee-47f8-a00e-aea8b9e459a2",
+        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fshadows_lies.jpeg?alt=media",
         genre: "crime"
       },
       {
         id: "550e8400-e29b-41d4-a716-446655440013",
         title: "The Last Symphony",
-        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Flast_symphony.jpeg?alt=media&token=f9bf80cd-3d8e-4e24-8503-7feb11f4e397",
+        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Flast_symphony.jpeg?alt=media",
         genre: "drama"
       },
       {
         id: "550e8400-e29b-41d4-a716-446655440014",
         title: "Moonlit Crusade",
-        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fmoonlit_crusade.jpeg?alt=media&token=b13241f5-d7d0-4370-b651-07847ad99dc2",
+        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fmoonlit_crusade.jpeg?alt=media",
         genre: "fantasy"
       },
       {
         id: "550e8400-e29b-41d4-a716-446655440015",
         title: "Abyss of the Deep",
-        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fabyss_deep.jpeg?alt=media&token=2417321d-2451-4ec0-9ed6-6297042170e6",
+        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fabyss_deep.jpeg?alt=media",
         genre: "horror"
       },
       {
         id: "550e8400-e29b-41d4-a716-446655440017",
         title: "The Infinite Knot",
-        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Finfinite_knot.jpeg?alt=media&token=93d54d93-d933-4663-a6fe-26b707ef823e",
+        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Finfinite_knot.jpeg?alt=media",
         genre: "romance"
       },
       {
         id: "550e8400-e29b-41d4-a716-446655440019",
         title: "Veil of Illusion",
-        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fveil_illusion.jpeg?alt=media&token=7bf09a3c-c531-478a-9d02-5d99fca9393b",
+        imageUrl: "https://firebasestorage.googleapis.com/v0/b/fdc-web-quickstart.appspot.com/o/movie%2Fveil_illusion.jpeg?alt=media",
         genre: "mystery"
       }
     ]
