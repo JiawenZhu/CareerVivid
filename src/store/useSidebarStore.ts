@@ -41,11 +41,23 @@ export const useSidebarStore = create<SidebarState>((set, get) => ({
     },
     deleteNode: (id) => set((state) => {
         const getAllChildIds = (parentId: string, currentNodes: SidebarNode[]): string[] => {
-            const children = currentNodes.filter(n => n.parent === parentId);
-            let ids = children.map(c => c.id);
-            children.forEach(c => {
-                ids = [...ids, ...getAllChildIds(c.id, currentNodes)];
+            const childrenMap = new Map<string | number, string[]>();
+            currentNodes.forEach(node => {
+                const list = childrenMap.get(node.parent) || [];
+                list.push(node.id);
+                childrenMap.set(node.parent, list);
             });
+
+            const ids: string[] = [];
+            const stack = [parentId];
+            while (stack.length > 0) {
+                const currentId = stack.pop()!;
+                const children = childrenMap.get(currentId) || [];
+                children.forEach(childId => {
+                    ids.push(childId);
+                    stack.push(childId);
+                });
+            }
             return ids;
         };
         const idsToDelete = [id, ...getAllChildIds(id, state.nodes)];
