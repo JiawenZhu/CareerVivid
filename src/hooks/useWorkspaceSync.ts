@@ -70,8 +70,9 @@ export const useWorkspaceSync = () => {
         let hasChanges = newItemsToAdd.length > 0;
 
         // Also check for title updates in existing items
+        const workspaceItemMap = new Map(workspaceItems.map(item => [item.id, item]));
         const updatedNodes = nodes.map(node => {
-            const workspaceItem = workspaceItems.find(item => item.id === node.id);
+            const workspaceItem = workspaceItemMap.get(node.id);
             if (workspaceItem && workspaceItem.text !== node.text) {
                 hasChanges = true;
                 return { ...node, text: workspaceItem.text };

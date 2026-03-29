@@ -677,7 +677,7 @@ const PortfolioEditor: React.FC = () => {
             <PortfolioHeader
                 title={portfolioData.title}
                 onTitleChange={(t) => handleUpdate({ title: t })}
-                editorTheme={theme}
+                editorTheme={theme === 'system' ? 'dark' : theme}
                 onToggleTheme={toggleTheme}
                 activeDevice={activeDevice}
                 onBack={handleBack}
@@ -703,7 +703,7 @@ const PortfolioEditor: React.FC = () => {
                         onImageUploadTrigger={handleImageUploadTrigger}
                         onAIImageEdit={openAIImageModal}
                         isImageUploading={isImageUploading}
-                        editorTheme={theme}
+                        editorTheme={theme === 'system' ? 'dark' : theme}
                         isPremium={isPremium}
                         onTogglePreview={() => setViewMode(prev => prev === 'edit' ? 'preview' : 'edit')}
                         userPortfolios={portfolios}

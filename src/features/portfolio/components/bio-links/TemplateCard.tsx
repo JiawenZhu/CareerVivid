@@ -11,6 +11,7 @@ interface TemplateCardProps {
     onSelect?: () => void;
     avatarUrl?: string;
     userName?: string;
+    userBio?: string;
     sampleLinks?: string[];
     variant?: 'default' | 'brutalist';
 }

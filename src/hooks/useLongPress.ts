@@ -7,15 +7,6 @@ interface Options {
     delay?: number;
 }
 
-import { useCallback, useRef, useState } from 'react';
-
-type LongPressEvent = React.MouseEvent | React.TouchEvent;
-
-interface Options {
-    shouldPreventDefault?: boolean;
-    delay?: number;
-}
-
 const useLongPress = (
     onLongPress: (event: LongPressEvent) => void,
     onClick?: (event: LongPressEvent) => void,

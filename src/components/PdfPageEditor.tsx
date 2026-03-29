@@ -41,7 +41,7 @@ export const PdfPageEditor: React.FC<PdfPageEditorProps> = ({
 
   const handleDownload = () => {
     if (!pdfBuffer) return;
-    const blob = new Blob([pdfBuffer.buffer], { type: 'application/pdf' });
+    const blob = new Blob([pdfBuffer.buffer as ArrayBuffer], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;

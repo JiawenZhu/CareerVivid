@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ShoppingBag, Loader2 } from 'lucide-react';
 import { Product } from '../types';
-import { createCheckoutSession } from '../services/stripeService';
+import { createProductCheckoutSession } from '../services/stripeService';
 
 interface BuyButtonProps {
     product: Product;
@@ -32,7 +32,7 @@ export const BuyButton: React.FC<BuyButtonProps> = ({ product, connectedAccountI
                 return;
             }
 
-            const session = await createCheckoutSession(product.stripePriceId, connectedAccountId);
+            const session = await createProductCheckoutSession(product.stripePriceId, connectedAccountId);
             window.location.href = session.url;
         } catch (error) {
             console.error("Checkout failed:", error);

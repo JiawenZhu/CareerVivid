@@ -1,6 +1,6 @@
 import React from 'react';
 import { Trash2, Image as ImageIcon, Upload, Brush } from 'lucide-react';
-import { PortfolioData } from '../../../../types/portfolio';
+import { PortfolioData } from '../../../types/portfolio';
 
 interface SidebarProjectsEditorProps {
     portfolioData: PortfolioData;

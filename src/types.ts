@@ -173,7 +173,7 @@ export interface UserProfile {
   stripeSubscriptionStatus?: 'active' | 'trialing' | 'past_due' | 'canceled' | 'unpaid' | 'active_canceling' | null;
   source?: string;
   // Plan and limits
-  plan?: 'free' | 'pro' | 'pro_max' | 'enterprise';
+  plan?: 'free' | 'pro' | 'pro_max' | 'enterprise' | 'pro_monthly' | 'pro_sprint';
   resumeLimit?: number; // 2 (free), 8 (sprint), or 15 (monthly)
   expiresAt?: any; // Firestore Timestamp - for sprint plan
   promotions: {
@@ -375,7 +375,7 @@ export interface Comment {
 export type JobLocationType = 'remote' | 'hybrid' | 'onsite';
 export type JobEmploymentType = 'full-time' | 'part-time' | 'contract' | 'internship';
 export type JobPostingStatus = 'draft' | 'published' | 'closed';
-export type JobApplicationStatus = 'new' | 'screening' | 'phone_screen' | 'interview' | 'final_round' | 'offer' | 'hired' | 'rejected' | 'withdrawn';
+export type JobApplicationStatus = 'new' | 'screening' | 'phone_screen' | 'interview' | 'final_round' | 'offer' | 'hired' | 'rejected' | 'withdrawn' | 'submitted';
 
 // Pipeline Stage Configuration
 export interface PipelineStage {

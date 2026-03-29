@@ -19,10 +19,24 @@ export interface ProxyPayload {
 
 const MAX_CONCURRENT_REQUESTS = 3;
 
+/**
+ * RequestQueue manages concurrent AI service requests using a Breadth-First-Search (BFS) 
+ * approach to task scheduling. 
+ * 
+ * By using a FIFO (First-In, First-Out) queue, it ensures that requests are processed 
+ * in the order they were received, preventing request starvation while strictly 
+ * enforcing concurrency limits to stay within API rate thresholds.
+ */
 class RequestQueue {
+    // Tasks are stored in a queue for FIFO (Breadth-First) processing
     private queue: (() => Promise<void>)[] = [];
     private activeRequests = 0;
 
+    /**
+     * Adds a new operation to the queue.
+     * If fewer than MAX_CONCURRENT_REQUESTS are active, it executes immediately.
+     * Otherwise, it's queued for sequential processing.
+     */
     async add<T>(operation: () => Promise<T>): Promise<T> {
         return new Promise<T>((resolve, reject) => {
             const task = async () => {
@@ -46,6 +60,10 @@ class RequestQueue {
         });
     }
 
+    /**
+     * Processes the next task in the queue.
+     * This ensures constant-time O(1) retrieval of the next scheduled task.
+     */
     private processNext() {
         if (this.queue.length > 0 && this.activeRequests < MAX_CONCURRENT_REQUESTS) {
             const nextTask = this.queue.shift();

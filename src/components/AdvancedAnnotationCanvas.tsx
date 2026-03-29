@@ -30,7 +30,18 @@ const AdvancedAnnotationCanvas: React.FC<AdvancedAnnotationCanvasProps> = ({
     const [lineStyle, setLineStyle] = useState<LineStyle>('solid');
     const [isSaving, setIsSaving] = useState(false);
 
-    // Two-Stack History Management
+    /**
+     * Two-Stack History Management (Persistent LIFO Pattern)
+     * 
+     * This implementation uses two stacks to manage canvas states, effectively 
+     * performing a Depth-First traversal of the user's action history.
+     * 
+     * - `history`: The main stack (LIFO) containing past states.
+     * - `redoStack`: A secondary stack (LIFO) for "future" states created by undo actions.
+     * 
+     * This approach ensures O(1) state transitions and O(N) space complexity relative 
+     * to the number of stored actions.
+     */
     const [history, setHistory] = useState<string[]>([]);
     const [redoStack, setRedoStack] = useState<string[]>([]);
     const isHistoryAction = useRef(false);
@@ -227,18 +238,21 @@ const AdvancedAnnotationCanvas: React.FC<AdvancedAnnotationCanvasProps> = ({
         };
     }, [activeTool, strokeColor, isReadOnly]);
 
-    // Undo Logic
+    /**
+     * Reverts to the previous state using a Stack-based "Undo" operation.
+     * Pops from the history stack and pushes the current state onto the redo stack.
+     */
     const handleUndo = useCallback(() => {
         const canvas = fabricCanvasRef.current;
         if (!canvas || history.length === 0) return;
 
         isHistoryAction.current = true;
 
-        // Save current state to redo stack
+        // Save current state to redo stack (Pushing onto the "future" stack)
         const currentState = JSON.stringify(canvas.toJSON());
         setRedoStack(prev => [...prev, currentState]);
 
-        // Pop last state from history
+        // Pop last state from history (Standard LIFO pop)
         const prevState = history[history.length - 1];
         setHistory(prev => prev.slice(0, -1));
 

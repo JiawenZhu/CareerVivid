@@ -80,6 +80,7 @@ const StrategyMapContent: React.FC<StrategyMapProps> = ({ applications, resumes,
 
     // 1. Initialize Nodes and Edges from real data on Mount
     useEffect(() => {
+        const resumeIds = new Set(resumes.map(r => r.id));
         const initialNodes: Node[] = [];
         const initialEdges: Edge[] = [];
 
@@ -113,7 +114,7 @@ const StrategyMapContent: React.FC<StrategyMapProps> = ({ applications, resumes,
             if (job.matchAnalyses) {
                 Object.entries(job.matchAnalyses).forEach(([resumeId, analysis]) => {
                     // Only create edge if the resume still exists
-                    if (resumes.some(r => r.id === resumeId)) {
+                    if (resumeIds.has(resumeId)) {
                         const edgeId = `e-${resumeId}-${job.id}`;
                         initialEdges.push({
                             id: edgeId,

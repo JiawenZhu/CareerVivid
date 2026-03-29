@@ -1,5 +1,5 @@
 import React from 'react';
-import { PortfolioData } from '../../../../types/portfolio';
+import { PortfolioData } from '../../../types/portfolio';
 
 interface SidebarTechStackEditorProps {
     portfolioData: PortfolioData;

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Palette, Plus, Download } from 'lucide-react';
 import ThemeGallery from '../ThemeGallery';
-import { LinkTreeTheme } from '../../../../styles/linktreeThemes';
-import { PortfolioData } from '../../../../types/portfolio';
+import { LinkTreeTheme } from '../../../styles/linktreeThemes';
+import { PortfolioData } from '../../../types/portfolio';
 import { extractThemeFromPortfolio, getThemeSummary, ExtractedTheme } from '../../../services/portfolioThemeService';
 
 interface SidebarDesignEditorProps {

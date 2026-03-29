@@ -1,6 +1,6 @@
 import { collection, addDoc, updateDoc, doc, getDocs, query, where, orderBy, Timestamp, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import { JobApplicationData } from '../types';
+import { JobApplicationData, JobApplicationStatus } from '../types';
 
 /**
  * Service to manage User's Job Applications (Tracker)
@@ -11,7 +11,7 @@ export const userJobService = {
     /**
      * Add a new job application for the user
      */
-    async addJob(userId: string, data: Partial<JobApplicationData>): Promise<string> {
+    async addJob(userId: string, data: Partial<JobApplicationData> & { status?: JobApplicationStatus }): Promise<string> {
         const jobAppsRef = collection(db, 'jobApplications');
         const now = new Date(); // Use JS Date for adding, Firestore SDK converts
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { PortfolioData } from '../../types/portfolio';
+import { PortfolioData } from '../../../types/portfolio';
 import { ShoppingBag, Store } from 'lucide-react';
 
 interface SidebarCommerceEditorProps {

@@ -9,7 +9,7 @@ export const extensionStorage = {
         return new Promise((resolve) => {
             if (typeof chrome !== 'undefined' && chrome.storage) {
                 chrome.storage.local.get([key], (result) => {
-                    resolve(result[key] ?? null);
+                    resolve((result[key] ?? null) as T | null);
                 });
             } else {
                 // Fallback to localStorage for development

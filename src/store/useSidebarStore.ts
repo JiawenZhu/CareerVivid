@@ -40,7 +40,21 @@ export const useSidebarStore = create<SidebarState>((set, get) => ({
         return get().nodes.find(n => n.id === id)?.text;
     },
     deleteNode: (id) => set((state) => {
+        /**
+         * Retrieves all descendant IDs of a given parent node using Iterative Depth-First Search (DFS).
+         * 
+         * Why DFS? 
+         * We need to visit every node in the subtree to ensure complete deletion or relocation. 
+         * DFS is ideal here as it allows us to exhaust one branch of the folder tree before 
+         * moving to the next.
+         * 
+         * Why Iterative?
+         * Recursive DFS can lead to "RangeError: Maximum call stack size exceeded" if the 
+         * folder nesting is extremely deep. By using a manual stack on the heap, we 
+         * ensure O(N) time complexity while protecting app stability.
+         */
         const getAllChildIds = (parentId: string, currentNodes: SidebarNode[]): string[] => {
+            // Optimization: Create a lookup map for children to avoid O(N^2) complexity
             const childrenMap = new Map<string | number, string[]>();
             currentNodes.forEach(node => {
                 const list = childrenMap.get(node.parent) || [];
@@ -49,10 +63,14 @@ export const useSidebarStore = create<SidebarState>((set, get) => ({
             });
 
             const ids: string[] = [];
+            // DFS Stack (Last-In, First-Out)
             const stack = [parentId];
+            
             while (stack.length > 0) {
                 const currentId = stack.pop()!;
                 const children = childrenMap.get(currentId) || [];
+                
+                // Explores the current branch by pushing all children onto the stack
                 children.forEach(childId => {
                     ids.push(childId);
                     stack.push(childId);

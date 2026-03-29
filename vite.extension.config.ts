@@ -15,6 +15,8 @@ export default defineConfig(({ mode }) => {
         resolve: {
             alias: {
                 '@': path.resolve(__dirname, './src'),
+                // Shim PWA virtual module — only used in main app, not extension
+                'virtual:pwa-register/react': path.resolve(__dirname, 'src/extension/pwa-shim.ts'),
             }
         },
         build: {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sparkles, Plus, Trash2, Link as LinkIcon } from 'lucide-react';
-import { PortfolioData } from '../../../../types/portfolio';
+import { PortfolioData } from '../../../types/portfolio';
 
 interface SidebarComponentsEditorProps {
     portfolioData: PortfolioData;
