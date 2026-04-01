@@ -3,12 +3,13 @@ import { useParams } from 'react-router-dom';
 import { doc, getDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '../../../firebase';
 import { PortfolioData } from '../types/portfolio';
-import { Loader2, AlertCircle, Eye } from 'lucide-react';
+import { Loader2, AlertCircle, Eye, Zap } from 'lucide-react';
 import { TEMPLATES } from '../templates';
 import { useAnalytics } from '../hooks/useAnalytics';
 import IntroOverlay from '../components/intro/IntroOverlay';
 import PublicProfilePage from './PublicProfilePage';
 import { useAuth } from '../../../contexts/AuthContext';
+import SEOHelper from '../../../components/SEOHelper';
 
 // Simple types for the public page if not importing full types
 // but we have PortfolioData so we are good.
@@ -162,6 +163,56 @@ const PublicPortfolioPage: React.FC = () => {
         );
     }
 
+    // ── SEO: Build dynamic meta tags from portfolio data ────────────────────
+    const portfolioWithUser = portfolioData as PortfolioData & { username?: string };
+    const seoTitle = portfolioData.hero?.headline
+        ? `${portfolioData.hero.headline} | ${portfolioData.hero.subheadline || 'Portfolio'} — CareerVivid`
+        : `Portfolio — CareerVivid`;
+
+    const seoDescription = portfolioData.about
+        ? portfolioData.about.replace(/\s+/g, ' ').trim().slice(0, 155) + (portfolioData.about.length > 155 ? '…' : '')
+        : portfolioData.hero?.subheadline
+            ? `${portfolioData.hero.headline} — ${portfolioData.hero.subheadline}. View portfolio on CareerVivid.`
+            : `View ${portfolioData.hero?.headline || 'this portfolio'} on CareerVivid.`;
+
+    const seoKeywords = portfolioData.techStack?.length
+        ? portfolioData.techStack.map(s => s.name).join(', ')
+        : 'portfolio, developer, CareerVivid';
+
+    const seoImage = portfolioData.hero?.avatarUrl || undefined;
+
+    const seoUrl = portfolioWithUser.username
+        ? `https://careervivid.app/portfolio/${portfolioWithUser.username}/${portfolioData.id}`
+        : `https://careervivid.app/portfolio/${portfolioData.id}`;
+
+    // Build sameAs array from socialLinks for JSON-LD
+    const sameAsLinks = (portfolioData.socialLinks || [])
+        .filter(link => link.url?.startsWith('http'))
+        .map(link => link.url);
+
+    const enrichedSchemaData = {
+        "@context": "https://schema.org",
+        "@type": "ProfilePage",
+        "url": seoUrl,
+        "name": seoTitle,
+        "description": seoDescription,
+        ...(seoImage ? { "image": seoImage } : {}),
+        "mainEntity": {
+            "@type": "Person",
+            "name": portfolioData.hero?.headline || '',
+            "jobTitle": portfolioData.hero?.subheadline || '',
+            "description": seoDescription,
+            ...(seoImage ? { "image": seoImage } : {}),
+            "url": seoUrl,
+            ...(portfolioData.contactEmail ? { "email": portfolioData.contactEmail } : {}),
+            ...(portfolioData.location ? { "address": portfolioData.location } : {}),
+            ...(portfolioData.techStack?.length ? {
+                "knowsAbout": portfolioData.techStack.map(s => s.name)
+            } : {}),
+            ...(sameAsLinks.length > 0 ? { "sameAs": sameAsLinks } : {})
+        }
+    };
+
     // Render the Template
     const TemplateComponent = (() => {
         if (displayData?.mode === 'linkinbio') {
@@ -204,60 +255,78 @@ const PublicPortfolioPage: React.FC = () => {
         }
     };
 
+    // Badge UTM link for referral tracking
+    const badgeHref = `https://careervivid.app/?utm_source=portfolio_badge&utm_medium=referral&utm_campaign=viral_badge&utm_content=${portfolioData.id}`;
+
     return (
-        <div
-            className={`transition-colors duration-500 ${isEmbed ? 'h-full flex items-center justify-center overflow-hidden' : 'min-h-screen'}`}
-            style={{ backgroundColor: isEmbed ? 'transparent' : wrapperBg }}
-            onClick={handleGlobalClick}
-        >
-            {/* Intro / Splash Screen - Hide in embed mode */}
-            {!isEmbed && portfolioData?.linkInBio?.introPage?.enabled && showIntro && (
-                <IntroOverlay
-                    config={portfolioData.linkInBio.introPage}
-                    onEnter={() => setShowIntro(false)}
-                    portfolioId={portfolioData.id}
-                />
-            )}
+        <>
+            {/* ── Dynamic SEO Tags ───────────────────────────────────────── */}
+            <SEOHelper
+                title={seoTitle}
+                description={seoDescription}
+                keywords={seoKeywords}
+                image={seoImage}
+                url={seoUrl}
+                schemaType="ProfilePage"
+                techStack={portfolioData.techStack?.map(s => s.name) || []}
+                schemaData={enrichedSchemaData}
+            />
 
-            <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin" /></div>}>
-                <div className={isEmbed ? 'w-full h-screen' : ''}>
-                    <TemplateComponent
-                        data={displayData}
-                        onEdit={undefined}
-                        onUpdate={handleUpdate}
-                        isEmbed={isEmbed}
-                        isFlipped={isFlipped}
-                        onToggleFlip={setIsFlipped}
+            <div
+                className={`transition-colors duration-500 ${isEmbed ? 'h-full flex items-center justify-center overflow-hidden' : 'min-h-screen'}`}
+                style={{ backgroundColor: isEmbed ? 'transparent' : wrapperBg }}
+                onClick={handleGlobalClick}
+            >
+                {/* Intro / Splash Screen - Hide in embed mode */}
+                {!isEmbed && portfolioData?.linkInBio?.introPage?.enabled && showIntro && (
+                    <IntroOverlay
+                        config={portfolioData.linkInBio.introPage}
+                        onEnter={() => setShowIntro(false)}
+                        portfolioId={portfolioData.id}
                     />
-                </div>
-            </Suspense>
+                )}
 
-            {/* View Only Badge — top-left for non-owners */}
-            {!isEmbed && portfolioData.userId && (
-                (() => {
-                    // We need to import useAuth — it's declared at module level
-                    // This is a render-time check
-                    const isViewOnly = true; // All public portfolio viewers are view-only by design
-                    return isViewOnly ? (
-                        <div className="fixed top-4 left-4 z-50">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-500 dark:text-gray-400 text-xs font-semibold shadow-sm border border-gray-200 dark:border-gray-700">
-                                <Eye size={14} />
-                                View Only
-                            </span>
-                        </div>
-                    ) : null;
-                })()
-            )}
+                <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin" /></div>}>
+                    <div className={isEmbed ? 'w-full h-screen' : ''}>
+                        <TemplateComponent
+                            data={displayData}
+                            onEdit={undefined}
+                            onUpdate={handleUpdate}
+                            isEmbed={isEmbed}
+                            isFlipped={isFlipped}
+                            onToggleFlip={setIsFlipped}
+                        />
+                    </div>
+                </Suspense>
 
-            {/* Simple footer or badge - Hidden if removeBranding is set OR isEmbed */}
-            {!isEmbed && !portfolioData.linkInBio?.settings?.removeBranding && (
-                <div className="fixed bottom-4 right-4 z-50">
-                    <a href="/portfolio" className="bg-black text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:scale-105 transition-transform flex items-center gap-2">
-                        <span>Build your own with CareerVivid</span>
-                    </a>
-                </div>
-            )}
-        </div>
+                {/* View Only Badge — top-left for non-owners */}
+                {!isEmbed && portfolioData.userId && (
+                    <div className="fixed top-4 left-4 z-50">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-500 dark:text-gray-400 text-xs font-semibold shadow-sm border border-gray-200 dark:border-gray-700">
+                            <Eye size={14} />
+                            View Only
+                        </span>
+                    </div>
+                )}
+
+                {/* Viral "Built with CareerVivid" Badge — upgraded with UTM tracking */}
+                {!isEmbed && !portfolioData.linkInBio?.settings?.removeBranding && (
+                    <div className="fixed bottom-4 right-4 z-50">
+                        <a
+                            href={badgeHref}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => trackClick(badgeHref, 'built_with_careervivid_badge')}
+                            className="group flex items-center gap-2 bg-black/90 hover:bg-black text-white px-4 py-2.5 rounded-full text-xs font-bold shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-200 backdrop-blur-sm border border-white/10"
+                        >
+                            <Zap size={12} className="text-yellow-400 group-hover:animate-bounce" />
+                            <span>Built with CareerVivid</span>
+                            <span className="text-white/50 group-hover:text-white/80 transition-colors">→</span>
+                        </a>
+                    </div>
+                )}
+            </div>
+        </>
     );
 };
 
