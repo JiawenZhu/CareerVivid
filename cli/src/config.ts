@@ -17,6 +17,8 @@ export const DEFAULT_API_URL = "https://careervivid.app/api";
 export interface CareerVividConfig {
     apiKey?: string;
     apiUrl?: string;
+    geminiKey?: string; // Gemini API key for the agent
+    targetCompanies?: string;
 }
 
 export function loadConfig(): CareerVividConfig {
@@ -36,6 +38,11 @@ export function saveConfig(config: CareerVividConfig): void {
 export function getApiKey(): string | undefined {
     // Priority: env var > config file
     return process.env.CV_API_KEY || loadConfig().apiKey;
+}
+
+/** Gemini API key used by `cv agent`. Priority: GEMINI_API_KEY env var > geminiKey in config. */
+export function getGeminiKey(): string | undefined {
+    return process.env.GEMINI_API_KEY || loadConfig().geminiKey;
 }
 
 export function getApiUrl(): string {

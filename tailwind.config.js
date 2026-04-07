@@ -8,33 +8,61 @@ export default {
     theme: {
         extend: {
             colors: {
-                "primary": "#49e619",
-                "primary-dark": "#3bc512",
-                "background-light": "#f6f8f6",
-                "background-dark": "#152111",
-                "surface-light": "#ffffff",
-                "surface-dark": "#1e2e1a",
-                "card-light": "#ffffff",
-                "card-dark": "#1f2b1b",
-                "text-main": "#111b0e",
-                "text-main-light": "#111b0e",
-                "text-main-dark": "#f0f5ef",
-                "text-secondary": "#5f974e",
-                "text-secondary-light": "#5f974e",
-                "text-secondary-dark": "#9abf8f",
-                "text-light": "#f6f8f6",
-                "border-light": "#d5e7d0",
-                "border-dark": "#2a3d25",
+                "primary": {
+                    DEFAULT: "#10b981", // More premium emerald
+                    dark: "#059669",
+                    light: "#34d399",
+                },
+                "promax": {
+                    start: "#4f46e5", // Indigo
+                    end: "#9333ea",   // Purple gradient end
+                },
+                "background": {
+                    light: "#fafafa",
+                    dark: "#09090b", // Deeper dark mode
+                },
+                "surface": {
+                    light: "#ffffff",
+                    dark: "#18181b",
+                    accent: "#27272a",
+                },
+                "text": {
+                    main: { light: "#0f172a", dark: "#f8fafc" },
+                    muted: { light: "#64748b", dark: "#94a3b8" },
+                },
+                "border": {
+                    light: "#e2e8f0",
+                    dark: "#27272a",
+                },
             },
             fontFamily: {
-                "display": ["Manrope", "sans-serif"],
-                "body": ["Noto Sans", "sans-serif"],
+                "display": ["Plus Jakarta Sans", "sans-serif"],
+                "body": ["Inter", "sans-serif"],
+            },
+            transitionTimingFunction: {
+                "spring": "cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                "spring-bouncy": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+                "ease-out-expo": "cubic-bezier(0.16, 1, 0.3, 1)",
+            },
+            animation: {
+                "glow": "glow 2s ease-in-out infinite alternate",
+                "shimmer": "shimmer 2s linear infinite",
+            },
+            keyframes: {
+                glow: {
+                    "0%": { boxShadow: "0 0 10px rgba(79, 70, 229, 0.2)" },
+                    "100%": { boxShadow: "0 0 20px rgba(147, 51, 234, 0.6)" },
+                },
+                shimmer: {
+                    from: { backgroundPosition: "200% 0" },
+                    to: { backgroundPosition: "-200% 0" },
+                },
             },
             borderRadius: {
-                "DEFAULT": "0.25rem",
-                "lg": "0.5rem",
-                "xl": "0.75rem",
-                "2xl": "1rem",
+                "DEFAULT": "8px",
+                "lg": "12px",
+                "xl": "16px",
+                "2xl": "24px",
             },
         },
     },

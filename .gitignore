@@ -52,3 +52,16 @@ build/
 # Service Account Keys
 *-adminsdk-*.json
 *-service-account*.json
+
+# Standalone lottery engine repo (has own git)
+megamillions-engine/
+
+# Other source directories
+claude-code-source-code/
+
+# SOP Feature & Assets
+src/features/sop/
+public/sop-assets/
+sop-assets/
+*SOP*
+*sop*

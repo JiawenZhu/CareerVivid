@@ -408,9 +408,9 @@ export const editProfilePhoto = async (userId: string, base64Image: string, mime
         };
 
         const result = await callGeminiProxy({
-            modelName: 'gemini-2.5-flash',
+            modelName: 'gemini-2.5-flash-image',
             contents,
-            config: { responseModalities: ["IMAGE"] }
+            config: { responseModalities: ["IMAGE", "TEXT"] }
         });
 
         const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 1000;

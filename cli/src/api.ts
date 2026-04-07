@@ -221,3 +221,150 @@ export async function uploadPortfolioAsset(image: string, path: string, mimeType
 export function isApiError(v: unknown): v is ApiError {
     return typeof v === "object" && v !== null && (v as any).isError === true;
 }
+
+// ── Cloud Function base URL ───────────────────────────────────────────────────
+// The CLI job-hunt endpoints are deployed as standalone Cloud Functions,
+// not via the /api proxy used by publishPost. This mirrors the verifyAuth pattern.
+
+const CLI_FUNCTIONS_BASE =
+    process.env.CV_FUNCTIONS_URL ||
+    "https://us-west1-jastalk-firebase.cloudfunctions.net";
+
+async function cfRequest<T>(
+    method: "GET" | "POST" | "PATCH",
+    functionName: string,
+    body?: unknown,
+    queryParams?: Record<string, string>
+): Promise<T | ApiError> {
+    const apiKey = requireApiKey();
+    let url = `${CLI_FUNCTIONS_BASE}/${functionName}`;
+    if (queryParams) {
+        const qs = new URLSearchParams(queryParams).toString();
+        if (qs) url += `?${qs}`;
+    }
+
+    const response = await fetch(url, {
+        method,
+        headers: {
+            "Content-Type": "application/json",
+            "x-api-key": apiKey,
+            "User-Agent": `careervivid-cli/${CLI_VERSION}`,
+        },
+        body: body ? JSON.stringify(body) : undefined,
+    });
+
+    const text = await response.text();
+    let parsed: any = {};
+    try { parsed = JSON.parse(text); } catch { parsed = { message: text }; }
+
+    if (!response.ok) {
+        return {
+            isError: true,
+            statusCode: response.status,
+            message: parsed.error || parsed.message || `HTTP ${response.status}`,
+        } as ApiError;
+    }
+    return parsed as T;
+}
+
+// ── Job Hunt Types ────────────────────────────────────────────────────────────
+
+export type ApplicationStatus = "To Apply" | "Applied" | "Interviewing" | "Offered" | "Rejected";
+
+export interface ScoredJob {
+    id: string;
+    title: string;
+    company: string;
+    location: string;
+    description: string;
+    url: string;
+    salary?: string;
+    score: number;
+    scoreLabel: "Excellent" | "Good" | "Fair" | "Low";
+    aiSummary: string;
+    missingSkills: string[];
+}
+
+export interface JobTrackerItem {
+    id: string;
+    jobTitle: string;
+    companyName: string;
+    location: string;
+    applicationStatus: ApplicationStatus;
+    aiScore: number | null;
+    jobPostURL: string;
+    updatedAt: string | null;
+    notes: string;
+}
+
+export interface ResumeResult {
+    resumeId: string;
+    title: string;
+    cvMarkdown: string;
+    updatedAt: string | null;
+}
+
+export interface ResumesListResult {
+    resumes: {
+        id: string;
+        title: string;
+        updatedAt: string | null;
+    }[];
+    total: number;
+}
+
+// ── Job Hunt API Methods ──────────────────────────────────────────────────────
+
+/** Fetch the user's latest resume from CareerVivid via API key */
+export async function resumeGet(resumeId?: string): Promise<ResumeResult | ApiError> {
+    const params: Record<string, string> = {};
+    if (resumeId) params.resumeId = resumeId;
+    return cfRequest<ResumeResult>("GET", "cliResumeGet", undefined, Object.keys(params).length ? params : undefined);
+}
+
+/** Fetch a lightweight list of the user's resumes */
+export async function resumesList(): Promise<ResumesListResult | ApiError> {
+    return cfRequest<ResumesListResult>("GET", "cliResumesList");
+}
+
+/** Run an agentic job search scored against the resume */
+export async function jobsHunt(payload: {
+    resumeContent?: string;
+    role: string;
+    location?: string;
+    count?: number;
+    minScore?: number;
+    targetOrgs?: string[];
+}): Promise<{ jobs: ScoredJob[]; total: number } | ApiError> {
+    return cfRequest<{ jobs: ScoredJob[]; total: number }>("POST", "cliJobsHunt", payload);
+}
+
+/** Add a job to the user's Kanban tracker */
+export async function jobsCreate(payload: {
+    jobTitle: string;
+    companyName: string;
+    location?: string;
+    jobPostURL?: string;
+    jobDescription?: string;
+    aiScore?: number;
+    aiSummary?: string;
+    notes?: string;
+}): Promise<{ success: boolean; id: string; message: string } | ApiError> {
+    return cfRequest<{ success: boolean; id: string; message: string }>("POST", "cliJobsCreate", payload);
+}
+
+/** Move a job to a new status on the Kanban board */
+export async function jobsUpdate(payload: {
+    jobId: string;
+    status: ApplicationStatus;
+    notes?: string;
+}): Promise<{ success: boolean; jobId: string; newStatus: string; message: string } | ApiError> {
+    return cfRequest<{ success: boolean; jobId: string; newStatus: string; message: string }>("POST", "cliJobsUpdate", payload);
+}
+
+/** List jobs currently in the user's tracker */
+export async function jobsList(status?: ApplicationStatus): Promise<{ jobs: JobTrackerItem[]; total: number } | ApiError> {
+    const params: Record<string, string> = {};
+    if (status) params.status = status;
+    return cfRequest<{ jobs: JobTrackerItem[]; total: number }>("GET", "cliJobsList", undefined, Object.keys(params).length ? params : undefined);
+}

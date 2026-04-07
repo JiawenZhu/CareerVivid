@@ -452,7 +452,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                         value={commentText}
                         onChange={e => setCommentText(e.target.value)}
                         placeholder="Write a comment..."
-                        className="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:outline-none"
+                        className="flex-1 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:outline-none transition-all duration-200 focus:bg-white dark:focus:bg-gray-800 min-w-0"
                     />
                     <button
                         type="submit"
@@ -549,7 +549,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     // ── Asset card: disabled state ─────────────────────────────────────
     if (isAssetDisabled) {
         return (
-            <article className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden opacity-70">
+            <article className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/40 dark:border-gray-800/40 shadow-sm overflow-hidden opacity-70">
                 <div className="p-4 sm:p-6">
                     {AuthorRow}
                     <div className="flex items-center gap-3 p-4 bg-gray-100 dark:bg-gray-800 rounded-xl">
@@ -576,13 +576,16 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         return (
             <article
                 onClick={handleCardClick}
-                className={`group rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700 transition-all duration-200 overflow-hidden cursor-pointer ${assetCfg.bgPattern}`}
+                className={`group rounded-[24px] border border-white/60 dark:border-gray-700/50 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-white dark:hover:border-gray-600 transition-all duration-400 overflow-hidden cursor-pointer relative ${assetCfg.bgPattern}`}
             >
-                <div className="p-4 sm:p-6">
+                {/* Overlay glow for consistent arrange feel */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent dark:via-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none mix-blend-overlay" />
+                
+                <div className="p-4 sm:p-6 relative z-10">
                     {AuthorRow}
 
                     {/* Visual Preview */}
-                    <div className="relative w-full aspect-[4/3] sm:aspect-video rounded-xl overflow-hidden mb-4 md:mb-5 border border-gray-200/50 dark:border-gray-700/50 shadow-inner bg-white dark:bg-gray-900">
+                    <div className="relative w-full aspect-[4/3] sm:aspect-video rounded-2xl overflow-hidden mb-4 md:mb-5 border border-white/50 dark:border-gray-700/50 shadow-inner bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
                         <VisualSnapshot />
                         {/* Overlay gradient */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
@@ -637,8 +640,10 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     return (
         <article
             onClick={() => navigate(`/community/post/${post.id}`, { from: window.location.pathname })}
-            className="group bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700 transition-all duration-200 overflow-hidden cursor-pointer"
+            className="group bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl rounded-[24px] border border-white/60 dark:border-gray-700/50 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-white dark:hover:border-gray-600 transition-all duration-400 overflow-hidden cursor-pointer relative"
         >
+            {/* Overlay glow for consistent arrange feel */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent dark:via-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
             {/* Cover image — aspect-video prevents stretch */}
             {post.coverImage && (
                 <div className="w-full aspect-[4/3] sm:aspect-video overflow-hidden">
@@ -652,7 +657,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 </div>
             )}
 
-            <div className="p-4 sm:p-6">
+            <div className="p-4 sm:p-6 relative z-10">
                 {AuthorRow}
 
                 {/* Title */}

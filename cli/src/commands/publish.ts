@@ -59,7 +59,7 @@ function getFiles(dir: string, recursive: boolean): string[] {
     return results;
 }
 
-interface PublishOptions {
+export interface PublishOptions {
     title?: string;
     type?: string;
     format?: string;
@@ -72,7 +72,7 @@ interface PublishOptions {
     onlyUpdate?: boolean;
 }
 
-async function publishSingleFile(
+export async function publishSingleFile(
     filePath: string,
     content: string,
     opts: PublishOptions,

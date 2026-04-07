@@ -61,7 +61,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onClick, onUpdate }) => {
             draggable 
             onDragStart={handleDragStart}
             onClick={onClick}
-            className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 hover:shadow-md hover:border-primary-400 dark:hover:border-primary-500 transition-all cursor-pointer"
+            className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-4 rounded-xl shadow-lg border border-white/50 dark:border-gray-800/50 hover:border-primary-400 dark:hover:border-primary-500 transition-all cursor-pointer"
         >
             <div className="flex items-start gap-3">
                  <div className="flex-shrink-0 w-8 h-8 bg-gray-200 dark:bg-gray-600 rounded-md flex items-center justify-center">

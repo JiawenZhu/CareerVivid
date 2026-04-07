@@ -61,7 +61,7 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
                 <div
                     key={index}
                     onClick={() => navigate(card.link)}
-                    className="relative bg-white dark:bg-[#161b22] p-5 rounded-2xl border border-gray-200/60 dark:border-gray-800 transition-all duration-300 hover:border-primary-500/30 dark:hover:border-primary-400/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] cursor-pointer group overflow-hidden hidden md:block"
+                    className="relative bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-5 rounded-[24px] border border-white/50 dark:border-gray-800/50 transition-all duration-300 hover:border-primary-500/30 dark:hover:border-primary-400/30 hover:shadow-lg hover:shadow-primary-500/10 cursor-pointer group overflow-hidden hidden md:block"
                 >
                     {/* Subtle Top Gradient Line */}
                     <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

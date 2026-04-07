@@ -8,6 +8,7 @@ import { generateJobPrepNotes, regenerateJobPrepSection, analyzeResumeMatch } fr
 import ConfirmationModal from '../ConfirmationModal';
 import { navigate } from '../../utils/navigation';
 import { useAICreditCheck } from '../../hooks/useAICreditCheck';
+import AIReportTab from './AIReportTab';
 
 // Reusable components for the top section
 const EditableField: React.FC<{ label: string; value: string; onChange: (value: string) => void; type?: string; placeholder?: string }> = ({ label, value, onChange, type = 'text', placeholder }) => (
@@ -899,6 +900,41 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
                         <EditablePrepSection label={t('job_tracker.modal.prep_sections.interview_prep')} value={localJob.prep_InterviewPrep || ''} onChange={v => handleChange('prep_InterviewPrep', v)} placeholder={t('job_tracker.modal.prep_sections.interview_prep_ph')} onRegenerate={() => setRegenModalState({ section: 'prep_InterviewPrep', name: t('job_tracker.modal.prep_sections.interview_prep') })} selectedVoice={selectedVoice} />
                         <EditablePrepSection label={t('job_tracker.modal.prep_sections.questions_for_them')} value={localJob.prep_QuestionsForInterviewer || ''} onChange={v => handleChange('prep_QuestionsForInterviewer', v)} placeholder={t('job_tracker.modal.prep_sections.questions_for_them_ph')} onRegenerate={() => setRegenModalState({ section: 'prep_QuestionsForInterviewer', name: t('job_tracker.modal.prep_sections.questions_for_them') })} selectedVoice={selectedVoice} />
                         <EditablePrepSection label={t('job_tracker.modal.prep_sections.general_notes')} value={localJob.notes || ''} onChange={v => handleChange('notes', v)} placeholder={t('job_tracker.modal.prep_sections.general_notes_ph')} onRegenerate={() => setRegenModalState({ section: 'notes', name: t('job_tracker.modal.prep_sections.general_notes') })} selectedVoice={selectedVoice} />
+                    </div>
+
+                    {/* ── Career-Ops AI Report ─────────────────────────────────── */}
+                    <div
+                        style={{
+                            marginTop: '32px',
+                            background: '#0d1117',
+                            borderRadius: '12px',
+                            border: '1px solid #1e293b',
+                            overflow: 'hidden',
+                        }}
+                    >
+                        <div
+                            style={{
+                                padding: '14px 20px',
+                                background: 'linear-gradient(90deg, #1e1b4b, #0f172a)',
+                                borderBottom: '1px solid #1e293b',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                            }}
+                        >
+                            <span style={{ fontSize: '20px' }}>🤖</span>
+                            <div>
+                                <div style={{ color: '#e2e8f0', fontWeight: 700, fontSize: '15px' }}>
+                                    Career-Ops AI Pipeline
+                                </div>
+                                <div style={{ color: '#64748b', fontSize: '12px' }}>
+                                    6-axis job evaluation • LinkedIn outreach • deep research
+                                </div>
+                            </div>
+                        </div>
+                        <div style={{ padding: '20px' }}>
+                            <AIReportTab job={localJob} />
+                        </div>
                     </div>
                 </div>
             </div>

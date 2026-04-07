@@ -14,6 +14,7 @@ const Dashboard = React.lazy(() => import('./pages/Dashboard')); // Protected
 const Editor = React.lazy(() => import('./pages/Editor'));
 const WhiteboardsPage = React.lazy(() => import('./pages/WhiteboardsPage'));
 const WhiteboardEditor = React.lazy(() => import('./pages/WhiteboardEditor'));
+const AgentPage = React.lazy(() => import('./pages/AgentPage'));
 const GenerationHub = React.lazy(() => import('./pages/GenerationHub')); // Protected
 const InterviewStudio = React.lazy(() => import('./pages/InterviewStudio')); // Protected
 const ProfilePage = React.lazy(() => import('./pages/ProfilePage')); // Protected
@@ -62,6 +63,7 @@ const JobPostingEditor = React.lazy(() => import('./pages/JobPostingEditor'));
 const JobMarketPage = React.lazy(() => import('./pages/JobMarketPage'));
 const PublicJobBoardPage = React.lazy(() => import('./pages/PublicJobBoardPage'));
 const IntegrationsPage = React.lazy(() => import('./pages/IntegrationsPage'));
+const ProgrammaticSeoPage = React.lazy(() => import('./pages/ProgrammaticSeoPage'));
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'));
 const PermissionDeniedPage = React.lazy(() => import('./pages/PermissionDeniedPage'));
 const ReferralLandingPage = React.lazy(() => import('./pages/ReferralLandingPage'));
@@ -86,6 +88,8 @@ const MyPostsPage = React.lazy(() => import('./pages/community/MyPostsPage'));
 const ApiDocsPage = React.lazy(() => import('./pages/ApiDocsPage'));
 const DeveloperSettings = React.lazy(() => import('./pages/DeveloperSettings'));
 const BillingDashboard = React.lazy(() => import('./pages/BillingDashboard'));
+const SOPEditorPage = React.lazy(() => import('./features/sop/pages/SOPEditorPage'));
+const SOPPdfPreviewPage = React.lazy(() => import('./features/sop/pages/SOPPdfPreviewPage'));
 
 import { SUPPORTED_LANGUAGES } from './constants';
 import { DndProvider } from 'react-dnd';
@@ -181,6 +185,17 @@ const AppContent: React.FC = () => {
       <ThemeProvider>
         <Suspense fallback={<LoadingFallback />}>
           <PdfPreviewPage />
+        </Suspense>
+      </ThemeProvider>
+    );
+  }
+
+  // SOP PDF preview - print-optimized page for SOP export
+  if (path === '/sop-pdf-preview') {
+    return (
+      <ThemeProvider>
+        <Suspense fallback={<LoadingFallback />}>
+          <SOPPdfPreviewPage />
         </Suspense>
       </ThemeProvider>
     );
@@ -475,6 +490,9 @@ const AppContent: React.FC = () => {
     else if (path.startsWith('/edit/guest')) {
       content = <Editor resumeId="guest" />;
     }
+    else if (path === '/agent') {
+      content = <AgentPage />;
+    }
     else if (path.startsWith('/edit/')) {
       const id = path.split('/')[2];
       content = (
@@ -490,6 +508,15 @@ const AppContent: React.FC = () => {
     }
     else if (path === '/portfolio-builder') {
       content = <PortfolioBuilderPage />;
+    }
+
+    // SOP Editor
+    else if (path === '/sop/new' || path.startsWith('/sop/')) {
+      content = (
+        <ProtectedRoute>
+          <SOPEditorPage />
+        </ProtectedRoute>
+      );
     }
 
     // Job Market (Was in Auth block, seemingly protected)
@@ -617,6 +644,12 @@ const AppContent: React.FC = () => {
     // Product Page (Public)
     else if (path.startsWith('/p/')) {
       content = <ProductPage />;
+    }
+
+    // Programmatic SEO Route
+    else if (path.startsWith('/topic/')) {
+      const slug = path.split('/')[2];
+      content = <ProgrammaticSeoPage slug={slug} />;
     }
 
     // Business Partner Jobs (Was in Auth block)

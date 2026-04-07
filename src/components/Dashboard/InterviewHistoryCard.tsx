@@ -55,7 +55,7 @@ const InterviewHistoryCard: React.FC<InterviewHistoryCardProps> = ({ entry, onSh
             draggable
             onDragStart={onDragStart}
             onContextMenu={handleContextMenu}
-            className="bg-white dark:bg-[#161b22] rounded-2xl border border-gray-200/60 dark:border-gray-800 transition-all duration-300 hover:border-primary-500/30 dark:hover:border-primary-400/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] flex flex-col p-5 relative group cursor-grab active:cursor-grabbing overflow-hidden"
+            className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 transition-all duration-300 hover:border-primary-500/30 dark:hover:border-primary-400/30 hover:shadow-lg flex flex-col p-5 relative group cursor-grab active:cursor-grabbing overflow-hidden"
         >
             <div className="flex justify-between items-start mb-2">
                 <div>

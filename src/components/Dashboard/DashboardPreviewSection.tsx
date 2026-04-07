@@ -109,7 +109,7 @@ function DashboardPreviewSection<T>({
                 // Skeleton height placeholder based on ViewMode
                 <div className={`w-full ${viewMode === 'row' ? 'h-[280px]' : 'h-[400px]'} bg-gray-50/50 dark:bg-gray-900/20 rounded-2xl border border-gray-100 dark:border-gray-800 animate-pulse`} />
             ) : items.length === 0 ? (
-                <div className="bg-white dark:bg-[#161b22] rounded-2xl p-10 text-center border border-dashed border-gray-300 dark:border-gray-800 transition-all hover:border-gray-400 dark:hover:border-gray-700 flex flex-col justify-center items-center shadow-sm">
+                <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] p-10 text-center border border-dashed border-gray-300/50 dark:border-gray-800/50 transition-all hover:border-gray-400 dark:hover:border-gray-700 flex flex-col justify-center items-center shadow-sm">
                     <div className="w-12 h-12 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
                         <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500" />
                     </div>

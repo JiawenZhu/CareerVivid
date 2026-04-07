@@ -88,7 +88,7 @@ const StatusOverview: React.FC<StatusOverviewProps> = ({ applications }) => {
   }, [applications]);
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+    <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-6 rounded-[24px] shadow-lg border border-white/50 dark:border-gray-800/50">
       <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t('job_tracker.status_overview')}</h2>
       <div className="flex flex-col md:flex-row items-center gap-8">
         <DonutChart data={statusCounts} />

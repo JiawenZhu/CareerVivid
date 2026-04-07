@@ -12,7 +12,7 @@ import chalk from "chalk";
 import { CONFIG_FILE, loadConfig, setConfigValue, CareerVividConfig } from "../config.js";
 import { printError, printSuccess } from "../output.js";
 
-const VALID_KEYS: (keyof CareerVividConfig)[] = ["apiKey", "apiUrl"];
+const VALID_KEYS: (keyof CareerVividConfig)[] = ["apiKey", "apiUrl", "geminiKey", "targetCompanies"];
 
 export function registerConfigCommand(program: Command): void {
     const config = program
@@ -48,10 +48,18 @@ export function registerConfigCommand(program: Command): void {
 
             if (cfg.apiKey) {
                 const masked = `${cfg.apiKey.slice(0, 16)}${"•".repeat(cfg.apiKey.length - 16)}`;
-                console.log(`  ${chalk.dim("apiKey".padEnd(10))}  ${masked}`);
+                console.log(`  ${chalk.dim("apiKey".padEnd(12))}  ${masked}`);
+            }
+            if (cfg.geminiKey) {
+                const gk = cfg.geminiKey;
+                const maskedGk = `${gk.slice(0, 8)}${"•".repeat(Math.max(0, gk.length - 8))}`;
+                console.log(`  ${chalk.dim("geminiKey".padEnd(12))}  ${maskedGk}`);
             }
             if (cfg.apiUrl) {
-                console.log(`  ${chalk.dim("apiUrl".padEnd(10))}  ${cfg.apiUrl}`);
+                console.log(`  ${chalk.dim("apiUrl".padEnd(12))}  ${cfg.apiUrl}`);
+            }
+            if (cfg.targetCompanies) {
+                console.log(`  ${chalk.dim("targetCompanies".padEnd(16))}  ${cfg.targetCompanies}`);
             }
             console.log();
         });
@@ -81,11 +89,11 @@ export function registerConfigCommand(program: Command): void {
                 return;
             }
 
-            // Mask apiKey
-            const displayValue =
-                key === "apiKey"
-                    ? `${value.slice(0, 16)}${"•".repeat(value.length - 16)}`
-                    : value;
+            // Mask all sensitive keys — never print raw values to the terminal
+            const SENSITIVE_KEYS = new Set(["apiKey", "geminiKey"]);
+            const displayValue = SENSITIVE_KEYS.has(key)
+                ? `${value.slice(0, 8)}${"•".repeat(Math.max(0, value.length - 8))}`
+                : value;
 
             if (jsonMode) {
                 console.log(JSON.stringify({ key, value: displayValue }));

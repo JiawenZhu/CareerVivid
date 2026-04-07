@@ -311,9 +311,13 @@ const CommunityEditor: React.FC = () => {
     const error = localError || publishError;
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
+        <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950/80 flex flex-col relative overflow-hidden">
+            {/* Ambient Base Glow */}
+            <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary-400/20 dark:bg-primary-600/10 blur-[120px] pointer-events-none z-[-1]" />
+            <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/20 dark:bg-blue-600/10 blur-[120px] pointer-events-none z-[-1]" />
+
             {/* Top Bar */}
-            <header className="h-16 flex items-center justify-between px-4 sm:px-6 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 sticky top-0 z-30 shadow-sm">
+            <header className="h-16 flex items-center justify-between px-4 sm:px-6 border-b border-white/50 dark:border-gray-800/50 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl sticky top-0 z-30 shadow-sm">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => navigate('/community')}
@@ -353,14 +357,14 @@ const CommunityEditor: React.FC = () => {
                 </div>
             </header>
 
-            <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-8">
+            <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-8 relative z-10">
                 {error && (
-                    <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-sm font-medium border border-red-100 dark:border-red-800">
+                    <div className="mb-6 p-4 bg-red-50/60 dark:bg-red-900/20 backdrop-blur-md text-red-600 dark:text-red-400 rounded-xl text-sm font-medium border border-red-100/50 dark:border-red-800/50">
                         {error}
                     </div>
                 )}
 
-                <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col min-h-[70vh]">
+                <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 shadow-sm overflow-hidden flex flex-col min-h-[70vh]">
 
                     {/* Cover image area */}
                     {coverImagePreview ? (
@@ -463,8 +467,8 @@ const CommunityEditor: React.FC = () => {
             {/* LinkedIn Preview Modal */}
             {showLinkedInModal && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
-                        <div className="p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-between">
+                    <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-[24px] w-full max-w-2xl shadow-xl border border-white/50 dark:border-gray-800/50 overflow-hidden">
+                        <div className="p-6 border-b border-white/50 dark:border-gray-800/50 bg-gray-50/50 dark:bg-gray-800/40 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <Linkedin size={24} className="text-[#0A66C2]" />
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">Review LinkedIn Post</h3>

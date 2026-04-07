@@ -61,9 +61,9 @@ const MermaidDiagram: React.FC<{ chart: string }> = ({ chart }) => {
         renderChart();
     }, [chart]);
 
-    if (error) {
+        if (error) {
         return (
-            <div className="p-8 bg-rose-50 dark:bg-rose-950/20 rounded-2xl border border-rose-200 dark:border-rose-800 text-center">
+            <div className="p-8 bg-rose-50/60 dark:bg-rose-950/20 backdrop-blur-md rounded-[24px] border border-rose-200/50 dark:border-rose-800/50 text-center">
                 <AlertTriangle className="mx-auto text-rose-500 mb-2" />
                 <p className="text-sm font-medium text-rose-600 dark:text-rose-400">{error}</p>
                 <pre className="mt-4 p-4 bg-black/10 rounded text-xs text-left overflow-auto max-h-40 font-mono text-gray-500">
@@ -76,7 +76,7 @@ const MermaidDiagram: React.FC<{ chart: string }> = ({ chart }) => {
     return (
         <div 
             ref={containerRef} 
-            className="w-full overflow-x-auto flex justify-center py-8 bg-gray-50 dark:bg-gray-900/50 rounded-3xl border border-gray-100 dark:border-gray-800"
+            className="w-full overflow-x-auto flex justify-center py-8 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 shadow-sm"
             dangerouslySetInnerHTML={{ __html: svg }} 
         />
     );
@@ -85,7 +85,7 @@ const MermaidDiagram: React.FC<{ chart: string }> = ({ chart }) => {
 // ── Asset Preview Components ───────────────────────────────────────────
 const ResumePostView: React.FC<{ data: any, scale: number }> = ({ data, scale }) => {
     return (
-        <div className="w-full flex justify-center py-10 bg-gray-50 dark:bg-gray-950 rounded-3xl border border-gray-100 dark:border-gray-800 overflow-hidden relative">
+        <div className="w-full flex justify-center py-10 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 shadow-sm overflow-hidden relative">
             <div
                 style={{
                     width: '824px',
@@ -110,7 +110,7 @@ const PortfolioPostView: React.FC<{ data: any, scale: number }> = ({ data, scale
     const bioLinkTheme = isBioLink && data.linkInBio?.themeId ? getTheme(data.linkInBio.themeId) : undefined;
 
     return (
-        <div className="w-full flex justify-center py-10 bg-gray-50 dark:bg-gray-950 rounded-3xl border border-gray-100 dark:border-gray-800 overflow-hidden relative">
+        <div className="w-full flex justify-center py-10 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 shadow-sm overflow-hidden relative">
             <div
                 style={{
                     width: `${originalWidth}px`,
@@ -165,7 +165,7 @@ const PostContent: React.FC<{ post: any }> = ({ post }) => {
         const svgContent = whiteboard?.thumbnailSvg || post.assetThumbnail;
         if (svgContent?.startsWith('<svg')) {
             return (
-                <div className="w-full bg-white dark:bg-gray-950 rounded-3xl border border-gray-100 dark:border-gray-800 p-4 md:p-8 flex items-center justify-center overflow-auto shadow-sm">
+                <div className="w-full bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 p-4 md:p-8 flex items-center justify-center overflow-auto shadow-sm">
                     <div 
                         className="[&_svg]:max-w-full [&_svg]:h-auto flex items-center justify-center"
                         dangerouslySetInnerHTML={{ __html: svgContent }} 
@@ -316,16 +316,17 @@ const CommunityPostPage: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
-                <Loader2 size={32} className="animate-spin text-primary-500" />
+            <div className="min-h-screen flex items-center justify-center bg-gray-50/50 dark:bg-gray-950/80 relative overflow-hidden">
+                <Loader2 size={32} className="animate-spin text-primary-500 relative z-10" />
             </div>
         );
     }
 
     if (error || !post) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-gray-50 dark:bg-gray-950 text-center px-4">
-                <p className="text-5xl">😕</p>
+            <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-gray-50/50 dark:bg-gray-950/80 relative overflow-hidden text-center px-4">
+                <div className="relative z-10 flex flex-col items-center justify-center gap-4">
+                    <p className="text-5xl">😕</p>
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Post Not Found</h1>
                 <p className="text-gray-500 max-w-sm">{error ?? 'This article may have been removed or the link is incorrect.'}</p>
                 <button
@@ -334,6 +335,7 @@ const CommunityPostPage: React.FC = () => {
                 >
                     Back to Community
                 </button>
+                </div>
             </div>
         );
     }
@@ -345,8 +347,9 @@ const CommunityPostPage: React.FC = () => {
     const shareUrl = `https://careervivid.app/community/post/${postId}`;
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-            <Helmet>
+        <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950/80 relative overflow-hidden">
+            <div className="relative z-10">
+                <Helmet>
                 <title>{post.title} | CareerVivid Community</title>
                 <meta property="og:title" content={post.title} />
                 <meta property="og:type" content="article" />
@@ -421,12 +424,12 @@ const CommunityPostPage: React.FC = () => {
                 <div className="flex items-center gap-3 pt-6 border-t border-gray-100 dark:border-gray-800 mb-12 flex-wrap">
                     <button
                         onClick={handleLike}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all cursor-pointer shadow-sm ${isLiked ? 'bg-pink-50 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400 border border-pink-100 dark:border-pink-900/30' : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700'}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all cursor-pointer shadow-sm ${isLiked ? 'bg-pink-50 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400 border border-pink-100 dark:border-pink-900/30' : 'bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl text-gray-600 dark:text-gray-400 border border-white/50 dark:border-gray-800/50 hover:bg-white/80 dark:hover:bg-gray-900/60'}`}
                     >
                         <Heart size={18} className={isLiked ? 'fill-current' : ''} />
                         {likesCount} {likesCount === 1 ? 'Like' : 'Likes'}
                     </button>
-                    <a href="#comments" className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 transition-all cursor-pointer shadow-sm">
+                    <a href="#comments" className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl text-gray-600 dark:text-gray-400 border border-white/50 dark:border-gray-800/50 hover:bg-white/80 dark:hover:bg-gray-900/60 transition-all cursor-pointer shadow-sm">
                         <MessageSquare size={18} />
                         {post.metrics?.comments || 0} Comments
                     </a>
@@ -448,6 +451,7 @@ const CommunityPostPage: React.FC = () => {
                   <CommentSection postId={postId} />
                 </div>
             </article>
+            </div>
         </div>
     );
 };

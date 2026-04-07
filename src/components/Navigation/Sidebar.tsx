@@ -168,9 +168,9 @@ const Sidebar: React.FC = () => {
     if (!currentUser) return null;
 
     return (
-        <aside className="fixed inset-y-0 left-0 w-64 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-r border-gray-200 dark:border-gray-800 hidden md:flex flex-col z-30 transition-transform duration-300">
+        <aside className="fixed inset-y-0 left-0 w-64 bg-white/60 dark:bg-gray-900/40 backdrop-blur-2xl border-r border-white/20 dark:border-gray-800/40 shadow-[4px_0_24px_rgba(0,0,0,0.02)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.2)] hidden md:flex flex-col z-30 transition-transform duration-300">
             {/* Header / Logo */}
-            <div className="flex items-center justify-between h-16 sm:h-20 px-6 border-b border-gray-200 dark:border-gray-800 shrink-0">
+            <div className="flex items-center justify-between h-16 sm:h-20 px-6 border-b border-white/20 dark:border-gray-800/40 shrink-0 relative before:absolute before:inset-x-6 before:bottom-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-gray-200 dark:before:via-gray-700 before:to-transparent">
                 <a href="/dashboard" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }} className="flex items-center">
                     <Logo className="h-8 w-auto" />
                 </a>
@@ -236,12 +236,7 @@ const Sidebar: React.FC = () => {
                                         onToggle={onToggle}
                                         isEditMode={isEditMode}
                                     />
-                                    {!isEditMode && (currentPath === node.id || currentPath.startsWith(node.id + '/')) && node.data?.type !== 'custom-folder' && (
-                                        <div className="absolute inset-0 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg pointer-events-none -z-10" />
-                                    )}
-                                    {!isEditMode && (currentPath === node.id || currentPath.startsWith(node.id + '/')) && node.data?.type !== 'custom-folder' && (
-                                        <div className="absolute left-0 top-2 bottom-2 w-1 bg-indigo-600 dark:bg-indigo-400 rounded-r-md pointer-events-none" />
-                                    )}
+                                    {/* Removed legacy active indicators in favor of node-local styling */}
                                 </div>
                             )}
                         />
@@ -264,7 +259,7 @@ const Sidebar: React.FC = () => {
             </nav>
 
             {/* Utility Section */}
-            <div className="mt-auto flex flex-col gap-1 px-4 pt-3 pb-2 border-t border-gray-200 dark:border-gray-800">
+            <div className="mt-auto flex flex-col gap-1 px-4 pt-4 pb-2 border-t border-transparent relative before:absolute before:inset-x-4 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-gray-200 dark:before:via-gray-700 before:to-transparent">
                 {aiUsage && (
                     <div className="mb-2 px-1 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate('/subscription')}>
                         <AIUsageProgressBar used={aiUsage.count || 0} limit={aiUsage.limit || 10} isPremium={isPremium} variant="minimal" />
@@ -283,7 +278,7 @@ const Sidebar: React.FC = () => {
                 {/* Theme Toggle */}
                 <div className="flex items-center justify-between px-3 py-2">
                     <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Theme</span>
-                    <div className="flex items-center gap-0.5 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+                    <div className="flex items-center gap-0.5 bg-gray-100/50 dark:bg-gray-800/50 backdrop-blur-md rounded-xl p-1 border border-gray-200/50 dark:border-gray-700/50 shadow-inner">
                         {themeOptions.map(opt => (
                             <button key={opt.value} onClick={() => setTheme(opt.value)} title={opt.label}
                                 className={`p-1.5 rounded-md transition-all ${theme === opt.value ? 'bg-indigo-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-800'}`}>
@@ -305,8 +300,8 @@ const Sidebar: React.FC = () => {
             </div>
 
             {/* User Profile Card */}
-            <div className="p-4 border-t border-gray-200 dark:border-gray-800 shrink-0">
-                <div onClick={() => navigate('/profile')} className="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+            <div className="p-4 border-t border-transparent relative before:absolute before:inset-x-4 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-gray-200 dark:before:via-gray-700 before:to-transparent shrink-0">
+                <div onClick={() => navigate('/profile')} className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-white/80 dark:hover:bg-gray-800/60 shadow-sm border border-transparent hover:border-gray-200/50 dark:hover:border-gray-700/50 transition-all duration-300 group">
                     <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center overflow-hidden shrink-0">
                         {currentUser.photoURL ? (
                             <img src={currentUser.photoURL} alt="User" className="w-full h-full object-cover" />

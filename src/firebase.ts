@@ -24,14 +24,22 @@ const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
-
-// Connect to emulator if configured
-const useEmulator = import.meta.env?.VITE_USE_FIREBASE_EMULATOR || (typeof process !== 'undefined' ? process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR : 'false');
-if (useEmulator === 'true') {
-    connectStorageEmulator(storage, 'localhost', 9199);
-}
 const functions = getFunctions(app, 'us-west1'); // Set region to match Cloud Functions deployment
 const googleProvider = new GoogleAuthProvider();
+
+// Connect to emulators if VITE_USE_FIREBASE_EMULATOR=true
+// Usage: add VITE_USE_FIREBASE_EMULATOR=true to .env.local then restart dev server
+const useEmulator = import.meta.env?.VITE_USE_FIREBASE_EMULATOR || (typeof process !== 'undefined' ? process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR : 'false');
+if (useEmulator === 'true') {
+    import('firebase/firestore').then(({ connectFirestoreEmulator }) => {
+        connectFirestoreEmulator(db, 'localhost', 8080);
+    });
+    import('firebase/functions').then(({ connectFunctionsEmulator }) => {
+        connectFunctionsEmulator(functions, 'localhost', 5001);
+    });
+    connectStorageEmulator(storage, 'localhost', 9199);
+    console.log('[Firebase] 🔧 Connected to local emulators (Firestore:8080, Functions:5001, Storage:9199)');
+}
 
 
 export { auth, db, storage, googleProvider, analytics, functions };

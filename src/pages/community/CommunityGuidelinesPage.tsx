@@ -8,10 +8,13 @@ import PublicHeader from '../../components/PublicHeader';
 
 const CommunityGuidelinesPage: React.FC = () => {
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pt-8 pb-16">
-            <PublicHeader />
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
+        <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950/80 pt-8 pb-16 relative overflow-hidden">
+            {/* Ambient Base Glow */}
+            <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary-400/20 dark:bg-primary-600/10 blur-[120px] pointer-events-none z-[-1]" />
+            <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/20 dark:bg-blue-600/10 blur-[120px] pointer-events-none z-[-1]" />
 
+            <PublicHeader />
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20 relative z-10">
                 {/* Page Header */}
                 <header className="mb-8 flex items-center justify-between">
                     <div>
@@ -29,7 +32,7 @@ const CommunityGuidelinesPage: React.FC = () => {
                     {/* ── Left Column ─────────────────────────────────────── */}
                     <aside className="hidden md:flex flex-col gap-5 w-64 shrink-0 lg:sticky lg:top-24">
                         {/* Navigation */}
-                        <nav className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+                        <nav className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 shadow-sm overflow-hidden">
                             <NavItem
                                 icon={<Home size={18} />}
                                 label="Home"
@@ -60,7 +63,7 @@ const CommunityGuidelinesPage: React.FC = () => {
                     </aside>
 
                     {/* ── Center Column: Content ──────────────────────────────── */}
-                    <main className="flex-1 min-w-0 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-8 sm:p-12">
+                    <main className="flex-1 min-w-0 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 shadow-sm p-8 sm:p-12">
 
                         <div className="prose prose-lg dark:prose-invert max-w-none">
                             <h2 className="flex items-center gap-2">
@@ -142,12 +145,13 @@ interface NavItemProps {
 const NavItem: React.FC<NavItemProps> = ({ icon, label, active, onClick }) => (
     <button
         onClick={onClick}
-        className={`w-full flex items-center gap-3 px-5 py-3.5 text-sm font-semibold transition-colors duration-150 cursor-pointer
+        className={`w-full flex items-center gap-3 px-5 py-3.5 text-sm font-semibold transition-colors duration-150 cursor-pointer relative
             ${active
-                ? 'bg-primary-50 dark:bg-primary-950/50 text-primary-700 dark:text-primary-300 border-l-2 border-primary-600'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-2 border-transparent'
+                ? 'text-primary-700 dark:text-primary-300'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-white/40 dark:hover:bg-gray-800/40'
             }`}
     >
+        {active && <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary-600 rounded-r-full shadow-[0_0_8px_rgba(var(--color-primary-500),0.6)]" />}
         <span className={active ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400'}>{icon}</span>
         {label}
     </button>

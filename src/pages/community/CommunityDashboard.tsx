@@ -261,7 +261,11 @@ const CommunityDashboard: React.FC = () => {
     }, [inView, hasMore, isFetchingNextPage, fetchMorePosts, searchQuery]);
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pt-8 pb-16">
+        <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950/80 pt-8 pb-16 relative overflow-hidden">
+            {/* Ambient Base Glow */}
+            <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary-400/20 dark:bg-primary-600/10 blur-[120px] pointer-events-none z-[-1]" />
+            <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/20 dark:bg-blue-600/10 blur-[120px] pointer-events-none z-[-1]" />
+            
             {/* Mobile Drawer Navigation */}
             <CommunityMobileDrawer
                 isOpen={isMobileDrawerOpen}
@@ -387,7 +391,7 @@ const CommunityDashboard: React.FC = () => {
                     {/* ── Left Column ─────────────────────────────────────── */}
                     <aside className="hidden md:flex flex-col gap-5 w-64 shrink-0 lg:sticky lg:top-24">
                         {/* Navigation */}
-                        <nav className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+                        <nav className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 shadow-sm overflow-hidden">
                             <NavItem
                                 icon={<Home size={18} />}
                                 label={t('community.sidebar.home')}
@@ -423,7 +427,7 @@ const CommunityDashboard: React.FC = () => {
                         </nav>
 
                         {/* Showcases Filter */}
-                        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-4">
+                        <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 shadow-sm p-4">
                             <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3 px-1">
                                 {t('community.sidebar.showcases')}
                             </h3>
@@ -440,8 +444,8 @@ const CommunityDashboard: React.FC = () => {
                                         onClick={() => setTypeFilter(item.type)}
                                         className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer
                                             ${typeFilter === item.type
-                                                ? 'bg-primary-50 dark:bg-primary-950/50 text-primary-700 dark:text-primary-300'
-                                                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                                                ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 shadow-sm'
+                                                : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-800/50 hover:shadow-sm'
                                             }`}
                                     >
                                         <span className={typeFilter === item.type ? 'text-primary-500' : 'text-gray-400'}>{item.icon}</span>
@@ -452,7 +456,7 @@ const CommunityDashboard: React.FC = () => {
                         </div>
 
                         {/* Popular Tags */}
-                        <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm">
+                        <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] p-5 border border-white/50 dark:border-gray-800/50 shadow-sm">
                             <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">
                                 {t('community.sidebar.popular_tags')}
                             </h3>
@@ -535,7 +539,7 @@ const CommunityDashboard: React.FC = () => {
                                         </Suspense>
                                     </div>
                                 ) : (
-                                    <div className="mx-4 md:mx-0 text-center py-20 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800">
+                                    <div className="mx-4 md:mx-0 text-center py-20 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 shadow-sm">
                                         <div className="text-5xl mb-4" role="img" aria-label="sad">🔍</div>
                                         <p className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t('community.search_no_results', 'No results found')}</p>
                                         <p className="text-gray-500 mb-6 text-sm">
@@ -556,7 +560,7 @@ const CommunityDashboard: React.FC = () => {
 
                         {/* Default Firebase Feed (Newest / Type Filtered) */}
                         {!loading && !searchQuery && !activeTag && sortMode !== 'trending' && posts.length === 0 && (
-                            <div className="mx-4 md:mx-0 text-center py-20 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800">
+                            <div className="mx-4 md:mx-0 text-center py-20 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 shadow-sm">
                                 <div className="text-5xl mb-4" role="img" aria-label="seedling">🌱</div>
                                 <p className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t('community.feed.empty_title')}</p>
                                 <p className="text-gray-500 mb-6 text-sm">{t('community.feed.empty_desc')}</p>
@@ -599,9 +603,9 @@ const CommunityDashboard: React.FC = () => {
                     <aside className="hidden xl:flex flex-col gap-5 w-72 shrink-0 sticky top-24">
                         {currentUser ? (
                             /* Write CTA */
-                            <div className="bg-gradient-to-br from-primary-600 to-blue-600 rounded-2xl p-6 text-white relative overflow-hidden">
-                                <div className="absolute -top-6 -right-6 w-24 h-24 bg-white/10 rounded-full" />
-                                <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-white/10 rounded-full" />
+                            <div className="bg-gradient-to-br from-primary-600 to-blue-600 rounded-[24px] p-6 text-white relative overflow-hidden shadow-xl shadow-primary-500/10 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                                <div className="absolute -top-6 -right-6 w-24 h-24 bg-white/10 rounded-full blur-xl" />
+                                <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-white/10 rounded-full blur-xl" />
                                 <div className="relative z-10">
                                     <p className="text-2xl mb-1">✍️</p>
                                     <h3 className="font-extrabold text-xl mb-2">{t('community.feed.write_article')}</h3>
@@ -618,7 +622,7 @@ const CommunityDashboard: React.FC = () => {
                             </div>
                         ) : (
                             /* Guest Signup CTA */
-                            <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden">
+                            <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] p-6 border border-white/50 dark:border-gray-800/50 shadow-sm relative overflow-hidden hover:shadow-lg transition-all duration-300">
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-500 to-blue-500" />
                                 <div className="relative z-10">
                                     <h3 className="font-extrabold text-xl mb-2 text-gray-900 dark:text-white">{t('community.guestCta.join_community')}</h3>
@@ -637,7 +641,7 @@ const CommunityDashboard: React.FC = () => {
                         )}
 
                         {/* Hiring Companies */}
-                        <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm">
+                        <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] p-5 border border-white/50 dark:border-gray-800/50 shadow-sm">
                             <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                                 <Briefcase size={14} /> {t('community.companies.companies_hiring')}
                             </h3>
@@ -700,12 +704,13 @@ interface NavItemProps {
 const NavItem: React.FC<NavItemProps> = ({ icon, label, active, onClick }) => (
     <button
         onClick={onClick}
-        className={`w-full flex items-center gap-3 px-5 py-3.5 text-sm font-semibold transition-colors duration-150 cursor-pointer
+        className={`w-full flex items-center gap-3 px-5 py-3.5 text-sm font-semibold transition-colors duration-150 cursor-pointer relative
             ${active
-                ? 'bg-primary-50 dark:bg-primary-950/50 text-primary-700 dark:text-primary-300 border-l-2 border-primary-600'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 border-l-2 border-transparent'
+                ? 'text-primary-700 dark:text-primary-300'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-white/40 dark:hover:bg-gray-800/40'
             }`}
     >
+        {active && <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary-600 rounded-r-full shadow-[0_0_8px_rgba(var(--color-primary-500),0.6)]" />}
         <span className={active ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400'}>{icon}</span>
         {label}
     </button>

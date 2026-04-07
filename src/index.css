@@ -3,6 +3,18 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    @apply antialiased scroll-smooth;
+  }
+  body {
+    @apply bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-body;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight text-text-main-light dark:text-text-main-dark;
+  }
+}
+
 /* Existing animations... */
 
 @keyframes bounce-horizontal {

@@ -2,6 +2,13 @@
 
 View and update local CLI settings.
 
+## Available Configuration Keys
+
+- \`apiKey\`: Your CareerVivid API key.
+- \`geminiKey\`: Your Gemini API key for local AI-powered job application tracking and parsing.
+- \`targetCompanies\`: Comma-separated list of target organizations to focus search on ATS boards (used by \`cv jobs hunt\`).
+- \`apiUrl\`: Optional API endpoint override (default: \`https://careervivid.app/api\`).
+
 ## Commands
 
 ### `cv config show`

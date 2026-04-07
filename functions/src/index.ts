@@ -55,6 +55,12 @@ export { publishPost } from "./publishPost";
 export { verifyAuth } from "./verifyAuth";
 export { initPortfolio, updatePortfolioProjects, updatePortfolioHero, uploadPortfolioAsset, onPortfolioProjectsUpdated } from "./portfolioApi";
 
+// Career-Ops AI Pipeline
+export { evaluateJob, generateLinkedInOutreach, generateDeepResearch, saveCareerProfile } from "./careerOps";
+
+// CLI Job Hunt API
+export { cliJobsHunt, cliJobsCreate, cliJobsUpdate, cliJobsList, cliResumeGet, cliResumesList } from "./cliJobs";
+
 const APP_BASE_URL =
   process.env.CAREERVIVID_APP_URL ||
   "https://careervivid.app/";

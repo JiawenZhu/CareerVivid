@@ -64,7 +64,7 @@ const WhiteboardCard: React.FC<WhiteboardCardProps> = ({ whiteboard, onUpdate, o
             draggable
             onDragStart={onDragStart}
             onContextMenu={handleContextMenu}
-            className="bg-white dark:bg-[#161b22] rounded-2xl border border-gray-200/60 dark:border-gray-800 transition-all duration-300 hover:border-primary-500/30 dark:hover:border-primary-400/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] flex flex-col cursor-grab active:cursor-grabbing overflow-hidden group relative"
+            className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 transition-all duration-300 hover:border-primary-500/30 dark:hover:border-primary-400/30 hover:shadow-lg flex flex-col cursor-grab active:cursor-grabbing overflow-hidden group relative"
         >
             <div onClick={!isEditingTitle ? navigateToEdit : undefined} className="block p-4 border-b border-gray-100 dark:border-gray-800/60 group-hover:bg-gray-50/50 dark:group-hover:bg-[#1a2029] transition-colors flex-grow cursor-pointer">
                 {/* Thumbnail Preview or Empty Placeholder */}

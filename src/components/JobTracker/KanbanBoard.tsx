@@ -28,7 +28,7 @@ const KanbanColumn: React.FC<{
     isDragOver: boolean;
 }> = ({ status, applications, onCardClick, onUpdateApplication, onDragOver, onDrop, onDragLeave, isDragOver }) => (
     <div
-        className={`flex-1 min-w-[300px] bg-gray-100 dark:bg-gray-800/50 rounded-lg p-4 transition-colors ${isDragOver ? 'bg-primary-100 dark:bg-primary-900/30' : ''}`}
+        className={`flex-1 min-w-[300px] bg-white/40 dark:bg-gray-900/40 backdrop-blur-md border border-white/50 dark:border-gray-800/50 rounded-[20px] p-4 transition-colors ${isDragOver ? 'border-primary-400 bg-primary-100/50 dark:bg-primary-900/20 shadow-lg' : ''}`}
         onDragOver={onDragOver}
         onDrop={onDrop}
         onDragLeave={onDragLeave}

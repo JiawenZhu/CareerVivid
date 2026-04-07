@@ -400,9 +400,13 @@ const EditPost: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 relative">
+        <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950/80 relative overflow-hidden">
+            {/* Ambient Base Glow */}
+            <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary-400/20 dark:bg-primary-600/10 blur-[120px] pointer-events-none z-[-1]" />
+            <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/20 dark:bg-blue-600/10 blur-[120px] pointer-events-none z-[-1]" />
+
             {/* Header */}
-            <header className="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800">
+            <header className="sticky top-0 z-40 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl border-b border-white/50 dark:border-gray-800/50">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                     <button
                         onClick={() => navigate(window.history.state?.from || `/community/post/${postId}`)}
@@ -424,19 +428,19 @@ const EditPost: React.FC = () => {
                 </div>
             </header>
 
-            <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+            <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 relative z-10">
                 {localError && (
-                    <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl border border-red-100 dark:border-red-900/30 font-medium text-sm flex items-start gap-3 shadow-sm animate-pulse">
+                    <div className="mb-6 p-4 bg-red-50/60 dark:bg-red-900/20 backdrop-blur-md text-red-600 dark:text-red-400 rounded-xl border border-red-100/50 dark:border-red-900/30 font-medium text-sm flex items-start gap-3 shadow-sm animate-pulse">
                         <span className="mt-0.5 block shrink-0">⚠️</span>
                         <span>{localError}</span>
                     </div>
                 )}
 
-                <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden flex flex-col min-h-[600px]">
+                <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] shadow-sm border border-white/50 dark:border-gray-800/50 overflow-hidden flex flex-col min-h-[600px]">
 
                     {/* Cover Image Area */}
                     {coverImagePreview ? (
-                        <div className="relative w-full h-48 sm:h-64 group bg-gray-100 dark:bg-gray-800">
+                        <div className="relative w-full h-48 sm:h-64 group bg-gray-100/50 dark:bg-gray-800/50">
                             <img src={coverImagePreview} alt="Cover Preview" className="w-full h-full object-cover transition-opacity duration-300" />
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-sm">
                                 <button
@@ -548,8 +552,8 @@ const EditPost: React.FC = () => {
             {/* LinkedIn Preview Modal */}
             {showLinkedInModal && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
-                        <div className="p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-between">
+                    <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-[24px] w-full max-w-2xl shadow-xl border border-white/50 dark:border-gray-800/50 overflow-hidden">
+                        <div className="p-6 border-b border-white/50 dark:border-gray-800/50 bg-gray-50/50 dark:bg-gray-800/40 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <Linkedin size={24} className="text-[#0A66C2]" />
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">Review LinkedIn Post</h3>

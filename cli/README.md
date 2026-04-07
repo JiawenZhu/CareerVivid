@@ -146,15 +146,24 @@ cv profile export --format gdoc
 
 ### `cv jobs`
 
-Automate your job application tracking.
+Automate your job application tracking with AI.
 
 | Subcommand | Description |
 |---|---|
-| `cv jobs sync-gmail` | Scan Gmail for applications and sync to a Google Sheet |
+| `cv jobs hunt` | AI-powered job search scored against your resume → auto-saves to /job-tracker |
+| `cv jobs update` | Interactively update a job application status on your Kanban board |
+| `cv jobs list` | View your current job tracker board |
+| `cv jobs sync-gmail` | [Legacy] Scan Gmail for applications and sync to a Google Sheet |
 
 ```bash
-# Sync recent applications to Google Sheets
-cv jobs sync-gmail
+# AI-powered job search scored against your resume (uses configuration keys)
+cv jobs hunt --role "Software Engineer" --score 60
+
+# View your job tracking board
+cv jobs list
+
+# Update status of an application
+cv jobs update
 ```
 
 ---
@@ -202,10 +211,16 @@ View and modify CLI configuration stored at `~/.careervividrc.json`.
 | `cv config get <key>` | Print a single config value |
 | `cv config set <key> <value>` | Update a config value |
 
+**Available Keys:**
+- \`apiKey\`: Your CareerVivid API key.
+- \`geminiKey\`: Your Gemini API key for local AI-powered job application tracking and parsing.
+- \`targetCompanies\`: Comma-separated list of target organizations to focus search on ATS boards (used by \`cv jobs hunt\`).
+- \`apiUrl\`: Optional API endpoint override (default: \`https://careervivid.app/api\`).
+
 ```bash
 cv config show
-cv config get apiKey
-cv config set apiUrl https://careervivid.app/api/publish
+cv config get targetCompanies
+cv config set targetCompanies "OpenAI, Google, Vercel"
 ```
 
 ---

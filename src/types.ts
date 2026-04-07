@@ -144,7 +144,7 @@ export interface EmailPreferences {
   lastSentAt?: any; // Firestore Timestamp
 }
 
-export type SidebarNodeType = 'system' | 'custom-folder' | 'custom-file' | 'resume' | 'portfolio' | 'whiteboard' | 'post';
+export type SidebarNodeType = 'system' | 'custom-folder' | 'custom-file' | 'resume' | 'portfolio' | 'whiteboard' | 'post' | 'sop';
 
 export interface SidebarNode {
   id: string;           // Unique identifier (e.g., path or UUID)
@@ -274,6 +274,66 @@ export type WorkModel = 'On-site' | 'Hybrid' | 'Remote';
 export const APPLICATION_STATUSES: ApplicationStatus[] = ['To Apply', 'Applied', 'Interviewing', 'Offered', 'Rejected'];
 export const WORK_MODELS: WorkModel[] = ['On-site', 'Hybrid', 'Remote'];
 
+// --- Career-Ops AI Types ---
+
+/** Structured result from the A-F block career-ops evaluation */
+export interface AIJobEvaluation {
+  score: number;                  // Weighted 1.0–5.0
+  archetype: string;              // e.g. "AI Platform / LLMOps", "Solutions Architect"
+  blocksA_F: {
+    roleOverview: string;         // Block A: what this role actually is
+    cvMatch: string;              // Block B: gaps + proof points vs CV
+    levelStrategy: string;        // Block C: seniority positioning advice
+    compResearch: string;         // Block D: market comp data
+    personalizationPlan: string;  // Block E: top 5 CV tweaks
+    interviewPrep: string;        // Block F: STAR stories mapped to JD
+  };
+  atsKeywords: string[];          // 15-20 keywords extracted from JD
+  recommendApply: boolean;        // true if score >= 4.0
+  evaluatedAt: any;               // Firestore Timestamp
+}
+
+/** User's master career profile — feeds the AI evaluation engine */
+export interface PortalConfig {
+  trackedCompanies: Array<{
+    name: string;
+    careersUrl: string;
+    enabled: boolean;
+  }>;
+  titleFilters: {
+    positive: string[];           // Must contain one of these
+    negative: string[];           // Exclude if contains these
+    seniorityBoost: string[];     // Boost score if title contains these
+  };
+}
+
+export interface CareerProfile {
+  uid: string;
+  cvMarkdown: string;             // Master CV as markdown (career-ops cv.md equivalent)
+  articleDigest?: string;         // Proof points / articles / projects
+  targetArchetypes: string[];     // e.g. ["AI Platform / LLMOps", "Solutions Architect"]
+  targetSalaryMin?: number;
+  targetSalaryMax?: number;
+  targetLocations?: string[];
+  portalConfig?: PortalConfig;
+  updatedAt: any;                 // Firestore Timestamp
+}
+
+/** A single STAR+R interview story that grows over time */
+export interface STARStory {
+  id: string;
+  uid: string;
+  title: string;                  // Short descriptor, e.g. "Led migration to microservices"
+  situation: string;
+  task: string;
+  action: string;
+  result: string;
+  reflection: string;             // The "+R" — what you learned / how you'd do it differently
+  tags: string[];                 // Competencies: "leadership", "technical", "cross-functional"
+  usedForJobs: string[];          // jobTracker IDs where this story was applied
+  createdAt: any;
+  updatedAt?: any;
+}
 
 export interface JobApplicationData {
   id: string; // Firestore doc ID
@@ -302,6 +362,15 @@ export interface JobApplicationData {
   prep_QuestionsForInterviewer?: string;
   notes?: string;
   matchAnalyses?: Record<string, ResumeMatchAnalysis>; // Persist analysis results per resume
+
+  // --- Career-Ops AI Fields (all optional — added progressively) ---
+  aiEvaluation?: AIJobEvaluation;             // Full A-F evaluation result
+  tailoredResumeUrl?: string;                 // Firebase Storage URL of tailored PDF
+  linkedInOutreach?: string;                  // Generated LinkedIn connection message (≤300 chars)
+  deepResearchPrompt?: string;                // Generated Perplexity/research prompt
+  applicationAnswers?: Record<string, string>; // form field → AI-generated answer
+  portalSource?: string;                      // Which portal scanner discovered this job
+  lastScannedAt?: any;                        // When portal scanner last touched this
 
   // Timestamps
   createdAt: any;
@@ -602,4 +671,221 @@ export interface Order {
   delivery_proof_img?: string;
   total_amount: number;
   created_at: any; // Firestore Timestamp
+}
+
+// ─────────────────────────────────────────────
+// SOP (Standard Operating Procedure) Types
+// ─────────────────────────────────────────────
+
+export type SOPSectionType =
+  | 'header'
+  | 'overview'
+  | 'ppe'
+  | 'tools'
+  | 'steps'
+  | 'specs'
+  | 'images'
+  | 'system_diagrams'
+  | 'tools'
+  | 'verification'
+  | 'checklist'
+  | 'footer_notes'
+  | 'safety_panel';
+
+// ── Per-section content payloads ──
+
+export interface SOPOverviewContent {
+  description: string;
+  purpose: string;
+  scope: string;
+  applicability?: string;
+  objectives?: string[];
+  outcomes?: string[];
+}
+
+export interface SOPPPEItem {
+  id: string;
+  icon: string;       // key from PPE_ICONS constant
+  label: string;
+  required: boolean;
+  imageUrl?: string;  // Optional custom photo for the gear
+}
+
+export interface SOPPPEContent {
+  items: SOPPPEItem[];
+}
+
+export interface SOPToolItem {
+  id: string;
+  name: string;
+  partNumber?: string;
+  quantity?: string;
+  notes?: string;
+}
+
+export interface SOPToolsContent {
+  items: SOPToolItem[];
+}
+
+export interface SOPStep {
+  id: string;
+  stepNumber: number;
+  title: string;
+  description: string;   // Rich text / markdown
+  warning?: string;       // Caution/danger note
+  note?: string;          // Informational note
+  imageUrl?: string;      // Optional inline photo
+  imageCaption?: string;
+  videoUrl?: string;      // Optional: video link for this step
+  assignedTo?: string;
+  tools?: string;
+}
+
+export interface SOPStepsContent {
+  steps: SOPStep[];
+}
+
+export interface SOPSpecRow {
+  id: string;
+  parameter: string;
+  value: string;
+  unit: string;
+  tolerance?: string;
+  notes?: string;
+}
+
+export interface SOPSpecsContent {
+  rows: SOPSpecRow[];
+  tableTitle?: string;
+}
+
+export interface SOPImageAnnotation {
+  id: string;
+  x: number;       // percentage 0-100
+  y: number;       // percentage 0-100
+  label: string;
+}
+
+export interface SOPImageItem {
+  id: string;
+  url: string;
+  caption: string;
+  alignment?: 'left' | 'center' | 'right' | 'full';
+  label?: string;               // e.g. "Fig. 1"
+  width?: 'half' | 'full';      // layout in the editor grid
+  annotations?: SOPImageAnnotation[];
+  videoUrl?: string;            // Optional: YouTube/Vimeo/direct URL; click on image plays this
+}
+
+/** Alias kept for semantic clarity in the SOP editor */
+export type SOPImageEntry = SOPImageItem;
+
+export interface SOPImagesContent {
+  images: SOPImageItem[];
+}
+
+export interface SOPSystemDiagramsContent {
+  diagrams: SOPImageItem[];
+}
+
+export interface SOPChecklistItem {
+  id: string;
+  text: string;
+  category?: 'pre-op' | 'post-op' | 'general' | 'safety' | 'quality' | 'environmental';
+}
+
+export interface SOPChecklistContent {
+  items: SOPChecklistItem[];
+  subtitle?: string;
+}
+
+export interface SOPVerificationRow {
+  id: string;
+  requirement: string;
+  method: string;
+  acceptanceCriteria: string;
+  status?: 'pending' | 'pass' | 'fail' | 'na';
+  evidence?: string;
+}
+
+export interface SOPVerificationContent {
+  rows: SOPVerificationRow[];
+}
+
+export interface SOPFooterNotesContent {
+  notes: string;          // free text / markdown
+  revisionHistory?: { revision: string; date: string; description: string; author: string }[];
+  stakeholderFeedback?: { name: string; role: string; feedback: string; date: string }[];
+}
+
+/** A labelled text item used in the safety panel (hazard list, equipment list, etc.) */
+export interface SOPSafetyListItem {
+  id: string;
+  text: string;
+  severity?: 'low' | 'medium' | 'high'; // optional colour-coding for hazards
+}
+
+/** Content for the combined Safety Panel section */
+export interface SOPSafetyPanelContent {
+  /** Left column – required PPE icons (reuses SOPPPEItem) */
+  ppeItems: SOPPPEItem[];
+  /** Left column – safety equipment text list */
+  safetyEquipment: SOPSafetyListItem[];
+  /** Right column – main machine / process image */
+  machineImage?: SOPImageItem;
+  /** Right column – potential hazards text list */
+  hazards: SOPSafetyListItem[];
+}
+
+export type SOPSectionContent =
+  | SOPOverviewContent
+  | SOPPPEContent
+  | SOPToolsContent
+  | SOPStepsContent
+  | SOPSpecsContent
+  | SOPImagesContent
+  | SOPSystemDiagramsContent
+  | SOPToolsContent
+  | SOPVerificationContent
+  | SOPChecklistContent
+  | SOPFooterNotesContent
+  | SOPSafetyPanelContent
+  | Record<string, any>; // fallback for header
+
+export interface SOPSection {
+  id: string;
+  type: SOPSectionType;
+  title: string;
+  content: SOPSectionContent;
+  order: number;
+  isHidden?: boolean;
+}
+
+export interface SOPBranding {
+  companyName: string;
+  companyLogo?: string;     // Firebase Storage URL
+  primaryColor: string;     // Hex color
+  accentColor: string;      // Hex color
+  titleFont: string;
+  bodyFont: string;
+}
+
+export interface SOPData {
+  id: string;
+  userId: string;
+  title: string;
+  documentNumber: string;   // e.g. "SOP-2024-001"
+  revision: string;         // e.g. "Rev A"
+  effectiveDate: string;    // ISO date string
+  department: string;
+  preparedBy: string;
+  approvedBy: string;
+  sections: SOPSection[];
+  branding: SOPBranding;
+  createdAt: any;           // Firestore Timestamp
+  updatedAt: any;           // Firestore Timestamp
+  section?: string;         // Dashboard sidebar folder
+  /** Freeform BlockNote content zones keyed by zone ID (e.g. "before-0", "after-last") */
+  customBlocks?: Record<string, string>;
+  layoutMode?: 'standard' | 'manual' | 'business';
 }

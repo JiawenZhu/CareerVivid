@@ -310,5 +310,27 @@ service cloud.firestore {
       allow create: if (isBusinessPartner() || isAdmin()) && request.resource.data.hrUserId == request.auth.uid;
       allow update, delete: if (isBusinessPartner() && resource.data.hrUserId == request.auth.uid) || isAdmin();
     }
+
+    // ---------------------------------------------------------
+    // 🎲 VECTOR LOTTO (New Feature)
+    // ---------------------------------------------------------
+    // Predictions: anyone can create, only author can read theirs
+    match /vectorlotto_predictions/{docId} {
+      allow create: if true; // anonymous + authenticated
+      allow read: if request.auth != null && 
+                     (resource.data.userId == request.auth.uid || resource.data.userId == null);
+      allow update, delete: if false;
+    }
+
+    // User profiles: only the user themselves
+    match /vectorlotto_users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Waitlist: anyone can write (email capture), admin-only read
+    match /vectorlotto_waitlist/{emailId} {
+      allow create, update: if true;
+      allow read, delete: if false; // Admin reads via Firebase Console / Admin SDK
+    }
   }
 }

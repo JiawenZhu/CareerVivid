@@ -116,12 +116,12 @@ export const CustomSidebarNode: React.FC<Props> = ({ node, depth, isOpen, onTogg
 
     return (
         <div
-            className={`relative items-center group py-2 pr-2 rounded-lg transition-colors
+            className={`relative items-center group py-2 pr-2 rounded-xl transition-all duration-300 my-0.5 mx-1
         ${isCreationLink ? 'hidden md:flex' : 'flex'}
         ${isHidden && !isEditMode ? 'hidden' : ''}
         ${isHidden && isEditMode ? 'opacity-40' : 'opacity-100'}
-        ${isEditMode ? 'bg-white dark:bg-gray-900 border-transparent hover:border-gray-200 dark:hover:border-gray-700 border' : 'hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer'}
-        ${activeNodeId === node.id.toString() && !isEditMode ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 font-semibold' : ''}
+        ${isEditMode ? 'bg-white/50 dark:bg-gray-900/50 border-transparent hover:border-gray-200 dark:hover:border-gray-700 border' : 'hover:bg-white/60 dark:hover:bg-gray-800/60 cursor-pointer'}
+        ${activeNodeId === node.id.toString() && !isEditMode ? 'text-indigo-700 dark:text-indigo-400 font-bold shadow-sm bg-white/90 dark:bg-gray-800/90 border border-white/50 dark:border-gray-700/50 backdrop-blur-sm shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)]' : 'text-gray-600 dark:text-gray-400'}
       `}
             style={{ paddingLeft: `${depth * 16 + 8}px` }}
             tabIndex={isEditMode ? 0 : -1}

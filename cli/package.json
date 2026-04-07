@@ -1,6 +1,6 @@
 {
   "name": "careervivid",
-  "version": "1.10.0",
+  "version": "1.12.1",
   "description": "Official CLI for CareerVivid — publish articles, diagrams, and portfolio updates from your terminal or AI agent",
   "type": "module",
   "bin": {
@@ -21,6 +21,7 @@
     "postinstall": "node ./dist/postinstall.js"
   },
   "dependencies": {
+    "@google/genai": "^1.47.0",
     "boxen": "^8.0.1",
     "chalk": "^5.3.0",
     "commander": "^12.1.0",

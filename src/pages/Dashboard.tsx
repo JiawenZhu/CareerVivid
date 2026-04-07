@@ -1,5 +1,5 @@
 import React, { Suspense, useRef, useEffect } from 'react';
-import { PlusCircle, FileText, Mic, Briefcase, LayoutDashboard, Loader2, Globe, User as UserIcon, ChevronDown, FolderPlus, PenTool, LayoutGrid, List, PanelLeft, Github, Users, MessageSquare } from 'lucide-react';
+import { PlusCircle, FileText, Mic, Briefcase, LayoutDashboard, Loader2, Globe, User as UserIcon, ChevronDown, FolderPlus, PenTool, LayoutGrid, List, PanelLeft, Github, Users, MessageSquare, ClipboardList } from 'lucide-react';
 
 // Hooks & Logic
 import { useDashboard } from '../hooks/useDashboard';
@@ -115,7 +115,7 @@ const Dashboard: React.FC = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [setIsUserMenuOpen, setIsNewMenuOpen]);
 
-    if (isDesktop && (isLoadingResumes || (!isLoadingResumes && resumes.length === 0))) {
+    if (isDesktop && isLoadingResumes) {
         return (
             <div className="flex flex-col justify-center items-center h-screen bg-gray-100 dark:bg-gray-950">
                 <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
@@ -126,7 +126,10 @@ const Dashboard: React.FC = () => {
 
     return (
         <AppLayout>
-            <div className="bg-[#f8f9fa] dark:bg-[#0a0c10] min-h-screen">
+            <div className="min-h-screen bg-gray-50/50 dark:bg-[#0a0c10]/80 relative overflow-hidden">
+                {/* Ambient Base Glow */}
+                <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary-400/20 dark:bg-primary-600/10 blur-[120px] pointer-events-none z-[-1]" />
+                <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/20 dark:bg-blue-600/10 blur-[120px] pointer-events-none z-[-1]" />
                 <ConfirmationModal
                     isOpen={isUpgradeModalOpen}
                     onCancel={() => setIsUpgradeModalOpen(false)}
@@ -183,6 +186,9 @@ const Dashboard: React.FC = () => {
                                                 </button>
                                                 <button onClick={async () => { const id = await createWhiteboard(); navigate(`/whiteboard/${id}`); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                     <PenTool size={16} /> New Whiteboard
+                                                </button>
+                                                <button onClick={() => { navigate('/sop/new'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                    <ClipboardList size={16} /> New SOP Document
                                                 </button>
                                                 <button onClick={() => { navigate('/interview-studio'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                     <Mic size={16} /> {t('dashboard.interview_practice')}

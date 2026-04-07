@@ -33,8 +33,12 @@ const MyPostsPage: React.FC = () => {
 
     return (
         <AppLayout>
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-900/50 py-8 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-7xl mx-auto">
+            <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950/80 relative overflow-hidden py-8 px-4 sm:px-6 lg:px-8">
+                {/* Ambient Base Glow */}
+                <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary-400/20 dark:bg-primary-600/10 blur-[120px] pointer-events-none z-[-1]" />
+                <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/20 dark:bg-blue-600/10 blur-[120px] pointer-events-none z-[-1]" />
+
+                <div className="max-w-7xl mx-auto relative z-10">
                     <header className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
                             <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">My Posts</h1>
@@ -60,7 +64,7 @@ const MyPostsPage: React.FC = () => {
                             <Loader2 className="w-10 h-10 text-primary-500 animate-spin" />
                         </div>
                     ) : posts.length === 0 ? (
-                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-12 text-center flex flex-col items-center">
+                        <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] shadow-sm border border-white/50 dark:border-gray-800/50 p-12 text-center flex flex-col items-center">
                             <div className="w-20 h-20 bg-primary-50 dark:bg-primary-900/20 rounded-full flex items-center justify-center mb-6">
                                 <PenTool className="w-10 h-10 text-primary-500" />
                             </div>
