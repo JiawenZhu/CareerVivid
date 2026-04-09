@@ -84,9 +84,10 @@ export const useResumes = () => {
             const userDoc = await getDoc(userDocRef);
             const userData = userDoc.data();
 
-            // Backward compatibility: Legacy premium users (promotions.isPremium) get unlimited resumes
+            // All paid plans get unlimited (9999) resumes. Free gets 1.
+            const isPaidPlan = ['pro', 'max', 'pro_max', 'enterprise', 'pro_monthly', 'pro_sprint', 'premium'].includes(userData?.plan || '');
             const hasLegacyPremium = userData?.promotions?.isPremium === true;
-            const resumeLimit = hasLegacyPremium ? 999 : (userData?.resumeLimit || 2);
+            const resumeLimit = (isPaidPlan || hasLegacyPremium) ? 9999 : (userData?.resumeLimit || 1);
 
             if (resumes.length >= resumeLimit) {
                 throw new Error('RESUME_LIMIT_REACHED');
@@ -136,9 +137,10 @@ export const useResumes = () => {
             const userDoc = await getDoc(userDocRef);
             const userData = userDoc.data();
 
-            // Backward compatibility: Premium users get unlimited resumes
+            // All paid plans get unlimited (9999) resumes. Free gets 1.
+            const isPaidPlan = ['pro', 'max', 'pro_max', 'enterprise', 'pro_monthly', 'pro_sprint', 'premium'].includes(userData?.plan || '');
             const hasLegacyPremium = userData?.promotions?.isPremium === true;
-            const resumeLimit = hasLegacyPremium ? 999 : (userData?.resumeLimit || 2);
+            const resumeLimit = (isPaidPlan || hasLegacyPremium) ? 9999 : (userData?.resumeLimit || 1);
 
             if (resumes.length >= resumeLimit) {
                 throw new Error('RESUME_LIMIT_REACHED');
@@ -186,9 +188,10 @@ export const useResumes = () => {
             const userDoc = await getDoc(userDocRef);
             const userData = userDoc.data();
 
-            // Backward compatibility: Premium users get unlimited resumes
+            // All paid plans get unlimited (9999) resumes. Free gets 1.
+            const isPaidPlan = ['pro', 'max', 'pro_max', 'enterprise', 'pro_monthly', 'pro_sprint', 'premium'].includes(userData?.plan || '');
             const hasLegacyPremium = userData?.promotions?.isPremium === true;
-            const resumeLimit = hasLegacyPremium ? 999 : (userData?.resumeLimit || 2);
+            const resumeLimit = (isPaidPlan || hasLegacyPremium) ? 9999 : (userData?.resumeLimit || 1);
 
             if (resumes.length >= resumeLimit) {
                 throw new Error('RESUME_LIMIT_REACHED');
@@ -267,16 +270,13 @@ export const useResumes = () => {
                 const userData = userDoc.data();
 
                 // Determine limit based on plan
-                let resumeLimit = userData?.resumeLimit || 2;
+                let resumeLimit = userData?.resumeLimit || 1;
                 const plan = userData?.plan;
                 const hasLegacyPremium = userData?.promotions?.isPremium === true;
+                const isPaidPlan = ['pro', 'max', 'pro_max', 'enterprise', 'pro_monthly', 'pro_sprint', 'premium'].includes(plan || '');
 
-                if (plan === 'pro_monthly') {
+                if (isPaidPlan || hasLegacyPremium) {
                     resumeLimit = 9999;
-                } else if (plan === 'pro_sprint') {
-                    resumeLimit = 100;
-                } else if (hasLegacyPremium) {
-                    resumeLimit = Math.max(resumeLimit, 9999);
                 }
 
                 if (resumes.length >= resumeLimit) {

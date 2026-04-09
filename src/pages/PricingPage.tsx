@@ -9,7 +9,7 @@ import { httpsCallable } from 'firebase/functions';
 import { trackUsage } from '../services/trackingService';
 import { navigate } from '../utils/navigation';
 import { PricingComparison } from '../components/Landing/PricingComparison';
-import CreditCalculator from '../components/Landing/CreditCalculator';
+import { CreditCalculator } from '../components/Landing/CreditCalculator';
 import EnterpriseCalculator from '../components/Landing/EnterpriseCalculator';
 
 const PricingPage: React.FC = () => {
@@ -70,26 +70,27 @@ const PricingPage: React.FC = () => {
                         className="text-center max-w-4xl mx-auto"
                     >
                         <motion.div 
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.2, duration: 0.5 }}
-                            className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500/10 to-orange-500/10 dark:from-red-900/40 dark:to-orange-900/40 text-red-700 dark:text-red-400 px-5 py-2 rounded-full text-sm font-bold mb-8 shadow-sm border border-red-200/50 dark:border-red-800/50"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.2, duration: 0.5 }}
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 dark:from-indigo-900/40 dark:to-purple-900/40 text-indigo-700 dark:text-indigo-300 px-5 py-2 rounded-full text-sm font-bold mb-8 shadow-sm border border-indigo-200/50 dark:border-indigo-800/50"
                         >
                             <span className="relative flex h-2.5 w-2.5">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-500"></span>
                             </span>
-                            DevTool Launch: 50% OFF All Plans
+                            AI Credit Plans — Free to get started
                         </motion.div>
                         
                         <h1 className="text-5xl sm:text-7xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-[1.1]">
-                            Automated Architecture <br className="hidden sm:block" />
+                            One AI credit system <br className="hidden sm:block" />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600">
-                                & Living Documentation
+                                for your entire career
                             </span>
                         </h1>
                         <p className="mt-8 text-xl sm:text-2xl text-gray-600 dark:text-gray-400 font-medium max-w-2xl mx-auto leading-relaxed">
-                            Scale your knowledge with MCP Syncing, CLI integration, and high-volume AI credits designed for modern engineering teams.
+                            Power the CLI agent, resume tailoring, job search, voice interviews, and more —
+                            all from a single pool of AI credits that resets every month.
                         </p>
                     </motion.div>
 
@@ -110,7 +111,7 @@ const PricingPage: React.FC = () => {
                         className="mt-16 -mx-4 sm:mx-0"
                     >
                         <PricingComparison
-                            onCloudUpgrade={() => handleChoosePlan('price_1SXF15EqIOIAAUV01eD0To1q')}
+                            onCloudUpgrade={() => handleChoosePlan('price_1TJoONRJNflGxv32zSqxC9bZ')}
                             isLoading={loadingPriceId !== null}
                         />
 
@@ -121,8 +122,8 @@ const PricingPage: React.FC = () => {
                                 viewport={{ once: true }}
                                 className="text-center mb-16"
                             >
-                                <h2 className="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">Estimate Team Usage</h2>
-                                <p className="text-xl text-gray-600 dark:text-gray-400 mt-4 max-w-2xl mx-auto">Scale your engineering team with pooled credits at just $12 per seat.</p>
+                                <h2 className="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">Enterprise Team Usage</h2>
+                                <p className="text-xl text-gray-600 dark:text-gray-400 mt-4 max-w-2xl mx-auto">Pool AI credits across your entire team — 5,000 credits/seat at just $12/seat/month.</p>
                             </motion.div>
                             <EnterpriseCalculator />
                         </div>

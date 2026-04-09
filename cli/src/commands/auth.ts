@@ -12,7 +12,7 @@ import { Command } from "commander";
 import chalk from "chalk";
 import ora from "ora";
 import boxen from "boxen";
-import { CONFIG_FILE, loadConfig, setConfigValue } from "../config.js";
+import { CONFIG_FILE, loadConfig, setConfigValue, stampSession } from "../config.js";
 import { verifyKey, isApiError } from "../api.js";
 import { getApiKey } from "../config.js";
 import { printError, printInfo } from "../output.js";
@@ -77,6 +77,7 @@ export function registerAuthCommand(program: Command): void {
             }
 
             setConfigValue("apiKey", apiKey);
+            stampSession(); // start 90-day session clock
 
             if (!jsonMode) {
                 console.log(
@@ -204,6 +205,7 @@ export function registerAuthCommand(program: Command): void {
                 return;
             }
             delete config.apiKey;
+            delete (config as any).sessionCreatedAt;
 
             const { saveConfig } = await import("../config.js");
             saveConfig(config);

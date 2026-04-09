@@ -26,9 +26,11 @@ import chalk from "chalk";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { CONFIG_FILE } from "./config.js";
+import { isSessionValid } from "./config.js";
 import { getHelpHeader, printWelcome } from "./branding.js";
 import { registerAuthCommand } from "./commands/auth.js";
 import { registerLoginCommand } from "./commands/login.js";
+import { registerLogoutCommand } from "./commands/logout.js";
 import { registerPublishCommand } from "./commands/publish.js";
 import { registerConfigCommand } from "./commands/config.js";
 import { registerUpdateCommand } from "./commands/update.js";
@@ -39,6 +41,7 @@ import { registerPortfolioCommand } from "./commands/portfolio.js";
 import { registerWorkspaceCommand } from "./commands/workspace.js";
 import { registerProfileCommand } from "./commands/profile.js";
 import { registerJobsCommand } from "./commands/jobs.js";
+import { registerResumesCommand } from "./commands/resumes.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkg = JSON.parse(readFileSync(join(__dirname, "../package.json"), "utf-8"));
@@ -56,6 +59,7 @@ program
 
 registerAuthCommand(program);
 registerLoginCommand(program);
+registerLogoutCommand(program);
 registerPublishCommand(program);
 registerConfigCommand(program);
 registerUpdateCommand(program);
@@ -65,6 +69,7 @@ registerPortfolioCommand(program);
 registerWorkspaceCommand(program);
 registerProfileCommand(program);
 registerJobsCommand(program);
+registerResumesCommand(program);
 
 // Shortcuts for whiteboard creation
 registerNewCommand(program);
@@ -82,6 +87,36 @@ async function main() {
         console.log(`  ${chalk.dim("Get started quickly with:")} ${chalk.cyan("cv login")}
 `);
         return;
+    }
+
+    // ── Session expiry check (firebase-cli style) ──────────────────────────────
+    // Skip for auth/login/logout/config/help commands — they don’t need a live session
+    const SESSION_EXEMPT = ["login", "logout", "auth", "config", "upgrade", "-v", "--version", "-h", "--help", "help"];
+    const subcommand = process.argv[2] ?? "";
+    const isExempt = SESSION_EXEMPT.some((c) => subcommand === c || subcommand.startsWith(c));
+
+    if (!isExempt && !process.env.CV_API_KEY && !isSessionValid()) {
+        const { loadConfig } = await import("./config.js");
+        const hasKey = !!loadConfig().apiKey;
+        if (hasKey) {
+            // Session expired
+            console.error(`
+  ${chalk.yellow("⚠")}  ${chalk.bold("Your CareerVivid session has expired.")} (90-day limit)
+
+  Please re-authenticate:
+    ${chalk.cyan("cv login")}
+
+  Or visit: ${chalk.underline.blue("https://careervivid.app/developer")}
+`);
+        } else {
+            // No key at all
+            console.error(`
+  ${chalk.red("✖")}  ${chalk.bold("Not logged in to CareerVivid.")}
+
+  ${chalk.cyan("cv login")}
+`);
+        }
+        process.exit(1);
     }
 
     try {

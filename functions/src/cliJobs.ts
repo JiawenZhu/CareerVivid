@@ -624,3 +624,157 @@ export const cliResumesList = functions.region("us-west1").runWith({
         }
     });
 });
+
+// ──────────────────────────────────────────────────────────────────────────────
+// POST /cliResumeCreate
+// Body: { title?: string, baseContent: string }
+// Generates a structured Resume JSON from free-form text and saves it.
+// ──────────────────────────────────────────────────────────────────────────────
+
+export const cliResumeCreate = functions.region("us-west1").runWith({
+    secrets: [geminiApiKey],
+    timeoutSeconds: 60,
+    memory: "512MB",
+}).https.onRequest(async (req, res) => {
+    corsHandler(req, res, async () => {
+        if (req.method === "OPTIONS") { res.set("Access-Control-Allow-Origin", "*"); res.set("Access-Control-Allow-Methods", "POST, OPTIONS"); res.set("Access-Control-Allow-Headers", "Content-Type, x-api-key"); res.status(204).send(""); return; }
+        if (req.method !== "POST") { res.status(405).json({ error: "Method Not Allowed" }); return; }
+
+        const user = await resolveAuth(req);
+        if (!user) { res.status(401).json({ error: "Unauthorized." }); return; }
+
+        const { title = "CLI Generated Resume", baseContent } = req.body as { title?: string, baseContent: string };
+        if (!baseContent) { res.status(400).json({ error: "baseContent is required to generate a resume." }); return; }
+
+        const prompt = `You are a professional resume writer.
+Convert the following free-form description or resume dump into a strictly structured JSON resume object.
+
+INPUT:
+${baseContent}
+
+OUTPUT MUST BE VALID JSON ONLY with this exact structure:
+{
+  "title": "${title}",
+  "personalDetails": { "firstName": "", "lastName": "", "jobTitle": "", "email": "", "city": "", "country": "" },
+  "sections": [ { "title": "Summary", "content": "Professional summary here..." } ],
+  "skills": [{"name": "Skill 1"}, {"name": "Skill 2"}],
+  "employmentHistory": [ { "jobTitle": "", "employer": "", "startDate": "YYYY-MM", "endDate": "YYYY-MM", "description": "Bullet points..." } ],
+  "education": [ { "degree": "", "school": "", "endDate": "YYYY" } ]
+}`;
+
+        try {
+            const ai = new GoogleGenAI({ apiKey: geminiApiKey.value() });
+            const response = await ai.models.generateContent({ model: "gemini-2.5-flash", contents: prompt });
+            const cleaned = (response.text || "").replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
+            const resumeData = JSON.parse(cleaned);
+
+            resumeData.updatedAt = admin.firestore.FieldValue.serverTimestamp();
+            resumeData.createdAt = admin.firestore.FieldValue.serverTimestamp();
+            if (!resumeData.title) resumeData.title = title;
+
+            const ref = await db.collection("users").doc(user.uid).collection("resumes").add(resumeData);
+            res.json({ success: true, resumeId: ref.id, message: "Resume generated successfully." });
+        } catch (err: any) {
+            console.error("[cliResumeCreate] Error:", err.message);
+            res.status(500).json({ error: `Generation failed: ${err.message}` });
+        }
+    });
+});
+
+// ──────────────────────────────────────────────────────────────────────────────
+// POST /cliResumeUpdate
+// Body: { resumeId: string, action: 'tailor'|'refine', jobDescription?: string, instruction?: string, newTitle?: string }
+// Applies AI tailoring to an existing resume and optionally saves as a new copy.
+// ──────────────────────────────────────────────────────────────────────────────
+
+export const cliResumeUpdate = functions.region("us-west1").runWith({
+    secrets: [geminiApiKey],
+    timeoutSeconds: 120,
+    memory: "512MB",
+}).https.onRequest(async (req, res) => {
+    corsHandler(req, res, async () => {
+        if (req.method === "OPTIONS") { res.set("Access-Control-Allow-Origin", "*"); res.set("Access-Control-Allow-Methods", "POST, OPTIONS"); res.set("Access-Control-Allow-Headers", "Content-Type, x-api-key"); res.status(204).send(""); return; }
+        if (req.method !== "POST") { res.status(405).json({ error: "Method Not Allowed" }); return; }
+
+        const user = await resolveAuth(req);
+        if (!user) { res.status(401).json({ error: "Unauthorized." }); return; }
+
+        const { resumeId, action = 'tailor', jobDescription, instruction, newTitle, copy = true } = req.body as { resumeId: string, action?: 'tailor'|'refine', jobDescription?: string, instruction?: string, newTitle?: string, copy?: boolean };
+        
+        if (!resumeId) { res.status(400).json({ error: "resumeId is required." }); return; }
+
+        try {
+            const docRef = db.collection("users").doc(user.uid).collection("resumes").doc(resumeId);
+            const snap = await docRef.get();
+            if (!snap.exists) { res.status(404).json({ error: "Resume not found." }); return; }
+            
+            const resumeJson = snap.data()!;
+            let prompt = "";
+
+            const jobDescContext = jobDescription ? `JOB DESCRIPTION CONTEXT:\n${jobDescription}` : '';
+            if (action === 'refine') {
+                prompt = `You are a resume writing assistant. REFINE this resume JSON per instructions.
+INSTRUCTION: ${instruction || 'Improve phrasing and grammar'}
+${jobDescContext}
+CURRENT RESUME JSON:
+${JSON.stringify(resumeJson)}`;
+            } else {
+                prompt = `You are an expert resume writer. REWRITE the experience descriptions and summary in this resume JSON to align with the given Job Description.
+TARGET JOB DESCRIPTION:
+${jobDescription || 'Make it sound professional.'}
+CURRENT RESUME JSON:
+${JSON.stringify(resumeJson)}`;
+            }
+            prompt += `\nRETURN ONLY VALID JSON mirroring the current resume structure exactly, applying the refinements requested.`;
+
+            const ai = new GoogleGenAI({ apiKey: geminiApiKey.value() });
+            const response = await ai.models.generateContent({ model: "gemini-2.5-flash", contents: prompt });
+            const cleaned = (response.text || "").replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
+            const tailoredData = JSON.parse(cleaned);
+
+            tailoredData.updatedAt = admin.firestore.FieldValue.serverTimestamp();
+            if (newTitle) { tailoredData.title = newTitle; }
+            
+            if (copy) {
+                tailoredData.createdAt = admin.firestore.FieldValue.serverTimestamp();
+                const newRef = await db.collection("users").doc(user.uid).collection("resumes").add(tailoredData);
+                res.json({ success: true, resumeId: newRef.id, message: "Tailored resume created successfully." });
+            } else {
+                await docRef.update(tailoredData);
+                res.json({ success: true, resumeId: docRef.id, message: "Resume updated successfully." });
+            }
+        } catch (err: any) {
+            console.error("[cliResumeUpdate] Error:", err.message);
+            res.status(500).json({ error: `Update failed: ${err.message}` });
+        }
+    });
+});
+
+// ──────────────────────────────────────────────────────────────────────────────
+// POST /cliResumeDelete
+// Body: { resumeId: string }
+// ──────────────────────────────────────────────────────────────────────────────
+
+export const cliResumeDelete = functions.region("us-west1").runWith({
+    timeoutSeconds: 15,
+    memory: "256MB",
+}).https.onRequest(async (req, res) => {
+    corsHandler(req, res, async () => {
+        if (req.method === "OPTIONS") { res.set("Access-Control-Allow-Origin", "*"); res.set("Access-Control-Allow-Methods", "POST, DELETE, OPTIONS"); res.set("Access-Control-Allow-Headers", "Content-Type, x-api-key"); res.status(204).send(""); return; }
+        if (req.method !== "POST" && req.method !== "DELETE") { res.status(405).json({ error: "Method Not Allowed" }); return; }
+
+        const user = await resolveAuth(req);
+        if (!user) { res.status(401).json({ error: "Unauthorized." }); return; }
+
+        const { resumeId } = req.body as { resumeId: string };
+        if (!resumeId) { res.status(400).json({ error: "resumeId is required." }); return; }
+
+        try {
+            await db.collection("users").doc(user.uid).collection("resumes").doc(resumeId).delete();
+            res.json({ success: true, message: "Resume deleted successfully." });
+        } catch (err: any) {
+            console.error("[cliResumeDelete] Error:", err.message);
+            res.status(500).json({ error: `Delete failed: ${err.message}` });
+        }
+    });
+});

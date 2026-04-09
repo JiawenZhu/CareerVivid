@@ -44,13 +44,9 @@ export const getAIUsage = async (userId: string): Promise<AIUsageData> => {
     let expectedLimit = FREE_PLAN_CREDIT_LIMIT;
     const plan = userData.plan || 'free';
 
-    if (plan === 'pro') expectedLimit = PRO_PLAN_CREDIT_LIMIT;
-    else if (plan === 'pro_max') expectedLimit = PRO_MAX_PLAN_CREDIT_LIMIT;
+    if (plan === 'pro' || plan === 'premium' || plan === 'pro_monthly' || plan === 'pro_sprint') expectedLimit = PRO_PLAN_CREDIT_LIMIT;
+    else if (plan === 'max' || plan === 'pro_max') expectedLimit = PRO_MAX_PLAN_CREDIT_LIMIT;
     else if (plan === 'enterprise') expectedLimit = ENTERPRISE_PLAN_CREDIT_LIMIT;
-    else if (plan === 'pro_sprint' || plan === 'pro_monthly') {
-        // Migration fallback for legacy plans
-        expectedLimit = PRO_PLAN_CREDIT_LIMIT;
-    }
 
     // Self-healing: If limit is incorrect (e.g. user upgraded but DB didn't sync), fix it.
     // Also reset if month passed.
@@ -100,14 +96,12 @@ export const updateAILimit = async (userId: string, plan: string): Promise<void>
     const userRef = doc(db, 'users', userId);
     let limit = FREE_PLAN_CREDIT_LIMIT;
 
-    if (plan === 'pro') {
+    if (plan === 'pro' || plan === 'premium' || plan === 'pro_monthly' || plan === 'pro_sprint') {
         limit = PRO_PLAN_CREDIT_LIMIT;
-    } else if (plan === 'pro_max') {
+    } else if (plan === 'max' || plan === 'pro_max') {
         limit = PRO_MAX_PLAN_CREDIT_LIMIT;
     } else if (plan === 'enterprise') {
         limit = ENTERPRISE_PLAN_CREDIT_LIMIT;
-    } else if (plan === 'pro_sprint' || plan === 'pro_monthly') {
-        limit = PRO_PLAN_CREDIT_LIMIT;
     }
 
     await updateDoc(userRef, {

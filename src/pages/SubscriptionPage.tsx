@@ -52,7 +52,7 @@ const SubscriptionPage: React.FC = () => {
     // If plan is expired, force current plan to be free for UI display logic
     const currentPlan = isExpired ? 'free' : (userProfile?.plan || 'free');
 
-    const resumeLimit = userProfile?.resumeLimit || 2;
+    const resumeLimit = userProfile?.resumeLimit || 1;
     const subscriptionStatus = userProfile?.stripeSubscriptionStatus;
 
     const formatDate = (timestamp: any) => {
@@ -146,7 +146,7 @@ const SubscriptionPage: React.FC = () => {
             originalPrice: '$12',
             discount: '50% OFF',
             period: '/month',
-            priceId: 'price_1SXF15EqIOIAAUV01eD0To1q',
+            priceId: 'price_1TJoONRJNflGxv32zSqxC9bZ',
             features: [
                 "Create & Edit Unlimited Resumes",
                 "Create up to 8 Portfolio Websites",
@@ -161,13 +161,13 @@ const SubscriptionPage: React.FC = () => {
             popular: false,
         },
         {
-            id: 'pro_max',
-            name: 'Pro Max',
+            id: 'max',
+            name: 'Max',
             price: '$8',
             originalPrice: '$16',
             discount: '50% OFF',
             period: '/month',
-            priceId: 'price_1SXF1PEqIOIAAUV0p4gG4mH7',
+            priceId: 'price_1TJoONRJNflGxv32wxPHw9FR',
             features: [
                 "Create & Edit Unlimited Resumes",
                 "Create up to 8 Portfolio Websites",
@@ -178,7 +178,7 @@ const SubscriptionPage: React.FC = () => {
                 "Priority Support",
                 "Everything in Pro"
             ],
-            current: (currentPlan as any) === 'pro_max',
+            current: (currentPlan as any) === 'max' || (currentPlan as any) === 'pro_max',
             popular: false,
         },
         {
@@ -188,7 +188,7 @@ const SubscriptionPage: React.FC = () => {
             originalPrice: '$24',
             discount: '50% OFF',
             period: '/seat/month',
-            priceId: 'price_1SXF24EqIOIAAUV0f9X3S3oA',
+            priceId: 'price_1TJoQyRJNflGxv32FQ9TxIjq',
             features: [
                 "Pooled Team Credits",
                 "Team Workspaces",
@@ -233,7 +233,7 @@ const SubscriptionPage: React.FC = () => {
     const handleCancelClick = () => {
         setFeedbackData(null); // Reset feedback
         // Only show retention flow for Monthly subscriptions
-        if ((currentPlan as any) === 'pro' || (currentPlan as any) === 'pro_max' || (currentPlan as any) === 'enterprise') {
+        if ((currentPlan as any) === 'pro' || (currentPlan as any) === 'max' || (currentPlan as any) === 'pro_max' || (currentPlan as any) === 'enterprise') {
             setCancelStep('offer_10');
         } else {
             setCancelStep('feedback'); // Non-monthly go straight to feedback
@@ -441,7 +441,7 @@ const SubscriptionPage: React.FC = () => {
                                 <div>
                                     <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">{t('subscription.current_plan')}</h2>
                                     <p className="text-3xl font-bold text-primary-600">{pricingPlans.find(p => p.current)?.name || t('subscription.plans.free')}</p>
-                                    {((currentPlan as any) === 'pro' || (currentPlan as any) === 'pro_max' || (currentPlan as any) === 'enterprise') && subscriptionStatus && (
+                                    {((currentPlan as any) === 'pro' || (currentPlan as any) === 'max' || (currentPlan as any) === 'pro_max' || (currentPlan as any) === 'enterprise') && subscriptionStatus && (
                                         <div className="mt-2">
                                             <p className="text-sm text-gray-600 dark:text-gray-400">
                                                 {t('subscription.status')} <span className="capitalize">{subscriptionStatus.replace('_', ' ')}</span>

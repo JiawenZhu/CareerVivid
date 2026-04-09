@@ -6,11 +6,11 @@ import { functions } from '../firebase';
 import {
     ArrowLeft, Key, Eye, EyeOff, Copy, Trash2, Plus,
     Terminal, CheckCircle, AlertCircle, Loader2, Zap, BookOpen, Shield,
-    Code2, LayoutTemplate, FileJson
+    Code2, LayoutTemplate, FileJson, Bot, Briefcase, FileText, Sparkles, ChevronRight
 } from 'lucide-react';
 
 type KeyState = 'loading' | 'no_key' | 'has_key';
-type SetupTab = 'cursor' | 'claude' | 'cli' | 'custom';
+type SetupTab = 'cursor' | 'claude' | 'cli' | 'agent' | 'custom';
 
 const InteractiveCodeBlock = ({ children, copyText, className = "ml-7" }: { children: React.ReactNode, copyText: string, className?: string }) => {
     const [copied, setCopied] = useState(false);
@@ -152,10 +152,10 @@ const DeveloperSettings: React.FC = () => {
                 {/* Header Content */}
                 <div className="space-y-2">
                     <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-                        AI Agent Integration (Publishing & Portfolios)
+                        AI Agent Integration
                     </h2>
                     <p className="text-gray-600 dark:text-gray-400 max-w-2xl text-base">
-                        Connect local AI coding assistants directly to your profile via the Model Context Protocol (MCP). Let agents sync new projects to your portfolio, generate architecture diagrams, and publish technical articles automatically.
+                        Connect local AI coding assistants to your profile via MCP, or launch the interactive <code className="px-1.5 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-[13px]">cv agent</code> directly in your terminal to hunt for jobs, manage your resume, publish portfolios, and generate architecture diagrams — all without leaving the command line.
                     </p>
                 </div>
 
@@ -296,6 +296,7 @@ const DeveloperSettings: React.FC = () => {
                                 { id: 'cursor', label: 'Cursor', icon: Code2 },
                                 { id: 'claude', label: 'Claude Desktop', icon: LayoutTemplate },
                                 { id: 'cli', label: 'CLI Tool', icon: Terminal },
+                                { id: 'agent', label: 'AI Agent', icon: Bot },
                                 { id: 'custom', label: 'Custom Agent (REST)', icon: FileJson },
                             ].map((tab) => {
                                 const Icon = tab.icon;
@@ -498,6 +499,185 @@ const DeveloperSettings: React.FC = () => {
                                         <span className="text-[#79c0ff]">  "techStack"</span><span className="text-gray-300">: [</span><span className="text-[#a5d6ff]">"go"</span><span className="text-gray-300">, </span><span className="text-[#a5d6ff]">"redis"</span><span className="text-gray-300">]</span>{'\n'}
                                         <span className="text-gray-300">{`}`}</span>
                                     </InteractiveCodeBlock>
+                                </div>
+                            )}
+
+                            {/* AI AGENT TAB */}
+                            {activeTab === 'agent' && (
+                                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+
+                                    {/* Intro badge */}
+                                    <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20">
+                                        <Sparkles className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                                        <p className="text-sm text-indigo-800 dark:text-indigo-200">
+                                            <strong>cv agent</strong> is an interactive AI assistant that lives in your terminal. Choose a mode to unlock different superpowers — from job hunting to portfolio publishing.
+                                        </p>
+                                    </div>
+
+                                    {/* Step 1: Install & auth */}
+                                    <div className="space-y-3">
+                                        <div className="flex items-center gap-2">
+                                            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">1</span>
+                                            <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Install & authenticate</h4>
+                                        </div>
+                                        <InteractiveCodeBlock copyText={`npm install -g careervivid\ncv auth set-key ${apiKey || 'cv_live_your_key_here'}`}>
+                                            <span className="text-[#e2b93d]">npm</span><span className="text-gray-300"> install -g careervivid</span>{'\n'}
+                                            <span className="text-[#e2b93d]">cv auth</span><span className="text-gray-300"> set-key </span><span className="text-[#a5d6ff]">{apiKey || 'cv_live_your_key_here'}</span>
+                                        </InteractiveCodeBlock>
+                                    </div>
+
+                                    {/* Mode 1: Basic agent */}
+                                    <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+                                        <div className="flex items-start gap-3">
+                                            <div className="flex-shrink-0 mt-0.5 w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-700">
+                                                <Terminal className="w-3.5 h-3.5 text-gray-600 dark:text-gray-300" />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-sm font-semibold text-gray-900 dark:text-white">General Agent <code className="ml-2 px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-[12px] font-mono">cv agent</code></h4>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Publish articles, generate Mermaid diagrams, and sync projects to your portfolio.</p>
+                                            </div>
+                                        </div>
+                                        <InteractiveCodeBlock copyText="cv agent">
+                                            <span className="text-[#e2b93d]">cv agent</span><span className="text-gray-500">           # choose model interactively</span>{'\n'}
+                                            <span className="text-[#e2b93d]">cv agent</span><span className="text-gray-300"> --pro</span><span className="text-gray-500">    # gemini-3.1-pro with thinking mode</span>{'\n'}
+                                            <span className="text-[#e2b93d]">cv agent</span><span className="text-gray-300"> --coding</span><span className="text-gray-500">  # + file I/O, shell & search tools</span>
+                                        </InteractiveCodeBlock>
+                                        <div className="ml-7 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                            {[
+                                                'Publish a markdown article about this project',
+                                                'Generate a Mermaid architecture diagram',
+                                                'Sync this project to my CareerVivid portfolio',
+                                                'Read my codebase and write a technical blog post',
+                                            ].map((example) => (
+                                                <div key={example} className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 text-xs text-gray-600 dark:text-gray-400">
+                                                    <ChevronRight className="w-3 h-3 mt-0.5 flex-shrink-0 text-gray-400" />
+                                                    <span className="italic">&ldquo;{example}&rdquo;</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Mode 2: Resume agent */}
+                                    <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+                                        <div className="flex items-start gap-3">
+                                            <div className="flex-shrink-0 mt-0.5 w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center border border-blue-200 dark:border-blue-500/30">
+                                                <FileText className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Resume Agent <code className="ml-2 px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 text-[12px] font-mono border border-blue-100 dark:border-blue-500/20">cv agent --resume</code></h4>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Read, update, tailor, and manage all your CareerVivid resumes without touching the browser.</p>
+                                            </div>
+                                        </div>
+                                        <InteractiveCodeBlock copyText="cv agent --resume">
+                                            <span className="text-[#e2b93d]">cv agent</span><span className="text-gray-300"> --resume</span>
+                                        </InteractiveCodeBlock>
+                                        <div className="ml-7 space-y-1.5">
+                                            {[
+                                                { label: 'View resume', cmd: 'Show me my current resume' },
+                                                { label: 'Refine content', cmd: 'Strengthen the impact of my bullet points' },
+                                                { label: 'Tailor to JD', cmd: 'Tailor my resume to this job description: [paste JD]' },
+                                                { label: 'List all resumes', cmd: 'How many resumes do I have?' },
+                                                { label: 'Delete a resume', cmd: 'Delete my old Software Engineer resume' },
+                                            ].map(({ label, cmd }) => (
+                                                <div key={label} className="flex items-start gap-2 px-3 py-2 rounded-lg bg-blue-50/60 dark:bg-blue-500/5 border border-blue-100 dark:border-blue-500/15 text-xs">
+                                                    <span className="font-medium text-blue-700 dark:text-blue-400 min-w-[100px] flex-shrink-0">{label}</span>
+                                                    <span className="text-gray-500 dark:text-gray-500 italic">&ldquo;{cmd}&rdquo;</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <p className="ml-7 text-xs text-gray-500 dark:text-gray-500">
+                                            After any update, the agent returns a direct link: <span className="font-mono text-gray-700 dark:text-gray-300">https://careervivid.app/edit/&lt;resumeId&gt;</span>
+                                        </p>
+                                    </div>
+
+                                    {/* Mode 3: Jobs agent */}
+                                    <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+                                        <div className="flex items-start gap-3">
+                                            <div className="flex-shrink-0 mt-0.5 w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center border border-emerald-200 dark:border-emerald-500/30">
+                                                <Briefcase className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Job Hunting Agent <code className="ml-2 px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-[12px] font-mono border border-emerald-100 dark:border-emerald-500/20">cv agent --jobs</code></h4>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Full job-hunting suite — search, save to your Kanban tracker, update application statuses, and manage resumes, all from one conversation.</p>
+                                            </div>
+                                        </div>
+                                        <InteractiveCodeBlock copyText="cv agent --jobs">
+                                            <span className="text-[#e2b93d]">cv agent</span><span className="text-gray-300"> --jobs</span><span className="text-gray-500">           # activates all job + resume tools</span>{'\n'}
+                                            <span className="text-[#e2b93d]">cv agent</span><span className="text-gray-300"> --jobs --pro</span><span className="text-gray-500">      # use reasoning model for deeper analysis</span>
+                                        </InteractiveCodeBlock>
+
+                                        <div className="ml-7 space-y-2">
+                                            <p className="text-xs font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wide">Available tools</p>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                                {[
+                                                    { tool: 'get_resume', desc: 'Load your resume for scoring & context' },
+                                                    { tool: 'list_resumes', desc: 'List all your CareerVivid resumes' },
+                                                    { tool: 'tailor_resume', desc: 'AI-tailor resume to a specific JD' },
+                                                    { tool: 'delete_resume', desc: 'Permanently delete a resume' },
+                                                    { tool: 'search_jobs', desc: 'Find & score jobs against your resume' },
+                                                    { tool: 'save_job', desc: 'Save a job to your Kanban tracker' },
+                                                    { tool: 'list_jobs', desc: 'View tracker by status' },
+                                                    { tool: 'update_job_status', desc: 'Move jobs: Applied → Interviewing → Offered' },
+                                                ].map(({ tool, desc }) => (
+                                                    <div key={tool} className="flex items-start gap-2 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700">
+                                                        <code className="text-[11px] font-mono text-emerald-700 dark:text-emerald-400 flex-shrink-0">{tool}</code>
+                                                        <span className="text-[11px] text-gray-500 dark:text-gray-500">{desc}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="ml-7 space-y-1.5">
+                                            <p className="text-xs font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wide mt-3">Example conversation</p>
+                                            {[
+                                                { role: 'user', text: 'Find me remote software engineer roles in SF, score ≥ 70' },
+                                                { role: 'agent', text: 'Found 8 jobs. Top match: Senior SWE @ Stripe (82%) — Remote. Shall I save the top 3 to your tracker?' },
+                                                { role: 'user', text: 'Yes, and tailor my resume for the Stripe role' },
+                                                { role: 'agent', text: '✅ 3 jobs saved! Resume updated → careervivid.app/edit/wxwG9WO7m4ndwKYhENQV' },
+                                            ].map(({ role, text }, i) => (
+                                                <div key={i} className={`flex gap-2 px-3 py-2 rounded-lg border text-xs ${
+                                                    role === 'user'
+                                                        ? 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300'
+                                                        : 'bg-emerald-50/60 dark:bg-emerald-500/5 border-emerald-100 dark:border-emerald-500/15 text-emerald-800 dark:text-emerald-300'
+                                                }`}>
+                                                    <span className="font-semibold flex-shrink-0 min-w-[38px]">{role === 'user' ? 'You:' : 'cv:'}</span>
+                                                    <span className="italic">{text}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Flags reference */}
+                                    <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+                                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white">All flags</h4>
+                                        <div className="ml-7 overflow-x-auto">
+                                            <table className="w-full text-xs border-collapse">
+                                                <thead>
+                                                    <tr className="border-b border-gray-200 dark:border-gray-700">
+                                                        <th className="text-left py-1.5 pr-4 font-medium text-gray-500 dark:text-gray-400">Flag</th>
+                                                        <th className="text-left py-1.5 font-medium text-gray-500 dark:text-gray-400">Description</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                                                    {[
+                                                        ['--resume', 'Load resume tools (read & manage resumes)'],
+                                                        ['--jobs', 'All job-hunting + resume tools (superset of --resume)'],
+                                                        ['--coding', 'File I/O, shell execution, and search tools'],
+                                                        ['--pro', 'Use gemini-3.1-pro with thinking enabled (8 192 token budget)'],
+                                                        ['--think <N>', 'Custom thinking token budget on any model'],
+                                                        ['--verbose', 'Show thinking tokens in output (requires --think / --pro)'],
+                                                        ['--project <id>', 'GCP project for Vertex AI / ADC auth (no API key needed)'],
+                                                    ].map(([flag, desc]) => (
+                                                        <tr key={flag}>
+                                                            <td className="py-2 pr-4 font-mono text-gray-800 dark:text-gray-200 whitespace-nowrap">{flag}</td>
+                                                            <td className="py-2 text-gray-500 dark:text-gray-400">{desc}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
                                 </div>
                             )}
 

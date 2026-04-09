@@ -338,7 +338,7 @@ const ProfilePage: React.FC = () => {
                                 <strong>{t('profile.current_plan')}:</strong> <span className="font-semibold text-primary-600 dark:text-primary-400">
                                     {isPremium ? (
                                         userProfile?.plan === 'pro' ? 'Pro' :
-                                            userProfile?.plan === 'pro_max' ? 'Pro Max' :
+                                            userProfile?.plan === 'max' || userProfile?.plan === 'pro_max' ? 'Max' :
                                                 userProfile?.plan === 'enterprise' ? 'Enterprise' :
                                                     t('profile.plan_premium')
                                     ) : t('profile.plan_free')}

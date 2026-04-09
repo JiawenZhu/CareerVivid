@@ -60,7 +60,8 @@ export interface QueryEngineOptions {
 
 export interface IterationHook {
   onStart?: () => void;
-  onResponse?: (response: GenerateContentResponse) => void;
+  /** Called after each Gemini API round-trip (streaming or non-streaming). May be async. */
+  onResponse?: (response?: GenerateContentResponse) => void | Promise<void>;
   onToolCall?: (toolName: string, args: any) => Promise<boolean | void>;
   onToolResult?: (toolName: string, result: any) => void;
   onError?: (error: Error) => void;
@@ -280,7 +281,7 @@ export class QueryEngine {
           }),
         );
 
-        if (hooks?.onResponse) hooks.onResponse(response);
+        if (hooks?.onResponse) await hooks.onResponse(response);
 
         // Capture thinking text if included
         if (this.includeThoughts && hooks?.onThinking) {
@@ -296,13 +297,15 @@ export class QueryEngine {
         const functionCalls = response.functionCalls;
         const hasToolCalls = functionCalls && functionCalls.length > 0;
 
-        // Add model response to history
+        // Add model response to history.
+        // CRITICAL: Preserve original parts (including thought_signature) from the API
+        // response when there are tool calls. Reconstructing parts drops thought_signature
+        // which causes a 400 INVALID_ARGUMENT error on subsequent turns.
+        const modelParts = response.candidates?.[0]?.content?.parts;
         this.history.push({
           role: 'model',
-          parts: hasToolCalls
-            ? functionCalls.map(fc => ({
-                functionCall: { name: fc.name, args: fc.args },
-              }))
+          parts: modelParts && modelParts.length > 0
+            ? modelParts
             : [{ text: response.text || '' }],
         });
 
@@ -365,15 +368,19 @@ export class QueryEngine {
 
         let accumulatedText = '';
         let accumulatedFunctionCalls: any[] = [];
+        // Collect raw parts across all chunks so thought_signature is preserved
+        let accumulatedRawParts: any[] = [];
 
         for await (const chunk of streamResponse) {
           // Manually extract text to avoid the SDK's "there are non-text parts" warning
           let chunkText = '';
           const parts = chunk.candidates?.[0]?.content?.parts || [];
           if (parts.length > 0) {
+            // Accumulate raw parts for history (preserves thought_signature)
+            accumulatedRawParts.push(...parts);
             chunkText = parts
-              .filter(p => p.text && !p.functionCall && !p.thought)
-              .map(p => p.text)
+              .filter((p: any) => p.text && !p.functionCall && !p.thought)
+              .map((p: any) => p.text)
               .join('');
           } else if (chunk.text && !chunk.text.includes('there are non-text parts')) {
             chunkText = chunk.text;
@@ -392,15 +399,21 @@ export class QueryEngine {
 
         const hasToolCalls = accumulatedFunctionCalls.length > 0;
 
-        // Add model turn to history
+        // Add model turn to history.
+        // CRITICAL: For the streaming case we need to reconstruct parts carefully.
+        // Accumulate raw parts (including thought parts with thought_signature) so we
+        // can store them verbatim and satisfy the API's thought_signature requirement.
         this.history.push({
           role: 'model',
           parts: hasToolCalls
-            ? accumulatedFunctionCalls.map(fc => ({
-                functionCall: { name: fc.name, args: fc.args },
-              }))
+            ? accumulatedRawParts.length > 0
+              ? accumulatedRawParts
+              : accumulatedFunctionCalls.map(fc => ({ functionCall: { name: fc.name, args: fc.args } }))
             : [{ text: accumulatedText }],
         });
+
+        // Fire onResponse after each streaming round-trip (for credit deduction etc.)
+        if (hooks?.onResponse) await hooks.onResponse(undefined);
 
         if (!hasToolCalls) {
           finalAnswer = accumulatedText;

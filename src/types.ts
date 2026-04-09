@@ -173,8 +173,8 @@ export interface UserProfile {
   stripeSubscriptionStatus?: 'active' | 'trialing' | 'past_due' | 'canceled' | 'unpaid' | 'active_canceling' | null;
   source?: string;
   // Plan and limits
-  plan?: 'free' | 'pro' | 'pro_max' | 'enterprise' | 'pro_monthly' | 'pro_sprint';
-  resumeLimit?: number; // 2 (free), 8 (sprint), or 15 (monthly)
+  plan?: 'free' | 'pro' | 'max' | 'pro_max' | 'enterprise' | 'pro_monthly' | 'pro_sprint' | 'premium';
+  resumeLimit?: number; // 1 (free), 9999 (unlimited for paid)
   expiresAt?: any; // Firestore Timestamp - for sprint plan
   promotions: {
     isPremium?: boolean;
@@ -206,7 +206,7 @@ export interface UserProfile {
   aiUsage?: {
     count: number;        // Current month's usage (aggregated sum)
     lastResetDate: any;   // Firestore Timestamp - when counter was last reset
-    monthlyLimit: number; // 50 (free), 666 (pro), 888 (pro_max), or pooled limit
+    monthlyLimit: number; // 100 (free), 1000 (pro), 10000 (max), or pooled limit
   };
 }
 

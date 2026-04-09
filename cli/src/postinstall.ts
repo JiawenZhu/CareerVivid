@@ -2,44 +2,58 @@
  * CareerVivid CLI — Post-install hook
  *
  * This script runs after 'npm install -g careervivid'.
- * It prints a beautiful welcome/changelog message to the user.
+ * It prints a beautiful welcome/onboarding message to the user.
  */
 
 import chalk from "chalk";
 import boxen from "boxen";
 import { getHelpHeader } from "./branding.js";
 
-const VERSION = "1.1.13";
-
-const CHANGELOG = [
-    `${chalk.bold.green("NEW")} Auto-Close Tabs: Browser authentication tabs now auto-close after 2s!`,
-    `${chalk.bold.blue("FIX")} User Identity: Reliable name/avatar fetching during login (no more Anonymous).`,
-    `${chalk.bold.yellow("FIX")} Deployment Sync: Automatic recovery from stale JS module import errors.`,
-    `${chalk.bold.magenta("NEW")} Profile Editor: Update your display name directly from the settings page.`,
-    `${chalk.bold.white("IMP")} Polished login success UI with CareerVivid branding.`,
-];
+const VERSION = "1.1.14";
 
 export function printPostInstall() {
     console.log();
     console.log(getHelpHeader());
 
+    // ── Onboarding box ──────────────────────────────────────────────────────
+    const steps = [
+        `${chalk.bold.cyan("1.")} ${chalk.white("cv login")}${" ".repeat(14)}${chalk.dim("Sign in or create your free account")}`,
+        `${chalk.bold.cyan("2.")} ${chalk.white("Visit")} ${chalk.underline.blue("careervivid.app/developer")}`,
+        `   ${chalk.dim("→ Generate your free API key")}`,
+        `${chalk.bold.cyan("3.")} ${chalk.white("cv auth set-key <your-key>")}  ${chalk.dim("Activate the key locally")}`,
+    ].join("\n");
+
+    const credits = [
+        `${chalk.bold.yellow("✦")} Free plan includes ${chalk.bold("100 AI credits / month")}`,
+        `  ${chalk.dim("No personal API key needed for Gemini models.")}`,
+        `  ${chalk.dim("Credits are powered by Google Gemini — enterprise-grade AI,")}`,
+        `  ${chalk.dim("available at no extra cost under your CareerVivid plan.")}`,
+    ].join("\n");
+
+    const quickStart = [
+        `  ${chalk.cyan("cv agent --jobs")}    ${chalk.dim("Hunt for jobs with AI")}`,
+        `  ${chalk.cyan("cv agent --resume")}  ${chalk.dim("Analyze & improve your resume")}`,
+        `  ${chalk.cyan("cv agent")}           ${chalk.dim("Open general AI agent")}`,
+    ].join("\n");
+
     console.log(
         boxen(
-            `${chalk.bold.green("🚀 CareerVivid CLI updated to v" + VERSION + "!")}\n\n` +
-            `${chalk.bold("What's New:")}\n` +
-            CHANGELOG.map(item => ` • ${item}`).join("\n"),
+            `${chalk.bold.green("🎉 Welcome to CareerVivid CLI v" + VERSION + "!")}\n\n` +
+            `${chalk.bold("Get started in 3 steps:")}\n` +
+            steps + "\n\n" +
+            credits + "\n\n" +
+            `${chalk.bold("Quick start:")}\n` +
+            quickStart,
             {
                 padding: 1,
-                margin: { top: 1, bottom: 1 },
+                margin: { top: 0, bottom: 1 },
                 borderStyle: "round",
-                borderColor: "#3b82f6",
-                title: "Release Notes",
+                borderColor: "#22c55e",
+                title: "CareerVivid CLI",
                 titleAlignment: "center",
             }
         )
     );
-
-    console.log(`  ${chalk.dim("Try it now:")} ${chalk.cyan("cv --help")}\n`);
 }
 
 // Run if executed directly

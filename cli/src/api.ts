@@ -327,6 +327,23 @@ export async function resumesList(): Promise<ResumesListResult | ApiError> {
     return cfRequest<ResumesListResult>("GET", "cliResumesList");
 }
 
+export async function resumeUpdate(payload: {
+    resumeId: string;
+    action: "refine" | "tailor";
+    jobDescription?: string;
+    instruction?: string;
+    newTitle?: string;
+    copy?: boolean;
+}): Promise<{ success: boolean; resumeId: string; message: string } | ApiError> {
+    return cfRequest<{ success: boolean; resumeId: string; message: string }>("POST", "cliResumeUpdate", payload);
+}
+
+export async function resumeDelete(payload: {
+    resumeId: string;
+}): Promise<{ success: boolean; message: string } | ApiError> {
+    return cfRequest<{ success: boolean; message: string }>("POST", "cliResumeDelete", payload);
+}
+
 /** Run an agentic job search scored against the resume */
 export async function jobsHunt(payload: {
     resumeContent?: string;

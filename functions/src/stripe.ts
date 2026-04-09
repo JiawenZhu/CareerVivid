@@ -10,10 +10,14 @@ const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
 // Price IDs for the different plans
 const PRICE_IDS = {
     SPRINT: "price_1ScLNsRJNflGxv32cvu6cTsK", // The 7-Day Sprint - One-time
-    MONTHLY: "price_1ScLOaRJNflGxv32BwQnSBs0", // Pro Monthly - Subscription
+    MONTHLY: "price_1ScLOaRJNflGxv32BwQnSBs0", // Legacy Pro Monthly - Subscription
     DOWNLOAD_ONCE: "price_1ScLPERJNflGxv32Wxtpvg62", // Download Once - $1.99
     NFC_CUSTOM: "price_1So67jRJNflGxv32TKsC7AbX", // Custom NFC Card - $12.90
     NFC_STANDARD: "price_1So6AtRJNflGxv32qHMPnhwz", // Standard NFC Card - $9.89
+    // New Live Current Plans
+    PRO: "price_1TJoONRJNflGxv32zSqxC9bZ",
+    MAX: "price_1TJoONRJNflGxv32wxPHw9FR",
+    ENTERPRISE: "price_1TJoQyRJNflGxv32FQ9TxIjq",
 } as const;
 
 // One-time payment price IDs
@@ -283,7 +287,7 @@ export const cancelSubscription = onCall(
                     await admin.firestore().collection("users").doc(userId).update({
                         subscriptionStatus: 'canceled',
                         plan: 'free',
-                        resumeLimit: 2,
+                        resumeLimit: 1,
                         promotions: { isPremium: false }
                     });
                     return { status: "fixed_state", message: "Subscription not found in Stripe. local status updated." };
@@ -423,7 +427,7 @@ export const applyDiscount = onCall(
                 await admin.firestore().collection("users").doc(userId).update({
                     subscriptionStatus: 'canceled',
                     plan: 'free',
-                    resumeLimit: 2,
+                    resumeLimit: 1,
                     promotions: { isPremium: false }
                 });
                 return { status: "fixed_state", message: "Subscription not found in Stripe. Local status updated to Free." };
@@ -469,7 +473,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             await userRef.set(
                 {
                     plan: "pro_sprint",
-                    resumeLimit: 100,
+                    resumeLimit: 9999,
                     expiresAt: expiresAt,
                     stripeCustomerId: session.customer,
                     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -481,12 +485,23 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             );
 
             console.log(`Sprint plan activated for user ${userId}, expires at ${expiresAt.toDate()}`);
-        } else if (priceId === PRICE_IDS.MONTHLY) {
-            // Monthly subscription
+        } else if (
+            priceId === PRICE_IDS.MONTHLY || 
+            priceId === PRICE_IDS.PRO || 
+            priceId === PRICE_IDS.MAX || 
+            priceId === PRICE_IDS.ENTERPRISE
+        ) {
+            // Determine exact plan name based on the price ID
+            let assignedPlan = "pro";
+            if (priceId === PRICE_IDS.MAX) assignedPlan = "max";
+            if (priceId === PRICE_IDS.ENTERPRISE) assignedPlan = "enterprise";
+            if (priceId === PRICE_IDS.MONTHLY) assignedPlan = "pro_monthly"; // preserve legacy name
+
+            // Subscription activated
             await userRef.set(
                 {
-                    plan: "pro_monthly",
-                    resumeLimit: 9999,
+                    plan: assignedPlan,
+                    resumeLimit: 9999, // Legacy unrestricted resumes (credits handle AI logic)
                     subscriptionStatus: "active",
                     stripeCustomerId: session.customer,
                     stripeSubscriptionId: session.subscription,
@@ -498,7 +513,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
                 { merge: true }
             );
 
-            console.log(`Monthly subscription activated for user ${userId}`);
+            console.log(`${assignedPlan} subscription activated for user ${userId}`);
         }
     } catch (error) {
         console.error(`Error updating user ${userId}:`, error);
@@ -577,7 +592,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     await userDoc.ref.set(
         {
             subscriptionStatus: "canceled",
-            resumeLimit: 2, // Revert to free tier
+            resumeLimit: 1, // Revert to free tier
             plan: "free",
             promotions: {
                 isPremium: false,

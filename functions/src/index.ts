@@ -59,7 +59,13 @@ export { initPortfolio, updatePortfolioProjects, updatePortfolioHero, uploadPort
 export { evaluateJob, generateLinkedInOutreach, generateDeepResearch, saveCareerProfile } from "./careerOps";
 
 // CLI Job Hunt API
-export { cliJobsHunt, cliJobsCreate, cliJobsUpdate, cliJobsList, cliResumeGet, cliResumesList } from "./cliJobs";
+export { cliJobsHunt, cliJobsCreate, cliJobsUpdate, cliJobsList, cliResumeGet, cliResumesList, cliResumeCreate, cliResumeUpdate, cliResumeDelete } from "./cliJobs";
+
+// CLI Agent Credits
+export { agentDeductCredits } from "./agentCredits";
+
+// CLI Agent Proxy (routes agent Gemini calls through server-side key)
+export { agentProxy } from "./agentProxy";
 
 const APP_BASE_URL =
   process.env.CAREERVIVID_APP_URL ||

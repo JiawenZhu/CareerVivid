@@ -1,5 +1,6 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
+import { FREE_PLAN_CREDIT_LIMIT, PRO_PLAN_CREDIT_LIMIT, PRO_MAX_PLAN_CREDIT_LIMIT, ENTERPRISE_PLAN_CREDIT_LIMIT } from '../config/creditCosts';
 
 interface AIUsageProgressBarProps {
     used: number;
@@ -32,11 +33,11 @@ const AIUsageProgressBar: React.FC<AIUsageProgressBarProps> = ({
         return 'text-gray-700 dark:text-gray-400';
     };
 
-    // New: Helper to get plan label
+    // Helper to get plan label using the same constants as AuthContext
     const getPlanLabel = () => {
-        if (limit === 1200 || limit > 888) return 'Enterprise';
-        if (limit === 888) return 'Pro Max';
-        if (limit === 666) return 'Pro';
+        if (limit >= ENTERPRISE_PLAN_CREDIT_LIMIT) return 'Enterprise';
+        if (limit === PRO_MAX_PLAN_CREDIT_LIMIT) return 'Max';
+        if (limit === PRO_PLAN_CREDIT_LIMIT) return 'Pro';
         return 'Community';
     };
 

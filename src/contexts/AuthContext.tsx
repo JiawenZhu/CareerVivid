@@ -91,7 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const expiresAtMillis = userData.expiresAt?.toMillis ? userData.expiresAt.toMillis() : null;
 
         // All paid plans are active if plan is present
-        const isPaidPlan = userData.plan === 'pro' || userData.plan === 'pro_max' || userData.plan === 'enterprise';
+        const isPaidPlan = userData.plan === 'pro' || userData.plan === 'max' || userData.plan === 'pro_max' || userData.plan === 'enterprise' || userData.plan === 'premium' || userData.plan === 'pro_monthly' || userData.plan === 'pro_sprint';
 
         // Legacy: Only use isPremium if there's NO expiresAt (true backward compat)
         const hasLegacyPremium = expiresAtMillis === null && userData.promotions?.isPremium === true;
@@ -100,29 +100,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsPremium(isPremiumNow);
 
         // Set AI Usage with plan-specific limits
-        const aiUsageData = userData.aiUsage || { count: 0, monthlyLimit: FREE_PLAN_CREDIT_LIMIT };
+        // IMPORTANT: Always derive the limit from canonical plan constants.
+        // Never read monthlyLimit from Firestore (it can be stale/wrong).
+        const aiUsageData = userData.aiUsage || { count: 0 };
         let monthlyLimit = FREE_PLAN_CREDIT_LIMIT;
 
-        // New SaaS Pivot Tier Mapping
-        if (userData?.plan) {
-          switch (userData.plan) {
-            case 'pro':
-              monthlyLimit = PRO_PLAN_CREDIT_LIMIT;
-              break;
-            case 'pro_max':
-              monthlyLimit = PRO_MAX_PLAN_CREDIT_LIMIT;
-              break;
-            case 'enterprise':
-              // Enterprise is pooled: limit = seats * 1200
-              monthlyLimit = (userData.seats || 1) * ENTERPRISE_PLAN_CREDIT_LIMIT;
-              break;
-            default:
-              monthlyLimit = aiUsageData.monthlyLimit || FREE_PLAN_CREDIT_LIMIT;
-          }
+        switch (userData?.plan) {
+          case 'pro':
+          case 'premium':        // legacy alias
+          case 'pro_monthly':    // legacy alias
+          case 'pro_sprint':     // legacy alias
+            monthlyLimit = PRO_PLAN_CREDIT_LIMIT;
+            break;
+          case 'max':
+          case 'pro_max':
+            monthlyLimit = PRO_MAX_PLAN_CREDIT_LIMIT;
+            break;
+          case 'enterprise':
+            monthlyLimit = (userData.seats || 1) * ENTERPRISE_PLAN_CREDIT_LIMIT;
+            break;
+          default:
+            // Free plan or any unrecognized plan → FREE_PLAN_CREDIT_LIMIT
+            monthlyLimit = FREE_PLAN_CREDIT_LIMIT;
+            break;
         }
 
         setAiUsage({
-          count: aiUsageData.count,
+          count: aiUsageData.count ?? 0,
           limit: monthlyLimit
         });
 
@@ -242,8 +246,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (userProfile?.plan) {
         switch (userProfile.plan) {
           case 'pro':
+          case 'premium':        // legacy alias
+          case 'pro_monthly':    // legacy alias
+          case 'pro_sprint':     // legacy alias
             limit = PRO_PLAN_CREDIT_LIMIT;
             break;
+          case 'max':
           case 'pro_max':
             limit = PRO_MAX_PLAN_CREDIT_LIMIT;
             break;

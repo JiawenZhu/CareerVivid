@@ -1,226 +1,313 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Wand2, LayoutTemplate, Mic, FileText, Sparkles, CheckCircle2 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-import { FREE_PLAN_CREDIT_LIMIT, PRO_PLAN_CREDIT_LIMIT, PRO_MAX_PLAN_CREDIT_LIMIT, ENTERPRISE_PLAN_CREDIT_LIMIT } from '../../config/creditCosts';
+import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Zap, Bot, FileText, Briefcase, Mic, Terminal, ChevronRight, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import {
+    FREE_PLAN_CREDIT_LIMIT,
+    PRO_PLAN_CREDIT_LIMIT,
+    PRO_MAX_PLAN_CREDIT_LIMIT,
+    AI_CREDIT_COSTS,
+} from '../../config/creditCosts';
 
-// Base constants for credit costs
-const COSTS = {
-    resume: 5,
-    portfolio: 5,
-    interview: 10,
-    jobPrep: 10
-};
+interface SliderConfig {
+    id: string;
+    label: string;
+    description: string;
+    icon: React.ReactNode;
+    costPerUse: number;
+    max: number;
+    step: number;
+    color: string;
+}
 
-const TIERS = {
-    free: { name: 'Free', limit: FREE_PLAN_CREDIT_LIMIT, color: 'bg-green-500' },
-    pro: { name: 'Pro', limit: PRO_PLAN_CREDIT_LIMIT, color: 'bg-primary-500' },
-    pro_max: { name: 'Pro Max', limit: PRO_MAX_PLAN_CREDIT_LIMIT, color: 'bg-purple-500' },
-    enterprise: { name: 'Enterprise', limit: ENTERPRISE_PLAN_CREDIT_LIMIT, color: 'bg-indigo-600' }
-};
+const SLIDERS: SliderConfig[] = [
+    {
+        id: 'agentTurns',
+        label: 'CLI Agent turns (Flash, 1 cr)',
+        description: 'Each message to cv agent costs 1 credit (Gemini 2.5 Flash)',
+        icon: <Bot size={16} />,
+        costPerUse: AI_CREDIT_COSTS.CLI_AGENT_FLASH,
+        max: 500,
+        step: 10,
+        color: '#6366f1',
+    },
+    {
+        id: 'agentLiteTurns',
+        label: 'CLI Agent turns (Flash Lite, 0.5 cr)',
+        description: 'Fastest model at the lowest cost',
+        icon: <Bot size={16} />,
+        costPerUse: AI_CREDIT_COSTS.CLI_AGENT_FLASH_LITE,
+        max: 500,
+        step: 10,
+        color: '#8b5cf6',
+    },
+    {
+        id: 'agentProTurns',
+        label: 'CLI Agent turns (Pro, 2 cr)',
+        description: 'Deep reasoning with Gemini Pro (Pro plan required)',
+        icon: <Bot size={16} />,
+        costPerUse: AI_CREDIT_COSTS.CLI_AGENT_PRO,
+        max: 200,
+        step: 5,
+        color: '#a855f7',
+    },
+    {
+        id: 'resumeTailors',
+        label: 'Resume tailorings',
+        description: `AI resume tailoring — ${AI_CREDIT_COSTS.RESUME_TAILOR} credits each`,
+        icon: <FileText size={16} />,
+        costPerUse: AI_CREDIT_COSTS.RESUME_TAILOR,
+        max: 100,
+        step: 1,
+        color: '#10b981',
+    },
+    {
+        id: 'jobSearches',
+        label: 'Job searches',
+        description: `AI-powered job search & scoring — ${AI_CREDIT_COSTS.JOB_SEARCH} credit each`,
+        icon: <Briefcase size={16} />,
+        costPerUse: AI_CREDIT_COSTS.JOB_SEARCH,
+        max: 200,
+        step: 5,
+        color: '#f59e0b',
+    },
+    {
+        id: 'interviews',
+        label: 'Voice interviews',
+        description: `Technical system design voice interviews — ${AI_CREDIT_COSTS.TECH_INTERVIEW_VOICE} credits each`,
+        icon: <Mic size={16} />,
+        costPerUse: AI_CREDIT_COSTS.TECH_INTERVIEW_VOICE,
+        max: 50,
+        step: 1,
+        color: '#ef4444',
+    },
+    {
+        id: 'archGen',
+        label: 'Architecture auto-gens',
+        description: `Architecture diagram generation — ${AI_CREDIT_COSTS.ARCHITECTURE_AUTO_GEN} credits each`,
+        icon: <Terminal size={16} />,
+        costPerUse: AI_CREDIT_COSTS.ARCHITECTURE_AUTO_GEN,
+        max: 50,
+        step: 1,
+        color: '#0ea5e9',
+    },
+];
 
-type TierKey = keyof typeof TIERS;
+interface PlanConfig {
+    name: string;
+    limit: number;
+    color: string;
+    price: string;
+    accent: string;
+}
 
-const CreditCalculator: React.FC = () => {
-    const { t } = useTranslation();
+const PLANS: PlanConfig[] = [
+    { name: 'Free',       limit: FREE_PLAN_CREDIT_LIMIT,    color: '#6b7280', price: '$0/mo',    accent: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300' },
+    { name: 'Pro',        limit: PRO_PLAN_CREDIT_LIMIT,     color: '#6366f1', price: '$9/mo',    accent: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' },
+    { name: 'Max',        limit: PRO_MAX_PLAN_CREDIT_LIMIT, color: '#a855f7', price: '$29/mo',   accent: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300' },
+];
 
-    // State for user inputs
-    const [counts, setCounts] = useState({
-        resume: 4,
-        portfolio: 2,
-        interview: 5,
-        jobPrep: 10
-    });
+export const CreditCalculator: React.FC = () => {
+    const [values, setValues] = useState<Record<string, number>>(
+        Object.fromEntries(SLIDERS.map((s) => [s.id, 0]))
+    );
+    const [selectedPlan, setSelectedPlan] = useState<PlanConfig>(PLANS[1]);
 
-    // Currently selected tier for visualization
-    const [selectedTier, setSelectedTier] = useState<TierKey>('pro');
+    const totalCredits = useMemo(
+        () => SLIDERS.reduce((sum, s) => sum + values[s.id] * s.costPerUse, 0),
+        [values]
+    );
 
-    const handleCountChange = (key: keyof typeof counts, value: number) => {
-        setCounts(prev => ({ ...prev, [key]: Math.max(0, value) }));
-    };
+    const pct = Math.min((totalCredits / selectedPlan.limit) * 100, 100);
+    const overLimit = totalCredits > selectedPlan.limit;
+    const recommended = PLANS.find((p) => p.limit >= totalCredits) ?? PLANS[PLANS.length - 1];
 
-    // Calculate total cost based on current inputs
-    const totalCost = (counts.resume * COSTS.resume) +
-        (counts.portfolio * COSTS.portfolio) +
-        (counts.interview * COSTS.interview) +
-        (counts.jobPrep * COSTS.jobPrep);
-
-    const maxLimit = TIERS[selectedTier].limit;
-    const isExceeded = totalCost > maxLimit;
-    const percentage = Math.min((totalCost / maxLimit) * 100, 100);
+    const breakdown = SLIDERS.filter((s) => values[s.id] > 0).map((s) => ({
+        label: s.label,
+        credits: values[s.id] * s.costPerUse,
+        color: s.color,
+    }));
 
     return (
-        <section className="py-24 bg-gray-50 dark:bg-gray-900/50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-24 bg-gray-50 dark:bg-gray-950">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Header */}
                 <div className="text-center mb-16">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-sm font-bold mb-6">
-                        <Sparkles size={16} /> Interactive Credit Calculator
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-sm font-bold mb-6">
+                        <Zap size={15} /> Credit Calculator
                     </div>
-                    <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-4">
-                        Build your perfect AI setup.
+                    <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight mb-4">
+                        Find Your Perfect Plan
                     </h2>
-                    <p className="text-xl text-gray-600 dark:text-gray-400 font-medium max-w-2xl mx-auto">
-                        CareerVivid uses a universal AI Credit system. See how far credits go based on your estimated monthly or weekly job search activity.
+                    <p className="max-w-2xl mx-auto text-lg text-gray-600 dark:text-gray-400 font-medium">
+                        Drag the sliders to estimate how many credits you'll use each month.
                     </p>
                 </div>
 
-                <div className="grid lg:grid-cols-2 gap-12 items-start">
-
-                    {/* Left Column: Interactive Inputs */}
-                    <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 shadow-xl border border-gray-100 dark:border-gray-800">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">Estimated Usage</h3>
-
-                        <div className="space-y-8">
-                            {/* Input: Resumes */}
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-end">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg"><FileText size={20} /></div>
-                                        <div>
-                                            <div className="font-bold text-gray-900 dark:text-white">Full AI Resumes</div>
-                                            <div className="text-xs text-gray-500 font-medium">{COSTS.resume} credits / generation</div>
+                <div className="grid lg:grid-cols-5 gap-10 items-start">
+                    {/* Sliders */}
+                    <div className="lg:col-span-3 space-y-6">
+                        {SLIDERS.map((slider) => (
+                            <div key={slider.id} className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-800">
+                                <div className="flex justify-between items-start mb-3">
+                                    <div className="flex items-center gap-2">
+                                        <span style={{ color: slider.color }}>{slider.icon}</span>
+                                        <span className="font-bold text-gray-800 dark:text-gray-200 text-sm">{slider.label}</span>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="text-2xl font-black text-gray-900 dark:text-white">{values[slider.id]}</span>
+                                        <span className="text-xs text-gray-400 ml-1">uses</span>
+                                        <div className="text-xs font-bold" style={{ color: slider.color }}>
+                                            = {(values[slider.id] * slider.costPerUse).toFixed(1)} cr
                                         </div>
                                     </div>
-                                    <div className="text-xl font-black text-gray-900 dark:text-white">{counts.resume}</div>
                                 </div>
-                                <input
-                                    type="range" min="0" max="50" step="1"
-                                    value={counts.resume}
-                                    onChange={(e) => handleCountChange('resume', parseInt(e.target.value))}
-                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                                />
-                            </div>
-
-                            {/* Input: Portfolios */}
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-end">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-pink-50 dark:bg-pink-900/30 text-pink-600 rounded-lg"><LayoutTemplate size={20} /></div>
-                                        <div>
-                                            <div className="font-bold text-gray-900 dark:text-white">AI Web Portfolios</div>
-                                            <div className="text-xs text-gray-500 font-medium">{COSTS.portfolio} credits / generation</div>
-                                        </div>
-                                    </div>
-                                    <div className="text-xl font-black text-gray-900 dark:text-white">{counts.portfolio}</div>
+                                <p className="text-xs text-gray-500 mb-4">{slider.description}</p>
+                                <div className="relative">
+                                    <div
+                                        className="h-2 rounded-full mb-0 absolute top-0 left-0"
+                                        style={{
+                                            width: `${(values[slider.id] / slider.max) * 100}%`,
+                                            background: slider.color,
+                                            transition: 'width 0.2s ease',
+                                            pointerEvents: 'none',
+                                        }}
+                                    />
+                                    <input
+                                        type="range"
+                                        min={0}
+                                        max={slider.max}
+                                        step={slider.step}
+                                        value={values[slider.id]}
+                                        onChange={(e) =>
+                                            setValues((prev) => ({ ...prev, [slider.id]: Number(e.target.value) }))
+                                        }
+                                        className="w-full h-2 rounded-full appearance-none outline-none cursor-pointer relative"
+                                        style={{
+                                            background: `linear-gradient(to right, ${slider.color} 0%, ${slider.color} ${(values[slider.id] / slider.max) * 100}%, #e5e7eb ${(values[slider.id] / slider.max) * 100}%, #e5e7eb 100%)`,
+                                        }}
+                                    />
                                 </div>
-                                <input
-                                    type="range" min="0" max="20" step="1"
-                                    value={counts.portfolio}
-                                    onChange={(e) => handleCountChange('portfolio', parseInt(e.target.value))}
-                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-pink-600"
-                                />
                             </div>
-
-                            {/* Input: Mock Interviews */}
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-end">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-purple-50 dark:bg-purple-900/30 text-purple-600 rounded-lg"><Mic size={20} /></div>
-                                        <div>
-                                            <div className="font-bold text-gray-900 dark:text-white">Voice Mock Interviews</div>
-                                            <div className="text-xs text-gray-500 font-medium">{COSTS.interview} credits / session</div>
-                                        </div>
-                                    </div>
-                                    <div className="text-xl font-black text-gray-900 dark:text-white">{counts.interview}</div>
-                                </div>
-                                <input
-                                    type="range" min="0" max="40" step="1"
-                                    value={counts.interview}
-                                    onChange={(e) => handleCountChange('interview', parseInt(e.target.value))}
-                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
-                                />
-                            </div>
-
-                            {/* Input: Job Prep */}
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-end">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-orange-50 dark:bg-orange-900/30 text-orange-600 rounded-lg"><Wand2 size={20} /></div>
-                                        <div>
-                                            <div className="font-bold text-gray-900 dark:text-white">Targeted Job Prep Notes</div>
-                                            <div className="text-xs text-gray-500 font-medium">{COSTS.jobPrep} credits / generation</div>
-                                        </div>
-                                    </div>
-                                    <div className="text-xl font-black text-gray-900 dark:text-white">{counts.jobPrep}</div>
-                                </div>
-                                <input
-                                    type="range" min="0" max="40" step="1"
-                                    value={counts.jobPrep}
-                                    onChange={(e) => handleCountChange('jobPrep', parseInt(e.target.value))}
-                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-600"
-                                />
-                            </div>
-                        </div>
+                        ))}
                     </div>
 
-                    {/* Right Column: Visualizer */}
-                    <div className="bg-gray-900 rounded-3xl p-8 shadow-2xl relative overflow-hidden flex flex-col h-full border border-gray-800">
-                        {/* Background Decor */}
-                        <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
-                            <Sparkles size={200} />
+                    {/* Summary Panel */}
+                    <div className="lg:col-span-2 sticky top-6 space-y-5">
+                        {/* Plan Selector */}
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-800">
+                            <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-3">Compare with plan</p>
+                            <div className="flex gap-2 flex-wrap">
+                                {PLANS.map((p) => (
+                                    <button
+                                        key={p.name}
+                                        onClick={() => setSelectedPlan(p)}
+                                        data-selected={selectedPlan.name === p.name}
+                                        className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all border-2 ${
+                                            selectedPlan.name === p.name
+                                                ? 'border-current shadow-sm scale-105'
+                                                : 'border-transparent text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'
+                                        } ${p.accent}`}
+                                    >
+                                        {p.name}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
-                        <div className="relative z-10 flex-grow flex flex-col justify-between h-full">
-                            <div>
-                                <h3 className="text-xl font-bold text-white mb-6">Select a Tier to Compare</h3>
+                        {/* Credit Gauge */}
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-800">
+                            <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-1">Estimated monthly usage</p>
+                            <div className="flex justify-between items-end mb-3">
+                                <span className="text-4xl font-black" style={{ color: overLimit ? '#ef4444' : selectedPlan.color }}>
+                                    {totalCredits.toFixed(1)}
+                                </span>
+                                <span className="text-sm text-gray-400 font-medium">of {selectedPlan.limit.toLocaleString()} credits</span>
+                            </div>
 
-                                {/* Tier Toggles */}
-                                <div className="flex bg-gray-800 rounded-xl p-1 mb-10 w-full md:w-fit">
-                                    {(Object.keys(TIERS) as TierKey[]).map(key => (
-                                        <button
-                                            key={key}
-                                            onClick={() => setSelectedTier(key)}
-                                            className={`flex-1 md:flex-none px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${selectedTier === key ? 'bg-white text-gray-900 shadow-md' : 'text-gray-400 hover:text-white'}`}
-                                        >
-                                            {TIERS[key].name} ({TIERS[key].limit})
-                                        </button>
+                            {/* Bar */}
+                            <div className="h-4 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden mb-3">
+                                <motion.div
+                                    className="h-full rounded-full"
+                                    style={{ background: overLimit ? '#ef4444' : selectedPlan.color }}
+                                    initial={false}
+                                    animate={{ width: `${pct}%` }}
+                                    transition={{ type: 'spring', stiffness: 200, damping: 25 }}
+                                />
+                            </div>
+
+                            {/* Status */}
+                            <AnimatePresence mode="wait">
+                                {overLimit ? (
+                                    <motion.div
+                                        key="over"
+                                        initial={{ opacity: 0, y: 8 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -8 }}
+                                        className="flex items-start gap-2.5 p-3 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800/50"
+                                    >
+                                        <AlertTriangle className="text-red-500 flex-shrink-0 mt-0.5" size={16} />
+                                        <div>
+                                            <p className="text-sm font-bold text-red-700 dark:text-red-400">
+                                                Exceeds {selectedPlan.name} plan by {(totalCredits - selectedPlan.limit).toFixed(1)} credits
+                                            </p>
+                                            <p className="text-xs text-red-600/80 dark:text-red-400/70 mt-0.5">
+                                                We recommend the <strong>{recommended.name} plan</strong> ({recommended.price})
+                                            </p>
+                                        </div>
+                                    </motion.div>
+                                ) : (
+                                    <motion.div
+                                        key="ok"
+                                        initial={{ opacity: 0, y: 8 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -8 }}
+                                        className="flex items-center gap-2 text-sm"
+                                    >
+                                        <CheckCircle2 size={16} className="text-green-500" />
+                                        <span className="font-medium" style={{ color: selectedPlan.color }}>
+                                            {selectedPlan.name} plan covers your usage ✓
+                                        </span>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
+                        {/* Breakdown */}
+                        {breakdown.length > 0 && (
+                            <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-800">
+                                <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-4">Credit breakdown</p>
+                                <div className="space-y-2.5">
+                                    {breakdown.map((row) => (
+                                        <div key={row.label} className="flex items-center gap-3">
+                                            <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: row.color }} />
+                                            <span className="flex-grow text-xs text-gray-600 dark:text-gray-400 font-medium truncate">
+                                                {row.label}
+                                            </span>
+                                            <span className="text-xs font-bold" style={{ color: row.color }}>
+                                                {row.credits.toFixed(1)} cr
+                                            </span>
+                                        </div>
                                     ))}
                                 </div>
-
-                                <div className="mb-2 flex justify-between items-end">
-                                    <div className="text-gray-400 font-medium">Projected Usage</div>
-                                    <div className="text-right">
-                                        <div className={`text-5xl font-black ${isExceeded ? 'text-red-400' : 'text-white'}`}>
-                                            {totalCost}
-                                        </div>
-                                        <div className="text-sm text-gray-500 font-bold mt-1">/ {maxLimit} credits</div>
-                                    </div>
-                                </div>
-
-                                {/* Dynamic Progress Bar */}
-                                <div className="w-full bg-gray-800 rounded-full h-6 mb-4 overflow-hidden shadow-inner p-1">
-                                    <motion.div
-                                        className={`h-full rounded-full ${isExceeded ? 'bg-red-500' : TIERS[selectedTier].color} relative`}
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${percentage}%` }}
-                                        transition={{ type: "spring", stiffness: 60, damping: 15 }}
-                                    >
-                                        {/* Optional: Add a subtle striped animation to the bar if active */}
-                                        <div className="absolute inset-0 bg-white/20" style={{ backgroundImage: 'linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent)', backgroundSize: '1rem 1rem' }}></div>
-                                    </motion.div>
-                                </div>
-
-                                {isExceeded && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                                        className="bg-red-500/10 border border-red-500/30 text-red-400 p-4 rounded-xl text-sm font-bold flex items-start gap-3"
-                                    >
-                                        ⚠️ You'll need a higher plan for this much AI power!
-                                    </motion.div>
-                                )}
-                                {!isExceeded && totalCost > 0 && (
-                                    <motion.div
-                                        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                                        className="text-gray-400 text-sm font-medium flex items-center gap-2"
-                                    >
-                                        <CheckCircle2 size={16} className="text-green-400" /> This easily fits within the {TIERS[selectedTier].name} tier.
-                                    </motion.div>
-                                )}
                             </div>
+                        )}
 
-                            <div className="mt-12 pt-8 border-t border-gray-800 text-center">
-                                <p className="text-sm text-gray-500 mb-4 font-medium italic">All manual content creation remains free & unlimited!</p>
+                        {/* CTA */}
+                        <div className="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-xl shadow-indigo-500/25">
+                            <div className="flex items-center justify-between mb-3">
+                                <span className="font-black text-sm">Try CareerVivid free</span>
+                                <Zap size={18} className="text-yellow-300" />
                             </div>
+                            <p className="text-indigo-200 text-xs font-medium mb-5 leading-relaxed">
+                                {FREE_PLAN_CREDIT_LIMIT} free AI credits every month — no credit card required.
+                                <br />Use the CLI agent, search jobs, and tailor resumes instantly.
+                            </p>
+                            <a
+                                href="/signup"
+                                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white text-indigo-700 font-black text-sm hover:bg-indigo-50 transition-colors"
+                            >
+                                Get {FREE_PLAN_CREDIT_LIMIT} free credits <ChevronRight size={16} />
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -228,5 +315,3 @@ const CreditCalculator: React.FC = () => {
         </section>
     );
 };
-
-export default CreditCalculator;

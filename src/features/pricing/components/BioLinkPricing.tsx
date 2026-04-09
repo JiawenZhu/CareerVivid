@@ -92,8 +92,8 @@ const BIO_LINK_PLANS: PricingTier[] = [
             yearly: '/mo',
         },
         priceId: {
-            monthly: 'price_1SXF15EqIOIAAUV01eD0To1q',
-            yearly: 'price_1SXF15EqIOIAAUV01eD0To1q',
+            monthly: 'price_1TJoONRJNflGxv32zSqxC9bZ',
+            yearly: 'price_1TJoONRJNflGxv32zSqxC9bZ',
         },
         features: [
             'Everything in Bio-Link Pro',

@@ -15,6 +15,8 @@ import {
   jobsUpdate,
   resumeGet,
   resumesList,
+  resumeUpdate,
+  resumeDelete,
   isApiError,
   ApplicationStatus,
 } from "../../api.js";
@@ -358,8 +360,10 @@ personalized job advice, tailoring cover letters, or analyzing job fit.`,
       ? `\nLast updated: ${new Date(result.updatedAt).toLocaleDateString()}`
       : "";
 
+    const url = `https://careervivid.app/edit/${result.resumeId}`;
     return (
-      `Resume: "${result.title}" (ID: ${result.resumeId})${updated}\n\n` +
+      `Resume: "${result.title}" (ID: ${result.resumeId})${updated}\n` +
+      `🔗 View / edit: ${url}\n\n` +
       `--- RESUME CONTENT ---\n${result.cvMarkdown}\n--- END OF RESUME ---`
     );
   },
@@ -401,12 +405,117 @@ This returns lightweight metadata including resume ID and title, which can be us
 };
 
 // ---------------------------------------------------------------------------
+// Tool: tailor_resume
+// ---------------------------------------------------------------------------
+
+export const TailorResumeTool: Tool = {
+  name: "tailor_resume",
+  description: `Tailor or refine the user's resume using AI. 
+Use this when the user asks to "update my resume", "tailor my resume for this job", "add X skill to my resume", etc.
+You must provide either a target job_description to tailor to, or an instruction for how to refine it.`,
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      resume_id: {
+        type: Type.STRING,
+        description: "The ID of the resume to update.",
+      },
+      action: {
+        type: Type.STRING,
+        description: "Whether to 'tailor' (match a JD) or 'refine' (general improvements via instruction)",
+        enum: ["tailor", "refine"],
+      },
+      job_description: {
+        type: Type.STRING,
+        description: "Optional. The target job description to tailor the resume for. Required if action is 'tailor'.",
+      },
+      instruction: {
+        type: Type.STRING,
+        description: "Optional. Specific instructions on how to refine the resume. Required if action is 'refine'.",
+      },
+      new_title: {
+        type: Type.STRING,
+        description: "Optional. A title for the new updated resume.",
+      },
+      copy: {
+        type: Type.BOOLEAN,
+        description: "Optional. If true, creates a new resume copy instead of modifying in-place. Good for tailoring to specific jobs.",
+      },
+    },
+    required: ["resume_id", "action"],
+  },
+  execute: async (args: {
+    resume_id: string;
+    action: "tailor" | "refine";
+    job_description?: string;
+    instruction?: string;
+    new_title?: string;
+    copy?: boolean;
+  }) => {
+    if (args.action === "tailor" && !args.job_description) {
+      return "Error: job_description is required when action is 'tailor'.";
+    }
+    if (args.action === "refine" && !args.instruction) {
+      return "Error: instruction is required when action is 'refine'.";
+    }
+
+    const result = await resumeUpdate({
+      resumeId: args.resume_id,
+      action: args.action,
+      jobDescription: args.job_description,
+      instruction: args.instruction,
+      newTitle: args.new_title,
+      copy: args.copy,
+    });
+
+    if (isApiError(result)) {
+      return `Error tailoring resume: ${result.message}`;
+    }
+
+    const url = `https://careervivid.app/edit/${result.resumeId}`;
+    return `✅ AI Resume Update Successful!\n${result.message}\n\n🔗 View / edit your resume here: ${url}\n\nAgent Instruction: Always show the user the above URL as a clickable link and tell them they can open it to view or further edit their resume.`;
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Tool: delete_resume
+// ---------------------------------------------------------------------------
+
+export const DeleteResumeTool: Tool = {
+  name: "delete_resume",
+  description: `Delete a user's resume from CareerVivid.
+Use this when the user explicitly asks to "delete my resume", "remove resume X", etc.
+MAKE SURE the user actually intends to delete it, as this is permanent.`,
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      resume_id: {
+        type: Type.STRING,
+        description: "The ID of the resume to delete.",
+      },
+    },
+    required: ["resume_id"],
+  },
+  execute: async (args: { resume_id: string }) => {
+    const result = await resumeDelete({ resumeId: args.resume_id });
+
+    if (isApiError(result)) {
+      return `Error deleting resume: ${result.message}`;
+    }
+
+    return `✅ Resume successfully deleted!`;
+  },
+};
+
+// ---------------------------------------------------------------------------
 // All job tools export
 // ---------------------------------------------------------------------------
 
 export const ALL_JOB_TOOLS: Tool[] = [
   GetResumeTool,
   ListResumesTool,
+  TailorResumeTool,
+  DeleteResumeTool,
   SearchJobsTool,
   SaveJobTool,
   ListJobsTool,
