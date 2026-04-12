@@ -100,7 +100,7 @@ const TerminalCard = ({ command, description, hoverOutput, delay = 0, isFocused,
                 flexGrow: isFocused ? 1.8 : dimmed ? 0.6 : 1,
             } : { opacity: 0, y: 40 }}
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: isVisible ? 0 : delay }}
-            className={`flex flex-col bg-white dark:bg-[#0a0a0a] border rounded-xl overflow-hidden shadow-2xl ring-1 cursor-pointer text-left ${
+            className={`min-h-[220px] md:min-h-0 flex flex-col bg-white dark:bg-[#0a0a0a] border rounded-xl overflow-hidden shadow-2xl ring-1 cursor-pointer text-left ${
                 isFocused
                     ? 'border-primary-400/60 dark:border-primary-500/50 ring-primary-400/20 dark:ring-primary-500/20 shadow-primary-500/10'
                     : 'border-gray-200 dark:border-gray-800 ring-gray-900/5 dark:ring-white/10'
