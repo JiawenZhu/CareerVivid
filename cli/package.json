@@ -1,6 +1,6 @@
 {
   "name": "careervivid",
-  "version": "1.12.3",
+  "version": "1.12.4",
   "description": "Official CLI for CareerVivid — publish articles, diagrams, and portfolio updates from your terminal or AI agent",
   "type": "module",
   "bin": {
@@ -21,23 +21,23 @@
     "postinstall": "node ./dist/postinstall.js"
   },
   "dependencies": {
-    "@google/genai": "^1.47.0",
+    "@google/genai": "1.49.0",
     "boxen": "^8.0.1",
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
     "enquirer": "^2.4.1",
     "gradient-string": "^3.0.0",
-    "mermaid": "^11.12.3",
+    "mermaid": "11.14.0",
     "open": "^10.1.0",
     "ora": "^8.1.0",
     "playwright": "^1.51.0",
-    "semver": "^7.6.3",
+    "semver": "7.7.4",
     "update-notifier": "^7.3.1"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@types/semver": "^7.5.8",
-    "@types/update-notifier": "^6.0.3",
+    "@types/node": "20.19.39",
+    "@types/semver": "7.7.1",
+    "@types/update-notifier": "6.0.8",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.0"
   },
