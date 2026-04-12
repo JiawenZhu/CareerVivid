@@ -15,7 +15,7 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
-    "@excalidraw/excalidraw": "^0.18.0",
+    "@excalidraw/excalidraw": "^0.17.6",
     "@excalidraw/mermaid-to-excalidraw": "^2.0.0-rc4",
     "@google/genai": "^1.44.0",
     "@gsap/react": "^2.1.2",
@@ -34,7 +34,7 @@
     "express": "^5.2.1",
     "fabric": "^7.2.0",
     "firebase": "^12.10.0",
-    "firebase-functions": "^7.1.0",
+    "firebase-functions": "^4.9.0",
     "framer-motion": "^12.35.1",
     "gsap": "^3.14.2",
     "html2canvas": "^1.4.1",
@@ -45,7 +45,7 @@
     "lucide-react": "^0.577.0",
     "mammoth": "^1.11.0",
     "mermaid": "^11.12.3",
-    "next": "16.1.6",
+    "next": "^16.2.3",
     "node-pty": "^1.1.0",
     "pdfjs-dist": "^5.5.207",
     "react": "19.2.3",
@@ -87,5 +87,10 @@
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "overrides": {
+    "jsonwebtoken": "^9.0.0",
+    "protobufjs": "^7.0.0",
+    "google-gax": "^5.0.0"
   }
 }
