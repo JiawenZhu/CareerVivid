@@ -11,6 +11,7 @@ Examples:
     init_skill.py custom-skill --path /custom/location
 """
 
+import os
 import sys
 from pathlib import Path
 
@@ -227,6 +228,10 @@ def init_skill(skill_name, path):
 
     skill_md_path = skill_dir / 'SKILL.md'
     try:
+        base_real = os.path.realpath(Path(path).resolve())
+        target_real = os.path.realpath(skill_md_path)
+        if os.path.commonpath([base_real, target_real]) != base_real:
+            raise Exception("Invalid file path")
         skill_md_path.write_text(skill_content)
         print("✅ Created SKILL.md")
     except Exception as e:
@@ -239,6 +244,10 @@ def init_skill(skill_name, path):
         scripts_dir = skill_dir / 'scripts'
         scripts_dir.mkdir(exist_ok=True)
         example_script = scripts_dir / 'example.py'
+        base_real = os.path.realpath(Path(path).resolve())
+        target_real = os.path.realpath(example_script)
+        if os.path.commonpath([base_real, target_real]) != base_real:
+            raise Exception("Invalid file path")
         example_script.write_text(EXAMPLE_SCRIPT.format(skill_name=skill_name))
         example_script.chmod(0o755)
         print("✅ Created scripts/example.py")
@@ -247,6 +256,10 @@ def init_skill(skill_name, path):
         references_dir = skill_dir / 'references'
         references_dir.mkdir(exist_ok=True)
         example_reference = references_dir / 'api_reference.md'
+        base_real = os.path.realpath(Path(path).resolve())
+        target_real = os.path.realpath(example_reference)
+        if os.path.commonpath([base_real, target_real]) != base_real:
+            raise Exception("Invalid file path")
         example_reference.write_text(EXAMPLE_REFERENCE.format(skill_title=skill_title))
         print("✅ Created references/api_reference.md")
 
@@ -254,6 +267,10 @@ def init_skill(skill_name, path):
         assets_dir = skill_dir / 'assets'
         assets_dir.mkdir(exist_ok=True)
         example_asset = assets_dir / 'example_asset.txt'
+        base_real = os.path.realpath(Path(path).resolve())
+        target_real = os.path.realpath(example_asset)
+        if os.path.commonpath([base_real, target_real]) != base_real:
+            raise Exception("Invalid file path")
         example_asset.write_text(EXAMPLE_ASSET)
         print("✅ Created assets/example_asset.txt")
     except Exception as e:
