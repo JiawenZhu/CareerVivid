@@ -66,6 +66,6 @@ sop-assets/
 *SOP*
 *sop*
 
-# Agent skills
-.agent/skills/loki-mode/.github/workflows/claude.yml
+# Agent skills (local AI assistant config, not app code)
+.agent/skills/
 
