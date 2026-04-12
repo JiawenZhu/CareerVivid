@@ -5,7 +5,7 @@ import { navigate } from '../../utils/navigation';
 
 // --- Miniature Mock Cards ---
 const MockPostCard = ({ title, author, likes, comments, className = "" }: { title: string, author: string, likes: string, comments: string, className?: string }) => (
-    <div className={`bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-100 dark:border-gray-800 shadow-xl w-64 md:w-80 flex-shrink-0 ${className}`}>
+    <div className={`bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-100 dark:border-gray-800 shadow-xl w-52 sm:w-64 md:w-80 flex-shrink-0 ${className}`}>
         <div className="flex items-center gap-3 mb-4">
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary-400 to-blue-500 shrink-0" />
             <div className="space-y-1.5 flex-1">
@@ -22,7 +22,7 @@ const MockPostCard = ({ title, author, likes, comments, className = "" }: { titl
 );
 
 const MockResumeCard = ({ className = "" }: { className?: string }) => (
-    <div className={`bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-100 dark:border-gray-800 shadow-xl w-64 md:w-80 flex-shrink-0 flex flex-col items-center ${className}`}>
+    <div className={`bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-100 dark:border-gray-800 shadow-xl w-52 sm:w-64 md:w-80 flex-shrink-0 flex flex-col items-center ${className}`}>
         {/* Document Header */}
         <div className="w-full border-b border-gray-100 dark:border-gray-800 pb-3 mb-3 text-center">
             <div className="h-3.5 bg-gray-300 dark:bg-gray-600 rounded-full w-32 mx-auto mb-2" />
@@ -49,7 +49,7 @@ const MockResumeCard = ({ className = "" }: { className?: string }) => (
 );
 
 const MockWhiteboardCard = ({ title, className = "" }: { title: string, className?: string }) => (
-    <div className={`bg-gray-900 rounded-2xl p-5 border border-gray-800 shadow-2xl w-64 md:w-80 flex-shrink-0 ring-1 ring-white/10 ${className}`}>
+    <div className={`bg-gray-900 rounded-2xl p-5 border border-gray-800 shadow-2xl w-52 sm:w-64 md:w-80 flex-shrink-0 ring-1 ring-white/10 ${className}`}>
         <div className="flex items-center gap-2 mb-4">
             <span className="p-1 px-2 rounded-md bg-white/10 text-[10px] text-white font-mono uppercase tracking-widest">{title}</span>
         </div>
@@ -207,17 +207,20 @@ const CommunityShowcaseHero: React.FC = () => {
                         style={{ opacity: cardsOpacity, scale: cardsScale }}
                         className="absolute inset-0 pointer-events-none z-10 overflow-hidden"
                     >
-                        <motion.div className="flex flex-col gap-8 absolute left-[-10%] sm:left-[5%] lg:left-[8%] top-[20%]" style={{ y: yColumn1 }}>
+                        {/* Left column: hidden on xs/sm, visible from md up */}
+                        <motion.div className="hidden md:flex flex-col gap-8 absolute left-[2%] lg:left-[8%] top-[20%]" style={{ y: yColumn1 }}>
                             <MockPostCard title="How I scaled our Redis cache by sharding." author="Sarah" likes="3.2k" comments="145" className="rotate-[-3deg]" />
                             <MockWhiteboardCard title="Event-Driven Microservices" className="rotate-[2deg]" />
                             <MockResumeCard className="rotate-[-1deg]" />
                         </motion.div>
+                        {/* Center column: large screens only */}
                         <motion.div className="hidden lg:flex flex-col gap-8 absolute left-1/2 -translate-x-1/2 top-[-10%]" style={{ y: yColumn2 }}>
                             <MockResumeCard className="rotate-[1deg] opacity-30 blur-sm" />
                             <MockPostCard title="Frontend to Fullstack: My 6-month roadmap." author="Alex" likes="1.1k" comments="89" className="rotate-[-2deg] opacity-30 blur-sm" />
                             <MockWhiteboardCard title="Database Sharding Architecture" className="rotate-[3deg] opacity-30 blur-sm" />
                         </motion.div>
-                        <motion.div className="flex flex-col gap-8 absolute right-[-10%] sm:right-[5%] lg:right-[8%] top-[40%]" style={{ y: yColumn3 }}>
+                        {/* Right column: hidden on xs/sm, visible from md up */}
+                        <motion.div className="hidden md:flex flex-col gap-8 absolute right-[2%] lg:right-[8%] top-[40%]" style={{ y: yColumn3 }}>
                             <MockWhiteboardCard title="Real-time Chat Socket Architecture" className="rotate-[4deg]" />
                             <MockResumeCard className="rotate-[-2deg]" />
                             <MockPostCard title="The exact behavioral answers I used." author="Priya" likes="4.5k" comments="210" className="rotate-[1deg]" />
@@ -253,15 +256,16 @@ const CommunityShowcaseHero: React.FC = () => {
                         </div>
 
                         {/* Quick install pill */}
-                        <div className="flex items-center gap-3 bg-gray-900 dark:bg-black border border-gray-700 hover:border-gray-500 rounded-xl px-5 py-2.5 shadow-2xl transition-colors">
-                            <span className="text-pink-500 font-mono font-bold">~</span>
-                            <span className="text-gray-300 font-mono text-sm sm:text-base">npm install -g careervivid</span>
+                        <div className="flex items-center gap-2 sm:gap-3 bg-gray-900 dark:bg-black border border-gray-700 hover:border-gray-500 rounded-xl px-3 sm:px-5 py-2.5 shadow-2xl transition-colors max-w-full overflow-hidden">
+                            <span className="text-pink-500 font-mono font-bold flex-shrink-0">~</span>
+                            <span className="text-gray-300 font-mono text-xs sm:text-sm truncate">npm install -g careervivid</span>
                             <button
                                 onClick={handleCopy}
-                                className="ml-2 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-lg text-gray-400 hover:text-white transition-colors flex items-center gap-1.5 text-sm font-medium border border-gray-700"
+                                className="flex-shrink-0 ml-1 sm:ml-2 px-2 sm:px-3 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-lg text-gray-400 hover:text-white transition-colors flex items-center gap-1.5 text-xs sm:text-sm font-medium border border-gray-700"
                             >
                                 {copiedToClipboard ? <CheckCircle2 size={14} className="text-emerald-400" /> : <Copy size={14} />}
-                                <span>{copiedToClipboard ? 'Copied!' : 'Copy'}</span>
+                                <span className="hidden xs:inline">{copiedToClipboard ? 'Copied!' : 'Copy'}</span>
+                                <span className="xs:hidden">{copiedToClipboard ? '✓' : 'Copy'}</span>
                             </button>
                         </div>
                     </div>
@@ -282,7 +286,7 @@ const CommunityShowcaseHero: React.FC = () => {
                 </div>
 
                 {/* Flex layout so focused card can grow wider */}
-                <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-4 items-stretch min-h-[380px]">
+                <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-4 items-stretch md:min-h-[380px]">
                     <TerminalCard
                         command="cv agent"
                         description="Boot full-scale local agent. Interactive REPL with slash commands, model switching, and full tool access."

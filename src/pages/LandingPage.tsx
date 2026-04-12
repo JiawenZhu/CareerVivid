@@ -64,7 +64,7 @@ const LandingPage: React.FC = () => {
                 {/* --- Feature Showcase Sections --- */}
 
                 {/* Section A: Resume Builder */}
-                <section className="py-24 bg-gray-50 dark:bg-gray-900/50">
+                <section className="py-16 sm:py-24 bg-gray-50 dark:bg-gray-900/50 overflow-hidden">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="grid md:grid-cols-2 gap-16 items-center">
                             <motion.div 
@@ -86,8 +86,8 @@ const LandingPage: React.FC = () => {
                                         title="Resume Builder Feature"
                                     />
                                 </div>
-                                {/* ATS Score Badge - Moved from Hero */}
-                                <div className="absolute -bottom-6 -left-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 flex items-center gap-3 animate-bounce-slow z-10">
+                                {/* ATS Score Badge - hidden on mobile to prevent overflow */}
+                                <div className="hidden sm:flex absolute -bottom-6 -left-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 items-center gap-3 animate-bounce-slow z-10">
                                     <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg text-green-600">
                                         <CheckCircle2 size={24} />
                                     </div>
@@ -107,7 +107,7 @@ const LandingPage: React.FC = () => {
                                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-xl flex items-center justify-center mb-6">
                                     <LayoutTemplate size={24} />
                                 </div>
-                                <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-8 text-gray-900 dark:text-white tracking-tight">{t('landing.feature_editor_title')}</h2>
+                                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 sm:mb-8 text-gray-900 dark:text-white tracking-tight">{t('landing.feature_editor_title')}</h2>
                                 <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-10 font-medium leading-relaxed">
                                     {t('landing.feature_editor_desc')}
                                 </p>
@@ -124,7 +124,7 @@ const LandingPage: React.FC = () => {
                 </section>
 
                 {/* Section A-Community: Community Feed */}
-                <section className="py-24 bg-white dark:bg-gray-950">
+                <section className="py-16 sm:py-24 bg-white dark:bg-gray-950 overflow-hidden">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="grid md:grid-cols-2 gap-16 items-center">
                             <div className="order-1">
@@ -183,7 +183,7 @@ const LandingPage: React.FC = () => {
                                     </div>
                                 </div>
                                 {/* Floating Badge */}
-                                <div className="absolute -top-6 -right-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 flex items-center gap-3 animate-bounce-slow delay-700 z-10">
+                                <div className="hidden sm:flex absolute -top-6 -right-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 items-center gap-3 animate-bounce-slow delay-700 z-10">
                                     <div className="bg-orange-100 dark:bg-orange-900/30 p-2 rounded-lg text-orange-600">
                                         <Star size={24} className="fill-current" />
                                     </div>
@@ -198,7 +198,7 @@ const LandingPage: React.FC = () => {
                 </section>
 
                 {/* Section A2: Portfolio Builder */}
-                <section className="py-24 bg-white dark:bg-gray-950">
+                <section className="py-16 sm:py-24 bg-white dark:bg-gray-950 overflow-hidden">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="grid md:grid-cols-2 gap-16 items-center">
                             <div className="order-1">
@@ -233,7 +233,7 @@ const LandingPage: React.FC = () => {
                                     />
                                 </div>
                                 {/* Floating Badge */}
-                                <div className="absolute -top-6 -right-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 flex items-center gap-3 animate-bounce-slow delay-700 z-10">
+                                <div className="hidden sm:flex absolute -top-6 -right-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 items-center gap-3 animate-bounce-slow delay-700 z-10">
                                     <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg text-blue-600">
                                         <LayoutTemplate size={24} />
                                     </div>
