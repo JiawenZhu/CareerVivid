@@ -121,7 +121,7 @@ const CompetitorCard: React.FC<{
         flexGrow: isFocused ? 1.8 : dimmed ? 0.6 : 1,
       }}
       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-      className={`group relative flex flex-col rounded-xl overflow-hidden shadow-2xl ring-1 cursor-pointer ${
+      className={`group relative min-h-[200px] md:min-h-0 flex flex-col rounded-xl overflow-hidden shadow-2xl ring-1 cursor-pointer ${
         isFocused
           ? `border ${c.borderFocused} ${c.ringFocused} ${c.glowShadow} shadow-xl`
           : 'border border-gray-200 dark:border-gray-800 ring-gray-900/5 dark:ring-white/10'
