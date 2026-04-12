@@ -91,6 +91,8 @@
   "overrides": {
     "jsonwebtoken": "^9.0.0",
     "protobufjs": "^7.0.0",
-    "google-gax": "^5.0.0"
+    "google-gax": "^5.0.0",
+    "nanoid": "^5.0.9",
+    "lodash-es": "4.18.1"
   }
 }
