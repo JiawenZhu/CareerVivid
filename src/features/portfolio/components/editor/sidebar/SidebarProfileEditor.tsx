@@ -96,38 +96,76 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                     <p className="text-[10px] text-gray-400 text-center sm:text-left">Recommended: Square JPG/PNG, max 2MB</p>
                 </div>
 
-                {/* Image Size Controls */}
+                {/* Avatar Styling Controls */}
                 {portfolioData.hero.avatarUrl && (
-                    <div className="mt-4 px-1 border-t border-gray-100 dark:border-white/5 pt-4">
-                        <label className="text-[10px] uppercase font-semibold text-gray-400 mb-2 block">Avatar Size</label>
-                        <div className="flex bg-gray-100 dark:bg-white/5 rounded-lg p-1 gap-1">
-                            {(['sm', 'md', 'lg', 'xl'] as const).map((size) => {
-                                const currentSize = portfolioData.linkInBio?.customStyle?.profileImageSize || 'md';
-                                const isActive = currentSize === size;
-                                return (
-                                    <button
-                                        key={size}
-                                        onClick={() => {
-                                            const currentCustomStyle = portfolioData.linkInBio?.customStyle || {};
-                                            onUpdate({
-                                                linkInBio: {
-                                                    ...portfolioData.linkInBio!,
-                                                    customStyle: {
-                                                        ...currentCustomStyle,
-                                                        profileImageSize: size
-                                                    }
-                                                }
-                                            });
-                                        }}
-                                        className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${isActive
-                                                ? 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-white shadow-sm'
-                                                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
-                                            }`}
-                                    >
-                                        {size.toUpperCase()}
-                                    </button>
-                                );
-                            })}
+                    <div className="mt-4 px-1 border-t border-gray-100 dark:border-white/5 pt-4 space-y-4">
+                        {/* Size Control */}
+                        <div>
+                            <label className="text-[10px] uppercase font-semibold text-gray-400 mb-2 block">Avatar Size</label>
+                            <div className="flex bg-gray-100 dark:bg-white/5 rounded-lg p-1 gap-1">
+                                {(['sm', 'md', 'lg', 'xl'] as const).map((size) => {
+                                    const currentSize = portfolioData.hero.avatarSize || 'md';
+                                    const isActive = currentSize === size;
+                                    return (
+                                        <button
+                                            key={size}
+                                            onClick={() => onNestedUpdate('hero', 'avatarSize', size)}
+                                            className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${isActive
+                                                    ? 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-white shadow-sm'
+                                                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                                                }`}
+                                        >
+                                            {size.toUpperCase()}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Shape Control */}
+                        <div>
+                            <label className="text-[10px] uppercase font-semibold text-gray-400 mb-2 block">Avatar Shape</label>
+                            <div className="flex bg-gray-100 dark:bg-white/5 rounded-lg p-1 gap-1">
+                                {(['circle', 'rounded', 'square'] as const).map((shape) => {
+                                    const currentShape = portfolioData.hero.avatarShape || 'circle';
+                                    const isActive = currentShape === shape;
+                                    return (
+                                        <button
+                                            key={shape}
+                                            onClick={() => onNestedUpdate('hero', 'avatarShape', shape)}
+                                            className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all capitalize ${isActive
+                                                    ? 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-white shadow-sm'
+                                                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                                                }`}
+                                        >
+                                            {shape}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Position Control */}
+                        <div>
+                            <label className="text-[10px] uppercase font-semibold text-gray-400 mb-2 block">Avatar Position</label>
+                            <div className="flex bg-gray-100 dark:bg-white/5 rounded-lg p-1 gap-1">
+                                {(['left', 'center', 'right'] as const).map((pos) => {
+                                    const currentPos = portfolioData.hero.avatarPosition || 'left';
+                                    const isActive = currentPos === pos;
+                                    return (
+                                        <button
+                                            key={pos}
+                                            onClick={() => onNestedUpdate('hero', 'avatarPosition', pos)}
+                                            className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all capitalize ${isActive
+                                                    ? 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-white shadow-sm'
+                                                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                                                }`}
+                                        >
+                                            {pos}
+                                        </button>
+                                    );
+                                })}
+                            </div>
                         </div>
                     </div>
                 )}

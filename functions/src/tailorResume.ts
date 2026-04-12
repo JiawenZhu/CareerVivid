@@ -111,25 +111,63 @@ export const tailorResume = functions
                 { "tailoredResume": { ...resume structure ... } }
                 `;
             } else {
-                // Default 'tailor'
-                prompt = `
-                You are an expert resume writer. REWRITE the resume to align with the Job Description.
+                // Default 'tailor' — full rewrite with ATS keyword injection (career-ops strategy)
+                prompt = `You are an expert resume writer and ATS optimization specialist.
+REWRITE the resume to maximize ATS keyword match with the Job Description.
 
-                TARGET JOB DESCRIPTION:
-                ${jobDescription}
+TARGET JOB DESCRIPTION:
+${jobDescription}
 
-                CURRENT RESUME:
-                ${resumeJson}
+CURRENT RESUME:
+${resumeJson}
 
-                INSTRUCTIONS:
-                1. Rewrite summary and experience to highlight JD keywords.
-                2. Do NOT invent fake experiences.
-                3. Return the EXACT SAME JSON structure for the resume.
+=== ATS KEYWORD INJECTION RULES (career-ops strategy) ===
+1. Extract the TOP 5 most important keywords/phrases from the JD that are NOT already prominent in the resume.
+2. Distribute them deliberately:
+   - 2 keywords woven naturally into the Professional Summary sentence
+   - 2 keywords added to the first bullet point of the most recent work experience role
+   - 1 keyword added to the Skills section (as a new skill item if missing)
+3. Rewrite Summary and Experience bullets to highlight JD alignment — use strong action verbs.
+4. Do NOT invent fake experiences or fabricate metrics.
+5. Return the EXACT SAME JSON structure as the input resume.
+6. Also return the list of injected keywords and an ATS coverage % estimate.
 
-                OUTPUT JSON STRUCTURE:
-                { "tailoredResume": { ...resume structure ... } }
-                `;
+OUTPUT JSON STRUCTURE:
+{
+  "tailoredResume": { ...same structure as input resume... },
+  "injectedKeywords": ["keyword1", "keyword2", ...],
+  "keywordCoverage": <number 0-100, estimated % of JD keywords now present in resume>
+}`;
             }
+
+            if (action === 'ats_inject') {
+                // Lightweight ATS keyword injection only (no full rewrite — faster, 1 credit)
+                prompt = `You are an ATS optimization expert.
+Perform TARGETED keyword injection on the resume to improve ATS match with the Job Description.
+Do NOT rewrite the entire resume — only modify these 3 locations:
+1. Professional Summary — add 2 missing JD keywords naturally into existing sentences
+2. First bullet of the most recent work experience — embed 2 JD keywords via minor rewording
+3. Skills section — add 1 missing JD keyword as a new entry
+
+TARGET JOB DESCRIPTION:
+${jobDescription}
+
+CURRENT RESUME:
+${resumeJson}
+
+Rules:
+- Changes must read naturally (not keyword-stuffed)
+- Do NOT fabricate metrics or experiences
+- Return the EXACT SAME JSON structure as input
+
+OUTPUT JSON STRUCTURE:
+{
+  "tailoredResume": { ...same structure as input resume... },
+  "injectedKeywords": ["keyword1", "keyword2", ...],
+  "keywordCoverage": <number 0-100>
+}`;
+            }
+
 
             const result = await aiModel.generateContent(prompt);
             const response = await result.response;
@@ -146,9 +184,6 @@ export const tailorResume = functions
                 if (action === 'analyze') {
                     return { success: true, analysis: parsedResult };
                 } else {
-                    // For legacy structure compatibility or if model returned direct styling (less likely with new prompt structure)
-                    // We try to grab tailoredResume.
-                    // If the model returned the resume directly at root (old prompt style), handle that.
                     const resumeData = parsedResult.tailoredResume || parsedResult;
 
                     // If formatting changes were suggested (condense mode), merge them into the resume
@@ -159,11 +194,19 @@ export const tailorResume = functions
                         };
                     }
 
-                    // Calculate new word count for stats
                     const newWordCount = countWords(resumeData);
 
-                    return { success: true, tailoredResume: resumeData, originalWordCount, newWordCount };
+                    return {
+                        success: true,
+                        tailoredResume: resumeData,
+                        originalWordCount,
+                        newWordCount,
+                        // ATS keyword injection metadata (tailor + ats_inject actions)
+                        injectedKeywords: parsedResult.injectedKeywords || [],
+                        keywordCoverage: parsedResult.keywordCoverage || null,
+                    };
                 }
+
 
             } catch (e) {
                 console.error("AI Response Parse Error", generatedText);

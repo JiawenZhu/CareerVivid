@@ -23,6 +23,8 @@ export interface LLMRequest {
   thinkingBudget?: number;
   /** Whether to include thinking text */
   includeThoughts?: boolean;
+  /** Optional model override for BYO providers */
+  model?: string;
 }
 
 export interface LLMResponse {

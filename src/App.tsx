@@ -121,6 +121,7 @@ import { NavigationProvider } from './contexts/NavigationContext';
 import { useNavigation } from './contexts/NavigationContext';
 import { useWorkspaceSync } from './hooks/useWorkspaceSync';
 import PWABadge from './components/PWABadge';
+import CreditCelebration from './components/CreditCelebration';
 
 const AppContent: React.FC = () => {
   const { currentUser, userProfile, loading, isAdmin, isAdminLoading, isEmailVerified } = useAuth();
@@ -244,7 +245,7 @@ const AppContent: React.FC = () => {
 
   // Community — read-only routes render instantly (no auth wait)
   const isCommunityPostRoute = path.startsWith('/community/post/');
-  if (path === '/' || path === '/community' || path === '/community/guidelines' || isCommunityPostRoute) {
+  if (path === '/community' || path === '/community/guidelines' || isCommunityPostRoute) {
     return (
       <ThemeProvider>
         <CartProvider>
@@ -256,7 +257,7 @@ const AppContent: React.FC = () => {
               />
                 <SEOHelper title="Community Guidelines" description="Rules and best practices for the CareerVivid community." />
               <Suspense fallback={<LoadingFallback />}>
-                {(path === '/' || path === '/community') && <CommunityDashboard />}
+                {path === '/community' && <CommunityDashboard />}
                 {path === '/community/guidelines' && <CommunityGuidelinesPage />}
                 {isCommunityPostRoute && <CommunityPostPage />}
               </Suspense>
@@ -658,8 +659,8 @@ const AppContent: React.FC = () => {
       content = <ProtectedRoute><JobPostingEditor jobId={jobId} /></ProtectedRoute>;
     }
 
-    // New Landing Page Location
-    else if (path === '/product') {
+    // Root and /product both render the marketing landing page
+    else if (path === '/' || path === '/product') {
       content = <LandingPage />;
     }
 
@@ -696,6 +697,7 @@ const App: React.FC = () => {
     <DndProvider backend={MultiBackend} options={getBackendOptions()}>
       <AuthProvider>
         <AppContent />
+        <CreditCelebration />
         <PWABadge />
       </AuthProvider>
     </DndProvider>

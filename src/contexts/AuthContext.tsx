@@ -125,6 +125,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             break;
         }
 
+        const tokenCredits = userData.promotions?.tokenCredits || 0;
+        monthlyLimit += tokenCredits;
+
         setAiUsage({
           count: aiUsageData.count ?? 0,
           limit: monthlyLimit
@@ -260,6 +263,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             break;
         }
       }
+
+      const tokenCredits = userProfile?.promotions?.tokenCredits || 0;
+      limit += tokenCredits;
 
       setAiUsage({
         count: usage.count,

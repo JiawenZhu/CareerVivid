@@ -105,6 +105,9 @@ export interface PortfolioHero {
     headline: string;
     subheadline: string;
     avatarUrl?: string;
+    avatarSize?: 'sm' | 'md' | 'lg' | 'xl';
+    avatarShape?: 'circle' | 'rounded' | 'square';
+    avatarPosition?: 'left' | 'center' | 'right';
     ctaPrimaryLabel?: string;
     ctaPrimaryUrl?: string;
     ctaSecondaryLabel?: string;

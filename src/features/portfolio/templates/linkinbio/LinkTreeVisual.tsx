@@ -24,6 +24,7 @@ import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { ProductShowcase } from '../../../commerce/components/ProductShowcase';
 import BackgroundEffects from '../../components/effects/BackgroundEffects';
+import { getAvatarShapeClasses, getAvatarPositionClasses } from '../../utils/avatar';
 
 // --- Animation Helpers ---
 
@@ -488,7 +489,7 @@ const LinkTreeVisual: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobi
     };
 
     const getAvatarSizeClass = () => {
-        const size = linkInBio.customStyle?.profileImageSize || 'md';
+        const size = data.hero?.avatarSize || 'md';
         switch (size) {
             case 'sm': return 'w-20 h-20';
             case 'lg': return 'w-36 h-36';
@@ -519,9 +520,8 @@ const LinkTreeVisual: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobi
                     {/* Avatar */}
                     {profileImage && (
                         <div
-                            className={`${avatarSizeClass} mb-6 overflow-hidden shadow-2xl transition-transform duration-700 ${theme.effects?.spinAvatar ? 'hover:rotate-[360deg]' : ''} ${onEdit ? 'cursor-pointer hover:scale-105' : ''}`}
+                            className={`${avatarSizeClass} ${getAvatarShapeClasses(data.hero?.avatarShape)} ${getAvatarPositionClasses(data.hero?.avatarPosition)} mb-6 overflow-hidden shadow-2xl transition-transform duration-700 ${theme.effects?.spinAvatar ? 'hover:rotate-[360deg]' : ''} ${onEdit ? 'cursor-pointer hover:scale-105' : ''}`}
                             style={{
-                                borderRadius: '50%',
                                 border: `4px solid ${theme.colors.cardBg || 'rgba(255,255,255,0.3)'}`,
                                 boxShadow: theme.id === 'neon_nights' ? '0 0 20px rgba(255,0,255,0.5)' : undefined
                             }}
@@ -556,9 +556,8 @@ const LinkTreeVisual: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobi
 
                     {!profileImage && (
                         <div
-                            className={`w-28 h-28 mb-6 flex items-center justify-center text-5xl font-bold shadow-xl transition-transform duration-700 ${theme.effects?.spinAvatar ? 'hover:rotate-[360deg]' : ''} ${onEdit ? 'cursor-pointer' : ''}`}
+                            className={`w-28 h-28 mb-6 ${getAvatarShapeClasses(data.hero?.avatarShape)} ${getAvatarPositionClasses(data.hero?.avatarPosition)} flex items-center justify-center text-5xl font-bold shadow-xl transition-transform duration-700 ${theme.effects?.spinAvatar ? 'hover:rotate-[360deg]' : ''} ${onEdit ? 'cursor-pointer' : ''}`}
                             style={{
-                                borderRadius: '50%',
                                 background: theme.colors.accent,
                                 color: '#ffffff',
                                 border: `4px solid ${theme.colors.cardBg || 'rgba(255,255,255,0.3)'}`

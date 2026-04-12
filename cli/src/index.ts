@@ -34,7 +34,7 @@ import { registerLogoutCommand } from "./commands/logout.js";
 import { registerPublishCommand } from "./commands/publish.js";
 import { registerConfigCommand } from "./commands/config.js";
 import { registerUpdateCommand } from "./commands/update.js";
-import { registerAgentCommand } from "./commands/agent.js";
+import { registerAgentCommand } from "./commands/agent/index.js";
 import { checkForUpdates } from "./updates.js";
 import { registerListTemplatesCommand, registerNewCommand, registerWhiteboardCommand } from "./commands/whiteboard.js";
 import { registerPortfolioCommand } from "./commands/portfolio.js";
@@ -42,6 +42,7 @@ import { registerWorkspaceCommand } from "./commands/workspace.js";
 import { registerProfileCommand } from "./commands/profile.js";
 import { registerJobsCommand } from "./commands/jobs.js";
 import { registerResumesCommand } from "./commands/resumes.js";
+import { registerEvalCommand }    from "./commands/eval.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkg = JSON.parse(readFileSync(join(__dirname, "../package.json"), "utf-8"));
@@ -70,6 +71,7 @@ registerWorkspaceCommand(program);
 registerProfileCommand(program);
 registerJobsCommand(program);
 registerResumesCommand(program);
+registerEvalCommand(program);
 
 // Shortcuts for whiteboard creation
 registerNewCommand(program);

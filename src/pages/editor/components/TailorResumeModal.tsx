@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { X, Sparkles, FileText, Loader2, Wand2, Check, ArrowRight, RotateCcw, MessageSquare, BarChart, Zap, ChevronRight, AlertCircle, FileInput } from 'lucide-react';
+import { X, Sparkles, FileText, Loader2, Wand2, Check, ArrowRight, RotateCcw, MessageSquare, BarChart, Zap, ChevronRight, AlertCircle, FileInput, Target } from 'lucide-react';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '@/firebase';
 import { ResumeData } from '@/types';
@@ -37,6 +37,9 @@ const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, 
 
     // Stats State
     const [wordCountStats, setWordCountStats] = useState<{ original: number; new: number } | null>(null);
+    // ATS keyword injection metadata
+    const [injectedKeywords, setInjectedKeywords] = useState<string[]>([]);
+    const [keywordCoverage, setKeywordCoverage] = useState<number | null>(null);
 
     const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -49,13 +52,15 @@ const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, 
             setProposedResume(null);
             setRefineInstruction('');
             setWordCountStats(null);
+            setInjectedKeywords([]);
+            setKeywordCoverage(null);
         }
     }, [isOpen]);
 
     if (!isOpen) return null;
 
     // Helper to call Cloud Function
-    const callAiAgent = async (action: 'analyze' | 'tailor' | 'condense' | 'refine', instruction = '') => {
+    const callAiAgent = async (action: 'analyze' | 'tailor' | 'ats_inject' | 'condense' | 'refine', instruction = '') => {
         setIsProcessing(true);
 
         // Validation for actions that REQUIRE JD
@@ -67,7 +72,8 @@ const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, 
 
         let msg = 'Thinking...';
         if (action === 'analyze') msg = 'Analyzing job description vs resume...';
-        if (action === 'tailor') msg = 'Rewriting resume to match job...';
+        if (action === 'tailor') msg = 'Rewriting resume with ATS keyword injection...';
+        if (action === 'ats_inject') msg = 'Injecting ATS keywords (fast mode)...';
         if (action === 'condense') msg = 'Condensing content to 450 words...';
         if (action === 'refine') msg = 'Refining based on your feedback...';
         setProcessMessage(msg);
@@ -90,7 +96,7 @@ const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, 
                     setAnalysis(data.analysis);
                 } else {
                     setProposedResume(data.tailoredResume);
-                    setStep('PREVIEW'); // Move to preview mode
+                    setStep('PREVIEW');
 
                     if (data.originalWordCount && data.newWordCount) {
                         setWordCountStats({
@@ -99,11 +105,21 @@ const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, 
                         });
                     }
 
+                    // ATS keyword injection metadata
+                    if (data.injectedKeywords?.length) {
+                        setInjectedKeywords(data.injectedKeywords);
+                    }
+                    if (data.keywordCoverage != null) {
+                        setKeywordCoverage(data.keywordCoverage);
+                    }
+
                     if (action === 'condense') {
                         setToastMessage("Resume condensed to one page!");
                     } else if (action === 'refine') {
                         setToastMessage("Refinements applied!");
-                        setRefineInstruction(''); // Clear input
+                        setRefineInstruction('');
+                    } else if (action === 'ats_inject') {
+                        setToastMessage(`${data.injectedKeywords?.length || 0} ATS keywords injected!`);
                     }
                 }
             } else {
@@ -186,14 +202,14 @@ const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, 
                                 </div>
 
                                 {/* Action Toolbar */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-4">
                                     <button
                                         onClick={() => callAiAgent('analyze')}
                                         disabled={!jobDescription.trim() || isProcessing}
                                         className="h-14 flex items-center justify-center gap-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:border-primary-500 hover:text-primary-600 text-gray-700 dark:text-gray-200 font-semibold rounded-xl transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isProcessing && processMessage.includes('Analyzing') ? <Loader2 className="animate-spin" /> : <BarChart size={18} />}
-                                        Analyze Match First
+                                        Analyze Match
                                     </button>
 
                                     <button
@@ -202,13 +218,23 @@ const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, 
                                         className="h-14 flex items-center justify-center gap-2 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white font-bold rounded-xl shadow-lg shadow-primary-500/30 transition-all hover:translate-y-[-2px] disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isProcessing && processMessage.includes('Rewriting') ? <Loader2 className="animate-spin" /> : <Sparkles size={18} />}
-                                        ✨ Tailor to Job
+                                        ✨ Full Tailor + ATS
+                                    </button>
+
+                                    <button
+                                        onClick={() => callAiAgent('ats_inject')}
+                                        disabled={!jobDescription.trim() || isProcessing}
+                                        title="Inject keywords into Summary, first bullet, and Skills only — faster and targeted"
+                                        className="h-14 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {isProcessing && processMessage.includes('Injecting') ? <Loader2 className="animate-spin" /> : <Target size={18} />}
+                                        Quick ATS Inject
                                     </button>
 
                                     <button
                                         onClick={() => callAiAgent('condense')}
                                         disabled={isProcessing}
-                                        className="h-14 flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-xl shadow-md transition-all hover:shadow-lg dark:bg-slate-700 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="md:col-span-3 h-12 flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-xl shadow-md transition-all hover:shadow-lg dark:bg-slate-700 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isProcessing && processMessage.includes('Condensing') ? <Loader2 className="animate-spin" /> : <FileInput size={18} />}
                                         Smart Condense (1-Page)
@@ -249,6 +275,35 @@ const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, 
                                                 : "I've rewritten your summary and refined your bullet points to match the job description. The format has been adjusted for better readability."
                                             }
                                         </p>
+
+                                        {/* ATS Keyword Injection Badge */}
+                                        {injectedKeywords.length > 0 && (
+                                            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
+                                                        <Target size={11} className="text-emerald-500" /> Injected Keywords
+                                                    </span>
+                                                    {keywordCoverage != null && (
+                                                        <span className="text-xs font-bold text-emerald-600">{keywordCoverage}% ATS coverage</span>
+                                                    )}
+                                                </div>
+                                                {keywordCoverage != null && (
+                                                    <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full mb-2 overflow-hidden">
+                                                        <div
+                                                            className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full transition-all duration-700"
+                                                            style={{ width: `${keywordCoverage}%` }}
+                                                        />
+                                                    </div>
+                                                )}
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    {injectedKeywords.map((kw, i) => (
+                                                        <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-[10px] font-semibold">
+                                                            <Check size={8} /> {kw}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="space-y-3">

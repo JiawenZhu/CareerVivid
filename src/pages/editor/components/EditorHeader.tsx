@@ -30,6 +30,7 @@ interface EditorHeaderProps {
     setViewMode: (mode: 'edit' | 'preview') => void;
     onDismissGuideArrow?: () => void;
     onExportToGoogleDocs?: () => void;
+    onDropdownChange?: (isOpen: boolean) => void;
 }
 
 const EditorHeader: React.FC<EditorHeaderProps> = ({
@@ -37,7 +38,7 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
     hasAnnotations, hasViewedFeedback, commentsCount, showAnnotationOverlay,
     theme, showGuideArrow, onResumeChange, onExport, onTranslate,
     onToggleFeedback, onShare, onToggleTheme, setViewMode, onDismissGuideArrow,
-    onExportToGoogleDocs
+    onExportToGoogleDocs, onDropdownChange
 }) => {
     const { t } = useTranslation();
     const [isDesktopDownloadMenuOpen, setIsDesktopDownloadMenuOpen] = useState(false);
@@ -59,6 +60,8 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
         setTimeout(() => {
             setIsDesktopDownloadMenuOpen(false);
             setIsDownloadClosing(false);
+            // Only notify closed if translate is also closed
+            if (!isTranslateMenuOpen) onDropdownChange?.(false);
         }, 300);
     };
 
@@ -67,6 +70,8 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
         setTimeout(() => {
             setIsTranslateMenuOpen(false);
             setIsTranslateClosing(false);
+            // Only notify closed if download is also closed
+            if (!isDesktopDownloadMenuOpen) onDropdownChange?.(false);
         }, 300);
     };
 
@@ -208,6 +213,7 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
                                     closeDownloadMenu();
                                 } else {
                                     setIsDesktopDownloadMenuOpen(true);
+                                    onDropdownChange?.(true);
                                 }
                             }}
                             className="flex items-center gap-2 bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg shadow-soft hover:bg-primary-700 transition-colors"
@@ -254,6 +260,7 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
                                         closeTranslateMenu();
                                     } else {
                                         setIsTranslateMenuOpen(true);
+                                        onDropdownChange?.(true);
                                     }
                                 }}
                                 disabled={isTranslating}

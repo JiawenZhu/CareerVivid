@@ -20,6 +20,7 @@ export interface PublishPayload {
     tags?: string[];
     coverImage?: string;
     isOfficialPost?: boolean;
+    isPublic?: boolean;
 }
 
 export interface PublishResult {
@@ -384,4 +385,41 @@ export async function jobsList(status?: ApplicationStatus): Promise<{ jobs: JobT
     const params: Record<string, string> = {};
     if (status) params.status = status;
     return cfRequest<{ jobs: JobTrackerItem[]; total: number }>("GET", "cliJobsList", undefined, Object.keys(params).length ? params : undefined);
+}
+
+// ── Apply Answers Types ───────────────────────────────────────────────────────
+
+export interface ApplyFormField {
+    label: string;
+    type: string;
+    required: boolean;
+    options?: string[];
+    placeholder?: string;
+}
+
+export interface ApplyAnswerResult {
+    answers: Record<string, string>; // field label → answer text
+    coverLetter?: string;
+    meta: {
+        resumeId: string;
+        jobUrl: string;
+        platform: string;
+    };
+}
+
+/**
+ * Call the generateApplyAnswers Cloud Function to get AI-tailored answers
+ * for all form fields in a job application.
+ */
+export async function getApplyAnswers(payload: {
+    jobUrl: string;
+    jobTitle: string;
+    companyName: string;
+    jobDescription?: string;
+    resumeId?: string;
+    platform: string;
+    fields: ApplyFormField[];
+    generateCoverLetter?: boolean;
+}): Promise<ApplyAnswerResult | ApiError> {
+    return cfRequest<ApplyAnswerResult>("POST", "generateApplyAnswers", payload);
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { navigate } from '../utils/navigation';
 import { ResumeData } from '../types';
 import { useEditor } from '../hooks/useEditor';
@@ -113,6 +113,10 @@ const Editor: React.FC<EditorProps> = (props) => {
         initialActiveTab
     });
 
+    // Track if any header dropdown (Download / Translate) is open
+    // so the overflow banner can fade transparently behind them
+    const [isAnyDropdownOpen, setIsAnyDropdownOpen] = useState(false);
+
     if (!resume && (!isShared && !isGuestMode)) return <div className="flex justify-center items-center h-screen dark:text-white">{t('editor.loading_resume')}</div>;
     if (!resume) return null;
 
@@ -152,6 +156,7 @@ const Editor: React.FC<EditorProps> = (props) => {
                 setViewMode={setViewMode}
                 onDismissGuideArrow={() => setShowGuideArrow(false)}
                 onExportToGoogleDocs={handleGoogleDocsExport}
+                onDropdownChange={setIsAnyDropdownOpen}
             />
 
             <div className="flex-grow flex overflow-hidden relative h-[calc(100vh-64px)]">
@@ -191,6 +196,7 @@ const Editor: React.FC<EditorProps> = (props) => {
                     onResumeChange={handleResumeChange}
                     onFocusField={handleFocusField}
                     onDoubleClick={() => { setViewMode('preview'); }}
+                    isAnyDropdownOpen={isAnyDropdownOpen}
                 />
 
                 {optimizationJob && (

@@ -136,7 +136,7 @@ ${jobDescription}
 Return your response as a JSON object with EXACTLY this structure. Do NOT include markdown code fences:
 
 {
-  "archetype": "<one of: AI Platform / LLMOps | Solutions Architect | Engineering Manager | Senior IC | Product Engineer | Founding Engineer | Other>",
+  "archetype": "<EXACTLY one of these 6 options: AI Platform / LLMOps | Solutions Architect | Engineering Manager | Senior IC | Product Engineer | Founding Engineer>",
   "score": <number 1.0-5.0 with one decimal, weighted average>,
   "scoreBreakdown": {
     "roleClarity": <1-5>,
@@ -215,12 +215,107 @@ Be honest and specific. Avoid generic advice. Reference the actual CV and JD con
       `[evaluateJob] Evaluated job ${jobId} for user ${userId}. Score: ${evalResult.score}`
     );
 
+    // ── Phase 1C: Extract STAR+R stories when score >= 4.0 (non-blocking) ─────
+    if (evalResult.score >= 4.0) {
+      extractAndSaveStories(userId, jobId, jobTitle, companyName, cvMarkdown, evalResult, geminiApiKey.value())
+        .catch(err => console.error("[storyBank] Extraction failed (non-fatal):", err));
+    }
+
     return { success: true, evaluation };
   });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Phase 1C: extractAndSaveStories — STAR+R story bank accumulator
+// Runs non-blocking after evaluateJob when score >= 4.0
+// ─────────────────────────────────────────────────────────────────────────────
+async function extractAndSaveStories(
+  userId: string,
+  jobId: string,
+  jobTitle: string,
+  companyName: string,
+  cvMarkdown: string,
+  evalResult: any,
+  apiKey: string
+): Promise<void> {
+  const ai = new GoogleGenAI({ apiKey });
+
+  const prompt = `You are an interview coach. Extract 2-3 strong, reusable STAR+R interview stories from this candidate's CV that would be relevant for the "${jobTitle}" role at ${companyName}.
+
+=== CANDIDATE CV ===
+${cvMarkdown}
+
+=== RELEVANT ATS KEYWORDS (from job evaluation) ===
+${(evalResult.atsKeywords || []).join(", ")}
+
+=== INTERVIEW PREP NOTES ===
+${evalResult.blocksA_F?.interviewPrep || ""}
+
+For each story, extract the following. Prioritize stories that:
+1. Demonstrate concrete impact with metrics
+2. Involve cross-functional collaboration or leadership
+3. Apply to common behavioral questions ("Tell me about a time...")
+
+Return a JSON array with 2-3 story objects. Each object MUST have:
+{
+  "title": "<short memorable title, e.g. 'Led 3x revenue growth for Platform team'>",
+  "situation": "<1-2 sentences: context and problem>",
+  "task": "<1 sentence: your specific responsibility>",
+  "action": "<2-3 sentences: what you did and how>",
+  "result": "<1-2 sentences: measurable outcome>",
+  "relevance": "<What interview question this best answers, e.g. 'Describe an impact you had on a team'>",
+  "tags": ["<archetype that benefits most, one of: AI Platform / LLMOps | Solutions Architect | Engineering Manager | Senior IC | Product Engineer | Founding Engineer>", "<optional skill tag>"]
+}
+
+Return ONLY the JSON array, no markdown fences.`;
+
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: prompt,
+  });
+
+  const text = (response.text || "").trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```\s*$/i, "")
+    .trim();
+
+  const stories: any[] = JSON.parse(text);
+  if (!Array.isArray(stories) || stories.length === 0) return;
+
+  const storyBankRef = db
+    .collection("users")
+    .doc(userId)
+    .collection("storyBank");
+
+  // Upsert each story — de-duplicate by first 80 chars of action field
+  const batch = db.batch();
+  for (const story of stories) {
+    if (!story.title || !story.action) continue;
+
+    // Simple dedup key: title slug
+    const dedupKey = story.title.toLowerCase().replace(/[^a-z0-9]/g, "_").substring(0, 60);
+    const storyRef = storyBankRef.doc(dedupKey);
+
+    batch.set(storyRef, {
+      ...story,
+      sourceJobId: jobId,
+      sourceJobTitle: jobTitle,
+      sourceCompany: companyName,
+      archetype: evalResult.archetype || null,
+      addedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true }); // merge:true = don't overwrite if already enriched
+  }
+
+  await batch.commit();
+
+  console.log(
+    `[storyBank] Saved ${stories.length} stories for user ${userId} from job ${jobId}`
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // generateLinkedInOutreach — contacto.md logic: 300-char message
 // ─────────────────────────────────────────────────────────────────────────────
+
 export const generateLinkedInOutreach = functions
   .region("us-west1")
   .runWith({

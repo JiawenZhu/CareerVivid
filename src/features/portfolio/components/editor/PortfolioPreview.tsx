@@ -155,9 +155,14 @@ const PortfolioPreview: React.FC<PortfolioPreviewProps> = ({
 
                         return (
                             <div
+                                id={`portfolio-preview-${portfolioData.id || 'draft'}`}
                                 className="min-h-full transition-colors duration-500"
                                 style={{ backgroundColor: wrapperBg }}
                             >
+                                {/* Scoped custom CSS injection — AI Style tab writes here */}
+                                {theme.customCss && (
+                                    <style>{`#portfolio-preview-${portfolioData.id || 'draft'} { ${theme.customCss} }`}</style>
+                                )}
                                 <CurrentTemplate
                                     data={portfolioData}
                                     onEdit={onFocusField}

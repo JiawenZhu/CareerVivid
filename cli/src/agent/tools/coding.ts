@@ -25,6 +25,31 @@ const SAFE_COMMAND_PREFIXES = [
   'git log',
   'git diff',
   'git branch',
+  // Network / web fetching (read-only)
+  'curl ',
+  'curl -s',
+  'wget ',
+  // Text processing
+  'grep ',
+  'grep -',
+  'sed ',
+  'awk ',
+  'sort ',
+  'uniq ',
+  'find ',
+  'which ',
+  'type ',
+  // Script one-liners (read-only)
+  'python3 -c',
+  'python -c',
+  'node -e',
+  'node -p',
+  // Info / diagnostics
+  'pwd',
+  'whoami',
+  'uname',
+  'env ',
+  'printenv',
 ];
 
 function isSafeCommand(cmd: string): boolean {

@@ -1,12 +1,14 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
 import HeroVideo from '../components/HeroVideo';
 import { navigate } from '../utils/navigation';
-import { ArrowRight, CheckCircle2, Wand2, LayoutTemplate, Mic, Globe, Star, Loader2, Github, Users, Building, ChevronDown, Check, Terminal } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Wand2, LayoutTemplate, Mic, Globe, Star, Loader2, Github, Users, Building, ChevronDown, Check, Terminal, Sparkles } from 'lucide-react';
 import { PricingComparison } from '../components/Landing/PricingComparison';
+import { CompetitorComparison } from '../components/Landing/CompetitorComparison';
 import CommunityShowcaseHero from '../components/Landing/CommunityShowcaseHero';
 import { getLandingPageSettings, DEFAULT_LANDING_PAGE_SETTINGS } from '../services/systemSettingsService';
 
@@ -54,62 +56,10 @@ const LandingPage: React.FC = () => {
             </Helmet>
             <PublicHeader />
             <main className="flex-grow">
-                {/* --- Master Showcase Hero (Community First) --- */}
+                {/* --- Master Showcase Hero (Community First & Terminal Transition) --- */}
                 <CommunityShowcaseHero />
 
-                {/* --- What is CareerVivid Hero Section --- */}
-                <section className="relative pt-8 pb-20 lg:pt-12 lg:pb-32 overflow-hidden bg-white dark:bg-gray-950">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                        <div className="grid lg:grid-cols-2 gap-12 items-center">
-                            <div className="text-left">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-900/30 border border-primary-100 dark:border-primary-800 text-xs font-medium text-primary-700 dark:text-primary-300 mb-6">
-                                    <span className="flex h-2 w-2 rounded-full bg-primary-500 animate-pulse"></span>
-                                    Open-Source Community
-                                </div>
-                                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-[1.1] mb-6">
-                                    What is <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-blue-600 dark:from-primary-400 dark:to-blue-400">CareerVivid</span>?
-                                </h1>
-                                <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-300 mb-6 leading-relaxed max-w-2xl font-medium">
-                                    CareerVivid is an open-source "learning by doing" community platform built for developers. It provides an interactive workspace where tech professionals can master system design, architecture, and coding by actively building projects alongside their personal AI agents.
-                                </p>
-                                <p className="text-lg text-gray-500 dark:text-gray-400 mb-10 leading-relaxed max-w-2xl">
-                                    Instead of passive video tutorials, CareerVivid unifies AI-assisted Markdown publishing and live Excalidraw whiteboarding to help you learn, document, and share real-world engineering skills in one place.
-                                </p>
-                                <div className="flex flex-col sm:flex-row gap-6 mb-12">
-                                    <button onClick={() => navigate('/signup')} className="px-10 py-5 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-extrabold text-xl transition-all transform hover:scale-105 shadow-xl hover:shadow-primary-500/30 flex items-center justify-center gap-3">
-                                        Start for Free (Hosted) <ArrowRight size={24} />
-                                    </button>
-                                    <a href="https://github.com/Jastalk/CareerVivid" target="_blank" rel="noopener noreferrer" className="px-10 py-5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-900 dark:text-white rounded-2xl font-extrabold text-xl transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-md">
-                                        <Github size={24} /> Star on GitHub
-                                    </a>
-                                </div>
-                                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                                    <div className="flex -space-x-2">
-                                        {[1, 2, 3, 4].map((i) => (
-                                            <div key={i} className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 border-2 border-white dark:border-gray-950 flex items-center justify-center text-xs font-bold">
-                                                {String.fromCharCode(64 + i)}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <div className="flex text-yellow-400">
-                                            {[1, 2, 3, 4, 5].map((i) => <Star key={i} size={14} fill="currentColor" />)}
-                                        </div>
-                                        <span className="font-medium">{t('landing.social_proof')}</span>
-                                    </div>
-                                </div>
-                            </div>
 
-                            {/* Hero Visual - Dynamic Video */}
-                            <div className="relative lg:h-[600px] w-full flex items-center justify-center">
-                                <div className="absolute inset-0 bg-gradient-to-tr from-primary-200/30 to-purple-200/30 dark:from-primary-900/20 dark:to-purple-900/20 rounded-full blur-3xl transform rotate-12 scale-75"></div>
-                                <div className="relative z-10 w-full max-w-lg lg:max-w-none transform hover:scale-[1.02] transition-transform duration-500">
-                                    <HeroVideo />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
 
                 {/* --- Feature Showcase Sections --- */}
 
@@ -117,7 +67,13 @@ const LandingPage: React.FC = () => {
                 <section className="py-24 bg-gray-50 dark:bg-gray-900/50">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="grid md:grid-cols-2 gap-16 items-center">
-                            <div className="order-2 md:order-1 relative">
+                            <motion.div 
+                                className="order-2 md:order-1 relative"
+                                initial={{ opacity: 0, y: 40 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                                viewport={{ once: true, margin: "-50px" }}
+                            >
                                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-2 transform -rotate-2 hover:rotate-0 transition-transform duration-500">
                                     <img
                                         src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop"
@@ -140,8 +96,14 @@ const LandingPage: React.FC = () => {
                                         <div className="text-xs text-gray-500 dark:text-gray-400">{t('landing.ats_optimized')}</div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="order-1 md:order-2">
+                            </motion.div>
+                            <motion.div 
+                                className="order-1 md:order-2"
+                                initial={{ opacity: 0, y: 40 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+                                viewport={{ once: true, margin: "-50px" }}
+                            >
                                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-xl flex items-center justify-center mb-6">
                                     <LayoutTemplate size={24} />
                                 </div>
@@ -156,7 +118,7 @@ const LandingPage: React.FC = () => {
                                         </li>
                                     ))}
                                 </ul>
-                            </div>
+                            </motion.div>
                         </div>
                     </div>
                 </section>
@@ -169,23 +131,23 @@ const LandingPage: React.FC = () => {
                                 <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 text-orange-600 rounded-xl flex items-center justify-center mb-6">
                                     <Users size={24} />
                                 </div>
-                                <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-8 text-gray-900 dark:text-white tracking-tight">Showcase your work to the world.</h2>
+                                <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-8 text-gray-900 dark:text-white tracking-tight">Autonomous Job Tracking.</h2>
                                 <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-10 font-medium leading-relaxed">
-                                    Publish your AI-generated resumes, system design whiteboards, and portfolios directly to the CareerVivid Community. Get feedback, build your personal brand, and get discovered by top tech companies.
+                                    Stop updating spreadsheets. Your AI agent automatically tracks your job applications, monitors interview stages, and categorizes active opportunities seamlessly in one Kanban board.
                                 </p>
                                 <ul className="space-y-5">
                                     {[
-                                        "Share Excalidraw whiteboards",
-                                        "1-Click publish to feed",
-                                        "Engage with other developers"
+                                        "Auto-scan job boards",
+                                        "Smart pipeline tracking",
+                                        "Automated follow-up reminders"
                                     ].map((item, i) => (
                                         <li key={i} className="flex items-center gap-4 text-lg text-gray-700 dark:text-gray-200 font-medium">
                                             <CheckCircle2 size={24} className="text-orange-500 flex-shrink-0" /> {item}
                                         </li>
                                     ))}
                                 </ul>
-                                <button onClick={() => navigate('/community')} className="mt-10 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white rounded-2xl font-extrabold text-lg transition-all shadow-lg hover:shadow-orange-500/25 flex items-center gap-3">
-                                    Explore the Community <ArrowRight size={20} />
+                                <button onClick={() => navigate('/dashboard')} className="mt-10 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white rounded-2xl font-extrabold text-lg transition-all shadow-lg hover:shadow-orange-500/25 flex items-center gap-3">
+                                    Explore the Tracker <ArrowRight size={20} />
                                 </button>
                             </div>
                             <div className="order-2 relative">
@@ -226,8 +188,8 @@ const LandingPage: React.FC = () => {
                                         <Star size={24} className="fill-current" />
                                     </div>
                                     <div>
-                                        <div className="text-sm font-bold text-gray-900 dark:text-white">Get Discovered</div>
-                                        <div className="text-xs text-gray-500 dark:text-gray-400">Build your brand</div>
+                                        <div className="text-sm font-bold text-gray-900 dark:text-white">Active Pipeline</div>
+                                        <div className="text-xs text-gray-500 dark:text-gray-400">Never miss an interview</div>
                                     </div>
                                 </div>
                             </div>
@@ -396,6 +358,9 @@ const LandingPage: React.FC = () => {
                         </div>
                     </div>
                 </section>
+
+                {/* --- Competitor Comparison — immediately above the AI Credit Plans header --- */}
+                <CompetitorComparison />
 
                 {/* --- Pricing Section --- */}
                 <PricingComparison />

@@ -8,6 +8,7 @@ import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import MessageModal from '../../components/MessageModal';
 import { usePortfolioAdminAccess } from '../../hooks/usePortfolioAdminAccess';
+import { getAvatarSizeClasses, getAvatarShapeClasses } from '../../utils/avatar';
 
 /**
  * LinkTreeBento - Bento grid style for link-in-bio
@@ -189,7 +190,7 @@ const LinkTreeBento: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpdat
                         className={`bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl p-6 flex items-center justify-center transition-transform shadow-xl ${onEdit ? 'cursor-pointer hover:scale-[1.02] hover:ring-4 hover:ring-purple-500/50' : ''}`}
                         {...(onEdit ? { onClick: () => onEdit('hero.avatarUrl') } : longPressProps)}
                     >
-                        <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-white/30 shadow-2xl">
+                        <div className={`${getAvatarSizeClasses(data.hero?.avatarSize)} ${getAvatarShapeClasses(data.hero?.avatarShape)} overflow-hidden border-4 border-white/30 shadow-2xl`}>
                             {profileImage ? (
                                 <img
                                     src={profileImage}

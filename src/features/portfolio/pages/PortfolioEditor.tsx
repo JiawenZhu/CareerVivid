@@ -29,6 +29,7 @@ import AIImageEditModal from '../../../components/AIImageEditModal';
 import QuickAuthModal from '../../../components/QuickAuthModal';
 import AlertModal from '../../../components/AlertModal';
 import StockPhotoModal from '../../../components/StockPhotoModal'; // New Import
+import AIPortfolioEditorModal from '../components/editor/AIPortfolioEditorModal';
 
 const PortfolioEditor: React.FC = () => {
     // Stock Photo State
@@ -92,6 +93,7 @@ const PortfolioEditor: React.FC = () => {
 
     // Guest Conversion State
     const [showAuthModal, setShowAuthModal] = useState(false);
+    const [isAIModalOpen, setIsAIModalOpen] = useState(false);
     const [authModalConfig, setAuthModalConfig] = useState({ title: 'Save Your Progress', subtitle: 'Sign in to save your portfolio to your dashboard.' });
     const [alertModal, setAlertModal] = useState({ isOpen: false, title: '', message: '' });
 
@@ -687,6 +689,18 @@ const PortfolioEditor: React.FC = () => {
                 onViewChange={handleViewChange}
 
                 onShare={handleShare}
+                onAIEdit={() => {
+                    if (!currentUser || ownerUid === 'guest') {
+                        saveGuestData();
+                        setAuthModalConfig({
+                            title: 'Sign In to Use AI Edit',
+                            subtitle: 'Sign in to use the AI Portfolio Editor — it\'s free!'
+                        });
+                        setShowAuthModal(true);
+                        return;
+                    }
+                    setIsAIModalOpen(true);
+                }}
             />
 
             <div className="flex-1 flex overflow-hidden relative">
@@ -815,6 +829,16 @@ const PortfolioEditor: React.FC = () => {
                 isOpen={isStockPhotoModalOpen}
                 onClose={() => setIsStockPhotoModalOpen(false)}
                 onSelect={(url) => handleSaveAIImage(url)}
+            />
+
+            {/* AI Portfolio Editor Modal */}
+            <AIPortfolioEditorModal
+                isOpen={isAIModalOpen}
+                onClose={() => setIsAIModalOpen(false)}
+                portfolioData={portfolioData}
+                onApply={handleUpdate}
+                editorTheme={theme === 'system' ? 'dark' : theme}
+                resumes={resumes}
             />
         </div>
     );

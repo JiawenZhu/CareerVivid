@@ -111,7 +111,7 @@ export class AnthropicProvider implements LLMProvider {
       tools.length > 0 ? this.toAnthropicTools(tools) : undefined;
 
     const body: any = {
-      model: "", // set by caller
+      model: request.model || "", // set by caller
       max_tokens: 8192,
       system: systemInstruction,
       messages,
@@ -177,7 +177,7 @@ export class AnthropicProvider implements LLMProvider {
       tools.length > 0 ? this.toAnthropicTools(tools) : undefined;
 
     const body: any = {
-      model: "",
+      model: request.model || "",
       max_tokens: 8192,
       system: systemInstruction,
       messages,

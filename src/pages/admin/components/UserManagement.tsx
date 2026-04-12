@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../../firebase';
 import { UserProfile, TrackEventType } from '../../../types';
 import { COST_MAP } from '../adminConstants';
@@ -123,6 +123,11 @@ const UserManagement: React.FC<{ logs: any[], users: UserProfile[], loading: boo
     const [selectedDuration, setSelectedDuration] = useState<number | string>(12);
     const [customDuration, setCustomDuration] = useState<number>(12);
 
+    // Modal State for Granting Credits
+    const [grantCreditsModal, setGrantCreditsModal] = useState<{ isOpen: boolean, user: UserProfile | null }>({ isOpen: false, user: null });
+    const [grantAmount, setGrantAmount] = useState<number>(0);
+    const [grantMemo, setGrantMemo] = useState<string>('');
+
     const openPromoteModal = (user: UserProfile) => {
         setSelectedDuration(12);
         setCustomDuration(12);
@@ -149,6 +154,45 @@ const UserManagement: React.FC<{ logs: any[], users: UserProfile[], loading: boo
             setPromoteModal({ isOpen: false, user: null });
         } catch (err: any) {
             alert('Error: ' + err.message);
+        }
+    };
+
+    const handleConfirmGrantCredits = async () => {
+        if (!grantCreditsModal.user) return;
+        if (typeof grantAmount !== 'number' || grantAmount <= 0) {
+            alert("Please enter a valid credit amount to grant.");
+            return;
+        }
+
+        try {
+            const currentCredits = grantCreditsModal.user.promotions?.tokenCredits || 0;
+            const newTotal = currentCredits + grantAmount;
+            
+            // 1. Update user profile
+            const updateData = {
+                promotions: {
+                    ...(grantCreditsModal.user.promotions || {}),
+                    tokenCredits: newTotal
+                }
+            };
+            await handleUpdateUser(grantCreditsModal.user.uid, updateData);
+            
+            // 2. Write audit log
+            await addDoc(collection(db, 'admin_audit_logs'), {
+                action: 'grant_credits',
+                targetUserId: grantCreditsModal.user.uid,
+                targetUserEmail: grantCreditsModal.user.email,
+                amount: grantAmount,
+                memo: grantMemo,
+                timestamp: serverTimestamp()
+            });
+
+            alert(`Successfully granted ${grantAmount} credits to ${grantCreditsModal.user.email}.`);
+            setGrantCreditsModal({ isOpen: false, user: null });
+            setGrantAmount(0);
+            setGrantMemo('');
+        } catch (err: any) {
+            alert('Error updating credits: ' + err.message);
         }
     };
 
@@ -212,6 +256,58 @@ const UserManagement: React.FC<{ logs: any[], users: UserProfile[], loading: boo
                     </div>
                 </div>
             )}
+            
+            {grantCreditsModal.isOpen && grantCreditsModal.user && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full shadow-xl">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Grant Credits</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                            Grant manual AI credits to <strong>{grantCreditsModal.user.email}</strong>.
+                        </p>
+
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Credit Amount</label>
+                            <input
+                                type="number"
+                                min="1"
+                                value={grantAmount}
+                                onChange={(e) => setGrantAmount(Number(e.target.value))}
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            />
+                        </div>
+                        <div className="mb-6">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Memo / Reason (Optional)</label>
+                            <input
+                                type="text"
+                                placeholder="E.g., Customer support gesture"
+                                value={grantMemo}
+                                onChange={(e) => setGrantMemo(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            />
+                        </div>
+
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => {
+                                    setGrantCreditsModal({ isOpen: false, user: null });
+                                    setGrantAmount(0);
+                                    setGrantMemo('');
+                                }}
+                                className="px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleConfirmGrantCredits}
+                                className="px-4 py-2 text-sm text-white bg-primary-600 hover:bg-primary-700 rounded-md font-medium"
+                            >
+                                Grant Credits
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <AlertModal
                 isOpen={alertState.isOpen}
                 onClose={() => setAlertState({ ...alertState, isOpen: false })}
@@ -362,6 +458,12 @@ const UserManagement: React.FC<{ logs: any[], users: UserProfile[], loading: boo
                                         onClick={() => setAlertState({ isOpen: true, title: 'Action Required', message: "User deletion must be handled via Firebase Console or backend functions for security." })}
                                     >
                                         Delete
+                                    </button>
+                                    <button
+                                        className="text-green-600 hover:text-green-900 mr-4 font-semibold"
+                                        onClick={() => setGrantCreditsModal({ isOpen: true, user: user })}
+                                    >
+                                        Grant Credits
                                     </button>
                                     {!user.role || user.role === 'user' ? (
                                         <button

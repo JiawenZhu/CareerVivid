@@ -48,6 +48,9 @@ export const getAIUsage = async (userId: string): Promise<AIUsageData> => {
     else if (plan === 'max' || plan === 'pro_max') expectedLimit = PRO_MAX_PLAN_CREDIT_LIMIT;
     else if (plan === 'enterprise') expectedLimit = ENTERPRISE_PLAN_CREDIT_LIMIT;
 
+    const tokenCredits = userData.promotions?.tokenCredits || 0;
+    expectedLimit += tokenCredits;
+
     // Self-healing: If limit is incorrect (e.g. user upgraded but DB didn't sync), fix it.
     // Also reset if month passed.
     if (monthsPassed >= 1 || aiUsage.monthlyLimit !== expectedLimit) {
@@ -103,6 +106,11 @@ export const updateAILimit = async (userId: string, plan: string): Promise<void>
     } else if (plan === 'enterprise') {
         limit = ENTERPRISE_PLAN_CREDIT_LIMIT;
     }
+
+    const docSnap = await getDoc(userRef);
+    const userData = docSnap.data();
+    const tokenCredits = userData?.promotions?.tokenCredits || 0;
+    limit += tokenCredits;
 
     await updateDoc(userRef, {
         'aiUsage.monthlyLimit': limit

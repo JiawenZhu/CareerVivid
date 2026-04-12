@@ -100,7 +100,9 @@ async function resolveAndDeduct(
     const currentMonth = new Date().toISOString().slice(0, 7); // "2026-04"
     const usageMonth: string = aiUsage.month || "";
     let count: number = usageMonth === currentMonth ? (aiUsage.count ?? 0) : 0;
-    const limit: number = aiUsage.monthlyLimit ?? getMonthlyLimit(userData.plan);
+    let limit: number = aiUsage.monthlyLimit ?? getMonthlyLimit(userData.plan);
+    const tokenCredits = userData.promotions?.tokenCredits || 0;
+    limit += tokenCredits;
 
     if (!isAdmin && count + costPerCall > limit - 2) {
       return {

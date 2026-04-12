@@ -2,7 +2,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
     Plus, Briefcase, Mic, ExternalLink, FileText, Wand2,
-    Settings, Zap, CheckCircle, AlertCircle, Loader2, ChevronRight
+    Settings, Zap, CheckCircle, AlertCircle, Loader2, ChevronRight,
+    Sparkles, ChevronDown, ChevronUp, Copy, CheckCheck, Send
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useResumes } from '../../hooks/useResumes';
@@ -14,6 +15,17 @@ interface AutoFillResult {
     errorCount: number;
     timestamp: string;
 }
+
+interface AIAnswer {
+    label: string;
+    answer: string;
+    confidence: 'high' | 'medium' | 'low';
+    source: 'profile_field' | 'ai_generated' | 'skipped';
+    reasoning?: string;
+    injected?: boolean;
+    copied?: boolean;
+}
+
 
 const ExtensionHome: React.FC = () => {
     const { userProfile, currentUser } = useAuth();
@@ -27,6 +39,15 @@ const ExtensionHome: React.FC = () => {
     const [isFilling, setIsFilling] = useState(false);
     const [hasProfile, setHasProfile] = useState(false);
     const [selectedResumeId, setSelectedResumeId] = useState<string | null>(null);
+
+    // AI Smart Fill state
+    const [aiAnswers, setAiAnswers] = useState<AIAnswer[]>([]);
+    const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+    const [aiError, setAiError] = useState<string | null>(null);
+    const [showAiPanel, setShowAiPanel] = useState(false);
+    const [fillAllConfirm, setFillAllConfirm] = useState(false);
+    const [submittedJobId, setSubmittedJobId] = useState<string | null>(null);
+    const [markedApplied, setMarkedApplied] = useState(false);
 
     // Listen for FILL_COMPLETE from content script (relayed via background)
     useEffect(() => {
@@ -95,6 +116,99 @@ const ExtensionHome: React.FC = () => {
             });
         }
     }, [currentUser, resumes, hasProfile]);
+
+    // ── AI Smart Fill handler ───────────────────────────────────────────────────
+    const handleSmartFill = useCallback(() => {
+        if (!currentTab) return;
+        setIsGeneratingAI(true);
+        setAiError(null);
+        setShowAiPanel(false);
+        setAiAnswers([]);
+        setFillAllConfirm(false);
+
+        // Step 1: Ask content script to extract all form questions
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (!tabs[0]?.id) {
+                setAiError('No active tab found.');
+                setIsGeneratingAI(false);
+                return;
+            }
+
+            chrome.tabs.sendMessage(tabs[0].id, { type: 'EXTRACT_FORM_QUESTIONS' }, (response) => {
+                const questions = response?.questions || [];
+
+                if (questions.length === 0) {
+                    setAiError('No form fields detected on this page. Make sure you\'re on an application form.');
+                    setIsGeneratingAI(false);
+                    return;
+                }
+
+                // Step 2: Call Cloud Function via background
+                chrome.runtime.sendMessage({
+                    type: 'GENERATE_AI_ANSWERS',
+                    questions,
+                    companyName: scrapedJob?.company || document.title,
+                    jobTitle: scrapedJob?.title || 'Unknown Role',
+                    jobDescription: scrapedJob?.description || '',
+                }, (res) => {
+                    setIsGeneratingAI(false);
+                    if (res?.success && res.answers) {
+                        setAiAnswers(res.answers);
+                        setShowAiPanel(true);
+                    } else {
+                        setAiError(res?.error || 'Failed to generate AI answers. Please try again.');
+                    }
+                });
+            });
+        });
+    }, [currentTab, scrapedJob]);
+
+    // ── Inject a single AI answer into the form ────────────────────────────────
+    const handleInjectAnswer = useCallback((answer: AIAnswer) => {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (!tabs[0]?.id) return;
+            chrome.tabs.sendMessage(tabs[0].id, {
+                type: 'INJECT_ANSWER',
+                label: answer.label,
+                value: answer.answer,
+            });
+            setAiAnswers(prev => prev.map(a =>
+                a.label === answer.label ? { ...a, injected: true } : a
+            ));
+        });
+    }, []);
+
+    // ── Fill All with confirmation ─────────────────────────────────────────────
+    const handleFillAll = useCallback(() => {
+        if (!fillAllConfirm) {
+            setFillAllConfirm(true);
+            return;
+        }
+        // Inject all non-empty answers
+        const toInject = aiAnswers.filter(a => a.answer && a.source !== 'skipped');
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (!tabs[0]?.id) return;
+            toInject.forEach(answer => {
+                chrome.tabs.sendMessage(tabs[0]!.id!, {
+                    type: 'INJECT_ANSWER',
+                    label: answer.label,
+                    value: answer.answer,
+                });
+            });
+            setAiAnswers(prev => prev.map(a =>
+                toInject.some(t => t.label === a.label) ? { ...a, injected: true } : a
+            ));
+            setFillAllConfirm(false);
+        });
+    }, [aiAnswers, fillAllConfirm]);
+
+    // ── Mark job as Applied ───────────────────────────────────────────────────
+    const handleMarkApplied = useCallback(() => {
+        if (!submittedJobId) return;
+        chrome.runtime.sendMessage({ type: 'MARK_JOB_APPLIED', jobId: submittedJobId }, (res) => {
+            if (res?.success) setMarkedApplied(true);
+        });
+    }, [submittedJobId]);
 
     const handleAutofill = useCallback(() => {
         if (!hasProfile) {
@@ -218,26 +332,103 @@ const ExtensionHome: React.FC = () => {
                                     </div>
                                     {fillResult.skippedCount > 0 && (
                                         <p className="text-[10px] text-gray-400">
-                                            Skipped fields may need manual input (custom questions, file uploads).
+                                            Skipped fields may need manual input. Try <strong>Smart Fill</strong> for AI answers.
                                         </p>
                                     )}
                                 </div>
                             )}
 
-                            <button
-                                onClick={handleAutofill}
-                                disabled={isFilling}
-                                className="mt-3 w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white py-3.5 rounded-xl font-semibold shadow-lg shadow-indigo-200 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                            >
-                                {isFilling ? (
-                                    <><Loader2 size={18} className="animate-spin" /><span>Filling form...</span></>
-                                ) : fillResult ? (
-                                    <><Zap size={18} /><span>Autofill Again</span></>
-                                ) : (
-                                    <><Zap size={18} /><span>Autofill Application</span></>
-                                )}
-                            </button>
+                            {/* Two fill buttons */}
+                            <div className="mt-3 grid grid-cols-2 gap-2">
+                                <button
+                                    onClick={handleAutofill}
+                                    disabled={isFilling || isGeneratingAI}
+                                    title="Fills standard fields (name, email, phone, education) instantly"
+                                    className="flex items-center justify-center gap-1.5 bg-gray-900 hover:bg-black disabled:opacity-60 text-white py-3 rounded-xl font-semibold shadow transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
+                                >
+                                    {isFilling ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
+                                    Quick Fill
+                                </button>
+                                <button
+                                    onClick={handleSmartFill}
+                                    disabled={isFilling || isGeneratingAI}
+                                    title="Uses AI to generate personalized answers for open-ended questions"
+                                    className="flex items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white py-3 rounded-xl font-semibold shadow-lg shadow-indigo-200 transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
+                                >
+                                    {isGeneratingAI ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                                    {isGeneratingAI ? 'Thinking...' : 'Smart Fill 🧠'}
+                                </button>
+                            </div>
+
+                            {/* AI Error */}
+                            {aiError && (
+                                <p className="mt-2 text-xs text-red-500 flex items-center gap-1">
+                                    <AlertCircle size={12} /> {aiError}
+                                </p>
+                            )}
                         </div>
+
+                        {/* AI Answer Review Panel */}
+                        {showAiPanel && aiAnswers.length > 0 && (
+                            <div className="border-t border-indigo-100 bg-white">
+                                <div className="px-4 py-3 flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs font-bold text-gray-800">
+                                            {aiAnswers.filter(a => a.source === 'ai_generated').length} AI answers ready
+                                        </p>
+                                        <p className="text-[10px] text-gray-400">Review each answer, then inject. You submit manually.</p>
+                                    </div>
+                                    <button
+                                        onClick={handleFillAll}
+                                        className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${
+                                            fillAllConfirm
+                                                ? 'bg-amber-500 text-white animate-pulse'
+                                                : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+                                        }`}
+                                    >
+                                        {fillAllConfirm ? 'Confirm Fill All?' : 'Fill All'}
+                                    </button>
+                                </div>
+
+                                <div className="space-y-1 px-2 pb-3 max-h-72 overflow-y-auto">
+                                    {aiAnswers.map((a, i) => (
+                                        <AIAnswerCard
+                                            key={i}
+                                            answer={a}
+                                            onInject={() => handleInjectAnswer(a)}
+                                        />
+                                    ))}
+                                </div>
+
+                                {/* Post-submit: "Did you submit?" flow */}
+                                {!markedApplied && (
+                                    <div className="px-4 pb-4 pt-1 border-t border-gray-50">
+                                        <p className="text-[10px] text-gray-400 mb-2">After you submit the form manually:</p>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                placeholder="Job ID (optional)"
+                                                value={submittedJobId || ''}
+                                                onChange={e => setSubmittedJobId(e.target.value)}
+                                                className="flex-1 text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-indigo-300"
+                                            />
+                                            <button
+                                                onClick={handleMarkApplied}
+                                                disabled={!submittedJobId}
+                                                className="flex items-center gap-1 text-xs font-bold bg-green-500 disabled:opacity-40 text-white px-3 py-1.5 rounded-lg hover:bg-green-600 transition-colors"
+                                            >
+                                                <Send size={11} /> Applied!
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                                {markedApplied && (
+                                    <div className="px-4 pb-4 flex items-center gap-2 text-green-600 text-xs font-semibold">
+                                        <CheckCircle size={14} /> Marked as Applied in your Job Tracker!
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -358,3 +549,78 @@ const ExtensionHome: React.FC = () => {
 };
 
 export default ExtensionHome;
+
+// ── AIAnswerCard sub-component ────────────────────────────────────────────────
+
+const CONFIDENCE_STYLES = {
+    high:   'bg-green-100 text-green-700',
+    medium: 'bg-amber-100 text-amber-700',
+    low:    'bg-red-100 text-red-600',
+};
+
+const AIAnswerCard: React.FC<{ answer: AIAnswer; onInject: () => void }> = ({ answer, onInject }) => {
+    const [expanded, setExpanded] = React.useState(false);
+
+    const isSkipped = answer.source === 'skipped' || !answer.answer;
+    const isAI = answer.source === 'ai_generated';
+
+    return (
+        <div className={`rounded-xl border p-2.5 transition-all ${answer.injected ? 'border-green-200 bg-green-50' : 'border-gray-100 bg-white hover:border-gray-200'}`}>
+            <div className="flex items-start gap-2">
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wide truncate max-w-[140px]">
+                            {answer.label}
+                        </span>
+                        {isAI && (
+                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${CONFIDENCE_STYLES[answer.confidence]}`}>
+                                {answer.confidence}
+                            </span>
+                        )}
+                        {answer.source === 'profile_field' && (
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                                profile
+                            </span>
+                        )}
+                    </div>
+
+                    {isSkipped ? (
+                        <p className="text-[10px] text-gray-400 italic">No answer — fill manually</p>
+                    ) : (
+                        <p className="text-xs text-gray-700 line-clamp-2 leading-relaxed">
+                            {answer.answer}
+                        </p>
+                    )}
+
+                    {isAI && answer.reasoning && (
+                        <button
+                            onClick={() => setExpanded(e => !e)}
+                            className="flex items-center gap-0.5 text-[9px] text-gray-400 hover:text-gray-600 mt-0.5"
+                        >
+                            {expanded ? <ChevronUp size={9} /> : <ChevronDown size={9} />}
+                            {expanded ? 'less' : 'why?'}
+                        </button>
+                    )}
+                    {expanded && answer.reasoning && (
+                        <p className="text-[9px] text-gray-400 italic mt-1 leading-relaxed">{answer.reasoning}</p>
+                    )}
+                </div>
+
+                {!isSkipped && (
+                    <button
+                        onClick={onInject}
+                        disabled={answer.injected}
+                        className={`flex-shrink-0 flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-lg transition-all ${
+                            answer.injected
+                                ? 'bg-green-100 text-green-600 cursor-default'
+                                : 'bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95'
+                        }`}
+                    >
+                        {answer.injected ? <CheckCheck size={11} /> : <Copy size={11} />}
+                        {answer.injected ? 'Done' : 'Fill'}
+                    </button>
+                )}
+            </div>
+        </div>
+    );
+};

@@ -508,6 +508,238 @@ MAKE SURE the user actually intends to delete it, as this is permanent.`,
 };
 
 // ---------------------------------------------------------------------------
+// Tool: apply_to_job
+// ---------------------------------------------------------------------------
+
+export const ApplyToJobTool: Tool = {
+  name: "apply_to_job",
+  description: `Open a job application in the user's Chrome browser and auto-fill it with AI-tailored answers.
+This tool launches Playwright, navigates to the job URL, extracts the form fields, fills them
+with AI-generated answers from the user's resume, and shows the user a final preview before submitting.
+
+Use this when the user says:
+- "Apply to this job for me"
+- "Auto-apply to [company] job"
+- "Fill out the application at [url]"
+- "Submit my application to [job]"
+
+IMPORTANT: Always confirm with the user before calling this tool — applying to a job is a significant action.`,
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      job_url: {
+        type: Type.STRING,
+        description: "The full URL to the job application page (Greenhouse, Lever, Ashby, LinkedIn Easy Apply, or any ATS).",
+      },
+      job_id: {
+        type: Type.STRING,
+        description: "Optional. The job ID from the CareerVivid tracker. If provided, the job status will be updated to 'Applied' after submission.",
+      },
+      job_title: {
+        type: Type.STRING,
+        description: "The job title (for context in AI answer generation).",
+      },
+      company_name: {
+        type: Type.STRING,
+        description: "The company name (for context in AI answer generation).",
+      },
+      resume_id: {
+        type: Type.STRING,
+        description: "Optional. Specific resume ID to tailor answers from. If omitted, uses the user's latest resume.",
+      },
+      dry_run: {
+        type: Type.BOOLEAN,
+        description: "Optional. If true, extracts and shows the form fields and proposed answers without opening a browser or submitting.",
+      },
+      enable_linkedin: {
+        type: Type.BOOLEAN,
+        description: "Optional. Set true to allow LinkedIn Easy Apply automation. The user must explicitly opt in.",
+      },
+      model: {
+        type: Type.STRING,
+        description: "Optional. Gemini model to use for the browser-use agent. Default: gemini-3.1-flash-lite-preview.",
+      },
+    },
+    required: ["job_url"],
+  },
+  execute: async (args: {
+    job_url: string;
+    job_id?: string;
+    job_title?: string;
+    company_name?: string;
+    resume_id?: string;
+    dry_run?: boolean;
+    enable_linkedin?: boolean;
+    model?: string;
+  }) => {
+    // ── 1. Load resume ─────────────────────────────────────────────────────
+    let resumeMarkdown = "";
+    try {
+      const resumeResult = await resumeGet(args.resume_id);
+      if (!isApiError(resumeResult)) resumeMarkdown = resumeResult.cvMarkdown || "";
+    } catch { /* proceed without resume */ }
+
+    // ── 2. Load local apply profile (name, phone, location etc.) ──────────
+    const { loadProfile } = await import("../../apply/gemini-agent.js");
+    const profile = loadProfile();
+
+    // ── 3. Build a rich task description for browser-use ──────────────────
+    const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(" ");
+    const location = [profile.city, profile.state, profile.country].filter(Boolean).join(", ");
+
+    let task = `Fill out the job application form at the URL below. Use the information provided — do NOT make up any data not listed here.
+
+URL: ${args.job_url}
+${args.job_title    ? `Job Title: ${args.job_title}`    : ""}
+${args.company_name ? `Company:   ${args.company_name}` : ""}
+
+APPLICANT DETAILS:
+- Full Name:          ${fullName   || "(see resume)"}
+- Email:              ${profile.email    || "(see resume)"}
+- Phone:              ${profile.phone    || "(see resume)"}
+- Location:           ${location   || "(see resume)"}
+- LinkedIn:           ${profile.linkedin || ""}
+- GitHub:             ${profile.github   || ""}
+- Portfolio/Website:  ${profile.portfolio || ""}
+- Work Authorization: ${profile.workAuthorization || "Authorized to work in the US"}
+- Years of Experience: ${profile.yearsOfExperience || "(see resume)"}
+- Current Title:      ${profile.currentTitle   || "(see resume)"}
+- Current Company:    ${profile.currentCompany || "(see resume)"}
+
+${resumeMarkdown ? `RESUME (use for work history, skills, education, cover letter content):\n${resumeMarkdown.substring(0, 8000)}` : ""}
+
+FILLING RULES:
+1. Navigate to the URL. If there is an "Apply" or "Apply Now" button, click it first.
+2. Wait for the form to fully load before filling.
+3. Fill every visible field using the details above.
+4. For work experience: use the resume. For education: use the resume.
+5. For cover letter / motivations / "why this role": write 2-3 sentences tailored to the role.
+6. For EEO/demographic questions (race, gender, veteran, disability): select "Decline to self-identify" or "I prefer not to say".
+7. For salary: leave blank or enter "Negotiable".
+8. For "how did you hear about us": select "LinkedIn" or "Job Board".
+9. For multi-page forms: advance to the next page and continue filling.
+10. STOP before clicking the final Submit/Apply button — the user will review and submit manually.
+11. Report which fields you filled and any you could not complete.`;
+
+    if (args.dry_run) {
+      return `[DRY RUN] Would launch browser-use with:\n\n${task.substring(0, 600)}...`;
+    }
+
+    // ── 4. Resolve Python 3.11 and sidecar path ────────────────────────────
+    const { existsSync } = await import("fs");
+    const { spawn }      = await import("child_process");
+    const pathMod        = await import("path");
+    const { fileURLToPath } = await import("url");
+
+    const PYTHON_CANDIDATES = [
+      "/opt/homebrew/bin/python3.11",
+      "/usr/local/bin/python3.11",
+      "/usr/bin/python3.11",
+    ];
+    const pythonBin = PYTHON_CANDIDATES.find(existsSync);
+    if (!pythonBin) {
+      return "❌ Python 3.11 not found.\n   Install: brew install python@3.11\n   Then: pip3.11 install browser-use";
+    }
+
+    const __dirname = pathMod.dirname(fileURLToPath(import.meta.url));
+    const sidecarPath = pathMod.resolve(__dirname, "../../apply/browser_sidecar.py");
+    if (!existsSync(sidecarPath)) {
+      return `❌ browser_sidecar.py not found at expected path: ${sidecarPath}`;
+    }
+
+    // ── 5. Resolve Gemini API key ──────────────────────────────────────────
+    const { loadConfig, getGeminiKey } = await import("../../config.js");
+    const cfg = loadConfig();
+    const apiKey =
+      cfg.geminiKey  ||
+      cfg.llmApiKey  ||
+      getGeminiKey() ||
+      process.env.GOOGLE_API_KEY  ||
+      process.env.GEMINI_API_KEY  ||
+      "";
+
+    if (!apiKey) {
+      return [
+        "❌ No Gemini API key found — browser-use agent cannot start.",
+        "   Fix options:",
+        "   1. Run `cv agent` → Settings → choose 'Gemini (personal key)' → enter your key",
+        "   2. Or: export GEMINI_API_KEY=AIzaSy...  in your terminal before running cv agent",
+      ].join("\n");
+    }
+
+    const { homedir } = await import("os");
+    const profileDir = pathMod.join(homedir(), ".careervivid", "browser-session");
+
+    // ── 6. Spawn browser-use sidecar ───────────────────────────────────────
+    const chalk = (await import("chalk")).default;
+    console.log(chalk.cyan(`\n🤖 Launching browser-use agent → ${args.job_url}\n`));
+    console.log(chalk.dim("   Chrome will open and fill the form autonomously."));
+    console.log(chalk.dim("   It will stop BEFORE the Submit button — you review and submit.\n"));
+
+    const model = args.model || "gemini-3.1-flash-lite-preview";
+
+    const inputPayload = JSON.stringify({
+      task,
+      api_key: apiKey,
+      model,
+      profile_dir: profileDir,
+    });
+
+    return new Promise<string>((resolve) => {
+      let finalResult = "";
+
+      const child = spawn(pythonBin, [sidecarPath], {
+        stdio: ["pipe", "pipe", "pipe"],
+        env: { ...process.env, GOOGLE_API_KEY: apiKey, GEMINI_API_KEY: apiKey, PYTHONUNBUFFERED: "1" },
+      });
+
+      child.stdin.write(inputPayload);
+      child.stdin.end();
+
+      let buffer = "";
+      child.stdout.on("data", (data: Buffer) => {
+        buffer += data.toString();
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed) continue;
+          try {
+            const msg = JSON.parse(trimmed);
+            if (msg.type === "step")  console.log(chalk.dim(`   ${msg.message}`));
+            if (msg.type === "done") { finalResult = msg.result || "Form filled."; console.log(chalk.green(`\n✅ ${finalResult}\n`)); }
+            if (msg.type === "error") { finalResult = `Error: ${msg.message}`; console.log(chalk.red(`\n❌ ${msg.message}\n`)); }
+          } catch {
+            if (trimmed) console.log(chalk.dim(`   [py] ${trimmed}`));
+          }
+        }
+      });
+
+      child.stderr.on("data", (data: Buffer) => {
+        const str = data.toString().trim();
+        if (str && !str.includes("DeprecationWarning") && !str.includes("ExperimentalWarning")) {
+          console.log(chalk.yellow(`   [py-err] ${str}`));
+        }
+      });
+
+      child.on("close", (code) => {
+        const trackerNote = args.job_id
+          ? "\n\n💡 After submitting tell me: 'mark job as Applied' to update your tracker."
+          : "";
+        resolve(
+          finalResult ||
+          (code === 0
+            ? `Browser-use agent finished. Review the browser and submit when ready.${trackerNote}`
+            : `Agent exited (code ${code}). The browser window may still be open — check it.${trackerNote}`)
+        );
+      });
+
+      child.on("error", (err) => resolve(`❌ Failed to start browser-use: ${err.message}`));
+    });
+  },
+};
+
+// ---------------------------------------------------------------------------
 // All job tools export
 // ---------------------------------------------------------------------------
 
@@ -520,4 +752,5 @@ export const ALL_JOB_TOOLS: Tool[] = [
   SaveJobTool,
   ListJobsTool,
   UpdateJobStatusTool,
+  ApplyToJobTool,
 ];

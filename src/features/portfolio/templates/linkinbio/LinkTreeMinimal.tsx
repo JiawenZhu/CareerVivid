@@ -12,6 +12,8 @@ import { useState } from 'react';
 import { ProductShowcase } from '../../../commerce/components/ProductShowcase';
 
 import { usePortfolioAdminAccess } from '../../hooks/usePortfolioAdminAccess';
+import { getAvatarSizeClasses, getAvatarShapeClasses, getAvatarPositionClasses } from '../../utils/avatar';
+
 
 /**
  * LinkTreeMinimal - Clean minimal design for link-in-bio
@@ -179,7 +181,7 @@ const LinkTreeMinimal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
                 <div className="text-center mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                     {/* Avatar */}
                     <div
-                        className={`w-24 h-24 mx-auto mb-6 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 border-4 border-white dark:border-gray-900 shadow-lg transition-transform ${onEdit ? 'cursor-pointer hover:ring-4 hover:ring-indigo-500 hover:scale-105' : ''}`}
+                        className={`${getAvatarSizeClasses(data.hero?.avatarSize)} ${getAvatarShapeClasses(data.hero?.avatarShape)} ${getAvatarPositionClasses(data.hero?.avatarPosition)} mb-6 overflow-hidden bg-gray-100 dark:bg-gray-800 border-4 border-white dark:border-gray-900 shadow-lg transition-transform ${onEdit ? 'cursor-pointer hover:ring-4 hover:ring-indigo-500 hover:scale-105' : ''}`}
                         {...(onEdit ? { onClick: () => onEdit('hero.avatarUrl') } : longPressProps)}
                     >
                         {profileImage ? (

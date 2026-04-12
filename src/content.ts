@@ -296,11 +296,75 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       return true; // Keep channel open for async
     }
 
+    // ── NEW: Extract all form questions for AI answer generation ──────────────
+    // Returns { questions: [{ label, type, options? }] }
+    case 'EXTRACT_FORM_QUESTIONS': {
+      const adapter = detectAdapter();
+      if (!adapter || !adapter.isApplicationPage()) {
+        sendResponse({ questions: [] });
+        break;
+      }
+
+      const fields = adapter.getFormFields();
+      const questions = fields
+        .filter(f => f.type !== 'file' && f.type !== 'unknown' && f.label)
+        .map(f => {
+          const q: { label: string; type: string; options?: string[] } = {
+            label: f.label,
+            type: f.type,
+          };
+          // Extract select options for dropdowns
+          if (f.element instanceof HTMLSelectElement) {
+            q.options = Array.from(f.element.options)
+              .filter(o => o.value && o.value !== '')
+              .map(o => o.text.trim());
+          }
+          return q;
+        });
+
+      sendResponse({ questions });
+      break;
+    }
+
+    // ── NEW: Inject a single AI-generated answer into the matching field ──────
+    case 'INJECT_ANSWER': {
+      const { label: targetLabel, value } = message as { label: string; value: string };
+      const adapter = detectAdapter();
+
+      if (!adapter || !value) {
+        sendResponse({ success: false });
+        break;
+      }
+
+      // Find the field whose label matches (case-insensitive)
+      const fields = adapter.getFormFields();
+      const target = fields.find(f =>
+        f.label.toLowerCase().trim() === targetLabel.toLowerCase().trim()
+      );
+
+      if (!target) {
+        sendResponse({ success: false, reason: 'Field not found' });
+        break;
+      }
+
+      // Use the adapter's fillField method (React-safe)
+      adapter.fillField(target, value).then(() => {
+        target.filled = true;
+        target.filledValue = value;
+        sendResponse({ success: true });
+      }).catch((err: Error) => {
+        sendResponse({ success: false, reason: err.message });
+      });
+
+      return true; // Keep channel open for async
+    }
+
     default:
       break;
   }
   return true;
 });
+
 
 // ── Initialization & SPA Navigation Observer ──────────────────────────────────
 

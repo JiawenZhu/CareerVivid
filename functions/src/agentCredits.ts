@@ -116,8 +116,10 @@ export const agentDeductCredits = functions
         // Reset count if new month
         let count: number =
           usageMonth === currentMonth ? aiUsage.count ?? 0 : 0;
-        const limit: number =
+        let limit: number =
           aiUsage.monthlyLimit ?? getMonthlyLimit(userData.plan);
+        const tokenCredits = userData.promotions?.tokenCredits || 0;
+        limit += tokenCredits;
 
         // Check credit reserve buffer (stop at 2 remaining to avoid partial turns)
         if (!isAdmin && count + totalCost > limit - 2) {

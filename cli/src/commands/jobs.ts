@@ -26,6 +26,7 @@ import {
 } from "../api.js";
 import { checkGwsReady, runGwsCommand } from "../utils/gws-runner.js";
 import { printError, printSuccess } from "../output.js";
+import { registerApplyCommand } from "./apply.js";
 
 // ── Score colour helpers ──────────────────────────────────────────────────────
 
@@ -512,4 +513,7 @@ export function registerJobsCommand(program: Command) {
                 );
             }
         });
+
+    // ── cv jobs apply ─────────────────────────────────────────────────────────
+    registerApplyCommand(jobsCmd);
 }

@@ -187,7 +187,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             });
             return true;
 
-        // Popup triggers auto-fill on the current tab
+        // Popup triggers auto-fill on the current tab (structured fields only — fast path)
         case 'AUTOFILL_APPLICATION':
             chrome.storage.local.get(['autofillProfile'], async (result) => {
                 const profile = result.autofillProfile;
@@ -208,6 +208,86 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 });
             });
             return true;
+
+        // ── NEW: AI-powered answer generation for open-ended questions ─────────────
+        // Flow: content script extracts questions → popup calls this → Cloud Function → answers
+        case 'GENERATE_AI_ANSWERS': {
+            const { questions, companyName, jobTitle, jobDescription, jobId } = message;
+
+            chrome.storage.local.get(['firebaseIdToken'], async (stored: any) => {
+                const idToken: string | undefined = stored.firebaseIdToken;
+
+                if (!idToken) {
+                    sendResponse({ success: false, error: 'Not authenticated. Please log in to CareerVivid.' });
+                    return;
+                }
+
+                try {
+                    // Call the Cloud Function (us-west1 region)
+                    const endpoint = 'https://us-west1-jastalk-firebase.cloudfunctions.net/generateApplyAnswers';
+
+                    const resp = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${idToken}`,
+                        },
+                        body: JSON.stringify({
+                            data: { questions, companyName, jobTitle, jobDescription, jobId }
+                        }),
+                    });
+
+                    if (!resp.ok) {
+                        const errText = await resp.text();
+                        sendResponse({ success: false, error: `Cloud Function error: ${resp.status} ${errText}` });
+                        return;
+                    }
+
+                    const json = await resp.json() as any;
+                    const result = json.result || json;
+
+                    sendResponse({ success: true, answers: result.answers, aiCount: result.aiCount });
+                } catch (err: any) {
+                    console.error('[CareerVivid] GENERATE_AI_ANSWERS failed:', err);
+                    sendResponse({ success: false, error: err.message || 'Network error' });
+                }
+            });
+            return true;
+        }
+
+        // ── NEW: Store Firebase ID token (called from popup after login) ──────────
+        case 'STORE_AUTH_TOKEN':
+            chrome.storage.local.set({ firebaseIdToken: message.idToken }, () => {
+                sendResponse({ success: true });
+            });
+            return true;
+
+        // ── NEW: Mark a job as Applied and get confirmation ────────────────────────
+        case 'MARK_JOB_APPLIED': {
+            const { jobId: appliedJobId } = message;
+            chrome.storage.local.get(['firebaseIdToken'], async (stored: any) => {
+                const idToken: string | undefined = stored.firebaseIdToken;
+                if (!idToken || !appliedJobId) {
+                    sendResponse({ success: false });
+                    return;
+                }
+                try {
+                    const endpoint = 'https://us-west1-jastalk-firebase.cloudfunctions.net/cliJobsUpdate';
+                    await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${idToken}`,
+                        },
+                        body: JSON.stringify({ jobId: appliedJobId, status: 'Applied' }),
+                    });
+                    sendResponse({ success: true });
+                } catch (_) {
+                    sendResponse({ success: false });
+                }
+            });
+            return true;
+        }
 
         // Open popup for resume selection
         case 'OPEN_RESUME_PICKER':

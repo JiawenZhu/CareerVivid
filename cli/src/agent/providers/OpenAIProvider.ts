@@ -129,7 +129,7 @@ export class OpenAIProvider implements LLMProvider {
     const openAITools = tools.length > 0 ? this.toOpenAITools(tools) : undefined;
 
     const body: any = {
-      model: "", // caller sets via fetch; we don't store model here
+      model: request.model || "", // fallback to empty if missing
       messages,
       ...(openAITools ? { tools: openAITools, tool_choice: "auto" } : {}),
     };
@@ -191,7 +191,7 @@ export class OpenAIProvider implements LLMProvider {
     const openAITools = tools.length > 0 ? this.toOpenAITools(tools) : undefined;
 
     const body: any = {
-      model: "",
+      model: request.model || "",
       messages,
       stream: true,
       ...(openAITools ? { tools: openAITools, tool_choice: "auto" } : {}),

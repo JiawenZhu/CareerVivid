@@ -2,15 +2,16 @@ import React from 'react';
 import { PortfolioTemplateProps } from '../types/portfolio';
 import { BookOpen, PenTool, Twitter, Mail, ChevronRight, Bookmark } from 'lucide-react';
 import { usePortfolioAdminAccess } from '../hooks/usePortfolioAdminAccess';
+import { getAvatarSizeClasses, getAvatarShapeClasses, getAvatarFlexOrder } from '../utils/avatar';
 
 const WriterEditorial: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileView }) => {
     const { hero, projects, about, timeline } = data;
 
-    // Admin Access Hook (No Avatar, target Headline)
+    // Admin Access Hook — target avatar if set, else headline
     const { longPressProps, AdminAccessModal } = usePortfolioAdminAccess({
         data,
         onEdit,
-        editField: 'hero.headline'
+        editField: hero.avatarUrl ? 'hero.avatarUrl' : 'hero.headline'
     });
 
     const responsiveClass = (base: string, desktop: string) => {
@@ -21,12 +22,25 @@ const WriterEditorial: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMob
         <div className="bg-[#fcfbf9] text-[#1a1a1a] font-serif min-h-full selection:bg-yellow-200 selection:text-black border-t-8 border-black">
             {/* Minimal Header */}
             <div className="max-w-3xl mx-auto px-6 py-12 flex flex-wrap justify-between items-center border-b border-gray-200 gap-4">
-                <div
-                    {...(onEdit ? { onClick: () => onEdit('hero.headline') } : longPressProps)}
-                    className="font-bold text-xl tracking-tight font-sans uppercase cursor-pointer hover:bg-yellow-100/50 hover:text-black transition-colors rounded px-2 -mx-2"
-                    title="Click to edit headline"
-                >
-                    {hero.headline}
+                <div className="flex items-center">
+                    {/* Avatar */}
+                    {hero.avatarUrl && (
+                        <img
+                            src={hero.avatarUrl}
+                            alt="Profile"
+                            onClick={() => onEdit?.('hero.avatarUrl')}
+                            {...(!onEdit ? longPressProps : {})}
+                            className={`${getAvatarSizeClasses(hero.avatarSize)} ${getAvatarShapeClasses(hero.avatarShape)} ${getAvatarFlexOrder(hero.avatarPosition)} object-cover cursor-pointer grayscale hover:grayscale-0 transition-all`}
+                            title="Click to edit avatar"
+                        />
+                    )}
+                    <div
+                        {...(onEdit ? { onClick: () => onEdit('hero.headline') } : (hero.avatarUrl ? {} : longPressProps))}
+                        className="font-bold text-xl tracking-tight font-sans uppercase cursor-pointer hover:bg-yellow-100/50 hover:text-black transition-colors rounded px-2 -mx-2"
+                        title="Click to edit headline"
+                    >
+                        {hero.headline}
+                    </div>
                 </div>
                 <div className="flex gap-6 text-sm font-sans font-medium text-gray-500 overflow-x-auto">
                     <a href="#about" className="hover:text-black transition-colors">About</a>

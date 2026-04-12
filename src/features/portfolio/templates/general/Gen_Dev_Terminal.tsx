@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { PortfolioTemplateProps } from '../../types/portfolio';
-import { Terminal, Github, ExternalLink, Command, Hash, Mail, MapPin, Calendar, GitBranch } from 'lucide-react';
-
-
+import { Terminal, Github, ExternalLink, Command, Hash, Mail, GitBranch } from 'lucide-react';
+import { usePortfolioAdminAccess } from '../../hooks/usePortfolioAdminAccess';
+import { getAvatarSizeClasses, getAvatarShapeClasses, getAvatarPositionClasses } from '../../utils/avatar';
 
 const TypewriterText: React.FC<{ text: string; delay?: number; disableAnimation?: boolean }> = ({ text, delay = 50, disableAnimation = false }) => {
     const [displayedText, setDisplayedText] = useState(disableAnimation ? text : '');
@@ -30,7 +30,14 @@ const TypewriterText: React.FC<{ text: string; delay?: number; disableAnimation?
 };
 
 const DevTerminal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileView }) => {
-    const { hero, projects, timeline, about, techStack, theme } = data;
+    const { hero, projects, timeline, about, techStack } = data;
+
+    // Admin Access Hook — target avatar if set, else headline
+    const { longPressProps, AdminAccessModal } = usePortfolioAdminAccess({
+        data,
+        onEdit,
+        editField: hero.avatarUrl ? 'hero.avatarUrl' : 'hero.headline'
+    });
 
     // Helper to conditionally apply desktop classes only if not in mobile view
     const responsiveClass = (mobile: string, desktop: string) => {
@@ -38,6 +45,7 @@ const DevTerminal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
     };
 
     return (
+        <>
         <div className={`bg-zinc-950 text-emerald-400 font-mono min-h-full selection:bg-emerald-400/30 selection:text-emerald-100 overflow-x-hidden ${responsiveClass('p-2', 'md:p-8')}`}>
             <div className="max-w-5xl mx-auto border border-zinc-800 rounded-lg bg-black/50 shadow-2xl backdrop-blur-sm overflow-hidden">
                 {/* Terminal Header */}
@@ -57,6 +65,18 @@ const DevTerminal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
                     {/* Hero Section */}
                     <section className="space-y-6">
                         <div className="text-zinc-500 text-sm mb-2">$ whoami</div>
+                        {/* Avatar */}
+                        {hero.avatarUrl && (
+                            <img
+                                src={hero.avatarUrl}
+                                alt="Profile"
+                                onClick={() => onEdit?.('hero.avatarUrl')}
+                                {...(!onEdit ? longPressProps : {})}
+                                className={`${getAvatarSizeClasses(hero.avatarSize)} ${getAvatarShapeClasses(hero.avatarShape)} ${getAvatarPositionClasses(hero.avatarPosition)} block object-cover cursor-pointer mb-2 transition-all hover:scale-105`}
+                                style={{ boxShadow: '0 0 0 2px #10b981, 0 0 12px #10b98140' }}
+                                title="Click to edit avatar"
+                            />
+                        )}
                         <h1
                             onClick={() => onEdit?.('hero.headline')}
                             className={`font-bold tracking-tight cursor-pointer hover:bg-emerald-500/10 hover:text-emerald-300 transition-colors rounded -ml-2 pl-2 break-words ${responsiveClass('text-3xl sm:text-4xl', 'md:text-6xl')}`}
@@ -211,6 +231,8 @@ const DevTerminal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
                 </div>
             </div>
         </div>
+        <AdminAccessModal />
+        </>    
     );
 };
 

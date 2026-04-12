@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Edit2 } from 'lucide-react';
+import { renderInlineMarkdown } from '../utils/renderInlineMarkdown';
 
 interface InlineEditProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onFocus'> {
   value: string;
@@ -57,7 +58,9 @@ const InlineEdit: React.FC<InlineEditProps> = ({
       title={!isLink ? "Click to edit" : undefined}
       {...props}
     >
-      {value || <span className="opacity-50 italic print:hidden">{placeholder || 'Click to edit'}</span>}
+      {value
+        ? renderInlineMarkdown(value)
+        : <span className="opacity-50 italic print:hidden">{placeholder || 'Click to edit'}</span>}
 
       {isLink && onFocus && (
         <button

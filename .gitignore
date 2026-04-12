@@ -65,3 +65,7 @@ public/sop-assets/
 sop-assets/
 *SOP*
 *sop*
+
+# Agent skills
+.agent/skills/loki-mode/.github/workflows/claude.yml
+

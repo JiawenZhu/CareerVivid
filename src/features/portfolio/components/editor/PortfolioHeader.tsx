@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft, Monitor, Smartphone, Share2, Sun, Moon, BarChart3, Store, X } from 'lucide-react';
+import { ChevronLeft, Monitor, Smartphone, Share2, Sun, Moon, BarChart3, Store, X, Wand2 } from 'lucide-react';
 
 interface PortfolioHeaderProps {
     title: string;
@@ -16,6 +16,7 @@ interface PortfolioHeaderProps {
     onViewChange: (view: 'editor' | 'analytics' | 'commerce') => void;
 
     onShare: () => void;
+    onAIEdit?: () => void;
 }
 
 const PortfolioHeader: React.FC<PortfolioHeaderProps> = ({
@@ -29,6 +30,7 @@ const PortfolioHeader: React.FC<PortfolioHeaderProps> = ({
     activeView,
     onViewChange,
     onShare,
+    onAIEdit,
 }) => {
     return (
         <div className={`h-14 border-b px-3 md:px-4 flex items-center justify-between shrink-0 z-20 transition-colors
@@ -80,6 +82,21 @@ const PortfolioHeader: React.FC<PortfolioHeaderProps> = ({
 
                 {/* Actions Group (Theme & Share) - Grouped with toggle on desktop, on right on mobile */}
                 <div className={`flex items-center gap-2 shrink-0 md:ml-0`}>
+                    {/* AI Portfolio Edit Button */}
+                    <button
+                        onClick={onAIEdit}
+                        className={`p-2 md:px-3 md:py-2 text-sm font-medium rounded-lg flex items-center gap-2 border transition-all
+                            ${editorTheme === 'dark'
+                                ? 'bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 border-indigo-500/30 hover:border-indigo-500/60'
+                                : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border-indigo-200 hover:border-indigo-400'
+                            }
+                        `}
+                        title="AI Portfolio Editor"
+                    >
+                        <Wand2 size={16} />
+                        <span className="hidden lg:inline font-semibold">AI Edit</span>
+                    </button>
+
                     {/* Editor Theme Toggle */}
                     <button
                         onClick={onToggleTheme}

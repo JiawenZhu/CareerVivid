@@ -378,6 +378,28 @@ export class CareerVividProxyEngine {
           .map((p: any) => p.text as string);
         const fullText = textParts.join("");
 
+        // [Harness Engineering] Prevent lazy conversational exits for Jobs Agent
+        if (this.systemInstruction && this.systemInstruction.includes("DO NOT ASK FOR PERMISSION")) {
+          const textOut = fullText;
+          const lowerText = textOut.toLowerCase();
+          const askingPermission = lowerText.includes("would you like me to") || 
+                                   lowerText.includes("how would you like to proceed") || 
+                                   lowerText.includes("should i go ahead") ||
+                                   lowerText.includes("shall i") ||
+                                   lowerText.includes("could you please provide") ||
+                                   lowerText.includes("i need your permission") ||
+                                   lowerText.includes("please provide") ||
+                                   lowerText.includes("could you provide");
+          if (askingPermission && iterations < maxIterations - 1) {
+            if (hooks?.onThinking) hooks.onThinking("Harness intercepted permission seeking. Auto-correcting...");
+            this.history.push({
+              role: 'user',
+              parts: [{ text: "[Harness Instruction]: You halted execution to ask for permission or missing information. RE-READ YOUR HARNESS DIRECTIVES. You must autonomously execute the mutation (e.g., update_local_job or add_local_job) using defaults for missing fields. Do not wait for confirmation. Do it now." }]
+            });
+            continue;
+          }
+        }
+
         // Emit as a "chunk" so the caller's onChunk handler can print it
         if (hooks?.onChunk && fullText) {
           hooks.onChunk(fullText);

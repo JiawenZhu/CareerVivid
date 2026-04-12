@@ -194,13 +194,13 @@ export const publishPost = onRequest(
                 authorAvatar,
                 authorEmail: profile.email,
                 isOfficialPost: isOfficialPost && profile.isAdmin,
-                isPublic: true,
                 updatedAt: now,
             };
 
             // Optional fields
             if (body.coverImage) postData.coverImage = body.coverImage;
             if (body.assetId) postData.assetId = body.assetId;
+            if (body.isPublic !== undefined) postData.isPublic = Boolean(body.isPublic);
 
             if (isUpdate && body.postId) {
                 await db.collection("community_posts").doc(body.postId).update(postData);
@@ -212,6 +212,7 @@ export const publishPost = onRequest(
                 });
             } else {
                 // New post fields
+                postData.isPublic = body.isPublic !== undefined ? Boolean(body.isPublic) : true;
                 postData.metrics = { likes: 0, comments: 0, views: 0 };
                 postData.source = "api";
                 postData.createdAt = now;

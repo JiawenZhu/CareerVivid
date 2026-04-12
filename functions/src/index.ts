@@ -54,9 +54,14 @@ export { manageApiKey } from "./manageApiKey";
 export { publishPost } from "./publishPost";
 export { verifyAuth } from "./verifyAuth";
 export { initPortfolio, updatePortfolioProjects, updatePortfolioHero, uploadPortfolioAsset, onPortfolioProjectsUpdated } from "./portfolioApi";
+export { editPortfolio } from "./editPortfolio";
+export { generateResumeCSS } from "./generateResumeCSS";
 
 // Career-Ops AI Pipeline
 export { evaluateJob, generateLinkedInOutreach, generateDeepResearch, saveCareerProfile } from "./careerOps";
+
+// Auto-Apply: AI answer generation for Chrome Extension
+export { generateApplyAnswers } from "./generateApplyAnswers";
 
 // CLI Job Hunt API
 export { cliJobsHunt, cliJobsCreate, cliJobsUpdate, cliJobsList, cliResumeGet, cliResumesList, cliResumeCreate, cliResumeUpdate, cliResumeDelete } from "./cliJobs";

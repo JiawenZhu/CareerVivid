@@ -2,17 +2,18 @@ import React from 'react';
 import { PortfolioTemplateProps } from '../types/portfolio';
 import { ExternalLink, Github, FileText, Sun, Moon } from 'lucide-react';
 import InlineEdit from '../../../components/InlineEdit';
+import { getAvatarSizeClasses, getAvatarShapeClasses, getAvatarPositionClasses } from '../utils/avatar';
 
 import { usePortfolioAdminAccess } from '../hooks/usePortfolioAdminAccess';
 
 const MinimalTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpdate, isMobileView }) => {
     const { hero, projects, timeline, about, techStack, attachedResumeId, theme } = data;
 
-    // Admin Access Hook (Attach to Headline since no Avatar)
+    // Admin Access Hook — target avatar if set, else headline
     const { longPressProps, AdminAccessModal } = usePortfolioAdminAccess({
         data,
         onEdit,
-        editField: 'hero.headline'
+        editField: hero.avatarUrl ? 'hero.avatarUrl' : 'hero.headline'
     });
 
     const responsiveClass = (base: string, desktop: string) => {
@@ -40,9 +41,20 @@ const MinimalTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
         >
             {/* Hero */}
             <header className="mb-20">
+                {/* Avatar */}
+                {hero.avatarUrl && (
+                    <img
+                        src={hero.avatarUrl}
+                        alt="Profile"
+                        onClick={() => onEdit?.('hero.avatarUrl')}
+                        {...(!onEdit ? longPressProps : {})}
+                        className={`${getAvatarSizeClasses(hero.avatarSize)} ${getAvatarShapeClasses(hero.avatarShape)} ${getAvatarPositionClasses(hero.avatarPosition)} block object-cover mb-6 cursor-pointer ring-2 ring-gray-200 hover:ring-black transition-all`}
+                        title="Click to edit avatar"
+                    />
+                )}
                 <p className="text-sm opacity-60 mb-4">Hello, I am</p>
                 <h1
-                    {...(onEdit ? { onClick: () => onEdit('hero.headline') } : longPressProps)}
+                    {...(onEdit ? { onClick: () => onEdit('hero.headline') } : (hero.avatarUrl ? {} : longPressProps))}
                     className={`${responsiveClass('text-5xl', 'md:text-6xl')} font-bold tracking-tighter mb-4 cursor-pointer hover:underline decoration-2 underline-offset-4`}
                     title="Click to edit headline"
                 >

@@ -10,6 +10,7 @@ import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { usePortfolioAdminAccess } from '../../hooks/usePortfolioAdminAccess';
+import { getAvatarSizeClasses, getAvatarShapeClasses } from '../../utils/avatar';
 
 /**
  * LinkTreeCorporate - Professional, formal design for link-in-bio
@@ -161,7 +162,7 @@ const LinkTreeCorporate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                     <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
                         {/* Avatar */}
                         <div
-                            className={`flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg transition-shadow ${onEdit ? 'cursor-pointer hover:shadow-xl hover:ring-4 hover:ring-blue-500/30' : ''}`}
+                            className={`flex-shrink-0 ${getAvatarSizeClasses(data.hero?.avatarSize)} ${getAvatarShapeClasses(data.hero?.avatarShape)} overflow-hidden bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg transition-shadow ${onEdit ? 'cursor-pointer hover:shadow-xl hover:ring-4 hover:ring-blue-500/30' : ''}`}
                             {...(onEdit ? { onClick: () => onEdit('hero.avatarUrl') } : longPressProps)}
                         >
                             {profileImage ? (

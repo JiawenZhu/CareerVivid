@@ -106,12 +106,19 @@ const ResumePreview: React.FC<ResumePreviewProps> = React.memo(({ resume, templa
     '--page-margin': `${fmt.pageMargin}rem`,
   } as React.CSSProperties;
 
+  const previewId = `resume-preview-${resume.id || 'default'}`;
+
   return (
     <div
+      id={previewId}
       className="w-full min-h-[297mm] max-w-full bg-white shadow-lg relative"
       ref={previewRef}
       style={formattingStyles}
     >
+      {/* Scoped custom CSS injection — AI Code Customizer writes here */}
+      {resume.customCss && (
+        <style>{`#${previewId} { ${resume.customCss} }`}</style>
+      )}
       {renderTemplate()}
     </div>
   );

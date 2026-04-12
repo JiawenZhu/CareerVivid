@@ -3,15 +3,16 @@ import { PortfolioTemplateProps } from '../types/portfolio';
 import { Layers, ChevronRight, Zap, Box, TrendingUp, CheckCircle, Smartphone, Globe, Code } from 'lucide-react';
 import InlineEdit from '../../../components/InlineEdit';
 import { usePortfolioAdminAccess } from '../hooks/usePortfolioAdminAccess';
+import { getAvatarSizeClasses, getAvatarShapeClasses, getAvatarWrapperAlignment } from '../utils/avatar';
 
 const SaaSModern: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileView }) => {
     const { hero, projects, timeline, about, techStack } = data;
 
-    // Admin Access Hook (No Avatar, create trigger on Headline)
+    // Admin Access Hook — target avatar if set, else headline
     const { longPressProps, AdminAccessModal } = usePortfolioAdminAccess({
         data,
         onEdit,
-        editField: 'hero.headline'
+        editField: hero.avatarUrl ? 'hero.avatarUrl' : 'hero.headline'
     });
 
     // Helper to force mobile styles when in mobile view
@@ -51,6 +52,19 @@ const SaaSModern: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileVi
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-100 via-slate-50 to-slate-50 -z-10" />
 
                 <div className="max-w-4xl mx-auto text-center relative z-10">
+                    {/* Avatar */}
+                    {hero.avatarUrl && (
+                        <div className={`flex ${getAvatarWrapperAlignment(hero.avatarPosition)} mb-8`}>
+                            <img
+                                src={hero.avatarUrl}
+                                alt="Profile"
+                                onClick={() => onEdit?.('hero.avatarUrl')}
+                                {...(!onEdit ? longPressProps : {})}
+                                className={`${getAvatarSizeClasses(hero.avatarSize)} ${getAvatarShapeClasses(hero.avatarShape)} object-cover cursor-pointer ring-4 ring-white shadow-xl hover:shadow-2xl transition-all hover:scale-105`}
+                                title="Click to edit avatar"
+                            />
+                        </div>
+                    )}
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-indigo-100 text-indigo-600 text-xs font-bold uppercase tracking-wide mb-8 shadow-sm">
                         <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
                         Available for new opportunities

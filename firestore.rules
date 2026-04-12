@@ -74,6 +74,11 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    match /admin_audit_logs/{logId} {
+      allow create, read: if isAdmin();
+    }
+
+
     // ---------------------------------------------------------
     // 🎟️ REFERRAL CODES (Root Collection)
     // ---------------------------------------------------------

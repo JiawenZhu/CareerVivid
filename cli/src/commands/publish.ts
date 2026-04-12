@@ -70,6 +70,8 @@ export interface PublishOptions {
     json?: boolean;
     recursive?: boolean;
     onlyUpdate?: boolean;
+    public?: boolean;
+    private?: boolean;
 }
 
 export async function publishSingleFile(
@@ -175,6 +177,7 @@ export async function publishSingleFile(
         tags: finalTags,
         ...(opts.cover ? { coverImage: opts.cover } : {}),
         ...(opts.official ? { isOfficialPost: true } : {}),
+        ...(typeof opts.public !== "undefined" ? { isPublic: opts.public } : opts.private ? { isPublic: false } : {}),
     };
 
     let result;
@@ -263,6 +266,8 @@ export function registerPublishCommand(program: Command): void {
         .option("--tags <tags>", "Comma-separated tags (max 5)")
         .option("--cover <url>", "URL to a cover image")
         .option("--official", "Publish as CareerVivid Community (admin only)")
+        .option("--public", "Publish as public (default requires admin)", true)
+        .option("--private", "Publish as private")
         .option("-r, --recursive", "Recursively scan directories")
         .option("--dry-run", "Validate without publishing")
         .option("--json", "Machine-readable JSON output")

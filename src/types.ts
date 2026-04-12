@@ -116,6 +116,7 @@ export interface ResumeData {
   customIcons?: CustomIcons; // New field for custom icons
   shareConfig?: ShareConfig; // New field for sharing settings
   formattingSettings?: FormattingSettings; // Advanced formatting controls
+  customCss?: string; // AI Code Customizer: scoped CSS overrides for resume preview
 }
 
 export type TemplateId = string;

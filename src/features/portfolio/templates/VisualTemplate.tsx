@@ -3,6 +3,7 @@ import { PortfolioTemplateProps } from '../types/portfolio';
 import { ArrowRight, Sun, Moon, Plus, Trash2 } from 'lucide-react';
 import InlineEdit from '../../../components/InlineEdit';
 import { usePortfolioAdminAccess } from '../hooks/usePortfolioAdminAccess';
+import { getAvatarSizeClasses, getAvatarShapeClasses, getAvatarPositionClasses } from '../utils/avatar';
 
 const VisualTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpdate, isMobileView }) => {
     const { hero, projects, about, theme } = data;
@@ -65,9 +66,21 @@ const VisualTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpda
                     </button>
                 )}
 
+                {/* Avatar */}
+                {hero.avatarUrl && (
+                    <img
+                        src={hero.avatarUrl}
+                        alt="Profile"
+                        onClick={() => onEdit?.('hero.avatarUrl')}
+                        {...(!onEdit ? longPressProps : {})}
+                        className={`${getAvatarSizeClasses(hero.avatarSize)} ${getAvatarShapeClasses(hero.avatarShape)} ${getAvatarPositionClasses(hero.avatarPosition)} block object-cover mb-8 cursor-pointer transition-transform hover:scale-105`}
+                        style={{ boxShadow: `0 0 0 3px ${primaryColor}40, 0 0 0 6px ${primaryColor}20` }}
+                        title="Click to edit avatar"
+                    />
+                )}
                 <h1
                     className={`${responsiveClass('text-5xl', 'md:text-7xl')} font-black tracking-tight mb-6 leading-none block cursor-pointer`}
-                    {...(onEdit ? { onClick: () => onEdit('hero.headline') } : longPressProps)}
+                    {...(onEdit ? { onClick: () => onEdit('hero.headline') } : (hero.avatarUrl ? {} : longPressProps))}
                 >
                     <span style={gradientStyle}>{hero.headline}</span>
                 </h1>
