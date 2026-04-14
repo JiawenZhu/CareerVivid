@@ -132,7 +132,9 @@
       "nanoid": "^5.0.9"
     },
     "serialize-javascript": "^7.0.4",
-    "jspdf": "4.2.1"
+    "jspdf": "4.2.1",
+    "braces": "3.0.3",
+    "cross-spawn": "7.0.6"
   },
   "engines": {
     "node": ">=20.0.0"
