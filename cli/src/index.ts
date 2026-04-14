@@ -20,6 +20,19 @@
  *   cv --help / cv --version
  */
 
+// ── Node version guard (must be before ESM imports) ─────────────────────────
+// Uses only Node built-ins so it works on ANY Node version.
+const [nodeMajor] = process.versions.node.split(".").map(Number);
+if (nodeMajor < 18) {
+  process.stderr.write(
+    `\n⚠️  CareerVivid CLI requires Node.js v18 or higher.\n` +
+    `   You are running Node ${process.versions.node}.\n\n` +
+    `   Upgrade at: https://nodejs.org  (download the LTS release)\n` +
+    `   or:  nvm install --lts && nvm use --lts\n\n`
+  );
+  process.exit(1);
+}
+
 import { Command } from "commander";
 import { readFileSync, existsSync } from "fs";
 import chalk from "chalk";

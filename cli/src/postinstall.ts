@@ -2,7 +2,7 @@
  * CareerVivid CLI — Post-install hook
  *
  * This script runs after 'npm install -g careervivid'.
- * It prints a beautiful welcome/onboarding message to the user.
+ * It checks Node version compatibility and prints a welcome message.
  */
 
 import chalk from "chalk";
@@ -10,8 +10,34 @@ import boxen from "boxen";
 import { getHelpHeader } from "./branding.js";
 
 const VERSION = "1.1.14";
+const MIN_NODE_MAJOR = 18;
+
+function checkNodeVersion() {
+  const [major] = process.versions.node.split(".").map(Number);
+  if (major < MIN_NODE_MAJOR) {
+    console.error(
+      boxen(
+        `${chalk.bold.red("⚠️  Node.js version too old")}\n\n` +
+        `You have Node ${chalk.bold(process.versions.node)}, but CareerVivid CLI requires ${chalk.bold(`v${MIN_NODE_MAJOR}+`)}\n\n` +
+        `${chalk.bold("To upgrade Node.js:")}\n` +
+        `  ${chalk.cyan("https://nodejs.org")}  (download the LTS release)\n` +
+        `  ${chalk.dim("or")}  ${chalk.cyan("nvm install --lts && nvm use --lts")}\n\n` +
+        `${chalk.dim("The CLI may not work correctly until you upgrade.")}`,
+        {
+          padding: 1,
+          borderStyle: "round",
+          borderColor: "red",
+          title: "Version Warning",
+          titleAlignment: "center",
+        }
+      )
+    );
+    // Don't exit — let them at least see the welcome message
+  }
+}
 
 export function printPostInstall() {
+    checkNodeVersion();
     console.log();
     console.log(getHelpHeader());
 

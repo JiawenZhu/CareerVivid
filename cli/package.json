@@ -1,6 +1,6 @@
 {
   "name": "careervivid",
-  "version": "1.12.23",
+  "version": "1.12.24",
   "description": "Official CLI for CareerVivid — publish articles, diagrams, and portfolio updates from your terminal or AI agent",
   "type": "module",
   "bin": {
@@ -43,7 +43,7 @@
     "typescript": "^5.4.0"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=18.0.0"
   },
   "overrides": {
     "braces": "3.0.3",
