@@ -5,7 +5,7 @@ import { isSafeCommand } from "../../agent/tools/coding.js";
 import { CareerVividProxyEngine } from "../../agent/CareerVividProxyEngine.js";
 import { QueryEngine } from "../../agent/QueryEngine.js";
 import { CV_MODELS } from "./configurator.js";
-import { loadConfig, getGeminiKey, getProviderKey, type LLMProvider } from "../../config.js";
+import { loadConfig, getGeminiKey, getProviderKey, setProviderKey, type LLMProvider } from "../../config.js";
 
 const { prompt } = pkg;
 
@@ -480,11 +480,72 @@ ${label}
 
       return ask();
     } catch (err: any) {
-      if (err.message && err.message.includes("cancelled")) {
+      const msg: string = err?.message ?? "";
+
+      // ── Clean exit on Ctrl+C / enquirer cancel ────────────────────────
+      if (!msg || msg.includes("cancelled") || msg.includes("User force closed")) {
         console.log(chalk.gray("\nCancelled. Exiting.\n"));
         process.exit(0);
       }
-      console.error(chalk.red(`\nAgent encountered an error: ${err.message}`));
+
+      // ── 401 unauthorized — offer key reset ───────────────────────────
+      const is401 = msg.includes("401") || msg.toLowerCase().includes("user not found") ||
+                    msg.toLowerCase().includes("invalid api key") || msg.toLowerCase().includes("unauthorized");
+      if (is401 && selectedProvider && selectedProvider !== "careervivid") {
+        const providerLabels: Record<string, string> = {
+          openai: "OpenAI", anthropic: "Anthropic",
+          gemini: "Gemini", openrouter: "OpenRouter", custom: "Custom",
+        };
+        const providerKeyUrls: Record<string, string> = {
+          openai: "https://platform.openai.com/api-keys",
+          anthropic: "https://console.anthropic.com/settings/keys",
+          gemini: "https://aistudio.google.com/app/apikey",
+          openrouter: "https://openrouter.ai/settings/keys",
+        };
+        const label = providerLabels[selectedProvider] ?? selectedProvider;
+        console.log();
+        console.log(chalk.red(`❌ API key rejected by ${label} (401 Unauthorized).`));
+        console.log(chalk.dim(`   The saved key may be expired or invalid.`));
+        if (providerKeyUrls[selectedProvider]) {
+          console.log(chalk.dim(`   Get a new key at: `) + chalk.cyan(providerKeyUrls[selectedProvider]));
+        }
+        console.log();
+        try {
+          const resetAnswer = await prompt<{ action: string }>({
+            type: "select",
+            name: "action",
+            message: "What would you like to do?",
+            choices: [
+              { name: "reset",    message: `🔑 Enter a new ${label} API key` },
+              { name: "continue", message: "⏭️  Continue anyway (will keep failing)" },
+              { name: "exit",     message: "🚪 Exit the agent" },
+            ],
+          });
+          if (resetAnswer.action === "reset") {
+            const keyAnswer = await prompt<{ key: string }>({
+              type: "password",
+              name: "key",
+              message: `Enter your new ${label} API key:`,
+            });
+            const newKey = (keyAnswer?.key ?? "").trim();
+            if (newKey) {
+              setProviderKey(selectedProvider as LLMProvider, newKey);
+              // Update the key used for subsequent turns this session
+              options["api-key"] = newKey;
+              console.log(chalk.green(`\n✔ New ${label} key saved. Resuming session...\n`));
+            }
+          } else if (resetAnswer.action === "exit") {
+            console.log(chalk.gray("\nGoodbye! 👋\n"));
+            process.exit(0);
+          }
+        } catch {
+          // User cancelled the reset prompt — just continue
+        }
+        return ask();
+      }
+
+      // ── Generic error ────────────────────────────────────────────────
+      console.error(chalk.red(`\nAgent encountered an error: ${msg}`));
       return ask();
     }
   };
