@@ -64,7 +64,7 @@ export { evaluateJob, generateLinkedInOutreach, generateDeepResearch, saveCareer
 export { generateApplyAnswers } from "./generateApplyAnswers";
 
 // CLI Job Hunt API
-export { cliJobsHunt, cliJobsCreate, cliJobsUpdate, cliJobsList, cliResumeGet, cliResumesList, cliResumeCreate, cliResumeUpdate, cliResumeDelete } from "./cliJobs";
+export { cliJobsHunt, cliJobsCreate, cliJobsUpdate, cliJobsList, cliResumeGet, cliResumesList, cliResumeCreate, cliResumeUpdate, cliResumeDelete, cliCoverLetterCreate, cliCoverLettersList } from "./cliJobs";
 
 // CLI Agent Credits
 export { agentDeductCredits } from "./agentCredits";

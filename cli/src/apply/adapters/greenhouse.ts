@@ -11,7 +11,7 @@
  *  3. fillField() — fills a single field by selector (used by Gemini agent actions).
  */
 
-import type { Page } from "playwright";
+import type { Page } from "playwright-core";
 import type { ATSAdapter, FormField } from "../index.js";
 import type { ApplyProfile } from "../gemini-agent.js";
 import { humanDelay } from "../browser.js";

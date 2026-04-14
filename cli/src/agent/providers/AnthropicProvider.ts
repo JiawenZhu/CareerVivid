@@ -29,14 +29,39 @@ export class AnthropicProvider implements LLMProvider {
     this.apiKey = options.apiKey;
   }
 
+  // ── Convert Gemini @google/genai Type enum values to JSON Schema ──────────
+  private geminiSchemaToJsonSchema(schema: any): any {
+    if (!schema || typeof schema !== "object") return schema;
+    const TYPE_MAP: Record<string, string> = {
+      OBJECT: "object", STRING: "string", NUMBER: "number",
+      INTEGER: "integer", BOOLEAN: "boolean", ARRAY: "array",
+      object: "object", string: "string", number: "number",
+      integer: "integer", boolean: "boolean", array: "array",
+    };
+    const result: any = {};
+    if (schema.type) result.type = TYPE_MAP[schema.type] ?? schema.type.toLowerCase();
+    if (schema.description) result.description = schema.description;
+    if (schema.enum) result.enum = schema.enum;
+    if (schema.required) result.required = schema.required;
+    if (schema.properties && typeof schema.properties === "object") {
+      result.properties = {};
+      for (const [key, val] of Object.entries(schema.properties)) {
+        result.properties[key] = this.geminiSchemaToJsonSchema(val);
+      }
+    }
+    if (schema.items) result.items = this.geminiSchemaToJsonSchema(schema.items);
+    return result;
+  }
+
   // ── Convert our Tool[] to Anthropic tool definitions ─────────────────────
   private toAnthropicTools(tools: LLMRequest["tools"]): any[] {
     return tools.map((t) => ({
       name: t.name,
       description: t.description,
-      input_schema: t.parameters as Record<string, any>,
+      input_schema: this.geminiSchemaToJsonSchema(t.parameters),
     }));
   }
+
 
   // ── Convert Gemini Content[] to Anthropic messages[] ─────────────────────
   private toAnthropicMessages(

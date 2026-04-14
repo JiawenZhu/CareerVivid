@@ -16,6 +16,7 @@ export function registerAgentCommand(program: Command) {
     .option("--coding", "Enable full coding tool suite (file I/O, shell, search).")
     .option("--resume", "Add resume tools — load and discuss your CareerVivid resume.")
     .option("--jobs", "Add job-hunting tools — search jobs, save to tracker, update statuses.")
+    .option("--flash", "Use gemini-3-flash-preview — latest flash model (fast, 1 credit/turn).")
     .option("--pro", "Use gemini-3.1-pro-preview with thinking mode (recommended for complex tasks).")
     .option(
       "--think <budget>",
@@ -50,6 +51,7 @@ export function registerAgentCommand(program: Command) {
       const tools = getTools(options);
 
       const isPro = Boolean(options.pro);
+      const isFlash = Boolean(options.flash);
       const llmCfg = getLlmConfig({
         provider: options.provider as LLMProvider | undefined,
         model: options.model,
@@ -65,15 +67,18 @@ export function registerAgentCommand(program: Command) {
         selectedModel = "gemini-3.1-pro-preview";
         thinkingBudget = options.think ?? 8192;
         selectedProvider = "careervivid";
-      } else if (options.provider && options.provider !== "careervivid") {
-        selectedProvider = llmCfg.provider;
-        selectedModel = llmCfg.model;
+      } else if (isFlash) {
+        selectedModel = "gemini-3-flash-preview";
         thinkingBudget = 0;
-      } else if (llmCfg.provider !== "careervivid") {
+        selectedProvider = "careervivid";
+      } else if (options.provider && options.provider !== "careervivid") {
+        // User explicitly passed --provider on the CLI — use it directly, no picker
         selectedProvider = llmCfg.provider;
         selectedModel = llmCfg.model;
         thinkingBudget = 0;
       } else {
+        // Always show the picker. Saved config pre-fills BYO model inputs but does
+        // not bypass the prompt. This lets the user choose per-session.
         const result = await promptForAgentModel(options);
         selectedProvider = result.selectedProvider;
         selectedModel = result.selectedModel;

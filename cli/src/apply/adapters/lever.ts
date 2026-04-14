@@ -5,7 +5,7 @@
  * Lever has a clean, consistent form structure.
  */
 
-import type { Page } from "playwright";
+import type { Page } from "playwright-core";
 import type { ATSAdapter, FormField } from "../index.js";
 import { humanType, humanDelay } from "../browser.js";
 

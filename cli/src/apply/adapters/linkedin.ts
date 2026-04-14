@@ -8,7 +8,7 @@
  * Use sparingly (max 10-15 applications/day) for roles with score ≥ 80%.
  */
 
-import type { Page } from "playwright";
+import type { Page } from "playwright-core";
 import type { ATSAdapter, FormField } from "../index.js";
 import { humanType, humanDelay } from "../browser.js";
 

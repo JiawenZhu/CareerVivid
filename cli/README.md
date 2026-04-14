@@ -1,6 +1,6 @@
 # careervivid · CLI
 
-> **Your AI-powered career terminal — publish articles, run autonomous job-hunting agents, and build your portfolio from the command line.**
+> **Your AI-powered career terminal — autonomous job applications, resume editing, job pipeline tracking, and portfolio publishing from the command line.**
 
 [![npm version](https://img.shields.io/npm/v/careervivid?color=0ea5e9&label=careervivid)](https://www.npmjs.com/package/careervivid)
 [![License: MIT](https://img.shields.io/badge/license-MIT-brightgreen)](LICENSE)
@@ -12,17 +12,19 @@
 
 - [Quick Start](#quick-start)
 - [Commands](#commands)
-  - [cv agent](#cv-agent) ⭐ **New**
-  - [cv publish](#cv-publish)
+  - [cv agent](#cv-agent) ⭐ **AI Agent**
+  - [cv agent --jobs](#cv-agent---jobs) 🤖 **Autonomous Job Applications**
+  - [cv agent --resume](#cv-agent---resume) 📄 **Resume CRUD**
   - [cv jobs](#cv-jobs)
+  - [cv publish](#cv-publish)
   - [cv whiteboard](#cv-whiteboard)
-  - [cv workspace](#cv-workspace)
   - [cv profile](#cv-profile)
   - [cv auth](#cv-auth)
   - [cv login](#cv-login)
   - [cv config](#cv-config)
 - [AI Credits](#ai-credits)
 - [Bring Your Own API Key (BYO)](#bring-your-own-api-key-byo)
+- [browser-use Setup (Autonomous Apply)](#browser-use-setup-autonomous-apply)
 - [Whiteboard Templates](#whiteboard-templates)
 - [AI Agent Integration (MCP / CI)](#ai-agent-integration-mcp--ci)
 - [Updating](#updating)
@@ -42,11 +44,11 @@ cv login
 # → copy your API key, then:
 cv auth set-key cv_live_YOUR_KEY_HERE
 
-# 3. Start the AI agent (uses your free AI credits)
+# 3. Start the AI agent
 cv agent
 
-# 4. Or publish an article
-cv publish my-article.md --tags "typescript,react"
+# 4. Or jump straight into job-hunting mode
+cv agent --jobs
 ```
 
 > **Free tier includes 100 AI credits/month** — no credit card required.
@@ -59,49 +61,30 @@ cv publish my-article.md --tags "typescript,react"
 
 ### `cv agent`
 
-An **autonomous AI agent** that runs interactively in your terminal. Powered by Gemini models via the CareerVivid platform — credits deducted from your account automatically.
+An **autonomous AI agent** that runs interactively in your terminal. Choose from CareerVivid Cloud (credits deducted from your account) or Bring Your Own API Key.
 
 ```bash
 cv agent                  # General-purpose agent (Gemini Flash Lite)
-cv agent --resume         # Load & discuss your CareerVivid resume
-cv agent --jobs           # Job-hunting mode: search, save, update applications
+cv agent --resume         # Resume CRUD mode: read, update fields, tailor
+cv agent --jobs           # Job-hunting mode: search, apply, track pipeline
 cv agent --coding         # Full coding toolkit: file I/O, shell execution, search
-cv agent --pro            # Gemini Pro with extended thinking (best for complex tasks)
+cv agent --pro            # Gemini Pro with extended thinking
 ```
 
 **Options:**
 
 | Option | Description |
 |---|---|
-| `--resume` | Add resume tools — load and discuss your CareerVivid resume |
-| `--jobs` | Add job-hunting tools — search jobs, save to tracker, update statuses |
+| `--resume` | Resume CRUD tools — read, set fields, tailor for a job, delete |
+| `--jobs` | Job hunting + autonomous apply tools |
 | `--coding` | Enable full coding tool suite (file read/write, shell, search) |
 | `--pro` | Use `gemini-3.1-pro-preview` with thinking mode |
 | `--think <budget>` | Enable thinking mode with a specific token budget (e.g. `8192`) |
-| `--verbose` | Show thinking tokens in output (requires `--think` or `--pro`) |
+| `--verbose` | Show thinking tokens in output |
 | `--provider <name>` | Override provider: `careervivid` \| `openai` \| `anthropic` \| `openrouter` \| `gemini` \| `custom` |
 | `--model <model>` | Override model (e.g. `gpt-4o`, `claude-opus-4-5`) |
 | `--api-key <key>` | BYO API key for this session (not saved) |
 | `--base-url <url>` | Custom OpenAI-compatible base URL |
-
-**Examples:**
-
-```bash
-# Start a job search conversation
-cv agent --jobs
-
-# Analyze your resume with AI
-cv agent --resume
-
-# Use your own OpenAI key (no credits deducted)
-cv agent --provider openai --model gpt-4o --api-key sk-...
-
-# Use Anthropic Claude
-cv agent --provider anthropic --model claude-opus-4-5 --api-key sk-ant-...
-
-# Pro mode for complex analysis
-cv agent --pro --resume --jobs
-```
 
 **Configure your default provider:**
 
@@ -112,13 +95,129 @@ cv agent config
 
 ---
 
-### `cv publish`
+### `cv agent --jobs`
 
-Publish a Markdown article or Mermaid diagram file to your CareerVivid portfolio.
+The most powerful mode. A conversational agent that thinks like a senior recruiter, manages your pipeline, and can **autonomously fill out job applications** using [browser-use](https://github.com/browser-use/browser-use).
+
+```bash
+cv agent --jobs
+```
+
+**What it can do in a conversation:**
+
+| You say... | Agent action |
+|---|---|
+| `"Find me ML engineering jobs"` | `search_jobs` → scores results vs. resume → `verify_search_results` to confirm all URLs work |
+| `"Apply to this job: <URL>"` | `apply_to_job` → launches browser → fills form → stops before Submit for your review |
+| `"What's in my pipeline?"` | `list_local_jobs` → shows Kanban board |
+| `"What should I work on next?"` | `score_pipeline` → priority-ranked by attention × excitement × fit |
+| `"I got an interview at Stripe"` | `update_local_job` → sets status to Interviewing, suggests follow-up |
+| `"What am I neglecting?"` | `flag_stale_jobs` → surfaces cold applications |
+| `"Show me my analytics"` | `get_pipeline_metrics` → apply rate, avg score, salary data |
+
+**Autonomous Apply Harness** (`apply_to_job` tool):
+
+The agent uses a multi-stage harness to fill job applications:
+
+1. **URL Verification** — Every job link is verified live before the agent acts. Broken, hallucinated, or redirect-to-homepage URLs are rejected automatically.
+2. **ATS Detection** — Automatically detects Ashby, Greenhouse, Lever, Workday, iCIMS, and more.
+3. **TypeScript Adapter** — Fast-fills known fields (firstName, email, phone, LinkedIn, GitHub) using pre-loaded profile data.
+4. **browser-use AI handoff** — For complex fields (cover letter, work auth, custom questions), the browser-use agent takes over with a rich task prompt built from your resume.
+5. **Manual review gate** — The browser stays open. The agent **never** clicks Submit — you review and submit yourself.
+
+> **Requires browser-use setup** — see [browser-use Setup](#browser-use-setup-autonomous-apply).
+
+**Pipeline tracking (local CSV):**
+
+The jobs agent also manages a local `jobs.csv` pipeline (v2 schema) with 8 attention metrics:
+
+| Field | Description |
+|---|---|
+| `attention_score` (1–10) | How top-of-mind is this company? |
+| `excitement` (1–10) | Pure enthusiasm for the role |
+| `apply_effort` | Low / Medium / High |
+| `prep_time_hours` | Estimated research hours |
+| `company_stage` | Seed / Series A-C / Public / Enterprise |
+| `open_roles_count` | How many roles are currently open |
+| `interview_rounds` | Known number of interview rounds |
+| `last_activity_date` | Auto-stamped on every update |
+
+**Priority Score = 40% attention + 30% excitement + 20% fit + 10% recency**
+
+---
+
+### `cv agent --resume`
+
+Full CRUD control over your CareerVivid resume from the terminal.
+
+```bash
+cv agent --resume
+```
+
+**Available tools:**
+
+| Tool | What you can say |
+|---|---|
+| `get_resume` | `"Show me my resume"` / `"Load my resume"` |
+| `list_resumes` | `"What resumes do I have?"` |
+| `set_resume_fields` | `"Set my last name to Zhu"` / `"Update my phone to +1-408-599-4164"` |
+| `tailor_resume` | `"Tailor my resume for this job description: ..."` |
+| `delete_resume` | `"Delete the old untitled resume"` |
+
+**Supported fields for `set_resume_fields`:**
 
 ```
+firstName, lastName, email, phone
+address, city, state, country, postalCode
+jobTitle, currentCompany
+linkedin, github, portfolio
+summary (professional summary)
+addSkill / removeSkill
+resumeTitle (document name)
+```
+
+**Example conversation:**
+
+```
+You:   Set my last name to Zhu and my phone to +1-408-599-4164
+Agent: ✅ Resume updated — review at https://careervivid.app/edit/...
+
+You:   Add Python and TypeScript to my skills
+Agent: ✅ Skills updated
+
+You:   Tailor my resume for this job description: [paste JD]
+Agent: ✅ Tailored copy created — https://careervivid.app/edit/...
+```
+
+---
+
+### `cv jobs`
+
+Non-interactive job commands (use `cv agent --jobs` for a conversational experience).
+
+| Subcommand | Description |
+|---|---|
+| `cv jobs hunt` | AI-powered job search scored against your resume → auto-saves to tracker |
+| `cv jobs apply <url>` | Autonomous apply harness for a specific URL |
+| `cv jobs update` | Interactively update a job application status |
+| `cv jobs list` | View your current job tracker board |
+
+```bash
+cv jobs hunt --role "Software Engineer" --score 60
+cv jobs apply https://jobs.ashbyhq.com/openai/...
+cv jobs list
+cv jobs update
+```
+
+---
+
+### `cv publish`
+
+Publish a Markdown article or Mermaid diagram to your CareerVivid portfolio.
+
+```bash
 cv publish <file> [options]
-cv publish -       (read from stdin)
+cv publish -       # read from stdin
 ```
 
 | Option | Description |
@@ -128,34 +227,19 @@ cv publish -       (read from stdin)
 | `--format <format>` | `markdown` \| `mermaid` (auto-inferred from file extension) |
 | `--tags <tags>` | Comma-separated tags, e.g. `typescript,firebase,react` |
 | `--cover <url>` | URL to a cover image |
+| `--public` | Publish as public (visible to all users) |
+| `--private` | Publish as private (only visible to you — **this is the default**) |
 | `--dry-run` | Validate payload without publishing |
-| `--json` | Machine-readable JSON output (ideal for AI agents) |
+| `--json` | Machine-readable JSON output |
+
+> **Privacy default:** All articles published via `cv publish` or `cv agent` are **private by default**. Use `--public` to make them visible to the community.
 
 ```bash
 cv publish article.md --title "How I Built a CLI" --tags "node,typescript"
+cv publish article.md --public               # share with community
 cv publish architecture.mmd --title "System Architecture"
 cat writeup.md | cv publish - --title "Architecture Breakdown" --json
 ```
-
----
-
-### `cv jobs`
-
-Automate your job application tracking with AI.
-
-| Subcommand | Description |
-|---|---|
-| `cv jobs hunt` | AI-powered job search scored against your resume → auto-saves to job tracker |
-| `cv jobs update` | Interactively update a job application status on your Kanban board |
-| `cv jobs list` | View your current job tracker board |
-
-```bash
-cv jobs hunt --role "Software Engineer" --score 60
-cv jobs list
-cv jobs update
-```
-
-> **Tip:** Use `cv agent --jobs` for a conversational job-hunting experience instead.
 
 ---
 
@@ -169,22 +253,10 @@ Create and publish Mermaid architecture diagrams.
 | `cv whiteboard publish <file>` | Publish a `.mmd` diagram to your portfolio |
 | `cv whiteboard list-templates` | List all available built-in templates |
 
-**Shortcuts:**
-
 ```bash
-cv new my-diagram --template system-arch   # same as cv whiteboard new
-cv list-templates                           # same as cv whiteboard list-templates
+cv new my-diagram --template system-arch
+cv list-templates
 ```
-
----
-
-### `cv workspace` (or `cv gws`)
-
-Manage your Google Workspace integration.
-
-| Subcommand | Description |
-|---|---|
-| `cv workspace check` | Verify GWS CLI installation and OAuth status |
 
 ---
 
@@ -195,10 +267,6 @@ Manage your CareerVivid profile.
 | Subcommand | Description |
 |---|---|
 | `cv profile export` | Export resume data to other formats (e.g. `gdoc`) |
-
-```bash
-cv profile export --format gdoc
-```
 
 ---
 
@@ -213,8 +281,6 @@ Manage your CareerVivid API key. Get your key at [careervivid.app/developer](htt
 | `cv auth remove` | Remove the saved key |
 | `cv auth whoami` | Show the currently authenticated user |
 
-The key is stored at `~/.careervividrc.json` with `chmod 600` permissions. You can also set it via environment variable:
-
 ```bash
 cv auth set-key cv_live_YOUR_KEY_HERE
 cv auth check
@@ -228,7 +294,7 @@ CV_API_KEY=cv_live_YOUR_KEY_HERE cv publish article.md
 
 ### `cv login`
 
-Open the CareerVivid sign-in page in your browser and interactively save your API key.
+Open the CareerVivid sign-in page and interactively save your API key.
 
 ```bash
 cv login
@@ -246,34 +312,27 @@ View and modify CLI configuration stored at `~/.careervividrc.json`.
 | `cv config get <key>` | Print a single config value |
 | `cv config set <key> <value>` | Update a config value |
 
-**Available Keys:**
+**Available keys:**
 
 | Key | Description |
 |---|---|
-| `apiKey` | Your CareerVivid API key (set via `cv auth set-key` or `cv login`) |
-| `apiUrl` | Optional API endpoint override (default: `https://careervivid.app/api`) |
-| `targetCompanies` | Comma-separated target companies for `cv jobs hunt` |
-| `llmProvider` | Your default BYO LLM provider (`openai`, `anthropic`, `openrouter`, etc.) |
-| `llmModel` | Your default BYO model (e.g. `gpt-4o`, `claude-opus-4-5`) |
-| `llmApiKey` | Your BYO LLM API key (masked in output) |
-| `llmBaseUrl` | Custom OpenAI-compatible base URL for `custom` provider |
+| `apiKey` | Your CareerVivid API key |
+| `apiUrl` | Optional API endpoint override |
+| `targetCompanies` | Target companies for `cv jobs hunt` |
+| `llmProvider` | Default BYO LLM provider |
+| `llmModel` | Default BYO model |
+| `llmApiKey` | BYO LLM API key (masked in output) |
+| `llmBaseUrl` | Custom OpenAI-compatible base URL |
 
 ```bash
-cv config show
-cv config get targetCompanies
 cv config set targetCompanies "OpenAI, Google, Vercel"
 cv config set llmProvider openai
 cv config set llmModel gpt-4o
-cv config set llmApiKey sk-...
 ```
-
-> **Security:** API keys are always masked in `cv config show` output. Internal platform credentials are never exposed.
 
 ---
 
 ## AI Credits
-
-CareerVivid uses a simple AI credit system for platform-managed AI features (powered by Gemini).
 
 | Plan | Credits / Month | Price |
 |---|---|---|
@@ -283,46 +342,32 @@ CareerVivid uses a simple AI credit system for platform-managed AI features (pow
 
 **Credit costs per agent turn:**
 
-| Model | Credits per Turn |
+| Model | Credits |
 |---|---|
-| `gemini-3.1-flash-lite-preview` (default) | 0.5 cr |
+| `gemini-3.1-flash-lite-preview` | 0.5 cr |
 | `gemini-2.5-flash` | 1 cr |
 | `gemini-3.1-pro-preview` (`--pro`) | 2 cr |
 
-> **Bring Your Own Key:** If you use `--provider openai` (or any non-CareerVivid provider) with your own API key, **no credits are deducted** — you pay your provider directly.
+> **Bring Your Own Key:** Using `--provider openai` (or any non-CareerVivid provider) deducts **zero credits** — you pay your provider directly.
 
-Get your API key and check your credit balance at [careervivid.app/developer](https://careervivid.app/developer).
+Get your key and check balance at [careervivid.app/developer](https://careervivid.app/developer).
 
 ---
 
 ## Bring Your Own API Key (BYO)
 
-The agent supports any OpenAI-compatible provider. Your key is never stored unless you save it with `cv agent config` or `cv config set llmApiKey`.
-
-**Supported providers:**
-
-| Provider | `--provider` value | Models |
+| Provider | `--provider` | Notes |
 |---|---|---|
-| CareerVivid (default) | `careervivid` | Gemini Flash Lite, Flash, Pro |
-| OpenAI | `openai` | gpt-4o, gpt-4-turbo, gpt-3.5-turbo, … |
+| CareerVivid (default) | `careervivid` | Gemini Flash Lite, Flash, Pro — credits from your account |
+| OpenAI | `openai` | gpt-4o, o3-mini, … |
 | Anthropic | `anthropic` | claude-opus-4-5, claude-sonnet-4-5, … |
 | Google Gemini (direct) | `gemini` | gemini-2.5-flash, gemini-3.1-pro-preview, … |
-| OpenRouter | `openrouter` | Any model on openrouter.ai |
-| Kimi / Moonshot | `custom` | `--base-url https://api.moonshot.cn/v1` |
-| Qwen / Alibaba | `custom` | `--base-url https://dashscope.aliyuncs.com/compatible-mode/v1` |
-| GLM / Zhipu | `custom` | `--base-url https://open.bigmodel.cn/api/paas/v4` |
-| Any OpenAI-compatible | `custom` | `--base-url <your-url>` |
-
-**Examples:**
+| OpenRouter | `openrouter` | 100+ models: Kimi, GLM, Qwen, Mistral, Llama, … |
+| Custom OpenAI-compatible | `custom` | Any endpoint via `--base-url` |
 
 ```bash
-# OpenAI
 cv agent --provider openai --model gpt-4o --api-key sk-...
-
-# Anthropic
 cv agent --provider anthropic --model claude-opus-4-5 --api-key sk-ant-...
-
-# OpenRouter (access 100+ models)
 cv agent --provider openrouter --model mistralai/mistral-7b-instruct --api-key sk-or-...
 
 # Save a provider permanently
@@ -331,9 +376,59 @@ cv agent config
 
 ---
 
+## browser-use Setup (Autonomous Apply)
+
+The `apply_to_job` tool in `cv agent --jobs` and `cv jobs apply` use [browser-use](https://github.com/browser-use/browser-use) — a Python AI browser automation library — to fill job applications.
+
+### Prerequisites
+
+- Python 3.11+ with pip
+- A virtual environment (recommended)
+
+### Setup (one-time)
+
+```bash
+# 1. Create a Python virtual environment
+mkdir -p ~/careervivid/browser-use
+cd ~/careervivid/browser-use
+python3 -m venv .venv
+source .venv/bin/activate
+
+# 2. Install browser-use
+pip install browser-use
+
+# 3. Install Playwright browsers
+playwright install chromium
+
+# 4. Verify
+python -c "import browser_use; print('browser-use ready')"
+```
+
+### How it works
+
+When you run `cv agent --jobs` and ask to apply to a job:
+
+1. The agent calls `apply_to_job` with the job URL
+2. The CLI spawns `src/apply/browser_sidecar.py` (bundled with the npm package)
+3. The sidecar launches a real Chrome browser (non-headless) using your profile
+4. An AI agent fills the form field-by-field using your resume data
+5. The browser **stays open** — you review every field and submit manually
+
+> The agent will **never** click the final Submit button. You remain in full control.
+
+### Resume PDF
+
+Place your resume at `~/.careervivid/resume.pdf` and the sidecar will upload it automatically to resume upload fields.
+
+```bash
+cp ~/Downloads/MyResume.pdf ~/.careervivid/resume.pdf
+```
+
+---
+
 ## Whiteboard Templates
 
-Run `cv list-templates` to see all templates. Available out of the box:
+Run `cv list-templates` to see all available templates:
 
 | Template | Description |
 |---|---|
@@ -346,42 +441,11 @@ Run `cv list-templates` to see all templates. Available out of the box:
 | `ci-cd` | CI/CD pipeline (lint → test → build → deploy) |
 | `mindmap` | Mind map / concept breakdown |
 
-```bash
-cv new my-pipeline --template ci-cd
-code my-pipeline.mmd
-cv whiteboard publish my-pipeline.mmd --title "Our CI/CD Pipeline"
-```
-
 ---
 
 ## AI Agent Integration (MCP / CI)
 
-The CLI is designed to be **AI-agent-friendly**. Use `--json` for structured output.
-
-### System Prompt for Cursor / Claude / Gemini
-
-```
-# CareerVivid CLI Rules
-
-You have access to the `cv` CLI tool. Use it to help the user build their
-CareerVivid portfolio and manage their job search.
-
-## Available commands
-- cv publish <file>               Publish an article or diagram
-- cv agent --resume               Discuss the user's resume
-- cv agent --jobs                 Job hunting conversations
-- cv jobs hunt --role "..."       AI-powered job search
-- cv jobs list                    View job tracker
-
-## Publishing rules
-1. Generate the file locally first.
-2. Tell the user: "I drafted a CareerVivid post. Review and confirm."
-3. Wait for explicit confirmation before running cv publish.
-4. Use --json flag for machine-readable output.
-5. NEVER include real API keys or secrets in published content.
-```
-
-### Automated Pipeline
+Use `--json` for structured output in automated pipelines.
 
 ```bash
 # Pipe AI-generated markdown directly
@@ -389,7 +453,26 @@ echo "# My Architecture\n\nExplains the new service..." \
   | cv publish - --title "New Service Explained" --tags "architecture" --json
 
 # Output:
-# { "postId": "abc123", "url": "https://careervivid.app/community/post/abc123" }
+# [{ "postId": "abc123", "url": "https://careervivid.app/community/post/abc123" }]
+```
+
+**System prompt for Cursor / Claude / Gemini:**
+
+```
+You have access to the `cv` CLI tool.
+
+Available commands:
+- cv publish <file>               Publish an article (private by default, use --public to share)
+- cv agent --resume               Resume CRUD: read, update fields, tailor
+- cv agent --jobs                 Job hunting + autonomous apply
+- cv jobs hunt --role "..."       AI job search
+- cv jobs apply <url>             Autonomous form filling (stops before submit)
+- cv jobs list                    View job tracker
+
+Rules:
+1. Never include real API keys in published content.
+2. Always use --json for machine-readable output.
+3. Articles are PRIVATE by default. Only use --public if user explicitly requests it.
 ```
 
 ---
@@ -398,11 +481,6 @@ echo "# My Architecture\n\nExplains the new service..." \
 
 ```bash
 npm install -g careervivid
-```
-
-Check your current version:
-
-```bash
 cv -v
 ```
 
@@ -422,18 +500,40 @@ cv auth check
 CV_API_KEY=cv_live_YOUR_KEY cv publish article.md
 ```
 
+**`browser_sidecar.py not found`**
+```bash
+# browser-use is not set up. Follow the browser-use Setup section above.
+# Verify your venv path:
+ls ~/careervivid/browser-use/.venv/bin/python
+```
+
+**`aiohttp is not defined` or `ainvoke() takes 2 positional arguments`**
+```bash
+# Update to the latest version (fixed in v1.12.5+)
+npm install -g careervivid@latest
+```
+
+**`❌ No API key found` when using CareerVivid Cloud**
+```bash
+cv auth check          # verify your CV API key is set
+cv agent config        # reconfigure your LLM provider
+```
+
 **`cannot add command 'agent'` error (< v1.12.2)**
 ```bash
 npm install -g careervivid@latest
 ```
 
+**Job URL is broken / agent says it can't confirm the link**
+The agent uses a live URL verification harness. If a link fails verification it will tell you instead of sending you to a broken page. Search for the role directly on the company's careers page or LinkedIn.
+
+**Article shows as public even though I said private**
+Update to v1.12.6+ — articles are now private by default. Use `--public` or tell the agent `"publish publicly"` to share with the community.
+
 **Permission denied on `~/.careervividrc.json`**
 ```bash
 chmod 600 ~/.careervividrc.json
 ```
-
-**Mermaid diagram not rendering**  
-Run `cv new --template flowchart --print` to validate your Mermaid syntax.
 
 ---
 

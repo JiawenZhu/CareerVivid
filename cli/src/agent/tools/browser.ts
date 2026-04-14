@@ -20,7 +20,7 @@
 
 import { Tool } from "../Tool.js";
 import { Type } from "@google/genai";
-import { chromium, type BrowserContext, type Page } from "playwright";
+import { chromium, type BrowserContext, type Page } from "playwright-core";
 import { homedir } from "os";
 import { join, resolve, dirname } from "path";
 import { existsSync, mkdirSync } from "fs";
@@ -81,6 +81,15 @@ async function ensureBrowser(): Promise<{ context: BrowserContext; page: Page }>
     const executablePath = getChromeBinaryPath();
 
     console.log(chalk.dim("  🌐 Launching automation browser..."));
+
+    if (!executablePath) {
+      console.log("");
+      console.log(chalk.red("❌ Error: Missing local browser"));
+      console.log(chalk.dim("The CareerVivid CLI uses playwright-core to launch your existing browser installation to save hundreds of megabytes of setup time."));
+      console.log(chalk.dim("However, Google Chrome or Microsoft Edge could not be found in the standard system locations."));
+      console.log(chalk.yellow("\nPlease install Google Chrome to use AI Browser automation: https://www.google.com/chrome/"));
+      process.exit(1);
+    }
 
     activeContext = await chromium.launchPersistentContext(profileDir, {
       headless: false,
@@ -569,7 +578,11 @@ const BrowserCloseTool: Tool = {
  */
 function getSidecarPath(): string {
   const __dirname = dirname(fileURLToPath(import.meta.url));
-  return resolve(__dirname, "../../apply/browser_sidecar.py");
+  // Compiled path: dist/agent/tools/ → three levels up → project root → src/apply/
+  const fromDist = resolve(__dirname, "../../../src/apply/browser_sidecar.py");
+  // Source path (ts-node): src/agent/tools/ → two levels up → src/apply/
+  const fromSrc  = resolve(__dirname, "../../apply/browser_sidecar.py");
+  return existsSync(fromDist) ? fromDist : fromSrc;
 }
 
 const BrowserUseAgentTool: Tool = {
@@ -606,56 +619,64 @@ Example: "Go to https://jobs.example.com/apply and fill out the application form
   },
   execute: async (args: { task: string; model?: string }) => {
     const { spawn } = await import("child_process");
-    const { loadConfig, getGeminiKey } = await import("../../config.js");
 
-    // ── Locate Python 3.11 ────────────────────────────────────────────────
+    // ── Locate Python — venv first, then system python 3.11 ────────────────────────
     const PYTHON_CANDIDATES = [
+      join(homedir(), "careervivid", "browser-use", ".venv", "bin", "python"),
       "/opt/homebrew/bin/python3.11",
       "/usr/local/bin/python3.11",
       "/usr/bin/python3.11",
     ];
     const pythonBin = PYTHON_CANDIDATES.find(existsSync);
     if (!pythonBin) {
-      return "❌ Python 3.11 not found. Install with: brew install python@3.11";
+      return "\u274c Python 3.11 not found. Install with: brew install python@3.11";
     }
 
-    // ── Locate sidecar script ─────────────────────────────────────────────
+    // ── Locate sidecar script ───────────────────────────────────────────
     const sidecarPath = getSidecarPath();
     if (!existsSync(sidecarPath)) {
       return `❌ browser_sidecar.py not found at: ${sidecarPath}`;
     }
 
-    // ── Get Gemini API key ────────────────────────────────────────────────
+    // ── Resolve LLM config ───────────────────────────────────────────
+    const { loadConfig, getGeminiKey, getLlmConfig } = await import("../../config.js");
     const cfg = loadConfig();
-    const apiKey =
-      cfg.geminiKey ||
-      cfg.llmApiKey ||
-      getGeminiKey() ||
-      process.env.GOOGLE_API_KEY ||
-      process.env.GEMINI_API_KEY ||
-      "";
+    const llmCfg = getLlmConfig();
+    // For the agent tool, default to using the active LLM config from cv agent session
+    const llmConfig = {
+      provider: llmCfg.provider,
+      model:    args.model || llmCfg.model || "gemini-3.1-flash-lite-preview",
+      apiKey:   llmCfg.apiKey || cfg.geminiKey || getGeminiKey() || process.env.GEMINI_API_KEY || "",
+      baseUrl:  llmCfg.baseUrl,
+    };
 
-    if (!apiKey) {
+    if (!llmConfig.apiKey && llmConfig.provider !== "careervivid") {
       return [
-        "❌ No Gemini API key found for browser-use agent.",
-        "   Set one via: cv agent config  → choose 'Gemini (personal key)'",
-        "   Or set env: export GEMINI_API_KEY=AIza...",
+        `\u274c No API key found for provider: ${llmConfig.provider}`,
+        "   Set it via: cv agent config",
       ].join("\n");
     }
 
-    const profileDir = join(homedir(), ".careervivid", "browser-session");
-    const model = args.model || "gemini-3.1-flash-lite-preview";
+    // For CareerVivid Cloud, use the CV API key as the identifier
+    if (llmConfig.provider === "careervivid") {
+      llmConfig.apiKey = cfg.apiKey || process.env.CV_API_KEY || "";
+    }
 
-    // ── Build input payload ───────────────────────────────────────────────
+    const profileDir = join(homedir(), ".careervivid", "browser-session");
+
+    // ── Build input payload (new llm_config format) ────────────────────────
+    const model = llmConfig.model;
     const inputPayload = JSON.stringify({
-      task: args.task,
-      api_key: apiKey,
-      model,
-      profile_dir: profileDir,
+      url:             "", // browser_use_agent sends task_override instead of url+profile
+      llm_config:      llmConfig,
+      resume_pdf_path: "",
+      profile:         {},
+      profile_dir:     profileDir,
+      task_override:   args.task,
     });
 
-    // ── Spawn sidecar ─────────────────────────────────────────────────────
-    console.log(chalk.cyan(`\n🤖 Launching browser-use agent (${model})...\n`));
+    // ── Spawn sidecar ───────────────────────────────────────────
+    console.log(chalk.cyan(`\n\ud83e\udd16 Launching browser-use agent (${model} via ${llmConfig.provider})...\n`));
 
     return new Promise<string>((resolve) => {
       const steps: string[] = [];
@@ -665,8 +686,6 @@ Example: "Go to https://jobs.example.com/apply and fill out the application form
         stdio: ["pipe", "pipe", "pipe"],
         env: {
           ...process.env,
-          GOOGLE_API_KEY: apiKey,
-          GEMINI_API_KEY: apiKey,
           PYTHONUNBUFFERED: "1",
         },
       });

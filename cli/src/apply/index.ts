@@ -17,16 +17,16 @@ export type ATSPlatform =
 export interface ATSAdapter {
   platform: ATSPlatform;
   /** Navigate to the application page (may click "Apply" button) */
-  navigateToForm: (page: import("playwright").Page, jobUrl: string) => Promise<void>;
+  navigateToForm: (page: import("playwright-core").Page, jobUrl: string) => Promise<void>;
   /** Extract form fields from the current page */
-  extractFields: (page: import("playwright").Page) => Promise<FormField[]>;
+  extractFields: (page: import("playwright-core").Page) => Promise<FormField[]>;
   /** Fill a single field given selector + answer */
-  fillField: (page: import("playwright").Page, field: FormField, answer: string) => Promise<void>;
+  fillField: (page: import("playwright-core").Page, field: FormField, answer: string) => Promise<void>;
   /** Click the final submit button */
-  submit: (page: import("playwright").Page) => Promise<void>;
+  submit: (page: import("playwright-core").Page) => Promise<void>;
   /** Optional: fill standard fields directly from saved user profile (no AI needed) */
   fillFromProfile?: (
-    page: import("playwright").Page,
+    page: import("playwright-core").Page,
     profile: import("./gemini-agent.js").ApplyProfile,
   ) => Promise<{ filled: string[]; skipped: string[] }>;
 }
@@ -47,7 +47,7 @@ export function detectPlatform(url: string): ATSPlatform {
   const u = url.toLowerCase();
   if (u.includes("greenhouse.io") || u.includes("boards.greenhouse.io") || /\/jobs\/(listing|posting)\/[^/]+\/\d+/.test(u)) return "greenhouse";
   if (u.includes("lever.co") || u.includes("jobs.lever.co")) return "lever";
-  if (u.includes("ashbyhq.com") || u.includes("jobs.ashbyhq.com")) return "ashby";
+  if (u.includes("ashbyhq.com") || u.includes("jobs.ashbyhq.com") || u.includes("openai.com")) return "ashby";
   if (u.includes("linkedin.com/jobs")) return "linkedin";
   if (u.includes("myworkdayjobs.com") || u.includes("workday.com")) return "workday";
   if (u.includes("icims.com")) return "icims";

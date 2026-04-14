@@ -5,7 +5,7 @@
  * Ashby uses a React SPA with dynamically rendered form fields.
  */
 
-import type { Page } from "playwright";
+import type { Page } from "playwright-core";
 import type { ATSAdapter, FormField } from "../index.js";
 import type { ApplyProfile } from "../gemini-agent.js";
 import { humanType, humanDelay } from "../browser.js";

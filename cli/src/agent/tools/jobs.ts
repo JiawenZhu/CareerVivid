@@ -625,64 +625,71 @@ FILLING RULES:
       return `[DRY RUN] Would launch browser-use with:\n\n${task.substring(0, 600)}...`;
     }
 
-    // ── 4. Resolve Python 3.11 and sidecar path ────────────────────────────
+    // ── 4. Resolve Python and sidecar path ─────────────────────────────────
     const { existsSync } = await import("fs");
     const { spawn }      = await import("child_process");
     const pathMod        = await import("path");
     const { fileURLToPath } = await import("url");
 
     const PYTHON_CANDIDATES = [
+      pathMod.join(pathMod.dirname(fileURLToPath(import.meta.url)), "../../../..", "browser-use", ".venv", "bin", "python"),
+      "/Users/jiawenzhu/careervivid/browser-use/.venv/bin/python",
       "/opt/homebrew/bin/python3.11",
       "/usr/local/bin/python3.11",
       "/usr/bin/python3.11",
     ];
     const pythonBin = PYTHON_CANDIDATES.find(existsSync);
     if (!pythonBin) {
-      return "❌ Python 3.11 not found.\n   Install: brew install python@3.11\n   Then: pip3.11 install browser-use";
+      return "\u274c Python 3.11 not found.\n   Install: brew install python@3.11\n   Then: pip3.11 install browser-use";
     }
 
     const __dirname = pathMod.dirname(fileURLToPath(import.meta.url));
-    const sidecarPath = pathMod.resolve(__dirname, "../../apply/browser_sidecar.py");
+    // dist/agent/tools/ → ../../../ → project root → src/apply/
+    const sidecarFromDist = pathMod.resolve(__dirname, "../../../src/apply/browser_sidecar.py");
+    const sidecarFromSrc  = pathMod.resolve(__dirname, "../../apply/browser_sidecar.py");
+    const sidecarPath = existsSync(sidecarFromDist) ? sidecarFromDist : sidecarFromSrc;
     if (!existsSync(sidecarPath)) {
-      return `❌ browser_sidecar.py not found at expected path: ${sidecarPath}`;
+      return `\u274c browser_sidecar.py not found at expected path: ${sidecarPath}`;
     }
 
-    // ── 5. Resolve Gemini API key ──────────────────────────────────────────
-    const { loadConfig, getGeminiKey } = await import("../../config.js");
+    // ── 5. Resolve LLM config ─────────────────────────────────────────
+    const { loadConfig, getGeminiKey, getLlmConfig } = await import("../../config.js");
     const cfg = loadConfig();
-    const apiKey =
-      cfg.geminiKey  ||
-      cfg.llmApiKey  ||
-      getGeminiKey() ||
-      process.env.GOOGLE_API_KEY  ||
-      process.env.GEMINI_API_KEY  ||
-      "";
+    const llmCfg = getLlmConfig();
+    const llmConfig = {
+      provider: llmCfg.provider,
+      model:    args.model || llmCfg.model || "gemini-3.1-flash-lite-preview",
+      apiKey:   llmCfg.apiKey || cfg.geminiKey || cfg.llmApiKey || getGeminiKey() || process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || "",
+      baseUrl:  llmCfg.baseUrl,
+    };
 
-    if (!apiKey) {
+    // For CareerVivid Cloud, use the CV account key for the proxy — no personal LLM key needed
+    if (llmConfig.provider === "careervivid") {
+      llmConfig.apiKey = cfg.apiKey || process.env.CV_API_KEY || "";
+    } else if (!llmConfig.apiKey) {
       return [
-        "❌ No Gemini API key found — browser-use agent cannot start.",
-        "   Fix options:",
-        "   1. Run `cv agent` → Settings → choose 'Gemini (personal key)' → enter your key",
-        "   2. Or: export GEMINI_API_KEY=AIzaSy...  in your terminal before running cv agent",
+        `❌ No API key found for provider: ${llmConfig.provider}`,
+        "   Run `cv agent config` and choose your provider to set a key.",
       ].join("\n");
     }
 
     const { homedir } = await import("os");
     const profileDir = pathMod.join(homedir(), ".careervivid", "browser-session");
 
-    // ── 6. Spawn browser-use sidecar ───────────────────────────────────────
+    // ── 6. Spawn browser-use sidecar ─────────────────────────────────────────
     const chalk = (await import("chalk")).default;
     console.log(chalk.cyan(`\n🤖 Launching browser-use agent → ${args.job_url}\n`));
     console.log(chalk.dim("   Chrome will open and fill the form autonomously."));
     console.log(chalk.dim("   It will stop BEFORE the Submit button — you review and submit.\n"));
 
-    const model = args.model || "gemini-3.1-flash-lite-preview";
-
+    // Build input payload using the new llm_config format
     const inputPayload = JSON.stringify({
-      task,
-      api_key: apiKey,
-      model,
-      profile_dir: profileDir,
+      url:             args.job_url,
+      llm_config:      llmConfig,
+      resume_pdf_path: "",
+      profile:         {},
+      profile_dir:     profileDir,
+      task_override:   task, // sidecar uses this full task string
     });
 
     return new Promise<string>((resolve) => {
@@ -690,7 +697,7 @@ FILLING RULES:
 
       const child = spawn(pythonBin, [sidecarPath], {
         stdio: ["pipe", "pipe", "pipe"],
-        env: { ...process.env, GOOGLE_API_KEY: apiKey, GEMINI_API_KEY: apiKey, PYTHONUNBUFFERED: "1" },
+        env: { ...process.env, PYTHONUNBUFFERED: "1" },
       });
 
       child.stdin.write(inputPayload);

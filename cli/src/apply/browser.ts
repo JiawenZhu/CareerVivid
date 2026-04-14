@@ -20,7 +20,7 @@
  * via page.goto(). The browser starts at about:blank.
  */
 
-import { chromium, type BrowserContext, type Page } from "playwright";
+import { chromium, type BrowserContext, type Page } from "playwright-core";
 import { homedir } from "os";
 import { join } from "path";
 import { existsSync, mkdirSync } from "fs";
@@ -148,6 +148,15 @@ export async function launchApplyBrowser(_opts: BrowserLaunchOptions = {}): Prom
       chalk.cyan("  ℹ️  First run — a dedicated automation browser will open.\n") +
       chalk.dim("     Your session will be saved for future applications.\n")
     );
+  }
+
+  if (!executablePath) {
+    console.log("");
+    console.log(chalk.red("❌ Error: Missing local browser"));
+    console.log(chalk.dim("The CareerVivid CLI uses playwright-core to launch your existing browser installation to save hundreds of megabytes of setup time."));
+    console.log(chalk.dim("However, Google Chrome or Microsoft Edge could not be found in the standard system locations."));
+    console.log(chalk.yellow("\nPlease install Google Chrome to use AI Browser automation: https://www.google.com/chrome/"));
+    process.exit(1);
   }
 
   const context = await chromium.launchPersistentContext(profileDir, {

@@ -63,6 +63,21 @@ When a user says things like:
 - Never update a status without knowing the specific job_id — use list_jobs first if needed.
 - Be concise. Don't repeat the full job description unless asked.
 - When showing job IDs, keep them for reference but don't make the conversation feel robotic.
+
+## URL Verification — CRITICAL HARNESS RULE
+
+You must NEVER present a job URL to the user without first verifying it.
+Think like a user clicking the link: a broken link is worse than no link.
+
+Before showing any job application URL to the user:
+1. Call **verify_url** on each URL you plan to share.
+2. If verify_url returns ❌, do NOT show that URL. Instead say: "I couldn't confirm the application link — please search for this role directly on [Company]'s careers page."
+3. After **search_jobs** returns multiple results, call **verify_search_results** with all the URLs before presenting them.
+4. Only show URLs that pass verification.
+5. If a URL looks like it was made up (unknown company domain, no ATS path), be extra suspicious — call verify_url before mentioning it.
+
+This rule exists because AI models can hallucinate plausible-sounding URLs that do not exist.
+The user's time is valuable — never send them to a broken page.
 `.trim();
 
 // ---------------------------------------------------------------------------
@@ -78,17 +93,22 @@ export function registerJobAgentCommand(program: Command) {
     .option("--role <role>", "Pre-seed with a job role to search immediately (e.g. 'Software Engineer')")
     .option("--location <location>", "Preferred job location (e.g. 'San Francisco, CA' or 'Remote')")
     .option(
-      "--pro",
-      "Use gemini-3.1-pro-preview with thinking mode for deeper job analysis."
+      "--model <model>",
+      "Model to use: 'flash' (gemini-3-flash-preview) or 'pro' (gemini-3.1-pro-preview). Default: flash.",
+      "flash"
     )
-    .option("--verbose", "Show AI thinking tokens (requires --pro).")
+    .option("--verbose", "Show AI thinking tokens (requires --model pro).")
     .action(async (options) => {
       // ── Credentials ────────────────────────────────────────────────────────
       let apiKey = getGeminiKey();
 
-      const isPro = Boolean(options.pro);
-      const selectedModel = isPro ? "gemini-3.1-pro-preview" : "gemini-2.5-flash";
-      const thinkingBudget = isPro ? 8192 : 0;
+      const MODEL_MAP: Record<string, string> = {
+        flash: "gemini-3-flash-preview",
+        pro: "gemini-3.1-pro-preview",
+      };
+      const modelChoice = (options.model as string) ?? "flash";
+      const selectedModel = MODEL_MAP[modelChoice] ?? "gemini-3-flash-preview";
+      const thinkingBudget = modelChoice === "pro" ? 8192 : 0;
 
       // Prompt for API key if missing
       if (!apiKey) {
@@ -132,7 +152,7 @@ export function registerJobAgentCommand(program: Command) {
       console.log(chalk.dim("  • list_jobs   — view your current application pipeline"));
       console.log(chalk.dim("  • update_job_status — move jobs between pipeline stages"));
       console.log(chalk.dim("  • get_resume  — load your CareerVivid resume\n"));
-      if (isPro) {
+      if (modelChoice === "pro") {
         console.log(chalk.magenta(`  ✔ Pro mode: ${selectedModel} + thinking\n`));
       }
       console.log(chalk.gray(`  Model: ${selectedModel}`));

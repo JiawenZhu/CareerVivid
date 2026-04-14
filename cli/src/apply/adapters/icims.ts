@@ -5,7 +5,7 @@
  * iCIMS forms are often embedded inside an iframe (#icims_content_iframe).
  */
 
-import type { Page, FrameLocator, Locator } from "playwright";
+import type { Page, FrameLocator, Locator } from "playwright-core";
 import type { ATSAdapter, FormField } from "../index.js";
 import type { ApplyProfile } from "../gemini-agent.js";
 import { humanType, humanDelay } from "../browser.js";

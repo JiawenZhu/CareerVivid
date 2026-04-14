@@ -1,10 +1,10 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
-    Terminal, PenTool, Globe, ArrowRight, MessageSquare,
-    CheckCircle, Wifi, Smartphone, Layout, Send, Github,
-    Play, Volume2
+    Terminal, Globe, ArrowRight,
+    CheckCircle, Layout, Send,
+    Play, Volume2, Sparkles, Database, Cpu
 } from 'lucide-react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -13,34 +13,30 @@ const ServicePortfolioPage = () => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        serviceType: 'IT Services',
+        serviceType: 'Agentic AI & Automation',
         message: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showToast, setShowToast] = useState(false);
 
-    // Handle Form Submission
-    // Handle Form Submission
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
 
         try {
-            // Write to the same 'contact_messages' collection that the Contact Page uses.
-            // This will trigger the 'onContactMessageCreated' Cloud Function to send the email.
             await addDoc(collection(db, 'contact_messages'), {
                 name: formData.name,
                 email: formData.email,
-                subject: `New Inquiry: ${formData.serviceType}`, // Auto-generate subject
+                subject: `New Inquiry: ${formData.serviceType}`,
                 message: formData.message,
-                serviceType: formData.serviceType, // store extra field
+                serviceType: formData.serviceType,
                 status: 'unread',
                 timestamp: serverTimestamp(),
                 source: 'service_portfolio_page'
             });
 
             setShowToast(true);
-            setFormData({ name: '', email: '', serviceType: 'IT Services', message: '' });
+            setFormData({ name: '', email: '', serviceType: 'Agentic AI & Automation', message: '' });
             setTimeout(() => setShowToast(false), 3000);
         } catch (error) {
             console.error("Error submitting form:", error);
@@ -70,7 +66,6 @@ const ServicePortfolioPage = () => {
         scrollToContact();
     };
 
-    // Helper component for social videos
     const SocialVideoCard = ({ src, title, subtitle }: { src: string, title: string, subtitle: string }) => {
         const videoRef = useRef<HTMLVideoElement>(null);
         const [isHovered, setIsHovered] = useState(false);
@@ -78,12 +73,12 @@ const ServicePortfolioPage = () => {
 
         useEffect(() => {
             if (videoRef.current) {
-                videoRef.current.muted = !isHovered; // Unmute on hover
+                videoRef.current.muted = !isHovered;
                 if (isHovered) {
                     videoRef.current.play().catch(() => { });
                 } else {
                     videoRef.current.pause();
-                    videoRef.current.currentTime = 0; // Reset on leave
+                    videoRef.current.currentTime = 0;
                 }
             }
         }, [isHovered]);
@@ -111,20 +106,17 @@ const ServicePortfolioPage = () => {
                     onLoadedData={() => setIsLoading(false)}
                 />
 
-                {/* Overlay Icon */}
                 <div className={`absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none transition-opacity duration-300 ${isHovered ? 'opacity-0' : 'opacity-100'}`}>
                     <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center">
                         <Play fill="white" className="text-white ml-1" size={20} />
                     </div>
                 </div>
 
-                {/* Title Overlay */}
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-6 pt-20">
                     <h4 className="text-white font-bold text-lg leading-tight mb-1">{title}</h4>
                     <p className="text-gray-300 text-xs font-medium uppercase tracking-wider">{subtitle}</p>
                 </div>
 
-                {/* Sound Indicator */}
                 <div className={`absolute top-4 right-4 bg-black/60 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
                     <Volume2 size={12} />
                     <span>On</span>
@@ -135,7 +127,6 @@ const ServicePortfolioPage = () => {
 
     return (
         <div className="min-h-screen bg-white text-black font-sans selection:bg-[#4ADE80] selection:text-black">
-            {/* Toast Notification */}
             {showToast && (
                 <motion.div
                     initial={{ opacity: 0, y: 50 }}
@@ -151,7 +142,6 @@ const ServicePortfolioPage = () => {
                 </motion.div>
             )}
 
-            {/* Navbar */}
             <nav className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-100">
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                     <div className="text-2xl font-black tracking-tight flex items-center gap-2">
@@ -174,7 +164,6 @@ const ServicePortfolioPage = () => {
                 </div>
             </nav>
 
-            {/* Hero Section */}
             <section className="pt-40 pb-20 px-6 max-w-7xl mx-auto min-h-[90vh] flex flex-col md:flex-row items-center gap-16">
                 <div className="flex-1 space-y-8">
                     <motion.div
@@ -183,7 +172,7 @@ const ServicePortfolioPage = () => {
                         transition={{ duration: 0.5 }}
                         className="inline-block px-4 py-1 bg-gray-100 rounded-full text-sm font-bold text-gray-600 border border-gray-200"
                     >
-                        Local Business Specialist 🚀
+                        Founder & Full-Stack Engineer (Agentic AI) 🚀
                     </motion.div>
 
                     <motion.h1
@@ -192,7 +181,7 @@ const ServicePortfolioPage = () => {
                         transition={{ duration: 0.5, delay: 0.1 }}
                         className="text-6xl md:text-7xl font-black leading-[0.9] tracking-tight"
                     >
-                        Digital Solutions for <span className="text-gray-400 line-through decoration-[#4ADE80] decoration-4">Boring</span> Local Businesses.
+                        Intelligent Solutions for <span className="text-gray-400 line-through decoration-[#4ADE80] decoration-4">Boring</span> Businesses.
                     </motion.h1>
 
                     <motion.p
@@ -201,7 +190,7 @@ const ServicePortfolioPage = () => {
                         transition={{ duration: 0.5, delay: 0.2 }}
                         className="text-xl text-gray-600 max-w-lg leading-relaxed"
                     >
-                        From IT Support to Stunning Menu Designs. We automate your tech so you can focus on what matters most—your business.
+                        Specializing in Agentic AI, Scalable Full-Stack Architecture, and Automation. We build the tech that scales your vision.
                     </motion.p>
 
                     <motion.div
@@ -219,7 +208,6 @@ const ServicePortfolioPage = () => {
                     </motion.div>
                 </div>
 
-                {/* Hero Visual - Chat/Card UI */}
                 <motion.div
                     initial={{ opacity: 0, x: 50 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -237,38 +225,35 @@ const ServicePortfolioPage = () => {
                         </div>
 
                         <div className="p-6 space-y-4">
-                            {/* Chat Bubble 1 */}
                             <div className="flex gap-4">
                                 <div className="w-10 h-10 bg-gray-200 rounded-full flex-shrink-0 border-2 border-black overflow-hidden bg-[url('https://api.dicebear.com/7.x/avataaars/svg?seed=Felix')] bg-cover"></div>
                                 <div className="bg-gray-100 p-4 rounded-2xl rounded-tl-none border border-gray-200 max-w-[80%]">
                                     <p className="text-sm font-bold mb-1">Client Request</p>
-                                    <p className="text-gray-600 text-sm">Our guest WiFi is down and we need a new menu design for the weekend special. urgent!</p>
+                                    <p className="text-gray-600 text-sm">We need to automate our lead generation and sync it with our CRM using AI. Can you help?</p>
                                 </div>
                             </div>
 
-                            {/* Chat Bubble 2 (Response) */}
                             <div className="flex gap-4 flex-row-reverse">
                                 <div className="w-10 h-10 bg-[#4ADE80] rounded-full flex-shrink-0 border-2 border-black flex items-center justify-center font-bold">CV</div>
                                 <div className="bg-black text-white p-4 rounded-2xl rounded-tr-none max-w-[80%]">
                                     <p className="text-sm font-bold mb-1 text-[#4ADE80]">Careervivid</p>
-                                    <p className="text-gray-300 text-sm">On it! ⚡️ WiFi diagnostics running remotely. Draft menu sent below.</p>
+                                    <p className="text-gray-300 text-sm">Absolutely! Deploying a custom AI agent to handle lead qualification and CRM sync now. ⚡️</p>
                                 </div>
                             </div>
 
-                            {/* Action Card */}
                             <div className="ml-14 bg-white border-2 border-dashed border-gray-300 rounded-xl p-4">
                                 <div className="flex items-center gap-3 mb-3">
                                     <CheckCircle className="text-[#4ADE80]" size={20} />
-                                    <span className="font-bold text-sm">Tasks Completed</span>
+                                    <span className="font-bold text-sm">Agent Deployment</span>
                                 </div>
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-xs p-2 bg-gray-50 rounded border">
-                                        <span className="text-gray-600">WiFi Optimization</span>
-                                        <span className="font-bold text-green-600">DONE</span>
+                                        <span className="text-gray-600">LLM Integration</span>
+                                        <span className="font-bold text-green-600">ACTIVE</span>
                                     </div>
                                     <div className="flex justify-between text-xs p-2 bg-gray-50 rounded border">
-                                        <span className="text-gray-600">Menu Design v1</span>
-                                        <span className="font-bold text-green-600">SENT</span>
+                                        <span className="text-gray-600">CRM Webhook Sync</span>
+                                        <span className="font-bold text-green-600">SYNCED</span>
                                     </div>
                                 </div>
                             </div>
@@ -277,7 +262,6 @@ const ServicePortfolioPage = () => {
                 </motion.div>
             </section>
 
-            {/* Services Section */}
             <section id="services" className="py-24 bg-[#F9FAFB] px-6">
                 <div className="max-w-7xl mx-auto">
                     <div className="mb-16">
@@ -286,58 +270,54 @@ const ServicePortfolioPage = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {/* Card 1 */}
+                        <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl transition-shadow group">
+                            <div className="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center mb-6 group-hover:bg-[#4ADE80] transition-colors">
+                                <Cpu size={32} className="text-black" />
+                            </div>
+                            <h3 className="text-2xl font-bold mb-4">Agentic AI & Automation</h3>
+                            <p className="text-gray-600 mb-6 leading-relaxed">
+                                Custom AI agents and automated workflows that save hundreds of manual hours. We translate complex needs into robust AI features.
+                            </p>
+                            <ul className="space-y-2 text-sm font-medium text-gray-500">
+                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-[#4ADE80]" /> Agentic AI Workflows</li>
+                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-[#4ADE80]" /> LLM Integration (Gemini, OpenAI)</li>
+                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-[#4ADE80]" /> Python Automation Scripts</li>
+                            </ul>
+                        </div>
+
                         <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl transition-shadow group">
                             <div className="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center mb-6 group-hover:bg-[#4ADE80] transition-colors">
                                 <Terminal size={32} className="text-black" />
                             </div>
-                            <h3 className="text-2xl font-bold mb-4">IT Services</h3>
+                            <h3 className="text-2xl font-bold mb-4">Full-Stack Development</h3>
                             <p className="text-gray-600 mb-6 leading-relaxed">
-                                Hardware troubleshooting, smart home installations, and network optimization. We ensure your business tech never fails.
+                                End-to-end software solutions built with modern stacks (Next.js, TypeScript). We deliver high-performance, responsive applications.
                             </p>
                             <ul className="space-y-2 text-sm font-medium text-gray-500">
-                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-[#4ADE80]" /> Tech Support & Repair</li>
-                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-[#4ADE80]" /> WiFi Optimization</li>
-                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-[#4ADE80]" /> Smart Office Setup</li>
+                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-[#4ADE80]" /> Next.js & React Apps</li>
+                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-[#4ADE80]" /> TypeScript & Node.js</li>
+                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-[#4ADE80]" /> Responsive UI/UX Design</li>
                             </ul>
                         </div>
 
-                        {/* Card 2 */}
                         <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl transition-shadow group">
                             <div className="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center mb-6 group-hover:bg-[#4ADE80] transition-colors">
-                                <PenTool size={32} className="text-black" />
+                                <Database size={32} className="text-black" />
                             </div>
-                            <h3 className="text-2xl font-bold mb-4">Design Services</h3>
+                            <h3 className="text-2xl font-bold mb-4">Cloud & Infrastructure</h3>
                             <p className="text-gray-600 mb-6 leading-relaxed">
-                                Eye-catching visuals for social media and print. We design menus, posters, and assets that drive foot traffic.
+                                Scalable database architecture and cloud deployments (GCP, Firebase). We ensure your application is stable and performant.
                             </p>
                             <ul className="space-y-2 text-sm font-medium text-gray-500">
-                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-[#4ADE80]" /> Canva Menus</li>
-                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-[#4ADE80]" /> Instagram Posters/Stories</li>
-                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-[#4ADE80]" /> E-books & Guides</li>
-                            </ul>
-                        </div>
-
-                        {/* Card 3 */}
-                        <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm hover:shadow-xl transition-shadow group">
-                            <div className="w-14 h-14 bg-gray-100 rounded-lg flex items-center justify-center mb-6 group-hover:bg-[#4ADE80] transition-colors">
-                                <Globe size={32} className="text-black" />
-                            </div>
-                            <h3 className="text-2xl font-bold mb-4">Web Development</h3>
-                            <p className="text-gray-600 mb-6 leading-relaxed">
-                                Fast, responsive websites that rank. From simple bio-links to full-scale Next.js web applications.
-                            </p>
-                            <ul className="space-y-2 text-sm font-medium text-gray-500">
-                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-[#4ADE80]" /> Next.js & React Sites</li>
-                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-[#4ADE80]" /> SEO Optimization</li>
-                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-[#4ADE80]" /> Custom Bio-Links</li>
+                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-[#4ADE80]" /> Google Cloud (GCP) & Firebase</li>
+                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-[#4ADE80]" /> Scalable SQL/NoSQL Architecture</li>
+                                <li className="flex items-center gap-2"><CheckCircle size={16} className="text-[#4ADE80]" /> CI/CD Pipelines & Automation</li>
                             </ul>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Portfolio Showcase Section (Bento Grid) */}
             <section id="portfolio" className="py-24 px-6 max-w-7xl mx-auto">
                 <div className="flex flex-col md:flex-row justify-between items-end mb-12">
                     <div>
@@ -345,27 +325,26 @@ const ServicePortfolioPage = () => {
                         <div className="w-24 h-2 bg-black"></div>
                     </div>
                     <p className="text-gray-500 font-medium mt-4 md:mt-0 max-w-sm text-right">
-                        A selection of our latest projects across design, development, and IT solutions.
+                        A selection of our latest projects across engineering, AI integration, and scalable web solutions.
                     </p>
                 </div>
 
-                {/* Social Media Video Grid */}
                 <div className="mb-16">
                     <h3 className="text-2xl font-bold mb-8 flex items-center gap-2">
                         <span className="w-2 h-8 bg-[#4ADE80] rounded-full"></span>
-                        Social Media Content
+                        AI & Video Showcase
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <SocialVideoCard
                             src="https://storage.googleapis.com/jastalk-firebase.firebasestorage.app/public/ticktok_video_assets/copy_3C83D03B-12CA-4859-A4E9-05C077D64CF5.MOV?GoogleAccessId=firebase-adminsdk-fbsvc%40jastalk-firebase.iam.gserviceaccount.com&Expires=16730344800&Signature=jHNMbK53u6sbL%2FOOaaJHbGvi4tKrBLKuadWOXDbwWdpeI2%2FaMdS6VnnOjwEeya9FqxJmu%2Bo42dKzmgG8hHvg1YyGayD1PtWikR%2BKwl2aTA4z5Jetlol2TXvrr%2BE2pL99JoUAny06nSYHUAh5EVZH70B1kxr9BNtz84KozZEpZLA12a9Ii63dFfg3w981cTnjca7DmoUNFioPHM2k9sOpyEMcnIPIdrfD470FBP1pFVIGkVamSrrTz7hkm44HiCHJ90FJn%2B%2BlJIL5yuCTDpPnYoj3AAkmkd9qUKOuWbA8IsMpUgc6pH3fIOJ%2FSSDBN1WeXr3KFkDpaihOZW8DN1S2ZQ%3D%3D"
-                            title="Social Media Content"
-                            subtitle="Engaging & Viral"
+                            title="AI Interaction Design"
+                            subtitle="Engaging User Experiences"
                         />
 
                         <SocialVideoCard
                             src="https://storage.googleapis.com/jastalk-firebase.firebasestorage.app/public/ticktok_video_assets/copy_6DDEDA94-5A0C-46BF-8C5C-CC93A3BBCDAC.MOV?GoogleAccessId=firebase-adminsdk-fbsvc%40jastalk-firebase.iam.gserviceaccount.com&Expires=16730344800&Signature=qNCIKd09xCmgnS8FsvDfib15%2BvrMdBCGNR5KyDh%2FRsDREfF9JJ6it9l99Hfa4spb1Hl4W%2Bva8Bpw%2BI9hvHc5EQPToEhIGMJFPLSNd0bFa1C6FQHaqtGXvdFOjFj8cpR83SXzcWFtTk%2FBa1hopDKrywAdbDHPLrmn%2BCkWlA7wYzxE%2BFc9QTdaWhUAjs3mUq8dHhOj1F1E4%2Fo%2BKPNzEw%2FVI2IfgaqwNtoA6MhK3zMOlTej%2BBnuVfbVZtVE53jtrNAvl6jqVwjWqrepK2sBXxO4dCMNxjnGBsN8C%2BsKUIawi0jfH7iu%2BECQcjqeUmfQ07AEStRTl0NwoBmMbfGNkmrDTA%3D%3D"
-                            title="Social Media Content"
-                            subtitle="Engaging & Viral"
+                            title="Automated Workflows"
+                            subtitle="Efficiency at Scale"
                         />
 
                         <SocialVideoCard
@@ -376,13 +355,32 @@ const ServicePortfolioPage = () => {
                     </div>
                 </div>
 
-                {/* Project Grid */}
                 <h3 className="text-2xl font-bold mb-8 flex items-center gap-2">
                     <span className="w-2 h-8 bg-[#4ADE80] rounded-full"></span>
-                    UI/UX & Web Design
+                    Featured Engineering Projects
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {/* Project 1 - HealthWell */}
+                    <a href="https://careervivid.app" target="_blank" rel="noopener noreferrer" className="group flex flex-col justify-between p-8 bg-white rounded-2xl border border-gray-200 hover:border-black hover:shadow-lg transition-all duration-300">
+                        <div>
+                            <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <Sparkles className="text-orange-600" size={24} />
+                            </div>
+                            <h3 className="text-2xl font-bold mb-3 group-hover:text-orange-600 transition-colors">CareerVivid AI Platform</h3>
+                            <p className="text-gray-500 mb-6 leading-relaxed">
+                                Architected and deployed a highly scalable AI platform for career growth. Implemented CI/CD pipelines and real-time AI agents, supporting 500+ active users.
+                            </p>
+                            <div className="flex flex-wrap gap-2 mb-8">
+                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">Next.js</span>
+                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">Agentic AI</span>
+                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">GCP</span>
+                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">Firebase</span>
+                            </div>
+                        </div>
+                        <div className="flex items-center text-sm font-bold text-black group-hover:translate-x-1 transition-transform">
+                            View Platform <ArrowRight className="ml-2" size={16} />
+                        </div>
+                    </a>
+
                     <a href="https://www.healthwell.group/" target="_blank" rel="noopener noreferrer" className="group flex flex-col justify-between p-8 bg-white rounded-2xl border border-gray-200 hover:border-black hover:shadow-lg transition-all duration-300">
                         <div>
                             <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
@@ -390,12 +388,12 @@ const ServicePortfolioPage = () => {
                             </div>
                             <h3 className="text-2xl font-bold mb-3 group-hover:text-green-600 transition-colors">HealthWell Platform</h3>
                             <p className="text-gray-500 mb-6 leading-relaxed">
-                                Redesigned and deployed a responsive appointment booking platform for a health startup, improving UI/UX and increasing customer bookings by over 90% in just two months.
+                                Full-stack delivery for a health startup, translating operational requirements into optimized content systems and booking platforms.
                             </p>
                             <div className="flex flex-wrap gap-2 mb-8">
                                 <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">React</span>
-                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">Node.js</span>
-                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">UI/UX</span>
+                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">Python</span>
+                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">CMS Migration</span>
                             </div>
                         </div>
                         <div className="flex items-center text-sm font-bold text-black group-hover:translate-x-1 transition-transform">
@@ -403,171 +401,113 @@ const ServicePortfolioPage = () => {
                         </div>
                     </a>
 
-                    {/* Project 2 - Bio-Link Builder */}
                     <a href="/bio-links" target="_blank" rel="noopener noreferrer" className="group flex flex-col justify-between p-8 bg-white rounded-2xl border border-gray-200 hover:border-black hover:shadow-lg transition-all duration-300">
                         <div>
-                            {/* Updated Image for Bio-Links */}
-                            <div className="w-full h-48 mb-6 overflow-hidden rounded-xl bg-gray-100 relative">
-                                <img
-                                    src="/projects/bio-link-builder.png"
-                                    alt="Bio-Link Portfolio Builder"
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                />
-                                <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm p-1.5 rounded-lg border border-gray-200 shadow-sm">
-                                    <Layout className="text-purple-600" size={20} />
-                                </div>
+                            <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <Layout className="text-purple-600" size={24} />
                             </div>
-
                             <h3 className="text-2xl font-bold mb-3 group-hover:text-purple-600 transition-colors">Bio-Link Portfolio Builder</h3>
                             <p className="text-gray-500 mb-6 leading-relaxed">
-                                A flagship internal product allowing professionals to launch stunning, customizable micro-portfolios in seconds. Features an intuitive no-code editor, diverse themes from "Neo-Brutalism" to "Minimalist", and instant global deployment.
+                                Developed a customizable micro-portfolio builder. Technical lead for internal colleagues, accelerating project delivery via asset workflows.
                             </p>
                             <div className="flex flex-wrap gap-2 mb-8">
-                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">Product Design</span>
-                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">React Platform</span>
+                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">TypeScript</span>
+                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">UI/UX</span>
+                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">Automation</span>
                             </div>
                         </div>
                         <div className="flex items-center text-sm font-bold text-black group-hover:translate-x-1 transition-transform">
                             Try It Live <ArrowRight className="ml-2" size={16} />
                         </div>
                     </a>
-
-                    {/* Project 3 - Interactive Quiz & Survey Engine */}
-                    <a href="https://jiawenzhu.github.io/profile/project_idea/quiz/quiz" target="_blank" rel="noopener noreferrer" className="group flex flex-col justify-between p-8 bg-white rounded-2xl border border-gray-200 hover:border-black hover:shadow-lg transition-all duration-300">
-                        <div>
-                            {/* Re-introduced Image as requested */}
-                            <div className="w-full h-48 mb-6 overflow-hidden rounded-xl bg-gray-100 relative">
-                                <img
-                                    src="/projects/quiz-app.png"
-                                    alt="Interactive Quiz & Survey App"
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                />
-                                <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm p-1.5 rounded-lg border border-gray-200 shadow-sm">
-                                    <CheckCircle className="text-blue-600" size={20} />
-                                </div>
-                            </div>
-
-                            <h3 className="text-2xl font-bold mb-3 group-hover:text-blue-600 transition-colors">Interactive Quiz & Survey Engine</h3>
-                            <p className="text-gray-500 mb-6 leading-relaxed">
-                                A versatile data collection tool perfect for market research, employee feedback, or educational testing. Fully customizable to match your brand and capture the specific insights relevant to your business scenarios.
-                            </p>
-                            <div className="flex flex-wrap gap-2 mb-8">
-                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">Data Collection</span>
-                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">Google Sheets Integration</span>
-                            </div>
-                        </div>
-                        <div className="flex items-center text-sm font-bold text-black group-hover:translate-x-1 transition-transform">
-                            View Project <ArrowRight className="ml-2" size={16} />
-                        </div>
-                    </a>
                 </div>
             </section>
 
-            {/* Pricing Section */}
             <section id="pricing" className="py-24 bg-white border-y border-gray-100">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center mb-16">
                         <h2 className="text-4xl md:text-5xl font-black mb-4 uppercase tracking-tight">Flexible Pricing Plans</h2>
-                        <p className="text-gray-500 max-w-xl mx-auto">Choose the level of support that fits your business needs. From quick fixes to full-scale automation.</p>
+                        <p className="text-gray-500 max-w-xl mx-auto">Choose the level of support that fits your business needs. From custom AI agents to full-scale SaaS development.</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-                        {/* Card 1: The Quick Fix */}
                         <div className="p-8 border-2 border-gray-200 rounded-2xl hover:border-black transition-colors">
-                            <h3 className="text-2xl font-black uppercase mb-2">The Quick Fix</h3>
-                            <div className="text-gray-500 text-sm font-bold mb-6">Small Updates</div>
-                            <div className="text-3xl font-black mb-8">$50 - $150 <span className="text-sm font-medium text-gray-400">/ service</span></div>
-
+                            <h3 className="text-2xl font-black uppercase mb-2">Technical Consulting</h3>
+                            <div className="text-gray-500 text-sm font-bold mb-6">Expert Advice</div>
+                            <div className="text-3xl font-black mb-8">$150 - $300 <span className="text-sm font-medium text-gray-400">/ hour</span></div>
                             <ul className="space-y-4 mb-8">
                                 <li className="flex items-center gap-3 text-sm font-medium text-gray-700">
-                                    <CheckCircle size={16} className="text-black" /> Professional UX/UI & Website Design
+                                    <CheckCircle size={16} className="text-black" /> System Design & Architecture
                                 </li>
                                 <li className="flex items-center gap-3 text-sm font-medium text-gray-700">
-                                    <CheckCircle size={16} className="text-black" /> Single Menu Redesign (Canva)
+                                    <CheckCircle size={16} className="text-black" /> AI Implementation Strategy
                                 </li>
                                 <li className="flex items-center gap-3 text-sm font-medium text-gray-700">
-                                    <CheckCircle size={16} className="text-black" /> Digital Business Card Setup
-                                </li>
-                                <li className="flex items-center gap-3 text-sm font-medium text-gray-700">
-                                    <CheckCircle size={16} className="text-black" /> WiFi/Printer Troubleshooting
+                                    <CheckCircle size={16} className="text-black" /> Security & Scalability Audit
                                 </li>
                             </ul>
-
                             <button
-                                onClick={() => handlePlanSelect("Small Updates ($50-$150)")}
+                                onClick={() => handlePlanSelect("Consulting")}
                                 className="w-full py-3 border-2 border-black text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white transition-colors rounded-lg"
                             >
-                                Book Appointment
+                                Book Consultation
                             </button>
                         </div>
 
-                        {/* Card 2: Digital Essentials */}
                         <div className="p-8 bg-gray-50 border border-gray-200 rounded-2xl relative">
-                            <h3 className="text-2xl font-black uppercase mb-2">Digital Essentials</h3>
-                            <div className="text-gray-500 text-sm font-bold mb-6">Consistent Growth</div>
-                            <div className="text-3xl font-black mb-8">$200 <span className="text-sm font-medium text-gray-400">/ month</span></div>
-
+                            <h3 className="text-2xl font-black uppercase mb-2">MVP Development</h3>
+                            <div className="text-gray-500 text-sm font-bold mb-6">Fast Track to Launch</div>
+                            <div className="text-3xl font-black mb-8">$2,500+ <span className="text-sm font-medium text-gray-400">/ project</span></div>
                             <ul className="space-y-4 mb-8">
                                 <li className="flex items-center gap-3 text-sm font-medium text-gray-700">
-                                    <CheckCircle size={16} className="text-black" /> 2x Social Posters / week
+                                    <CheckCircle size={16} className="text-black" /> Full-Stack MVP (Next.js)
                                 </li>
                                 <li className="flex items-center gap-3 text-sm font-medium text-gray-700">
-                                    <CheckCircle size={16} className="text-black" /> Google Maps Weekly Updates
+                                    <CheckCircle size={16} className="text-black" /> AI Agent Integration
                                 </li>
                                 <li className="flex items-center gap-3 text-sm font-medium text-gray-700">
-                                    <CheckCircle size={16} className="text-black" /> Hosting & Domain Mgmt
-                                </li>
-                                <li className="flex items-center gap-3 text-sm font-medium text-gray-700">
-                                    <CheckCircle size={16} className="text-black" /> Bio-link Pro Included
+                                    <CheckCircle size={16} className="text-black" /> Database & Auth Setup
                                 </li>
                             </ul>
-
                             <button
-                                onClick={() => handlePlanSelect("Essentials Plan ($200/mo)")}
+                                onClick={() => handlePlanSelect("MVP Development")}
                                 className="w-full py-3 bg-gray-800 text-white font-bold uppercase tracking-wide hover:bg-black transition-colors rounded-lg shadow-lg"
                             >
-                                Start Essentials Plan
+                                Start Building
                             </button>
                         </div>
 
-                        {/* Card 3: Full Tech Partner (Featured) */}
-                        <div className="p-8 bg-white border-2 border-[#84CC16] shadow-[8px_8px_0px_#84CC16] rounded-2xl relative transform md:-translate-y-4">
-                            <div className="absolute top-0 right-0 bg-[#84CC16] text-black text-xs font-black uppercase px-3 py-1 rounded-bl-lg rounded-tr-lg">Most Popular</div>
-                            <h3 className="text-2xl font-black uppercase mb-2">Full Tech Partner</h3>
-                            <div className="text-gray-500 text-sm font-bold mb-6">Total Automation</div>
-                            <div className="text-3xl font-black mb-8">$500 <span className="text-sm font-medium text-gray-400">/ month</span></div>
-
+                        <div className="p-8 bg-white border-2 border-[#4ADE80] shadow-[8px_8px_0px_#4ADE80] rounded-2xl relative transform md:-translate-y-4">
+                            <div className="absolute top-0 right-0 bg-[#4ADE80] text-black text-xs font-black uppercase px-3 py-1 rounded-bl-lg rounded-tr-lg">Recommended</div>
+                            <h3 className="text-2xl font-black uppercase mb-2">Partner / CTO-as-a-Service</h3>
+                            <div className="text-gray-500 text-sm font-bold mb-6">Fractional Leadership</div>
+                            <div className="text-3xl font-black mb-8">$1,000+ <span className="text-sm font-medium text-gray-400">/ month</span></div>
                             <ul className="space-y-4 mb-8">
                                 <li className="flex items-center gap-3 text-sm font-bold text-gray-900">
-                                    <CheckCircle size={18} className="text-[#84CC16]" /> Full Instagram Management
+                                    <CheckCircle size={18} className="text-[#4ADE80]" /> Ongoing Feature Development
                                 </li>
                                 <li className="flex items-center gap-3 text-sm font-bold text-gray-900">
-                                    <CheckCircle size={18} className="text-[#84CC16]" /> 7-10x Posts/Week (Daily)
+                                    <CheckCircle size={18} className="text-[#4ADE80]" /> Technical Leadership
                                 </li>
                                 <li className="flex items-center gap-3 text-sm font-bold text-gray-900">
-                                    <CheckCircle size={18} className="text-[#84CC16]" /> Unlimited Priority IT Support
-                                </li>
-                                <li className="flex items-center gap-3 text-sm font-bold text-gray-900">
-                                    <CheckCircle size={18} className="text-[#84CC16]" /> Website Redesign & SEO
+                                    <CheckCircle size={18} className="text-[#4ADE80]" /> 24/7 Infrastructure Support
                                 </li>
                             </ul>
-
                             <button
-                                onClick={() => handlePlanSelect("Partner Plan ($500/mo)")}
-                                className="w-full py-4 bg-[#84CC16] text-black font-black uppercase tracking-wide hover:bg-[#a3e635] transition-colors rounded-lg shadow-lg hover:shadow-xl"
+                                onClick={() => handlePlanSelect("Partner Plan")}
+                                className="w-full py-4 bg-[#4ADE80] text-black font-black uppercase tracking-wide hover:bg-[#3ec46d] transition-colors rounded-lg shadow-lg hover:shadow-xl"
                             >
-                                Become a Partner
+                                Let's Partner
                             </button>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Contact Section */}
             <section id="contact" className="py-24 bg-gray-900 text-white px-6">
                 <div className="max-w-4xl mx-auto text-center mb-16">
-                    <h2 className="text-4xl md:text-5xl font-black mb-6">Ready to Upgrade?</h2>
-                    <p className="text-xl text-gray-400">Tell us what you need. We usually respond within 2 hours.</p>
+                    <h2 className="text-4xl md:text-5xl font-black mb-6">Ready to Scale?</h2>
+                    <p className="text-xl text-gray-400">Tell us about your technical challenges. We respond within 24 hours.</p>
                 </div>
 
                 <div className="max-w-2xl mx-auto bg-white text-black p-8 md:p-12 rounded-2xl shadow-2xl">
@@ -607,12 +547,11 @@ const ServicePortfolioPage = () => {
                                 onChange={handleInputChange}
                                 className="w-full bg-gray-50 border-2 border-gray-200 rounded-lg p-3 font-medium focus:outline-none focus:border-black focus:bg-white transition-all appearance-none"
                             >
-                                <option>IT Services</option>
-                                <option>Design Services</option>
-                                <option>Web Development</option>
-                                <option>Small Updates ($50-$150)</option>
-                                <option>Essentials Plan ($200/mo)</option>
-                                <option>Partner Plan ($500/mo)</option>
+                                <option>Agentic AI & Automation</option>
+                                <option>Full-Stack Development</option>
+                                <option>MVP Development</option>
+                                <option>Technical Consulting</option>
+                                <option>Partner Plan</option>
                                 <option>Other / General Inquiry</option>
                             </select>
                         </div>
@@ -645,15 +584,13 @@ const ServicePortfolioPage = () => {
                 </div>
             </section>
 
-            {/* Footer */}
             <footer className="bg-black text-white py-12 px-6 border-t border-gray-800">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="text-2xl font-black">Careervivid</div>
                     <div className="text-gray-400 text-sm">© {new Date().getFullYear()} Careervivid. All rights reserved.</div>
                     <div className="flex gap-6">
-                        <a href="#" className="text-gray-400 hover:text-white transition-colors">Twitter</a>
-                        <a href="#" className="text-gray-400 hover:text-white transition-colors">Instagram</a>
-                        <a href="#" className="text-gray-400 hover:text-white transition-colors">LinkedIn</a>
+                        <a href="https://github.com/jiawenzhu" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">GitHub</a>
+                        <a href="https://linkedin.com/social/jiawenzhu" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">LinkedIn</a>
                     </div>
                 </div>
             </footer>

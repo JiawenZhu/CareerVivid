@@ -45,6 +45,51 @@ export class OpenAIProvider implements LLMProvider {
     this.extraHeaders = options.extraHeaders || {};
   }
 
+  // ── Convert Gemini @google/genai Type enum values to JSON Schema ──────────
+  // Gemini uses uppercase strings like "OBJECT", "STRING", "ARRAY".
+  // OpenAI-compatible APIs (OpenRouter, OpenAI, etc.) use lowercase JSON Schema.
+  private geminiSchemaToJsonSchema(schema: any): any {
+    if (!schema || typeof schema !== "object") return schema;
+
+    const TYPE_MAP: Record<string, string> = {
+      OBJECT: "object",
+      STRING: "string",
+      NUMBER: "number",
+      INTEGER: "integer",
+      BOOLEAN: "boolean",
+      ARRAY: "array",
+      // Already lowercase passthrough
+      object: "object",
+      string: "string",
+      number: "number",
+      integer: "integer",
+      boolean: "boolean",
+      array: "array",
+    };
+
+    const result: any = {};
+
+    if (schema.type) {
+      result.type = TYPE_MAP[schema.type] ?? schema.type.toLowerCase();
+    }
+    if (schema.description) result.description = schema.description;
+    if (schema.enum) result.enum = schema.enum;
+    if (schema.required) result.required = schema.required;
+
+    if (schema.properties && typeof schema.properties === "object") {
+      result.properties = {};
+      for (const [key, val] of Object.entries(schema.properties)) {
+        result.properties[key] = this.geminiSchemaToJsonSchema(val);
+      }
+    }
+
+    if (schema.items) {
+      result.items = this.geminiSchemaToJsonSchema(schema.items);
+    }
+
+    return result;
+  }
+
   // ── convert our Tool[] to OpenAI function definitions ────────────────────
   private toOpenAITools(tools: LLMRequest["tools"]): any[] {
     return tools.map((t) => ({
@@ -52,10 +97,11 @@ export class OpenAIProvider implements LLMProvider {
       function: {
         name: t.name,
         description: t.description,
-        parameters: t.parameters as Record<string, any>,
+        parameters: this.geminiSchemaToJsonSchema(t.parameters),
       },
     }));
   }
+
 
   // ── convert history (Gemini Content[]) to OpenAI messages[] ──────────────
   private toOpenAIMessages(
@@ -157,6 +203,7 @@ export class OpenAIProvider implements LLMProvider {
     const text = message?.content || "";
     const rawFnCalls = message?.tool_calls || [];
     const functionCalls = rawFnCalls.map((tc: any) => ({
+      id: tc.id,
       name: tc.function.name,
       args: JSON.parse(tc.function.arguments || "{}"),
     }));
@@ -165,7 +212,7 @@ export class OpenAIProvider implements LLMProvider {
     const rawParts: any[] = [];
     if (text) rawParts.push({ text });
     for (const fc of functionCalls) {
-      rawParts.push({ functionCall: { name: fc.name, args: fc.args } });
+      rawParts.push({ functionCall: { id: fc.id, name: fc.name, args: fc.args } });
     }
 
     return {

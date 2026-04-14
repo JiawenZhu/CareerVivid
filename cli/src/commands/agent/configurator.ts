@@ -7,6 +7,7 @@ const { prompt } = pkg;
 export const MODEL_CREDIT_COST: Record<string, number> = {
   "gemini-3.1-flash-lite-preview": 0.5,
   "gemini-2.5-flash": 1,
+  "gemini-3-flash-preview": 1,
   "gemini-3.1-pro-preview": 2,
 };
 
@@ -20,6 +21,12 @@ export const CV_MODELS = [
   {
     name: `⚡ gemini-2.5-flash               ${chalk.gray("[1 credit/turn — default]")}`,
     value: "gemini-2.5-flash",
+    cost: 1,
+    careerVivid: true,
+  },
+  {
+    name: `🚀 gemini-3-flash-preview         ${chalk.gray("[1 credit/turn — latest flash]")}`,
+    value: "gemini-3-flash-preview",
     cost: 1,
     careerVivid: true,
   },
@@ -161,6 +168,10 @@ export async function promptForAgentModel(options: any = {}): Promise<{
   });
 
   const picked = modelAnswer.model;
+  if (!picked) {
+    process.exit(0);
+  }
+  
   let selectedProvider: LLMProvider;
   let selectedModel: string;
   let thinkingBudget: number;
@@ -176,7 +187,8 @@ export async function promptForAgentModel(options: any = {}): Promise<{
     };
     selectedProvider = providerMap[picked] || "openai";
 
-    const savedKey = loadConfig().llmApiKey;
+    const savedCfg = loadConfig();
+    const savedKey = savedCfg.llmApiKey;
     if (!savedKey) {
       console.log(chalk.yellow(`\n🔑 BYO API key needed for ${selectedProvider}.`));
       console.log(chalk.dim("  Run: cv agent config   to save your key permanently.\n"));
@@ -188,21 +200,72 @@ export async function promptForAgentModel(options: any = {}): Promise<{
       apiKey = keyAnswer.key.trim();
     }
 
-    const modelAnswer2 = await prompt<{ model: string }>({
-      type: "input",
-      name: "model",
-      message: "Model name:",
-      initial:
-        selectedProvider === "openai"
+    if (!apiKey) {
+      apiKey = savedKey; // Keep existing api key fallback
+    }
+
+    // Attempt to automatically fetch and display Free OpenRouter models that support tools
+    if (selectedProvider === "openrouter") {
+      try {
+        console.log(chalk.dim("  Fetching 100% free OpenRouter models with tool support..."));
+        // Using global fetch (available in Node 18+)
+        const res = await fetch("https://openrouter.ai/api/v1/models");
+        if (res.ok) {
+          const json = await res.json();
+          const freeToolModels = json.data
+            .filter(
+              (m: any) =>
+                m.pricing?.prompt === "0" &&
+                m.pricing?.completion === "0" &&
+                m.supported_parameters?.includes("tools")
+            )
+            .map((m: any) => m.id);
+
+          if (freeToolModels.length > 0) {
+            const customChoice = "__custom__";
+            const orAnswer = await prompt<{ or_model: string }>({
+              type: "select",
+              name: "or_model",
+              message: "Select a free tool-compatible model:",
+              // @ts-ignore
+              limit: 15,
+              choices: [
+                { name: customChoice, message: "✏️  Type a custom/paid model name instead..." },
+                ...freeToolModels.map((id: string) => ({ name: id, message: `🤖 ${id}` })),
+              ],
+            });
+
+            if (orAnswer.or_model !== customChoice) {
+              return { selectedProvider, selectedModel: orAnswer.or_model, thinkingBudget: 0, apiKey };
+            }
+          }
+        }
+      } catch (err) {
+        console.log(chalk.yellow("  Could not fetch models. Falling back to manual entry."));
+      }
+    }
+
+    // Pre-fill with the saved model when provider matches, otherwise use sensible defaults
+    const defaultModel =
+      savedCfg.llmProvider === selectedProvider && savedCfg.llmModel
+        ? savedCfg.llmModel
+        : selectedProvider === "openai"
           ? "gpt-4o"
           : selectedProvider === "anthropic"
             ? "claude-opus-4-5"
             : selectedProvider === "gemini"
               ? "gemini-2.5-flash"
-              : "openai/gpt-4o",
+              : "openai/gpt-oss-120b:free"; // Stable OpenRouter tool-calling free model
+
+    const modelAnswer2 = await prompt<{ model: string }>({
+      type: "input",
+      name: "model",
+      message: "Model name:",
+      initial: defaultModel,
     });
     selectedModel = modelAnswer2.model.trim();
     thinkingBudget = 0;
+
   } else {
     selectedModel = picked;
     selectedProvider = "careervivid";

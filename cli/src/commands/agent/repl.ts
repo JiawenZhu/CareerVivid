@@ -49,6 +49,34 @@ export async function askLoop(
   let currentModel = selectedModel;
 
   let pasteBuffer: string[] = [];
+  let byoHistory: any[] = []; // Track history for BYO providers
+
+  // ── SIGINT handler: Ctrl+C cancels current operation and returns to prompt ──
+  let activeAbort: AbortController | null = null;
+  const handleSigInt = () => {
+    const ab = activeAbort as AbortController | null;
+    if (ab !== null && !ab.signal.aborted) {
+      ab.abort();
+      process.stdout.write("\n" + chalk.yellow("⚡ Interrupted. Press Ctrl+C again or type 'exit' to quit.\n"));
+    } else {
+      // Second Ctrl+C exits
+      console.log(chalk.gray("\nGoodbye! 👋\n"));
+      process.exit(0);
+    }
+  };
+  process.on("SIGINT", handleSigInt);
+
+  /** Wraps a promise with a timeout. Rejects with a friendly timeout error. */
+  function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      const timer = setTimeout(() =>
+        reject(new Error(`${label} timed out after ${ms / 1000}s. Press Ctrl+C if stuck.`)),
+        ms
+      );
+      p.then(v => { clearTimeout(timer); resolve(v); })
+       .catch(e => { clearTimeout(timer); reject(e); });
+    });
+  }
 
   const ask = async (): Promise<void> => {
     try {
@@ -56,14 +84,39 @@ export async function askLoop(
       const response = await prompt<{ query: string }>({
         type: "input",
         name: "query",
-        message: pasteBuffer.length > 0 ? chalk.dim("... ") : chalk.bold.cyan("❯"),
+        message: pasteBuffer.length > 0
+          ? chalk.dim("... ")
+          : chalk.bold.cyan("❯") + chalk.dim(" ·"),
       });
 
       const duration = Date.now() - promptStartTime;
       let userInput = response.query;
 
-      // Handle multiline copy & paste: prompt resolves extremely fast if stdin is buffered
-      if (duration < 50) {
+      // ── Multi-line paste mode: user typed <<< (or <<<paste) ─────────────
+      // Allows pasting arbitrarily long content (e.g. full JD) without truncation.
+      if (userInput.trim() === "<<<" || userInput.trim().toLowerCase().startsWith("<<<")) {
+        const prefix = userInput.trim().slice(3).trim(); // text after <<<
+        console.log(chalk.dim("  📋 Multi-line mode: paste your text, then press Enter twice to submit.\n"));
+        const lines: string[] = prefix ? [prefix] : [];
+        let emptyCount = 0;
+        while (emptyCount < 1) {
+          const lineResp = await prompt<{ line: string }>({
+            type: "input",
+            name: "line",
+            message: chalk.dim("  │"),
+          });
+          if (lineResp.line === "") {
+            emptyCount++;
+          } else {
+            emptyCount = 0;
+            lines.push(lineResp.line);
+          }
+        }
+        userInput = lines.join("\n").trim();
+        pasteBuffer = [];
+      } else if (duration < 150) {
+        // Handle multiline copy & paste: prompt resolves extremely fast if stdin is buffered.
+        // 150ms threshold gives enough headroom for large pastes (long JDs, cover letters).
         pasteBuffer.push(userInput);
         return ask();
       } else {
@@ -78,6 +131,21 @@ export async function askLoop(
       userInput = userInput.trim();
       if (!userInput) return ask();
 
+      // ── Input length guard ──────────────────────────────────────────
+      // macOS terminal readline has a hard ~4096 char limit per line, meaning
+      // pasting very long job descriptions gets silently truncated mid-word.
+      // Detect this early and guide the user to <<< mode instead.
+      const MAX_INPUT_CHARS = 20_000; // ~3,000 words — safe above typical JD length
+      if (userInput.length > MAX_INPUT_CHARS) {
+        console.log(
+          chalk.yellow("\n⚠️  Input is too long (" + userInput.length + " chars).") +
+          chalk.dim("\n   Use <<< mode for long job descriptions so nothing gets cut off:") +
+          chalk.cyan("\n\n   ❯ <<< ") +
+          chalk.dim("\n   Then paste the job description, and press Enter twice to submit.\n")
+        );
+        return ask();
+      }
+
       // ── Slash commands ──────────────────────────────────────────────
       if (userInput.startsWith("/")) {
         const [cmd, ...rest] = userInput.slice(1).split(" ");
@@ -88,7 +156,10 @@ export async function askLoop(
           console.log(chalk.dim("  /model <name>  — Switch to a different model mid-session"));
           console.log(chalk.dim("  /models        — List all available CareerVivid models"));
           console.log(chalk.dim("  /help          — Show this help message"));
-          console.log(chalk.dim("  exit           — End the session\n"));
+          console.log(chalk.dim("  exit           — End the session"));
+          console.log(chalk.cyan("\n  Paste long content (job descriptions, cover letters):"));
+          console.log(chalk.dim("  <<<            — Open multi-line paste mode; press Enter twice when done"));
+          console.log(chalk.dim("  <<<your text   — Start with text directly after <<<\n"));
           return ask();
         }
 
@@ -309,33 +380,67 @@ export async function askLoop(
         const key = byoApiKey || getGeminiKey() || "";
         const baseUrl = options["base-url"] || loadConfig().llmBaseUrl;
 
+        let provider: any;
         if (selectedProvider === "anthropic") {
-          const anthropic = new AnthropicProvider({ apiKey: key });
-          const result = await anthropic.generate({
-            model: currentModel,
-            history: [],
-            userTurn: { role: "user", parts: [{ text: userInput }] },
-            tools,
-            systemInstruction,
-          });
-          process.stdout.write("\r\x1b[K");
-          console.log(chalk.green(result.text));
+          provider = new AnthropicProvider({ apiKey: key });
         } else {
           const subProvider: "openai" | "openrouter" | "custom" = (
             selectedProvider === "openrouter" ? "openrouter" :
-            selectedProvider === "custom" ? "custom" :
-            "openai"
+            selectedProvider === "custom" ? "custom" : "openai"
           );
-          const openai = createOpenAICompatibleProvider(subProvider, key, baseUrl);
-          const result = await openai.generate({
-            model: currentModel,
-            history: [],
-            userTurn: { role: "user", parts: [{ text: userInput }] },
-            tools,
-            systemInstruction,
-          });
-          process.stdout.write("\r\x1b[K");
-          console.log(chalk.green(result.text));
+          provider = createOpenAICompatibleProvider(subProvider, key, baseUrl);
+        }
+
+        let userTurn: any = { role: "user", parts: [{ text: userInput }] };
+        let round = 0;
+        
+        while (round < 10) {
+          const result: any = await withTimeout(
+            provider.generate({ model: currentModel, history: byoHistory, userTurn, tools, systemInstruction }),
+            45_000,
+            "LLM generate()"
+          );
+
+          if (round === 0) {
+            process.stdout.write("\r\x1b[K"); // clear initial thinking spinner
+          }
+          if (result.text) {
+            console.log(chalk.green(result.text));
+          }
+
+          byoHistory.push(userTurn);
+          byoHistory.push({ role: "model", parts: result.rawParts || [{ text: result.text }] });
+
+          if (!result.functionCalls || result.functionCalls.length === 0) {
+            break;
+          }
+
+          let fnResponses: any[] = [];
+          for (const fc of result.functionCalls) {
+            const allow = await handleToolCall(fc.name, fc.args);
+            if (!allow) {
+              fnResponses.push({ functionResponse: { id: fc.id, name: fc.name, response: { error: "User denied execution." } } });
+              continue;
+            }
+            const tool = tools.find((t: any) => t.name === fc.name);
+            let out;
+            try {
+              out = tool
+                ? await withTimeout(tool.execute(fc.args), 45_000, `tool:${fc.name}`)
+                : { error: "Tool not found" };
+            } catch (e: any) {
+              if (e.message?.includes("No API key configured")) {
+                out = { error: "CareerVivid API key not found. Run 'cv login' to authenticate." };
+              } else {
+                out = { error: e.message };
+              }
+            }
+            handleToolResult(fc.name, out);
+            fnResponses.push({ functionResponse: { id: fc.id, name: fc.name, response: out } });
+          }
+
+          userTurn = { role: "user", parts: fnResponses };
+          round++;
         }
       }
 

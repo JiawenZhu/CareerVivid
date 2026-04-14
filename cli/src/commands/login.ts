@@ -13,7 +13,7 @@ import { Command } from "commander";
 import chalk from "chalk";
 import ora from "ora";
 import boxen from "boxen";
-import { saveConfig } from "../config.js";
+import { saveConfig, loadConfig } from "../config.js";
 import { verifyKey, isApiError } from "../api.js";
 import { COLORS } from "../branding.js";
 
@@ -134,8 +134,10 @@ export function registerLoginCommand(program: Command): void {
                         process.exit(1);
                     }
 
-                    // Save the key
-                    saveConfig({ apiKey });
+                    // Save the key while preserving other config
+                    const cfg = loadConfig();
+                    cfg.apiKey = apiKey;
+                    saveConfig(cfg);
 
                     const adminBadge = result.isAdmin
                         ? ` ${chalk.bgYellow.black(" ADMIN ")}`
@@ -173,7 +175,9 @@ export function registerLoginCommand(program: Command): void {
                         console.log(JSON.stringify({ success: false, error: result.message }));
                         process.exit(1);
                     }
-                    saveConfig({ apiKey });
+                    const cfg = loadConfig();
+                    cfg.apiKey = apiKey;
+                    saveConfig(cfg);
                     console.log(JSON.stringify({ success: true, ...result }));
                 } catch (err: any) {
                     clearTimeout(timeout);

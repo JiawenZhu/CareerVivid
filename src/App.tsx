@@ -614,6 +614,7 @@ const AppContent: React.FC = () => {
     else if (path === '/demo') { content = <DemoPage />; }
     else if (path === '/contact') { content = <ContactPage />; }
     else if (path === '/services') { content = <ServicesPage />; }
+    else if (path === '/service-portfolio') { content = <ServicePortfolioPage />; }
     else if (path === '/portal') { content = <ClientPortalPage />; }
     else if (path === '/policy') { content = <PolicyPage />; }
     else if (path === '/terms') { content = <TermsOfServicePage />; }

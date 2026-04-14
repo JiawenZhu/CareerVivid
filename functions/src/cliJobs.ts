@@ -778,3 +778,142 @@ export const cliResumeDelete = functions.region("us-west1").runWith({
         }
     });
 });
+
+// ──────────────────────────────────────────────────────────────────────────────
+// POST /cliCoverLetterCreate
+// Body: { resumeId: string, jobTitle: string, companyName: string, jobDescription: string }
+// Generates and saves a cover letter.
+// ──────────────────────────────────────────────────────────────────────────────
+
+export const cliCoverLetterCreate = functions.region("us-west1").runWith({
+    secrets: [geminiApiKey],
+    timeoutSeconds: 60,
+    memory: "512MB",
+}).https.onRequest(async (req, res) => {
+    corsHandler(req, res, async () => {
+        if (req.method === "OPTIONS") { res.set("Access-Control-Allow-Origin", "*"); res.set("Access-Control-Allow-Methods", "POST, OPTIONS"); res.set("Access-Control-Allow-Headers", "Content-Type, x-api-key"); res.status(204).send(""); return; }
+        if (req.method !== "POST") { res.status(405).json({ error: "Method Not Allowed" }); return; }
+
+        const user = await resolveAuth(req);
+        if (!user) { res.status(401).json({ error: "Unauthorized." }); return; }
+
+        const { resumeId, jobTitle = "Untitled Position", companyName = "Unknown Company", jobDescription } = req.body as { resumeId: string, jobTitle?: string, companyName?: string, jobDescription: string };
+        if (!resumeId || !jobDescription) { res.status(400).json({ error: "resumeId and jobDescription are required." }); return; }
+
+        try {
+            const resumeDoc = await db.collection("users").doc(user.uid).collection("resumes").doc(resumeId).get();
+            if (!resumeDoc.exists) { res.status(404).json({ error: "Resume not found" }); return; }
+
+            const resumeData = resumeDoc.data()!;
+            const contact = resumeData.personalDetails;
+            const work = resumeData.employmentHistory || [];
+            const skills = resumeData.skills || [];
+
+            const fullName = `${contact?.firstName || ''} ${contact?.lastName || ''}`.trim() || '[Your Name]';
+            const email = contact?.email || '[Your Email Address]';
+            const phone = contact?.phone || '[Your Phone Number]';
+            const location = contact?.city ? `${contact.city}${contact.state ? ', ' + contact.state : ''}` : '[Your City, State]';
+
+            const socialLinks = contact?.socialLinks || [];
+            const linkedInLink = socialLinks.find((link: any) => link.label?.toLowerCase().includes('linkedin') || link.url?.toLowerCase().includes('linkedin'));
+            const linkedIn = linkedInLink?.url || '[Your LinkedIn Profile URL]';
+
+            const prompt = `You are an expert career coach and professional resume writer.
+Write a compelling, professional cover letter for ${fullName}.
+
+THE JOB:
+Role: ${jobTitle}
+Company: ${companyName}
+Description: ${jobDescription.substring(0, 3000)}
+
+THE CANDIDATE'S CONTACT INFO (use these EXACT values in the header):
+- Full Name: ${fullName}
+- Location: ${location}
+- Phone: ${phone}
+- Email: ${email}
+- LinkedIn: ${linkedIn}
+
+THE CANDIDATE'S PROFILE:
+- Current Role: ${contact?.jobTitle || 'Professional'}
+- Key Skills: ${skills.map((s: any) => s.name || s).join(", ")}
+- Experience Highlights: ${work.map((w: any) => `${w.jobTitle} at ${w.employer}`).join("; ")}
+- Summary: ${resumeData.professionalSummary || ''}
+
+INSTRUCTIONS:
+1. Use a professional, confident tone.
+2. Tailor strictly to the "${jobTitle}" role at "${companyName}".
+3. Highlight relevant skills and experience matching the job description.
+4. Address to "Hiring Manager" at ${companyName} if no name is provided.
+5. Format nicely with paragraphs.
+6. CRITICAL: Use the candidate's REAL contact info from above in the header.
+7. Keep it under 400 words.
+8. CRITICAL: Do NOT invent fake experiences, companies, or dates. Only use facts from the candidate's profile.`;
+
+            const ai = new GoogleGenAI({ apiKey: geminiApiKey.value() });
+            const response = await ai.models.generateContent({ model: "gemini-2.5-flash", contents: prompt });
+            const generatedText = response.text || "";
+
+            const coverLetterRef = db.collection("users").doc(user.uid).collection("coverLetters").doc();
+            const coverLetter = {
+                id: coverLetterRef.id,
+                userId: user.uid,
+                resumeId,
+                jobTitle,
+                companyName,
+                jobDescription,
+                content: generatedText,
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            };
+
+            await coverLetterRef.set(coverLetter);
+
+            res.json({ success: true, coverLetter });
+        } catch (err: any) {
+            console.error("[cliCoverLetterCreate] Error:", err.message);
+            res.status(500).json({ error: `Generation failed: ${err.message}` });
+        }
+    });
+});
+
+// ──────────────────────────────────────────────────────────────────────────────
+// GET /cliCoverLettersList
+// Returns lightweight list of user's cover letters
+// ──────────────────────────────────────────────────────────────────────────────
+
+export const cliCoverLettersList = functions.region("us-west1").runWith({
+    timeoutSeconds: 30,
+    memory: "256MB",
+}).https.onRequest(async (req, res) => {
+    corsHandler(req, res, async () => {
+        if (req.method === "OPTIONS") { res.set("Access-Control-Allow-Origin", "*"); res.set("Access-Control-Allow-Methods", "GET, OPTIONS"); res.set("Access-Control-Allow-Headers", "Content-Type, x-api-key"); res.status(204).send(""); return; }
+        if (req.method !== "GET") { res.status(405).json({ error: "Method Not Allowed" }); return; }
+
+        const user = await resolveAuth(req);
+        if (!user) { res.status(401).json({ error: "Unauthorized." }); return; }
+
+        const jobId = req.query.jobId as string | undefined;
+
+        try {
+            let query = db.collection("users").doc(user.uid).collection("coverLetters").orderBy("createdAt", "desc").limit(50);
+            if (jobId) {
+                query = db.collection("users").doc(user.uid).collection("coverLetters").where("jobId", "==", jobId).orderBy("createdAt", "desc").limit(50);
+            }
+
+            const snap = await query.get();
+            const coverLetters = snap.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    jobTitle: data.jobTitle || "Untitled",
+                    companyName: data.companyName || "Unknown",
+                    createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
+                };
+            });
+
+            res.json({ coverLetters, total: coverLetters.length });
+        } catch (err: any) {
+            console.error("[cliCoverLettersList] Error:", err.message);
+            res.status(500).json({ error: `Failed to list cover letters: ${err.message}` });
+        }
+    });
+});

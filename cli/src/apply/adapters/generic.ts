@@ -8,7 +8,7 @@
  * Breezy, Pinpoint, and company-hosted career sites.
  */
 
-import type { Page } from "playwright";
+import type { Page } from "playwright-core";
 import type { ATSAdapter, FormField } from "../index.js";
 import type { ApplyProfile } from "../gemini-agent.js";
 import { humanType, humanDelay } from "../browser.js";

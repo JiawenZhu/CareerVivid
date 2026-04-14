@@ -207,6 +207,10 @@ export async function initPortfolio(title?: string, templateId?: string): Promis
     return apiRequest<{ success: boolean; portfolioId: string; url: string }>("POST", "portfolio/init", { title, templateId });
 }
 
+export async function portfolioList(): Promise<{ portfolios: { id: string; title: string; url: string; updatedAt: string | null }[] } | ApiError> {
+    return apiRequest<{ portfolios: { id: string; title: string; url: string; updatedAt: string | null }[] }>("GET", "portfolio/list");
+}
+
 export async function updatePortfolioProjects(portfolioId: string, projects: any[], techStack?: string[]): Promise<{ success: boolean; message: string } | ApiError> {
     return apiRequest<{ success: boolean; message: string }>("PATCH", "portfolio/projects", { portfolioId, projects, techStack });
 }
@@ -422,4 +426,31 @@ export async function getApplyAnswers(payload: {
     generateCoverLetter?: boolean;
 }): Promise<ApplyAnswerResult | ApiError> {
     return cfRequest<ApplyAnswerResult>("POST", "generateApplyAnswers", payload);
+}
+
+// ── Cover Letters ─────────────────────────────────────────────────────────────
+
+export interface CoverLetter {
+    id: string;
+    jobTitle: string;
+    companyName: string;
+    createdAt?: string;
+    content?: string;
+}
+
+/** Generate and save a new cover letter natively */
+export async function generateCoverLetter(payload: {
+    resumeId: string;
+    jobTitle: string;
+    companyName: string;
+    jobDescription: string;
+}): Promise<{ success: boolean; coverLetter: CoverLetter } | ApiError> {
+    return cfRequest<{ success: boolean; coverLetter: CoverLetter }>("POST", "cliCoverLetterCreate", payload);
+}
+
+/** List previously generated cover letters */
+export async function listCoverLetters(jobId?: string): Promise<{ coverLetters: CoverLetter[]; total: number } | ApiError> {
+    const params: Record<string, string> = {};
+    if (jobId) params.jobId = jobId;
+    return cfRequest<{ coverLetters: CoverLetter[]; total: number }>("GET", "cliCoverLettersList", undefined, Object.keys(params).length ? params : undefined);
 }

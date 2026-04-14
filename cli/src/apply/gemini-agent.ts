@@ -13,7 +13,7 @@
  */
 
 import { GoogleGenAI } from "@google/genai";
-import type { Page } from "playwright";
+import type { Page } from "playwright-core";
 import { homedir } from "os";
 import { join } from "path";
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "fs";
