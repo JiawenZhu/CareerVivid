@@ -28,8 +28,10 @@ export interface CareerVividConfig {
     llmProvider?: LLMProvider;
     /** BYO model identifier (e.g. "gpt-4o", "claude-opus-4-5", "gemini-2.5-pro") */
     llmModel?: string;
-    /** BYO API key for the chosen provider */
+    /** @deprecated use llmKeys[provider] instead — kept for migration */
     llmApiKey?: string;
+    /** Per-provider API keys — keyed by provider name */
+    llmKeys?: Partial<Record<LLMProvider, string>>;
     /** Custom base URL for OpenAI-compatible endpoints (OpenRouter, Kimi, GLM, Qwen, etc.) */
     llmBaseUrl?: string;
 }
@@ -63,6 +65,24 @@ export function getApiKey(): string | undefined {
 /** Gemini API key used by `cv agent`. Priority: GEMINI_API_KEY env var > geminiKey in config. */
 export function getGeminiKey(): string | undefined {
     return process.env.GEMINI_API_KEY || loadConfig().geminiKey;
+}
+
+/** Get the saved API key for a specific BYO provider */
+export function getProviderKey(provider: LLMProvider): string | undefined {
+    const cfg = loadConfig();
+    // Per-provider key takes priority, fallback to old llmApiKey (migration)
+    return cfg.llmKeys?.[provider] ?? (cfg.llmProvider === provider ? cfg.llmApiKey : undefined);
+}
+
+/** Save the API key for a specific BYO provider */
+export function setProviderKey(provider: LLMProvider, key: string): void {
+    const cfg = loadConfig();
+    cfg.llmKeys = cfg.llmKeys ?? {};
+    cfg.llmKeys[provider] = key;
+    // Also write to llmApiKey for backwards compat when this is the active provider
+    cfg.llmApiKey = key;
+    cfg.llmProvider = provider;
+    saveConfig(cfg);
 }
 
 export function getApiUrl(): string {
@@ -132,7 +152,7 @@ export function getLlmConfig(overrides?: {
     const apiKey: string | undefined =
         overrides?.apiKey ??
         process.env.CV_LLM_API_KEY ??
-        cfg.llmApiKey ??
+        getProviderKey(provider) ??
         cfg.geminiKey ??
         process.env.GEMINI_API_KEY;
 

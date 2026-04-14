@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import pkg from "enquirer";
-import { loadConfig, saveConfig, type LLMProvider } from "../../config.js";
+import { loadConfig, saveConfig, setProviderKey, getProviderKey, type LLMProvider } from "../../config.js";
 
 const { prompt } = pkg;
 
@@ -187,21 +187,47 @@ export async function promptForAgentModel(options: any = {}): Promise<{
     };
     selectedProvider = providerMap[picked] || "openai";
 
-    const savedCfg = loadConfig();
-    const savedKey = savedCfg.llmApiKey;
+    const providerLabels: Record<string, string> = {
+      openai: "OpenAI",
+      anthropic: "Anthropic",
+      gemini: "Gemini (Google AI Studio)",
+      openrouter: "OpenRouter",
+      custom: "Custom endpoint",
+    };
+
+    const providerKeyUrls: Record<string, string> = {
+      openai: "https://platform.openai.com/api-keys",
+      anthropic: "https://console.anthropic.com/settings/keys",
+      gemini: "https://aistudio.google.com/app/apikey",
+      openrouter: "https://openrouter.ai/settings/keys",
+      custom: "your custom endpoint's documentation",
+    };
+
+    // Check for this specific provider's saved key — NOT a shared key
+    const savedKey = getProviderKey(selectedProvider);
     if (!savedKey) {
-      console.log(chalk.yellow(`\n🔑 BYO API key needed for ${selectedProvider}.`));
-      console.log(chalk.dim("  Run: cv agent config   to save your key permanently.\n"));
+      console.log();
+      console.log(
+        chalk.bold.yellow(`🔑 API key required for ${providerLabels[selectedProvider] ?? selectedProvider}`) +
+        chalk.dim("\n   Your key will be saved locally — you only need to enter it once.")
+      );
+      console.log(
+        chalk.dim(`\n   Get your key at: `) + chalk.cyan(providerKeyUrls[selectedProvider] ?? "the provider's website")
+      );
+      console.log();
       const keyAnswer = await prompt<{ key: string }>({
         type: "password",
         name: "key",
-        message: `Enter your ${selectedProvider} API key:`,
+        message: `Enter your ${providerLabels[selectedProvider] ?? selectedProvider} API key:`,
       });
       apiKey = keyAnswer.key.trim();
-    }
-
-    if (!apiKey) {
-      apiKey = savedKey; // Keep existing api key fallback
+      if (apiKey) {
+        setProviderKey(selectedProvider, apiKey);
+        console.log(chalk.green(`\n✔ Key saved for ${providerLabels[selectedProvider] ?? selectedProvider}\n`));
+      }
+    } else {
+      apiKey = savedKey;
+      console.log(chalk.dim(`\n   Using saved ${providerLabels[selectedProvider] ?? selectedProvider} key (••••${savedKey.slice(-4)})\n`));
     }
 
     // Attempt to automatically fetch and display Free OpenRouter models that support tools
@@ -246,6 +272,7 @@ export async function promptForAgentModel(options: any = {}): Promise<{
     }
 
     // Pre-fill with the saved model when provider matches, otherwise use sensible defaults
+    const savedCfg = loadConfig();
     const defaultModel =
       savedCfg.llmProvider === selectedProvider && savedCfg.llmModel
         ? savedCfg.llmModel
