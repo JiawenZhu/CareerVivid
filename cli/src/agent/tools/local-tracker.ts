@@ -21,9 +21,10 @@
 
 import { Tool } from "../Tool.js";
 import { Type } from "@google/genai";
-import { readFileSync, writeFileSync, existsSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
+import { homedir } from "os";
 
 // ---------------------------------------------------------------------------
 // CSV path resolution
@@ -32,13 +33,16 @@ import { fileURLToPath } from "url";
 function getCsvPath(): string {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname  = dirname(__filename);
-  const candidates = [
+  // 1. Check dev repo locations first (for existing users/contributors)
+  const devCandidates = [
     resolve(__dirname, "../../../../career-ops/data/jobs.csv"),
     resolve(__dirname, "../../../../../career-ops/data/jobs.csv"),
     resolve(process.cwd(), "career-ops/data/jobs.csv"),
   ];
-  for (const p of candidates) { if (existsSync(p)) return p; }
-  return resolve(process.cwd(), "career-ops/data/jobs.csv");
+  for (const p of devCandidates) { if (existsSync(p)) return p; }
+
+  // 2. Global user data directory (~/.careervivid/jobs.csv) for external/installed users
+  return resolve(homedir(), ".careervivid", "jobs.csv");
 }
 
 // ---------------------------------------------------------------------------
@@ -117,7 +121,12 @@ function serializeCsv(rows: CsvRow[]): string {
 function loadCsv(): { rows: CsvRow[]; path: string } {
   const path = getCsvPath();
   if (!existsSync(path)) {
-    throw new Error(`jobs.csv not found at ${path}. Run from the careervivid repo root.`);
+    // Auto-bootstrap: create parent directory + empty CSV with headers
+    const dir = resolve(path, "..");
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(path, HEADERS.join(",") + "\n", "utf-8");
+    console.log(`\n📋 Created your job tracker at: ${path}`);
+    console.log(`   Add jobs with cv agent, or edit the CSV directly.\n`);
   }
   const raw = readFileSync(path, "utf-8");
   return { rows: parseCsv(raw), path };
