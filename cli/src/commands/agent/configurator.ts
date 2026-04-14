@@ -215,20 +215,29 @@ export async function promptForAgentModel(options: any = {}): Promise<{
         chalk.dim(`\n   Get your key at: `) + chalk.cyan(providerKeyUrls[selectedProvider] ?? "the provider's website")
       );
       console.log();
-      const keyAnswer = await prompt<{ key: string }>({
-        type: "password",
-        name: "key",
-        message: `Enter your ${providerLabels[selectedProvider] ?? selectedProvider} API key:`,
-      });
-      apiKey = keyAnswer.key.trim();
+      try {
+        const keyAnswer = await prompt<{ key: string }>({
+          type: "password",
+          name: "key",
+          message: `Enter your ${providerLabels[selectedProvider] ?? selectedProvider} API key:`,
+        });
+        apiKey = (keyAnswer?.key ?? "").trim();
+      } catch {
+        // User pressed Escape or Ctrl+C — exit cleanly
+        console.log(chalk.dim("\n  Cancelled. Run `cv agent` again when you have your API key.\n"));
+        process.exit(0);
+      }
       if (apiKey) {
         setProviderKey(selectedProvider, apiKey);
         console.log(chalk.green(`\n✔ Key saved for ${providerLabels[selectedProvider] ?? selectedProvider}\n`));
+      } else {
+        console.log(chalk.yellow("\n⚠️  No key entered. Continuing without API key — the agent may fail.\n"));
       }
     } else {
       apiKey = savedKey;
       console.log(chalk.dim(`\n   Using saved ${providerLabels[selectedProvider] ?? selectedProvider} key (••••${savedKey.slice(-4)})\n`));
     }
+
 
     // Attempt to automatically fetch and display Free OpenRouter models that support tools
     if (selectedProvider === "openrouter") {

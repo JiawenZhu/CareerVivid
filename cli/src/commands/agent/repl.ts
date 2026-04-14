@@ -5,7 +5,7 @@ import { isSafeCommand } from "../../agent/tools/coding.js";
 import { CareerVividProxyEngine } from "../../agent/CareerVividProxyEngine.js";
 import { QueryEngine } from "../../agent/QueryEngine.js";
 import { CV_MODELS } from "./configurator.js";
-import { loadConfig, getGeminiKey, type LLMProvider } from "../../config.js";
+import { loadConfig, getGeminiKey, getProviderKey, type LLMProvider } from "../../config.js";
 
 const { prompt } = pkg;
 
@@ -410,8 +410,8 @@ ${label}
         const { createOpenAICompatibleProvider } = await import("../../agent/providers/OpenAIProvider.js");
         const { AnthropicProvider } = await import("../../agent/providers/AnthropicProvider.js");
 
-        const byoApiKey = options["api-key"] || loadConfig().llmApiKey;
-        const key = byoApiKey || getGeminiKey() || "";
+        const byoApiKey = options["api-key"] || getProviderKey(selectedProvider) || loadConfig().llmApiKey;
+        const key = byoApiKey || "";
         const baseUrl = options["base-url"] || loadConfig().llmBaseUrl;
 
         let provider: any;
