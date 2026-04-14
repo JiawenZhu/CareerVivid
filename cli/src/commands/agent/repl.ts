@@ -232,9 +232,44 @@ export async function askLoop(
       let trustAllCommands = false;
       let trustAllWrites = false;
 
+      // Map internal tool names to user-friendly labels
+      const TOOL_LABELS: Record<string, string> = {
+        list_directory:        "🔍 Scanning workspace...",
+        read_file:             "📖 Reading file...",
+        run_command:           "⚙️  Running command...",
+        write_file:            "✏️  Writing file...",
+        patch_file:            "✏️  Patching file...",
+        list_local_jobs:       "📊 Checking job pipeline...",
+        add_local_job:         "➕ Adding job to pipeline...",
+        update_local_job:      "🔄 Updating job record...",
+        score_pipeline:        "📈 Scoring pipeline...",
+        get_pipeline_metrics:  "📊 Fetching pipeline metrics...",
+        flag_stale_jobs:       "🚩 Checking stale jobs...",
+        list_cover_letters:    "📄 Loading cover letters...",
+        get_cover_letter:      "📄 Reading cover letter...",
+        save_cover_letter:     "💾 Saving cover letter...",
+        delete_cover_letter:   "🗑️  Deleting cover letter...",
+        browser_navigate:      "🌐 Navigating to page...",
+        browser_click:         "🖱️  Clicking element...",
+        browser_type:          "⌨️  Typing input...",
+        browser_state:         "🌐 Reading browser state...",
+        browser_screenshot:    "📸 Taking screenshot...",
+        browser_scroll:        "📜 Scrolling page...",
+        browser_wait:          "⏳ Waiting...",
+        browser_close:         "🔒 Closing browser...",
+        browser_select:        "🖱️  Selecting option...",
+        search_jobs:           "🔍 Searching jobs...",
+        get_resume:            "📄 Loading resume...",
+        list_resumes:          "📄 Loading resumes...",
+        get_profile:           "👤 Loading profile...",
+      };
+
       const handleToolCall = async (name: string, args: any): Promise<boolean> => {
-        console.log(chalk.yellow(`\n🛠️  Tool: ${chalk.bold(name)}`));
-        console.log(chalk.dim(`   Args: ${JSON.stringify(args, null, 2)}`));
+        // Show a clean, user-friendly label — never show raw args
+        const label = TOOL_LABELS[name] ?? `⚙️  Working...`;
+        process.stdout.write(chalk.dim(`
+${label}
+`));
 
         if (name === "run_command") {
           if (trustAllCommands || isSafeCommand(args.command)) {
@@ -303,11 +338,10 @@ export async function askLoop(
 
       const handleToolResult = (name: string, result: any) => {
         if (currentSpinner) {
-          currentSpinner.succeed(`Finished ${chalk.bold(name)}`);
+          currentSpinner.succeed(chalk.dim(`Done`));
           currentSpinner = null;
         }
-        const preview = typeof result === "string" ? result.substring(0, 120) : JSON.stringify(result).substring(0, 120);
-        console.log(chalk.dim(`   ✅ ${name}: ${preview}${preview.length >= 120 ? "…" : ""}\n`));
+        // Suppress raw output — the agent will summarize it in natural language
       };
 
       if (engine) {
