@@ -18,5 +18,10 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "overrides": {
+    "braces": "3.0.3",
+    "cross-spawn": "7.0.6",
+    "cookie": "0.7.2"
   }
 }
