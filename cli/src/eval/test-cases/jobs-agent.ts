@@ -25,14 +25,14 @@ export const JOBS_AGENT_TESTS: TestCase[] = [
     turns: [
       {
         prompt:           "Check my local tracker and show me all the companies I'm currently tracking — grouped by tier and status.",
-        expectTools:      ["list_local_jobs"],
-        forbidTools:      ["update_local_job", "add_local_job"],
+        expectTools:      ["tracker_list_jobs"],
+        forbidTools:      ["tracker_update_job", "tracker_add_job"],
         expectedKeywords: ["tier", "status", "company"],
       },
     ],
     rubric: {
       intent:       "User wants to see all companies they're tracking in jobs.csv.",
-      goodResponse: "Calls list_local_jobs with no filters and presents a clear, well-formatted summary grouped by tier and status, showing attention scores, excitement, effort and pipeline summary counts.",
+      goodResponse: "Calls tracker_list_jobs with no filters and presents a clear, well-formatted summary grouped by tier and status, showing attention scores, excitement, effort and pipeline summary counts.",
       badResponse:  "Calls a different tool, returns unstructured data, or fabricates company data.",
     },
   },
@@ -45,7 +45,7 @@ export const JOBS_AGENT_TESTS: TestCase[] = [
     turns: [
       {
         prompt:           "I want to add Linear to my job tracker. It's a Tier 1 target for a Senior Software Engineer role. Their careers page is at https://linear.app/careers. They use Ashby ATS.",
-        expectTools:      ["add_local_job"],
+        expectTools:      ["tracker_add_job"],
         expectedKeywords: ["linear", "added", "tier", "LIN"],
       },
       {
@@ -55,7 +55,7 @@ export const JOBS_AGENT_TESTS: TestCase[] = [
     ],
     rubric: {
       intent:       "User wants to add a new Tier 1 company and recall the auto-generated ID.",
-      goodResponse: "Calls add_local_job with all provided details, reports auto-generated ID (LIN-001), and recalls it in turn 2.",
+      goodResponse: "Calls tracker_add_job with all provided details, reports auto-generated ID (LIN-001), and recalls it in turn 2.",
       badResponse:  "Fails to call tool, misses ATS/tier, or can't recall ID in turn 2.",
     },
   },
@@ -68,18 +68,18 @@ export const JOBS_AGENT_TESTS: TestCase[] = [
     turns: [
       {
         prompt:           "Show me all jobs I haven't applied to yet.",
-        expectTools:      ["list_local_jobs"],
-        forbidTools:      ["update_local_job"],
+        expectTools:      ["tracker_list_jobs"],
+        forbidTools:      ["tracker_update_job"],
         expectedKeywords: ["to apply", "status"],
       },
       {
         prompt:           "Pick the first Tier 1 company in the list and mark it as Applied. Set today as the application date.",
-        expectTools:      ["update_local_job"],
+        expectTools:      ["tracker_update_job"],
         expectedKeywords: ["applied", "updated", "date"],
       },
       {
         prompt:           "Set a follow-up reminder for that same company in 5 days from today.",
-        expectTools:      ["update_local_job"],
+        expectTools:      ["tracker_update_job"],
         expectedKeywords: ["follow", "updated"],
       },
     ],
@@ -150,16 +150,16 @@ export const JOBS_AGENT_TESTS: TestCase[] = [
       },
       {
         prompt:      "For each of those 3 companies, pull up what I have in my local tracker if anything, and tell me the current status.",
-        expectTools: ["list_local_jobs"],
+        expectTools: ["tracker_list_jobs"],
       },
       {
         prompt:           "Of those I'm not tracking yet, which one should I add first and why?",
-        forbidTools:      ["add_local_job"],
+        forbidTools:      ["tracker_add_job"],
         expectedKeywords: ["recommend", "add", "because", "first"],
       },
       {
         prompt:           "OK, go ahead and add that company to my tracker as a Tier 1 target.",
-        expectTools:      ["add_local_job"],
+        expectTools:      ["tracker_add_job"],
         expectedKeywords: ["added", "tier"],
       },
     ],
@@ -174,60 +174,60 @@ export const JOBS_AGENT_TESTS: TestCase[] = [
 
   {
     id:        "JOBS-007",
-    name:      "Priority Pipeline Ranking (score_pipeline)",
+    name:      "Priority Pipeline Ranking (tracker_rank_priority)",
     agentMode: "jobs",
     tags:      ["single-turn", "tool-use", "attention-matrix"],
     turns: [
       {
         prompt:           "Run a priority ranking of my tracker data and tell me what to work on today. I want to see the quick apply opportunities at the top.",
-        expectTools:      ["score_pipeline"],
-        forbidTools:      ["update_local_job", "add_local_job"],
+        expectTools:      ["tracker_rank_priority"],
+        forbidTools:      ["tracker_update_job", "tracker_add_job"],
         expectedKeywords: ["priority", "effort", "apply"],
       },
     ],
     rubric: {
       intent:       "User wants an attention-weighted ranked view of their pipeline to decide what to do next.",
-      goodResponse: "Calls score_pipeline, presents the ranked list with priority scores, highlights Low-effort quick-apply opportunities separately, and makes a concrete recommendation.",
-      badResponse:  "Uses list_local_jobs without sorting, doesn't call score_pipeline, or fails to highlight quick-apply opportunities.",
+      goodResponse: "Calls tracker_rank_priority, presents the ranked list with priority scores, highlights Low-effort quick-apply opportunities separately, and makes a concrete recommendation.",
+      badResponse:  "Uses tracker_list_jobs without sorting, doesn't call tracker_rank_priority, or fails to highlight quick-apply opportunities.",
     },
   },
 
   {
     id:        "JOBS-008",
-    name:      "Pipeline Analytics Dashboard (get_pipeline_metrics)",
+    name:      "Pipeline Analytics Dashboard (tracker_dashboard)",
     agentMode: "jobs",
     tags:      ["single-turn", "tool-use", "analytics"],
     turns: [
       {
         prompt:           "Pull up my pipeline stats. I want the full analytics dashboard — apply rate, average attention scores, how many are stale, and a recommendation.",
-        expectTools:      ["get_pipeline_metrics"],
-        forbidTools:      ["update_local_job", "add_local_job"],
+        expectTools:      ["tracker_dashboard"],
+        forbidTools:      ["tracker_update_job", "tracker_add_job"],
         expectedKeywords: ["apply rate", "attention", "stale", "recommend"],
       },
     ],
     rubric: {
       intent:       "User wants a comprehensive analytics view of their job search pipeline health.",
-      goodResponse: "Calls get_pipeline_metrics, surfaces at minimum: apply rate %, avg attention/excitement/fit scores, stale count, ATS breakdown, and a smart recommendation. Formats results clearly.",
-      badResponse:  "Uses list_local_jobs and manually counts, doesn't mention stale jobs or averages, or provides no recommendation.",
+      goodResponse: "Calls tracker_dashboard, surfaces at minimum: apply rate %, avg attention/excitement/fit scores, stale count, ATS breakdown, and a smart recommendation. Formats results clearly.",
+      badResponse:  "Uses tracker_list_jobs and manually counts, doesn't mention stale jobs or averages, or provides no recommendation.",
     },
   },
 
   {
     id:        "JOBS-009",
-    name:      "Stale Job Detection (flag_stale_jobs)",
+    name:      "Stale Job Detection (tracker_find_stale)",
     agentMode: "jobs",
     tags:      ["single-turn", "tool-use", "attention-matrix"],
     turns: [
       {
         prompt:           "Scan my tracker for anything going stale — companies I've been neglecting. Flag them and give me a specific action for each one.",
-        expectTools:      ["flag_stale_jobs"],
-        forbidTools:      ["update_local_job", "add_local_job"],
+        expectTools:      ["tracker_find_stale"],
+        forbidTools:      ["tracker_update_job", "tracker_add_job"],
         expectedKeywords: ["stale", "action", "apply", "follow"],
       },
     ],
     rubric: {
       intent:       "User wants to surface neglected jobs with per-company action recommendations.",
-      goodResponse: "Calls flag_stale_jobs, presents stale companies with per-company actions (Apply Now / Follow Up / Deprioritize), and summarizes total counts. Offers next step.",
+      goodResponse: "Calls tracker_find_stale, presents stale companies with per-company actions (Apply Now / Follow Up / Deprioritize), and summarizes total counts. Offers next step.",
       badResponse:  "Lists all jobs without filtering for staleness, doesn't provide action recommendations, or guesses stale jobs without calling the tool.",
     },
   },
@@ -240,23 +240,23 @@ export const JOBS_AGENT_TESTS: TestCase[] = [
     turns: [
       {
         prompt:      "Show me my Tier 1 companies sorted by attention score.",
-        expectTools: ["list_local_jobs"],
-        forbidTools: ["update_local_job"],
+        expectTools: ["tracker_list_jobs"],
+        forbidTools: ["tracker_update_job"],
       },
       {
         prompt:           "I'm feeling super energized about Cursor right now. Set my attention score for CUR-001 to 10 and excitement to 10.",
-        expectTools:      ["update_local_job"],
+        expectTools:      ["tracker_update_job"],
         expectedKeywords: ["updated", "attention", "excitement", "CUR-001"],
       },
       {
         prompt:           "Now re-rank my pipeline and tell me what the new top 3 are.",
-        expectTools:      ["score_pipeline"],
+        expectTools:      ["tracker_rank_priority"],
         expectedKeywords: ["Cursor", "priority"],
       },
     ],
     rubric: {
       intent:       "User updates attention/excitement scores and immediately sees the effect on priority ranking.",
-      goodResponse: "Lists Tier 1 companies, updates CUR-001 attention=10 and excitement=10, then calls score_pipeline and shows Cursor at or near the top of the ranking.",
+      goodResponse: "Lists Tier 1 companies, updates CUR-001 attention=10 and excitement=10, then calls tracker_rank_priority and shows Cursor at or near the top of the ranking.",
       badResponse:  "Fails to update scores, updates wrong company, or doesn't re-rank after update.",
     },
   },
@@ -269,24 +269,24 @@ export const JOBS_AGENT_TESTS: TestCase[] = [
     turns: [
       {
         prompt:           "I have 30 minutes right now. Find me the highest-priority Low-effort job I can apply to immediately.",
-        expectTools:      ["score_pipeline"],
-        forbidTools:      ["update_local_job", "add_local_job"],
+        expectTools:      ["tracker_rank_priority"],
+        forbidTools:      ["tracker_update_job", "tracker_add_job"],
         expectedKeywords: ["low", "effort", "apply"],
       },
       {
         prompt:           "Great. Mark that one as Applied right now and set a follow-up for 7 days from today.",
-        expectTools:      ["update_local_job"],
+        expectTools:      ["tracker_update_job"],
         expectedKeywords: ["applied", "follow"],
       },
       {
         prompt:           "What's my apply rate now? And what are my next 3 priorities?",
-        expectTools:      ["get_pipeline_metrics"],
+        expectTools:      ["tracker_dashboard"],
         expectedKeywords: ["apply", "rate", "priority"],
       },
     ],
     rubric: {
       intent:       "Time-constrained apply decision → execution → impact check. Validates end-to-end apply workflow.",
-      goodResponse: "Identifies highest-priority Low-effort job from score_pipeline. Marks it Applied with follow-up in turn 2. Shows updated apply rate and refreshed priority list in turn 3.",
+      goodResponse: "Identifies highest-priority Low-effort job from tracker_rank_priority. Marks it Applied with follow-up in turn 2. Shows updated apply rate and refreshed priority list in turn 3.",
       badResponse:  "Picks a medium/high-effort job, fails to set follow-up, or gives stale metrics without re-calling the tool.",
     },
   },
@@ -308,19 +308,19 @@ export const JOBS_AGENT_TESTS: TestCase[] = [
       },
       {
         prompt:           "The top result looks interesting. Add it to my local tracker as a Tier 2 target with attention_score 8 and excitement 8.",
-        expectTools:      ["add_local_job"],
+        expectTools:      ["tracker_add_job"],
         expectedKeywords: ["added", "tier", "attention"],
       },
       {
         prompt:           "How does this new company rank in my pipeline? Show me where it fits in my priority score.",
-        expectTools:      ["score_pipeline"],
+        expectTools:      ["tracker_rank_priority"],
         expectedKeywords: ["priority", "score"],
       },
     ],
     rubric: {
       intent:       "Full end-to-end workflow: search → discover → add to tracker → see priority ranking. Tests all major tools in sequence.",
-      goodResponse: "Uses resume context to search, adds the top result with specified scores, then shows score_pipeline where the new entry appears in the ranked list.",
-      badResponse:  "Adds a different company than the top search result, omits attention/excitement scores, or doesn't call score_pipeline to show placement.",
+      goodResponse: "Uses resume context to search, adds the top result with specified scores, then shows tracker_rank_priority where the new entry appears in the ranked list.",
+      badResponse:  "Adds a different company than the top search result, omits attention/excitement scores, or doesn't call tracker_rank_priority to show placement.",
     },
   },
 ];

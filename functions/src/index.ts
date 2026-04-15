@@ -66,6 +66,9 @@ export { generateApplyAnswers } from "./generateApplyAnswers";
 // CLI Job Hunt API
 export { cliJobsHunt, cliJobsCreate, cliJobsUpdate, cliJobsList, cliResumeGet, cliResumesList, cliResumeCreate, cliResumeUpdate, cliResumeDelete, cliCoverLetterCreate, cliCoverLettersList } from "./cliJobs";
 
+// CLI Referrals API
+export { cliReferralStats } from "./cliReferrals";
+
 // CLI Agent Credits
 export { agentDeductCredits } from "./agentCredits";
 

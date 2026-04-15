@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { getUserReferralCode, getReferralStats } from '../services/referralService';
-import { Gift, Copy, Check, Users, Calendar } from 'lucide-react';
+import { Gift, Copy, Check, Users, Calendar, ArrowLeft } from 'lucide-react';
 import { navigate } from '../utils/navigation';
 
 const ReferralPage: React.FC = () => {
@@ -68,201 +68,249 @@ const ReferralPage: React.FC = () => {
 
     const progressPercentage = (stats.totalReferred / stats.maxReferrals) * 100;
 
+    const renderTerminalHeader = (title: string) => (
+        <div className="flex items-center px-4 py-3 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#111] gap-2 shrink-0 transition-colors">
+            <div className="flex gap-1.5 mr-auto">
+                <div className="w-3 h-3 rounded-full bg-rose-400" />
+                <div className="w-3 h-3 rounded-full bg-amber-400" />
+                <div className="w-3 h-3 rounded-full bg-emerald-400" />
+            </div>
+            <span className="text-xs font-mono text-gray-400 dark:text-gray-500">careervivid — {title}</span>
+        </div>
+    );
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-                    <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+                    <p className="mt-4 text-gray-600 dark:text-gray-400 font-mono text-sm">Initializing agent...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950 py-12 px-4 font-sans">
-            <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-8 md:mb-12">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-full mb-6">
-                        <Gift className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                        <span className="text-sm font-semibold text-purple-800 dark:text-purple-300">
-                            Premium Referral Program
-                        </span>
-                    </div>
-                    <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 leading-tight">
-                        Refer Friends & <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Earn Premium</span>
-                    </h1>
-                    <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto px-2">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-28 px-4 font-sans selection:bg-primary-100 dark:selection:bg-primary-900">
+            {/* Top Header Bar */}
+            <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50 sticky top-0 z-10 transition-all duration-300">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="flex items-center gap-2 text-gray-900 dark:text-white hover:opacity-70 transition-all group"
+                    >
+                        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform stroke-[2.5]" />
+                        <span className="text-sm font-semibold">Dashboard</span>
+                    </button>
+                </div>
+            </header>
+
+            <div className="max-w-5xl mx-auto">
+                
+                {/* ── Header exactly matching Screenshot 2 ── */}
+                <div className="text-center mb-10">
+                    <p className="text-sm font-bold text-primary-600 dark:text-primary-400 uppercase tracking-widest mb-2">CAREERVIVID REFERRALS</p>
+                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 dark:text-white tracking-tight">
+                        Refer Friends. Earn Premium.
+                    </h2>
+                    <p className="text-gray-500 dark:text-gray-400 mt-3 max-w-xl mx-auto text-sm">
                         Share CareerVivid with your friends and both of you get rewarded!
                     </p>
                 </div>
 
-                {/* Referral Code Card */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 md:p-8 mb-6 md:mb-8">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Your Referral Code</h2>
-                    <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 mb-6">
-                        <div className="flex-1 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl p-4 border-2 border-purple-200 dark:border-purple-800">
-                            <p className="text-2xl md:text-3xl font-mono font-bold text-center text-purple-900 dark:text-purple-100 tracking-wider break-all">
-                                {referralCode}
-                            </p>
-                        </div>
-                        <button
-                            onClick={() => copyToClipboard(referralCode, 'code')}
-                            className="flex items-center justify-center gap-2 px-6 py-4 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold grow md:grow-0"
-                        >
-                            {copiedCode ? <Check size={20} /> : <Copy size={20} />}
-                            {copiedCode ? 'Copied!' : 'Copy'}
-                        </button>
-                    </div>
-
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Referral Link</h2>
-                    <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
-                        <div className="flex-1 bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700 min-w-0">
-                            <p className="text-sm font-mono text-gray-700 dark:text-gray-300 break-all md:truncate">
-                                {referralLink}
-                            </p>
-                        </div>
-                        <button
-                            onClick={() => copyToClipboard(referralLink, 'link')}
-                            className="flex items-center justify-center gap-2 px-6 py-4 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors font-semibold grow md:grow-0"
-                        >
-                            {copiedLink ? <Check size={20} /> : <Copy size={20} />}
-                            {copiedLink ? 'Copied!' : 'Copy'}
-                        </button>
-                    </div>
-                </div>
-
-                {/* Share Message Card */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 md:p-8 mb-6 md:mb-8">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Share Message</h2>
-                    <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-700 mb-4">
-                        <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap font-medium">
-                            Accelerate Your Career Path with CareerVivid! 🚀{'\n\n'}
-                            Use my exclusive code {referralCode} to get 2 Months of Premium for free.{'\n\n'}
-                            Sign up here: {referralLink}
-                        </p>
-                    </div>
-                    <button
-                        onClick={() => copyToClipboard(`Accelerate Your Career Path with CareerVivid! 🚀\n\nUse my exclusive code ${referralCode} to get 2 Months of Premium for free.\n\nSign up here: ${referralLink}`, 'code')}
-                        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-semibold"
-                    >
-                        <Copy size={20} />
-                        Copy Share Message
-                    </button>
-                </div>
-
-                {/* Progress Tracker */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 md:p-8 mb-6 md:mb-8">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Referrals Used</h2>
-                        <span className="text-xl md:text-2xl font-bold text-purple-600 dark:text-purple-400">
-                            {stats.totalReferred}/{stats.maxReferrals}
-                        </span>
-                    </div>
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
-                        <div
-                            className="h-full bg-gradient-to-r from-purple-600 to-pink-600 transition-all duration-500 rounded-full"
-                            style={{ width: `${progressPercentage}%` }}
-                        ></div>
-                    </div>
-                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        {stats.maxReferrals - stats.totalReferred} referrals remaining
-                    </p>
-                </div>
-
-                {/* Rewards Info */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8">
-                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-2xl p-6 border border-blue-200 dark:border-blue-800">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shrink-0">
-                                <Gift className="w-6 h-6 text-white" />
+                <div className="grid md:grid-cols-2 gap-6 mb-6">
+                    {/* ── Terminal Card 1: Your Link ── */}
+                    <div className="flex flex-col bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-2xl ring-1 ring-gray-900/5 dark:ring-white/10 hover:border-primary-400/50 hover:ring-primary-400/20 transition-all duration-300">
+                        {renderTerminalHeader('link')}
+                        <div className="p-6 md:p-8 flex-1 flex flex-col justify-center">
+                            <div className="mb-6">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <span className="text-pink-500 font-mono font-bold select-none">~</span>
+                                    <span className="text-primary-500 font-bold font-mono text-sm">cv</span>
+                                    <span className="text-gray-900 dark:text-gray-100 font-bold font-mono text-sm">referral --code</span>
+                                </div>
+                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                                    <div className="flex-1 bg-gray-50 dark:bg-gray-900/50 rounded-xl p-3 border border-gray-200 dark:border-gray-800 flex justify-center items-center">
+                                        <p className="text-xl md:text-2xl font-mono font-bold text-gray-900 dark:text-white tracking-widest">
+                                            {referralCode}
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => copyToClipboard(referralCode, 'code')}
+                                        className="flex items-center justify-center gap-2 px-5 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-bold sm:w-32"
+                                    >
+                                        {copiedCode ? <Check size={18} /> : <Copy size={18} />}
+                                        {copiedCode ? 'Copied!' : 'Copy'}
+                                    </button>
+                                </div>
                             </div>
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Your Friends Get</h3>
+
+                            <div>
+                                <div className="flex items-center gap-2 mb-3">
+                                    <span className="text-pink-500 font-mono font-bold select-none">~</span>
+                                    <span className="text-primary-500 font-bold font-mono text-sm">cv</span>
+                                    <span className="text-gray-900 dark:text-gray-100 font-bold font-mono text-sm">referral --link</span>
+                                </div>
+                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                                    <div className="flex-1 bg-gray-50 dark:bg-gray-900/50 rounded-xl p-3 border border-gray-200 dark:border-gray-800 overflow-hidden">
+                                        <p className="text-sm font-mono text-gray-500 dark:text-gray-400 truncate">
+                                            {referralLink}
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => copyToClipboard(referralLink, 'link')}
+                                        className="flex items-center justify-center gap-2 px-5 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl hover:opacity-90 transition-opacity font-bold sm:w-32"
+                                    >
+                                        {copiedLink ? <Check size={18} /> : <Copy size={18} />}
+                                        {copiedLink ? 'Copied!' : 'Copy'}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <ul className="space-y-3 text-gray-700 dark:text-gray-300">
-                            <li className="flex items-start gap-2">
-                                <Check className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                                <span className="text-sm md:text-base">2 months free Premium</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <Check className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                                <span className="text-sm md:text-base">300 AI credits/month</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <Check className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                                <span className="text-sm md:text-base">All premium templates</span>
-                            </li>
-                        </ul>
                     </div>
 
-                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-2xl p-6 border border-purple-200 dark:border-purple-800">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center shrink-0">
-                                <Users className="w-6 h-6 text-white" />
+                    {/* ── Terminal Card 2: Share Message ── */}
+                    <div className="flex flex-col bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-2xl ring-1 ring-gray-900/5 dark:ring-white/10 hover:border-primary-400/50 hover:ring-primary-400/20 transition-all duration-300">
+                        {renderTerminalHeader('share')}
+                        <div className="p-6 md:p-8 flex flex-col h-full">
+                            <div className="flex items-center gap-2 mb-4">
+                                <span className="text-pink-500 font-mono font-bold select-none">~</span>
+                                <span className="text-primary-500 font-bold font-mono text-sm">cv</span>
+                                <span className="text-gray-900 dark:text-gray-100 font-bold font-mono text-sm">referral --draft-message</span>
                             </div>
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">You Get</h3>
+                            <div className="flex-1 bg-gray-50 dark:bg-gray-900/50 rounded-xl p-5 border border-gray-200 dark:border-gray-800 mb-6 flex flex-col justify-center">
+                                <p className="text-gray-700 dark:text-gray-300 text-sm md:text-base font-medium leading-relaxed font-sans border-l-2 border-primary-400/50 pl-3">
+                                    Accelerate Your Career Path with CareerVivid! 🚀<br /><br />
+                                    Use my exclusive code <span className="text-primary-600 dark:text-primary-400 font-bold">{referralCode}</span> to get 2 Months of Premium for free.<br /><br />
+                                    Sign up here: <span className="text-primary-600 dark:text-primary-400 break-all">{referralLink}</span>
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => copyToClipboard(`Accelerate Your Career Path with CareerVivid! 🚀\n\nUse my exclusive code ${referralCode} to get 2 Months of Premium for free.\n\nSign up here: ${referralLink}`, 'code')}
+                                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-bold mt-auto border border-primary-500 shadow-lg shadow-primary-500/10"
+                            >
+                                <Copy size={18} />
+                                Copy Message
+                            </button>
                         </div>
-                        <ul className="space-y-3 text-gray-700 dark:text-gray-300">
-                            <li className="flex items-start gap-2">
-                                <Check className="w-5 h-5 text-purple-600 shrink-0 mt-0.5" />
-                                <span className="text-sm md:text-base">1 month free Premium</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <Check className="w-5 h-5 text-purple-600 shrink-0 mt-0.5" />
-                                <span className="text-sm md:text-base">Per successful referral</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <Check className="w-5 h-5 text-purple-600 shrink-0 mt-0.5" />
-                                <span className="text-sm md:text-base">Up to 5 months total</span>
-                            </li>
-                        </ul>
                     </div>
                 </div>
 
-                {/* Referred Users List */}
-                {stats.referredUsers.length > 0 && (
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 md:p-8">
-                        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Referred Users</h2>
-                        <div className="space-y-3">
-                            {stats.referredUsers.map((user, index) => (
+                {/* ── Terminal Card 3: Metrics & Tracker ── */}
+                <div className="flex flex-col bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-2xl ring-1 ring-gray-900/5 dark:ring-white/10 mb-6 hover:border-primary-400/50 hover:ring-primary-400/20 transition-all duration-300">
+                    {renderTerminalHeader('metrics')}
+                    <div className="p-6 md:p-10 font-sans">
+                        <div className="mb-10">
+                            <div className="flex items-center gap-2 mb-6">
+                                <span className="text-pink-500 font-mono font-bold select-none">~</span>
+                                <span className="text-primary-500 font-bold font-mono text-sm">cv</span>
+                                <span className="text-gray-900 dark:text-gray-100 font-bold font-mono text-sm">referral --status</span>
+                            </div>
+                            <div className="flex items-end justify-between mb-3 border-l-2 border-primary-400/50 pl-3">
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Redemption Progress</h3>
+                                    <p className="ms:mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                        {stats.maxReferrals - stats.totalReferred} referrals remaining
+                                    </p>
+                                </div>
+                                <span className="text-2xl sm:text-3xl font-black text-primary-600 dark:text-primary-400">
+                                    {stats.totalReferred}/{stats.maxReferrals}
+                                </span>
+                            </div>
+                            <div className="w-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full h-4 overflow-hidden shadow-inner">
                                 <div
-                                    key={user.uid}
-                                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 gap-3"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center text-white font-bold shrink-0">
-                                            {index + 1}
-                                        </div>
-                                        <div className="min-w-0">
-                                            <p className="font-medium text-gray-900 dark:text-white truncate">{user.email}</p>
-                                            <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                                                <Calendar size={14} />
-                                                <span>
-                                                    {user.signupDate?.toDate?.()?.toLocaleDateString() || 'Recently'}
-                                                </span>
+                                    className="h-full bg-gradient-to-r from-primary-500 to-blue-500 transition-all duration-700 rounded-full"
+                                    style={{ width: `${progressPercentage}%` }}
+                                ></div>
+                            </div>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-6 border border-gray-200 dark:border-gray-800">
+                                <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <Gift className="w-4 h-4 text-blue-500" /> They Get
+                                </h3>
+                                <ul className="space-y-3">
+                                    {['2 months free Premium', '1000 AI credits/month', 'All premium templates'].map((item, i) => (
+                                        <li key={i} className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-400">
+                                            <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" /> {item}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-6 border border-gray-200 dark:border-gray-800">
+                                <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <Users className="w-4 h-4 text-primary-500" /> You Get
+                                </h3>
+                                <ul className="space-y-3">
+                                    {['1 month free Premium', 'Per successful referral', 'Up to 5 months total'].map((item, i) => (
+                                        <li key={i} className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-400">
+                                            <Check className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" /> {item}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* ── Referred Users List ── */}
+                {stats.referredUsers.length > 0 ? (
+                    <div className="flex flex-col bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-xl ring-1 ring-gray-900/5 dark:ring-white/10">
+                        {renderTerminalHeader('users')}
+                        <div className="p-6 md:p-8">
+                            <div className="flex items-center gap-2 mb-6">
+                                <span className="text-pink-500 font-mono font-bold select-none">~</span>
+                                <span className="text-primary-500 font-bold font-mono text-sm">cv</span>
+                                <span className="text-gray-900 dark:text-gray-100 font-bold font-mono text-sm">referral --list</span>
+                            </div>
+                            <div className="space-y-3">
+                                {stats.referredUsers.map((user, index) => (
+                                    <div
+                                        key={user.uid}
+                                        className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800 gap-3 hover:border-gray-300 dark:hover:border-gray-700 transition-colors"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-8 h-8 bg-gray-800 text-white rounded flex items-center justify-center font-mono text-sm font-bold shadow-sm">
+                                                {index + 1}
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="font-mono text-sm font-semibold text-gray-900 dark:text-white truncate mb-0.5">{user.email}</p>
+                                                <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                                                    <Calendar size={12} />
+                                                    <span>
+                                                        {user.signupDate?.toDate?.()?.toLocaleDateString() || 'Recently'}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
+                                        <div className="flex sm:justify-end">
+                                            <span className="px-2.5 py-1 text-xs font-mono bg-emerald-100 border border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-400 rounded-md">
+                                                ✓ active
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div className="flex sm:justify-end">
-                                        <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-sm font-medium">
-                                            Active
-                                        </span>
-                                    </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
                     </div>
-                )}
-
-                {/* Empty State */}
-                {stats.referredUsers.length === 0 && (
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
-                        <Users className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">No referrals yet</h3>
-                        <p className="text-gray-600 dark:text-gray-400">
-                            Share your referral code with friends to get started!
-                        </p>
+                ) : (
+                    <div className="flex flex-col bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-xl ring-1 ring-gray-900/5 dark:ring-white/10">
+                        {renderTerminalHeader('users')}
+                        <div className="p-12 text-center flex flex-col items-center">
+                            <div className="flex items-center gap-2 mb-6">
+                                <span className="text-pink-500 font-mono font-bold select-none">~</span>
+                                <span className="text-primary-500 font-bold font-mono text-sm">cv</span>
+                                <span className="text-gray-900 dark:text-gray-100 font-bold font-mono text-sm">referral --list</span>
+                            </div>
+                            <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 inline-block mb-4">
+                                <Users className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+                            </div>
+                            <h3 className="text-sm font-mono font-bold text-gray-900 dark:text-white mb-2">Error: No referrals found</h3>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm font-mono">
+                                Share your referral code with friends to get started!
+                            </p>
+                        </div>
                     </div>
                 )}
             </div>

@@ -6,6 +6,8 @@ import { CV_MODELS, BYO_MODELS, runAgentConfig, promptForAgentModel } from "./co
 import { getTools } from "./toolRegistry.js";
 import { getSystemInstruction, buildEngine, printBanner } from "./engineResolver.js";
 import { askLoop } from "./repl.js";
+import { initSessionContext } from "../../agent/agentAuditLog.js";
+
 
 const { prompt } = pkg;
 
@@ -109,6 +111,22 @@ export function registerAgentCommand(program: Command) {
       const includeThoughts = Boolean(options.verbose);
       const systemInstruction = getSystemInstruction(options);
 
+      // ── Inject session LLM config into env so sub-tools (e.g. ApplyToJobTool)
+      // always use the provider/model the user selected in this session, not the
+      // stale value from ~/.careervividrc.json.
+      process.env.CV_SESSION_LLM_PROVIDER = selectedProvider;
+      process.env.CV_SESSION_LLM_MODEL    = selectedModel;
+      if (options["api-key"]) {
+        process.env.CV_SESSION_LLM_APIKEY = options["api-key"];
+      } else if (geminiApiKey) {
+        process.env.CV_SESSION_LLM_APIKEY = geminiApiKey;
+      } else if (cvApiKey) {
+        process.env.CV_SESSION_LLM_APIKEY = cvApiKey;
+      }
+      if (options["base-url"]) {
+        process.env.CV_SESSION_LLM_BASE_URL = options["base-url"];
+      }
+
       const engine = buildEngine(
         selectedProvider,
         selectedModel,
@@ -123,7 +141,12 @@ export function registerAgentCommand(program: Command) {
 
       printBanner(options, selectedProvider, selectedModel, thinkingBudget);
 
+      // ── Record session context for memory ────────────────────────────────────────────────
+      const agentMode = options.jobs ? "jobs" : options.resume ? "resume" : "coding";
+      initSessionContext(agentMode, selectedModel);
+
       await askLoop(engine, options, selectedProvider, selectedModel, cvApiKey, systemInstruction, tools);
+
     });
 
   agentCmd.command("config")

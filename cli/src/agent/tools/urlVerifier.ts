@@ -190,6 +190,38 @@ export async function verifyUrl(url: string): Promise<UrlVerificationResult> {
     }
 
     if (status >= 200 && status < 400) {
+      let contentWarning: string | undefined;
+
+      // ── 5. Content sanity — does the page look like a job posting? ────────
+      // Only run for non-ATS URLs (ATS pages are always jobs, GET-ing them is slow)
+      if (!isTrustedAts && res.bodyUsed === false) {
+        try {
+          // Re-fetch with GET to get body (HEAD gives no body)
+          const bodyRes = await fetch(url, {
+            method: "GET",
+            redirect: "follow",
+            signal: controller.signal,
+            headers: {
+              "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+            },
+          });
+          const body = (await bodyRes.text()).toLowerCase();
+
+          const JOB_SIGNALS = [
+            "apply", "job description", "responsibilities", "requirements",
+            "qualifications", "salary", "full-time", "part-time", "remote",
+            "position", "role", "candidate", "experience", "interview",
+            "benefits", "compensation",
+          ];
+          const signalCount = JOB_SIGNALS.filter(s => body.includes(s)).length;
+          if (signalCount < 2) {
+            contentWarning = `Page at ${finalUrl || url} lacks typical job-posting keywords — may redirect to homepage or be an error page.`;
+          }
+        } catch {
+          // Content check failed (timeout, etc.) — don't block on this
+        }
+      }
+
       const verdict = isTrustedAts
         ? `✅ Verified — reachable on trusted ATS (${parsed.hostname})`
         : `✅ Reachable (status ${status})${redirected ? ` → redirected to ${finalUrl}` : ""}`;
@@ -197,6 +229,7 @@ export async function verifyUrl(url: string): Promise<UrlVerificationResult> {
       return {
         url, ok: true, status, finalUrl, isTrustedAts, redirected,
         reason: verdict,
+        warning: contentWarning,
       };
     }
 
@@ -296,7 +329,7 @@ and whether the URL is on a trusted ATS (Ashby, Greenhouse, Lever, etc.).`,
 // ── Tool: verify_search_results ──────────────────────────────────────────────
 
 export const VerifySearchResultsTool: Tool = {
-  name: "verify_search_results",
+  name: "verify_job_urls",
   description: `Verify a batch of job URLs returned from search_jobs are all reachable.
 Use this after search_jobs to filter out dead or hallucinated links before showing results to the user.
 Returns a summary of which URLs passed and which failed, so you can present only working links.`,

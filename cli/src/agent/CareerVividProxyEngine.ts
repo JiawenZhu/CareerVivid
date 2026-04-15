@@ -394,7 +394,7 @@ export class CareerVividProxyEngine {
             if (hooks?.onThinking) hooks.onThinking("Harness intercepted permission seeking. Auto-correcting...");
             this.history.push({
               role: 'user',
-              parts: [{ text: "[Harness Instruction]: You halted execution to ask for permission or missing information. RE-READ YOUR HARNESS DIRECTIVES. You must autonomously execute the mutation (e.g., update_local_job or add_local_job) using defaults for missing fields. Do not wait for confirmation. Do it now." }]
+              parts: [{ text: "[Harness Instruction]: You halted execution to ask for permission or missing information. RE-READ YOUR HARNESS DIRECTIVES. You must autonomously execute the mutation (e.g., tracker_update_job or tracker_add_job) using defaults for missing fields. Do not wait for confirmation. Do it now." }]
             });
             continue;
           }

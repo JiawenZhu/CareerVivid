@@ -14,6 +14,7 @@ import {
     CreditCard,
     Plus,
     Settings2,
+    Gift,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Logo from '../Logo';
@@ -270,6 +271,9 @@ const Sidebar: React.FC = () => {
                 </button>
                 <button onClick={() => navigate('/developer')} className="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm w-full text-left">
                     <Monitor size={18} /><span>Developer Settings</span>
+                </button>
+                <button onClick={() => navigate('/referrals')} className="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm w-full text-left">
+                    <Gift size={18} /><span>Referrals</span>
                 </button>
                 <button onClick={() => navigate('/community')} className="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm w-full text-left">
                     <Users size={18} /><span>Community</span>

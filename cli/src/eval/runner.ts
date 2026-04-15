@@ -7,8 +7,8 @@
  *    conversation history never bleeds between test cases.
  *
  * 2. SAFE TOOL EXECUTION DURING EVAL:
- *    - READ tools: auto-approved (list_local_jobs, get_resume, search_jobs, etc.)
- *    - WRITE tools (add_local_job, update_local_job): auto-denied by default.
+ *    - READ tools: auto-approved (tracker_list_jobs, get_resume, search_jobs, etc.)
+ *    - WRITE tools (tracker_add_job, tracker_update_job): auto-denied by default.
  *      Tests marked write-op use a TEMP COPY of jobs.csv so they can test
  *      write operations safely without modifying the real CSV.
  *
@@ -66,9 +66,9 @@ function getToolsForMode(mode: string): Tool[] {
   }
   if (mode === "jobs") {
     const jobTools = ALL_JOB_TOOLS.filter((t) =>
-      ["get_resume", "search_jobs", "save_job", "list_jobs", "update_job_status"].includes(t.name)
+      ["get_resume", "search_jobs", "kanban_add_job", "kanban_list_jobs", "kanban_update_status"].includes(t.name)
     );
-    // All local tracker tools: list, update, add, score_pipeline, get_pipeline_metrics, flag_stale_jobs
+    // All local tracker tools: list, update, add, tracker_rank_priority, tracker_dashboard, tracker_find_stale
     return [...jobTools, ...ALL_LOCAL_TRACKER_TOOLS];
   }
   return []; // base mode: no domain-specific tools injected
@@ -248,10 +248,10 @@ export class AgentEvalRunner {
     const onToolCall = async (toolName: string, _args: any): Promise<boolean | void> => {
       toolsCalled.push(toolName);
       // Write tools that mutate jobs.csv — deny on read-only tests
-      const isWriteTool = ["update_local_job", "add_local_job"].includes(toolName);
+      const isWriteTool = ["tracker_update_job", "tracker_add_job"].includes(toolName);
       if (isWriteTool && !isWriteOp) return false;
-      // All read tools (list_local_jobs, score_pipeline, get_pipeline_metrics, flag_stale_jobs,
-      //   get_resume, search_jobs, list_jobs) are auto-approved
+      // All read tools (tracker_list_jobs, tracker_rank_priority, tracker_dashboard, tracker_find_stale,
+      //   get_resume, search_jobs, kanban_list_jobs) are auto-approved
     };
 
     for (const turn of tc.turns) {

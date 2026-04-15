@@ -7,6 +7,7 @@ import { ALL_LOCAL_TRACKER_TOOLS } from "../../agent/tools/local-tracker.js";
 import { ALL_URL_VERIFIER_TOOLS } from "../../agent/tools/urlVerifier.js";
 import { ALL_PORTFOLIO_TOOLS } from "../../agent/tools/portfolio.js";
 import { ALL_COVERLETTER_TOOLS } from "../../agent/tools/coverLetter.js";
+import { ALL_JOB_OPENINGS_TOOLS } from "../../agent/tools/jobOpenings.js";
 import { publishSingleFile } from "../publish.js";
 
 // ── Publish tools ─────────────────────────────────────────────────────────────
@@ -247,6 +248,9 @@ export function getTools(options: { jobs?: boolean; resume?: boolean; coding?: b
       if (!tools.find((x) => x.name === t.name)) tools.push(t);
     }
     for (const t of ALL_COVERLETTER_TOOLS) {
+      if (!tools.find((x) => x.name === t.name)) tools.push(t);
+    }
+    for (const t of ALL_JOB_OPENINGS_TOOLS) {
       if (!tools.find((x) => x.name === t.name)) tools.push(t);
     }
     return tools;

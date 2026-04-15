@@ -85,9 +85,9 @@ const BillingDashboard: React.FC = () => {
             
             <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50 sticky top-0 z-10 transition-all duration-300">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                    <button onClick={() => navigate('/')} className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors group">
-                        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-                        <span className="font-bold tracking-tight">Dashboard</span>
+                    <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-gray-900 dark:text-white hover:opacity-70 transition-all group">
+                        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform stroke-[2.5]" />
+                        <span className="text-sm font-semibold">Dashboard</span>
                     </button>
                     <div className="flex items-center gap-4">
                         <div className="px-4 py-1.5 bg-gradient-to-r from-primary-500/10 to-purple-500/10 dark:from-primary-900/40 dark:to-purple-900/40 text-primary-700 dark:text-primary-300 border border-primary-200/50 dark:border-primary-800/50 rounded-full text-xs font-black uppercase tracking-widest shadow-sm flex items-center gap-2">

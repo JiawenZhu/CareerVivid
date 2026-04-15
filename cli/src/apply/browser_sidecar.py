@@ -158,24 +158,56 @@ def get_llm(llm_config: dict):
 
     if provider == "careervivid":
         return ChatCareerVivid(model=model, cv_api_key=api_key)
-    
-    if provider == "openai":
-        from browser_use.llm.openai import ChatOpenAI
-        return ChatOpenAI(model=model, api_key=api_key, base_url=base_url)
-    
+
     if provider == "anthropic":
         from browser_use.llm.anthropic import ChatAnthropic
         return ChatAnthropic(model=model, api_key=api_key)
-    
+
     if provider == "gemini" or provider == "google":
-        from browser_use.llm.google import ChatGoogle
-        return ChatGoogle(model=model, api_key=api_key)
-    
+        try:
+            from browser_use.llm.google import ChatGoogle
+            return ChatGoogle(model=model, api_key=api_key)
+        except ImportError:
+            # Fallback: google-genai via openai-compatible shim
+            from browser_use.llm.openai import ChatOpenAI
+            return ChatOpenAI(
+                model=model,
+                api_key=api_key,
+                base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+            )
+
     if provider == "openrouter":
-        from browser_use.llm.openrouter import ChatOpenRouter
-        return ChatOpenRouter(model=model, api_key=api_key)
-    
-    raise ValueError(f"Unsupported LLM provider: {provider}")
+        # OpenRouter is OpenAI-compatible — use ChatOpenAI with the OpenRouter base URL.
+        # browser_use.llm.openrouter does NOT exist as a separate module.
+        try:
+            from browser_use.llm.openai import ChatOpenAI
+            return ChatOpenAI(
+                model=model,
+                api_key=api_key,
+                base_url=base_url or "https://openrouter.ai/api/v1",
+            )
+        except ImportError:
+            raise ImportError(
+                "browser_use.llm.openai not found. "
+                "Install: pip install 'browser-use[openai]'"
+            )
+
+    if provider == "openai" or provider == "custom":
+        from browser_use.llm.openai import ChatOpenAI
+        kwargs = dict(model=model, api_key=api_key)
+        if base_url:
+            kwargs["base_url"] = base_url
+        return ChatOpenAI(**kwargs)
+
+    # Last-resort fallback: treat as OpenAI-compatible
+    try:
+        from browser_use.llm.openai import ChatOpenAI
+        kwargs = dict(model=model, api_key=api_key)
+        if base_url:
+            kwargs["base_url"] = base_url
+        return ChatOpenAI(**kwargs)
+    except ImportError:
+        raise ValueError(f"Unsupported LLM provider: {provider}")
 
 
 async def run_agent(

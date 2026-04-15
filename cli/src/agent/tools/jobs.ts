@@ -27,10 +27,10 @@ import {
 
 export const SearchJobsTool: Tool = {
   name: "search_jobs",
-  description: `Search for jobs that match a given role and location.
-The search automatically scores results against the user's CareerVivid resume.
-Returns a list of scored job opportunities with AI summaries and missing skills.
-Use this when the user asks to "find jobs", "search for roles", "look for positions", etc.`,
+  description: `Search for jobs matching a role and location, scored against the user's resume.
+Returns a scored list of job opportunities with AI summaries and missing skills.
+Use this when the user asks to "find jobs", "search for roles", "look for positions", etc.
+By default operates in dry_run mode — results are shown for review, nothing is saved automatically.`,
   parameters: {
     type: Type.OBJECT,
     properties: {
@@ -50,13 +50,15 @@ Use this when the user asks to "find jobs", "search for roles", "look for positi
       },
       min_score: {
         type: Type.NUMBER,
-        description:
-          "Optional. Minimum match score (0-100) to include in results. Use 60 for good matches, 80 for excellent matches only.",
+        description: "Optional. Minimum match score (0-100). Default is 70. Use 80 for excellent matches only.",
       },
       resume_id: {
         type: Type.STRING,
-        description:
-          "Optional. Specific resume ID to score against. If omitted, uses the user's latest resume.",
+        description: "Optional. Specific resume ID to score against. If omitted, uses the user's latest resume.",
+      },
+      dry_run: {
+        type: Type.BOOLEAN,
+        description: "Optional. Default: true. If true, shows results for review without auto-saving. Set false only if user explicitly says to save all results.",
       },
     },
     required: ["role"],
@@ -67,6 +69,7 @@ Use this when the user asks to "find jobs", "search for roles", "look for positi
     count?: number;
     min_score?: number;
     resume_id?: string;
+    dry_run?: boolean;
   }) => {
     // Optionally fetch resume content to include in the scoring request
     let resumeContent: string | undefined;
@@ -84,7 +87,7 @@ Use this when the user asks to "find jobs", "search for roles", "look for positi
       role: args.role,
       location: args.location,
       count: args.count ?? 10,
-      minScore: args.min_score,
+      minScore: args.min_score ?? 70,  // default 70 to filter low-quality results
     });
 
     if (isApiError(result)) {
@@ -110,9 +113,15 @@ Use this when the user asks to "find jobs", "search for roles", "look for positi
       })
       .join("\n\n");
 
+    const isDryRun = args.dry_run !== false; // default true
+    const dryRunNote = isDryRun
+      ? `\n\n📋 Review above. Say "add [company] to my tracker" to save specific ones.`
+      : "";
+
     return (
-      `Found ${result.total} jobs for "${args.role}"${args.location ? ` in ${args.location}` : ""}.\n` +
-      `Showing top ${result.jobs.length} results:\n\n${jobList}`
+      `Found ${result.total} jobs for "${args.role}"${args.location ? ` in ${args.location}` : ""}. ` +
+      `Showing top ${result.jobs.length} (min score ${args.min_score ?? 70}%):\n\n${jobList}` +
+      dryRunNote
     );
   },
 };
@@ -122,7 +131,7 @@ Use this when the user asks to "find jobs", "search for roles", "look for positi
 // ---------------------------------------------------------------------------
 
 export const SaveJobTool: Tool = {
-  name: "save_job",
+  name: "kanban_add_job",
   description: `Save a job to the user's CareerVivid job tracker Kanban board.
 The job will appear in the "To Apply" column of the /job-tracker page.
 Use this after finding interesting jobs via search_jobs, or when the user asks to "save", "add", or "track" a specific job.`,
@@ -204,7 +213,7 @@ Use this after finding interesting jobs via search_jobs, or when the user asks t
 // ---------------------------------------------------------------------------
 
 export const ListJobsTool: Tool = {
-  name: "list_jobs",
+  name: "kanban_list_jobs",
   description: `List the user's jobs from their CareerVivid job tracker Kanban board.
 Can filter by status. Use this when the user asks "what jobs do I have?", "show my tracker",
 "what's in my job pipeline?", "check my interviews", etc.`,
@@ -274,7 +283,7 @@ Can filter by status. Use this when the user asks "what jobs do I have?", "show 
 // ---------------------------------------------------------------------------
 
 export const UpdateJobStatusTool: Tool = {
-  name: "update_job_status",
+  name: "kanban_update_status",
   description: `Move a job to a different status on the CareerVivid Kanban board.
 Use this when the user mentions: "I got an interview", "I applied to X", "I got an offer",
 "X rejected me", "move Y to applied", etc. The change will be visible in the /job-tracker UI.`,
@@ -512,7 +521,7 @@ MAKE SURE the user actually intends to delete it, as this is permanent.`,
 // ---------------------------------------------------------------------------
 
 export const ApplyToJobTool: Tool = {
-  name: "apply_to_job",
+  name: "browser_autofill_application",
   description: `Open a job application in the user's Chrome browser and auto-fill it with AI-tailored answers.
 This tool launches Playwright, navigates to the job URL, extracts the form fields, fills them
 with AI-generated answers from the user's resume, and shows the user a final preview before submitting.
@@ -653,14 +662,22 @@ FILLING RULES:
     }
 
     // ── 5. Resolve LLM config ─────────────────────────────────────────
+    // CV_SESSION_LLM_* env vars are injected at agent startup and reflect
+    // the provider/model the user actually picked — always use them first.
     const { loadConfig, getGeminiKey, getLlmConfig } = await import("../../config.js");
     const cfg = loadConfig();
     const llmCfg = getLlmConfig();
-    const llmConfig = {
-      provider: llmCfg.provider,
-      model:    args.model || llmCfg.model || "gemini-3.1-flash-lite-preview",
-      apiKey:   llmCfg.apiKey || cfg.geminiKey || cfg.llmApiKey || getGeminiKey() || process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || "",
-      baseUrl:  llmCfg.baseUrl,
+
+    const sessionProvider = process.env.CV_SESSION_LLM_PROVIDER;
+    const sessionModel    = process.env.CV_SESSION_LLM_MODEL;
+    const sessionApiKey   = process.env.CV_SESSION_LLM_APIKEY;
+    const sessionBaseUrl  = process.env.CV_SESSION_LLM_BASE_URL;
+
+    const llmConfig: { provider: string; model: string; apiKey: string; baseUrl?: string } = {
+      provider: sessionProvider ?? llmCfg.provider,
+      model:    args.model || sessionModel || llmCfg.model || "gemini-3.1-flash-lite-preview",
+      apiKey:   sessionApiKey || llmCfg.apiKey || cfg.geminiKey || cfg.llmApiKey || getGeminiKey() || process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || "",
+      baseUrl:  sessionBaseUrl || llmCfg.baseUrl,
     };
 
     // For CareerVivid Cloud, use the CV account key for the proxy — no personal LLM key needed

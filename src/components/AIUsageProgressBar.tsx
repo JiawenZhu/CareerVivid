@@ -24,7 +24,7 @@ const AIUsageProgressBar: React.FC<AIUsageProgressBarProps> = ({
     const getBarColor = () => {
         if (percentage >= 90) return 'from-red-500 to-red-600';
         if (percentage >= 70) return 'from-orange-500 to-orange-600';
-        return 'from-blue-500 to-purple-600';
+        return 'from-primary-500 to-primary-600';
     };
 
     const getTextColor = () => {
@@ -38,7 +38,7 @@ const AIUsageProgressBar: React.FC<AIUsageProgressBarProps> = ({
         if (limit >= ENTERPRISE_PLAN_CREDIT_LIMIT) return 'Enterprise';
         if (limit === PRO_MAX_PLAN_CREDIT_LIMIT) return 'Max';
         if (limit === PRO_PLAN_CREDIT_LIMIT) return 'Pro';
-        return 'Community';
+        return 'CareerVivid';
     };
 
     if (variant === 'compact') {

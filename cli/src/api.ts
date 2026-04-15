@@ -454,3 +454,23 @@ export async function listCoverLetters(jobId?: string): Promise<{ coverLetters: 
     if (jobId) params.jobId = jobId;
     return cfRequest<{ coverLetters: CoverLetter[]; total: number }>("GET", "cliCoverLettersList", undefined, Object.keys(params).length ? params : undefined);
 }
+
+// ── Referrals ─────────────────────────────────────────────────────────────────
+
+export interface ReferredUser {
+    uid: string;
+    email: string;
+    signupDate: string | null;
+}
+
+export interface ReferralStatsResult {
+    code: string;
+    totalReferred: number;
+    maxReferrals: number;
+    referredUsers: ReferredUser[];
+}
+
+/** Fetch user's referral code and stats */
+export async function getReferralStats(): Promise<ReferralStatsResult | ApiError> {
+    return cfRequest<ReferralStatsResult>("GET", "cliReferralStats");
+}

@@ -75,10 +75,11 @@ export function printBanner(
 
   if (options.coding) console.log(chalk.green("  ✔ Coding mode: file I/O, shell, search tools active"));
   if (options.jobs) {
-    console.log(chalk.cyan("  ✔ Job mode: search, save, list, status update, apply_to_job tools active"));
+    console.log(chalk.cyan("  ✔ Job mode: search, score, apply_to_job, openings_scan tools active"));
     console.log(chalk.magenta("  ✔ Browser mode: navigate, click, type, select, scroll, screenshot tools active"));
-    console.log(chalk.yellow("  ✔ Local tracker: list_local_jobs · update_local_job · add_local_job"));
-    console.log(chalk.yellow("               + score_pipeline · get_pipeline_metrics · flag_stale_jobs (jobs.csv v2)"));
+    console.log(chalk.yellow("  ✔ Local tracker: tracker_list_jobs · tracker_update_job · tracker_add_job"));
+    console.log(chalk.yellow("               + tracker_rank_priority · tracker_dashboard · tracker_find_stale"));
+    console.log(chalk.yellow("               + tracker_recheck_urls · openings_scan · openings_list (jobs.csv v2)"));
   } else if (options.resume) console.log(chalk.cyan("  ✔ Resume mode: get_resume tool active"));
   if (options.pro) console.log(chalk.magenta(`  ✔ Pro mode: ${selectedModel} + thinking (${thinkingBudget} tokens)`));
   else if (thinkingBudget > 0) console.log(chalk.yellow(`  ✔ Thinking mode: ${thinkingBudget} token budget`));

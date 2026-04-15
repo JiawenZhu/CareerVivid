@@ -55,6 +55,7 @@ import { registerWorkspaceCommand } from "./commands/workspace.js";
 import { registerProfileCommand } from "./commands/profile.js";
 import { registerJobsCommand } from "./commands/jobs.js";
 import { registerResumesCommand } from "./commands/resumes.js";
+import { registerReferralCommand } from "./commands/referral.js";
 import { registerEvalCommand }    from "./commands/eval.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -84,6 +85,7 @@ registerWorkspaceCommand(program);
 registerProfileCommand(program);
 registerJobsCommand(program);
 registerResumesCommand(program);
+registerReferralCommand(program);
 registerEvalCommand(program);
 
 // Shortcuts for whiteboard creation

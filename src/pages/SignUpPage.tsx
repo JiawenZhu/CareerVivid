@@ -347,7 +347,7 @@ const SignUpPage: React.FC = () => {
                         {getReferralCode() && (
                             <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-100 to-yellow-50 dark:from-yellow-900/30 dark:to-yellow-800/20 rounded-full">
                                 <span className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">
-                                    🎁 Referral code applied! You'll get 1-Month Free Premium (300 AI credits/month)
+                                    🎁 Referral code applied! You'll get 1-Month Free Premium (1000 AI credits/month)
                                 </span>
                             </div>
                         )}

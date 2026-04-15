@@ -132,21 +132,25 @@ const DeveloperSettings: React.FC = () => {
     // ── Render ────────────────────────────────────────────────────────────────
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 font-sans">
-            {/* Minimal Header */}
-            <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-10 w-full px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => navigate('/profile')}
-                        className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                    </button>
-                    <div className="flex items-center gap-2">
-                        <Terminal className="w-5 h-5 text-gray-900 dark:text-gray-100" />
-                        <h1 className="text-sm font-semibold text-gray-900 dark:text-white">Developer Settings</h1>
+            {/* Standardized Header */}
+            <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50 sticky top-0 z-10 transition-all duration-300">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                    <div className="flex items-center gap-6">
+                        <button
+                            onClick={() => navigate('/dashboard')}
+                            className="flex items-center gap-2 text-gray-900 dark:text-white hover:opacity-70 transition-all group"
+                        >
+                            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform stroke-[2.5]" />
+                            <span className="text-sm font-semibold">Dashboard</span>
+                        </button>
+                        
+                        <div className="flex items-center gap-2 border-l border-gray-200 dark:border-gray-800 pl-6 h-6">
+                            <Terminal className="w-5 h-5 text-gray-900 dark:text-gray-100" />
+                            <h1 className="text-sm font-semibold text-gray-900 dark:text-white">Developer Settings</h1>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </header>
 
             <main className="max-w-3xl mx-auto px-4 sm:px-6 py-10 space-y-10">
                 {/* Header Content */}

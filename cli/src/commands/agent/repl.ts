@@ -6,6 +6,7 @@ import { CareerVividProxyEngine } from "../../agent/CareerVividProxyEngine.js";
 import { QueryEngine } from "../../agent/QueryEngine.js";
 import { CV_MODELS } from "./configurator.js";
 import { loadConfig, getGeminiKey, getProviderKey, setProviderKey, type LLMProvider } from "../../config.js";
+import { auditLog, writeSessionSummary, SESSION_ID } from "../../agent/agentAuditLog.js";
 
 const { prompt } = pkg;
 
@@ -47,6 +48,20 @@ export async function askLoop(
   let sessionTurns = 0;
   let sessionLimit: number | null = null;
   let currentModel = selectedModel;
+
+  // #3 Session mutation budget
+  const WRITE_TOOLS = new Set([
+    "tracker_add_job", "tracker_update_job", "kanban_add_job", "kanban_update_status",
+    "save_cover_letter", "delete_cover_letter", "write_file", "patch_file",
+    "tracker_recheck_urls", "openings_apply",
+  ]);
+  const SESSION_MAX_MUTATIONS = 25;
+  const TURN_MAX_MUTATIONS = 10;
+  let sessionMutations = 0;
+  let turnMutations = 0;
+
+  // #9 Circuit breaker — detect tool call loops
+  let lastToolCall = { name: "", argsHash: "", count: 0 };
 
   let pasteBuffer: string[] = [];
   let byoHistory: any[] = []; // Track history for BYO providers
@@ -221,9 +236,13 @@ export async function askLoop(
           }
           console.log(chalk.dim("─────────────────────────────────────────"));
         }
+        await writeSessionSummary({ turns: sessionTurns, mutations: sessionMutations, toolCalls: 0 });
         console.log(chalk.gray("\nGoodbye! 👋\n"));
         process.exit(0);
       }
+
+      // Reset per-turn mutation counter at the start of each user message
+      turnMutations = 0;
 
       process.stdout.write(chalk.dim("\n⏳ Thinking...\n\n"));
 
@@ -239,12 +258,16 @@ export async function askLoop(
         run_command:           "⚙️  Running command...",
         write_file:            "✏️  Writing file...",
         patch_file:            "✏️  Patching file...",
-        list_local_jobs:       "📊 Checking job pipeline...",
-        add_local_job:         "➕ Adding job to pipeline...",
-        update_local_job:      "🔄 Updating job record...",
-        score_pipeline:        "📈 Scoring pipeline...",
-        get_pipeline_metrics:  "📊 Fetching pipeline metrics...",
-        flag_stale_jobs:       "🚩 Checking stale jobs...",
+        tracker_list_jobs:       "📊 Checking job pipeline...",
+        tracker_add_job:         "➕ Adding job to pipeline...",
+        tracker_update_job:      "🔄 Updating job record...",
+        tracker_rank_priority:   "📈 Ranking pipeline...",
+        tracker_dashboard:       "📊 Fetching pipeline analytics...",
+        tracker_find_stale:      "🚩 Checking stale jobs...",
+        tracker_inspect_quality: "🔍 Inspecting data quality...",
+        kanban_add_job:          "📌 Saving to Kanban board...",
+        kanban_list_jobs:        "📋 Loading Kanban board...",
+        kanban_update_status:    "🔄 Updating Kanban status...",
         list_cover_letters:    "📄 Loading cover letters...",
         get_cover_letter:      "📄 Reading cover letter...",
         save_cover_letter:     "💾 Saving cover letter...",
@@ -258,13 +281,56 @@ export async function askLoop(
         browser_wait:          "⏳ Waiting...",
         browser_close:         "🔒 Closing browser...",
         browser_select:        "🖱️  Selecting option...",
-        search_jobs:           "🔍 Searching jobs...",
+        tracker_recheck_urls:    "🔗 Re-checking job URLs...",
+        browser_autofill_application: "📝 Auto-filling application...",
+        verify_url:              "🔍 Verifying URL...",
+        verify_job_urls:         "🔍 Verifying job URLs...",
+        search_jobs:             "🔍 Searching jobs...",
+        openings_scan:           "🎯 Scanning companies for open roles...",
+        openings_list:           "📋 Loading saved openings...",
+        openings_apply:          "✅ Marking opening as applied...",
         get_resume:            "📄 Loading resume...",
         list_resumes:          "📄 Loading resumes...",
         get_profile:           "👤 Loading profile...",
       };
 
       const handleToolCall = async (name: string, args: any): Promise<boolean> => {
+        // #9 Circuit breaker: abort if same tool called 5+ times consecutively with same args
+        const argsHash = JSON.stringify(args).slice(0, 100);
+        if (lastToolCall.name === name && lastToolCall.argsHash === argsHash) {
+          lastToolCall.count++;
+          if (lastToolCall.count >= 5) {
+            console.log(chalk.red(
+              `\n⛔ Loop detected: "${name}" called ${lastToolCall.count} times with identical args. Aborting turn.`
+            ));
+            return false;
+          }
+        } else {
+          lastToolCall = { name, argsHash, count: 1 };
+        }
+
+        // #3 Per-turn mutation budget
+        if (WRITE_TOOLS.has(name)) {
+          turnMutations++;
+          if (turnMutations > TURN_MAX_MUTATIONS) {
+            console.log(chalk.red(
+              `\n⛔ Turn mutation limit (${TURN_MAX_MUTATIONS}) reached. The agent has made ${turnMutations} writes this turn.`
+            ));
+            return false;
+          }
+          sessionMutations++;
+          if (sessionMutations >= SESSION_MAX_MUTATIONS) {
+            console.log(chalk.yellow(
+              `\n⚠️  Session mutation budget exhausted (${SESSION_MAX_MUTATIONS} writes). Restart the agent to continue writing.`
+            ));
+            return false;
+          } else if (sessionMutations === SESSION_MAX_MUTATIONS - 5) {
+            console.log(chalk.yellow(
+              `\n💡 Heads up: ${SESSION_MAX_MUTATIONS - sessionMutations} writes remaining this session.`
+            ));
+          }
+        }
+
         // Show a clean, user-friendly label — never show raw args
         const label = TOOL_LABELS[name] ?? `⚙️  Working...`;
         process.stdout.write(chalk.dim(`
@@ -341,6 +407,15 @@ ${label}
           currentSpinner.succeed(chalk.dim(`Done`));
           currentSpinner = null;
         }
+        // #4 Audit log — record every completed tool call
+        // durationMs is approximate since we don't have exact start time here
+        auditLog({
+          sessionId: SESSION_ID,
+          tool: name,
+          args: typeof result?._args === "object" ? result._args : {},
+          result: typeof result === "string" ? result : JSON.stringify(result ?? ""),
+          durationMs: 0, // QueryEngine doesn't expose timing; repl.ts timing TBD
+        });
         // Suppress raw output — the agent will summarize it in natural language
       };
 

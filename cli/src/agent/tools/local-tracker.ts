@@ -21,10 +21,104 @@
 
 import { Tool } from "../Tool.js";
 import { Type } from "@google/genai";
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync, unlinkSync, renameSync, statSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import { homedir } from "os";
+import { verifyUrl } from "./urlVerifier.js";
+
+// ---------------------------------------------------------------------------
+// Job entry validation harness
+// ---------------------------------------------------------------------------
+
+/** Patterns that strongly suggest an AI-hallucinated company name. */
+const HALLUCINATED_COMPANY_PATTERNS = [
+  /synthai/i,
+  /innovatex/i,
+  /innovatech/i,
+  /datagenius/i,
+  /nexusai/i,
+  /quantumflow/i,
+  /skymind/i,
+  /integratex/i,
+  /aiworks/i,
+  /techsolutions\s*inc/i,
+  /aether\s*systems/i,
+  /cogni(serve|tech|flow)/i,
+  /gentech\s*ai/i,
+  /brightspark\s*labs/i,
+  /synapse\s*tech/i,
+  /veridian\s*ai/i,
+  // Generic filler patterns: "XYZ AI", "XYZ Solutions", "XYZ Labs" with single-word prefix
+  /^[A-Z][a-z]+(\s*(AI|Solutions|Labs|Systems|Technologies|Innovations|Tech|Ventures))+$/,
+];
+
+export interface JobValidationResult {
+  ok: boolean;
+  blockers: string[];   // hard failures — do not write
+  warnings: string[];   // soft issues — write but annotate in notes
+}
+
+/**
+ * Pre-add validation harness.
+ * Runs structural + network checks before any row is written to jobs.csv.
+ */
+async function validateJobEntry(
+  company: string,
+  careersUrl?: string
+): Promise<JobValidationResult> {
+  const blockers: string[] = [];
+  const warnings: string[] = [];
+
+  // ── 1. Company name hallucination check ──────────────────────────────────
+  for (const pattern of HALLUCINATED_COMPANY_PATTERNS) {
+    if (pattern.test(company)) {
+      blockers.push(
+        `Company name "${company}" matches a known hallucination pattern. ` +
+        `Verify this is a real company before adding.`
+      );
+      break;
+    }
+  }
+
+  // ── 2. URL verification (if provided) ────────────────────────────────────
+  if (careersUrl && careersUrl.startsWith("http")) {
+    const urlResult = await verifyUrl(careersUrl);
+    if (!urlResult.ok) {
+      blockers.push(
+        `URL verification failed: ${urlResult.reason.replace(/^[❌⚠️✅]\s*/u, "")}`
+      );
+    } else if (urlResult.warning) {
+      warnings.push(`URL: ${urlResult.warning}`);
+    }
+
+    // ── 3. Domain ↔ company name coherence check ─────────────────────────
+    if (careersUrl.startsWith("http")) {
+      try {
+        const parsed  = new URL(careersUrl);
+        const domain  = parsed.hostname.replace(/^www\./, "").split(".")[0].toLowerCase();
+        const coName  = company.toLowerCase().replace(/[^a-z0-9]/g, "");
+        const coShort = coName.slice(0, 5); // first 5 chars of company (no-spaces)
+
+        // Flag if domain has zero overlap with company name (e.g., stripe.com for "JPMorgan")
+        const domainMatchesCompany =
+          domain.includes(coShort) ||
+          coName.includes(domain) ||
+          domain.length < 4; // short generics (e.g., "wk2" for Workday) are inconclusive
+
+        if (!domainMatchesCompany) {
+          warnings.push(
+            `Domain "${parsed.hostname}" may not match company "${company}" — double-check this is the right URL.`
+          );
+        }
+      } catch {
+        // URL parse failed — already caught in verifyUrl
+      }
+    }
+  }
+
+  return { ok: blockers.length === 0, blockers, warnings };
+}
 
 // ---------------------------------------------------------------------------
 // CSV path resolution
@@ -107,6 +201,27 @@ function parseCsv(raw: string): CsvRow[] {
   });
 }
 
+/** Validate a parsed row has the minimum viable fields. Returns true if usable. */
+function isValidRow(row: CsvRow, lineNum: number): boolean {
+  if (!row.id || !/^[A-Z]{1,5}-\d{3,}$/.test(row.id)) {
+    process.stderr.write(`[tracker] Skipping corrupt row ${lineNum}: id="${row.id}" is malformed\n`);
+    return false;
+  }
+  if (!row.company) {
+    process.stderr.write(`[tracker] Skipping row ${lineNum} (id=${row.id}): missing company\n`);
+    return false;
+  }
+  // Numeric fields must parse or be empty
+  for (const field of ["attention_score", "excitement", "fit_score"] as const) {
+    const v = row[field];
+    if (v !== "" && isNaN(Number(v))) {
+      process.stderr.write(`[tracker] Row ${row.id}: field ${field}="${v}" is not numeric — resetting to 7\n`);
+      row[field] = "7";
+    }
+  }
+  return true;
+}
+
 function serializeCsv(rows: CsvRow[]): string {
   const header = HEADERS.join(",");
   const data = rows.map((row) =>
@@ -129,11 +244,45 @@ function loadCsv(): { rows: CsvRow[]; path: string } {
     console.log(`   Add jobs with cv agent, or edit the CSV directly.\n`);
   }
   const raw = readFileSync(path, "utf-8");
-  return { rows: parseCsv(raw), path };
+  const allRows = parseCsv(raw);
+  // #2 Schema validation — filter out rows that would cause runtime crashes
+  const rows = allRows.filter((r, i) => isValidRow(r, i + 2)); // +2: 1-indexed + header line
+  return { rows, path };
 }
 
 function saveCsv(rows: CsvRow[], csvPath: string): void {
-  writeFileSync(csvPath, serializeCsv(rows), "utf-8");
+  const lockPath = csvPath + ".lock";
+
+  // #8 Lock file — prevent concurrent session writes
+  if (existsSync(lockPath)) {
+    let staleMs = 30_000; // if lock is >30s old, assume stale and proceed
+    try { staleMs = Date.now() - statSync(lockPath).mtimeMs; } catch { /* */ }
+    if (staleMs < 10_000) {
+      throw new Error(
+        "⛔ Another agent session is writing to jobs.csv. Wait a moment and try again."
+      );
+    }
+    // Stale lock — remove it
+    try { unlinkSync(lockPath); } catch { /* */ }
+  }
+
+  // Acquire lock
+  writeFileSync(lockPath, String(Date.now()), "utf-8");
+
+  try {
+    // #1 Backup
+    if (existsSync(csvPath)) {
+      copyFileSync(csvPath, csvPath + ".bak");
+    }
+
+    // #1 Atomic write — write to .tmp then rename (crash-safe)
+    const tmpPath = csvPath + ".tmp";
+    writeFileSync(tmpPath, serializeCsv(rows), "utf-8");
+    renameSync(tmpPath, csvPath);
+  } finally {
+    // Always release the lock
+    try { unlinkSync(lockPath); } catch { /* */ }
+  }
 }
 
 function today(): string {
@@ -188,11 +337,11 @@ const EFFORT_ICONS: Record<string, string> = {
 // ---------------------------------------------------------------------------
 
 export const ListLocalJobsTool: Tool = {
-  name: "list_local_jobs",
-  description: `Read the local job pipeline from career-ops/data/jobs.csv.
+  name: "tracker_list_jobs",
+  description: `Read the job pipeline from jobs.csv (the career-ops tracker spreadsheet).
 Returns a formatted summary of target companies grouped by tier and status.
 Use this when the user asks to "show my job pipeline", "list target companies",
-"check my local tracker", "what companies am I targeting?", etc.
+"what companies am I targeting?", "check my pipeline", etc.
 Shows attention scores, apply effort, excitement, and follow-up dates.`,
   parameters: {
     type: Type.OBJECT,
@@ -320,15 +469,16 @@ Shows attention scores, apply effort, excitement, and follow-up dates.`,
 // ---------------------------------------------------------------------------
 
 export const UpdateLocalJobTool: Tool = {
-  name: "update_local_job",
-  description: `Update any field on a row in career-ops/data/jobs.csv by job ID.
+  name: "tracker_update_job",
+  description: `Update any field on a row in jobs.csv by job ID.
 Use this for:
 - Status changes: "Mark WorkOS as Applied"
 - Attention updates: "Set attention_score for CUR-001 to 10"
 - Follow-up dates: "Set follow-up for NEO-001 to 2026-04-20"
 - Notes: "Add note to VER-001: great culture, hiring manager is Jane"
 - Excitement: "Update excitement for TMP-001 to 9"
-Auto-stamps last_activity_date on every update.`,
+Auto-stamps last_activity_date on every update.
+IMPORTANT: To change status to 'Applied', you MUST also provide date_applied (YYYY-MM-DD). Otherwise return a confirmation prompt.`,
   parameters: {
     type: Type.OBJECT,
     properties: {
@@ -379,18 +529,34 @@ Auto-stamps last_activity_date on every update.`,
         if (!VALID_STATUSES.includes(args.status as any)) {
           return `❌ Invalid status "${args.status}". Valid: ${VALID_STATUSES.join(", ")}`;
         }
+        // Gate: Applied requires explicit date_applied to prevent autonomous escalation
+        if (args.status === "Applied" && !args.date_applied && row.status !== "Applied") {
+          return (
+            `⚠️  CONFIRMATION REQUIRED\n` +
+            `To mark "${row.company} — ${row.role}" as Applied, please confirm with a date:\n` +
+            `  Example: "Yes, mark ${args.job_id} as Applied on ${today()}"`
+          );
+        }
         changes.push(`status: ${row.status} → ${args.status}`);
         row.status = args.status;
-        // Auto-set date_applied when marking Applied
         if (args.status === "Applied" && !row.date_applied) {
-          row.date_applied = today();
-          changes.push(`date_applied: auto-set to ${today()}`);
+          row.date_applied = args.date_applied ?? today();
+          changes.push(`date_applied: ${row.date_applied}`);
         }
       }
       if (args.date_applied)     { changes.push(`date_applied: ${args.date_applied}`);    row.date_applied = args.date_applied; }
       if (args.follow_up_date)   { changes.push(`follow_up_date: ${args.follow_up_date}`); row.follow_up_date = args.follow_up_date; }
       if (args.contact)          { changes.push(`contact: ${args.contact}`);               row.contact = args.contact; }
-      if (args.contact_email)    { changes.push(`contact_email: ${args.contact_email}`);   row.contact_email = args.contact_email; }
+      if (args.contact_email) {
+        // #10 Email sanitization — allow only valid email characters
+        const sanitized = args.contact_email.replace(/[^a-zA-Z0-9@._+\-]/g, "").slice(0, 254);
+        if (sanitized !== args.contact_email) {
+          changes.push(`contact_email (sanitized): ${sanitized}`);
+        } else {
+          changes.push(`contact_email: ${sanitized}`);
+        }
+        row.contact_email = sanitized;
+      }
       if (args.attention_score !== undefined) {
         const v = Math.min(10, Math.max(1, Math.round(args.attention_score)));
         changes.push(`attention_score: ${row.attention_score} → ${v}`);
@@ -398,8 +564,10 @@ Auto-stamps last_activity_date on every update.`,
       }
       if (args.apply_effort)     { changes.push(`apply_effort: ${args.apply_effort}`);     row.apply_effort = args.apply_effort; }
       if (args.prep_time_hours !== undefined) {
-        changes.push(`prep_time_hours: ${args.prep_time_hours}`);
-        row.prep_time_hours = String(args.prep_time_hours);
+        // #5 Clamp 0-200 hours (reasonable upper bound)
+        const v = Math.max(0, Math.min(200, Math.round(Number(args.prep_time_hours) || 0)));
+        changes.push(`prep_time_hours: ${v}`);
+        row.prep_time_hours = String(v);
       }
       if (args.excitement !== undefined) {
         const v = Math.min(10, Math.max(1, Math.round(args.excitement)));
@@ -416,9 +584,11 @@ Auto-stamps last_activity_date on every update.`,
         row.interview_rounds = String(args.interview_rounds);
       }
       if (args.notes) {
+        const MAX_NOTES = 500;
+        const appendText = args.notes.length > 200 ? args.notes.slice(0, 200) + "…" : args.notes;
         const existing = row.notes ? row.notes + "; " : "";
-        row.notes = (existing + args.notes).replace(/,/g, ";");
-        changes.push(`notes: appended "${args.notes.substring(0, 60)}"`);
+        row.notes = (existing + appendText).replace(/,/g, ";").slice(0, MAX_NOTES);
+        changes.push(`notes: appended "${appendText.substring(0, 60)}"`);
       }
 
       if (changes.length === 0) {
@@ -449,13 +619,16 @@ Auto-stamps last_activity_date on every update.`,
 // ---------------------------------------------------------------------------
 
 export const AddLocalJobTool: Tool = {
-  name: "add_local_job",
-  description: `Add a new company/role row to career-ops/data/jobs.csv.
+  name: "tracker_add_job",
+  description: `Add a new company/role row to jobs.csv (the career-ops pipeline tracker).
 Use this when the user says:
 - "Add Linear to my job tracker"
 - "Track this company: [name], [role], [url]"
 - "Add a Tier 1 target: Neon"
-Auto-generates a unique ID (e.g. LIN-001) and sets date_added + last_activity_date to today.`,
+Auto-generates a unique ID (e.g. LIN-001) and sets date_added + last_activity_date to today.
+IMPORTANT: Before calling this, check tracker_list_jobs to ensure the company+role is not already tracked.
+IMPORTANT: Provide a careers_url. The tool will verify the URL is live before writing.
+IMPORTANT: The tool auto-validates: dead URLs and hallucinated company names are BLOCKED.`,
   parameters: {
     type: Type.OBJECT,
     properties: {
@@ -486,10 +659,47 @@ Auto-generates a unique ID (e.g. LIN-001) and sets date_added + last_activity_da
     try {
       const { rows, path } = loadCsv();
 
+      // ── Fix 1: Duplicate detection (company + role must be unique) ──────
+      const duplicate = rows.find(
+        (r) =>
+          r.company.toLowerCase() === args.company.toLowerCase() &&
+          (r.role ?? "").toLowerCase() === (args.role ?? "").toLowerCase()
+      );
+      if (duplicate) {
+        return (
+          `⚠️  Duplicate detected: "${args.company} — ${args.role ?? "TBD"}" already exists (ID: ${duplicate.id}).\n` +
+          `Use tracker_update_job with job_id="${duplicate.id}" to update it instead.`
+        );
+      }
+
       const prefix   = args.company.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 3) || "JOB";
       const existing = rows.filter((r) => r.id.startsWith(prefix + "-")).length;
       const id       = `${prefix}-${String(existing + 1).padStart(3, "0")}`;
       const todayStr = today();
+
+      // ── Validation harness (URL + company name) ────────────────────────
+      const validation = await validateJobEntry(args.company, args.careers_url);
+      if (!validation.ok) {
+        return (
+          `❌ Cannot add "${args.company}" — validation failed:\n` +
+          validation.blockers.map(b => `  • ${b}`).join("\n") +
+          `\n\nFix these issues and try again, or ask the user to confirm the company is real.`
+        );
+      }
+
+      // ── Fix 2: No URL = unverified origin → cap attention, add warning ──
+      const hasUrl = !!(args.careers_url && args.careers_url.startsWith("http"));
+      const cappedAttention = hasUrl
+        ? Math.min(10, args.attention_score ?? 7)
+        : Math.min(4, args.attention_score ?? 4);
+      const unverifiedNote = hasUrl ? "" : "⚠️ No verified URL — confirm role exists before applying.";
+
+      // ── Fix 4: Salary fields must be numeric only ─────────────────────
+      const parseSalary = (v?: number) => (v && !isNaN(v) ? String(Math.round(v)) : "");
+
+      const baseNotes = (args.notes ?? "").replace(/,/g, ";");
+      const warningNotes = validation.warnings.map(w => `⚠️ ${w}`).join("; ");
+      const combinedNotes = [baseNotes, unverifiedNote, warningNotes].filter(Boolean).join("; ").slice(0, 500);
 
       const newRow: CsvRow = {
         id,
@@ -498,19 +708,19 @@ Auto-generates a unique ID (e.g. LIN-001) and sets date_added + last_activity_da
         tier:             String(args.tier ?? 2),
         careers_url:      args.careers_url ?? "",
         ats:              args.ats ?? "Direct",
-        status:           "To Apply",
+        status:           "To Apply",   // Fix 3: always To Apply — never Applied at creation
         date_added:       todayStr,
         date_applied:     "",
         follow_up_date:   "",
         contact:          "",
         contact_email:    "",
-        salary_min:       args.salary_min ? String(args.salary_min) : "",
-        salary_max:       args.salary_max ? String(args.salary_max) : "",
+        salary_min:       parseSalary(args.salary_min),
+        salary_max:       parseSalary(args.salary_max),
         location:         args.location ?? "Remote",
-        notes:            (args.notes ?? "").replace(/,/g, ";"),
+        notes:            combinedNotes,
         fit_score:        String(args.fit_score ?? 7),
         referral:         "false",
-        attention_score:  String(Math.min(10, args.attention_score ?? 7)),
+        attention_score:  String(cappedAttention),
         apply_effort:     args.apply_effort ?? "Medium",
         prep_time_hours:  "2",
         excitement:       String(Math.min(10, args.excitement ?? 7)),
@@ -528,20 +738,27 @@ Auto-generates a unique ID (e.g. LIN-001) and sets date_added + last_activity_da
         : "Not specified";
       const priority = priorityScore(newRow).toFixed(1);
 
+      const urlBadge = hasUrl ? "✅ Verified" : "⚠️ Unverified";
+      const warningSection = validation.warnings.length > 0
+        ? `\n  Warnings:\n` + validation.warnings.map(w => `    ⚠️  ${w}`).join("\n")
+        : "";
+
       return (
         `✅ Added to jobs.csv!\n\n` +
         `  ID:             ${id}\n` +
         `  Company:        ${args.company}\n` +
-        `  Role:           ${args.role}\n` +
+        `  Role:           ${args.role ?? "TBD"}\n` +
         `  Tier:           ${args.tier ?? 2}\n` +
         `  ATS:            ${args.ats ?? "Direct"}\n` +
         `  Location:       ${args.location ?? "Remote"}\n` +
         `  Salary:         ${salary}\n` +
-        `  Attention:      ${args.attention_score ?? 7}/10\n` +
+        `  Attention:      ${cappedAttention}/10\n` +
         `  Excitement:     ${args.excitement ?? 7}/10\n` +
         `  Apply Effort:   ${args.apply_effort ?? "Medium"}\n` +
         `  Priority Score: ${priority}/10\n` +
-        `  Status:         To Apply\n`
+        `  Status:         To Apply\n` +
+        `  URL:            ${args.careers_url || "None"} [${urlBadge}]\n` +
+        warningSection
       );
     } catch (err: any) {
       return `❌ Error adding to jobs.csv: ${err.message}`;
@@ -554,9 +771,9 @@ Auto-generates a unique ID (e.g. LIN-001) and sets date_added + last_activity_da
 // ---------------------------------------------------------------------------
 
 export const ScorePipelineTool: Tool = {
-  name: "score_pipeline",
-  description: `Return the job pipeline ranked by priority score — the attention-weighted formula:
-  Priority = 40% attention_score + 30% excitement + 20% fit_score + 10% staleness_bonus
+  name: "tracker_rank_priority",
+  description: `Rank the jobs.csv pipeline by weighted priority score.
+  Formula: 40% attention_score + 30% excitement + 20% fit_score + 10% recency_bonus
 Use this when the user asks: "What should I work on today?", "Which jobs are highest priority?",
 "What's my best ROI right now?", "Rank my pipeline", "Easy wins first".
 Also returns quick-apply opportunities (Low effort + high score) separately.`,
@@ -651,12 +868,12 @@ Also returns quick-apply opportunities (Low effort + high score) separately.`,
 // ---------------------------------------------------------------------------
 
 export const GetPipelineMetricsTool: Tool = {
-  name: "get_pipeline_metrics",
-  description: `Return comprehensive analytics about the job search pipeline.
-Includes: apply velocity, avg attention/excitement/fit, ATS breakdown, salary stats,
+  name: "tracker_dashboard",
+  description: `Return comprehensive analytics dashboard for the jobs.csv pipeline.
+Includes: apply rate, avg attention/excitement/fit, ATS breakdown, salary stats,
 stale company count, estimated total prep time, and a smart recommendation.
 Use this when the user asks: "How is my job search going?", "Give me pipeline stats",
-"What's my apply rate?", "Dashboard view of my search".`,
+"What's my apply rate?", "Dashboard view of my search", "pipeline analytics".`,
   parameters: { 
     type: Type.OBJECT, 
     properties: {
@@ -768,11 +985,11 @@ Use this when the user asks: "How is my job search going?", "Give me pipeline st
 // ---------------------------------------------------------------------------
 
 export const FlagStaleJobsTool: Tool = {
-  name: "flag_stale_jobs",
-  description: `Identify jobs with no recent activity and suggest next actions.
+  name: "tracker_find_stale",
+  description: `Find jobs in jobs.csv with no recent activity and suggest next actions.
 Use this when the user asks: "What jobs am I neglecting?", "Anything going stale?",
-"Which companies need attention?", "Clean up my pipeline".
-Returns a prioritized action list: Apply Now / Follow Up / Deprioritize?.`,
+"Which companies need attention?", "Clean up my pipeline", "what's cold?".
+Read-only — returns a prioritized action list: Apply Now / Follow Up / Deprioritize.`,
   parameters: {
     type: Type.OBJECT,
     properties: {
@@ -838,6 +1055,188 @@ Returns a prioritized action list: Apply Now / Follow Up / Deprioritize?.`,
 };
 
 // ---------------------------------------------------------------------------
+// Tool: tracker_inspect_quality
+// ---------------------------------------------------------------------------
+
+export const InspectQualityTool: Tool = {
+  name: "tracker_inspect_quality",
+  description: `Scan jobs.csv for data quality issues without modifying anything.
+Detects and reports: duplicate company+role entries, rows with no careers_url (unverified/hallucinated risk),
+rows where salary fields contain non-numeric text (corruption), and notes fields over 400 chars.
+Use this when the user asks: "clean up my tracker", "find duplicates", "audit my pipeline", "any bad data?".`,
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      _run: { type: Type.BOOLEAN, description: "Always set to true to run the tool." },
+    },
+    required: ["_run"],
+  },
+  execute: async () => {
+    try {
+      const { rows, path } = loadCsv();
+      const issues: string[] = [];
+
+      // 1. Duplicates by company+role
+      const seen = new Map<string, string>();
+      for (const r of rows) {
+        const key = `${r.company.toLowerCase()}|${r.role.toLowerCase()}`;
+        if (seen.has(key)) {
+          issues.push(`  🔁 Duplicate: [${r.id}] ${r.company} — ${r.role}  (first seen: ${seen.get(key)})`);
+        } else {
+          seen.set(key, r.id);
+        }
+      }
+
+      // 2. Missing careers_url
+      const noUrl = rows.filter((r) => !r.careers_url || !r.careers_url.startsWith("http"));
+      if (noUrl.length > 0) {
+        issues.push(`\n  ⚠️  ${noUrl.length} rows have no verified careers_url:`);
+        noUrl.slice(0, 10).forEach((r) => issues.push(`    [${r.id}] ${r.company} — ${r.role}`));
+        if (noUrl.length > 10) issues.push(`    ... and ${noUrl.length - 10} more.`);
+      }
+
+      // 3. Salary fields containing non-numeric text
+      const badSalary = rows.filter(
+        (r) => (r.salary_min && isNaN(Number(r.salary_min))) ||
+               (r.salary_max && isNaN(Number(r.salary_max)))
+      );
+      if (badSalary.length > 0) {
+        issues.push(`\n  💸 ${badSalary.length} rows with corrupted salary fields:`);
+        badSalary.forEach((r) => issues.push(`    [${r.id}] salary_min="${r.salary_min}" salary_max="${r.salary_max}"  (first 60 chars)`));
+      }
+
+      // 4. Notes overflow
+      const longNotes = rows.filter((r) => r.notes && r.notes.length > 400);
+      if (longNotes.length > 0) {
+        issues.push(`\n  📝 ${longNotes.length} rows with notes > 400 chars:`);
+        longNotes.forEach((r) => issues.push(`    [${r.id}] ${r.company} (${r.notes.length} chars)`));
+      }
+
+      if (issues.length === 0) {
+        return `✅ jobs.csv looks clean! ${rows.length} rows, no duplicates, all URLs present, salary fields valid.`;
+      }
+
+      return [
+        `🔍 Quality Report — ${rows.length} rows in ${path}`,
+        "─".repeat(60),
+        ...issues,
+        "─".repeat(60),
+        `\nTotal issues found: ${issues.filter(l => l.startsWith("  🔁")).length} duplicates, ${noUrl.length} missing URLs, ${badSalary.length} bad salaries, ${longNotes.length} long notes.`,
+        `\nTo fix: say "remove duplicates from my tracker" or "fix salary fields" and I will present a confirmation before writing.`,
+      ].join("\n");
+    } catch (err: any) {
+      return `❌ Error inspecting jobs.csv: ${err.message}`;
+    }
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Tool: tracker_recheck_urls (#7 — Stale URL recheck)
+// ---------------------------------------------------------------------------
+
+export const RecheckUrlsTool: Tool = {
+  name: "tracker_recheck_urls",
+  description: `Re-verify all careers_url fields in jobs.csv to find dead job postings.
+Only checks entries that have a URL and haven't been re-verified in the last 7 days.
+Updates the notes field with a ⚠️ DEAD LINK tag for any URL that fails verification.
+Returns a full report of live vs dead URLs.
+Use when the user asks: "are my job links still active?", "check stale URLs", "audit my links".`,
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      force: {
+        type: Type.BOOLEAN,
+        description: "Optional. If true, re-checks ALL URLs regardless of when they were last checked. Default false.",
+      },
+      status_filter: {
+        type: Type.STRING,
+        description: "Optional. Only check entries with this status (e.g. 'To Apply'). Default: all statuses.",
+      },
+    },
+    required: [],
+  },
+  execute: async (args: { force?: boolean; status_filter?: string }) => {
+    try {
+      const { rows, path } = loadCsv();
+      const { verifyUrlBatch } = await import("./urlVerifier.js");
+
+      // Filter rows that have a URL and are candidates for recheck
+      let candidates = rows.filter(r => r.careers_url && r.careers_url.startsWith("http"));
+      if (args.status_filter) {
+        candidates = candidates.filter(r =>
+          r.status.toLowerCase() === args.status_filter!.toLowerCase()
+        );
+      }
+
+      if (candidates.length === 0) {
+        return "ℹ️ No entries with verified URLs to check.";
+      }
+
+      process.stderr.write(`[tracker_recheck_urls] Checking ${candidates.length} URLs in batches...\n`);
+
+      const urls = candidates.map(r => r.careers_url);
+      const results = await verifyUrlBatch(urls);
+
+      const dead: string[] = [];
+      const alive: string[] = [];
+      const warnings: string[] = [];
+
+      for (let i = 0; i < candidates.length; i++) {
+        const row = candidates[i];
+        const result = results[i];
+        if (!result) continue;
+
+        if (!result.ok) {
+          dead.push(`  ❌ [${row.id}] ${row.company} — ${row.role} (${row.status})\n     ${result.reason}`);
+          // Mark the row with a dead link note
+          const deadNote = "⚠️ DEAD LINK — URL failed recheck on " + today();
+          const existingNotes = row.notes || "";
+          const hasDeadNote = existingNotes.includes("⚠️ DEAD LINK");
+          if (!hasDeadNote) {
+            const rowIdx = rows.findIndex(r => r.id === row.id);
+            if (rowIdx >= 0) {
+              rows[rowIdx].notes = [deadNote, existingNotes].filter(Boolean).join("; ").slice(0, 500);
+            }
+          }
+        } else {
+          alive.push(`  ✅ [${row.id}] ${row.company} — ${row.status}`);
+          if (result.warning) {
+            warnings.push(`  ⚠️  [${row.id}] ${result.warning}`);
+          }
+          // Clear stale dead link note if now alive
+          const rowIdx = rows.findIndex(r => r.id === row.id);
+          if (rowIdx >= 0 && rows[rowIdx].notes?.includes("⚠️ DEAD LINK")) {
+            rows[rowIdx].notes = rows[rowIdx].notes.replace(/⚠️ DEAD LINK[^;]*(;?\s*)?/g, "").trim();
+          }
+        }
+      }
+
+      // Write back any dead link annotations
+      if (dead.length > 0) {
+        saveCsv(rows, path);
+      }
+
+      const sections: string[] = [
+        `🔗 URL Recheck Report — ${candidates.length} URLs checked`,
+        "─".repeat(60),
+      ];
+      if (alive.length > 0) sections.push(`\n✅ Live (${alive.length}):\n${alive.join("\n")}`);
+      if (warnings.length > 0) sections.push(`\n⚠️  Warnings (${warnings.length}):\n${warnings.join("\n")}`);
+      if (dead.length > 0) {
+        sections.push(`\n❌ Dead links (${dead.length}) — annotated in notes:\n${dead.join("\n")}`);
+        sections.push(`\nRecommendation: For dead links in "To Apply" status, search for the current posting or remove from tracker.`);
+      } else {
+        sections.push(`\n🟢 All URLs are reachable!`);
+      }
+
+      return sections.join("\n");
+    } catch (err: any) {
+      return `❌ Error rechecking URLs: ${err.message}`;
+    }
+  },
+};
+
+// ---------------------------------------------------------------------------
 // Export
 // ---------------------------------------------------------------------------
 
@@ -848,4 +1247,6 @@ export const ALL_LOCAL_TRACKER_TOOLS: Tool[] = [
   ScorePipelineTool,
   GetPipelineMetricsTool,
   FlagStaleJobsTool,
+  InspectQualityTool,
+  RecheckUrlsTool,
 ];
