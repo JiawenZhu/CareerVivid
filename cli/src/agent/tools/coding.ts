@@ -1,8 +1,63 @@
 import { execSync, ExecSyncOptionsWithStringEncoding } from 'child_process';
 import { existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdirSync } from 'fs';
-import { resolve, dirname, relative, join } from 'path';
+import { resolve, dirname, relative, join, normalize } from 'path';
 import { Type } from '@google/genai';
 import { Tool } from '../Tool.js';
+
+// ============================================================================
+// Path-based Access Control (Least Privilege)
+// ============================================================================
+
+/**
+ * Directories the agent is ALLOWED to READ.
+ * These are relative to the repo root (process.cwd()) or absolute paths the agent owns.
+ */
+const READ_ALLOWED_PREFIXES = [
+  // Agent's own data & config
+  'career-ops/',          // job tracker CSV, résumé drafts, career data
+  'cli/',                 // CLI source — agent may read its own code
+  // Scratch / temporary outputs produced by the agent
+  'tmp/',
+  '/tmp/',
+  // User's home config file is read by loadConfig() — not by read_file tool
+];
+
+/**
+ * Directories the agent is ALLOWED to WRITE.
+ * This is intentionally much narrower than the read list.
+ * Source code (src/, functions/, next-app/) is completely off-limits.
+ */
+const WRITE_ALLOWED_PREFIXES = [
+  'career-ops/',          // job tracker CSV, résumé drafts — the only structured data the agent owns
+  'tmp/',
+  '/tmp/',
+];
+
+/**
+ * Resolve a raw path argument and check it against an allowlist.
+ * @throws if the resolved path falls outside every allowed prefix.
+ */
+function guardPath(rawPath: string, allowedPrefixes: string[], mode: 'read' | 'write'): string {
+  const cwd = process.cwd();
+  const absPath = normalize(resolve(rawPath));
+
+  const allowed = allowedPrefixes.some(prefix => {
+    const fullPrefix = prefix.startsWith('/') ? normalize(prefix) : normalize(join(cwd, prefix));
+    return absPath.startsWith(fullPrefix);
+  });
+
+  if (!allowed) {
+    const rel = relative(cwd, absPath);
+    throw new Error(
+      `⛔ Access denied: ${mode} access to "${rel}" is not permitted.\n` +
+      `The agent can only ${mode} files inside: ${allowedPrefixes.join(', ')}\n` +
+      `To access this file, use your editor or the CareerVivid web app.`
+    );
+  }
+
+  return absPath;
+}
+
 
 // ============================================================================
 // Safe list for run_command (no confirmation required)
@@ -84,7 +139,7 @@ export const readFileTool: Tool = {
     required: ['path'],
   },
   execute: async (args: { path: string; start_line?: number; end_line?: number }) => {
-    const absPath = resolve(args.path);
+    const absPath = guardPath(args.path, READ_ALLOWED_PREFIXES, 'read');
     if (!existsSync(absPath)) {
       throw new Error(`File not found: ${absPath}`);
     }
@@ -124,7 +179,7 @@ export const writeFileTool: Tool = {
     required: ['path', 'content'],
   },
   execute: async (args: { path: string; content: string }) => {
-    const absPath = resolve(args.path);
+    const absPath = guardPath(args.path, WRITE_ALLOWED_PREFIXES, 'write');
     mkdirSync(dirname(absPath), { recursive: true });
     writeFileSync(absPath, args.content, 'utf-8');
     const lines = args.content.split('\n').length;
@@ -164,7 +219,7 @@ export const patchFileTool: Tool = {
     required: ['path', 'start_line', 'end_line', 'new_content'],
   },
   execute: async (args: { path: string; start_line: number; end_line: number; new_content: string }) => {
-    const absPath = resolve(args.path);
+    const absPath = guardPath(args.path, WRITE_ALLOWED_PREFIXES, 'write');
     if (!existsSync(absPath)) throw new Error(`File not found: ${absPath}`);
 
     const lines = readFileSync(absPath, 'utf-8').split('\n');
