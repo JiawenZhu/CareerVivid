@@ -129,9 +129,9 @@ function getCsvPath(): string {
   const __dirname  = dirname(__filename);
   // 1. Check dev repo locations first (for existing users/contributors)
   const devCandidates = [
-    resolve(__dirname, "../../../../career-ops/data/jobs.csv"),
-    resolve(__dirname, "../../../../../career-ops/data/jobs.csv"),
-    resolve(process.cwd(), "career-ops/data/jobs.csv"),
+    resolve(__dirname, "../../../../career-vivid/data/jobs.csv"),
+    resolve(__dirname, "../../../../../career-vivid/data/jobs.csv"),
+    resolve(process.cwd(), "career-vivid/data/jobs.csv"),
   ];
   for (const p of devCandidates) { if (existsSync(p)) return p; }
 

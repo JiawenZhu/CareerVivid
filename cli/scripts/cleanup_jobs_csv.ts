@@ -18,8 +18,8 @@ import { homedir } from "os";
 // ── Locate jobs.csv ──────────────────────────────────────────────────────────
 function getCsvPath(): string {
   const candidates = [
-    resolve(process.cwd(), "../career-ops/data/jobs.csv"),
-    resolve(process.cwd(), "career-ops/data/jobs.csv"),
+    resolve(process.cwd(), "../career-vivid/data/jobs.csv"),
+    resolve(process.cwd(), "career-vivid/data/jobs.csv"),
     resolve(homedir(), ".careervivid/jobs.csv"),
   ];
   for (const p of candidates) { if (existsSync(p)) return p; }

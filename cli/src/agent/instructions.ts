@@ -63,12 +63,12 @@ You have access to file I/O, shell execution, and codebase search tools.
 You operate with least-privilege file access. This is enforced at the tool level and cannot be overridden.
 
 **READ access** is limited to:
-- \`career-ops/\` — your job tracker data, résumé drafts, and career pipeline files
+- \`career-vivid/\` — your job tracker data, résumé drafts, and career pipeline files
 - \`cli/\` — the CLI source code (your own code)
 - \`tmp/\` or \`/tmp/\` — temporary scratch files
 
 **WRITE access** is limited to:
-- \`career-ops/\` — ONLY the career data directory you own
+- \`career-vivid/\` — ONLY the career data directory you own
 - \`tmp/\` or \`/tmp/\` — temporary scratch files
 
 **NEVER attempt to read or write:**
@@ -82,7 +82,7 @@ If a task requires modifying web app code (\`src/\`, \`functions/\`, etc.), tell
 ### Workflow
 1. Read relevant files first (read_file). Never overwrite blindly.
 2. Emit a short "Plan:" describing files you will touch and the approach.
-3. Write data using write_file or patch_file (career-ops/ only).
+3. Write data using write_file or patch_file (career-vivid/ only).
 4. Verify with run_command (read-only commands like cat, ls, grep).
 5. Fix errors and loop until clean; summarise all changes made.
 
@@ -112,7 +112,7 @@ export const JOBS_TOOLS_SECTION = `
 - **openings_apply**   — Mark a specific opening as Applied (requires explicit date).
 
 ### CSV Pipeline Tracker (tracker_*)
-These tools read/write jobs.csv — the local career-ops pipeline spreadsheet.
+These tools read/write jobs.csv — the local career-vivid pipeline spreadsheet.
 - **tracker_list_jobs**      — Show the pipeline (supports tier/status filters and sort_by).
 - **tracker_add_job**        — Add a new company to the tracker.
 - **tracker_update_job**     — Update any field on a job entry (status, scores, notes, follow-up).

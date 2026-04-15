@@ -4,7 +4,7 @@
  * Writes one row per EvalResult to a dated CSV file at:
  *   <outputDir>/results-YYYY-MM-DD.csv
  *
- * Default output directory: career-ops/eval/
+ * Default output directory: career-vivid/eval/
  *
  * Features:
  *   - Append-safe: if the file already exists from an earlier run today, new
@@ -27,7 +27,7 @@ import type { EvalResult, RunSummary } from "../types.js";
 export interface CsvDataLoggerOptions {
   /**
    * Directory to write CSV files into.
-   * Defaults to <repo_root>/career-ops/eval/
+   * Defaults to <repo_root>/career-vivid/eval/
    */
   outputDir?: string;
 }
@@ -81,16 +81,16 @@ function defaultOutputDir(): string {
   const __dirname  = dirname(__filename);
   // From dist/eval/storage/ or src/eval/storage/, go up 4 levels to repo root
   const candidates = [
-    resolve(__dirname, "../../../../career-ops/eval"),
-    resolve(__dirname, "../../../../../career-ops/eval"),
-    resolve(process.cwd(), "career-ops/eval"),
+    resolve(__dirname, "../../../../career-vivid/eval"),
+    resolve(__dirname, "../../../../../career-vivid/eval"),
+    resolve(process.cwd(), "career-vivid/eval"),
   ];
   // Return the first parent that exists, or the cwd-relative fallback
   for (const c of candidates) {
-    // We only care if the career-ops dir exists — create eval/ inside it
+    // We only care if the career-vivid dir exists — create eval/ inside it
     if (existsSync(resolve(c, ".."))) return c;
   }
-  return resolve(process.cwd(), "career-ops/eval");
+  return resolve(process.cwd(), "career-vivid/eval");
 }
 
 /** Format date as YYYY-MM-DD in local time. */

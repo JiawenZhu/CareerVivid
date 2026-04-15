@@ -14,7 +14,7 @@ import { Tool } from '../Tool.js';
  */
 const READ_ALLOWED_PREFIXES = [
   // Agent's own data & config
-  'career-ops/',          // job tracker CSV, résumé drafts, career data
+  'career-vivid/',        // job tracker CSV, résumé drafts, career data
   'cli/',                 // CLI source — agent may read its own code
   // Scratch / temporary outputs produced by the agent
   'tmp/',
@@ -28,7 +28,7 @@ const READ_ALLOWED_PREFIXES = [
  * Source code (src/, functions/, next-app/) is completely off-limits.
  */
 const WRITE_ALLOWED_PREFIXES = [
-  'career-ops/',          // job tracker CSV, résumé drafts — the only structured data the agent owns
+  'career-vivid/',        // job tracker CSV, résumé drafts — the only structured data the agent owns
   'tmp/',
   '/tmp/',
 ];

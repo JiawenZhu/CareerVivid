@@ -83,9 +83,9 @@ const __dirname  = dirname(__filename);
 
 function findJobsCsvPath(): string | null {
   const candidates = [
-    resolve(__dirname, "../../../../career-ops/data/jobs.csv"),
-    resolve(__dirname, "../../../../../career-ops/data/jobs.csv"),
-    resolve(process.cwd(), "career-ops/data/jobs.csv"),
+    resolve(__dirname, "../../../../career-vivid/data/jobs.csv"),
+    resolve(__dirname, "../../../../../career-vivid/data/jobs.csv"),
+    resolve(process.cwd(), "career-vivid/data/jobs.csv"),
   ];
   return candidates.find(existsSync) ?? null;
 }

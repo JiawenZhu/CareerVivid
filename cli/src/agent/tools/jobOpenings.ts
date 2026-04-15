@@ -60,9 +60,9 @@ function getJobsCsvPath(): string {
   const __dirpath  = dirname(__filename);
   // 1. Check dev repo locations (for local development)
   const devCandidates = [
-    resolve(__dirpath, "../../../../career-ops/data/jobs.csv"),
-    resolve(__dirpath, "../../../../../career-ops/data/jobs.csv"),
-    resolve(process.cwd(), "career-ops/data/jobs.csv"),
+    resolve(__dirpath, "../../../../career-vivid/data/jobs.csv"),
+    resolve(__dirpath, "../../../../../career-vivid/data/jobs.csv"),
+    resolve(process.cwd(), "career-vivid/data/jobs.csv"),
   ];
   for (const p of devCandidates) { if (existsSync(p)) return p; }
   // 2. Global ~/.careervivid/jobs.csv for installed users
@@ -74,9 +74,9 @@ function getOpeningsPath(): string {
   const __dirpath  = dirname(__filename);
   // Mirror next to jobs.csv
   const devCandidates = [
-    resolve(__dirpath, "../../../../career-ops/data/job_openings.csv"),
-    resolve(__dirpath, "../../../../../career-ops/data/job_openings.csv"),
-    resolve(process.cwd(), "career-ops/data/job_openings.csv"),
+    resolve(__dirpath, "../../../../career-vivid/data/job_openings.csv"),
+    resolve(__dirpath, "../../../../../career-vivid/data/job_openings.csv"),
+    resolve(process.cwd(), "career-vivid/data/job_openings.csv"),
   ];
   for (const p of devCandidates) { if (existsSync(p)) return p; }
   // Fallback: mirror next to jobs.csv
