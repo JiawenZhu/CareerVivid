@@ -1,6 +1,12 @@
 import chalk from "chalk";
 import boxen from "boxen";
 import gradient from "gradient-string";
+import { readFileSync } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const pkg = JSON.parse(readFileSync(join(__dirname, "../package.json"), "utf-8"));
 
 // ── Colors ───────────────────────────────────────────────────────────────────
 
@@ -35,15 +41,18 @@ export function printWelcome(): void {
 
     const content = `
 ${chalk.bold("Welcome to the CareerVivid CLI!")}
-${chalk.dim("Your command-center for personal brand building.")}
+${chalk.dim("Your AI-powered career management command-center.")}
 
 ${chalk.white("To get started, run:")}
-${chalk.cyan("  cv auth login")}
+${chalk.cyan("  cv login")}
 
 ${chalk.dim("Quick Commands:")}
-${chalk.white("• cv new")}            Scaffold a new diagram
-${chalk.white("• cv publish <file>")}  Publish to your portfolio
-${chalk.white("• cv help")}           Show all commands
+${chalk.white("• cv agent")}           Start the AI career agent
+${chalk.white("• cv jobs hunt")}       Search & score job openings
+${chalk.white("• cv resumes list")}    View your AI-parsed resumes
+${chalk.white("• cv referral")}        View your referral dashboard
+${chalk.white("• cv publish <file>")}  Publish to CareerVivid
+${chalk.white("• cv help")}            Show all commands
 `;
 
     console.log(
@@ -52,7 +61,7 @@ ${chalk.white("• cv help")}           Show all commands
             margin: 1,
             borderStyle: "round",
             borderColor: COLORS.primary,
-            title: chalk.bold.blue(" v1.1.13 "),
+            title: chalk.bold.blue(` v${pkg?.version ?? "latest"} `),
             titleAlignment: "right",
         })
     );

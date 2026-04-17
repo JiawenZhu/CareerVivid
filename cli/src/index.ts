@@ -66,7 +66,7 @@ const program = new Command();
 program
     .name("cv")
     .description(
-        "CareerVivid CLI — publish articles, diagrams, and portfolio updates from your terminal or AI agent"
+        "CareerVivid CLI — AI-powered career management: job hunting, resume building, referrals, and portfolio publishing."
     )
     .version(pkg.version, "-v, --version", "Print CLI version")
     .addHelpText("before", getHelpHeader())

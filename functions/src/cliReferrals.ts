@@ -92,7 +92,7 @@ export const cliReferralStats = functions.region("us-west1").runWith({
         if (req.method === "OPTIONS") {
             res.set("Access-Control-Allow-Origin", "*");
             res.set("Access-Control-Allow-Methods", "GET, OPTIONS");
-            res.set("Access-Control-Allow-Headers", "Content-Type, x-api-key");
+            res.set("Access-Control-Allow-Headers", "Content-Type, x-api-key, Authorization");
             res.status(204).send("");
             return;
         }
@@ -149,7 +149,7 @@ export const cliReferralStats = functions.region("us-west1").runWith({
             res.json(result);
         } catch (err: any) {
             console.error("[cliReferralStats] Error:", err.message);
-            res.status(500).json({ error: \`Failed to get referral stats: \${err.message}\` });
+            res.status(500).json({ error: "Failed to get referral stats: " + err.message });
         }
     });
 });

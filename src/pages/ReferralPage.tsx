@@ -279,7 +279,9 @@ const ReferralPage: React.FC = () => {
                                                 <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
                                                     <Calendar size={12} />
                                                     <span>
-                                                        {user.signupDate?.toDate?.()?.toLocaleDateString() || 'Recently'}
+                                                        {user.signupDate && typeof user.signupDate === 'string'
+                                                            ? new Date(user.signupDate).toLocaleDateString()
+                                                            : (user.signupDate?.toDate?.()?.toLocaleDateString() || 'Recently')}
                                                     </span>
                                                 </div>
                                             </div>

@@ -1,7 +1,7 @@
 {
   "name": "careervivid-mcp-server",
-  "version": "1.1.0",
-  "description": "CareerVivid MCP Server — publish articles and diagrams directly from AI coding agents",
+  "version": "2.0.0",
+  "description": "CareerVivid MCP Server — jobs, resumes, cover letters, referrals, publishing, and portfolio management.",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",

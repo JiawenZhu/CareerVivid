@@ -65,7 +65,8 @@ const MockWhiteboardCard = ({ title, className = "" }: { title: string, classNam
 );
 
 // ── Terminal card for the 3-column CLI section ──
-const TerminalCard = ({ command, description, hoverOutput, delay = 0, isFocused, anyHovered, onEnter, onLeave }: {
+// On desktop: hover to expand. On mobile: click to expand (toggle).
+const TerminalCard = ({ command, description, hoverOutput, delay = 0, isFocused, anyHovered, onEnter, onLeave, onToggle }: {
     command: string;
     description: string;
     hoverOutput: React.ReactNode;
@@ -74,17 +75,26 @@ const TerminalCard = ({ command, description, hoverOutput, delay = 0, isFocused,
     anyHovered: boolean;
     onEnter: () => void;
     onLeave: () => void;
+    onToggle: () => void;
 }) => {
+    const [isMobile, setIsMobile] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+
         const observer = new IntersectionObserver(
             ([entry]) => { if (entry.isIntersecting) setIsVisible(true); },
             { threshold: 0.1 }
         );
         if (cardRef.current) observer.observe(cardRef.current);
-        return () => observer.disconnect();
+        return () => {
+            observer.disconnect();
+            window.removeEventListener('resize', checkMobile);
+        };
     }, []);
 
     const dimmed = anyHovered && !isFocused;
@@ -97,17 +107,22 @@ const TerminalCard = ({ command, description, hoverOutput, delay = 0, isFocused,
             animate={isVisible ? {
                 opacity: dimmed ? 0.35 : 1,
                 y: 0,
-                flexGrow: isFocused ? 1.8 : dimmed ? 0.6 : 1,
+                // On desktop: focused card grows wider via flexGrow.
+                // On mobile: let it stack naturally (flexGrow 0 or 1 doesn't matter much in col auto height, but clean is better).
+                flexGrow: isMobile ? 0 : (isFocused ? 1.8 : dimmed ? 0.6 : 1),
             } : { opacity: 0, y: 40 }}
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: isVisible ? 0 : delay }}
-            className={`min-h-[220px] md:min-h-0 flex flex-col bg-white dark:bg-[#0a0a0a] border rounded-xl overflow-hidden shadow-2xl ring-1 cursor-pointer text-left ${
+            className={`flex flex-col bg-white dark:bg-[#0a0a0a] border rounded-xl overflow-hidden shadow-2xl ring-1 cursor-pointer text-left w-full ${
                 isFocused
                     ? 'border-primary-400/60 dark:border-primary-500/50 ring-primary-400/20 dark:ring-primary-500/20 shadow-primary-500/10'
                     : 'border-gray-200 dark:border-gray-800 ring-gray-900/5 dark:ring-white/10'
-            }`}
-            style={{ flexBasis: 0, minWidth: 0 }}
-            onMouseEnter={onEnter}
-            onMouseLeave={onLeave}
+            } ${!isMobile ? 'min-h-[220px]' : 'h-auto'}`}
+            style={!isMobile ? { flexBasis: 0, minWidth: 0 } : {}}
+            // Hover for desktop
+            onMouseEnter={!isMobile ? onEnter : undefined}
+            onMouseLeave={!isMobile ? onLeave : undefined}
+            // Click/tap for mobile toggle
+            onClick={onToggle}
         >
             {/* Terminal header bar */}
             <div className={`flex items-center px-4 py-3 border-b gap-2 shrink-0 transition-colors ${
@@ -128,7 +143,7 @@ const TerminalCard = ({ command, description, hoverOutput, delay = 0, isFocused,
             {/* Terminal body */}
             <div className="p-5 font-mono text-xs sm:text-sm flex flex-col gap-3 flex-1">
                 {/* Command line */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-pink-500 select-none">~</span>
                     <span className="text-primary-500 dark:text-primary-400">cv</span>
                     <span className="text-gray-800 dark:text-gray-100 font-semibold">{command.replace('cv ', '')}</span>
@@ -140,7 +155,7 @@ const TerminalCard = ({ command, description, hoverOutput, delay = 0, isFocused,
                     {description}
                 </p>
 
-                {/* Hover output */}
+                {/* Expanded output */}
                 <AnimatePresence mode="wait">
                     {isFocused ? (
                         <motion.div
@@ -163,7 +178,9 @@ const TerminalCard = ({ command, description, hoverOutput, delay = 0, isFocused,
                             exit={{ opacity: 0 }}
                             className="text-gray-400 dark:text-gray-600 italic font-sans text-[12px] mt-auto pt-4"
                         >
-                            Hover to see live execution →
+                            {/* Show tap on mobile, hover on desktop */}
+                            <span className="md:hidden">Tap to see live execution →</span>
+                            <span className="hidden md:inline">Hover to see live execution →</span>
                         </motion.p>
                     )}
                 </AnimatePresence>
@@ -183,7 +200,12 @@ const CommunityShowcaseHero: React.FC = () => {
         setTimeout(() => setCopiedToClipboard(false), 2000);
     };
 
-    // Scroll tracking for the sticky hero section only
+    // Toggle for mobile tap — clicking an already-focused card closes it
+    const handleToggle = (card: 'agent' | 'resume' | 'jobs') => {
+        setHoveredCard(prev => prev === card ? null : card);
+    };
+
+    // Scroll tracking for the sticky hero section only (desktop)
     const { scrollYProgress } = useScroll({
         target: containerRef,
         offset: ["start start", "end end"]
@@ -198,28 +220,31 @@ const CommunityShowcaseHero: React.FC = () => {
 
     return (
         <>
-            {/* ── PHASE 1: Scroll-jacked hero with parallax floating cards ── */}
-            <section ref={containerRef} className="relative h-[160vh] bg-gray-50 dark:bg-gray-950">
-                <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col items-center justify-center z-20">
+            {/* ── PHASE 1: Scroll-jacked hero with parallax floating cards ──
+                Hidden on mobile — users see the hero text directly without needing to scroll.
+                Shown only on md+ (desktop/tablet).
+            */}
+            <section ref={containerRef} className="hidden md:block relative h-[160vh] bg-gray-50 dark:bg-gray-950">
+                <div className="sticky top-0 pt-20 h-screen w-full overflow-hidden flex flex-col items-center justify-center z-20">
 
                     {/* Floating community cards (parallax + fade out on scroll) */}
                     <motion.div
                         style={{ opacity: cardsOpacity, scale: cardsScale }}
                         className="absolute inset-0 pointer-events-none z-10 overflow-hidden"
                     >
-                        {/* Left column: hidden on xs/sm, visible from md up */}
+                        {/* Left column */}
                         <motion.div className="hidden md:flex flex-col gap-8 absolute left-[2%] lg:left-[8%] top-[20%]" style={{ y: yColumn1 }}>
                             <MockPostCard title="How I scaled our Redis cache by sharding." author="Sarah" likes="3.2k" comments="145" className="rotate-[-3deg]" />
                             <MockWhiteboardCard title="Event-Driven Microservices" className="rotate-[2deg]" />
                             <MockResumeCard className="rotate-[-1deg]" />
                         </motion.div>
-                        {/* Center column: large screens only */}
+                        {/* Center column */}
                         <motion.div className="hidden lg:flex flex-col gap-8 absolute left-1/2 -translate-x-1/2 top-[-10%]" style={{ y: yColumn2 }}>
                             <MockResumeCard className="rotate-[1deg] opacity-30 blur-sm" />
                             <MockPostCard title="Frontend to Fullstack: My 6-month roadmap." author="Alex" likes="1.1k" comments="89" className="rotate-[-2deg] opacity-30 blur-sm" />
                             <MockWhiteboardCard title="Database Sharding Architecture" className="rotate-[3deg] opacity-30 blur-sm" />
                         </motion.div>
-                        {/* Right column: hidden on xs/sm, visible from md up */}
+                        {/* Right column */}
                         <motion.div className="hidden md:flex flex-col gap-8 absolute right-[2%] lg:right-[8%] top-[40%]" style={{ y: yColumn3 }}>
                             <MockWhiteboardCard title="Real-time Chat Socket Architecture" className="rotate-[4deg]" />
                             <MockResumeCard className="rotate-[-2deg]" />
@@ -272,7 +297,48 @@ const CommunityShowcaseHero: React.FC = () => {
                 </div>
             </section>
 
-            {/* ── PHASE 2: CLI 3-column grid – IntersectionObserver scroll reveal ── */}
+            {/* ── MOBILE-ONLY hero (no scroll animation, visible immediately) ── */}
+            <section className="md:hidden bg-gray-50 dark:bg-gray-950 px-4 pt-28 pb-8 flex flex-col items-center text-center">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-100 dark:bg-primary-900/30 border border-primary-200 dark:border-primary-800 text-primary-700 dark:text-primary-300 text-sm font-bold mb-6 tracking-wide">
+                    <span className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
+                    Where Tech Careers Grow in Public.
+                </div>
+
+                <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tighter leading-[1.1] mb-5">
+                    Automate your{' '}
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-blue-600 dark:from-primary-400 dark:to-blue-400">
+                        job search.
+                    </span>
+                </h1>
+
+                <p className="text-base text-gray-600 dark:text-gray-400 font-medium leading-relaxed max-w-sm mx-auto mb-8">
+                    Supercharge your job search with your personal AI agent — ATS resume builder, auto-apply, and digital portfolio.
+                </p>
+
+                <div className="flex flex-col gap-3 w-full max-w-xs mb-6">
+                    <button onClick={() => navigate('/community')} className="px-6 py-3.5 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-extrabold text-base transition-all shadow-xl shadow-primary-600/20 flex items-center justify-center gap-2">
+                        Explore the Community <ArrowRight size={18} />
+                    </button>
+                    <button onClick={() => navigate('/auth')} className="px-6 py-3.5 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white rounded-2xl font-extrabold text-base transition-all flex items-center justify-center gap-2">
+                        <FileText size={18} /> Build ATS Resume
+                    </button>
+                </div>
+
+                {/* Quick install pill */}
+                <div className="flex items-center gap-2 bg-gray-900 dark:bg-black border border-gray-700 rounded-xl px-4 py-2.5 shadow-xl w-full max-w-xs">
+                    <span className="text-pink-500 font-mono font-bold flex-shrink-0">~</span>
+                    <span className="text-gray-300 font-mono text-xs truncate flex-1">npm install -g careervivid</span>
+                    <button
+                        onClick={handleCopy}
+                        className="flex-shrink-0 px-2.5 py-1.5 bg-gray-800 hover:bg-gray-700 rounded-lg text-gray-400 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-medium border border-gray-700"
+                    >
+                        {copiedToClipboard ? <CheckCircle2 size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                        {copiedToClipboard ? 'Copied!' : 'Copy'}
+                    </button>
+                </div>
+            </section>
+
+            {/* ── PHASE 2: CLI 3-column grid ── */}
             <section className="bg-gray-50 dark:bg-gray-950 pt-10 pb-28 px-4">
                 {/* Section label */}
                 <div className="text-center mb-10">
@@ -281,11 +347,15 @@ const CommunityShowcaseHero: React.FC = () => {
                         One CLI. Three superpowers.
                     </h2>
                     <p className="text-gray-500 dark:text-gray-400 mt-3 max-w-xl mx-auto text-sm">
-                        Hover each command to see what the agent does in real time.
+                        <span className="hidden md:inline">Hover each command to see what the agent does in real time.</span>
+                        <span className="md:hidden">Tap each command to see what the agent does in real time.</span>
                     </p>
                 </div>
 
-                {/* Flex layout so focused card can grow wider */}
+                {/* Cards:
+                    Mobile: flex-col, each card is full width. Focused card expands content in place.
+                    Desktop: flex-row, focused card grows wider via flexGrow.
+                */}
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-4 items-stretch md:min-h-[380px]">
                     <TerminalCard
                         command="cv agent"
@@ -295,6 +365,7 @@ const CommunityShowcaseHero: React.FC = () => {
                         anyHovered={hoveredCard !== null}
                         onEnter={() => setHoveredCard('agent')}
                         onLeave={() => setHoveredCard(null)}
+                        onToggle={() => handleToggle('agent')}
                         hoverOutput={
                             <div className="space-y-2">
                                 <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold"><Sparkles size={11} /> Booting agent...</div>
@@ -324,6 +395,7 @@ const CommunityShowcaseHero: React.FC = () => {
                         anyHovered={hoveredCard !== null}
                         onEnter={() => setHoveredCard('resume')}
                         onLeave={() => setHoveredCard(null)}
+                        onToggle={() => handleToggle('resume')}
                         hoverOutput={
                             <div className="space-y-2">
                                 <div className="flex items-center gap-1.5 text-primary-600 dark:text-primary-400 font-bold"><LayoutTemplate size={11} /> Tailoring resume...</div>
@@ -351,6 +423,7 @@ const CommunityShowcaseHero: React.FC = () => {
                         anyHovered={hoveredCard !== null}
                         onEnter={() => setHoveredCard('jobs')}
                         onLeave={() => setHoveredCard(null)}
+                        onToggle={() => handleToggle('jobs')}
                         hoverOutput={
                             <div className="space-y-2">
                                 <div className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400 font-bold"><Briefcase size={11} /> Scanning market...</div>

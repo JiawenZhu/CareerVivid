@@ -1,8 +1,10 @@
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp, increment, arrayUnion, Timestamp } from 'firebase/firestore';
 
+const FUNCTIONS_URL = 'https://us-west1-jastalk-firebase.cloudfunctions.net';
+
 /**
- * Generate a random 8-character alphanumeric referral code
+ * Generate a random 8-character alphanumeric referral code (Legacy - now handled by backend)
  */
 function generateReferralCode(): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -14,7 +16,7 @@ function generateReferralCode(): string {
 }
 
 /**
- * Ensure unique referral code and create it in Firestore
+ * Ensure unique referral code and create it in Firestore (Legacy - now handled by backend)
  */
 export async function ensureUniqueReferralCode(userId: string): Promise<string> {
     let code = generateReferralCode();
@@ -54,18 +56,12 @@ export async function ensureUniqueReferralCode(userId: string): Promise<string> 
 }
 
 /**
- * Get or create referral code for a user
+ * Get or create referral code for a user (via Backend API)
  */
 export async function getUserReferralCode(userId: string): Promise<string> {
-    const userDoc = await getDoc(doc(db, 'users', userId));
-    const userData = userDoc.data();
-
-    if (userData?.referralCode) {
-        return userData.referralCode;
-    }
-
-    // Generate new code
-    return await ensureUniqueReferralCode(userId);
+    // We now use the unified stats endpoint which handles lazy generation
+    const stats = await getReferralStats(userId);
+    return stats.code;
 }
 
 /**
@@ -150,7 +146,7 @@ export async function applyReferralRewards(
 }
 
 /**
- * Get referral stats for a user
+ * Get referral stats for a user via Backend Cloud Function
  */
 export async function getReferralStats(userId: string): Promise<{
     code: string;
@@ -158,29 +154,29 @@ export async function getReferralStats(userId: string): Promise<{
     maxReferrals: number;
     referredUsers: Array<{ uid: string; email: string; signupDate: any }>;
 }> {
-    const userDoc = await getDoc(doc(db, 'users', userId));
-    const userData = userDoc.data();
-
-    const code = userData?.referralCode || '';
-    const stats = userData?.referralStats || {
-        totalReferred: 0,
-        maxReferrals: 5,
-        referredUsers: []
-    };
-
-    // Get detailed referred users info from referralCodes collection
-    let referredUsers: Array<{ uid: string; email: string; signupDate: any }> = [];
-    if (code) {
-        const codeDoc = await getDoc(doc(db, 'referralCodes', code));
-        if (codeDoc.exists()) {
-            referredUsers = codeDoc.data().referredUsers || [];
-        }
+    const user = auth.currentUser;
+    if (!user) {
+        throw new Error('User not authenticated');
     }
 
-    return {
-        code,
-        totalReferred: stats.totalReferred || 0,
-        maxReferrals: stats.maxReferrals || 5,
-        referredUsers
-    };
+    try {
+        const idToken = await user.getIdToken();
+        const response = await fetch(`${FUNCTIONS_URL}/cliReferralStats`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${idToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('[referralService] Error fetching stats from API:', error);
+        // Fallback to empty stats if API fails, but usually we want to know why it failed
+        throw error;
+    }
 }
