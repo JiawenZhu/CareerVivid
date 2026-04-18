@@ -738,6 +738,7 @@ export const cliGetInterviewToken = functions
         billed: false,
         creditsCharged: null,
         plan,
+        source: "cli",   // tag at creation so context queries can filter
       });
 
       const geminiKey = process.env.GEMINI_API_KEY;
@@ -981,30 +982,24 @@ export const cliGetInterviewContext = functions
       const uid = snapshot.docs[0].ref.parent.parent!.id;
       const maxSessions = Math.min(Math.max(1, limit ?? 3), 10);
 
-      // Fetch recent CLI interview sessions that have transcript data
-      const sessions = await db
+      // Query by uid + startedAt only (single-field index — no composite needed).
+      // We fetch more than needed then client-filter for sessions with transcripts.
+      const sessionsSnap = await db
         .collection("interviewSessions")
         .where("uid", "==", uid)
-        .where("source", "==", "cli")
         .orderBy("startedAt", "desc")
-        .limit(maxSessions)
+        .limit(maxSessions * 5)  // over-fetch so we have enough after filtering
         .get();
 
-      // If no CLI sessions with source field, fall back to all recent sessions
-      let docs = sessions.docs;
-      if (docs.length === 0) {
-        const fallback = await db
-          .collection("interviewSessions")
-          .where("uid", "==", uid)
-          .orderBy("startedAt", "desc")
-          .limit(maxSessions)
-          .get();
-        docs = fallback.docs;
-      }
-
-      const result = docs.map((doc) => {
+      const result: any[] = [];
+      for (const doc of sessionsSnap.docs) {
         const d = doc.data();
-        return {
+        // Prefer sessions that have a transcript saved; skip web-only sessions without one
+        // unless the user has no CLI sessions at all (in which case show everything)
+        const hasTranscript = Array.isArray(d.transcript) && d.transcript.length > 0;
+        const isCli = d.source === "cli";
+        if (!hasTranscript && !isCli) continue;  // skip web sessions without transcript
+        result.push({
           sessionId: doc.id,
           role: d.role ?? "Unknown Role",
           startedAt: d.startedAt?.toMillis?.() ?? null,
@@ -1014,8 +1009,9 @@ export const cliGetInterviewContext = functions
           // Cap transcript to 100 entries to keep API response sane
           transcript: (d.transcript ?? []).slice(0, 100),
           feedbackReport: d.feedbackReport ?? null,
-        };
-      });
+        });
+        if (result.length >= maxSessions) break;
+      }
 
       console.log(`[cliGetInterviewContext] uid=${uid} returning ${result.length} sessions`);
       res.status(200).json({ sessions: result });
