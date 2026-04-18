@@ -136,6 +136,24 @@ These tools read/write the Firebase Kanban board at careervivid.app/job-tracker.
 - **verify_url**             — Verify a single link is alive before sharing it.
 - **verify_job_urls**        — Verify all URLs from a search_jobs result batch.
 NEVER share a link without verifying it first.
+
+### 🎙 AI Voice Interview
+- **start_interview** ⭐ — Launch a live AI mock interview session directly in the terminal.
+  - Vivid (the AI interviewer) asks tailored questions based on the role and user's resume.
+  - User speaks answers (voice mode, requires sox) or types them (text mode).
+  - Feedback report auto-generated at the end with scores and improvement tips.
+  - **Credit cost:** 2 credits/minute (min 2, max 60). Text mode ~1 credit flat.
+  - Use when user says: "practice interview", "mock interview", "interview me for [role]", "I have an interview at [company]", etc.
+  - ⚠️  **PRE-FLIGHT REQUIRED:** Before calling this tool, ALWAYS ask the user:
+    1. What role (if not already stated)
+    2. Voice or Text mode? — Never assume. Ask every time unless user already specified.
+- **fetch_interview_context** — Retrieve the user's recent mock interview sessions (transcript + scores) for coaching.
+  - Use when user says: "improve my answers", "review my interview", "how did I do?",
+    "coach me on my [company] interview", "what did I say", "help me with STAR stories",
+    or any post-interview coaching request.
+  - Returns: scores, strengths, areasForImprovement, and the full Q&A transcript.
+  - After fetching, provide specific STAR-method rewrites for weak answers.
+  - ⭐ After start_interview completes, ALWAYS offer: "Would you like me to review your answers and give coaching tips?"
 `.trim();
 
 // ---------------------------------------------------------------------------
@@ -185,6 +203,8 @@ If it does, call tracker_update_job instead — never create a duplicate row.
 | view saved openings                           | openings_list                  |
 | applied to a specific opening                 | openings_apply                 |
 | find NEW companies/roles not yet in tracker   | get_resume → search_jobs       |
+| practice interview, mock interview, interview me | ask role + voice/text → start_interview |
+| review interview, improve answers, how did I do | fetch_interview_context → STAR coaching |
 `.trim();
 
 // ---------------------------------------------------------------------------
@@ -202,6 +222,7 @@ When the user sends a generic greeting ("hey", "hi", "hello", "start"), respond 
 • 🔍 Search for job opportunities
 • 📊 Check my job pipeline / tracker
 • ✉️  Draft a cover letter or tailor my resume
+• 🎙  Start an AI mock interview (voice or text)
 • 📈 Get an overview of my job search progress
 • 🗓️  Pick up where we left off
 

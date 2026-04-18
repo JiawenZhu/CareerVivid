@@ -398,6 +398,14 @@ ${label}
           if (confirm.ok !== "Yes, close it") return false;
         }
 
+        // Tools that take over the full terminal must NOT have a spinner running —
+        // the concurrent ora redraw causes constant flashing.
+        if (name === "start_interview") {
+          // Clear current line so any previous UI is gone, then yield terminal cleanly.
+          process.stdout.write("\r\x1b[K");
+          return true;
+        }
+
         currentSpinner = ora(`Running ${chalk.bold(name)}...`).start();
         return true;
       };
@@ -406,6 +414,10 @@ ${label}
         if (currentSpinner) {
           currentSpinner.succeed(chalk.dim(`Done`));
           currentSpinner = null;
+        }
+        if (name === "start_interview") {
+          // Interview already printed its own output — just add a separator.
+          console.log(chalk.dim("─".repeat(50)));
         }
         // #4 Audit log — record every completed tool call
         // durationMs is approximate since we don't have exact start time here
@@ -534,8 +546,11 @@ ${label}
             const tool = tools.find((t: any) => t.name === fc.name);
             let out;
             try {
+              // start_interview is an interactive long-running session — never apply a timeout to it.
               out = tool
-                ? await withTimeout(tool.execute(fc.args), 45_000, `tool:${fc.name}`)
+                ? fc.name === "start_interview"
+                  ? await tool.execute(fc.args)
+                  : await withTimeout(tool.execute(fc.args), 45_000, `tool:${fc.name}`)
                 : { error: "Tool not found" };
             } catch (e: any) {
               if (e.message?.includes("No API key configured")) {

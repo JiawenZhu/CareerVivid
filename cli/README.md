@@ -1,10 +1,11 @@
 # careervivid · CLI
 
-> **Your AI-powered career terminal — autonomous job applications, resume editing, job pipeline tracking, and portfolio publishing from the command line.**
+> **Your AI-powered career terminal — voice mock interviews, autonomous job applications, resume editing, job pipeline tracking, and portfolio publishing from the command line.**
 
 [![npm version](https://img.shields.io/npm/v/careervivid?color=0ea5e9&label=careervivid)](https://www.npmjs.com/package/careervivid)
 [![License: MIT](https://img.shields.io/badge/license-MIT-brightgreen)](LICENSE)
 [![Node ≥18](https://img.shields.io/badge/node-%3E%3D18-blue)](https://nodejs.org)
+[![v2.1](https://img.shields.io/badge/version-2.1-6366f1?logo=sparkles)](https://www.npmjs.com/package/careervivid)
 
 ---
 
@@ -12,6 +13,7 @@
 
 - [Quick Start](#quick-start)
 - [Commands](#commands)
+  - [cv interview](#cv-interview) 🎙 **AI Voice Interview**
   - [cv agent](#cv-agent) ⭐ **AI Agent**
   - [cv agent --jobs](#cv-agent---jobs) 🤖 **Autonomous Job Applications**
   - [cv agent --resume](#cv-agent---resume) 📄 **Resume CRUD**
@@ -40,22 +42,77 @@ npm install -g careervivid
 
 # 2. Log in and get your free API key
 cv login
-# → opens careervivid.app/developer in your browser
-# → copy your API key, then:
-cv auth set-key cv_live_YOUR_KEY_HERE
+# → opens careervivid.app in your browser
+# → authenticate once, API key is saved automatically
 
-# 3. Start the AI agent
+# 3. Practice an interview with voice AI
+cv interview
+
+# 4. Start the AI agent
 cv agent
 
-# 4. Or jump straight into job-hunting mode
+# 5. Or jump straight into job-hunting mode
 cv agent --jobs
 ```
 
-> **Free tier includes 100 AI credits/month** — no credit card required.
+> **Free tier includes 10 AI credits/month** — no credit card required.
 
 ---
 
 ## Commands
+
+---
+
+### `cv interview`
+
+**AI-powered voice mock interview** using the Gemini Live API. Vivid, your AI interviewer, conducts a real-time spoken interview tailored to the role you specify. After the session, you receive an auto-generated feedback report with scores and actionable improvement tips.
+
+```bash
+cv interview                               # interactive role prompt, voice mode
+cv interview --role "Senior Software Engineer"
+cv interview --role "Product Manager" --text   # text-only fallback (no mic needed)
+cv interview --role "SDE" --resume <id>        # load your resume for context
+cv interview --questions 7                     # custom question count (default 5)
+```
+
+**Requirements (voice mode):**
+- `sox` for audio I/O — install once:
+  ```bash
+  # macOS
+  brew install sox
+  # Ubuntu / Debian
+  sudo apt install sox
+  ```
+
+**How it works:**
+
+1. Vivid generates tailored interview questions using your role (and resume, if provided)
+2. A real-time voice session opens — speak your answers naturally
+3. Vivid asks follow-up questions and adapts to your responses
+4. Press **Ctrl+C** at any time to end
+5. A structured feedback report is generated covering:
+   - Overall, communication, confidence, and relevance scores (0–100)
+   - Specific strengths and areas for improvement
+
+**Interview History & Coaching:**
+
+Every session (transcript + report) is automatically persisted to your CareerVivid account. This enables the **AI Agent** to provide post-interview coaching:
+
+1. Complete an interview via `cv interview`.
+2. Start the agent: `cv agent`.
+3. Ask: *"How can I improve my answers from my last interview?"*
+4. The agent retrieves your actual transcript and suggests **STAR-method** improvements for your specific responses.
+
+**Credit cost:** **2 credits/minute** (minimum 2, maximum 60 per session)
+
+| Session length | Credits |
+|---|---|
+| < 1 min | 2 |
+| 5 min | 10 |
+| 10 min | 20 |
+| 30 min+ | 60 (cap) |
+
+> Credits are only charged after the session ends — never upfront.
 
 ---
 
@@ -294,7 +351,7 @@ CV_API_KEY=cv_live_YOUR_KEY_HERE cv publish article.md
 
 ### `cv login`
 
-Open the CareerVivid sign-in page and interactively save your API key.
+Open the CareerVivid sign-in page and automatically save your API key.
 
 ```bash
 cv login
@@ -336,17 +393,20 @@ cv config set llmModel gpt-4o
 
 | Plan | Credits / Month | Price |
 |---|---|---|
-| **Free** | 100 credits | $0 |
+| **Free** | 10 credits | $0 |
 | **Pro** | 1,000 credits | Paid |
 | **Max** | 10,000 credits | Paid |
 
-**Credit costs per agent turn:**
+**Credit costs by feature:**
 
-| Model | Credits |
+| Feature | Credits |
 |---|---|
-| `gemini-3.1-flash-lite-preview` | 0.5 cr |
-| `gemini-2.5-flash` | 1 cr |
+| `cv interview` (voice) | 2 credits/min (min 2, max 60) |
+| `gemini-3.1-flash-lite-preview` agent turn | 0.5 cr |
+| `gemini-2.5-flash` agent turn | 1 cr |
 | `gemini-3.1-pro-preview` (`--pro`) | 2 cr |
+| Resume tailor | 2 cr |
+| Job evaluation | 3 cr |
 
 > **Bring Your Own Key:** Using `--provider openai` (or any non-CareerVivid provider) deducts **zero credits** — you pay your provider directly.
 
@@ -462,12 +522,13 @@ echo "# My Architecture\n\nExplains the new service..." \
 You have access to the `cv` CLI tool.
 
 Available commands:
-- cv publish <file>               Publish an article (private by default, use --public to share)
-- cv agent --resume               Resume CRUD: read, update fields, tailor
-- cv agent --jobs                 Job hunting + autonomous apply
-- cv jobs hunt --role "..."       AI job search
-- cv jobs apply <url>             Autonomous form filling (stops before submit)
-- cv jobs list                    View job tracker
+- cv interview                        AI voice interview (requires sox)
+- cv publish <file>                   Publish an article (private by default, use --public to share)
+- cv agent --resume                   Resume CRUD: read, update fields, tailor
+- cv agent --jobs                     Job hunting + autonomous apply
+- cv jobs hunt --role "..."           AI job search
+- cv jobs apply <url>                 Autonomous form filling (stops before submit)
+- cv jobs list                        View job tracker
 
 Rules:
 1. Never include real API keys in published content.
@@ -499,6 +560,20 @@ npm config get prefix
 cv auth check
 CV_API_KEY=cv_live_YOUR_KEY cv publish article.md
 ```
+
+**`cv interview` — no audio / can't hear Vivid**
+```bash
+# Install sox first:
+brew install sox          # macOS
+sudo apt install sox      # Ubuntu/Debian
+
+# Then retry:
+cv interview
+```
+
+**`cv interview` — hearing echo / Vivid repeating itself**
+
+This can occur if your microphone picks up the speaker output. The CLI uses half-duplex mute suppression (mic is muted while Vivid is speaking). Use headphones for the best experience.
 
 **`browser_sidecar.py not found`**
 ```bash

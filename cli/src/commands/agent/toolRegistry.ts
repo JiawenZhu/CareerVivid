@@ -8,6 +8,7 @@ import { ALL_URL_VERIFIER_TOOLS } from "../../agent/tools/urlVerifier.js";
 import { ALL_PORTFOLIO_TOOLS } from "../../agent/tools/portfolio.js";
 import { ALL_COVERLETTER_TOOLS } from "../../agent/tools/coverLetter.js";
 import { ALL_JOB_OPENINGS_TOOLS } from "../../agent/tools/jobOpenings.js";
+import { ALL_INTERVIEW_TOOLS } from "../../agent/tools/interview.js";
 import { publishSingleFile } from "../publish.js";
 
 // ── Publish tools ─────────────────────────────────────────────────────────────
@@ -253,6 +254,9 @@ export function getTools(options: { jobs?: boolean; resume?: boolean; coding?: b
     for (const t of ALL_JOB_OPENINGS_TOOLS) {
       if (!tools.find((x) => x.name === t.name)) tools.push(t);
     }
+    for (const t of ALL_INTERVIEW_TOOLS) {
+      if (!tools.find((x) => x.name === t.name)) tools.push(t);
+    }
     return tools;
   }
 
@@ -272,9 +276,12 @@ export function getTools(options: { jobs?: boolean; resume?: boolean; coding?: b
     for (const t of ALL_COVERLETTER_TOOLS) {
       if (!tools.find((x) => x.name === t.name)) tools.push(t);
     }
+    for (const t of ALL_INTERVIEW_TOOLS) {
+      if (!tools.find((x) => x.name === t.name)) tools.push(t);
+    }
     return tools;
   }
 
   // Default coding mode: file system + publish tools
-  return [...ALL_CODING_TOOLS, PublishArticleTool, GenerateDiagramTool, ...ALL_COVERLETTER_TOOLS];
+  return [...ALL_CODING_TOOLS, PublishArticleTool, GenerateDiagramTool, ...ALL_COVERLETTER_TOOLS, ...ALL_INTERVIEW_TOOLS];
 }

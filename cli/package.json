@@ -1,7 +1,7 @@
 {
   "name": "careervivid",
-  "version": "1.12.48",
-  "description": "Official CLI for CareerVivid — publish articles, diagrams, and portfolio updates from your terminal or AI agent",
+  "version": "2.1.0",
+  "description": "Official CLI for CareerVivid — AI voice interviews, autonomous job applications, resume editing, and portfolio publishing from your terminal",
   "type": "module",
   "bin": {
     "cv": "dist/index.js",
@@ -57,10 +57,15 @@
   "keywords": [
     "careervivid",
     "cli",
+    "ai-interview",
+    "voice-interview",
+    "mock-interview",
+    "job-search",
     "developer-tools",
     "publish",
     "portfolio",
     "ai-agent",
+    "resume",
     "mcp"
   ],
   "author": "CareerVivid",

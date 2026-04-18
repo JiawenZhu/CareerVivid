@@ -57,6 +57,8 @@ import { registerJobsCommand } from "./commands/jobs.js";
 import { registerResumesCommand } from "./commands/resumes.js";
 import { registerReferralCommand } from "./commands/referral.js";
 import { registerEvalCommand }    from "./commands/eval.js";
+import { registerInterviewCommand } from "./commands/interview.js";
+import { registerAdminCommand } from "./commands/admin.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkg = JSON.parse(readFileSync(join(__dirname, "../package.json"), "utf-8"));
@@ -87,6 +89,10 @@ registerJobsCommand(program);
 registerResumesCommand(program);
 registerReferralCommand(program);
 registerEvalCommand(program);
+registerInterviewCommand(program);
+if (process.env.CV_ADMIN === "true") {
+    registerAdminCommand(program);
+}
 
 // Shortcuts for whiteboard creation
 registerNewCommand(program);
