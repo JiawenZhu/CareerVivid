@@ -244,7 +244,9 @@ export async function askLoop(
       // Reset per-turn mutation counter at the start of each user message
       turnMutations = 0;
 
-      process.stdout.write(chalk.dim("\n⏳ Thinking...\n\n"));
+      // ── Clear previous spinner residue then show thinking indicator ──
+      process.stdout.write(chalk.dim("\n"));
+      const thinkingSpinner = ora({ text: chalk.dim("Vivid is thinking…"), color: "cyan", spinner: "dots" }).start();
 
       let firstChunk = true;
       let currentSpinner: any = null;
@@ -331,11 +333,9 @@ export async function askLoop(
           }
         }
 
-        // Show a clean, user-friendly label — never show raw args
+        // Print compact tool label — no blank lines, stays tight between steps
         const label = TOOL_LABELS[name] ?? `⚙️  Working...`;
-        process.stdout.write(chalk.dim(`
-${label}
-`));
+        process.stdout.write(chalk.dim(`  ${label}\n`));
 
         if (name === "run_command") {
           if (trustAllCommands || isSafeCommand(args.command)) {
@@ -412,7 +412,7 @@ ${label}
 
       const handleToolResult = (name: string, result: any) => {
         if (currentSpinner) {
-          currentSpinner.succeed(chalk.dim(`Done`));
+          currentSpinner.succeed(chalk.dim("Done"));
           currentSpinner = null;
         }
         if (name === "start_interview") {
@@ -435,10 +435,12 @@ ${label}
         sessionTurns++;
         const sharedOnChunk = (text: string) => {
           if (firstChunk) {
-            process.stdout.write("\r\x1b[K");
+            thinkingSpinner.stop();
+            // Print a subtle gutter marker so AI response is visually distinct
+            process.stdout.write("\n" + chalk.hex("#6366f1")("✦ "));
             firstChunk = false;
           }
-          process.stdout.write(chalk.green(text));
+          process.stdout.write(text);
         };
         const sharedOnError = (error: Error) => {
           if (currentSpinner) {
@@ -492,6 +494,8 @@ ${label}
             onError: sharedOnError,
           } as any);
         }
+        // ── Clean turn separator after every AI reply ─────────────────────────────
+        process.stdout.write("\n" + chalk.dim("─".repeat(48)) + "\n");
       } else {
         sessionTurns++;
         const { createOpenAICompatibleProvider } = await import("../../agent/providers/OpenAIProvider.js");
@@ -523,10 +527,11 @@ ${label}
           );
 
           if (round === 0) {
-            process.stdout.write("\r\x1b[K"); // clear initial thinking spinner
+            thinkingSpinner.stop();
+            process.stdout.write("\n" + chalk.hex("#6366f1")("\u2726 "));
           }
           if (result.text) {
-            console.log(chalk.green(result.text));
+            process.stdout.write(result.text);
           }
 
           byoHistory.push(userTurn);
@@ -566,6 +571,8 @@ ${label}
           userTurn = { role: "user", parts: fnResponses };
           round++;
         }
+        // ── Clean turn separator after every AI reply ─────────────────────────────
+        process.stdout.write("\n" + chalk.dim("─".repeat(48)) + "\n");
       }
 
       return ask();
