@@ -331,6 +331,12 @@ export async function askLoop(
       };
 
       const handleToolCall = async (name: string, args: any): Promise<boolean> => {
+        // Stop the thinking spinner the moment we start a tool — prevents duplication
+        if (thinkingSpinner.isSpinning) {
+          thinkingSpinner.stop();
+          process.stdout.write("\r\x1b[K"); // clear spinner line
+        }
+
         // #9 Circuit breaker: abort if same tool called 5+ times consecutively with same args
         const argsHash = JSON.stringify(args).slice(0, 100);
         if (lastToolCall.name === name && lastToolCall.argsHash === argsHash) {
@@ -477,6 +483,7 @@ export async function askLoop(
           process.stdout.write(text);
         };
         const sharedOnError = (error: Error) => {
+          thinkingSpinner.stop();
           if (currentSpinner) {
             currentSpinner.fail("Tool error");
             currentSpinner = null;

@@ -5,7 +5,7 @@
 [![npm version](https://img.shields.io/npm/v/careervivid?color=0ea5e9&label=careervivid)](https://www.npmjs.com/package/careervivid)
 [![License: MIT](https://img.shields.io/badge/license-MIT-brightgreen)](LICENSE)
 [![Node ≥18](https://img.shields.io/badge/node-%3E%3D18-blue)](https://nodejs.org)
-[![v2.1.3](https://img.shields.io/badge/version-2.1.3-6366f1?logo=sparkles)](https://www.npmjs.com/package/careervivid)
+[![v2.1.4](https://img.shields.io/badge/version-2.1.4-6366f1?logo=sparkles)](https://www.npmjs.com/package/careervivid)
 
 ---
 

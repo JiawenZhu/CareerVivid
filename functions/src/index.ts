@@ -923,6 +923,58 @@ export const cliInterviewBill = functions
         sessionRef.set(persistPayload, { merge: true }).catch((e: any) =>
           console.error("[cliInterviewBill] Failed to persist transcript:", e.message)
         );
+
+        // ── Mirror to users/{uid}/practiceHistory so the web Interview Studio ──
+        // shows CLI sessions in its history feed (web reads that subcollection only).
+        const practiceRef = db
+          .collection("users")
+          .doc(uid)
+          .collection("practiceHistory")
+          .doc(sessionId); // use same ID so repeated bills are idempotent
+
+        // Build the web-compatible schema
+        const role: string = (await sessionRef.get()).data()?.role ?? "CLI Interview";
+
+        // Extract questions from AI transcript turns
+        const aiTurns = (persistPayload.transcript ?? [])
+          .filter((e: any) => e.speaker === "ai")
+          .map((e: any) => String(e.text ?? ""))
+          .filter((t: string) => t.endsWith("?"))
+          .slice(0, 10);
+
+        // Build one InterviewAnalysis entry from the feedback report
+        const interviewHistoryEntry = feedbackReport
+          ? [{
+              id: `analysis_${sessionId}`,
+              timestamp: Date.now(),
+              overallScore:      feedbackReport.overallScore      ?? 0,
+              communicationScore: feedbackReport.communicationScore ?? 0,
+              confidenceScore:   feedbackReport.confidenceScore   ?? 0,
+              relevanceScore:    feedbackReport.relevanceScore    ?? 0,
+              strengths:         feedbackReport.strengths         ?? "",
+              areasForImprovement: feedbackReport.areasForImprovement ?? "",
+              source:            "cli",
+            }]
+          : [];
+
+        practiceRef.set({
+          job: {
+            id:      sessionId,
+            title:   role,
+            company: "CLI Session",
+            location: "",
+            description: "",
+            url: "",
+          },
+          questions:        aiTurns.length > 0 ? aiTurns : [`Mock interview for ${role}`],
+          interviewHistory: interviewHistoryEntry,
+          transcript:       persistPayload.transcript ?? [],
+          timestamp:        admin.firestore.FieldValue.serverTimestamp(),
+          section:          "interviews",
+          source:           "cli",
+        }, { merge: true }).catch((e: any) =>
+          console.error("[cliInterviewBill] Failed to mirror to practiceHistory:", e.message)
+        );
       }
 
       res.status(200).json({ creditsCharged, durationMinutes, creditsRemaining });
