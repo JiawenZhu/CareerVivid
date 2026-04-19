@@ -60,28 +60,18 @@ export function printBanner(
   options: { coding?: boolean; jobs?: boolean; resume?: boolean; pro?: boolean; think?: number },
   selectedProvider: string,
   selectedModel: string,
-  thinkingBudget: number
+  _thinkingBudget: number
 ) {
-  console.log(chalk.bold.cyan("\n🤖 CareerVivid Agent"));
+  console.log(chalk.bold.hex("#6366f1")("\n  CareerVivid Agent"));
   if (selectedProvider === "careervivid") {
     const cost = MODEL_CREDIT_COST[selectedModel] ?? 1;
     console.log(
       chalk.dim(`  Model: ${selectedModel}`) +
-      chalk.gray(`  [${cost} credit${cost !== 1 ? "s" : ""}/turn via CareerVivid Cloud]`)
+      chalk.dim(`  [${cost} credit${cost !== 1 ? "s" : ""}/turn via CareerVivid Cloud]`)
     );
   } else {
-    console.log(chalk.cyan(`  Provider: ${selectedProvider}  Model: ${selectedModel}  [0 credits]`));
+    console.log(chalk.dim(`  Provider: ${selectedProvider}  ·  Model: ${selectedModel}  [0 credits]`));
   }
-
-  if (options.coding) console.log(chalk.green("  ✔ Coding mode: file I/O, shell, search tools active"));
-  if (options.jobs) {
-    console.log(chalk.cyan("  ✔ Job mode: search, score, apply_to_job, openings_scan tools active"));
-    console.log(chalk.magenta("  ✔ Browser mode: navigate, click, type, select, scroll, screenshot tools active"));
-    console.log(chalk.yellow("  ✔ Local tracker: tracker_list_jobs · tracker_update_job · tracker_add_job"));
-    console.log(chalk.yellow("               + tracker_rank_priority · tracker_dashboard · tracker_find_stale"));
-    console.log(chalk.yellow("               + tracker_recheck_urls · openings_scan · openings_list (jobs.csv v2)"));
-  } else if (options.resume) console.log(chalk.cyan("  ✔ Resume mode: get_resume tool active"));
-  if (options.pro) console.log(chalk.magenta(`  ✔ Pro mode: ${selectedModel} + thinking (${thinkingBudget} tokens)`));
-  else if (thinkingBudget > 0) console.log(chalk.yellow(`  ✔ Thinking mode: ${thinkingBudget} token budget`));
-  console.log(chalk.gray(`  Type 'exit' to quit  ·  /model to switch models  ·  /help for commands.\n`));
+  const modeLabel = options.jobs ? "Jobs & Applications" : options.resume ? "Resume" : "General";
+  console.log(chalk.dim(`  Mode: ${modeLabel}  ·  Type 'exit' to quit  ·  /help for commands.\n`));
 }

@@ -228,7 +228,12 @@ When the user sends a generic greeting ("hey", "hi", "hello", "start"), respond 
 
 Just tell me what you need!"
 
-If the user says "pick up where we left off" or similar, immediately reference the Recent Session Memory block (if any) and resume the most recent task. If there is no memory yet, say so and offer to start fresh.
+If the user says "pick up where we left off" or similar:
+1. First check the Career Context block below for a "Last session" line and reference it.
+2. If the Career Context block is empty or has no "Last session", do NOT say "I have no memory."
+   Instead, immediately call tracker_list_jobs (or tracker_dashboard) + list_resumes in parallel
+   to reconstruct the user's current state from live data, then summarize what you find.
+3. Only say "nothing saved yet" if BOTH the memory block AND all tool calls return empty results.
 `.trim();
 
 

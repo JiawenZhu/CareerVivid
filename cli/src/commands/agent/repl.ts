@@ -93,64 +93,98 @@ export async function askLoop(
     });
   }
 
-  const ask = async (): Promise<void> => {
+  // ── First-turn menu items ────────────────────────────────────────────────
+  const MENU_ITEMS = [
+    "📄 View or update my resume",
+    "🔍 Search for job opportunities",
+    "📊 Check my job pipeline / tracker",
+    "✉️  Draft a cover letter or tailor my resume",
+    "🎙  Start an AI mock interview (voice or text)",
+    "📈 Get an overview of my job search progress",
+    "🗓️  Pick up where we left off",
+  ];
+
+  const ask = async (isFirstTurn = false): Promise<void> => {
     try {
-      const promptStartTime = Date.now();
-      const response = await prompt<{ query: string }>({
-        type: "input",
-        name: "query",
-        message: pasteBuffer.length > 0
-          ? chalk.dim("... ")
-          : chalk.bold.cyan("❯") + chalk.dim(" ·"),
-      });
+      let userInput: string;
 
-      const duration = Date.now() - promptStartTime;
-      let userInput = response.query;
+      if (isFirstTurn) {
+        // ── Hybrid menu: arrow-key select OR free type ─────────────────
+        console.log(chalk.dim("  What would you like to do today?\n"));
+        for (const item of MENU_ITEMS) {
+          console.log(chalk.dim(`  ${item}`));
+        }
+        console.log("");
 
-      // ── Multi-line paste mode: user typed <<< (or <<<paste) ─────────────
-      // Allows pasting arbitrarily long content (e.g. full JD) without truncation.
-      if (userInput.trim() === "<<<" || userInput.trim().toLowerCase().startsWith("<<<")) {
-        const prefix = userInput.trim().slice(3).trim(); // text after <<<
-        console.log(chalk.dim("  📋 Multi-line mode: paste your text, then press Enter twice to submit.\n"));
-        const lines: string[] = prefix ? [prefix] : [];
-        let emptyCount = 0;
-        while (emptyCount < 1) {
-          const lineResp = await prompt<{ line: string }>({
-            type: "input",
-            name: "line",
-            message: chalk.dim("  │"),
-          });
-          if (lineResp.line === "") {
-            emptyCount++;
-          } else {
-            emptyCount = 0;
-            lines.push(lineResp.line);
+        const firstResp = await prompt<{ choice: string }>({
+          type: "autocomplete",
+          name: "choice",
+          message: chalk.bold.hex("#6366f1")("❯") + chalk.dim(" ·"),
+          // @ts-ignore — enquirer autocomplete supports limit
+          limit: 7,
+          suggest(input: string, choices: any[]) {
+            if (!input) return choices;
+            return choices.filter((c: any) =>
+              c.value.toLowerCase().includes(input.toLowerCase())
+            );
+          },
+          choices: MENU_ITEMS.map(item => ({ name: item, value: item })),
+          footer: chalk.dim("  ↑↓ to navigate  ·  type to filter  ·  Enter to send"),
+        } as any);
+        userInput = firstResp.choice?.trim() || "";
+        // Strip emoji prefixes so the agent gets clean text
+        userInput = userInput.replace(/^[\p{Emoji}\s]+/u, "").trim() || firstResp.choice?.trim() || "";
+      } else {
+        // ── Normal text input for subsequent turns ──────────────────────
+        const promptStartTime = Date.now();
+        const response = await prompt<{ query: string }>({
+          type: "input",
+          name: "query",
+          message: pasteBuffer.length > 0
+            ? chalk.dim("... ")
+            : chalk.bold.hex("#6366f1")("❯") + chalk.dim(" ·"),
+        });
+        userInput = response.query;
+        const duration = Date.now() - promptStartTime;
+
+        // ── Multi-line paste mode ──────────────────────────────────────
+        if (userInput.trim() === "<<<" || userInput.trim().toLowerCase().startsWith("<<<")) {
+          const prefix = userInput.trim().slice(3).trim();
+          console.log(chalk.dim("  📋 Multi-line mode: paste your text, then press Enter twice to submit.\n"));
+          const lines: string[] = prefix ? [prefix] : [];
+          let emptyCount = 0;
+          while (emptyCount < 1) {
+            const lineResp = await prompt<{ line: string }>({
+              type: "input",
+              name: "line",
+              message: chalk.dim("  │"),
+            });
+            if (lineResp.line === "") {
+              emptyCount++;
+            } else {
+              emptyCount = 0;
+              lines.push(lineResp.line);
+            }
+          }
+          userInput = lines.join("\n").trim();
+          pasteBuffer = [];
+        } else if (duration < 150) {
+          pasteBuffer.push(userInput);
+          return ask();
+        } else {
+          if (pasteBuffer.length > 0) {
+            if (userInput) pasteBuffer.push(userInput);
+            userInput = pasteBuffer.join("\n");
+            pasteBuffer = [];
           }
         }
-        userInput = lines.join("\n").trim();
-        pasteBuffer = [];
-      } else if (duration < 150) {
-        // Handle multiline copy & paste: prompt resolves extremely fast if stdin is buffered.
-        // 150ms threshold gives enough headroom for large pastes (long JDs, cover letters).
-        pasteBuffer.push(userInput);
-        return ask();
-      } else {
-        if (pasteBuffer.length > 0) {
-          if (userInput) pasteBuffer.push(userInput);
-          userInput = pasteBuffer.join("\n");
-          // Reset buffer
-          pasteBuffer = [];
-        }
-      }
+      } // end else (non-first turn)
 
       userInput = userInput.trim();
       if (!userInput) return ask();
 
       // ── Input length guard ──────────────────────────────────────────
-      // macOS terminal readline has a hard ~4096 char limit per line, meaning
-      // pasting very long job descriptions gets silently truncated mid-word.
-      // Detect this early and guide the user to <<< mode instead.
-      const MAX_INPUT_CHARS = 20_000; // ~3,000 words — safe above typical JD length
+      const MAX_INPUT_CHARS = 20_000;
       if (userInput.length > MAX_INPUT_CHARS) {
         console.log(
           chalk.yellow("\n⚠️  Input is too long (" + userInput.length + " chars).") +
@@ -647,5 +681,5 @@ export async function askLoop(
     }
   };
 
-  return ask();
+  return ask(true);
 }
