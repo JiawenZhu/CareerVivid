@@ -942,7 +942,6 @@ export const cliInterviewBill = functions
           .filter((t: string) => t.endsWith("?"))
           .slice(0, 10);
 
-        // Build one InterviewAnalysis entry from the feedback report
         const interviewHistoryEntry = feedbackReport
           ? [{
               id: `analysis_${sessionId}`,
@@ -954,6 +953,7 @@ export const cliInterviewBill = functions
               strengths:         feedbackReport.strengths         ?? "",
               areasForImprovement: feedbackReport.areasForImprovement ?? "",
               source:            "cli",
+              transcript:        persistPayload.transcript ?? [],
             }]
           : [];
 

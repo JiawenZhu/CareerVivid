@@ -263,7 +263,7 @@ const InterviewReportModal: React.FC<InterviewReportModalProps> = ({ jobHistoryE
                         <div style={{ pageBreakBefore: 'always', marginTop: '40px' }}>
                             <h2 className="text-xl font-bold text-gray-900 mb-4 pt-4 border-t">Interview Transcript</h2>
                             <div className="space-y-4">
-                                {currentAnalysis.transcript.map((entry, index) => (
+                                {(currentAnalysis.transcript || []).map((entry, index) => (
                                     <div key={index} className={`flex items-start gap-3 w-full ${entry.speaker === 'user' ? 'flex-row-reverse' : 'items-start'}`}>
                                         <div className={`flex-shrink-0 w-8 h-8 rounded-full text-white flex items-center justify-center ${entry.speaker === 'ai' ? 'bg-primary-600' : 'bg-gray-500'}`}>
                                             {entry.speaker === 'ai' ? <Bot size={18} /> : <User size={18} />}
@@ -343,7 +343,7 @@ const InterviewReportModal: React.FC<InterviewReportModalProps> = ({ jobHistoryE
                                     <FeedbackReportView analysis={currentAnalysis} />
                                 ) : (
                                     <div className="space-y-4">
-                                        {currentAnalysis.transcript.map((entry, index) => (
+                                        {(currentAnalysis.transcript || []).map((entry, index) => (
                                             <div key={index} className={`flex items-start gap-3 ${entry.speaker === 'user' ? 'justify-end' : ''}`}>
                                                 {entry.speaker === 'ai' && <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center"><Bot size={18} /></div>}
                                                 <div className={`p-3 rounded-lg max-w-[80%] text-sm ${entry.speaker === 'user' ? 'bg-indigo-500 text-white' : 'bg-gray-200 dark:bg-gray-700'}`}>
