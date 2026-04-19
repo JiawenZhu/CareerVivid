@@ -460,15 +460,15 @@ async function runVoiceSession(opts: {
 
     const transcript: TranscriptEntry[] = [];
     let ended = false;
-    let outputBuf = "";  // accumulates AI transcription
-    let inputBuf = "";   // accumulates user transcription
-    // Streaming display state — track lines written so we can erase & reprint at turnComplete
-    let streamLineCount = 0;  // number of lines written during live streaming (incl. header)
-    let streamColPos = 0;     // current column position within the streaming line
-    // Half-duplex mute: stop sending mic audio while Vivid is speaking
-    // to prevent the mic picking up speaker output (echo loop).
+    let outputBuf = "";   // accumulates AI output transcription for current turn
+    let inputBuf = "";    // accumulates user input transcription for current turn
+    let streamColPos = 0; // current col position while streaming Vivid's text
     let vividSpeaking = false;
     let muteTimer: ReturnType<typeof setTimeout> | null = null;
+    // Gate: don't send mic audio until Vivid has delivered her opening greeting
+    let greetingDone = false;
+    // Track whether we're currently showing live user speech in the terminal
+    let userSpeechLineActive = false;
 
     // ── Audio processes ──────────────────────────────────────────────────
     const micProc = startMic(soxPath);
@@ -484,12 +484,21 @@ async function runVoiceSession(opts: {
             model: LIVE_MODEL,
             callbacks: {
                 onopen: () => {
-                    connectSpinner.succeed(chalk.green("✅ Vivid is live — start speaking!"));
-                    process.stdout.write(chalk.green("\n  ● Listening...\r"));
+                    connectSpinner.succeed(chalk.green("✅ Vivid is live — starting interview..."));
 
-                    // Pipe mic PCM → Gemini, muted while Vivid is speaking
+                    // Proactively trigger Vivid's opening greeting by sending a silent seed.
+                    // The mic gate (greetingDone) ensures we don't accidentally send real mic
+                    // audio until after Vivid has delivered her first turn.
+                    try {
+                        session.sendClientContent({
+                            turns: [{ role: "user", parts: [{ text: "" }] }],
+                            turnComplete: true,
+                        });
+                    } catch { /* ignore */ }
+
+                    // Pipe mic PCM → Gemini (muted until greeting is done AND Vivid is silent)
                     micProc.stdout.on("data", (chunk: Buffer) => {
-                        if (ended || chunk.length === 0 || vividSpeaking) return;
+                        if (ended || chunk.length === 0 || !greetingDone || vividSpeaking) return;
                         try {
                             session.sendRealtimeInput({
                                 audio: {
@@ -511,42 +520,33 @@ async function runVoiceSession(opts: {
                         speakerProc.stdin.write(pcmBuf);
                     }
 
-                    // ── Output transcription (what Vivid said) ────────
-                    // Stream each chunk to terminal in real-time as audio plays.
+                    // ── Output transcription (Vivid's words) — stream in real-time ──
                     const outText: string | undefined =
                         msg.serverContent?.outputTranscription?.text;
                     if (outText) {
                         const chunkClean = outText.replace(END_TOKEN, "");
                         if (chunkClean) {
                             if (!outputBuf) {
-                                // First chunk of this turn — print the speaker header
+                                // First chunk: print the speaker header on a fresh line
                                 process.stdout.write("\n" + chalk.cyan.bold("  Vivid ❯") + "\n");
-                                streamLineCount = 1; // header line
                                 streamColPos = 0;
                             }
                             outputBuf += chunkClean;
 
-                            // Stream words from the new chunk inline, with soft word-wrap
+                            // Stream words inline with soft word-wrap
                             for (const word of chunkClean.split(/(\s+)/)) {
                                 if (!word) continue;
                                 const isWhitespace = /^\s+$/.test(word);
-                                const displayWord = isWhitespace ? ' ' : word;
-                                const wordLen = displayWord.length;
-
                                 if (isWhitespace) {
-                                    // Only emit a single space between words (not multiple spaces from chunk boundaries)
                                     if (streamColPos > 0) {
                                         process.stdout.write(chalk.cyan(' '));
                                         streamColPos += 1;
                                     }
                                 } else {
-                                    // Check if we need to wrap before writing this word
-                                    if (streamColPos > 0 && streamColPos + wordLen > WRAP_WIDTH) {
+                                    if (streamColPos > 0 && streamColPos + word.length > WRAP_WIDTH) {
                                         process.stdout.write('\n');
-                                        streamLineCount++;
                                         streamColPos = 0;
                                     }
-                                    // Indent only at the start of a new line
                                     const prefix = streamColPos === 0 ? '  ' : '';
                                     process.stdout.write(chalk.cyan(prefix + word));
                                     streamColPos += prefix.length + word.length;
@@ -555,36 +555,53 @@ async function runVoiceSession(opts: {
                         }
                     }
 
-                    // ── Input transcription (what user said) ──────────
+                    // ── Input transcription (user's live speech) — stream in real-time ──
                     const inText: string | undefined =
                         msg.serverContent?.inputTranscription?.text;
-                    if (inText) inputBuf += inText;
+                    if (inText) {
+                        if (!userSpeechLineActive) {
+                            // First chunk of user speech: clear the Listening indicator and
+                            // start a "[You] ❯" prefix on a fresh line
+                            process.stdout.write("\r\x1B[2K"); // clear current line
+                            process.stdout.write(chalk.dim("  [You] ❯ ") + chalk.white(""));
+                            userSpeechLineActive = true;
+                        }
+                        inputBuf += inText;
+                        // Rewrite the whole user line so far (keeps it clean as chunks arrive)
+                        process.stdout.write("\r\x1B[2K");
+                        process.stdout.write(chalk.dim("  [You] ❯ ") + chalk.white(inputBuf.trim()));
+                    }
 
                     // ── Turn complete ─────────────────────────────────
                     if (msg.serverContent?.turnComplete) {
                         if (outputBuf.trim()) {
                             const aiText = outputBuf.trim();
-
-                            // Flush a newline to close the last streamed line cleanly
+                            // Close the streamed line cleanly
                             if (streamColPos > 0) process.stdout.write("\n");
                             process.stdout.write("\n"); // blank line after Vivid's turn
-
                             transcript.push({ speaker: "ai", text: aiText.replace(END_TOKEN, "").trim() });
                             if (aiText.includes(END_TOKEN)) ended = true;
                             outputBuf = "";
-                            streamLineCount = 0;
                             streamColPos = 0;
+                            // Opening greeting delivered — unlock mic
+                            greetingDone = true;
                         }
+
                         if (inputBuf.trim()) {
-                            printUser(inputBuf.trim());
+                            // Finalize the user speech line with a newline
+                            process.stdout.write("\n");
+                            userSpeechLineActive = false;
                             transcript.push({ speaker: "user", text: inputBuf.trim() });
                             inputBuf = "";
                         }
+
                         if (!ended) {
                             muteTimer = setTimeout(() => {
                                 vividSpeaking = false;
                                 muteTimer = null;
-                                process.stdout.write(chalk.green("  ● Listening...\r"));
+                                if (!userSpeechLineActive) {
+                                    process.stdout.write(chalk.green("\n  ● Listening...\r"));
+                                }
                             }, 800);
                         }
                     }
