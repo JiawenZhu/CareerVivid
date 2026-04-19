@@ -529,20 +529,27 @@ async function runVoiceSession(opts: {
                             // Stream words from the new chunk inline, with soft word-wrap
                             for (const word of chunkClean.split(/(\s+)/)) {
                                 if (!word) continue;
-                                const wordLen = word.replace(/\s+/, " ").length;
-                                if (streamColPos > 0 && streamColPos + wordLen > WRAP_WIDTH) {
-                                    process.stdout.write("\n");
-                                    streamLineCount++;
-                                    streamColPos = 0;
-                                }
-                                if (/^\s+$/.test(word)) {
+                                const isWhitespace = /^\s+$/.test(word);
+                                const displayWord = isWhitespace ? ' ' : word;
+                                const wordLen = displayWord.length;
+
+                                if (isWhitespace) {
+                                    // Only emit a single space between words (not multiple spaces from chunk boundaries)
                                     if (streamColPos > 0) {
-                                        process.stdout.write(chalk.cyan(" "));
+                                        process.stdout.write(chalk.cyan(' '));
                                         streamColPos += 1;
                                     }
                                 } else {
-                                    process.stdout.write(chalk.cyan("  " + (streamColPos === 0 ? word : word)));
-                                    streamColPos += (streamColPos === 0 ? 2 : 0) + word.length;
+                                    // Check if we need to wrap before writing this word
+                                    if (streamColPos > 0 && streamColPos + wordLen > WRAP_WIDTH) {
+                                        process.stdout.write('\n');
+                                        streamLineCount++;
+                                        streamColPos = 0;
+                                    }
+                                    // Indent only at the start of a new line
+                                    const prefix = streamColPos === 0 ? '  ' : '';
+                                    process.stdout.write(chalk.cyan(prefix + word));
+                                    streamColPos += prefix.length + word.length;
                                 }
                             }
                         }

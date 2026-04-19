@@ -1,7 +1,6 @@
 {
   "name": "careervivid",
-  "version": "2.1.5",
-
+  "version": "2.1.6",
   "description": "Official CLI for CareerVivid — AI voice interviews, autonomous job applications, resume editing, and portfolio publishing from your terminal",
   "type": "module",
   "bin": {
@@ -77,7 +76,6 @@
     "directory": "cli"
   },
   "homepage": "https://careervivid.app",
-
   "bugs": {
     "url": "https://github.com/Jastalk/CareerVivid/issues"
   },
