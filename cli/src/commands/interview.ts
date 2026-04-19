@@ -462,6 +462,9 @@ async function runVoiceSession(opts: {
     let ended = false;
     let outputBuf = "";  // accumulates AI transcription
     let inputBuf = "";   // accumulates user transcription
+    // Streaming display state — track lines written so we can erase & reprint at turnComplete
+    let streamLineCount = 0;  // number of lines written during live streaming (incl. header)
+    let streamColPos = 0;     // current column position within the streaming line
     // Half-duplex mute: stop sending mic audio while Vivid is speaking
     // to prevent the mic picking up speaker output (echo loop).
     let vividSpeaking = false;
@@ -502,18 +505,48 @@ async function runVoiceSession(opts: {
                     // ── Audio output (Vivid speaking) → sox speaker ───
                     const audioPart = msg.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data;
                     if (audioPart) {
-                        // Mute mic: cancel any pending unmute and stay muted
                         vividSpeaking = true;
                         if (muteTimer) { clearTimeout(muteTimer); muteTimer = null; }
-                        process.stdout.write(chalk.blue("  ◈ Vivid speaking...\r"));
                         const pcmBuf = Buffer.from(audioPart, "base64");
                         speakerProc.stdin.write(pcmBuf);
                     }
 
                     // ── Output transcription (what Vivid said) ────────
+                    // Stream each chunk to terminal in real-time as audio plays.
                     const outText: string | undefined =
                         msg.serverContent?.outputTranscription?.text;
-                    if (outText) outputBuf += outText;
+                    if (outText) {
+                        const chunkClean = outText.replace(END_TOKEN, "");
+                        if (chunkClean) {
+                            if (!outputBuf) {
+                                // First chunk of this turn — print the speaker header
+                                process.stdout.write("\n" + chalk.cyan.bold("  Vivid ❯") + "\n");
+                                streamLineCount = 1; // header line
+                                streamColPos = 0;
+                            }
+                            outputBuf += chunkClean;
+
+                            // Stream words from the new chunk inline, with soft word-wrap
+                            for (const word of chunkClean.split(/(\s+)/)) {
+                                if (!word) continue;
+                                const wordLen = word.replace(/\s+/, " ").length;
+                                if (streamColPos > 0 && streamColPos + wordLen > WRAP_WIDTH) {
+                                    process.stdout.write("\n");
+                                    streamLineCount++;
+                                    streamColPos = 0;
+                                }
+                                if (/^\s+$/.test(word)) {
+                                    if (streamColPos > 0) {
+                                        process.stdout.write(chalk.cyan(" "));
+                                        streamColPos += 1;
+                                    }
+                                } else {
+                                    process.stdout.write(chalk.cyan("  " + (streamColPos === 0 ? word : word)));
+                                    streamColPos += (streamColPos === 0 ? 2 : 0) + word.length;
+                                }
+                            }
+                        }
+                    }
 
                     // ── Input transcription (what user said) ──────────
                     const inText: string | undefined =
@@ -524,10 +557,19 @@ async function runVoiceSession(opts: {
                     if (msg.serverContent?.turnComplete) {
                         if (outputBuf.trim()) {
                             const aiText = outputBuf.trim();
+
+                            // Erase the streamed lines and reprint as clean word-wrapped block
+                            if (streamLineCount > 0) {
+                                // Move cursor up by streamLineCount lines, then erase to end
+                                process.stdout.write(`\x1b[${streamLineCount + 1}A\x1b[J`);
+                            }
                             printAI(aiText);
+
                             transcript.push({ speaker: "ai", text: aiText.replace(END_TOKEN, "").trim() });
                             if (aiText.includes(END_TOKEN)) ended = true;
                             outputBuf = "";
+                            streamLineCount = 0;
+                            streamColPos = 0;
                         }
                         if (inputBuf.trim()) {
                             printUser(inputBuf.trim());
@@ -535,8 +577,6 @@ async function runVoiceSession(opts: {
                             inputBuf = "";
                         }
                         if (!ended) {
-                            // Unmute mic after a short delay so the speaker
-                            // tail doesn't get captured (echo suppression buffer)
                             muteTimer = setTimeout(() => {
                                 vividSpeaking = false;
                                 muteTimer = null;

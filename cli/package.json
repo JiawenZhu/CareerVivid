@@ -1,6 +1,6 @@
 {
   "name": "careervivid",
-  "version": "2.1.4",
+  "version": "2.1.5",
 
   "description": "Official CLI for CareerVivid — AI voice interviews, autonomous job applications, resume editing, and portfolio publishing from your terminal",
   "type": "module",
