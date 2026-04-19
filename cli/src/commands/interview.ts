@@ -172,7 +172,7 @@ function printReport(report: FeedbackReport) {
     wordWrap(report.areasForImprovement, 72).split("\n").forEach(l => console.log(`     ${chalk.yellow(l)}`));
 
     console.log("\n" + chalk.dim("  ─────────────────────────────────────────────────────────────"));
-    console.log(chalk.dim("  View full history at: https://careervivid.app/interview"));
+    console.log(chalk.dim("  View full history at: https://careervivid.app/interview-studio"));
     console.log("");
 }
 
