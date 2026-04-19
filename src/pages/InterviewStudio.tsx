@@ -215,7 +215,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
         }
     };
 
-    // Handle "Practice Again" from Dashboard
+    // Handle "Practice Again" from Dashboard (other pages via sessionStorage)
     useEffect(() => {
         const practiceJobData = sessionStorage.getItem('practiceJob');
         if (practiceJobData) {
@@ -235,6 +235,18 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
             }
         }
     }, []);
+
+    // Handle "Practice Again" when already on InterviewStudio (direct, no navigation)
+    const handlePracticeAgainDirect = (jobEntry: PracticeHistoryEntry) => {
+        const jobData = {
+            title: jobEntry.job.title,
+            company: jobEntry.job.company || 'Custom Practice',
+            location: jobEntry.job.location,
+            description: jobEntry.job.description || jobEntry.job.title,
+            url: jobEntry.job.url,
+        };
+        handleStartInterview(jobData.description, jobData);
+    };
 
     // Handle Deep Linking from Email
     useEffect(() => {
@@ -398,6 +410,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                             onShowReport={setSelectedJobForReport}
                                             onDelete={handleDeleteClick}
                                             onDragStart={(e) => e.preventDefault()}
+                                            onPracticeAgain={handlePracticeAgainDirect}
                                         />
                                     ))
                                 ) : (

@@ -14,9 +14,10 @@ interface InterviewHistoryCardProps {
     onShowReport: (entry: PracticeHistoryEntry) => void;
     onDelete: (id: string) => void;
     onDragStart: (e: React.DragEvent<HTMLDivElement>) => void;
+    onPracticeAgain?: (entry: PracticeHistoryEntry) => void;
 }
 
-const InterviewHistoryCard: React.FC<InterviewHistoryCardProps> = ({ entry, onShowReport, onDelete, onDragStart }) => {
+const InterviewHistoryCard: React.FC<InterviewHistoryCardProps> = ({ entry, onShowReport, onDelete, onDragStart, onPracticeAgain }) => {
     const {
         isDeleteModalOpen,
         setIsDeleteModalOpen,
@@ -35,8 +36,14 @@ const InterviewHistoryCard: React.FC<InterviewHistoryCardProps> = ({ entry, onSh
     const [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
 
     const handlePracticeAgain = () => {
-        sessionStorage.setItem('practiceJob', JSON.stringify(entry));
-        navigate('/interview-studio');
+        if (onPracticeAgain) {
+            // Already on InterviewStudio — call directly to avoid stale sessionStorage/useEffect issue
+            onPracticeAgain(entry);
+        } else {
+            // Coming from another page — use sessionStorage + navigation
+            sessionStorage.setItem('practiceJob', JSON.stringify(entry));
+            navigate('/interview-studio');
+        }
     };
 
     const formatDate = (timestamp: any) => {
