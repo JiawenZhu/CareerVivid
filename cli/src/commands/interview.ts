@@ -558,12 +558,9 @@ async function runVoiceSession(opts: {
                         if (outputBuf.trim()) {
                             const aiText = outputBuf.trim();
 
-                            // Erase the streamed lines and reprint as clean word-wrapped block
-                            if (streamLineCount > 0) {
-                                // Move cursor up by streamLineCount lines, then erase to end
-                                process.stdout.write(`\x1b[${streamLineCount + 1}A\x1b[J`);
-                            }
-                            printAI(aiText);
+                            // Flush a newline to close the last streamed line cleanly
+                            if (streamColPos > 0) process.stdout.write("\n");
+                            process.stdout.write("\n"); // blank line after Vivid's turn
 
                             transcript.push({ speaker: "ai", text: aiText.replace(END_TOKEN, "").trim() });
                             if (aiText.includes(END_TOKEN)) ended = true;
