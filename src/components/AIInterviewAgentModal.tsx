@@ -95,6 +95,7 @@ const AIInterviewAgentModal: React.FC<AIInterviewAgentModalProps> = ({ jobId, in
   const audioSourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set());
   const chatEndRef = useRef<HTMLDivElement>(null);
   const isCleaningUpRef = useRef(false);
+  const isSpeakingRef = useRef(false); // true while AI audio is playing — mic is muted
 
   useEffect(() => {
     let interval: number;
@@ -120,6 +121,7 @@ const AIInterviewAgentModal: React.FC<AIInterviewAgentModalProps> = ({ jobId, in
 
     if (isCleaningUpRef.current) return;
     isCleaningUpRef.current = true;
+    isSpeakingRef.current = false; // reset mic gate
 
     mediaStreamRef.current?.getTracks().forEach(track => track.stop());
     mediaStreamRef.current = null;
@@ -317,7 +319,8 @@ ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
             scriptProcessorRef.current = scriptProcessor;
 
             scriptProcessor.onaudioprocess = (audioProcessingEvent) => {
-              if (isCleaningUpRef.current) return;
+              // Mute mic while AI is speaking (mirrors CV CLI behavior)
+              if (isCleaningUpRef.current || isSpeakingRef.current) return;
               const inputData = audioProcessingEvent.inputBuffer.getChannelData(0);
 
               const buffer = new Int16Array(inputData.length);
@@ -372,6 +375,7 @@ ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
             const base64Audio = message.serverContent?.modelTurn?.parts[0]?.inlineData?.data;
             if (base64Audio && outputAudioContextRef.current) {
               setStatus('speaking');
+              isSpeakingRef.current = true; // mute mic
               const ctx = outputAudioContextRef.current;
               nextStartTimeRef.current = Math.max(nextStartTimeRef.current, ctx.currentTime);
               const audioBuffer = await decodeAudioData(decode(base64Audio), ctx, 24000, 1);
@@ -381,6 +385,7 @@ ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
               source.addEventListener('ended', () => {
                 audioSourcesRef.current.delete(source);
                 if (audioSourcesRef.current.size === 0 && status !== 'ended') {
+                  isSpeakingRef.current = false; // unmute mic once all audio finishes
                   setStatus('listening');
                 }
               });
