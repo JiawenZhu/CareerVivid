@@ -595,6 +595,10 @@ async function runVoiceSession(opts: {
                                     process.stdout.write(chalk.green("\n  ● Listening...\r"));
                                 }
                             }, 800);
+                        } else {
+                            // Interview ended via END_TOKEN — cancel pending mute timer
+                            // so '● Listening...' never appears after the interview concludes
+                            if (muteTimer) { clearTimeout(muteTimer); muteTimer = null; }
                         }
                     }
                 },
@@ -714,7 +718,10 @@ async function runVoiceSession(opts: {
     }
 
     if (report) {
-        console.log(chalk.dim("\n  💡 Interview context saved. Ask \`cv agent\` to coach you on your answers."));
+        console.log(chalk.dim("\n  💡 Report saved! Continue your prep with:"));
+        console.log(chalk.dim("     • ") + chalk.white("`cv agent`") + chalk.dim(" or ") + chalk.white("`cv agent --jobs`") + chalk.dim(" → coach me on my answers"));
+        console.log(chalk.dim("     • Rewrite resume, draft cover letter, or start another round"));
+        console.log(chalk.dim("     • View report: ") + chalk.cyan("https://careervivid.app/interview-studio"));
     }
 
     await log.dispose();

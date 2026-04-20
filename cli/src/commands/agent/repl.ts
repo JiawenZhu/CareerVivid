@@ -593,11 +593,21 @@ export async function askLoop(
             let out;
             try {
               // start_interview is an interactive long-running session — never apply a timeout to it.
-              out = tool
-                ? fc.name === "start_interview"
-                  ? await tool.execute(fc.args)
-                  : await withTimeout(tool.execute(fc.args), 45_000, `tool:${fc.name}`)
-                : { error: "Tool not found" };
+              // Also temporarily remove the REPL's SIGINT handler so the interview's own
+              // Ctrl+C handler can run cleanly (generate report) without racing against
+              // the REPL's "Goodbye! 👋" / process.exit path.
+              if (fc.name === "start_interview") {
+                process.removeListener("SIGINT", handleSigInt);
+                try {
+                  out = tool ? await tool.execute(fc.args) : { error: "Tool not found" };
+                } finally {
+                  process.on("SIGINT", handleSigInt); // always restore, even on throw
+                }
+              } else {
+                out = tool
+                  ? await withTimeout(tool.execute(fc.args), 45_000, `tool:${fc.name}`)
+                  : { error: "Tool not found" };
+              }
             } catch (e: any) {
               if (e.message?.includes("No API key configured")) {
                 out = { error: "CareerVivid API key not found. Run 'cv login' to authenticate." };
