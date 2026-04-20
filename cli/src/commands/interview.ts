@@ -486,16 +486,6 @@ async function runVoiceSession(opts: {
                 onopen: () => {
                     connectSpinner.succeed(chalk.green("✅ Vivid is live — starting interview..."));
 
-                    // Proactively trigger Vivid's opening greeting by sending a silent seed.
-                    // The mic gate (greetingDone) ensures we don't accidentally send real mic
-                    // audio until after Vivid has delivered her first turn.
-                    try {
-                        session.sendClientContent({
-                            turns: [{ role: "user", parts: [{ text: "" }] }],
-                            turnComplete: true,
-                        });
-                    } catch { /* ignore */ }
-
                     // Pipe mic PCM → Gemini (muted until greeting is done AND Vivid is silent)
                     micProc.stdout.on("data", (chunk: Buffer) => {
                         if (ended || chunk.length === 0 || !greetingDone || vividSpeaking) return;
@@ -637,6 +627,20 @@ async function runVoiceSession(opts: {
         micProc.kill();
         speakerProc.kill();
         throw err;
+    }
+
+    // ── Trigger Vivid's opening greeting proactively ─────────────────────
+    // session is now fully resolved — safe to call sendClientContent.
+    // An empty text seed is enough to make Vivid begin her introduction.
+    // The greetingDone gate in the mic listener prevents user audio from
+    // being forwarded until after Vivid's first turn completes.
+    try {
+        session.sendClientContent({
+            turns: [{ role: "user", parts: [{ text: "Hello, please begin the interview." }] }],
+            turnComplete: true,
+        });
+    } catch (e: any) {
+        console.error(chalk.red(`\n  Failed to trigger greeting: ${e.message}\n`));
     }
 
     // ── Wait until interview ends or Ctrl+C (single-SIGINT guard) ───────
