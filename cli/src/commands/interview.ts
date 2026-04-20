@@ -467,6 +467,10 @@ async function runVoiceSession(opts: {
     let muteTimer: ReturnType<typeof setTimeout> | null = null;
     // Track whether we're currently showing live user speech in the terminal
     let userSpeechLineActive = false;
+    // Detect END_TOKEN in the raw chunk BEFORE it's stripped from the display buffer.
+    // (outputBuf never contains END_TOKEN because chunkClean strips it, so the
+    //  turnComplete check on outputBuf would never fire without this flag.)
+    let endTokenSeen = false;
 
     // ── Audio processes ──────────────────────────────────────────────────
     const micProc = startMic(soxPath);
@@ -518,6 +522,11 @@ async function runVoiceSession(opts: {
                     const outText: string | undefined =
                         msg.serverContent?.outputTranscription?.text;
                     if (outText) {
+                        // Detect END_TOKEN in raw chunk BEFORE stripping
+                        if (outText.includes(END_TOKEN)) endTokenSeen = true;
+                        // Phrase-based fallback: model sometimes omits the token
+                        if (outText.toLowerCase().includes("feedback report is being generated")) endTokenSeen = true;
+
                         const chunkClean = outText.replace(END_TOKEN, "");
                         if (chunkClean) {
                             if (!outputBuf) {
@@ -573,10 +582,12 @@ async function runVoiceSession(opts: {
                             // Close the streamed line cleanly
                             if (streamColPos > 0) process.stdout.write("\n");
                             process.stdout.write("\n"); // blank line after Vivid's turn
-                            transcript.push({ speaker: "ai", text: aiText.replace(END_TOKEN, "").trim() });
-                            if (aiText.includes(END_TOKEN)) ended = true;
+                            transcript.push({ speaker: "ai", text: aiText });
+                            // Use the pre-strip flag — NOT aiText.includes(END_TOKEN)
+                            if (endTokenSeen) ended = true;
                             outputBuf = "";
                             streamColPos = 0;
+                            endTokenSeen = false; // reset for next turn
                         }
 
                         if (inputBuf.trim()) {
