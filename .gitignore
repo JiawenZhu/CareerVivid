@@ -69,3 +69,6 @@ sop-assets/
 # Agent skills (local AI assistant config, not app code)
 .agent/skills/
 
+
+# Job automation tool
+browser-use/
