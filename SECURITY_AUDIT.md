@@ -1,13 +1,13 @@
 
 # 🛡️ CareerVivid Security Audit Log
-Last Updated: `2026-04-14 04:05:37`
+Last Updated: `2026-04-22 10:32:01`
 | :--- | :--- | :--- |
 | Project Path | Vulnerabilities | Status |
 | `./.agent/skills/loki-mode/examples/todo-app-generated/backend` | 🟢 0 Vulnerabilities | ✅ Clean |
 | `./.agent/skills/loki-mode/examples/todo-app-generated/frontend` | 🟢 0 Vulnerabilities | ✅ Clean |
 | `./.agent/skills/playwright-skill` | 🟢 0 Vulnerabilities | ✅ Clean |
 | `./browser-use/.venv/lib/python3.11/site-packages/playwright/driver/package` | 🟢 0 Vulnerabilities | ✅ Clean |
-| `./career-ops` | 🟢 0 Vulnerabilities | ✅ Clean |
+| `./career-vivid` | 🟢 0 Vulnerabilities | ✅ Clean |
 | `./claude-code-source-code` | 🟢 0 Vulnerabilities | ✅ Clean |
 | `./cli` | 🟢 0 Vulnerabilities | ✅ Clean |
 | `./functions` | 🟢 0 Vulnerabilities | ✅ Clean |
