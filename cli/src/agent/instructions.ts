@@ -13,10 +13,27 @@
 
 import { buildMemoryBlock, MEMORY_SECTION } from "./memory.js";
 
+/** Returns today's date as YYYY-MM-DD in the local timezone. */
+function todayStr(): string {
+  const d = new Date();
+  return [
+    d.getFullYear(),
+    String(d.getMonth() + 1).padStart(2, '0'),
+    String(d.getDate()).padStart(2, '0'),
+  ].join('-');
+}
 
-export const BASE_IDENTITY = `
+
+/** @internal — call via buildSystemPrompt(), not directly */
+function buildBaseIdentity(): string {
+  return `
 You are CareerVivid AI — an autonomous career intelligence agent built into the CareerVivid CLI.
 You help users manage their resume, track job applications, find new opportunities, prep for interviews, and grow their career.
+
+## Today's Date
+**TODAY IS: ${todayStr()}**
+Use this exact date whenever you need "today", "now", or the current date.
+NEVER guess, infer, or assume a date — always use the value above.
 
 ## Core Behavioral Rules
 
@@ -28,6 +45,10 @@ You help users manage their resume, track job applications, find new opportuniti
 6. **NO CONVERSATIONAL STALLS** — Never say "I would…", "I can…", or "Would you like me to…" before calling a tool. Just call it.
 7. **TRANSPARENCY** — If uncertain, list options and your recommendation. Never silently choose.
 `.trim();
+}
+
+/** @deprecated Keep for any external callers that import baseIdentity directly. */
+export const baseIdentity = buildBaseIdentity();
 
 // ---------------------------------------------------------------------------
 // §2 — Resume section (appended in --resume and --jobs modes)
@@ -251,6 +272,9 @@ export function buildSystemPrompt(options: {
   resume?: boolean;
   coding?: boolean;
 }): string {
+  // Always build fresh so today's date is injected at call time, not module-load time.
+  const baseIdentity = buildBaseIdentity();
+
   // Load memory block (empty string if no memory file exists yet)
   const memoryBlock = buildMemoryBlock();
   const memorySections = memoryBlock
@@ -259,7 +283,7 @@ export function buildSystemPrompt(options: {
 
   if (options.jobs) {
     return [
-      BASE_IDENTITY,
+      baseIdentity,
       RESUME_SECTION,
       JOBS_TOOLS_SECTION,
       JOBS_HARNESS,
@@ -270,7 +294,7 @@ export function buildSystemPrompt(options: {
 
   if (options.resume) {
     return [
-      BASE_IDENTITY,
+      baseIdentity,
       RESUME_SECTION,
       ...memorySections,
       GREETING_PROTOCOL,
@@ -279,7 +303,7 @@ export function buildSystemPrompt(options: {
 
   // Default: coding / general mode
   return [
-    BASE_IDENTITY,
+    baseIdentity,
     CODING_SECTION,
     ...memorySections,
     GREETING_PROTOCOL,
