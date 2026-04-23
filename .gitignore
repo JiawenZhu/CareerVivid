@@ -72,3 +72,7 @@ sop-assets/
 
 # Job automation tool
 browser-use/
+
+# CLI tool (moving to ignore)
+cli/
+
