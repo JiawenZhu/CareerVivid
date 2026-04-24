@@ -1,0 +1,102 @@
+---
+title: CareerVivid - Core Platform Data Model
+---
+
+erDiagram
+    %% Core User Entities
+    USERS ||--o{ PORTFOLIOS : "owns"
+    USERS ||--o{ COMMUNITY_POSTS : "authors"
+    USERS ||--o{ SAVED_RESUMES : "manages"
+    USERS ||--o{ USER_CREDITS : "possesses"
+
+    USERS {
+        string uid PK
+        string email
+        string displayName
+        string avatarUrl
+        string role "user|admin"
+        timestamp lastLogin
+    }
+
+    USER_CREDITS {
+        string creditId PK
+        string userId FK
+        int aiCreditsBalance
+        timestamp renewalDate
+        string subscriptionTier "Free|WeeklyPro|MonthlyPro"
+    }
+
+    %% Portfolio & Resume System
+    PORTFOLIOS ||--o{ PROJECTS : "showcases"
+    PORTFOLIOS ||--o{ EXPERIENCES : "details"
+    PORTFOLIOS ||--o{ ANALYTICS_EVENTS : "tracks_traffic"
+    
+    PORTFOLIOS {
+        string portfolioId PK
+        string userId FK
+        string templateId "minimalist|developer|creative"
+        string customDomain "optional"
+        boolean isPublished
+        json themeOverride
+    }
+
+    PROJECTS {
+        string projectId PK
+        string portfolioId FK
+        string title
+        string description
+        string repoUrl
+        string liveUrl "e.g., community feed link"
+        string[] techStack
+    }
+
+    EXPERIENCES {
+        string experienceId PK
+        string portfolioId FK
+        string company
+        string role
+        string description
+        date startDate
+        date endDate
+    }
+
+    SAVED_RESUMES {
+        string resumeId PK
+        string userId FK
+        string sourceFileUrl
+        json parsedJsonData
+        int atsScore
+        string aiFeedback
+    }
+
+    %% Community & Content Network
+    COMMUNITY_POSTS ||--o{ POST_COMMENTS : "receives"
+    COMMUNITY_POSTS ||--o{ POST_LIKES : "earns"
+    
+    COMMUNITY_POSTS {
+        string postId PK
+        string authorId FK
+        string title
+        string content
+        string type "article|whiteboard"
+        string dataFormat "markdown|mermaid"
+        string[] tags
+        int metrics_likes
+        int metrics_views
+        boolean isOfficialPost
+    }
+
+    POST_COMMENTS {
+        string commentId PK
+        string postId FK
+        string authorId FK
+        string text
+        timestamp createdAt
+    }
+
+    POST_LIKES {
+        string likeId PK
+        string postId FK
+        string userId FK
+        timestamp likedAt
+    }

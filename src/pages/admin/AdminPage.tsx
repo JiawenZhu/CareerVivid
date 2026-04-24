@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
-    Shield, User, Users, BarChart, Mail, FileText, MessageSquare, AlertTriangle
+    Shield, User, Users, BarChart, Mail, FileText, MessageSquare, AlertTriangle,
+    Layout, Bot, Link, Globe, Zap
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useUsers, useUsageLogs } from './hooks';
@@ -13,8 +14,12 @@ import ErrorManagement from './components/ErrorManagement';
 import EmailTool from './components/EmailTool';
 import PartnerApplicationManagement from './components/PartnerApplicationManagement';
 import LandingPageManagement from './components/LandingPageManagement';
-import { Layout, Bot } from 'lucide-react';
 import AdminCommunityBot from './AdminCommunityBot';
+import CampaignDashboard from './components/CampaignDashboard';
+import MessagingAutomation from './components/MessagingAutomation';
+import UTMBuilder from './components/UTMBuilder';
+import LandingPageTemplates from './components/LandingPageTemplates';
+import LocalizationManager from './components/LocalizationManager';
 
 const AdminDashboardPage: React.FC = () => {
     const { logOut } = useAuth();
@@ -36,6 +41,11 @@ const AdminDashboardPage: React.FC = () => {
             case 'tools': return <EmailTool />;
             case 'partners': return <PartnerApplicationManagement />;
             case 'landing': return <LandingPageManagement />;
+            case 'campaigns': return <CampaignDashboard />;
+            case 'messaging': return <MessagingAutomation />;
+            case 'utm': return <UTMBuilder />;
+            case 'templates': return <LandingPageTemplates />;
+            case 'localization': return <LocalizationManager />;
             case 'community_bot': return <AdminCommunityBot />;
             default: return null;
         }
@@ -62,6 +72,11 @@ const AdminDashboardPage: React.FC = () => {
                         { id: 'tools', label: 'Tools', icon: Mail },
                         { id: 'partners', label: 'Partners', icon: Users },
                         { id: 'landing', label: 'Landing Page', icon: Layout },
+                        { id: 'campaigns', label: 'Campaigns', icon: BarChart },
+                        { id: 'messaging', label: 'Messaging', icon: Zap },
+                        { id: 'utm', label: 'UTM Builder', icon: Link },
+                        { id: 'templates', label: 'Templates', icon: Layout },
+                        { id: 'localization', label: 'Localization', icon: Globe },
                         { id: 'community_bot', label: 'Community Bot', icon: Bot },
                     ].map(tab => (
                         <button

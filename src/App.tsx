@@ -680,7 +680,7 @@ const AppContent: React.FC = () => {
               titleTemplate="%s | CareerVivid"
               defaultTitle="CareerVivid Community | Build Your Brand & Network"
             />
-            <SEOHelper 
+            <SEOHelper
               isRobotsAllowed={!['/dashboard', '/profile', '/billing', '/subscription', '/developer', '/my-posts', '/commerce', '/checkout'].some(p => path.startsWith(p))}
             />
             <Suspense fallback={<LoadingFallback />}>

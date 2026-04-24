@@ -17,6 +17,7 @@ import {
     Gift,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import NotificationInbox from '../NotificationInbox';
 import Logo from '../Logo';
 import { useNavigation } from '../../contexts/NavigationContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -278,6 +279,7 @@ const Sidebar: React.FC = () => {
                 <button onClick={() => navigate('/community')} className="flex items-center gap-3 px-3 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm w-full text-left">
                     <Users size={18} /><span>Community</span>
                 </button>
+                <NotificationInbox />
 
                 {/* Theme Toggle */}
                 <div className="flex items-center justify-between px-3 py-2">

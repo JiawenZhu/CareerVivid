@@ -33,6 +33,7 @@
     "@mantine/core": "^8.3.15",
     "@mantine/hooks": "^8.3.15",
     "@minoru/react-dnd-treeview": "^3.5.3",
+    "@novu/react": "^3.15.0",
     "@react-three/drei": "^9.121.0",
     "@react-three/fiber": "^8.18.0",
     "@stripe/stripe-js": "^4.3.0",

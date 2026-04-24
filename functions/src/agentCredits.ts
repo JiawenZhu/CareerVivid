@@ -7,7 +7,7 @@
  * Called by: `cv agent` after each successful Gemini API call.
  */
 
-import * as functions from "firebase-functions";
+import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 
 if (!admin.apps.length) {
@@ -121,8 +121,30 @@ export const agentDeductCredits = functions
         const tokenCredits = userData.promotions?.tokenCredits || 0;
         limit += tokenCredits;
 
+        // Track if we crossed thresholds
+        let triggerWarning = false;
+        let triggerExceeded = false;
+
         // Check credit reserve buffer (stop at 2 remaining to avoid partial turns)
         if (!isAdmin && count + totalCost > limit - 2) {
+          triggerExceeded = true;
+          // We don't abort here because we need to return the exceeded state to the user,
+          // but we won't charge them for the failed run.
+        } else if (!isAdmin && count < (limit * 0.8) && (count + totalCost) >= (limit * 0.8)) {
+          triggerWarning = true;
+        }
+
+        if (triggerExceeded) {
+          // Fire and forget Novu workflow
+          import('@novu/api').then(({ Novu }) => {
+            const novu = new Novu({ secretKey: 'a2dcd8d25123257f43964f4c268fbb83' });
+            novu.trigger({
+              workflowId: 'usage-limit-exceeded',
+              to: uid,
+              payload: { upgradePlanUrl: 'https://careervivid.app/subscription' }
+            }).catch(console.error);
+          });
+
           const creditsRemaining = Math.max(0, limit - count);
           return {
             ok: false as const,
@@ -130,6 +152,22 @@ export const agentDeductCredits = functions
             creditsRemaining,
             creditsUsed: 0,
           };
+        }
+
+        if (triggerWarning) {
+          // Fire and forget Novu workflow
+          import('@novu/api').then(({ Novu }) => {
+            const novu = new Novu({ secretKey: 'a2dcd8d25123257f43964f4c268fbb83' });
+            novu.trigger({
+              workflowId: 'usage-limit-warning',
+              to: uid,
+              payload: { 
+                creditsRemaining: limit - (count + totalCost),
+                creditsTotal: limit,
+                upgradePlanUrl: 'https://careervivid.app/subscription' 
+              }
+            }).catch(console.error);
+          });
         }
 
         const newCount = count + totalCost;

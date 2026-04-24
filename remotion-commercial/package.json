@@ -1,0 +1,18 @@
+{
+  "name": "careervivid-remotion-commercial",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "preview": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts CareerVividCommercial renders/careervivid-commercial.mp4",
+    "still": "remotion still src/index.ts CareerVividCommercial renders/careervivid-commercial-still.png --frame=120"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.451",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "remotion": "^4.0.451",
+    "typescript": "^6.0.3"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "CareerVivid",
+  "description": "CareerVivid is an AI-powered application to create, edit, and format professional resumes. Users can import existing resumes, get AI-powered suggestions for improvements, chat with an AI assistant, and export the final resume to PDF using various professional templates.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

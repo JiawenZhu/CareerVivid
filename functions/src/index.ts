@@ -1,4 +1,4 @@
-import * as functions from "firebase-functions";
+import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import chromium from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
@@ -56,6 +56,7 @@ export { verifyAuth } from "./verifyAuth";
 export { initPortfolio, updatePortfolioProjects, updatePortfolioHero, uploadPortfolioAsset, onPortfolioProjectsUpdated } from "./portfolioApi";
 export { editPortfolio } from "./editPortfolio";
 export { generateResumeCSS } from "./generateResumeCSS";
+export { messagingTrigger, getMessagingStats } from "./messaging";
 
 // Career-Ops AI Pipeline
 export { evaluateJob, generateLinkedInOutreach, generateDeepResearch, saveCareerProfile } from "./careerOps";
@@ -74,6 +75,7 @@ export { agentDeductCredits } from "./agentCredits";
 
 // CLI Agent Proxy (routes agent Gemini calls through server-side key)
 export { agentProxy } from "./agentProxy";
+export { llmGateway } from "./llmGateway.js";
 
 const APP_BASE_URL =
   process.env.CAREERVIVID_APP_URL ||

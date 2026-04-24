@@ -215,6 +215,20 @@ service cloud.firestore {
     }
 
     // ---------------------------------------------------------
+    // 📢 MARKETING CAMPAIGNS (Admin Manage)
+    // ---------------------------------------------------------
+    match /campaigns/{campaignId} {
+      allow read, write: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // 💬 MESSAGING QUEUE (Admin Manage)
+    // ---------------------------------------------------------
+    match /messaging_queue/{messageId} {
+      allow read, write: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
     // 📝 COMMUNITY POSTS (canonical collection)
     // ---------------------------------------------------------
     match /community_posts/{postId} {

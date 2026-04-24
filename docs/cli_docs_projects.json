@@ -1,0 +1,32 @@
+[
+  {
+    "title": "CareerVivid CLI · Reference",
+    "description": "Global overview of the cv command-line interface. Managed via terminal for AI-native workflows.",
+    "link": "https://careervivid.app/community/post/re6xAurwllVrN8XVI3nf",
+    "techStack": ["TypeScript", "Node.js", "Commander.js"]
+  },
+  {
+    "title": "cv publish · Detailed Guide",
+    "description": "Documentation for publishing articles and diagrams to the CareerVivid community feed.",
+    "link": "https://careervivid.app/community/post/mqiGKEmjRh8pebx1frOM",
+    "techStack": ["Markdown", "Mermaid", "CLI"]
+  },
+  {
+    "title": "cv whiteboard · Diagram Mastery",
+    "description": "Manage Mermaid architecture diagrams directly from the terminal with built-in templates.",
+    "link": "https://careervivid.app/community/post/ThVlUfFfxOKkqJcQuuoO",
+    "techStack": ["Mermaid.js", "Architecture", "Design"]
+  },
+  {
+    "title": "cv auth · Security & Keys",
+    "description": "Securely manage API keys and local CLI configuration settings.",
+    "link": "https://careervivid.app/community/post/pSHbxS6NhB5xwEWvwZfP",
+    "techStack": ["Security", "JSON", "Automation"]
+  },
+  {
+    "title": "cv config · Advanced Settings",
+    "description": "View and update local CLI settings and environment variables.",
+    "link": "https://careervivid.app/community/post/wCNnIUjIeeU20qETyMcB",
+    "techStack": ["CLI", "Configuration", "DevOps"]
+  }
+]

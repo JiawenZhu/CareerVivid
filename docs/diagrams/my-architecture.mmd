@@ -1,0 +1,19 @@
+graph LR
+    subgraph Client
+        Browser["🖥️ Browser / App"]
+    end
+    subgraph Backend
+        API["⚡ API Server"]
+        Queue["📬 Job Queue"]
+    end
+    subgraph Storage
+        DB[("🗄️ Database")]
+        Cache[("⚡ Redis Cache")]
+        Files["📦 Object Storage"]
+    end
+
+    Browser -->|HTTPS| API
+    API --> Cache
+    API --> DB
+    API --> Queue
+    Queue --> Files

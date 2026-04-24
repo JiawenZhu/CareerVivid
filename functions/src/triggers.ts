@@ -1,4 +1,4 @@
-import * as functions from "firebase-functions";
+import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { getDataConnect } from "firebase-admin/data-connect";
 import { syncUserBackend, connectorConfig } from "./dataconnect-generated";
@@ -64,8 +64,28 @@ export const onUserCreated = functions.region('us-west1').firestore
                 });
                 console.log(`Welcome email queued for ${newUser.email}`);
             }
+
+            // --- Novu Workflow: onboarding-welcome ---
+            const { Novu } = await import('@novu/api');
+            const novu = new Novu({ secretKey: 'a2dcd8d25123257f43964f4c268fbb83' }); // TODO: move to env
+            
+            await novu.trigger({
+                workflowId: 'onboarding-welcome',
+                to: {
+                    subscriberId: userId,
+                    email: newUser.email,
+                    firstName: newUser.displayName?.split(' ')[0] || newUser.personalDetails?.firstName,
+                    lastName: newUser.personalDetails?.lastName
+                },
+                payload: {
+                    firstName: newUser.displayName?.split(' ')[0] || newUser.personalDetails?.firstName || 'there',
+                    dashboardUrl: 'https://careervivid.app/dashboard'
+                }
+            });
+            console.log(`[Novu] onboarding-welcome triggered for ${userId}`);
+
         } catch (e) {
-            console.error("Error sending welcome email:", e);
+            console.error("Error sending welcome email or novu trigger:", e);
         }
 
         // --- Referral Logic ---

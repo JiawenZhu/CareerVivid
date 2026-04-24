@@ -5,7 +5,7 @@
  * Firestore path: users/{uid}/jobTracker  (ApplicationStatus type)
  */
 
-import * as functions from "firebase-functions";
+import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { defineSecret } from "firebase-functions/params";
 import { GoogleGenAI } from "@google/genai";
