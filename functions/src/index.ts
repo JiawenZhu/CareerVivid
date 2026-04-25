@@ -53,7 +53,24 @@ export { generateSitemap } from "./seo/generateSitemap";
 export { manageApiKey } from "./manageApiKey";
 export { publishPost } from "./publishPost";
 export { verifyAuth } from "./verifyAuth";
-export { initPortfolio, updatePortfolioProjects, updatePortfolioHero, uploadPortfolioAsset, onPortfolioProjectsUpdated } from "./portfolioApi";
+export {
+  // Generic CRUD engine (any Firestore path)
+  firestoreCrud,
+  // Portfolio-specific agent API (targets portfolio/JiawenEvanZhu/edit/hcvcJXT92g70vQ5Ipbez)
+  readPortfolio,
+  addProjectToPortfolio,
+  removeProjectFromPortfolio,
+  addExperienceToPortfolio,
+  removeExperienceFromPortfolio,
+  patchPortfolioSection,
+  addSkillToPortfolio,
+  // Legacy portfolio functions (preserved)
+  initPortfolio,
+  updatePortfolioProjects,
+  updatePortfolioHero,
+  uploadPortfolioAsset,
+  onPortfolioProjectsUpdated,
+} from "./portfolioApi";
 export { editPortfolio } from "./editPortfolio";
 export { generateResumeCSS } from "./generateResumeCSS";
 export { messagingTrigger, getMessagingStats } from "./messaging";

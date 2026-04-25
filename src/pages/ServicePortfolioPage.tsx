@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import {
     Terminal, Globe, ArrowRight,
     CheckCircle, Layout, Send,
-    Play, Volume2, Sparkles, Database, Cpu
+    Play, Volume2, Sparkles, Database, Cpu, BarChart3
 } from 'lucide-react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -359,7 +359,7 @@ const ServicePortfolioPage = () => {
                     <span className="w-2 h-8 bg-[#4ADE80] rounded-full"></span>
                     Featured Engineering Projects
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     <a href="https://careervivid.app" target="_blank" rel="noopener noreferrer" className="group flex flex-col justify-between p-8 bg-white rounded-2xl border border-gray-200 hover:border-black hover:shadow-lg transition-all duration-300">
                         <div>
                             <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
@@ -420,7 +420,37 @@ const ServicePortfolioPage = () => {
                             Try It Live <ArrowRight className="ml-2" size={16} />
                         </div>
                     </a>
+
+                    {/* MegaMillions Engine — New Project Card */}
+                    <a
+                        href="https://vectorlotto.vercel.app"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex flex-col justify-between p-8 bg-white rounded-2xl border border-gray-200 hover:border-black hover:shadow-lg transition-all duration-300 relative overflow-hidden"
+                    >
+                        {/* Subtle gradient shimmer in top-right */}
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-blue-100 to-transparent opacity-60 rounded-bl-3xl pointer-events-none" />
+                        <div>
+                            <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <BarChart3 className="text-blue-600" size={24} />
+                            </div>
+                            <h3 className="text-2xl font-bold mb-3 group-hover:text-blue-600 transition-colors">MegaMillions Engine</h3>
+                            <p className="text-gray-500 mb-6 leading-relaxed">
+                                Full-stack statistical lottery simulation engine using Thompson Sampling (MAB) &amp; Kelly Criterion. Features SPC analytics — Histograms, Pareto, X-MR, X-Bar/R charts — for data-driven analysis.
+                            </p>
+                            <div className="flex flex-wrap gap-2 mb-8">
+                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">Python</span>
+                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">FastAPI</span>
+                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">Next.js</span>
+                                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">MAB · SPC</span>
+                            </div>
+                        </div>
+                        <div className="flex items-center text-sm font-bold text-black group-hover:translate-x-1 transition-transform">
+                            Launch Engine <ArrowRight className="ml-2" size={16} />
+                        </div>
+                    </a>
                 </div>
+
             </section>
 
             <section id="pricing" className="py-24 bg-white border-y border-gray-100">
