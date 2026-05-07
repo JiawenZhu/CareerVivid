@@ -6,6 +6,7 @@ import { generateNeoBrutalistEmail } from "./emailTemplates";
 import { defineSecret } from "firebase-functions/params";
 
 const INITIAL_PARTNER_PASSWORD = defineSecret("INITIAL_PARTNER_PASSWORD");
+const novuSecretKey = defineSecret("NOVU_SECRET_KEY");
 
 /**
  * Trigger: On User Created
@@ -16,7 +17,10 @@ const INITIAL_PARTNER_PASSWORD = defineSecret("INITIAL_PARTNER_PASSWORD");
  * 4. Grant Student 30-day Premium Trial.
  * 5. Link Student to Partner via `academicPartnerId`.
  */
-export const onUserCreated = functions.region('us-west1').firestore
+export const onUserCreated = functions
+    .runWith({ secrets: [novuSecretKey] })
+    .region('us-west1')
+    .firestore
     .document('users/{userId}')
     .onCreate(async (snap, context) => {
         const newUser = snap.data();
@@ -67,7 +71,7 @@ export const onUserCreated = functions.region('us-west1').firestore
 
             // --- Novu Workflow: onboarding-welcome ---
             const { Novu } = await import('@novu/api');
-            const novu = new Novu({ secretKey: 'a2dcd8d25123257f43964f4c268fbb83' }); // TODO: move to env
+            const novu = new Novu({ secretKey: novuSecretKey.value() });
             
             await novu.trigger({
                 workflowId: 'onboarding-welcome',

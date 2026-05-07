@@ -1,7 +1,12 @@
 import { Novu } from '@novu/api';
 
+const secretKey = process.env.NOVU_SECRET_KEY;
+if (!secretKey) {
+  throw new Error('NOVU_SECRET_KEY is required.');
+}
+
 const novu = new Novu({
-  secretKey: 'a2dcd8d25123257f43964f4c268fbb83' // From your screenshot
+  secretKey
 });
 
 async function testNovu() {
