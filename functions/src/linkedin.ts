@@ -12,6 +12,23 @@ const linkedinClientSecret = defineSecret('LINKEDIN_CLIENT_SECRET');
 
 const DEFAULT_REDIRECT_URI = 'https://careervivid.app/admin';
 
+function getAllowedRedirectUri(redirectUri: unknown): string {
+    if (typeof redirectUri !== 'string' || !redirectUri) {
+        return DEFAULT_REDIRECT_URI;
+    }
+
+    try {
+        const url = new URL(redirectUri);
+        if (url.protocol === 'https:' && (url.hostname === 'careervivid.app' || url.hostname.endsWith('.careervivid.app'))) {
+            return url.toString();
+        }
+    } catch {
+        // Fall through to the safe default.
+    }
+
+    return DEFAULT_REDIRECT_URI;
+}
+
 // 1. Get Auth URL
 export const getLinkedInAuthUrl = onCall(
     { region: "us-west1", secrets: [linkedinClientId] },
@@ -21,7 +38,7 @@ export const getLinkedInAuthUrl = onCall(
         }
 
         const { redirectUri } = request.data;
-        const currentRedirectUri = redirectUri || DEFAULT_REDIRECT_URI;
+        const currentRedirectUri = getAllowedRedirectUri(redirectUri);
         const state = request.auth.uid; // Simple state linking to user
         const scope = 'w_member_social r_liteprofile'; // Or just w_member_social depending on your LinkedIn App products
 
@@ -36,7 +53,7 @@ export const handleLinkedInCallback = onCall(
     { region: "us-west1", secrets: [linkedinClientId, linkedinClientSecret] },
     async (request) => {
         const { code, state, redirectUri } = request.data;
-        const currentRedirectUri = redirectUri || DEFAULT_REDIRECT_URI;
+        const currentRedirectUri = getAllowedRedirectUri(redirectUri);
         const uid = request.auth?.uid;
 
         if (!uid || state !== uid) {

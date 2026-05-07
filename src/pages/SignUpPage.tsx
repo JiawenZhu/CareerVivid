@@ -11,6 +11,7 @@ import { Eye, EyeOff, ArrowLeft, Loader2, Mail, Lock, ChevronRight, Users } from
 import { trackUsage } from '../services/trackingService';
 import Logo from '../components/Logo';
 import { navigate } from '../utils/navigation';
+import { safeRedirect } from '../utils/security';
 
 const SignUpPage: React.FC = () => {
     const { t } = useTranslation();
@@ -153,7 +154,7 @@ const SignUpPage: React.FC = () => {
             const redirectParams = new URLSearchParams(window.location.search);
             const redirectUrl = redirectParams.get('redirect');
             if (redirectUrl) {
-                window.location.href = decodeURIComponent(redirectUrl);
+                safeRedirect(redirectUrl);
             }
         } catch (err: any) {
             handleAuthError(err);
@@ -216,7 +217,7 @@ const SignUpPage: React.FC = () => {
             const redirectParams = new URLSearchParams(window.location.search);
             const redirectUrl = redirectParams.get('redirect');
             if (redirectUrl) {
-                window.location.href = decodeURIComponent(redirectUrl);
+                safeRedirect(redirectUrl);
             }
         } catch (err: any) {
             handleAuthError(err);
