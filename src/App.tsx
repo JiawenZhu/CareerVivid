@@ -7,7 +7,7 @@ import { Loader2 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { isExtensionContext } from './services/extensionStorage';
 import ExtensionLayout from './extension-ui/layout/ExtensionLayout';
-import { isSafeUrl } from './utils/security';
+import { getSafeRedirectTarget } from './utils/security';
 
 
 // Lazy load pages to drastically reduce initial JavaScript payload
@@ -351,7 +351,7 @@ const AppContent: React.FC = () => {
       const cliPort = params.get('cli_port');
       if (currentUser && !cliPort) {
         const redirect = params.get('redirect');
-        content = <AuthRedirect target={redirect && isSafeUrl(redirect) ? redirect : '/dashboard'} />;
+        content = <AuthRedirect target={redirect ? getSafeRedirectTarget(redirect) : '/dashboard'} />;
       } else {
         content = <SignInPage />;
       }

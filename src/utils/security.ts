@@ -2,51 +2,30 @@
  * Security utility for safe redirects and URL validation.
  */
 
-const ALLOWED_DOMAINS = [
-  'careervivid.app',
-  'stripe.com',
-  'clerk.com',
-];
-
 /**
  * Validates if a URL is safe for redirection.
- * A URL is considered safe if it is a relative path OR belongs to an allowed domain.
+ * Auth redirects are only safe when they stay inside the current app origin.
  */
 export const isSafeUrl = (url: string): boolean => {
-  if (!url) return false;
-
-  if (url.startsWith('/') && !url.startsWith('//')) {
-    return true;
-  }
-
-  try {
-    const parsedUrl = new URL(url);
-    const hostname = parsedUrl.hostname.toLowerCase();
-
-    return ALLOWED_DOMAINS.some(domain =>
-      hostname === domain || hostname.endsWith('.' + domain)
-    );
-  } catch (e) {
-    return false;
-  }
+  return url === '/' || getSafeRedirectTarget(url) !== '/';
 };
 
 export const getSafeRedirectTarget = (url: string): string => {
   if (!url) return '/';
 
-  // Relative URLs (starting with / but not //) are generally safe
-  if (url.startsWith('/') && !url.startsWith('//')) {
-    return url;
+  if (url.startsWith('//')) {
+    return '/';
   }
 
   try {
-    const parsedUrl = new URL(url);
-    const hostname = parsedUrl.hostname.toLowerCase();
+    const currentOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://careervivid.app';
+    const parsedUrl = new URL(url, currentOrigin);
 
-    const isAllowedDomain = ALLOWED_DOMAINS.some(domain =>
-      hostname === domain || hostname.endsWith('.' + domain)
-    );
-    return isAllowedDomain ? parsedUrl.toString() : '/';
+    if (parsedUrl.origin !== currentOrigin) {
+      return '/';
+    }
+
+    return `${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`;
   } catch (e) {
     // If it's not a valid URL and not relative, it's unsafe
     return '/';
@@ -58,10 +37,11 @@ export const getSafeRedirectTarget = (url: string): string => {
  * Falls back to root if the URL is deemed unsafe.
  */
 export const safeRedirect = (url: string): void => {
-  if (isSafeUrl(url)) {
-    window.location.assign(getSafeRedirectTarget(url));
-  } else {
+  const target = getSafeRedirectTarget(url);
+  if (target === '/' && url !== '/') {
     console.error('Blocked unsafe redirect to:', url);
-    window.location.assign('/');
   }
+
+  window.history.pushState({}, '', target);
+  window.dispatchEvent(new PopStateEvent('popstate'));
 };
