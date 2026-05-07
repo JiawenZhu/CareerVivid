@@ -15,7 +15,6 @@ const ALLOWED_DOMAINS = [
 export const isSafeUrl = (url: string): boolean => {
   if (!url) return false;
 
-  // Relative URLs (starting with / but not //) are generally safe
   if (url.startsWith('/') && !url.startsWith('//')) {
     return true;
   }
@@ -23,13 +22,34 @@ export const isSafeUrl = (url: string): boolean => {
   try {
     const parsedUrl = new URL(url);
     const hostname = parsedUrl.hostname.toLowerCase();
-    
-    return ALLOWED_DOMAINS.some(domain => 
+
+    return ALLOWED_DOMAINS.some(domain =>
       hostname === domain || hostname.endsWith('.' + domain)
     );
   } catch (e) {
-    // If it's not a valid URL and not relative, it's unsafe
     return false;
+  }
+};
+
+export const getSafeRedirectTarget = (url: string): string => {
+  if (!url) return '/';
+
+  // Relative URLs (starting with / but not //) are generally safe
+  if (url.startsWith('/') && !url.startsWith('//')) {
+    return url;
+  }
+
+  try {
+    const parsedUrl = new URL(url);
+    const hostname = parsedUrl.hostname.toLowerCase();
+
+    const isAllowedDomain = ALLOWED_DOMAINS.some(domain =>
+      hostname === domain || hostname.endsWith('.' + domain)
+    );
+    return isAllowedDomain ? parsedUrl.toString() : '/';
+  } catch (e) {
+    // If it's not a valid URL and not relative, it's unsafe
+    return '/';
   }
 };
 
@@ -39,9 +59,9 @@ export const isSafeUrl = (url: string): boolean => {
  */
 export const safeRedirect = (url: string): void => {
   if (isSafeUrl(url)) {
-    window.location.href = url;
+    window.location.assign(getSafeRedirectTarget(url));
   } else {
     console.error('Blocked unsafe redirect to:', url);
-    window.location.href = '/';
+    window.location.assign('/');
   }
 };

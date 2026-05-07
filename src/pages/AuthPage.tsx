@@ -12,6 +12,7 @@ import { doc, setDoc, getDoc, serverTimestamp, collection, query, where, getDocs
 import { Eye, EyeOff, ArrowLeft, Loader2, Mail, Lock, ChevronRight } from 'lucide-react';
 import { trackUsage } from '../services/trackingService';
 import Logo from '../components/Logo';
+import { safeRedirect } from '../utils/security';
 
 
 
@@ -153,7 +154,7 @@ const AuthPage: React.FC = () => {
             const params = new URLSearchParams(window.location.search);
             const redirectUrl = params.get('redirect');
             if (redirectUrl) {
-                window.location.href = decodeURIComponent(redirectUrl);
+                safeRedirect(redirectUrl);
             }
         } catch (err: any) {
             handleAuthError(err);
@@ -212,7 +213,7 @@ const AuthPage: React.FC = () => {
             const params = new URLSearchParams(window.location.search);
             const redirectUrl = params.get('redirect');
             if (redirectUrl) {
-                window.location.href = decodeURIComponent(redirectUrl);
+                safeRedirect(redirectUrl);
             }
         } catch (err: any) {
             handleAuthError(err);

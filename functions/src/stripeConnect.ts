@@ -7,6 +7,30 @@ const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
 
 // Application Fee Percentage (e.g., 5%)
 const APPLICATION_FEE_PERCENT = 0.05;
+const DEFAULT_CONNECT_REDIRECT_URL = "https://careervivid.app/commerce";
+
+function getAllowedConnectRedirectUrl(redirectUrl: unknown): string {
+    if (typeof redirectUrl !== "string" || !redirectUrl) {
+        return DEFAULT_CONNECT_REDIRECT_URL;
+    }
+
+    try {
+        const url = new URL(redirectUrl);
+        if (url.protocol === "https:" && (url.hostname === "careervivid.app" || url.hostname.endsWith(".careervivid.app"))) {
+            return url.toString();
+        }
+    } catch {
+        // Fall through to the safe default.
+    }
+
+    return DEFAULT_CONNECT_REDIRECT_URL;
+}
+
+function appendConnectStatus(redirectUrl: string, key: "refresh" | "success"): string {
+    const url = new URL(redirectUrl);
+    url.searchParams.set(key, "true");
+    return url.toString();
+}
 
 /**
  * Creates a Stripe Express Connect account for the user and generates an account link for onboarding.
@@ -58,10 +82,11 @@ export const createConnectAccount = onCall(
 
             // 3. Create an Account Link for onboarding
             // This link expires in a few minutes, so we always generate a new one.
+            const redirectUrl = getAllowedConnectRedirectUrl(request.data.redirectUrl);
             const accountLink = await stripe.accountLinks.create({
                 account: accountId,
-                refresh_url: `${request.data.redirectUrl || 'https://careervivid.app/commerce'}?refresh=true`,
-                return_url: `${request.data.redirectUrl || 'https://careervivid.app/commerce'}?success=true`,
+                refresh_url: appendConnectStatus(redirectUrl, "refresh"),
+                return_url: appendConnectStatus(redirectUrl, "success"),
                 type: "account_onboarding",
             });
 
