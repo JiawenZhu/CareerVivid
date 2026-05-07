@@ -1,6 +1,7 @@
 {
   "name": "next-app",
   "version": "0.1.0",
+  "license": "GPL-3.0-only",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -101,6 +102,7 @@
     "ajv": "^6.12.6",
     "micromatch": "^4.0.8",
     "ws": ">=7.5.10",
-    "axios": ">=1.7.4"
+    "axios": ">=1.7.4",
+    "@xmldom/xmldom": "0.8.13"
   }
 }

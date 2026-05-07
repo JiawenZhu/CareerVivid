@@ -1,6 +1,9 @@
 const fetch = require('node-fetch');
 
-const KEY = "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";
+const KEY = process.env.OPENROUTER_API_KEY;
+if (!KEY) {
+  throw new Error("OPENROUTER_API_KEY is required.");
+}
 const MODELS = [
   "qwen/qwen3-next-80b-a3b-instruct:free",
   "minimax/minimax-m2.5:free",

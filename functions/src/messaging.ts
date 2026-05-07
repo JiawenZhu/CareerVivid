@@ -1,5 +1,8 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
+import { defineSecret } from "firebase-functions/params";
+
+const novuSecretKey = defineSecret("NOVU_SECRET_KEY");
 
 /**
  * messagingTrigger
@@ -7,7 +10,9 @@ import * as admin from "firebase-admin";
  * When a new document is added, it "sends" the message.
  * In production, you would use Twilio or WhatsApp Business API here.
  */
-export const messagingTrigger = functions.firestore
+export const messagingTrigger = functions
+    .runWith({ secrets: [novuSecretKey] })
+    .firestore
     .document("messaging_queue/{messageId}")
     .onCreate(async (snap, context) => {
         const data = snap.data();
@@ -21,8 +26,7 @@ export const messagingTrigger = functions.firestore
 
             const { Novu } = await import('@novu/api');
             const novu = new Novu({
-                // TODO: Move this to Firebase Secrets (functions.config() or Secret Manager)
-                secretKey: 'a2dcd8d25123257f43964f4c268fbb83' 
+                secretKey: novuSecretKey.value()
             });
 
             console.log(`[Messaging] Dispatching via Novu to ${data.to}: ${data.body}`);

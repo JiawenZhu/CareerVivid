@@ -9,6 +9,9 @@
 
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
+import { defineSecret } from "firebase-functions/params";
+
+const novuSecretKey = defineSecret("NOVU_SECRET_KEY");
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -42,7 +45,7 @@ function getMonthlyLimit(plan?: string): number {
 // ─────────────────────────────────────────────────────────────────────────────
 export const agentDeductCredits = functions
   .region("us-west1")
-  .runWith({ timeoutSeconds: 30, memory: "256MB" })
+  .runWith({ secrets: [novuSecretKey], timeoutSeconds: 30, memory: "256MB" })
   .https.onCall(
     async (
       data: { model: string; calls?: number; apiKey: string },
@@ -137,7 +140,7 @@ export const agentDeductCredits = functions
         if (triggerExceeded) {
           // Fire and forget Novu workflow
           import('@novu/api').then(({ Novu }) => {
-            const novu = new Novu({ secretKey: 'a2dcd8d25123257f43964f4c268fbb83' });
+            const novu = new Novu({ secretKey: novuSecretKey.value() });
             novu.trigger({
               workflowId: 'usage-limit-exceeded',
               to: uid,
@@ -157,7 +160,7 @@ export const agentDeductCredits = functions
         if (triggerWarning) {
           // Fire and forget Novu workflow
           import('@novu/api').then(({ Novu }) => {
-            const novu = new Novu({ secretKey: 'a2dcd8d25123257f43964f4c268fbb83' });
+            const novu = new Novu({ secretKey: novuSecretKey.value() });
             novu.trigger({
               workflowId: 'usage-limit-warning',
               to: uid,

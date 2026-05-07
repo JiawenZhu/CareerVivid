@@ -1,6 +1,11 @@
 import { Novu } from '@novu/api';
 
-const novu = new Novu({ secretKey: 'a2dcd8d25123257f43964f4c268fbb83' });
+const secretKey = process.env.NOVU_SECRET_KEY;
+if (!secretKey) {
+    throw new Error('NOVU_SECRET_KEY is required.');
+}
+
+const novu = new Novu({ secretKey });
 
 async function createWorkflows() {
     try {
@@ -29,7 +34,7 @@ async function createWorkflows() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'ApiKey a2dcd8d25123257f43964f4c268fbb83'
+                'Authorization': `ApiKey ${secretKey}`
             },
             body: JSON.stringify({
                 name: "Usage Limit Exceeded",
@@ -59,7 +64,7 @@ async function createWorkflows() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'ApiKey a2dcd8d25123257f43964f4c268fbb83'
+                'Authorization': `ApiKey ${secretKey}`
             },
             body: JSON.stringify({
                 name: "Onboarding Welcome",

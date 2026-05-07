@@ -1,6 +1,7 @@
 {
   "name": "careervivid-functions",
   "version": "1.0.0",
+  "license": "GPL-3.0-only",
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
@@ -21,7 +22,7 @@
     "@novu/api": "^3.15.0",
     "@sparticuz/chromium": "^123.0.0",
     "algoliasearch": "^5.49.1",
-    "axios": "^1.15.0",
+    "axios": "^1.16.0",
     "compression": "^1.8.1",
     "cors": "^2.8.5",
     "dotenv": "^17.3.1",
