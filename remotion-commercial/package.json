@@ -9,7 +9,7 @@
     "still": "remotion still src/index.ts CareerVividCommercial renders/careervivid-commercial-still.png --frame=120"
   },
   "dependencies": {
-    "@remotion/cli": "^4.0.451",
+    "@remotion/cli": "^4.0.457",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "remotion": "^4.0.451",
