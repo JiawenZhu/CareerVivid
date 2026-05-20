@@ -91,15 +91,23 @@ const toIsoString = (value: any): string | null => {
 const htmlToText = (value: unknown): string => {
   if (typeof value !== "string") return "";
 
-  return value
+  const normalized = value
     // 1. Replace structural HTML tags with whitespace equivalents
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/p>/gi, "\n")
-    .replace(/<\/li>/gi, "\n")
-    // 2. Strip all remaining HTML tags BEFORE decoding entities
-    //    This ensures &lt;script&gt; is never unescaped into a raw <script>
-    .replace(/<[^>]+>/g, "")
-    // 3. Decode safe whitespace / symbol entities only (no angle brackets)
+    .replace(/<\/li>/gi, "\n");
+
+  // 2. Strip all remaining HTML tags BEFORE decoding entities.
+  //    Apply repeatedly until stable to avoid incomplete multi-character sanitization.
+  let stripped = normalized;
+  let previous: string;
+  do {
+    previous = stripped;
+    stripped = stripped.replace(/<[^>]+>/g, "");
+  } while (stripped !== previous);
+
+  // 3. Decode safe whitespace / symbol entities only (no angle brackets)
+  return stripped
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
     .trim();
