@@ -92,14 +92,16 @@ const htmlToText = (value: unknown): string => {
   if (typeof value !== "string") return "";
 
   return value
+    // 1. Replace structural HTML tags with whitespace equivalents
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/p>/gi, "\n")
     .replace(/<\/li>/gi, "\n")
+    // 2. Strip all remaining HTML tags BEFORE decoding entities
+    //    This ensures &lt;script&gt; is never unescaped into a raw <script>
     .replace(/<[^>]+>/g, "")
+    // 3. Decode safe whitespace / symbol entities only (no angle brackets)
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
     .trim();
 };
 

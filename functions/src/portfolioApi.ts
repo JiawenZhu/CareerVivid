@@ -1,7 +1,8 @@
 import { onRequest } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import { secureCorsHandler } from "./utils/corsUtils.js";
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "crypto";
+const uuidv4 = randomUUID;
 import { resolveAuth } from "./utils/authUtils.js";
 
 const db = admin.firestore();
