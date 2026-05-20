@@ -6,10 +6,10 @@
 
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
-import cors from "cors";
+import { secureCorsHandler } from "./utils/corsUtils.js";
 import { resolveAuth } from "./utils/authUtils.js";
 
-const corsHandler = cors({ origin: true });
+const corsHandler = secureCorsHandler;
 const db = admin.firestore();
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -89,13 +89,7 @@ export const cliReferralStats = functions.region("us-west1").runWith({
     memory: "256MB",
 }).https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
-        if (req.method === "OPTIONS") {
-            res.set("Access-Control-Allow-Origin", "*");
-            res.set("Access-Control-Allow-Methods", "GET, OPTIONS");
-            res.set("Access-Control-Allow-Headers", "Content-Type, x-api-key, Authorization");
-            res.status(204).send("");
-            return;
-        }
+        // Preflight handled automatically by secureCorsHandler
         if (req.method !== "GET") { res.status(405).json({ error: "Method Not Allowed" }); return; }
 
         const user = await resolveAuth(req);

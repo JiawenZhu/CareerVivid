@@ -1,8 +1,5 @@
 import * as functions from "firebase-functions/v1";
-import { defineSecret } from "firebase-functions/params";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const geminiApiKey = defineSecret("GEMINI_API_KEY");
+import { getAIClient } from "./utils/ai";
 
 /**
  * AI Portfolio Editor Cloud Function
@@ -17,7 +14,6 @@ export const editPortfolio = functions
     .region("us-west1")
     .runWith({
         timeoutSeconds: 120,
-        secrets: [geminiApiKey],
         memory: "512MB",
     })
     .https.onCall(async (data, context) => {
@@ -31,12 +27,9 @@ export const editPortfolio = functions
 
         const { portfolioData, instruction, action = 'edit', resumeData } = data;
 
-        // 2. Init AI Client
-        const genAI = new GoogleGenerativeAI(geminiApiKey.value());
-
         // 3. Route to correct handler
         if (action === 'generate_from_resume') {
-            return handleGenerateFromResume(genAI, resumeData, portfolioData);
+            return handleGenerateFromResume(resumeData, portfolioData);
         }
 
         // Standard edit path
@@ -104,20 +97,18 @@ Remember: Respond ONLY with the JSON object. No markdown, no explanation outside
 `;
 
         try {
-            const model = genAI.getGenerativeModel({
+            const ai = getAIClient();
+            const result = await ai.models.generateContent({
                 model: "gemini-2.5-flash",
-                generationConfig: {
+                contents: userPrompt,
+                config: {
+                    systemInstruction: systemPrompt,
                     responseMimeType: "application/json",
                     temperature: 0.4,
                 },
             });
 
-            const result = await model.generateContent([
-                { text: systemPrompt },
-                { text: userPrompt },
-            ]);
-
-            const responseText = result.response.text().trim();
+            const responseText = (result.text || "").trim();
             let parsed: { patch: any; summary: string; changedSections: string[] };
 
             try {
@@ -159,7 +150,7 @@ Remember: Respond ONLY with the JSON object. No markdown, no explanation outside
  * Maps resume sections (experience, education, skills, projects) →
  * portfolio sections (timeline, techStack, projects, hero, about).
  */
-async function handleGenerateFromResume(genAI: GoogleGenerativeAI, resumeData: any, currentPortfolio: any) {
+async function handleGenerateFromResume(resumeData: any, currentPortfolio: any) {
     if (!resumeData) {
         throw new functions.https.HttpsError("invalid-argument", "Missing resumeData for generation.");
     }
@@ -206,20 +197,18 @@ ${JSON.stringify({ templateId: currentPortfolio?.templateId, theme: currentPortf
 Respond ONLY with the JSON object.
 `;
 
-    const model = genAI.getGenerativeModel({
+    const ai = getAIClient();
+    const result = await ai.models.generateContent({
         model: "gemini-2.5-flash",
-        generationConfig: {
+        contents: userPrompt,
+        config: {
+            systemInstruction: systemPrompt,
             responseMimeType: "application/json",
             temperature: 0.5,
         },
     });
 
-    const result = await model.generateContent([
-        { text: systemPrompt },
-        { text: userPrompt },
-    ]);
-
-    const responseText = result.response.text().trim();
+    const responseText = (result.text || "").trim();
     let parsed: { patch: any; summary: string; changedSections: string[] };
 
     try {

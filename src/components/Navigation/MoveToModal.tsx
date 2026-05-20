@@ -24,9 +24,9 @@ const MoveToModal: React.FC<MoveToModalProps> = ({
 
     if (!isOpen) return null;
 
-    // Filter for droppable folders that are not the current node itself
+    // Filter for droppable folders or projects that are not the current node itself
     const availableFolders = nodes.filter(n =>
-        n.droppable && n.id !== currentNodeId
+        (n.droppable || n.data?.type === 'project') && n.id !== currentNodeId
     );
 
     const filteredFolders = availableFolders.filter(f =>
@@ -41,7 +41,7 @@ const MoveToModal: React.FC<MoveToModalProps> = ({
                     <div>
                         <h3 className="text-lg font-bold text-gray-900 dark:text-white">Move Item</h3>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                            Select target folder for <span className="font-semibold text-indigo-600 dark:text-indigo-400">"{currentNodeText}"</span>
+                            Select target folder or project for <span className="font-semibold text-indigo-600 dark:text-indigo-400">"{currentNodeText}"</span>
                         </p>
                     </div>
                     <button
@@ -58,7 +58,7 @@ const MoveToModal: React.FC<MoveToModalProps> = ({
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                         <input
                             type="text"
-                            placeholder="Search folders..."
+                            placeholder="Search folders or projects..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-900 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
@@ -77,8 +77,8 @@ const MoveToModal: React.FC<MoveToModalProps> = ({
                             <LayoutDashboard size={20} />
                         </div>
                         <div className="flex-1">
-                            <p className="text-sm font-bold text-gray-900 dark:text-white">Dashboard (Root)</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Top level navigation</p>
+                            <p className="text-sm font-bold text-gray-900 dark:text-white">Unassigned (Root)</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Move out of all projects/folders</p>
                         </div>
                         <ChevronRight size={16} className="text-gray-300 group-hover:text-indigo-400 transition-colors" />
                     </button>
@@ -92,14 +92,14 @@ const MoveToModal: React.FC<MoveToModalProps> = ({
                                 onClick={() => onSelect(folder.id.toString())}
                                 className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-500/10 text-left transition-all group mt-1"
                             >
-                                <div className="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-500 transition-colors">
-                                    <Folder size={20} />
+                                <div className="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-500 transition-colors text-lg">
+                                    {folder.data?.type === 'project' ? (folder.data?.icon || '📁') : <Folder size={20} />}
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-sm font-bold text-gray-900 dark:text-white">{folder.text}</p>
                                     <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                                         <CornerDownRight size={10} />
-                                        ID: {folder.id}
+                                        {folder.data?.type === 'project' ? 'Project' : 'Folder'}
                                     </p>
                                 </div>
                                 <ChevronRight size={16} className="text-gray-300 group-hover:text-indigo-400 transition-colors" />

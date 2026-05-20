@@ -1,11 +1,12 @@
 import { onRequest } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
-import cors from "cors";
-import { v4 as uuidv4 } from "uuid";
+import { secureCorsHandler } from "./utils/corsUtils.js";
+import { randomUUID } from "crypto";
+const uuidv4 = randomUUID;
 import { resolveAuth } from "./utils/authUtils.js";
 
 const db = admin.firestore();
-const corsHandler = cors({ origin: true });
+const corsHandler = secureCorsHandler;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SECTION A — Generic Firestore CRUD Engine
@@ -652,15 +653,14 @@ export const onPortfolioProjectsUpdated = onDocumentUpdated(
 
     let linkedinSummary = "";
     try {
-      const { GoogleGenerativeAI } = await import("@google/generative-ai");
-      const apiKey = process.env.GEMINI_API_KEY || "";
-      if (apiKey) {
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        const prompt = `Write a professional, engaging 2-paragraph LinkedIn post (with emojis and 3 hashtags) announcing this new developer side project:\nTitle: ${latestProject.title || "A new feature"}\nDescription: ${latestProject.description || "N/A"}\nTech Stack: ${(latestProject.techStack || []).join(", ")}`;
-        const aiRes = await model.generateContent(prompt);
-        linkedinSummary = aiRes.response.text().trim();
-      }
+      const { getAIClient } = await import("./utils/ai.js");
+      const ai = getAIClient();
+      const prompt = `Write a professional, engaging 2-paragraph LinkedIn post (with emojis and 3 hashtags) announcing this new developer side project:\nTitle: ${latestProject.title || "A new feature"}\nDescription: ${latestProject.description || "N/A"}\nTech Stack: ${(latestProject.techStack || []).join(", ")}`;
+      const result = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt
+      });
+      linkedinSummary = (result.text || "").trim();
     } catch (err) {
       console.error("LinkedIn gen failed", err);
     }

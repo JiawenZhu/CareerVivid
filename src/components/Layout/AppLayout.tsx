@@ -9,13 +9,16 @@ interface AppLayoutProps {
 }
 
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
-    const { navPosition } = useNavigation();
+    const { navPosition, sidebarWidth } = useNavigation();
 
     if (navPosition === 'side') {
         return (
-            <div className="flex min-h-screen bg-gray-50 dark:bg-gray-950">
+            <div 
+                className="flex min-h-screen bg-gray-50 dark:bg-gray-950"
+                style={{ '--sidebar-width': `${sidebarWidth}px` } as React.CSSProperties}
+            >
                 <Sidebar />
-                <main className="flex-1 overflow-x-hidden md:pl-64 flex flex-col min-w-0 bg-gray-50 dark:bg-gray-950 transition-all duration-300">
+                <main className="flex-1 overflow-x-hidden md:pl-[var(--sidebar-width)] flex flex-col min-w-0 bg-gray-50 dark:bg-gray-950">
                     <div className="flex-1">{children}</div>
                     <OpenSourceAttribution />
                 </main>

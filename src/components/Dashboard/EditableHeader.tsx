@@ -1,18 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface EditableHeaderProps {
     title: string;
     onSave: (newTitle: string) => void;
     isEditable: boolean;
+    onClick?: () => void;
 }
 
-const EditableHeader: React.FC<EditableHeaderProps> = ({ title: initialTitle, onSave, isEditable }) => {
+const EditableHeader: React.FC<EditableHeaderProps> = ({ title: initialTitle, onSave, isEditable, onClick }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [title, setTitle] = useState(initialTitle);
+    const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         setTitle(initialTitle);
     }, [initialTitle]);
+
+    useEffect(() => {
+        return () => {
+            if (clickTimeoutRef.current) {
+                clearTimeout(clickTimeoutRef.current);
+            }
+        };
+    }, []);
 
     const handleSave = () => {
         if (title.trim() && title.trim() !== initialTitle) {
@@ -31,6 +41,25 @@ const EditableHeader: React.FC<EditableHeaderProps> = ({ title: initialTitle, on
         }
     };
 
+    const handleClick = (e: React.MouseEvent) => {
+        if (!isEditable) {
+            onClick?.();
+            return;
+        }
+
+        if (clickTimeoutRef.current) {
+            // Double click detected
+            clearTimeout(clickTimeoutRef.current);
+            clickTimeoutRef.current = null;
+            setIsEditing(true);
+        } else {
+            clickTimeoutRef.current = setTimeout(() => {
+                onClick?.();
+                clickTimeoutRef.current = null;
+            }, 250);
+        }
+    };
+
     if (isEditing && isEditable) {
         return (
             <input
@@ -45,11 +74,24 @@ const EditableHeader: React.FC<EditableHeaderProps> = ({ title: initialTitle, on
         );
     }
 
+    const isClickable = !!onClick;
+
     return (
         <h2
-            onDoubleClick={() => isEditable && setIsEditing(true)}
-            className={`text-xl font-bold text-gray-800 dark:text-gray-100 font-sans ${isEditable ? 'cursor-text' : ''}`}
-            title={isEditable ? "Double-click to rename" : ""}
+            onClick={handleClick}
+            className={`text-xl font-bold text-gray-800 dark:text-gray-100 font-sans select-none
+                ${isEditable ? 'cursor-text' : ''}
+                ${isClickable ? 'cursor-pointer hover:text-primary-600 dark:hover:text-primary-400 transition-colors' : ''}
+            `}
+            title={
+                isEditable && isClickable
+                    ? "Click to open, Double-click to rename"
+                    : isEditable
+                    ? "Double-click to rename"
+                    : isClickable
+                    ? "Click to open"
+                    : ""
+            }
         >
             {title}
         </h2>

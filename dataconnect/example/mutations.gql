@@ -1,101 +1,33 @@
-# mutations.gql
+# Example mutations for a simple movie app
 
-# 👤 Sync User from Auth
-mutation syncUser($id: String!, $username: String!, $displayName: String, $avatarUrl: String) @auth(level: USER) {
-  user_upsert(data: {
-    id: $id,
-    username: $username,
-    displayName: $displayName,
-    avatarUrl: $avatarUrl,
-    deletedAt: null
-  })
+# Create a movie based on user input
+mutation CreateMovie($title: String!, $genre: String!, $imageUrl: String!)
+@auth(level: USER_EMAIL_VERIFIED, insecureReason: "Any email verified users can create a new movie.") {
+  movie_insert(data: { title: $title, genre: $genre, imageUrl: $imageUrl })
 }
 
-# 👤 Sync User from Backend (No user auth required)
-mutation syncUserBackend($id: String!, $username: String!, $displayName: String, $avatarUrl: String, $bio: String) @auth(level: PUBLIC) {
-  user_upsert(data: {
-    id: $id,
-    username: $username,
-    displayName: $displayName,
-    avatarUrl: $avatarUrl,
-    bio: $bio,
-    deletedAt: null
-  })
+# Upsert (update or insert) a user's username based on their auth.uid
+mutation UpsertUser($username: String!) @auth(level: USER) {
+  # The "auth.uid" server value ensures that users can only register their own user.
+  user_upsert(data: { id_expr: "auth.uid", username: $username })
 }
 
-# 📝 Create a Post
-mutation createPost($title: String!, $content: String!, $summary: String, $coverImageUrl: String, $tags: [String!]) @auth(level: USER) {
-  post_insert(data: {
-    authorId_expr: "auth.uid",
-    title: $title,
-    content: $content,
-    summary: $summary,
-    coverImageUrl: $coverImageUrl,
-    tags: $tags
-  })
+# Add a review for a movie
+mutation AddReview($movieId: UUID!, $rating: Int!, $reviewText: String!)
+@auth(level: USER) {
+  review_upsert(
+    data: {
+      userId_expr: "auth.uid"
+      movieId: $movieId
+      rating: $rating
+      reviewText: $reviewText
+      # reviewDate defaults to today in the schema. No need to set it manually.
+    }
+  )
 }
 
-# 📝 Update a Post (Content only)
-mutation updatePost($id: UUID!, $title: String, $content: String, $summary: String, $coverImageUrl: String, $tags: [String!]) @auth(level: USER) {
-  post_update(id: $id, data: {
-    title: $title,
-    content: $content,
-    summary: $summary,
-    coverImageUrl: $coverImageUrl,
-    tags: $tags,
-    updatedAt_expr: "request.time"
-  })
-}
-
-# 📝 Soft Delete a Post
-mutation deletePost($id: UUID!) @auth(level: USER) {
-  post_update(id: $id, data: {
-    deletedAt_expr: "request.time"
-  })
-}
-
-# 🤝 Follow/Unfollow
-mutation followUser($followingId: String!) @auth(level: USER) {
-  follow_upsert(data: {
-    followerId_expr: "auth.uid",
-    followingId: $followingId
-  })
-}
-
-mutation unfollowUser($followingId: String!) @auth(level: USER) {
-  follow_delete(key: {
-    followerId_expr: "auth.uid",
-    followingId: $followingId
-  })
-}
-
-# ❤️ Like/Unlike
-mutation likePost($postId: UUID!) @auth(level: USER) {
-  like_upsert(data: {
-    userId_expr: "auth.uid",
-    postId: $postId
-  })
-}
-
-mutation unlikePost($postId: UUID!) @auth(level: USER) {
-  like_delete(key: {
-    userId_expr: "auth.uid",
-    postId: $postId
-  })
-}
-
-# 💬 Comment
-mutation addComment($postId: UUID!, $content: String!) @auth(level: USER) {
-  comment_insert(data: {
-    authorId_expr: "auth.uid",
-    postId: $postId,
-    content: $content
-  })
-}
-
-# 💬 Delete Comment (Soft Delete)
-mutation deleteComment($id: UUID!) @auth(level: USER) {
-  comment_update(id: $id, data: {
-    deletedAt_expr: "request.time"
-  })
+# Logged in user can delete their review for a movie
+mutation DeleteReview($movieId: UUID!) @auth(level: USER) {
+  # The "auth.uid" server value ensures that users can only delete their own reviews.
+  review_delete(key: { userId_expr: "auth.uid", movieId: $movieId })
 }

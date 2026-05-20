@@ -111,15 +111,6 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'default', contex
                                             <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : 'text-gray-500 dark:text-gray-400'}`}>{t('nav.students_desc')}</p>
                                         </div>
                                     </a>
-                                    <a href="/services" className={`flex items-start gap-3 p-3 transition-colors group/item ${isBrutalist ? 'hover:bg-emerald-200 border-2 border-transparent hover:border-black' : 'rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
-                                        <div className={`p-2 ${isBrutalist ? 'bg-black text-white rounded-none' : 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-md group-hover/item:bg-emerald-100 dark:group-hover/item:bg-emerald-900/50'}`}>
-                                            <Users size={18} strokeWidth={isBrutalist ? 3 : 2} />
-                                        </div>
-                                        <div>
-                                            <div className={`text-sm ${isBrutalist ? 'font-black text-black uppercase' : 'font-semibold text-gray-900 dark:text-white'}`}>Local Business</div>
-                                            <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : 'text-gray-500 dark:text-gray-400'}`}>Web design & automation</p>
-                                        </div>
-                                    </a>
                                 </>
                             )}
 
@@ -132,15 +123,6 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'default', contex
                                         <div>
                                             <div className={`text-sm ${isBrutalist ? 'font-black text-black uppercase' : 'font-semibold text-gray-900 dark:text-white'}`}>App Subscription</div>
                                             <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : 'text-gray-500 dark:text-gray-400'}`}>Pro & Business Plans</p>
-                                        </div>
-                                    </a>
-                                    <a href="/services#estimator" className={`flex items-start gap-3 p-3 transition-colors group/item ${isBrutalist ? 'hover:bg-emerald-200 border-2 border-transparent hover:border-black' : 'rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
-                                        <div className={`p-2 ${isBrutalist ? 'bg-black text-white rounded-none' : 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-md group-hover/item:bg-emerald-100 dark:group-hover/item:bg-emerald-900/50'}`}>
-                                            <FileText size={18} strokeWidth={isBrutalist ? 3 : 2} />
-                                        </div>
-                                        <div>
-                                            <div className={`text-sm ${isBrutalist ? 'font-black text-black uppercase' : 'font-semibold text-gray-900 dark:text-white'}`}>Service Estimates</div>
-                                            <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : 'text-gray-500 dark:text-gray-400'}`}>Custom project pricing</p>
                                         </div>
                                     </a>
                                 </>
@@ -206,7 +188,6 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'default', contex
                     <nav className="hidden md:flex items-center gap-8 h-full">
                         <NavItem name="Community" href="/" />
                         {context !== 'bio-link' && <NavItem name={t('nav.product')} hasDropdown />}
-                        <NavItem name="Services" href="/services" />
                         <NavItem name={t('nav.use_cases')} hasDropdown />
                         {/* <NavItem name="Partners" href="/partners" /> */}
                         <NavItem name={t('nav.pricing')} hasDropdown />
@@ -316,23 +297,17 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'default', contex
                         {/* 2. Navigation Links */}
                         <div className="space-y-1">
 
-
-
-                            <a href="/services" onClick={() => setIsMenuOpen(false)} className={`block py-2 ${isBrutalist ? 'text-lg font-black uppercase text-black hover:bg-indigo-200 px-2 -mx-2' : 'text-base font-semibold text-gray-900 dark:text-white'}`}>Services</a>
-
                             {/* Use Cases Group */}
                             <div className={`pl-4 ${isBrutalist ? 'border-l-4 border-black ml-1 my-2 space-y-2' : 'border-l-2 border-gray-100 dark:border-gray-800 space-y-3 my-2'}`}>
                                 <p className={`text-xs uppercase tracking-wider mb-2 ${isBrutalist ? 'font-black text-gray-500' : 'text-gray-400 font-semibold'}`}>Use Cases</p>
                                 <a href="/demo" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : 'text-sm text-gray-600 dark:text-gray-400'}`}>{t('nav.professional')}</a>
                                 <a href="/demo" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : 'text-sm text-gray-600 dark:text-gray-400'}`}>{t('nav.students')}</a>
-                                <a href="/services" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : 'text-sm text-gray-600 dark:text-gray-400'}`}>Local Business</a>
                             </div>
 
                             {/* Pricing Group */}
                             <div className={`pl-4 ${isBrutalist ? 'border-l-4 border-black ml-1 my-2 space-y-2' : 'border-l-2 border-gray-100 dark:border-gray-800 space-y-3 my-2'}`}>
                                 <p className={`text-xs uppercase tracking-wider mb-2 ${isBrutalist ? 'font-black text-gray-500' : 'text-gray-400 font-semibold'}`}>{t('nav.pricing')}</p>
                                 <a href={isBrutalist ? "#pricing" : "/pricing"} onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : 'text-sm text-gray-600 dark:text-gray-400'}`}>App Subscription</a>
-                                <a href="/services#estimator" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : 'text-sm text-gray-600 dark:text-gray-400'}`}>Service Estimates</a>
                             </div>
 
                             <div className={`pl-4 ${isBrutalist ? 'border-l-4 border-black ml-1 my-2 space-y-2' : 'border-l-2 border-gray-100 dark:border-gray-800 space-y-3 my-2'}`}>

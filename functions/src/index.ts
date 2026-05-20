@@ -3,21 +3,24 @@ import * as admin from "firebase-admin";
 import chromium from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
 import type { Page } from "puppeteer-core";
-import cors from "cors";
-import { v4 as uuidv4 } from "uuid";
+import { secureCorsHandler } from "./utils/corsUtils.js";
+import { randomUUID } from "crypto";
+const uuidv4 = randomUUID;
 import { Buffer } from "buffer";
 import { ResumeData } from "./types";
 import { defineSecret } from "firebase-functions/params";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { TranslationServiceClient } from "@google-cloud/translate";
+import { getAIClient } from "./utils/ai.js";
+import { GoogleAuth } from "google-auth-library";
 
-const corsHandler = cors({ origin: true });
+const corsHandler = secureCorsHandler;
 
 // Initialize the database connection
 if (!admin.apps.length) {
   admin.initializeApp();
 }
 
+// GEMINI_API_KEY preserved only for cliGetInterviewToken
 const geminiApiKey = defineSecret("GEMINI_API_KEY");
 
 // Export the new Proxy Function if needed
@@ -93,6 +96,7 @@ export { agentDeductCredits } from "./agentCredits";
 // CLI Agent Proxy (routes agent Gemini calls through server-side key)
 export { agentProxy } from "./agentProxy";
 export { llmGateway } from "./llmGateway.js";
+export { publicResumeApi } from "./publicResumeApi";
 
 const APP_BASE_URL =
   process.env.CAREERVIVID_APP_URL ||
@@ -183,9 +187,6 @@ export const generateResumePdfHttp = functions
     corsHandler(req, res, async () => {
       // Explicitly handle preflight requests if cors middleware misses it (safety net)
       if (req.method === 'OPTIONS') {
-        res.set('Access-Control-Allow-Origin', '*');
-        res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
         res.status(204).send('');
         return;
       }
@@ -340,8 +341,7 @@ export const generateResumePdfHttp = functions
 export const generateAIContent = functions
   .region('us-west1')
   .runWith({
-    timeoutSeconds: 60,
-    secrets: [geminiApiKey],
+    timeoutSeconds: 60
   })
   .https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
@@ -367,11 +367,12 @@ export const generateAIContent = functions
       }
 
       try {
-        const genAI = new GoogleGenerativeAI(geminiApiKey.value());
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
+        const ai = getAIClient();
+        const result = await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: prompt
+        });
+        const text = result.text || "";
         res.json({ result: text });
       } catch (error: any) {
         console.error("AI Generation Error:", error);
@@ -446,9 +447,6 @@ export const getPublicResume = functions.region('us-west1').runWith({ timeoutSec
     corsHandler(req, res, async () => {
       console.log("Inside corsHandler");
       if (req.method === 'OPTIONS') {
-        res.set('Access-Control-Allow-Origin', '*');
-        res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
         res.status(204).send('');
         return;
       }
@@ -535,9 +533,6 @@ export const getPublicResume = functions.region('us-west1').runWith({ timeoutSec
 export const updatePublicResume = functions.region('us-west1').runWith({ timeoutSeconds: 60, memory: "256MB" }).https.onRequest(async (req, res) => {
   corsHandler(req, res, async () => {
     if (req.method === 'OPTIONS') {
-      res.set('Access-Control-Allow-Origin', '*');
-      res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-      res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
       res.status(204).send('');
       return;
     }
@@ -677,54 +672,36 @@ export const getInterviewAuthToken = functions.region('us-west1').https.onCall(a
 });
 
 /**
- * CLI token vending endpoint for the Live API voice interview feature.
+ * Web client token vending endpoint for the Live API voice interview feature.
  *
- * Validates the user's cv_live_ API key, checks they have at least the minimum
- * credits (2), creates a Firestore session document with startTime, and returns
- * the server-side Gemini API key. Credits are NOT deducted here — billing
- * happens at session end via cliInterviewBill (duration-based: 2 credits/min).
- *
- * Request body (POST JSON):
- *   - apiKey: string  — the user's CareerVivid cv_live_ key
- *   - role:   string  — interview role (for logging / session doc)
- *
- * Response JSON:
- *   - geminiKey:  string — Gemini API key for the Live API WebSocket
- *   - sessionId:  string — Firestore session doc ID to pass to cliInterviewBill
- *   - monthlyLimit: number
- *   - creditsUsed:  number (this month so far)
+ * Validates the web user's auth context, checks credits (minimum 2 credits),
+ * creates a Firestore session document with startTime (source: "web"),
+ * and returns Vertex AI short-lived OAuth token.
  */
-export const cliGetInterviewToken = functions
+export const getInterviewVertexToken = functions
   .region("us-west1")
-  .runWith({ secrets: ["GEMINI_API_KEY"], timeoutSeconds: 15, memory: "256MB" })
-  .https.onRequest(async (req, res) => {
-    res.set("Access-Control-Allow-Origin", "*");
-    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.set("Access-Control-Allow-Headers", "Content-Type");
-    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
-    if (req.method !== "POST") { res.status(405).json({ error: "Method Not Allowed" }); return; }
-
-    const { apiKey, role } = req.body as { apiKey?: string; role?: string };
-    if (!apiKey || !apiKey.startsWith("cv_live_")) {
-      res.status(401).json({ error: "Invalid or missing API key." });
-      return;
+  .runWith({ timeoutSeconds: 15, memory: "256MB" })
+  .https.onCall(async (data, context) => {
+    // Verify user authentication
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        "unauthenticated",
+        "User must be logged in to start an interview session."
+      );
     }
 
+    // Reject anonymous users (Auth Guard)
+    if (context.auth.token.firebase.sign_in_provider === 'anonymous') {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        "Guest users cannot start interview sessions. Please sign up."
+      );
+    }
+
+    const uid = context.auth.uid;
     const db = admin.firestore();
+
     try {
-      // Resolve user from API key
-      const snapshot = await db
-        .collectionGroup("private")
-        .where("key", "==", apiKey)
-        .limit(1)
-        .get();
-
-      if (snapshot.empty) {
-        res.status(401).json({ error: "Invalid or revoked API key." });
-        return;
-      }
-
-      const uid = snapshot.docs[0].ref.parent.parent!.id;
       const userRef = db.collection("users").doc(uid);
       const userSnap = await userRef.get();
       const userData = userSnap.data() || {};
@@ -741,77 +718,73 @@ export const cliGetInterviewToken = functions
       const MIN_CREDITS = 2; // minimum charge for any session
 
       if (used + MIN_CREDITS > monthlyLimit) {
-        res.status(402).json({
-          error: "credit_limit_reached",
-          message: "AI credit limit reached. Upgrade at https://careervivid.app/pricing"
-        });
-        return;
+        throw new functions.https.HttpsError(
+          "resource-exhausted",
+          "AI credit limit reached. Upgrade at https://careervivid.app/pricing"
+        );
       }
 
-      // Create session document (billing happens at end via cliInterviewBill)
+      // Create session document
       const sessionRef = db.collection("interviewSessions").doc();
       await sessionRef.set({
         uid,
-        role: role ?? "unspecified",
+        role: data.role ?? "unspecified",
         startedAt: admin.firestore.FieldValue.serverTimestamp(),
         billed: false,
         creditsCharged: null,
         plan,
-        source: "cli",   // tag at creation so context queries can filter
+        source: "web",
       });
 
-      const geminiKey = process.env.GEMINI_API_KEY;
-      if (!geminiKey) {
-        res.status(500).json({ error: "Server configuration error." });
-        return;
-      }
+      // Generate short-lived OAuth token for Vertex AI
+      const auth = new GoogleAuth({
+        scopes: "https://www.googleapis.com/auth/cloud-platform",
+      });
+      const client = await auth.getClient();
+      const accessTokenResponse = await client.getAccessToken();
+      const accessToken = accessTokenResponse.token;
 
-      console.log(`[cliGetInterviewToken] uid=${uid} sessionId=${sessionRef.id} role="${role ?? "unspecified"}"`);
+      const project = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || "jastalk-firebase";
+      const location = "us-west1";
 
-      res.status(200).json({
-        geminiKey,
+      console.log(`[getInterviewVertexToken] uid=${uid} sessionId=${sessionRef.id} role="${data.role ?? "unspecified"}" (Vertex AI Token Vended)`);
+
+      return {
+        accessToken,
+        project,
+        location,
         sessionId: sessionRef.id,
         monthlyLimit,
         creditsUsed: used,
-      });
+      };
 
     } catch (err: any) {
-      console.error("[cliGetInterviewToken] Error:", err);
-      res.status(500).json({ error: err.message || "Internal server error." });
+      console.error("[getInterviewVertexToken] Error:", err);
+      if (err instanceof functions.https.HttpsError) throw err;
+      throw new functions.https.HttpsError("internal", err.message || "Internal server error.");
     }
   });
 
 /**
- * CLI billing endpoint — called after the voice interview session ends.
+ * Web billing endpoint — called after the voice interview session ends.
  *
  * Calculates duration from the session's startedAt timestamp, charges
  * 2 credits per minute (min 2 credits, max 60 credits), and marks the
- * session as billed. Idempotent — subsequent calls for the same sessionId
- * return the original charge without double-billing.
- *
- * Rate: 2 credits / minute  (rounded up, min 2, max 60)
- *
- * Request body (POST JSON):
- *   - apiKey:    string — the user's CareerVivid cv_live_ key
- *   - sessionId: string — from cliGetInterviewToken response
- *
- * Response JSON:
- *   - creditsCharged:  number
- *   - durationMinutes: number (rounded to 1 decimal)
- *   - creditsRemaining: number
+ * session as billed.
  */
-export const cliInterviewBill = functions
+export const billInterviewSession = functions
   .region("us-west1")
   .runWith({ timeoutSeconds: 30, memory: "256MB" })
-  .https.onRequest(async (req, res) => {
-    res.set("Access-Control-Allow-Origin", "*");
-    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.set("Access-Control-Allow-Headers", "Content-Type");
-    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
-    if (req.method !== "POST") { res.status(405).json({ error: "Method Not Allowed" }); return; }
+  .https.onCall(async (data, context) => {
+    // Verify user authentication
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        "unauthenticated",
+        "User must be logged in to bill an interview session."
+      );
+    }
 
-    const { apiKey, sessionId, transcript, feedbackReport } = req.body as {
-      apiKey?: string;
+    const { sessionId, transcript, feedbackReport } = data as {
       sessionId?: string;
       transcript?: Array<{ speaker: string; text: string; isFinal?: boolean; timestamp?: number | null }>;
       feedbackReport?: {
@@ -824,34 +797,17 @@ export const cliInterviewBill = functions
       } | null;
     };
 
-    if (!apiKey || !apiKey.startsWith("cv_live_")) {
-      res.status(401).json({ error: "Invalid or missing API key." });
-      return;
-    }
     if (!sessionId) {
-      res.status(400).json({ error: "Missing sessionId." });
-      return;
+      throw new functions.https.HttpsError("invalid-argument", "Missing sessionId.");
     }
 
+    const uid = context.auth.uid;
     const CREDITS_PER_MINUTE = 2;
     const MIN_CREDITS = 2;
     const MAX_CREDITS = 60; // cap at 30 minutes billing
     const db = admin.firestore();
 
     try {
-      // Resolve user from API key
-      const snapshot = await db
-        .collectionGroup("private")
-        .where("key", "==", apiKey)
-        .limit(1)
-        .get();
-
-      if (snapshot.empty) {
-        res.status(401).json({ error: "Invalid or revoked API key." });
-        return;
-      }
-
-      const uid = snapshot.docs[0].ref.parent.parent!.id;
       const sessionRef = db.collection("interviewSessions").doc(sessionId);
       const userRef = db.collection("users").doc(uid);
 
@@ -888,120 +844,398 @@ export const cliInterviewBill = functions
         const durationMs = nowMs - startedAt.toMillis();
         durationMinutes = Math.round((durationMs / 60000) * 10) / 10; // 1 decimal
         const durationMins = durationMs / 60000;
-        creditsCharged = Math.min(MAX_CREDITS, Math.max(MIN_CREDITS, Math.ceil(durationMins * CREDITS_PER_MINUTE)));
 
-        // Deduct credits
+        // Rate: 2 credits / minute. Round UP to the next minute, min 2, max 60.
+        const minsRoundedUp = Math.max(1, Math.ceil(durationMins));
+        creditsCharged = Math.min(MAX_CREDITS, Math.max(MIN_CREDITS, minsRoundedUp * CREDITS_PER_MINUTE));
+
         const userSnap = await tx.get(userRef);
         const userData = userSnap.data() || {};
-        const plan = userData.plan || "free";
-        const monthlyLimit = plan === "max" || plan === "pro_max" ? 10000
-          : plan === "pro_monthly" || plan === "pro" ? 1000
-          : plan === "pro_sprint" ? 300 : 100;
         const now = new Date();
         const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-        const used: number = userData.creditsUsed?.[monthKey] ?? 0;
 
-        // Deduct what we can — never block the bill due to limit overage
-        // (we checked minimum at session start)
-        const actualCharge = Math.min(creditsCharged, monthlyLimit - used);
-        tx.set(userRef, {
-          creditsUsed: { [monthKey]: used + actualCharge },
-        }, { merge: true });
+        const creditsUsed = userData.creditsUsed || {};
+        const currentMonthUsed = creditsUsed[monthKey] ?? 0;
+        const newMonthUsed = currentMonthUsed + creditsCharged;
+
+        // Deduct/Add credits used
+        tx.update(userRef, {
+          [`creditsUsed.${monthKey}`]: newMonthUsed,
+        });
 
         // Mark session as billed
         tx.update(sessionRef, {
           billed: true,
-          creditsCharged: actualCharge,
+          creditsCharged,
           durationMinutes,
-          billedAt: admin.firestore.FieldValue.serverTimestamp(),
+          endedAt: admin.firestore.FieldValue.serverTimestamp(),
+          transcript: transcript ?? [],
+          feedbackReport: feedbackReport ?? null,
         });
 
-        creditsCharged = actualCharge;
-        creditsRemaining = Math.max(0, monthlyLimit - used - actualCharge);
+        const monthlyLimit = userData.plan === "max" || userData.plan === "pro_max" ? 10000
+          : userData.plan === "pro_monthly" || userData.plan === "pro" ? 1000
+          : userData.plan === "pro_sprint" ? 300 : 100;
+        creditsRemaining = Math.max(0, monthlyLimit - newMonthUsed);
       });
 
-      console.log(`[cliInterviewBill] uid=${uid} sessionId=${sessionId} duration=${durationMinutes}min credits=${creditsCharged}`);
+      console.log(`[billInterviewSession] uid=${uid} sessionId=${sessionId} creditsCharged=${creditsCharged} durationMinutes=${durationMinutes}`);
 
-      // ── Persist transcript + feedback report (fire-and-forget after billing) ──
-      // These are optional — billing always succeeds regardless of payload presence.
-      if (transcript || feedbackReport) {
-        const persistPayload: Record<string, any> = { source: "cli" };
-        if (Array.isArray(transcript) && transcript.length > 0) {
-          // Normalize CLI entries to be schema-compatible with web TranscriptEntry
-          persistPayload.transcript = transcript.slice(0, 500).map((e) => ({
-            speaker: e.speaker === "ai" || e.speaker === "user" ? e.speaker : "ai",
-            text: String(e.text ?? ""),
-            isFinal: e.isFinal ?? true,
-            timestamp: e.timestamp ?? null,
-          }));
-        }
-        if (feedbackReport && typeof feedbackReport === "object") {
-          persistPayload.feedbackReport = feedbackReport;
-        }
-        // Non-blocking — don't await, don't fail the billing response
-        sessionRef.set(persistPayload, { merge: true }).catch((e: any) =>
-          console.error("[cliInterviewBill] Failed to persist transcript:", e.message)
-        );
-
-        // ── Mirror to users/{uid}/practiceHistory so the web Interview Studio ──
-        // shows CLI sessions in its history feed (web reads that subcollection only).
-        const practiceRef = db
-          .collection("users")
-          .doc(uid)
-          .collection("practiceHistory")
-          .doc(sessionId); // use same ID so repeated bills are idempotent
-
-        // Build the web-compatible schema
-        const role: string = (await sessionRef.get()).data()?.role ?? "CLI Interview";
-
-        // Extract questions from AI transcript turns
-        const aiTurns = (persistPayload.transcript ?? [])
-          .filter((e: any) => e.speaker === "ai")
-          .map((e: any) => String(e.text ?? ""))
-          .filter((t: string) => t.endsWith("?"))
-          .slice(0, 10);
-
-        const interviewHistoryEntry = feedbackReport
-          ? [{
-              id: `analysis_${sessionId}`,
-              timestamp: Date.now(),
-              overallScore:      feedbackReport.overallScore      ?? 0,
-              communicationScore: feedbackReport.communicationScore ?? 0,
-              confidenceScore:   feedbackReport.confidenceScore   ?? 0,
-              relevanceScore:    feedbackReport.relevanceScore    ?? 0,
-              strengths:         feedbackReport.strengths         ?? "",
-              areasForImprovement: feedbackReport.areasForImprovement ?? "",
-              source:            "cli",
-              transcript:        persistPayload.transcript ?? [],
-            }]
-          : [];
-
-        practiceRef.set({
-          job: {
-            id:      sessionId,
-            title:   role,
-            company: "CLI Session",
-            location: "",
-            description: "",
-            url: "",
-          },
-          questions:        aiTurns.length > 0 ? aiTurns : [`Mock interview for ${role}`],
-          interviewHistory: interviewHistoryEntry,
-          transcript:       persistPayload.transcript ?? [],
-          timestamp:        admin.firestore.FieldValue.serverTimestamp(),
-          section:          "interviews",
-          source:           "cli",
-        }, { merge: true }).catch((e: any) =>
-          console.error("[cliInterviewBill] Failed to mirror to practiceHistory:", e.message)
-        );
-      }
-
-      res.status(200).json({ creditsCharged, durationMinutes, creditsRemaining });
+      return {
+        creditsCharged,
+        durationMinutes,
+        creditsRemaining,
+      };
 
     } catch (err: any) {
-      console.error("[cliInterviewBill] Error:", err);
-      res.status(500).json({ error: err.message || "Internal server error." });
+      console.error("[billInterviewSession] Error:", err);
+      throw new functions.https.HttpsError("internal", err.message || "Internal server error.");
     }
+  });
+
+/**
+ * CLI token vending endpoint for the Live API voice interview feature.
+ *
+ * Validates the user's cv_live_ API key, checks they have at least the minimum
+ * credits (2), creates a Firestore session document with startTime, and returns
+ * the server-side Gemini API key. Credits are NOT deducted here — billing
+ * happens at session end via cliInterviewBill (duration-based: 2 credits/min).
+ *
+ * Request body (POST JSON):
+ *   - apiKey: string  — the user's CareerVivid cv_live_ key
+ *   - role:   string  — interview role (for logging / session doc)
+ *
+ * Response JSON:
+ *   - geminiKey:  string — Gemini API key for the Live API WebSocket
+ *   - sessionId:  string — Firestore session doc ID to pass to cliInterviewBill
+ *   - monthlyLimit: number
+ *   - creditsUsed:  number (this month so far)
+ */
+export const cliGetInterviewToken = functions
+  .region("us-west1")
+  .runWith({ timeoutSeconds: 15, memory: "256MB" })
+  .https.onRequest(async (req, res) => {
+    corsHandler(req, res, async () => {
+      if (req.method === "OPTIONS") {
+        res.status(204).send("");
+        return;
+      }
+      if (req.method !== "POST") {
+        res.status(405).json({ error: "Method Not Allowed" });
+        return;
+      }
+
+      const { apiKey, role } = req.body as { apiKey?: string; role?: string };
+      if (!apiKey || !apiKey.startsWith("cv_live_")) {
+        res.status(401).json({ error: "Invalid or missing API key." });
+        return;
+      }
+
+      const db = admin.firestore();
+      try {
+        // Resolve user from API key
+        const snapshot = await db
+          .collectionGroup("private")
+          .where("key", "==", apiKey)
+          .limit(1)
+          .get();
+
+        if (snapshot.empty) {
+          res.status(401).json({ error: "Invalid or revoked API key." });
+          return;
+        }
+
+        const uid = snapshot.docs[0].ref.parent.parent!.id;
+        const userRef = db.collection("users").doc(uid);
+        const userSnap = await userRef.get();
+        const userData = userSnap.data() || {};
+        const plan = userData.plan || "free";
+
+        const monthlyLimit = plan === "max" || plan === "pro_max" ? 10000
+          : plan === "pro_monthly" || plan === "pro" ? 1000
+          : plan === "pro_sprint" ? 300
+          : 100;
+
+        const now = new Date();
+        const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+        const used: number = userData.creditsUsed?.[monthKey] ?? 0;
+        const MIN_CREDITS = 2; // minimum charge for any session
+
+        if (used + MIN_CREDITS > monthlyLimit) {
+          res.status(402).json({
+            error: "credit_limit_reached",
+            message: "AI credit limit reached. Upgrade at https://careervivid.app/pricing"
+          });
+          return;
+        }
+
+        // Create session document (billing happens at end via cliInterviewBill)
+        const sessionRef = db.collection("interviewSessions").doc();
+        await sessionRef.set({
+          uid,
+          role: role ?? "unspecified",
+          startedAt: admin.firestore.FieldValue.serverTimestamp(),
+          billed: false,
+          creditsCharged: null,
+          plan,
+          source: "cli",   // tag at creation so context queries can filter
+        });
+
+        // Generate short-lived OAuth token for Vertex AI
+        const auth = new GoogleAuth({
+          scopes: "https://www.googleapis.com/auth/cloud-platform",
+        });
+        const client = await auth.getClient();
+        const accessTokenResponse = await client.getAccessToken();
+        const accessToken = accessTokenResponse.token;
+
+        const project = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || "jastalk-firebase";
+        const location = "us-west1";
+
+        console.log(`[cliGetInterviewToken] uid=${uid} sessionId=${sessionRef.id} role="${role ?? "unspecified"}" (Vertex AI Token Vended)`);
+
+        res.status(200).json({
+          accessToken,
+          project,
+          location,
+          sessionId: sessionRef.id,
+          monthlyLimit,
+          creditsUsed: used,
+        });
+
+      } catch (err: any) {
+        console.error("[cliGetInterviewToken] Error:", err);
+        res.status(500).json({ error: err.message || "Internal server error." });
+      }
+    });
+  });
+
+/**
+ * CLI billing endpoint — called after the voice interview session ends.
+ *
+ * Calculates duration from the session's startedAt timestamp, charges
+ * 2 credits per minute (min 2 credits, max 60 credits), and marks the
+ * session as billed. Idempotent — subsequent calls for the same sessionId
+ * return the original charge without double-billing.
+ *
+ * Rate: 2 credits / minute  (rounded up, min 2, max 60)
+ *
+ * Request body (POST JSON):
+ *   - apiKey:    string — the user's CareerVivid cv_live_ key
+ *   - sessionId: string — from cliGetInterviewToken response
+ *
+ * Response JSON:
+ *   - creditsCharged:  number
+ *   - durationMinutes: number (rounded to 1 decimal)
+ *   - creditsRemaining: number
+ */
+export const cliInterviewBill = functions
+  .region("us-west1")
+  .runWith({ timeoutSeconds: 30, memory: "256MB" })
+  .https.onRequest(async (req, res) => {
+    corsHandler(req, res, async () => {
+      if (req.method === "OPTIONS") {
+        res.status(204).send("");
+        return;
+      }
+      if (req.method !== "POST") {
+        res.status(405).json({ error: "Method Not Allowed" });
+        return;
+      }
+
+      const { apiKey, sessionId, transcript, feedbackReport } = req.body as {
+        apiKey?: string;
+        sessionId?: string;
+        transcript?: Array<{ speaker: string; text: string; isFinal?: boolean; timestamp?: number | null }>;
+        feedbackReport?: {
+          overallScore: number;
+          communicationScore: number;
+          confidenceScore: number;
+          relevanceScore: number;
+          strengths: string;
+          areasForImprovement: string;
+        } | null;
+      };
+
+      if (!apiKey || !apiKey.startsWith("cv_live_")) {
+        res.status(401).json({ error: "Invalid or missing API key." });
+        return;
+      }
+      if (!sessionId) {
+        res.status(400).json({ error: "Missing sessionId." });
+        return;
+      }
+
+      const CREDITS_PER_MINUTE = 2;
+      const MIN_CREDITS = 2;
+      const MAX_CREDITS = 60; // cap at 30 minutes billing
+      const db = admin.firestore();
+
+      try {
+        // Resolve user from API key
+        const snapshot = await db
+          .collectionGroup("private")
+          .where("key", "==", apiKey)
+          .limit(1)
+          .get();
+
+        if (snapshot.empty) {
+          res.status(401).json({ error: "Invalid or revoked API key." });
+          return;
+        }
+
+        const uid = snapshot.docs[0].ref.parent.parent!.id;
+        const sessionRef = db.collection("interviewSessions").doc(sessionId);
+        const userRef = db.collection("users").doc(uid);
+
+        let creditsCharged = 0;
+        let durationMinutes = 0;
+        let creditsRemaining = 0;
+
+        await db.runTransaction(async (tx) => {
+          const sessionSnap = await tx.get(sessionRef);
+          if (!sessionSnap.exists) throw new Error("Session not found.");
+
+          const session = sessionSnap.data()!;
+          if (session.uid !== uid) throw new Error("Session does not belong to this user.");
+
+          // Idempotency — don't double-bill
+          if (session.billed) {
+            creditsCharged = session.creditsCharged ?? 0;
+            durationMinutes = session.durationMinutes ?? 0;
+            const userSnap = await tx.get(userRef);
+            const userData = userSnap.data() || {};
+            const now = new Date();
+            const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+            const used: number = userData.creditsUsed?.[monthKey] ?? 0;
+            const monthlyLimit = userData.plan === "max" || userData.plan === "pro_max" ? 10000
+              : userData.plan === "pro_monthly" || userData.plan === "pro" ? 1000
+              : userData.plan === "pro_sprint" ? 300 : 100;
+            creditsRemaining = Math.max(0, monthlyLimit - used);
+            return;
+          }
+
+          // Calculate duration
+          const startedAt: admin.firestore.Timestamp = session.startedAt;
+          const nowMs = Date.now();
+          const durationMs = nowMs - startedAt.toMillis();
+          durationMinutes = Math.round((durationMs / 60000) * 10) / 10; // 1 decimal
+          const durationMins = durationMs / 60000;
+          creditsCharged = Math.min(MAX_CREDITS, Math.max(MIN_CREDITS, Math.ceil(durationMins * CREDITS_PER_MINUTE)));
+
+          // Deduct credits
+          const userSnap = await tx.get(userRef);
+          const userData = userSnap.data() || {};
+          const plan = userData.plan || "free";
+          const monthlyLimit = plan === "max" || plan === "pro_max" ? 10000
+            : plan === "pro_monthly" || plan === "pro" ? 1000
+            : plan === "pro_sprint" ? 300 : 100;
+          const now = new Date();
+          const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+          const used: number = userData.creditsUsed?.[monthKey] ?? 0;
+
+          // Deduct what we can — never block the bill due to limit overage
+          // (we checked minimum at session start)
+          const actualCharge = Math.min(creditsCharged, monthlyLimit - used);
+          tx.set(userRef, {
+            creditsUsed: { [monthKey]: used + actualCharge },
+          }, { merge: true });
+
+          // Mark session as billed
+          tx.update(sessionRef, {
+            billed: true,
+            creditsCharged: actualCharge,
+            durationMinutes,
+            billedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+
+          creditsCharged = actualCharge;
+          creditsRemaining = Math.max(0, monthlyLimit - used - actualCharge);
+        });
+
+        console.log(`[cliInterviewBill] uid=${uid} sessionId=${sessionId} duration=${durationMinutes}min credits=${creditsCharged}`);
+
+        // ── Persist transcript + feedback report (fire-and-forget after billing) ──
+        // These are optional — billing always succeeds regardless of payload presence.
+        if (transcript || feedbackReport) {
+          const persistPayload: Record<string, any> = { source: "cli" };
+          if (Array.isArray(transcript) && transcript.length > 0) {
+            // Normalize CLI entries to be schema-compatible with web TranscriptEntry
+            persistPayload.transcript = transcript.slice(0, 500).map((e) => ({
+              speaker: e.speaker === "ai" || e.speaker === "user" ? e.speaker : "ai",
+              text: String(e.text ?? ""),
+              isFinal: e.isFinal ?? true,
+              timestamp: e.timestamp ?? null,
+            }));
+          }
+          if (feedbackReport && typeof feedbackReport === "object") {
+            persistPayload.feedbackReport = feedbackReport;
+          }
+          // Non-blocking — don't await, don't fail the billing response
+          sessionRef.set(persistPayload, { merge: true }).catch((e: any) =>
+            console.error("[cliInterviewBill] Failed to persist transcript:", e.message)
+          );
+
+          // ── Mirror to users/{uid}/practiceHistory so the web Interview Studio ──
+          // shows CLI sessions in its history feed (web reads that subcollection only).
+          const practiceRef = db
+            .collection("users")
+            .doc(uid)
+            .collection("practiceHistory")
+            .doc(sessionId); // use same ID so repeated bills are idempotent
+
+          // Build the web-compatible schema
+          const role: string = (await sessionRef.get()).data()?.role ?? "CLI Interview";
+
+          // Extract questions from AI transcript turns
+          const aiTurns = (persistPayload.transcript ?? [])
+            .filter((e: any) => e.speaker === "ai")
+            .map((e: any) => String(e.text ?? ""))
+            .filter((t: string) => t.endsWith("?"))
+            .slice(0, 10);
+
+          const interviewHistoryEntry = feedbackReport
+            ? [{
+                id: `analysis_${sessionId}`,
+                timestamp: Date.now(),
+                overallScore:      feedbackReport.overallScore      ?? 0,
+                communicationScore: feedbackReport.communicationScore ?? 0,
+                confidenceScore:   feedbackReport.confidenceScore   ?? 0,
+                relevanceScore:    feedbackReport.relevanceScore    ?? 0,
+                strengths:         feedbackReport.strengths         ?? "",
+                areasForImprovement: feedbackReport.areasForImprovement ?? "",
+                source:            "cli",
+                transcript:        persistPayload.transcript ?? [],
+              }]
+            : [];
+
+          practiceRef.set({
+            job: {
+              id:      sessionId,
+              title:   role,
+              company: "CLI Session",
+              location: "",
+              description: "",
+              url: "",
+            },
+            questions:        aiTurns.length > 0 ? aiTurns : [`Mock interview for ${role}`],
+            interviewHistory: interviewHistoryEntry,
+            transcript:       persistPayload.transcript ?? [],
+            timestamp:        admin.firestore.FieldValue.serverTimestamp(),
+            section:          "interviews",
+            source:           "cli",
+          }, { merge: true }).catch((e: any) =>
+            console.error("[cliInterviewBill] Failed to mirror to practiceHistory:", e.message)
+          );
+        }
+
+        res.status(200).json({ creditsCharged, durationMinutes, creditsRemaining });
+
+      } catch (err: any) {
+        console.error("[cliInterviewBill] Error:", err);
+        res.status(500).json({ error: err.message || "Internal server error." });
+      }
+    });
   });
 
 // ─── CLI Interview Context Retrieval ─────────────────────────────────────────
@@ -1023,74 +1257,79 @@ export const cliGetInterviewContext = functions
   .region("us-west1")
   .runWith({ timeoutSeconds: 15, memory: "256MB" })
   .https.onRequest(async (req, res) => {
-    res.set("Access-Control-Allow-Origin", "*");
-    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.set("Access-Control-Allow-Headers", "Content-Type");
-    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
-    if (req.method !== "POST") { res.status(405).json({ error: "Method Not Allowed" }); return; }
-
-    const { apiKey, limit } = req.body as { apiKey?: string; limit?: number };
-
-    if (!apiKey || !apiKey.startsWith("cv_live_")) {
-      res.status(401).json({ error: "Invalid or missing API key." });
-      return;
-    }
-
-    const db = admin.firestore();
-    try {
-      // Resolve user from API key
-      const snapshot = await db
-        .collectionGroup("private")
-        .where("key", "==", apiKey)
-        .limit(1)
-        .get();
-
-      if (snapshot.empty) {
-        res.status(401).json({ error: "Invalid or revoked API key." });
+    corsHandler(req, res, async () => {
+      if (req.method === "OPTIONS") {
+        res.status(204).send("");
+        return;
+      }
+      if (req.method !== "POST") {
+        res.status(405).json({ error: "Method Not Allowed" });
         return;
       }
 
-      const uid = snapshot.docs[0].ref.parent.parent!.id;
-      const maxSessions = Math.min(Math.max(1, limit ?? 3), 10);
+      const { apiKey, limit } = req.body as { apiKey?: string; limit?: number };
 
-      // Query by uid + startedAt only (single-field index — no composite needed).
-      // We fetch more than needed then client-filter for sessions with transcripts.
-      const sessionsSnap = await db
-        .collection("interviewSessions")
-        .where("uid", "==", uid)
-        .orderBy("startedAt", "desc")
-        .limit(maxSessions * 5)  // over-fetch so we have enough after filtering
-        .get();
-
-      const result: any[] = [];
-      for (const doc of sessionsSnap.docs) {
-        const d = doc.data();
-        // Prefer sessions that have a transcript saved; skip web-only sessions without one
-        // unless the user has no CLI sessions at all (in which case show everything)
-        const hasTranscript = Array.isArray(d.transcript) && d.transcript.length > 0;
-        const isCli = d.source === "cli";
-        if (!hasTranscript && !isCli) continue;  // skip web sessions without transcript
-        result.push({
-          sessionId: doc.id,
-          role: d.role ?? "Unknown Role",
-          startedAt: d.startedAt?.toMillis?.() ?? null,
-          durationMinutes: d.durationMinutes ?? null,
-          creditsCharged: d.creditsCharged ?? null,
-          source: d.source ?? "cli",
-          // Cap transcript to 100 entries to keep API response sane
-          transcript: (d.transcript ?? []).slice(0, 100),
-          feedbackReport: d.feedbackReport ?? null,
-        });
-        if (result.length >= maxSessions) break;
+      if (!apiKey || !apiKey.startsWith("cv_live_")) {
+        res.status(401).json({ error: "Invalid or missing API key." });
+        return;
       }
 
-      console.log(`[cliGetInterviewContext] uid=${uid} returning ${result.length} sessions`);
-      res.status(200).json({ sessions: result });
+      const db = admin.firestore();
+      try {
+        // Resolve user from API key
+        const snapshot = await db
+          .collectionGroup("private")
+          .where("key", "==", apiKey)
+          .limit(1)
+          .get();
 
-    } catch (err: any) {
-      console.error("[cliGetInterviewContext] Error:", err);
-      res.status(500).json({ error: err.message || "Internal server error." });
-    }
+        if (snapshot.empty) {
+          res.status(401).json({ error: "Invalid or revoked API key." });
+          return;
+        }
+
+        const uid = snapshot.docs[0].ref.parent.parent!.id;
+        const maxSessions = Math.min(Math.max(1, limit ?? 3), 10);
+
+        // Query by uid + startedAt only (single-field index — no composite needed).
+        // We fetch more than needed then client-filter for sessions with transcripts.
+        const sessionsSnap = await db
+          .collection("interviewSessions")
+          .where("uid", "==", uid)
+          .orderBy("startedAt", "desc")
+          .limit(maxSessions * 5)  // over-fetch so we have enough after filtering
+          .get();
+
+        const result: any[] = [];
+        for (const doc of sessionsSnap.docs) {
+          const d = doc.data();
+          // Prefer sessions that have a transcript saved; skip web-only sessions without one
+          // unless the user has no CLI sessions at all (in which case show everything)
+          const hasTranscript = Array.isArray(d.transcript) && d.transcript.length > 0;
+          const isCli = d.source === "cli";
+          if (!hasTranscript && !isCli) continue;  // skip web sessions without transcript
+          result.push({
+            sessionId: doc.id,
+            role: d.role ?? "Unknown Role",
+            startedAt: d.startedAt?.toMillis?.() ?? null,
+            durationMinutes: d.durationMinutes ?? null,
+            creditsCharged: d.creditsCharged ?? null,
+            source: d.source ?? "cli",
+            // Cap transcript to 100 entries to keep API response sane
+            transcript: (d.transcript ?? []).slice(0, 100),
+            feedbackReport: d.feedbackReport ?? null,
+          });
+          if (result.length >= maxSessions) break;
+        }
+
+        console.log(`[cliGetInterviewContext] uid=${uid} returning ${result.length} sessions`);
+        res.status(200).json({ sessions: result });
+
+      } catch (err: any) {
+        console.error("[cliGetInterviewContext] Error:", err);
+        res.status(500).json({ error: err.message || "Internal server error." });
+      }
+    });
   });
 
 // ─── CLI Logging ──────────────────────────────────────────────────────────────
@@ -1110,65 +1349,70 @@ export const cliLog = functions
   .region("us-west1")
   .runWith({ timeoutSeconds: 15, memory: "256MB" })
   .https.onRequest(async (req, res) => {
-    res.set("Access-Control-Allow-Origin", "*");
-    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.set("Access-Control-Allow-Headers", "Content-Type");
-    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
-    if (req.method !== "POST") { res.status(405).json({ error: "Method Not Allowed" }); return; }
+    corsHandler(req, res, async () => {
+      if (req.method === "OPTIONS") {
+        res.status(204).send("");
+        return;
+      }
+      if (req.method !== "POST") {
+        res.status(405).json({ error: "Method Not Allowed" });
+        return;
+      }
 
-    const { apiKey, events } = req.body as { apiKey?: string; events?: any[] };
+      const { apiKey, events } = req.body as { apiKey?: string; events?: any[] };
 
-    if (!apiKey || !apiKey.startsWith("cv_live_")) {
-      res.status(401).json({ error: "Invalid or missing API key." });
-      return;
-    }
-    if (!Array.isArray(events) || events.length === 0) {
-      res.status(400).json({ error: "events must be a non-empty array." });
-      return;
-    }
+      if (!apiKey || !apiKey.startsWith("cv_live_")) {
+        res.status(401).json({ error: "Invalid or missing API key." });
+        return;
+      }
+      if (!Array.isArray(events) || events.length === 0) {
+        res.status(400).json({ error: "events must be a non-empty array." });
+        return;
+      }
 
-    const db = admin.firestore();
-    try {
-      // Resolve uid from API key (best-effort — don't fail on lookup error)
-      let uid = "unknown";
+      const db = admin.firestore();
       try {
-        const snapshot = await db
-          .collectionGroup("private")
-          .where("key", "==", apiKey)
-          .limit(1)
-          .get();
-        if (!snapshot.empty) uid = snapshot.docs[0].ref.parent.parent!.id;
-      } catch { /* uid stays "unknown" */ }
+        // Resolve uid from API key (best-effort — don't fail on lookup error)
+        let uid = "unknown";
+        try {
+          const snapshot = await db
+            .collectionGroup("private")
+            .where("key", "==", apiKey)
+            .limit(1)
+            .get();
+          if (!snapshot.empty) uid = snapshot.docs[0].ref.parent.parent!.id;
+        } catch { /* uid stays "unknown" */ }
 
-      // Sanitize and enrich events
-      const sanitized = events.slice(0, 100).map((e: any) => ({
-        level: e.level ?? "info",
-        feature: e.feature ?? "unknown",
-        event: e.event ?? "unknown",
-        sessionId: e.sessionId ?? null,
-        metadata: e.metadata ?? null,
-        errorMessage: e.errorMessage ?? null,
-        errorStack: e.errorStack ?? null,
-        clientTime: e.clientTime ?? null,
-        cliVersion: e.cliVersion ?? "unknown",
-        uid,
-        serverTime: admin.firestore.FieldValue.serverTimestamp(),
-      }));
+        // Sanitize and enrich events
+        const sanitized = events.slice(0, 100).map((e: any) => ({
+          level: e.level ?? "info",
+          feature: e.feature ?? "unknown",
+          event: e.event ?? "unknown",
+          sessionId: e.sessionId ?? null,
+          metadata: e.metadata ?? null,
+          errorMessage: e.errorMessage ?? null,
+          errorStack: e.errorStack ?? null,
+          clientTime: e.clientTime ?? null,
+          cliVersion: e.cliVersion ?? "unknown",
+          uid,
+          serverTime: admin.firestore.FieldValue.serverTimestamp(),
+        }));
 
-      // Write as a batch document (more efficient than one doc per event)
-      await db.collection("cliLogs").add({
-        uid,
-        events: sanitized,
-        batchSize: sanitized.length,
-        feature: sanitized[0]?.feature ?? "unknown",
-        receivedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+        // Write as a batch document (more efficient than one doc per event)
+        await db.collection("cliLogs").add({
+          uid,
+          events: sanitized,
+          batchSize: sanitized.length,
+          feature: sanitized[0]?.feature ?? "unknown",
+          receivedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
 
-      res.status(200).json({ ok: true, stored: sanitized.length });
-    } catch (err: any) {
-      console.error("[cliLog] Error:", err);
-      res.status(500).json({ error: err.message || "Internal server error." });
-    }
+        res.status(200).json({ ok: true, stored: sanitized.length });
+      } catch (err: any) {
+        console.error("[cliLog] Error:", err);
+        res.status(500).json({ error: err.message || "Internal server error." });
+      }
+    });
   });
 
 /**
@@ -1191,93 +1435,98 @@ export const cliGetLogs = functions
   .region("us-west1")
   .runWith({ timeoutSeconds: 30, memory: "256MB" })
   .https.onRequest(async (req, res) => {
-    res.set("Access-Control-Allow-Origin", "*");
-    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.set("Access-Control-Allow-Headers", "Content-Type");
-    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
-    if (req.method !== "POST") { res.status(405).json({ error: "Method Not Allowed" }); return; }
-
-    const {
-      apiKey, feature, level, uid: filterUid, since, limit: rawLimit,
-    } = req.body as {
-      apiKey?: string; feature?: string; level?: string;
-      uid?: string; since?: string; limit?: number;
-    };
-
-    if (!apiKey || !apiKey.startsWith("cv_live_")) {
-      res.status(401).json({ error: "Invalid or missing API key." });
-      return;
-    }
-
-    const db = admin.firestore();
-    try {
-      // Resolve caller uid and verify admin role
-      const snapshot = await db
-        .collectionGroup("private")
-        .where("key", "==", apiKey)
-        .limit(1)
-        .get();
-
-      if (snapshot.empty) {
-        res.status(401).json({ error: "Invalid or revoked API key." });
+    corsHandler(req, res, async () => {
+      if (req.method === "OPTIONS") {
+        res.status(204).send("");
         return;
       }
-      const callerUid = snapshot.docs[0].ref.parent.parent!.id;
-
-      // Check admin status using the same pattern as the rest of the codebase:
-      // 1. admins/{uid} collection doc existence (primary — used by authUtils)
-      // 2. users/{uid}.role === "admin" (legacy field)
-      // 3. users/{uid}.roles[] includes "admin" (roles array)
-      const [adminDoc, callerSnap] = await Promise.all([
-        db.collection("admins").doc(callerUid).get(),
-        db.collection("users").doc(callerUid).get(),
-      ]);
-      const callerData = callerSnap.data() ?? {};
-      const isAdmin =
-        adminDoc.exists ||
-        callerData.role === "admin" ||
-        (callerData.roles || []).includes("admin");
-
-      if (!isAdmin) {
-        res.status(403).json({ error: "Admin access required." });
+      if (req.method !== "POST") {
+        res.status(405).json({ error: "Method Not Allowed" });
         return;
       }
 
-      // Build query
-      const limit = Math.min(Number(rawLimit) || 100, 500);
-      let query: admin.firestore.Query = db.collection("cliLogs").orderBy("receivedAt", "desc");
+      const {
+        apiKey, feature, level, uid: filterUid, since, limit: rawLimit,
+      } = req.body as {
+        apiKey?: string; feature?: string; level?: string;
+        uid?: string; since?: string; limit?: number;
+      };
 
-      if (feature) query = query.where("feature", "==", feature);
-      if (filterUid) query = query.where("uid", "==", filterUid);
-      if (since) {
-        const sinceDate = new Date(since);
-        if (!isNaN(sinceDate.getTime())) {
-          query = query.where("receivedAt", ">=", admin.firestore.Timestamp.fromDate(sinceDate));
-        }
+      if (!apiKey || !apiKey.startsWith("cv_live_")) {
+        res.status(401).json({ error: "Invalid or missing API key." });
+        return;
       }
 
-      query = query.limit(limit);
-      const querySnap = await query.get();
+      const db = admin.firestore();
+      try {
+        // Resolve caller uid and verify admin role
+        const snapshot = await db
+          .collectionGroup("private")
+          .where("key", "==", apiKey)
+          .limit(1)
+          .get();
 
-      // Expand events, optionally filtering by level
-      const logs: any[] = [];
-      for (const doc of querySnap.docs) {
-        const data = doc.data();
-        const events: any[] = (data.events ?? []).filter((e: any) =>
-          !level || e.level === level
-        );
-        if (events.length > 0) {
-          logs.push({ batchId: doc.id, receivedAt: data.receivedAt?.toDate?.()?.toISOString() ?? null, events });
+        if (snapshot.empty) {
+          res.status(401).json({ error: "Invalid or revoked API key." });
+          return;
         }
+        const callerUid = snapshot.docs[0].ref.parent.parent!.id;
+
+        // Check admin status using the same pattern as the rest of the codebase:
+        // 1. admins/{uid} collection doc existence (primary — used by authUtils)
+        // 2. users/{uid}.role === "admin" (legacy field)
+        // 3. users/{uid}.roles[] includes "admin" (roles array)
+        const [adminDoc, callerSnap] = await Promise.all([
+          db.collection("admins").doc(callerUid).get(),
+          db.collection("users").doc(callerUid).get(),
+        ]);
+        const callerData = callerSnap.data() ?? {};
+        const isAdmin =
+          adminDoc.exists ||
+          callerData.role === "admin" ||
+          (callerData.roles || []).includes("admin");
+
+        if (!isAdmin) {
+          res.status(403).json({ error: "Admin access required." });
+          return;
+        }
+
+        // Build query
+        const limit = Math.min(Number(rawLimit) || 100, 500);
+        let query: admin.firestore.Query = db.collection("cliLogs").orderBy("receivedAt", "desc");
+
+        if (feature) query = query.where("feature", "==", feature);
+        if (filterUid) query = query.where("uid", "==", filterUid);
+        if (since) {
+          const sinceDate = new Date(since);
+          if (!isNaN(sinceDate.getTime())) {
+            query = query.where("receivedAt", ">=", admin.firestore.Timestamp.fromDate(sinceDate));
+          }
+        }
+
+        query = query.limit(limit);
+        const querySnap = await query.get();
+
+        // Expand events, optionally filtering by level
+        const logs: any[] = [];
+        for (const doc of querySnap.docs) {
+          const data = doc.data();
+          const events: any[] = (data.events ?? []).filter((e: any) =>
+            !level || e.level === level
+          );
+          if (events.length > 0) {
+            logs.push({ batchId: doc.id, receivedAt: data.receivedAt?.toDate?.()?.toISOString() ?? null, events });
+          }
+        }
+
+        console.log(`[cliGetLogs] admin=${callerUid} feature=${feature ?? "*"} level=${level ?? "*"} returned=${logs.length} batches`);
+        res.status(200).json({ logs, total: logs.length, limit });
+
+      } catch (err: any) {
+        console.error("[cliGetLogs] Error:", err);
+        res.status(500).json({ error: err.message || "Internal server error." });
       }
-
-      console.log(`[cliGetLogs] admin=${callerUid} feature=${feature ?? "*"} level=${level ?? "*"} returned=${logs.length} batches`);
-      res.status(200).json({ logs, total: logs.length, limit });
-
-    } catch (err: any) {
-      console.error("[cliGetLogs] Error:", err);
-      res.status(500).json({ error: err.message || "Internal server error." });
-    }
+    });
   });
 
 // Social

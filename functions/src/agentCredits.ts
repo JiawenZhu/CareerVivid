@@ -23,9 +23,10 @@ const db = admin.firestore();
 // Credit costs per model (CareerVivid-managed usage)
 // ─────────────────────────────────────────────────────────────────────────────
 const MODEL_CREDIT_COST: Record<string, number> = {
-  "gemini-3.1-flash-lite-preview": 0.5,
+  "gemini-2.5-flash-lite": 0.5,
   "gemini-2.5-flash": 1,
-  "gemini-3.1-pro-preview": 2,
+  "gemini-2.5-pro": 2,
+  "gemini-2.0-pro-exp-02-05": 3,
   // Fallback for any other Gemini model
   default: 1,
 };

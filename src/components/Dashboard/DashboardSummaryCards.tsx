@@ -26,6 +26,16 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
             isAction: false
         },
         {
+            title: 'Find Jobs',
+            count: null,
+            icon: Briefcase,
+            color: 'text-emerald-600',
+            bg: 'bg-emerald-100 dark:bg-emerald-900/30',
+            link: '/job-market',
+            isAction: true,
+            actionText: 'Find Jobs'
+        },
+        {
             title: 'Technical Interview Simulator Sessions',
             count: interviewCount,
             icon: Mic,
@@ -56,7 +66,7 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
     ];
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-10">
             {cards.map((card, index) => (
                 <div
                     key={index}

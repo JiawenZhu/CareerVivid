@@ -25,16 +25,16 @@
  */
 
 import { onRequest } from "firebase-functions/v2/https";
-import { defineSecret } from "firebase-functions/params";
+import { GoogleGenAI } from "@google/genai";
+import { getAIClient } from "./utils/ai";
 import * as admin from "firebase-admin";
-import cors from "cors";
+import { secureCorsHandler } from "./utils/corsUtils.js";
 import { randomUUID } from "crypto";
 import { resolveAndDeduct, getMonthlyLimit } from "./utils/creditUtils.js";
 
 if (!admin.apps.length) admin.initializeApp();
 
-const corsHandler = cors({ origin: true });
-const geminiSecret = defineSecret("GEMINI_API_KEY");
+const corsHandler = secureCorsHandler;
 
 // ── Supported Gemini models ───────────────────────────────────────────────────
 const SUPPORTED_MODELS = new Set([
@@ -76,23 +76,23 @@ async function callGemini(
   model: string,
   temperature: number | undefined,
   maxTokens: number | undefined,
-  apiKey: string
+  apiKey: string | undefined
 ): Promise<string> {
-  const { GoogleGenerativeAI } = await import("@google/generative-ai");
-  const genAI = new GoogleGenerativeAI(apiKey);
+  const ai = apiKey ? new GoogleGenAI({ apiKey }) : getAIClient();
   const { systemMsg, contents } = buildGeminiContents(messages);
 
-  const modelInstance = genAI.getGenerativeModel({
+  const config: any = {};
+  if (systemMsg) config.systemInstruction = systemMsg.content;
+  if (temperature != null) config.temperature = temperature;
+  if (maxTokens != null) config.maxOutputTokens = maxTokens;
+
+  const result = await ai.models.generateContent({
     model,
-    ...(systemMsg && { systemInstruction: systemMsg.content }),
-    generationConfig: {
-      ...(temperature != null && { temperature }),
-      ...(maxTokens != null && { maxOutputTokens: maxTokens }),
-    },
+    contents,
+    config,
   });
 
-  const result = await modelInstance.generateContent({ contents });
-  return result.response.text();
+  return result.text || "";
 }
 
 // ── Streaming Gemini call (SSE) ───────────────────────────────────────────────
@@ -101,22 +101,17 @@ async function callGeminiStream(
   model: string,
   temperature: number | undefined,
   maxTokens: number | undefined,
-  apiKey: string,
+  apiKey: string | undefined,
   res: any,
   id: string
 ): Promise<void> {
-  const { GoogleGenerativeAI } = await import("@google/generative-ai");
-  const genAI = new GoogleGenerativeAI(apiKey);
+  const ai = apiKey ? new GoogleGenAI({ apiKey }) : getAIClient();
   const { systemMsg, contents } = buildGeminiContents(messages);
 
-  const modelInstance = genAI.getGenerativeModel({
-    model,
-    ...(systemMsg && { systemInstruction: systemMsg.content }),
-    generationConfig: {
-      ...(temperature != null && { temperature }),
-      ...(maxTokens != null && { maxOutputTokens: maxTokens }),
-    },
-  });
+  const config: any = {};
+  if (systemMsg) config.systemInstruction = systemMsg.content;
+  if (temperature != null) config.temperature = temperature;
+  if (maxTokens != null) config.maxOutputTokens = maxTokens;
 
   const created = Math.floor(Date.now() / 1000);
 
@@ -137,10 +132,14 @@ async function callGeminiStream(
   };
   res.write(`data: ${JSON.stringify(roleChunk)}\n\n`);
 
-  const result = await modelInstance.generateContentStream({ contents });
+  const result = await ai.models.generateContentStream({
+    model,
+    contents,
+    config,
+  });
 
-  for await (const chunk of result.stream) {
-    const text = chunk.text();
+  for await (const chunk of result) {
+    const text = chunk.text;
     if (!text) continue;
     const data = {
       id,
@@ -192,7 +191,7 @@ export const llmGateway = onRequest(
     region: "us-west1",
     memory: "512MiB",
     timeoutSeconds: 120,
-    secrets: [geminiSecret],
+    secrets: [],
   },
   async (req, res) => {
     corsHandler(req as any, res as any, async () => {
@@ -265,7 +264,7 @@ export const llmGateway = onRequest(
       }
 
       // ── Credit deduction for CV key users ───────────────────────────────────
-      let geminiApiKey: string;
+      let geminiApiKey: string | undefined;
       let creditsUsed: number | undefined;
       let creditsRemaining: number | undefined;
 
@@ -291,7 +290,7 @@ export const llmGateway = onRequest(
           return;
         }
 
-        geminiApiKey = geminiSecret.value();
+        geminiApiKey = undefined;
         creditsUsed = credit.creditsUsed;
         creditsRemaining = credit.creditsRemaining;
       }

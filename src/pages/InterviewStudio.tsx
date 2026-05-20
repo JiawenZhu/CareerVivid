@@ -197,6 +197,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
             // Add job to practice history
             const newJobId = await addJob(job, questions);
 
+            /*
             // Get authentication token for microservice (us-west1 region)
             const functions = getFunctions(undefined, 'us-west1');
             const getToken = httpsCallable(functions, 'getInterviewAuthToken');
@@ -209,6 +210,22 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
 
             // Redirect to external microservice
             window.location.href = targetUrl;
+            */
+
+            const activeResume = resumes.find(r => r.isDefault) || resumes[0];
+            const resumeContext = activeResume ? formatResumeForContext(activeResume) : '';
+
+            setInterviewState({
+                jobId: newJobId,
+                prompt: job.description || job.title,
+                questions,
+                isFirstTime: true,
+                resumeContext,
+                jobTitle: job.title,
+                jobCompany: job.company || 'Custom Practice',
+            });
+            setIsInterviewModalOpen(true);
+            setIsLoading(false);
         } catch (e) {
             setError(e instanceof Error ? e.message : 'An unknown error occurred.');
             setIsLoading(false);
@@ -257,6 +274,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                 const startSavedInterview = async () => {
                     setIsLoading(true);
                     try {
+                        /*
                         const functions = getFunctions(undefined, 'us-west1');
                         const getToken = httpsCallable(functions, 'getInterviewAuthToken');
                         const result = await getToken();
@@ -265,6 +283,22 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                         const baseUrl = 'https://careervivid-371634100960.us-west1.run.app';
                         const targetUrl = `${baseUrl}/#/interview-studio/${jobId}?token=${token}`;
                         window.location.href = targetUrl;
+                        */
+
+                        const activeResume = resumes.find(r => r.isDefault) || resumes[0];
+                        const resumeContext = activeResume ? formatResumeForContext(activeResume) : '';
+
+                        setInterviewState({
+                            jobId: foundJob.id,
+                            prompt: foundJob.job.description || foundJob.job.title,
+                            questions: foundJob.questions || [],
+                            isFirstTime: false,
+                            resumeContext,
+                            jobTitle: foundJob.job.title,
+                            jobCompany: foundJob.job.company || 'Custom Practice',
+                        });
+                        setIsInterviewModalOpen(true);
+                        setIsLoading(false);
                     } catch (e) {
                         setError("Failed to start scheduled interview. Please try again.");
                         setIsLoading(false);

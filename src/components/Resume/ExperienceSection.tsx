@@ -58,7 +58,7 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({
         <FormSection title={t('resume_form.employment_history')} icon={<Briefcase className="text-primary-500" />}>
             {resume.employmentHistory.map((job, index) => (
                 <div
-                    key={job.id}
+                    key={job.id || `job-${index}`}
                     draggable={!isReadOnly}
                     onDragStart={(e) => handleDragStart(e, index, 'employmentHistory')}
                     onDragOver={(e) => handleDragOver(e, index)}

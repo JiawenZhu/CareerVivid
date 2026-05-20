@@ -47,7 +47,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
         <FormSection title={t('resume_form.skills')} icon={<Star className="text-primary-500" />}>
             {resume.skills.map((skill, index) => (
                 <div
-                    key={skill.id}
+                    key={skill.id || `skill-${index}`}
                     draggable={!isReadOnly}
                     onDragStart={(e) => handleDragStart(e, index, 'skills')}
                     onDragOver={(e) => handleDragOver(e, index)}

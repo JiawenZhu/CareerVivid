@@ -117,6 +117,7 @@ export interface ResumeData {
   shareConfig?: ShareConfig; // New field for sharing settings
   formattingSettings?: FormattingSettings; // Advanced formatting controls
   customCss?: string; // AI Code Customizer: scoped CSS overrides for resume preview
+  isDefault?: boolean;
 }
 
 export type TemplateId = string;
@@ -145,7 +146,7 @@ export interface EmailPreferences {
   lastSentAt?: any; // Firestore Timestamp
 }
 
-export type SidebarNodeType = 'system' | 'custom-folder' | 'custom-file' | 'resume' | 'portfolio' | 'whiteboard' | 'post' | 'sop';
+export type SidebarNodeType = 'system' | 'custom-folder' | 'custom-file' | 'resume' | 'portfolio' | 'whiteboard' | 'post' | 'sop' | 'project' | 'interview';
 
 export interface SidebarNode {
   id: string;           // Unique identifier (e.g., path or UUID)
@@ -158,6 +159,9 @@ export interface SidebarNode {
     isHidden: boolean;
     icon?: string;
     isCreationLink?: boolean;
+    timestamp?: number;
+    createdAt?: number;
+    updatedAt?: number;
   };
 }
 
@@ -266,6 +270,7 @@ export interface PracticeHistoryEntry {
   timestamp: any; // Can be a number or a Firestore Timestamp
   interviewHistory: InterviewAnalysis[];
   section?: string;
+  transcript?: TranscriptEntry[];
 }
 
 // --- Job Tracker Types ---

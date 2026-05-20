@@ -159,9 +159,6 @@ const Dashboard: React.FC = () => {
                                 )}
                                 <LanguageSelect />
                                 <ThemeToggle />
-                                <a href="https://github.com/Jastalk/CareerVivid" target="_blank" rel="noopener noreferrer" className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors hidden md:block" title="Open Source Project">
-                                    <Github size={20} />
-                                </a>
                                 <button onClick={toggleNavPosition} className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors hidden md:block" title="Toggle Sidebar">
                                     <PanelLeft size={20} />
                                 </button>
@@ -187,9 +184,9 @@ const Dashboard: React.FC = () => {
                                                 <button onClick={async () => { const id = await createWhiteboard(); navigate(`/whiteboard/${id}`); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                     <PenTool size={16} /> New Whiteboard
                                                 </button>
-                                                <button onClick={() => { navigate('/sop/new'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                {/* <button onClick={() => { navigate('/sop/new'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                     <ClipboardList size={16} /> New SOP Document
-                                                </button>
+                                                </button> */}
                                                 <button onClick={() => { navigate('/interview-studio'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                     <Mic size={16} /> {t('dashboard.interview_practice')}
                                                 </button>
@@ -277,7 +274,6 @@ const Dashboard: React.FC = () => {
 
                     {sectionOrder.map(sectionId => {
                         const commonProps = {
-                            key: sectionId,
                             viewMode,
                             sectionName: sectionNames[sectionId],
                             onLongPress: () => setIsReorderModalOpen(true),
@@ -286,11 +282,11 @@ const Dashboard: React.FC = () => {
 
                         switch (sectionId) {
                             case 'interviewStudio':
-                                return isDesktop && <InterviewStudioSection {...commonProps} setSelectedJobForReport={setSelectedJobForReport} />;
+                                return isDesktop && <InterviewStudioSection key={sectionId} {...commonProps} setSelectedJobForReport={setSelectedJobForReport} />;
                             case 'resumes':
-                                return isDesktop && <ResumesSection {...commonProps} setShareModalResume={setShareModalResume} />;
+                                return isDesktop && <ResumesSection key={sectionId} {...commonProps} setShareModalResume={setShareModalResume} />;
                             case 'whiteboards':
-                                return isDesktop && <WhiteboardsSection {...commonProps} setShareModalWhiteboard={setShareModalWhiteboard} />;
+                                return isDesktop && <WhiteboardsSection key={sectionId} {...commonProps} setShareModalWhiteboard={setShareModalWhiteboard} />;
                             case 'communityPosts':
                                 return (
                                     <DashboardPreviewSection
@@ -306,9 +302,9 @@ const Dashboard: React.FC = () => {
                                     />
                                 );
                             case 'portfolios':
-                                return isDesktop && <PortfoliosSection {...commonProps} setShareModalPortfolio={setShareModalPortfolio} handleDuplicatePortfolio={handleDuplicatePortfolio} />;
+                                return isDesktop && <PortfoliosSection key={sectionId} {...commonProps} setShareModalPortfolio={setShareModalPortfolio} handleDuplicatePortfolio={handleDuplicatePortfolio} />;
                             case 'jobTracker':
-                                return isDesktop && <JobTrackerSection {...commonProps} setSelectedJobApplication={setSelectedJobApplication} />;
+                                return isDesktop && <JobTrackerSection key={sectionId} {...commonProps} setSelectedJobApplication={setSelectedJobApplication} />;
                             default:
                                 return null;
                         }

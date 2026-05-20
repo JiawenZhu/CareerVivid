@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
-import { defineSecret } from "firebase-functions/params";
-import { GoogleGenAI } from "@google/genai";
+
+import { getAIClient } from "./utils/ai";
 
 // Initialize Firebase Admin if not already initialized
 if (!admin.apps.length) {
@@ -9,7 +9,7 @@ if (!admin.apps.length) {
 }
 
 const db = admin.firestore();
-const geminiApiKey = defineSecret("GEMINI_API_KEY");
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helper: Deduct AI Credits (returns false if limit reached)
@@ -79,7 +79,7 @@ async function getCareerProfile(userId: string): Promise<string> {
 export const evaluateJob = functions
   .region("us-west1")
   .runWith({
-    secrets: [geminiApiKey],
+    secrets: [],
     timeoutSeconds: 120,
     memory: "512MB",
   })
@@ -114,7 +114,7 @@ export const evaluateJob = functions
     // Fetch user's CV
     const cvMarkdown = await getCareerProfile(userId);
 
-    const ai = new GoogleGenAI({ apiKey: geminiApiKey.value() });
+    const ai = getAIClient();
 
     // Build the career-ops evaluation prompt (A-F blocks)
     const prompt = `You are an expert career coach and hiring consultant with 20 years of experience.
@@ -217,7 +217,7 @@ Be honest and specific. Avoid generic advice. Reference the actual CV and JD con
 
     // ── Phase 1C: Extract STAR+R stories when score >= 4.0 (non-blocking) ─────
     if (evalResult.score >= 4.0) {
-      extractAndSaveStories(userId, jobId, jobTitle, companyName, cvMarkdown, evalResult, geminiApiKey.value())
+      extractAndSaveStories(userId, jobId, jobTitle, companyName, cvMarkdown, evalResult)
         .catch(err => console.error("[storyBank] Extraction failed (non-fatal):", err));
     }
 
@@ -235,9 +235,9 @@ async function extractAndSaveStories(
   companyName: string,
   cvMarkdown: string,
   evalResult: any,
-  apiKey: string
+  apiKey?: string
 ): Promise<void> {
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = getAIClient(apiKey);
 
   const prompt = `You are an interview coach. Extract 2-3 strong, reusable STAR+R interview stories from this candidate's CV that would be relevant for the "${jobTitle}" role at ${companyName}.
 
@@ -319,7 +319,7 @@ Return ONLY the JSON array, no markdown fences.`;
 export const generateLinkedInOutreach = functions
   .region("us-west1")
   .runWith({
-    secrets: [geminiApiKey],
+    secrets: [],
     timeoutSeconds: 60,
     memory: "256MB",
   })
@@ -374,7 +374,7 @@ STRICT RULES:
 
 Return ONLY the message text, no quotes, no explanation.`;
 
-    const ai = new GoogleGenAI({ apiKey: geminiApiKey.value() });
+    const ai = getAIClient();
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
@@ -407,7 +407,7 @@ Return ONLY the message text, no quotes, no explanation.`;
 export const generateDeepResearch = functions
   .region("us-west1")
   .runWith({
-    secrets: [geminiApiKey],
+    secrets: [],
     timeoutSeconds: 60,
     memory: "256MB",
   })
@@ -450,7 +450,7 @@ Format: Write a single, detailed research prompt that someone could copy-paste i
 
 Return ONLY the research prompt, no explanation.`;
 
-    const ai = new GoogleGenAI({ apiKey: geminiApiKey.value() });
+    const ai = getAIClient();
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",

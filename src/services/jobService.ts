@@ -139,7 +139,16 @@ export const searchGoogleJobs = async (query: string, location: string, jobCount
     const searchJobsFn = httpsCallable(functions, 'jobs-searchJobsCallable');
     try {
         const result = await searchJobsFn({ query, location, jobCount, pageToken, bypassCache });
-        const data = result.data as { jobs: any[], nextPageToken?: string, totalSize?: string, error?: string, cached?: boolean };
+        const data = result.data as { 
+            jobs: any[]; 
+            nextPageToken?: string; 
+            totalSize?: string; 
+            error?: string; 
+            cached?: boolean;
+            creditDeducted?: number;
+            requestedCount?: number;
+            isLimited?: boolean;
+        };
 
         // Map API jobs to JobPosting format with source: 'google'
         const mappedJobs = (data.jobs || []).map(job => ({
@@ -158,7 +167,16 @@ export const searchGoogleJobs = async (query: string, location: string, jobCount
             status: 'published' as const,
         })) as unknown as JobPosting[];
 
-        return { jobs: mappedJobs, nextPageToken: data.nextPageToken, totalSize: data.totalSize, error: data.error, cached: data.cached };
+        return { 
+            jobs: mappedJobs, 
+            nextPageToken: data.nextPageToken, 
+            totalSize: data.totalSize, 
+            error: data.error, 
+            cached: data.cached,
+            creditDeducted: data.creditDeducted,
+            requestedCount: data.requestedCount,
+            isLimited: data.isLimited
+        };
     } catch (error) {
         console.error("Error calling searchJobsCallable function:", error);
         throw error;

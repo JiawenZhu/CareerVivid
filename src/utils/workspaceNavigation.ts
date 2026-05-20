@@ -22,8 +22,7 @@ export const getPathForNodeId = (id: string | number, type?: string): string => 
         return `/community/post/${idStr.replace('post-', '')}`;
     }
     if (idStr.startsWith('interview-')) {
-        // Assuming interview history leads to a report or studio
-        return `/dashboard`; // Or a specific report page if one exists
+        return `/interview-studio/${idStr.replace('interview-', '')}`;
     }
 
     // Default for custom folders

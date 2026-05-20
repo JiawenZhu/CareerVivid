@@ -88,8 +88,6 @@ const MyPostsPage = React.lazy(() => import('./pages/community/MyPostsPage'));
 const ApiDocsPage = React.lazy(() => import('./pages/ApiDocsPage'));
 const DeveloperSettings = React.lazy(() => import('./pages/DeveloperSettings'));
 const BillingDashboard = React.lazy(() => import('./pages/BillingDashboard'));
-const SOPEditorPage = React.lazy(() => import('./features/sop/pages/SOPEditorPage'));
-const SOPPdfPreviewPage = React.lazy(() => import('./features/sop/pages/SOPPdfPreviewPage'));
 
 import { SUPPORTED_LANGUAGES } from './constants';
 import { DndProvider } from 'react-dnd';
@@ -186,17 +184,6 @@ const AppContent: React.FC = () => {
       <ThemeProvider>
         <Suspense fallback={<LoadingFallback />}>
           <PdfPreviewPage />
-        </Suspense>
-      </ThemeProvider>
-    );
-  }
-
-  // SOP PDF preview - print-optimized page for SOP export
-  if (path === '/sop-pdf-preview') {
-    return (
-      <ThemeProvider>
-        <Suspense fallback={<LoadingFallback />}>
-          <SOPPdfPreviewPage />
         </Suspense>
       </ThemeProvider>
     );
@@ -509,15 +496,6 @@ const AppContent: React.FC = () => {
     }
     else if (path === '/portfolio-builder') {
       content = <PortfolioBuilderPage />;
-    }
-
-    // SOP Editor
-    else if (path === '/sop/new' || path.startsWith('/sop/')) {
-      content = (
-        <ProtectedRoute>
-          <SOPEditorPage />
-        </ProtectedRoute>
-      );
     }
 
     // Job Market (Was in Auth block, seemingly protected)

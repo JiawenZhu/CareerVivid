@@ -1,114 +1,78 @@
-# queries.gql
+# Example queries for a simple movie app.
 
-# 🏠 Personalized Feed (Posts from people I follow)
-query getFollowingFeed($limit: Int = 20) @auth(level: USER) {
-  posts(
-    where: {
-      deletedAt: { isNull: true },
-      author: {
-        deletedAt: { isNull: true },
-        follows_on_following: {
-          exist: {
-            followerId: { eq_expr: "auth.uid" }
-          }
-        }
-      }
-    },
-    orderBy: [{ createdAt: DESC }],
-    limit: $limit
-  ) {
+# @auth() directives control who can call each operation.
+# Anyone should be able to list all movies, so the auth level is set to PUBLIC
+query ListMovies @auth(level: PUBLIC, insecureReason: "Anyone can list all movies.") {
+  movies {
     id
     title
-    summary
-    coverImageUrl
-    tags
-    createdAt
-    likesCount
-    commentsCount
-    author {
-      id
-      username
-      displayName
-      avatarUrl
-    }
+    imageUrl
+    genre
   }
 }
 
-# 🌍 Global/Discovery Feed
-query getGlobalFeed($limit: Int = 20) @auth(level: PUBLIC) {
-  posts(
-    where: { deletedAt: { isNull: true } },
-    orderBy: [{ createdAt: DESC }],
-    limit: $limit
-  ) {
-    id
-    title
-    summary
-    coverImageUrl
-    tags
-    createdAt
-    likesCount
-    commentsCount
-    author {
-      username
-      displayName
-      avatarUrl
-    }
-  }
-}
-
-# 👤 User Profile (With Follow Stats)
-query getUserProfile($username: String!) @auth(level: PUBLIC) {
-  users(where: { 
-    username: { eq: $username },
-    deletedAt: { isNull: true }
-  }) {
+# List all users, only admins should be able to list all users, so we use NO_ACCESS
+query ListUsers @auth(level: NO_ACCESS) {
+  users {
     id
     username
-    displayName
-    avatarUrl
-    bio
-    followerCount
-    followingCount
-    postCount
-    isFollowing: follows_on_following(where: { followerId: { eq_expr: "auth.uid" } }) {
-      createdAt
+  }
+}
+
+# Logged in users can list all their reviews and movie titles associated with the review
+# Since the query uses the uid of the current authenticated user, we set auth level to USER
+query ListUserReviews @auth(level: USER) {
+  user(key: { id_expr: "auth.uid" }) {
+    id
+    username
+    # <field>_on_<foreign_key_field> makes it easy to grab info from another table
+    # Here, we use it to grab all the reviews written by the user.
+    reviews: reviews_on_user {
+      rating
+      reviewDate
+      reviewText
+      movie {
+        id
+        title
+      }
     }
   }
 }
 
-# 📝 Post Details (With Comments)
-query getPostDetails($id: UUID!) @auth(level: PUBLIC) {
-  post(id: $id) {
+# Get movie by id
+query GetMovieById($id: UUID!) @auth(level: PUBLIC, insecureReason: "Anyone can get a movie by id.") {
+  movie(id: $id) {
     id
     title
-    content
-    coverImageUrl
-    tags
-    createdAt
-    likesCount
-    deletedAt
-    author {
-      username
-      displayName
-      avatarUrl
-      deletedAt
+    imageUrl
+    genre
+    metadata: movieMetadata_on_movie {
+      rating
+      releaseYear
+      description
     }
-    comments: comments_on_post(
-      where: { deletedAt: { isNull: true } },
-      orderBy: [{ createdAt: DESC }]
-    ) {
-      id
-      content
-      createdAt
-      author {
+    reviews: reviews_on_movie {
+      reviewText
+      reviewDate
+      rating
+      user {
+        id
         username
-        displayName
-        avatarUrl
       }
     }
-    isLiked: likes_on_post(where: { userId: { eq_expr: "auth.uid" } }) {
-      createdAt
+  }
+}
+
+# Search for movies, actors, and reviews
+query SearchMovie($titleInput: String, $genre: String) @auth(level: PUBLIC, insecureReason: "Anyone can search for movies.") {
+  movies(
+    where: {
+      _and: [{ genre: { eq: $genre } }, { title: { contains: $titleInput } }]
     }
+  ) {
+    id
+    title
+    genre
+    imageUrl
   }
 }

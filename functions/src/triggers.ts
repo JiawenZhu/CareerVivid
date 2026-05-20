@@ -427,26 +427,8 @@ async function analyzeResumeMatchServerSide(resumeText: string, jobDescription: 
     matchPercentage: number;
     summary: string;
 }> {
-    // Import Gemini AI
-    const { GoogleGenerativeAI } = await import('@google/generative-ai');
-
-    // Get API key from environment
-    const apiKey = process.env.GEMINI_API_KEY;
-
-    if (!apiKey) {
-        console.error('[AutoMatch] GEMINI_API_KEY not configured');
-        // Return a default result instead of failing
-        return {
-            totalKeywords: 0,
-            matchedKeywords: [],
-            missingKeywords: [],
-            matchPercentage: 0,
-            summary: 'Auto-analysis unavailable - API key not configured'
-        };
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const { getAIClient } = await import('./utils/ai.js');
+    const ai = getAIClient();
 
     const prompt = `You are an expert recruiter analyzing a job application.
 
@@ -468,8 +450,11 @@ Analyze the match between this resume and the job description. Return your analy
 Only return valid JSON, no markdown or extra text.`;
 
     try {
-        const result = await model.generateContent(prompt);
-        const responseText = result.response.text().trim();
+        const result = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt
+        });
+        const responseText = (result.text || "").trim();
 
         // Parse JSON from response (handle markdown code blocks)
         let jsonStr = responseText;

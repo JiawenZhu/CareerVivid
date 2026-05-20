@@ -11,7 +11,7 @@ jobs:
   build-and-lint:
     name: Build & Lint
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
@@ -23,8 +23,12 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Install dependencies
+      - name: Install root dependencies
         run: npm ci
+
+      - name: Install next-app dependencies
+        run: npm ci
+        working-directory: next-app
 
       - name: Build project
         run: npm run build

@@ -22,25 +22,25 @@
 
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
-import cors from "cors";
-import { defineSecret } from "firebase-functions/params";
-import { GoogleGenerativeAI, Content } from "@google/generative-ai";
+import { secureCorsHandler } from "./utils/corsUtils.js";
+import { getAIClient } from "./utils/ai";
+import { Content } from "@google/genai";
 
 if (!admin.apps.length) {
   admin.initializeApp();
 }
 
 const db = admin.firestore();
-const corsHandler = cors({ origin: true });
-const geminiApiKey = defineSecret("GEMINI_API_KEY");
+const corsHandler = secureCorsHandler;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Credit costs per model (must match agentCredits.ts)
 // ─────────────────────────────────────────────────────────────────────────────
 const MODEL_CREDIT_COST: Record<string, number> = {
-  "gemini-3.1-flash-lite-preview": 0.5,
+  "gemini-2.5-flash-lite": 0.5,
   "gemini-2.5-flash": 1,
-  "gemini-3.1-pro-preview": 2,
+  "gemini-2.5-pro": 2,
+  "gemini-2.0-pro-exp-02-05": 3,
   default: 1,
 };
 
@@ -144,18 +144,10 @@ export const agentProxy = functions
   .runWith({
     timeoutSeconds: 120,
     memory: "512MB",
-    secrets: [geminiApiKey],
   })
   .https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
-      // Preflight
-      if (req.method === "OPTIONS") {
-        res.set("Access-Control-Allow-Origin", "*");
-        res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-        res.set("Access-Control-Allow-Headers", "Content-Type");
-        res.status(204).send("");
-        return;
-      }
+      // Preflight handled automatically by secureCorsHandler
 
       if (req.method !== "POST") {
         res.status(405).json({ error: "Method Not Allowed" });
@@ -203,32 +195,29 @@ export const agentProxy = functions
 
       // ── Call Gemini ─────────────────────────────────────────────────────
       try {
-        const genAI = new GoogleGenerativeAI(geminiApiKey.value());
+        const ai = getAIClient();
 
-        const generationConfig: Record<string, any> = {};
+        const config: Record<string, any> = {};
+        if (systemInstruction) config.systemInstruction = systemInstruction;
+        if (toolDeclarations) config.tools = toolDeclarations;
+        
         if (thinkingBudget && thinkingBudget > 0) {
-          generationConfig.thinkingConfig = {
+          config.thinkingConfig = {
             thinkingBudget,
             includeThoughts: includeThoughts ?? false,
           };
         }
 
-        const modelInstance = genAI.getGenerativeModel({
+        const result = await ai.models.generateContent({
           model,
-          systemInstruction: systemInstruction ?? undefined,
-          tools: toolDeclarations ?? undefined,
-          generationConfig: Object.keys(generationConfig).length > 0 ? generationConfig : undefined,
-        });
-
-        const result = await modelInstance.generateContent({
           contents: contents as Content[],
+          config: Object.keys(config).length > 0 ? config : undefined,
         });
 
-        const response = result.response;
-
+        // The unified SDK response shape
         res.json({
-          candidates: response.candidates,
-          promptFeedback: response.promptFeedback,
+          candidates: result.candidates,
+          promptFeedback: result.promptFeedback,
           creditsUsed: creditResult.creditsUsed,
           creditsRemaining: creditResult.creditsRemaining,
           monthlyLimit: creditResult.monthlyLimit,
