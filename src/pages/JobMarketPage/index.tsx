@@ -19,7 +19,7 @@ import { getUserJobHistory, deleteUserJob } from '../../services/jobHistoryServi
 
 
 const JobMarketPage: React.FC = () => {
-    const { currentUser } = useAuth();
+    const { currentUser, aiUsage, refreshAIUsage } = useAuth();
     const { t } = useTranslation();
     const { addJobApplication, jobApplications } = useJobTracker();
     const { resumes } = useResumes();
@@ -32,6 +32,12 @@ const JobMarketPage: React.FC = () => {
     const [googleJobs, setGoogleJobs] = useState<JobPosting[]>([]);
     const [savedJobs, setSavedJobs] = useState<JobPosting[]>([]); // User's saved job history
     const [jobCount, setJobCount] = useState<number>(10); // Number of jobs to search (5-20)
+    const [searchMetadata, setSearchMetadata] = useState<{
+        cached?: boolean;
+        creditDeducted?: number;
+        requestedCount?: number;
+        isLimited?: boolean;
+    } | null>(null);
 
     // Status States
     const [isLoading, setIsLoading] = useState(true); // Initial load
@@ -144,17 +150,19 @@ const JobMarketPage: React.FC = () => {
         }
     };
 
-    const handleSearch = async (e?: React.FormEvent) => {
-        e?.preventDefault();
+    const getRemainingCreditsText = () => {
+        if (!aiUsage) return '';
+        const remaining = Math.max(0, aiUsage.limit - aiUsage.count);
+        const formatted = Number.isInteger(remaining) ? remaining.toString() : remaining.toFixed(1);
+        return `${formatted} / ${aiUsage.limit}`;
+    };
 
+    const runSearch = async (term: string, loc: string, bypassCache: boolean = false) => {
         // Check AI Credits
         if (!checkCredit()) {
             console.warn("Insufficient AI credits for search");
             return;
         }
-
-        const term = searchQuery.term.trim();
-        const loc = searchQuery.location.trim();
 
         // 1. Filter Local Partner Jobs
         if (!term && !loc) {
@@ -182,19 +190,33 @@ const JobMarketPage: React.FC = () => {
         setHasPerformedSearch(true);
 
         try {
-            const result = await searchGoogleJobs(term, loc, jobCount);
+            const result = await searchGoogleJobs(term, loc, jobCount, undefined, bypassCache);
             if (result.jobs) {
                 setGoogleJobs(result.jobs);
                 setPageToken(result.nextPageToken);
+                setSearchMetadata({
+                    cached: result.cached,
+                    creditDeducted: result.creditDeducted,
+                    requestedCount: result.requestedCount || jobCount,
+                    isLimited: result.isLimited
+                });
+                // Dynamic refresh of AI usage context
+                refreshAIUsage().catch(err => console.warn("Failed to refresh AI credits:", err));
             }
         } catch (error: any) {
             console.error("Google Job Search Failed", error);
-            // Show error to user
             const errorMessage = error?.message || 'Failed to search jobs. Please try again.';
             alert(`Search Error: ${errorMessage}`);
         } finally {
             setIsSearching(false);
         }
+    };
+
+    const handleSearch = async (e?: React.FormEvent) => {
+        e?.preventDefault();
+        const term = searchQuery.term.trim();
+        const loc = searchQuery.location.trim();
+        await runSearch(term, loc, false);
     };
 
     const handleLoadMore = async () => {
@@ -206,6 +228,7 @@ const JobMarketPage: React.FC = () => {
             if (result.jobs) {
                 setGoogleJobs(prev => [...prev, ...result.jobs]);
                 setPageToken(result.nextPageToken);
+                refreshAIUsage().catch(err => console.warn(err));
             }
         } catch (error) {
             console.error("Load More Failed", error);
@@ -216,46 +239,14 @@ const JobMarketPage: React.FC = () => {
 
     const handleRefresh = async () => {
         if (isSearching || !checkCredit()) return;
-
         const term = searchQuery.term.trim();
         const loc = searchQuery.location.trim();
+        await runSearch(term, loc, true);
+    };
 
-        // Filter local partner jobs
-        if (!term && !loc) {
-            setJobs(originalPartnerJobs);
-        } else {
-            const lowerTerm = term.toLowerCase();
-            const lowerLoc = loc.toLowerCase();
-
-            const filtered = originalPartnerJobs.filter(job => {
-                const matchTerm = !term ||
-                    job.jobTitle.toLowerCase().includes(lowerTerm) ||
-                    job.companyName.toLowerCase().includes(lowerTerm) ||
-                    job.description.toLowerCase().includes(lowerTerm);
-                const matchLoc = !loc ||
-                    job.location.toLowerCase().includes(lowerLoc);
-                return matchTerm && matchLoc;
-            });
-            setJobs(filtered);
-        }
-
-        // Force a fresh search by clearing google jobs and re-fetching
-        setIsSearching(true);
-        setGoogleJobs([]);
-        setPageToken(undefined);
-
-        try {
-            // Force a fresh search by bypassing cache
-            const result = await searchGoogleJobs(term, loc, jobCount, undefined, true);
-            if (result.jobs) {
-                setGoogleJobs(result.jobs);
-                setPageToken(result.nextPageToken);
-            }
-        } catch (error) {
-            console.error("Refresh Search Failed", error);
-        } finally {
-            setIsSearching(false);
-        }
+    const handleSuggestedSearch = async (term: string, location: string) => {
+        setSearchQuery({ term, location });
+        await runSearch(term, location, false);
     };
 
     // --- Actions ---
@@ -373,6 +364,7 @@ const JobMarketPage: React.FC = () => {
             // Add to practice history and get job ID
             const newJobId = await addJob(interviewJobData, []);
 
+            /*
             // Get auth token from Cloud Function
             const functions = getFunctions(undefined, 'us-west1');
             const getToken = httpsCallable(functions, 'getInterviewAuthToken');
@@ -385,6 +377,9 @@ const JobMarketPage: React.FC = () => {
 
             // Open in new tab
             window.open(targetUrl, '_blank');
+            */
+
+            navigate(`/interview-studio/${newJobId}`);
         } catch (error) {
             console.error("Error starting mock interview:", error);
             alert("Failed to start mock interview. Please try again.");
@@ -416,90 +411,186 @@ const JobMarketPage: React.FC = () => {
         return posted.toLocaleDateString();
     };
 
-    return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans">
-            <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-40">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                    <div className="flex flex-col gap-6">
-                        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                            <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight hidden md:block">
-                                Job Market
-                            </h1>
+    const renderSuggestions = () => {
+        const term = searchQuery.term.trim() || 'Software Engineer';
+        const loc = searchQuery.location.trim();
 
-                            {/* Search Bar - Replicates Design: What | Where | Find Jobs */}
+        return (
+            <div className="mt-8 border-t border-gray-100 dark:border-gray-700 pt-6">
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center justify-center gap-1.5">
+                    💡 Click a suggestion to search again:
+                </p>
+                <div className="flex flex-wrap justify-center gap-3">
+                    {loc && (
+                        <button
+                            type="button"
+                            onClick={() => handleSuggestedSearch(term, 'Remote')}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded-xl text-xs font-semibold border border-indigo-100 dark:border-indigo-900/50 transition-all active:scale-95 cursor-pointer"
+                        >
+                            <span>🌐 Search Remote / US Nationwide</span>
+                        </button>
+                    )}
+                    {loc && (
+                        <button
+                            type="button"
+                            onClick={() => handleSuggestedSearch(term, '')}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded-xl text-xs font-semibold border border-indigo-100 dark:border-indigo-900/50 transition-all active:scale-95 cursor-pointer"
+                        >
+                            <span>📍 Remove location constraint</span>
+                        </button>
+                    )}
+                    {term !== 'Software Engineer' && (
+                        <button
+                            type="button"
+                            onClick={() => handleSuggestedSearch('Software Engineer', loc)}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded-xl text-xs font-semibold border border-indigo-100 dark:border-indigo-900/50 transition-all active:scale-95 cursor-pointer"
+                        >
+                            <span>🔍 Try broader title: "Software Engineer"</span>
+                        </button>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
+    return (
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 font-sans transition-colors duration-300">
+            <div className="bg-white/80 dark:bg-gray-900/85 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/40 shadow-sm sticky top-0 z-40 transition-colors duration-300">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+                    <div className="flex flex-col gap-5">
+                        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div className="flex flex-col">
+                                <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight hidden md:block">
+                                    Job Market
+                                </h1>
+                                {aiUsage && (
+                                    <div className="mt-1 hidden md:block">
+                                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/40 dark:border-emerald-800/25 text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold inline-flex items-center gap-1.5 shadow-sm">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
+                                            AI Credits remaining: <span className="font-extrabold text-emerald-800 dark:text-emerald-300">{getRemainingCreditsText()}</span>
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Apple Glasses Glassmorphic Search Capsule */}
                             <form onSubmit={handleSearch} className="flex-1 w-full md:max-w-4xl">
-                                <div className="flex flex-col md:flex-row gap-3">
-                                    <div className="flex-1 bg-white dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden flex items-center shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 transition-shadow">
-                                        <div className="pl-4 text-gray-500">
+                                <div className="flex flex-col md:flex-row bg-gray-100/60 dark:bg-gray-900/35 backdrop-blur-xl border border-gray-200/55 dark:border-gray-800/45 p-1.5 rounded-2xl md:rounded-full gap-2 md:gap-0 shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.25)] focus-within:ring-2 focus-within:ring-indigo-500/20 dark:focus-within:ring-indigo-500/10 focus-within:border-indigo-500/40 dark:focus-within:border-indigo-550/30 transition-all duration-350">
+                                                             {/* WHAT Section */}
+                                    <label 
+                                        htmlFor="job-market-term-input"
+                                        onClick={() => document.getElementById('job-market-term-input')?.focus()}
+                                        className="flex-1 flex items-center gap-3 px-4 py-2 hover:bg-gray-200/40 dark:hover:bg-white/5 rounded-xl md:rounded-full transition-all duration-300 group focus-within:bg-gray-200/60 dark:focus-within:bg-white/10 cursor-text"
+                                    >
+                                        <div className="text-gray-400 group-hover:text-indigo-500 group-focus-within:text-indigo-500 transition-colors duration-250 pointer-events-none">
                                             <Search size={18} />
                                         </div>
-                                        <div className="flex-1">
-                                            <div className="text-[10px] font-semibold uppercase text-gray-500 dark:text-gray-400 px-3 pt-1.5">What</div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-[9px] font-extrabold uppercase tracking-wider text-gray-400 dark:text-gray-550 group-hover:text-indigo-500/85 group-focus-within:text-indigo-500/85 transition-colors duration-250 pointer-events-none">What</div>
                                             <input
+                                                id="job-market-term-input"
                                                 type="text"
                                                 placeholder="Job title, keywords, or company"
-                                                className="w-full px-3 pb-1.5 text-sm bg-transparent border-none focus:ring-0 text-gray-900 dark:text-white placeholder-gray-400"
+                                                className="w-full bg-transparent border-none outline-none p-0 text-sm font-medium text-gray-800 dark:text-gray-150 placeholder-gray-400/85 focus:ring-0 focus:outline-none cursor-text min-h-[22px]"
                                                 value={searchQuery.term}
                                                 onChange={e => setSearchQuery({ ...searchQuery, term: e.target.value })}
                                             />
                                         </div>
-                                    </div>
+                                    </label>
 
-                                    <div className="flex-1 bg-white dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden flex items-center shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 transition-shadow">
-                                        <div className="pl-4 text-gray-500">
+                                    {/* Vertical Divider */}
+                                    <div className="hidden md:block w-[1px] my-2 bg-gray-200/80 dark:bg-gray-800/80" />
+
+                                    {/* WHERE Section */}
+                                    <label 
+                                        htmlFor="job-market-location-input"
+                                        onClick={() => document.getElementById('job-market-location-input')?.focus()}
+                                        className="flex-1 flex items-center gap-3 px-4 py-2 hover:bg-gray-200/40 dark:hover:bg-white/5 rounded-xl md:rounded-full transition-all duration-300 group focus-within:bg-gray-200/60 dark:focus-within:bg-white/10 cursor-text"
+                                    >
+                                        <div className="text-gray-400 group-hover:text-violet-500 group-focus-within:text-violet-500 transition-colors duration-250 pointer-events-none">
                                             <MapPin size={18} />
                                         </div>
-                                        <div className="flex-1">
-                                            <div className="text-[10px] font-semibold uppercase text-gray-500 dark:text-gray-400 px-3 pt-1.5">Where</div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-[9px] font-extrabold uppercase tracking-wider text-gray-400 dark:text-gray-550 group-hover:text-violet-500/85 group-focus-within:text-violet-500/85 transition-colors duration-250 pointer-events-none">Where</div>
                                             <input
+                                                id="job-market-location-input"
                                                 type="text"
                                                 placeholder="City, state, or zip code"
-                                                className="w-full px-3 pb-1.5 text-sm bg-transparent border-none focus:ring-0 text-gray-900 dark:text-white placeholder-gray-400"
+                                                className="w-full bg-transparent border-none outline-none p-0 text-sm font-medium text-gray-800 dark:text-gray-150 placeholder-gray-400/85 focus:ring-0 focus:outline-none cursor-text min-h-[22px]"
                                                 value={searchQuery.location}
                                                 onChange={e => setSearchQuery({ ...searchQuery, location: e.target.value })}
                                             />
                                         </div>
-                                    </div>
+                                    </label>
 
-                                    <div className="flex bg-white dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden items-center shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 transition-shadow px-3">
-                                        <div className="text-[10px] font-semibold uppercase text-gray-500 dark:text-gray-400 mr-2">Results</div>
-                                        <select
-                                            value={jobCount}
-                                            onChange={(e) => setJobCount(Number(e.target.value))}
-                                            className="bg-transparent border-none text-sm font-medium text-gray-900 dark:text-white focus:ring-0 py-2"
-                                        >
-                                            <option value={5}>5</option>
-                                            <option value={10}>10</option>
-                                            <option value={15}>15</option>
-                                            <option value={20}>20</option>
-                                        </select>
-                                    </div>
+                                    {/* Vertical Divider */}
+                                    <div className="hidden md:block w-[1px] my-2 bg-gray-200/80 dark:bg-gray-800/80" />
 
+                                    {/* RESULTS Dropdown */}
+                                    <label className="flex items-center justify-between md:justify-start gap-3 px-4 py-2 hover:bg-gray-200/40 dark:hover:bg-white/5 rounded-xl md:rounded-full transition-all duration-300 group cursor-pointer">
+                                        <div className="flex flex-col">
+                                            <div className="text-[9px] font-extrabold uppercase tracking-wider text-gray-400 dark:text-gray-550 group-hover:text-indigo-400 transition-colors duration-250">Results</div>
+                                            <select
+                                                value={jobCount}
+                                                onChange={(e) => setJobCount(Number(e.target.value))}
+                                                className="bg-transparent border-none outline-none p-0 text-sm font-bold text-gray-800 dark:text-gray-200 focus:ring-0 cursor-pointer pr-6"
+                                            >
+                                                <option value={5} className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">5 jobs</option>
+                                                <option value={10} className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">10 jobs</option>
+                                                <option value={15} className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">15 jobs</option>
+                                                <option value={20} className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">20 jobs</option>
+                                            </select>
+                                        </div>
+                                    </label>
+
+                                    {/* High-Gloss Search Button */}
                                     <button
                                         type="submit"
                                         disabled={isSearching}
-                                        className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-all active:scale-95 whitespace-nowrap flex items-center gap-2"
+                                        className="bg-gradient-to-r from-indigo-600 via-indigo-650 to-violet-650 hover:from-indigo-500 hover:via-indigo-600 hover:to-violet-550 disabled:from-indigo-400 disabled:to-indigo-500 disabled:opacity-50 text-white font-bold text-sm py-3 px-7 rounded-xl md:rounded-full shadow-[0_4px_16px_rgba(99,102,241,0.2)] hover:shadow-[0_4px_22px_rgba(99,102,241,0.35)] active:scale-97 transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap self-stretch md:my-0.5 md:mr-0.5"
                                     >
-                                        {isSearching ? <Loader2 size={18} className="animate-spin" /> : 'Find Jobs'}
+                                        {isSearching ? (
+                                            <Loader2 size={16} className="animate-spin" />
+                                        ) : (
+                                            <>
+                                                <Search size={16} />
+                                                <span>Find Jobs</span>
+                                            </>
+                                        )}
                                     </button>
                                 </div>
+
+                                {aiUsage && (
+                                    <div className="mt-2.5 flex justify-between items-center px-1 text-xs text-gray-500 dark:text-gray-400">
+                                        <div className="md:hidden">
+                                            <span className="px-2 py-0.5 rounded-full bg-emerald-50/65 dark:bg-emerald-950/20 border border-emerald-250/50 dark:border-emerald-800/30 text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold inline-flex items-center gap-1.2 shadow-sm">
+                                                <span className="w-1.2 h-1.2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                Credits: <span className="font-extrabold">{getRemainingCreditsText()}</span>
+                                            </span>
+                                        </div>
+                                        <span className="ml-auto text-[11px] text-gray-400 dark:text-gray-500">
+                                            Cached searches are <span className="text-emerald-600 dark:text-emerald-400 font-bold">free</span> (1 credit for live)
+                                        </span>
+                                    </div>
+                                )}
                             </form>
 
-                            <div className="flex gap-2 hidden md:flex">
+                            {/* Glassmorphic Circle Spatial Action Buttons */}
+                            <div className="flex gap-2.5 hidden md:flex items-center">
                                 <button
                                     onClick={handleRefresh}
                                     disabled={isSearching}
-                                    className="p-2.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="p-3 text-gray-600 dark:text-gray-300 bg-gray-100/50 dark:bg-white/5 hover:bg-gray-200/80 dark:hover:bg-white/10 border border-gray-200/40 dark:border-white/5 rounded-full transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm hover:scale-105 active:scale-95"
                                     title="Refresh Search"
                                 >
-                                    <RefreshCw className={`w-6 h-6 ${isSearching ? 'animate-spin' : ''}`} />
+                                    <RefreshCw className={`w-5 h-5 ${isSearching ? 'animate-spin' : ''}`} />
                                 </button>
                                 <button
                                     onClick={() => navigate('/dashboard')}
-                                    className="p-2.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                                    className="p-3 text-gray-600 dark:text-gray-300 bg-gray-100/50 dark:bg-white/5 hover:bg-gray-200/80 dark:hover:bg-white/10 border border-gray-200/40 dark:border-white/5 rounded-full transition-all duration-300 shadow-sm hover:scale-105 active:scale-95"
                                     title="Dashboard"
                                 >
-                                    <LayoutDashboard className="w-6 h-6" />
+                                    <LayoutDashboard className="w-5 h-5" />
                                 </button>
                             </div>
                         </div>
@@ -548,9 +639,41 @@ const JobMarketPage: React.FC = () => {
                             </div>
                         ) : googleJobs.length > 0 ? (
                             <div className="space-y-4">
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 border-t border-gray-200 dark:border-gray-700 pt-8">
-                                    <Search size={20} className="text-indigo-600" /> New Search Results
-                                </h2>
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-gray-200 dark:border-gray-700 pt-8">
+                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                        <Search size={20} className="text-indigo-600" /> New Search Results
+                                    </h2>
+                                    {searchMetadata && (searchMetadata.cached || (searchMetadata.creditDeducted ?? 1) < 1) && (
+                                        <div className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-full text-xs font-medium border border-indigo-100 dark:border-indigo-900/50">
+                                            <Clock size={14} className="animate-pulse" />
+                                            <span>
+                                                {searchMetadata.cached 
+                                                    ? "🕐 Cached (up to 6h ago) · " 
+                                                    : `🕐 Hybrid Search (${Math.round((1 - (searchMetadata.creditDeducted ?? 0)) * 100)}% from cache) · `}
+                                            </span>
+                                            <button 
+                                                type="button"
+                                                onClick={handleRefresh}
+                                                disabled={isSearching}
+                                                className="underline hover:text-indigo-900 dark:hover:text-indigo-100 font-semibold cursor-pointer focus:outline-none flex items-center gap-0.5"
+                                            >
+                                                Refresh for live results
+                                                <RefreshCw size={10} className={isSearching ? "animate-spin" : ""} />
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                                {searchMetadata?.isLimited && (
+                                    <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-xl p-4 flex gap-3 text-amber-800 dark:text-amber-300 text-sm">
+                                        <span className="text-lg">⚠️</span>
+                                        <div>
+                                            <p className="font-semibold">Limited results found</p>
+                                            <p className="mt-0.5 text-amber-700 dark:text-amber-400">
+                                                We only found {googleJobs.length} jobs in this city matching your search terms (fewer than the {searchMetadata.requestedCount} requested). Try broadening your search terms or checking adjacent cities.
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
                                 <div className="grid gap-4">
                                     {googleJobs.map((job, idx) => (
                                         <JobCard
@@ -622,9 +745,10 @@ const JobMarketPage: React.FC = () => {
                                     <Search className="w-8 h-8 text-gray-400" />
                                 </div>
                                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white">No jobs found</h3>
-                                <p className="mt-2 text-gray-500 dark:text-gray-400">
-                                    Try adjusting your search criteria.
+                                <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+                                    We couldn't find any job matches for <span className="font-semibold">"{searchQuery.term}"</span> {searchQuery.location && <span>in <span className="font-semibold">"{searchQuery.location}"</span></span>}.
                                 </p>
+                                {renderSuggestions()}
                             </div>
                         )}
                     </div>
