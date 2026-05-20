@@ -6,6 +6,7 @@ import { analyzeInterviewTranscript } from '../services/geminiService';
 import { Loader2, Mic, StopCircle, X, Download, Bot, User, FileText, BarChart } from 'lucide-react';
 import { usePracticeHistory } from '../hooks/useJobHistory';
 import { useAuth } from '../contexts/AuthContext';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 // Lazy load the report modal
 const InterviewReportModal = React.lazy(() => import('./InterviewReportModal'));
@@ -47,6 +48,26 @@ async function decodeAudioData(
     }
   }
   return buffer;
+}
+
+function downsampleBuffer(buffer: Float32Array, inputSampleRate: number, outputSampleRate: number): Float32Array {
+  if (inputSampleRate === outputSampleRate) return buffer;
+  if (inputSampleRate < outputSampleRate) return buffer;
+  const sampleRateRatio = inputSampleRate / outputSampleRate;
+  const newLength = Math.round(buffer.length / sampleRateRatio);
+  const result = new Float32Array(newLength);
+  for (let i = 0; i < newLength; i++) {
+    const start = Math.floor(i * sampleRateRatio);
+    const end = Math.floor((i + 1) * sampleRateRatio);
+    let sum = 0;
+    let count = 0;
+    for (let j = start; j < end && j < buffer.length; j++) {
+      sum += buffer[j];
+      count++;
+    }
+    result[i] = count > 0 ? sum / count : 0;
+  }
+  return result;
 }
 
 interface AIInterviewAgentModalProps {
@@ -96,6 +117,7 @@ const AIInterviewAgentModal: React.FC<AIInterviewAgentModalProps> = ({ jobId, in
   const chatEndRef = useRef<HTMLDivElement>(null);
   const isCleaningUpRef = useRef(false);
   const isSpeakingRef = useRef(false); // true while AI audio is playing — mic is muted
+  const actualSessionIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     let interval: number;
@@ -167,6 +189,34 @@ const AIInterviewAgentModal: React.FC<AIInterviewAgentModalProps> = ({ jobId, in
       }
 
       const analysisData = await analyzeInterviewTranscript(currentUser?.uid || 'guest', transcript, interviewPrompt, durationInSeconds);
+      
+      // Perform duration-based billing for authenticated sessions
+      if (!isGuestMode && currentUser && actualSessionIdRef.current) {
+        try {
+          const functions = getFunctions(undefined, 'us-west1');
+          const billSession = httpsCallable(functions, 'billInterviewSession');
+          await billSession({
+            sessionId: actualSessionIdRef.current,
+            transcript: transcript.map(t => ({
+              speaker: t.speaker,
+              text: t.text,
+              isFinal: t.isFinal ?? true,
+              timestamp: t.timestamp ?? null
+            })),
+            feedbackReport: {
+              overallScore: analysisData.overallScore ?? 0,
+              communicationScore: analysisData.communicationScore ?? 0,
+              confidenceScore: analysisData.confidenceScore ?? 0,
+              relevanceScore: analysisData.relevanceScore ?? 0,
+              strengths: analysisData.strengths || '',
+              areasForImprovement: analysisData.areasForImprovement || ''
+            }
+          });
+        } catch (billErr) {
+          console.error("Billing failed, but continuing with feedback generation:", billErr);
+        }
+      }
+
       if (isGuestMode) {
         const guestAnalysis: InterviewAnalysis = {
           ...analysisData,
@@ -296,13 +346,56 @@ Here are the questions:
 ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 `;
       if (resumeContext) {
-        systemInstruction += `\n\nFor additional context, here is the candidate's resume. Use this to ask more targeted questions relating their experience to the job description.\n\n--- RESUME ---\n${resumeContext}`;
+        systemInstruction += `\\n\\nFor additional context, here is the candidate's resume. Use this to ask more targeted questions relating their experience to the job description.\\n\\n--- RESUME ---\\n\${resumeContext}`;
       }
 
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+      let ai: GoogleGenAI;
+      // Guest mode falls back to Gemini API model; Vertex uses the specific Live model
+      let modelName = 'gemini-2.5-flash-native-audio-preview-09-2025';
+      actualSessionIdRef.current = null;
+
+      if (!isGuestMode && currentUser) {
+        // Authenticated user: fetch Vertex AI Access Token securely
+        const functions = getFunctions(undefined, 'us-west1');
+        const getVertexToken = httpsCallable(functions, 'getInterviewVertexToken');
+        const tokenResult = await getVertexToken({ role: jobTitle });
+        const { accessToken, project, location, sessionId } = tokenResult.data as {
+          accessToken: string;
+          project: string;
+          location: string;
+          sessionId: string;
+        };
+
+        actualSessionIdRef.current = sessionId;
+
+        // Authenticate via query param to bypass browser WebSocket header restrictions
+        ai = new GoogleGenAI({
+          vertexai: true,
+          apiKey: accessToken,
+          httpOptions: {
+            baseUrl: `https://${location}-aiplatform.googleapis.com/ws/google.cloud.aiplatform.v1beta1.LlmBidiService/BidiGenerateContent?access_token=${accessToken}`
+          }
+        });
+
+        // Bypass the SDK's standard auth checks for WebSocket by deleting the apiKey from apiClient
+        if ((ai as any).apiClient?.clientOptions) {
+          (ai as any).apiClient.clientOptions.apiKey = undefined;
+        }
+
+        // Use fully qualified model name — Vertex AI uses 'gemini-live-2.5-flash-native-audio'
+        // (not the Google AI Studio model 'gemini-2.5-flash-native-audio-preview-09-2025')
+        modelName = `projects/${project}/locations/${location}/publishers/google/models/gemini-live-2.5-flash-native-audio`;
+      } else {
+        // Guest/dev mode: use direct API Key fallback
+        const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || (window as any)?.ENV?.VITE_GOOGLE_API_KEY;
+        if (!apiKey) {
+          throw new Error("Google API key is missing. Please configure VITE_GOOGLE_API_KEY.");
+        }
+        ai = new GoogleGenAI({ apiKey });
+      }
 
       sessionPromiseRef.current = ai.live.connect({
-        model: 'gemini-2.5-flash-native-audio-preview-09-2025',
+        model: modelName,
         config: {
           responseModalities: [Modality.AUDIO],
           inputAudioTranscription: {},
@@ -310,22 +403,51 @@ ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
           systemInstruction,
         },
         callbacks: {
-          onopen: () => {
+          onopen: async () => {
+            console.log("[AI Interview] WebSocket connection opened successfully.");
             setStatus('listening');
-            if (!inputAudioContextRef.current || !mediaStreamRef.current) return;
+            if (!inputAudioContextRef.current || !mediaStreamRef.current) {
+              console.warn("[AI Interview] Missing input audio context or media stream on open.");
+              return;
+            }
+
+            try {
+              if (inputAudioContextRef.current.state === 'suspended') {
+                console.log("[AI Interview] Input AudioContext is suspended. Resuming...");
+                await inputAudioContextRef.current.resume();
+                console.log("[AI Interview] Input AudioContext resumed successfully. State:", inputAudioContextRef.current.state);
+              }
+              if (outputAudioContextRef.current?.state === 'suspended') {
+                console.log("[AI Interview] Output AudioContext is suspended. Resuming...");
+                await outputAudioContextRef.current.resume();
+                console.log("[AI Interview] Output AudioContext resumed successfully. State:", outputAudioContextRef.current.state);
+              }
+            } catch (e) {
+              console.error("[AI Interview] Error resuming audio contexts:", e);
+            }
+
             const source = inputAudioContextRef.current.createMediaStreamSource(mediaStreamRef.current);
             mediaStreamSourceRef.current = source;
             const scriptProcessor = inputAudioContextRef.current.createScriptProcessor(4096, 1, 1);
             scriptProcessorRef.current = scriptProcessor;
 
+            let audioChunkCount = 0;
             scriptProcessor.onaudioprocess = (audioProcessingEvent) => {
               // Mute mic while AI is speaking (mirrors CV CLI behavior)
               if (isCleaningUpRef.current || isSpeakingRef.current) return;
               const inputData = audioProcessingEvent.inputBuffer.getChannelData(0);
 
-              const buffer = new Int16Array(inputData.length);
-              for (let i = 0; i < inputData.length; i++) {
-                const s = Math.max(-1, Math.min(1, inputData[i]));
+              // Downsample the input buffer from the context's native rate to 16kHz
+              const inputSampleRate = inputAudioContextRef.current?.sampleRate || 48000;
+              const downsampled = downsampleBuffer(inputData, inputSampleRate, 16000);
+
+              if (audioChunkCount++ % 100 === 0) {
+                console.log(`[AI Interview] Captured & resampled audio chunk #${audioChunkCount}. Original rate: ${inputSampleRate}Hz. Size: ${downsampled.length} samples.`);
+              }
+
+              const buffer = new Int16Array(downsampled.length);
+              for (let i = 0; i < downsampled.length; i++) {
+                const s = Math.max(-1, Math.min(1, downsampled[i]));
                 buffer[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
               }
 
@@ -340,8 +462,10 @@ ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
             };
             source.connect(scriptProcessor);
             scriptProcessor.connect(inputAudioContextRef.current.destination);
+            console.log("[AI Interview] Audio processing graph initialized and connected.");
           },
           onmessage: async (message: LiveServerMessage) => {
+            console.log("[AI Interview] Received WebSocket message from server:", message);
             resetInactivityTimer();
 
             const processTranscription = (transcription: { text?: string } | undefined, speaker: 'user' | 'ai') => {
@@ -374,6 +498,7 @@ ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
             const base64Audio = message.serverContent?.modelTurn?.parts[0]?.inlineData?.data;
             if (base64Audio && outputAudioContextRef.current) {
+              console.log("[AI Interview] Playing back AI audio response chunk...");
               setStatus('speaking');
               isSpeakingRef.current = true; // mute mic
               const ctx = outputAudioContextRef.current;
@@ -398,11 +523,13 @@ ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
               setTranscript(prev => prev.map(t => ({ ...t, isFinal: true })));
             }
           },
-          onclose: () => {
+          onclose: (event?: any) => {
+            console.log("[AI Interview] WebSocket connection closed by server. Event:", event);
+            setStatus('ended');
             cleanup();
           },
           onerror: (e: Event) => {
-            console.error("Interview session error:", e);
+            console.error("[AI Interview] WebSocket connection error:", e);
             setError("A connection error occurred during the interview.");
             setStatus('error');
             cleanup();

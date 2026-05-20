@@ -41,6 +41,7 @@ export const DraggableSectionHeader: React.FC<DraggableSectionHeaderProps> = ({
                     title={title}
                     isEditable={!!onTitleChange}
                     onSave={(newTitle) => onTitleChange?.(newTitle)}
+                    onClick={onViewAll}
                 />
             </div>
             {hasItems && onViewAll && (
@@ -109,11 +110,16 @@ function DashboardPreviewSection<T>({
                 // Skeleton height placeholder based on ViewMode
                 <div className={`w-full ${viewMode === 'row' ? 'h-[280px]' : 'h-[400px]'} bg-gray-50/50 dark:bg-gray-900/20 rounded-2xl border border-gray-100 dark:border-gray-800 animate-pulse`} />
             ) : items.length === 0 ? (
-                <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] p-10 text-center border border-dashed border-gray-300/50 dark:border-gray-800/50 transition-all hover:border-gray-400 dark:hover:border-gray-700 flex flex-col justify-center items-center shadow-sm">
-                    <div className="w-12 h-12 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
-                        <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500" />
+                <div 
+                    onClick={onViewAll}
+                    className={`bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] p-10 text-center border border-dashed border-gray-300/50 dark:border-gray-800/50 transition-all hover:border-gray-400 dark:hover:border-gray-700 flex flex-col justify-center items-center shadow-sm group/empty
+                        ${onViewAll ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/40' : ''}
+                    `}
+                >
+                    <div className="w-12 h-12 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4 group-hover/empty:scale-110 transition-transform duration-300">
+                        <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover/empty:text-primary-500 transition-colors" />
                     </div>
-                    <p className="text-[14px] text-gray-500 dark:text-gray-400 font-medium">{emptyMessage}</p>
+                    <p className="text-[14px] text-gray-500 dark:text-gray-400 font-medium group-hover/empty:text-primary-500 transition-colors">{emptyMessage}</p>
                 </div>
             ) : viewMode === 'row' ? (
                 <div className="flex gap-5 overflow-x-auto pb-6 snap-x pt-2 pr-6 -mx-6 px-6 scrollbar-hide">

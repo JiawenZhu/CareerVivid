@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { defineSecret } from "firebase-functions/params";
-import { GoogleGenAI } from "@google/genai";
+import { getAIClient } from "./utils/ai";
 import cors from "cors";
 import { performGoogleSearch } from "./utils/customSearch";
 
@@ -13,7 +13,6 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 
 // Define the secrets
-const geminiApiKey = defineSecret("GEMINI_API_KEY");
 const googleSearchApiKey = defineSecret("GOOGLE_SEARCH_API_KEY");
 const googleSearchCx = defineSecret("GOOGLE_SEARCH_CX");
 const corsHandler = cors({ origin: true });
@@ -99,7 +98,7 @@ const validateJobUrl = async (url: string): Promise<boolean> => {
 
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 1500); // 1.5s timeout
 
         const response = await fetch(url, {
             method: 'HEAD',
@@ -123,12 +122,15 @@ const generateFallbackUrl = (company: string, title: string): string => {
     return `https://www.google.com/search?q=${searchQuery}`;
 };
 
-// Helper to validate and fix job URLs in parallel
-const validateAndFixJobUrls = async (jobs: Job[]): Promise<Job[]> => {
-    console.log(`[validateAndFixJobUrls] Validating ${jobs.length} job URLs...`);
+// Helper to validate and fix job URLs in parallel, capped to avoid Cloud Function timeout
+const validateAndFixJobUrls = async (jobs: Job[], maxToValidate: number = 10): Promise<Job[]> => {
+    console.log(`[validateAndFixJobUrls] Validating up to ${maxToValidate} job URLs out of ${jobs.length}...`);
+
+    const jobsToValidate = jobs.slice(0, maxToValidate);
+    const jobsToSkip = jobs.slice(maxToValidate);
 
     const validationResults = await Promise.allSettled(
-        jobs.map(async (job) => {
+        jobsToValidate.map(async (job) => {
             const isValid = await validateJobUrl(job.url);
             return { job, isValid };
         })
@@ -154,29 +156,24 @@ const validateAndFixJobUrls = async (jobs: Job[]): Promise<Job[]> => {
             fixedCount++;
             // Promise rejected, use fallback
             return {
-                ...jobs[index],
-                url: generateFallbackUrl(jobs[index].company, jobs[index].title)
+                ...jobsToValidate[index],
+                url: generateFallbackUrl(jobsToValidate[index].company, jobsToValidate[index].title)
             };
         }
     });
 
-    console.log(`[validateAndFixJobUrls] Validation complete: ${validCount} valid, ${fixedCount} fixed with fallback`);
-    return validatedJobs;
+    console.log(`[validateAndFixJobUrls] Validation complete: ${validCount} valid, ${fixedCount} fixed with fallback. ${jobsToSkip.length} skipped.`);
+    return [...validatedJobs, ...jobsToSkip];
 };
 
 // onCall version for frontend httpsCallable consumption
 export const searchJobsCallable = functions.region('us-west1').runWith({
-    secrets: [geminiApiKey, googleSearchApiKey, googleSearchCx],
+    secrets: [googleSearchApiKey, googleSearchCx],
     timeoutSeconds: 60,
     memory: "512MB"
 }).https.onCall(async (data, context) => {
-    const apiKey = geminiApiKey.value();
     const searchApiKey = googleSearchApiKey.value();
     const searchCx = googleSearchCx.value();
-
-    if (!apiKey) {
-        throw new functions.https.HttpsError('failed-precondition', "Missing API Key.");
-    }
 
     // Require authentication
     if (!context.auth) {
@@ -191,67 +188,12 @@ export const searchJobsCallable = functions.region('us-west1').runWith({
 
     const fullQuery = location ? `${query} in ${location}` : query;
 
-    // Check and deduct AI credit BEFORE performing search
-    const userDocRef = db.collection('users').doc(userId);
-    try {
-        await db.runTransaction(async (transaction) => {
-            const userDoc = await transaction.get(userDocRef);
-            if (!userDoc.exists) {
-                throw new functions.https.HttpsError('not-found', 'User not found');
-            }
-
-            const userData = userDoc.data();
-            const aiUsageData = userData?.aiUsage || {};
-            const aiUsageCount = aiUsageData.count || 0;
-
-            // Check if user is admin - admins have unlimited searches
-            const userRole = userData?.role;
-            const userRoles = userData?.roles || [];
-            const isAdmin = userRole === 'admin' || userRoles.includes('admin');
-
-            // Calculate limit based on user's plan (matching frontend logic)
-            let aiUsageLimit = 10; // Default for free users
-            const userPlan = userData?.plan;
-
-            if (userPlan === 'pro_sprint') {
-                aiUsageLimit = 100; // Sprint: 100 AI Credits/month
-            } else if (userPlan === 'pro_monthly') {
-                aiUsageLimit = 300; // Monthly: 300 AI Credits/month
-            } else if (aiUsageData.monthlyLimit) {
-                // Fall back to stored monthlyLimit if available
-                aiUsageLimit = aiUsageData.monthlyLimit;
-            }
-
-            console.log(`[searchJobsCallable] User ${userId} | Role: ${userRole} | Admin: ${isAdmin} | Plan: ${userPlan} | AI Usage: ${aiUsageCount}/${aiUsageLimit}`);
-
-            // Skip credit check for admins
-            if (!isAdmin && aiUsageCount >= aiUsageLimit) {
-                throw new functions.https.HttpsError(
-                    'resource-exhausted',
-                    'AI credit limit reached. Please upgrade your plan.'
-                );
-            }
-
-            // Deduct 1 AI credit (even for admins, for tracking purposes)
-            transaction.update(userDocRef, {
-                'aiUsage.count': admin.firestore.FieldValue.increment(1)
-            });
-
-            console.log(`[searchJobsCallable] AI credit deducted for user ${userId}. New count: ${aiUsageCount + 1}/${isAdmin ? 'Unlimited' : aiUsageLimit}`);
-        });
-    } catch (error: any) {
-        if (error.code === 'resource-exhausted' || error.code === 'not-found') {
-            throw error;
-        }
-        console.error('[searchJobsCallable] Error checking/deducting AI credit:', error);
-        throw new functions.https.HttpsError('internal', 'Failed to process AI credit');
-    }
-
-    console.log(`[searchJobsCallable] Searching for: "${fullQuery}"`);
-
     // Generate cache key from normalized query
     const queryHash = normalizeQuery(query, location);
     const cacheRef = db.collection('jobSearchCache').doc(queryHash);
+
+    let cachedJobs: Job[] = [];
+    let cacheStatus: 'hit' | 'partial' | 'miss' = 'miss';
 
     // Check cache first (unless bypassed)
     if (!bypassCache) {
@@ -259,16 +201,37 @@ export const searchJobsCallable = functions.region('us-west1').runWith({
             const cacheDoc = await cacheRef.get();
             if (cacheDoc.exists) {
                 const cached = cacheDoc.data() as CachedJobSearch;
-                console.log(`[searchJobsCallable] Cache HIT for "${queryHash}" - returning ${cached.jobs.length} cached jobs`);
+                const now = admin.firestore.Timestamp.now();
 
-                // Update lastAccessedAt for TTL tracking (async, don't await)
-                cacheRef.update({
-                    lastAccessedAt: admin.firestore.FieldValue.serverTimestamp()
-                }).catch(err => console.warn('Failed to update lastAccessedAt:', err));
+                // Enforce 6-Hour expiration check
+                if (cached.expiresAt && cached.expiresAt.toMillis() > now.toMillis()) {
+                    cachedJobs = cached.jobs || [];
+                    if (cachedJobs.length >= validatedJobCount) {
+                        cacheStatus = 'hit';
+                        console.log(`[searchJobsCallable] Full Cache HIT for "${queryHash}" - returning ${validatedJobCount} cached jobs`);
 
-                return { jobs: cached.jobs, cached: true };
+                        // Update lastAccessedAt for TTL tracking (async, don't await)
+                        cacheRef.update({
+                            lastAccessedAt: admin.firestore.FieldValue.serverTimestamp()
+                        }).catch(err => console.warn('Failed to update lastAccessedAt:', err));
+
+                        return { 
+                            jobs: cachedJobs.slice(0, validatedJobCount), 
+                            cached: true,
+                            creditDeducted: 0,
+                            requestedCount: validatedJobCount,
+                            isLimited: false
+                        };
+                    } else if (cachedJobs.length > 0) {
+                        cacheStatus = 'partial';
+                        console.log(`[searchJobsCallable] Partial Cache HIT for "${queryHash}" - found ${cachedJobs.length}/${validatedJobCount} jobs`);
+                    }
+                } else {
+                    console.log(`[searchJobsCallable] Cache EXPIRED for "${queryHash}"`);
+                }
+            } else {
+                console.log(`[searchJobsCallable] Cache MISS for "${queryHash}"`);
             }
-            console.log(`[searchJobsCallable] Cache MISS for "${queryHash}" - calling Gemini API`);
         } catch (cacheError) {
             console.warn('[searchJobsCallable] Cache lookup error, proceeding with API call:', cacheError);
         }
@@ -276,49 +239,111 @@ export const searchJobsCallable = functions.region('us-west1').runWith({
         console.log(`[searchJobsCallable] Cache BYPASSED for "${queryHash}" - forcing fresh search`);
     }
 
-    // Cache miss or bypassed - Google Search API is REQUIRED (no Gemini grounding fallback)
-    if (!searchApiKey || !searchCx) {
-        console.error('[searchJobsCallable] Google Search API Key or CX missing - cannot proceed');
-        throw new functions.https.HttpsError(
-            'failed-precondition',
-            'Google Search API is not configured. Please contact support.'
-        );
-    }
+    const liveJobsNeeded = validatedJobCount - cachedJobs.length;
 
-    // 1. Perform Google Search
-    let searchResults;
-    try {
-        searchResults = await performGoogleSearch(fullQuery + " job openings", searchApiKey, searchCx);
-        console.log(`[searchJobsCallable] Google Search returned ${searchResults.length} results.`);
-    } catch (searchError) {
-        console.error('[searchJobsCallable] Google Search failed:', searchError);
-        throw new functions.https.HttpsError(
-            'internal',
-            'Failed to fetch job search results. Please try again.'
-        );
-    }
-
-    if (searchResults.length === 0) {
-        console.log('[searchJobsCallable] No search results found');
-        return { jobs: [], cached: false };
-    }
-
-    // 2. Format search context for Gemini
-    const searchContext = searchResults.map(r => `Source: ${r.link}\nTitle: ${r.title}\nSnippet: ${r.snippet}`).join('\n\n');
-
-    // 3. Call Gemini API ONLY for parsing (no search grounding)
-    const ai = new GoogleGenAI({ apiKey });
-    const model = 'gemini-2.5-flash';
+    // Check credit limits using read-only operation before invoking APIs
+    const userDocRef = db.collection('users').doc(userId);
+    let isAdmin = false;
+    let aiUsageLimit = 10;
+    let aiUsageCount = 0;
 
     try {
-        console.log(`[searchJobsCallable] Calling Gemini (${model}) to parse search results...`);
+        const userDoc = await userDocRef.get();
+        if (!userDoc.exists) {
+            throw new functions.https.HttpsError('not-found', 'User not found');
+        }
 
-        const prompt = `I have performed a Google Search for job openings: "${fullQuery}".
+        const userData = userDoc.data();
+        const aiUsageData = userData?.aiUsage || {};
+        aiUsageCount = aiUsageData.count || 0;
+
+        // Check if user is admin - admins have unlimited searches
+        const userRole = userData?.role;
+        const userRoles = userData?.roles || [];
+        isAdmin = userRole === 'admin' || userRoles.includes('admin');
+
+        // Calculate limit based on user's plan
+        const userPlan = userData?.plan;
+        if (userPlan === 'pro_sprint') {
+            aiUsageLimit = 100; // Sprint: 100 AI Credits/month
+        } else if (userPlan === 'pro_monthly') {
+            aiUsageLimit = 300; // Monthly: 300 AI Credits/month
+        } else if (aiUsageData.monthlyLimit) {
+            aiUsageLimit = aiUsageData.monthlyLimit;
+        }
+
+        console.log(`[searchJobsCallable] User ${userId} | Role: ${userRole} | Admin: ${isAdmin} | Plan: ${userPlan} | AI Usage: ${aiUsageCount}/${aiUsageLimit}`);
+
+        // Skip credit check for admins
+        if (!isAdmin && aiUsageCount >= aiUsageLimit) {
+            throw new functions.https.HttpsError(
+                'resource-exhausted',
+                'AI credit limit reached. Please upgrade your plan.'
+            );
+        }
+    } catch (error: any) {
+        if (error instanceof functions.https.HttpsError) {
+            throw error;
+        }
+        console.error('[searchJobsCallable] Error checking AI credit:', error);
+        throw new functions.https.HttpsError('internal', 'Failed to process AI credit');
+    }
+
+    let newValidatedJobs: Job[] = [];
+
+    if (liveJobsNeeded > 0) {
+        // Cache miss or bypassed - Google Search API is REQUIRED
+        if (!searchApiKey || !searchCx) {
+            console.error('[searchJobsCallable] Google Search API Key or CX missing - cannot proceed');
+            throw new functions.https.HttpsError(
+                'failed-precondition',
+                'Google Search API is not configured. Please contact support.'
+            );
+        }
+
+        // Build Google CSE query with ATS site restrictions for accuracy
+        const cseQuery = location 
+          ? `"${query}" "${location}" (site:jobs.lever.co OR site:greenhouse.io OR site:ashbyhq.com OR site:myworkdayjobs.com OR site:breezy.hr)` 
+          : `"${query}" (site:jobs.lever.co OR site:greenhouse.io OR site:ashbyhq.com)`;
+
+        console.log(`[searchJobsCallable] Performing Google Search for query: "${cseQuery}" requesting ${liveJobsNeeded} live jobs`);
+
+        // Perform Google Search (which handles pagination for >10 results internally)
+        let searchResults;
+        try {
+            searchResults = await performGoogleSearch(cseQuery, searchApiKey, searchCx, liveJobsNeeded);
+            console.log(`[searchJobsCallable] Google Search returned ${searchResults.length} results.`);
+        } catch (searchError) {
+            console.error('[searchJobsCallable] Google Search failed:', searchError);
+            throw new functions.https.HttpsError(
+                'internal',
+                'Failed to fetch job search results. Please try again.'
+            );
+        }
+
+        if (searchResults.length > 0) {
+            // Format search context for Gemini
+            const searchContext = searchResults.map(r => `Source: ${r.link}\nTitle: ${r.title}\nSnippet: ${r.snippet}`).join('\n\n');
+
+            // Call Gemini API ONLY for parsing
+            const ai = getAIClient();
+            const model = 'gemini-2.5-flash';
+
+            try {
+                console.log(`[searchJobsCallable] Calling Gemini (${model}) to parse search results...`);
+
+                // Supply already cached jobs to ignore
+                const ignoreClause = cachedJobs.length > 0 
+                  ? `\nCRITICAL: Already cached jobs to IGNORE (do NOT extract jobs from these companies with these titles): ${JSON.stringify(cachedJobs.map(j => ({title: j.title, company: j.company})))}`
+                  : '';
+
+                const prompt = `I have performed a Google Search for job openings: "${query}" in "${location}".
 Here are the search results:
 ---
 ${searchContext}
 ---
 TASK: Extract ONLY actual job postings from the search results.
+${ignoreClause}
 
 IGNORE these types of results:
 - Job board aggregators (Indeed, ZipRecruiter, LinkedIn job search pages)
@@ -329,6 +354,8 @@ ONLY EXTRACT results that are:
 - Direct job postings from company career pages
 - Specific job listings with a company name and job title
 - Currently accepting applications
+
+CRITICAL LOCATION REQUIREMENT: The job location MUST be in "${location || 'Remote'}". If the snippet indicates the job is remote, that is acceptable. However, do NOT extract jobs that are physically located in other major cities unless remote.
 
 If you cannot find ANY actual job postings (only meta-information), respond with: NO_JOBS_FOUND
 
@@ -341,138 +368,186 @@ Description: [Provide a comprehensive job description based on the snippets. Aim
 URL: [The direct application link from the search results]
 ---`;
 
-        const response = await ai.models.generateContent({
-            model,
-            contents: prompt,
-        });
+                const response = await ai.models.generateContent({
+                    model,
+                    contents: prompt,
+                });
 
-        // Access response.text directly like reference project
-        const textResponse = response.text || '';
-        console.log(`[searchJobsCallable] Raw Text Response (first 500 chars): ${textResponse.substring(0, 500)}`);
+                const textResponse = response.text || '';
+                console.log(`[searchJobsCallable] Raw Text Response (first 500 chars): ${textResponse.substring(0, 500)}`);
 
-        // No grounding sources needed - we're using Google Search results directly
-        const defaultFallbackUrl = `https://www.google.com/search?q=${encodeURIComponent(fullQuery + ' application')}`;
+                const defaultFallbackUrl = `https://www.google.com/search?q=${encodeURIComponent(query + ' in ' + location + ' application')}`;
 
-        const jobs: Job[] = [];
-        const jobBlocks = textResponse.split('---').filter((block: string) => block.trim() !== '');
+                const parsedJobs: Job[] = [];
+                const jobBlocks = textResponse.split('---').filter((block: string) => block.trim() !== '');
 
-        console.log(`[searchJobsCallable] Found ${jobBlocks.length} job blocks.`);
+                console.log(`[searchJobsCallable] Found ${jobBlocks.length} job blocks.`);
 
-        jobBlocks.forEach((block: string) => {
-            const titleMatch = block.match(/Title:\s*(.*)/i);
-            const companyMatch = block.match(/Company:\s*(.*)/i);
-            const locationMatch = block.match(/Location:\s*(.*)/i);
-            const descriptionMatch = block.match(/Description:\s*([\s\S]*?)(?=\nURL:|$)/i);
-            const urlMatch = block.match(/URL:\s*(.*)/i);
+                jobBlocks.forEach((block: string) => {
+                    const titleMatch = block.match(/Title:\s*(.*)/i);
+                    const companyMatch = block.match(/Company:\s*(.*)/i);
+                    const locationMatch = block.match(/Location:\s*(.*)/i);
+                    const descriptionMatch = block.match(/Description:\s*([\s\S]*?)(?=\nURL:|$)/i);
+                    const urlMatch = block.match(/URL:\s*(.*)/i);
 
-            if (titleMatch?.[1] && companyMatch?.[1]) {
-                const title = titleMatch[1].trim();
-                const company = companyMatch[1].trim();
-                const id = `${title.toLowerCase()}-${company.toLowerCase()}`.replace(/[^a-z0-9]+/g, '-');
+                    if (titleMatch?.[1] && companyMatch?.[1]) {
+                        const title = titleMatch[1].trim();
+                        const company = companyMatch[1].trim();
+                        const id = `${title.toLowerCase()}-${company.toLowerCase()}`.replace(/[^a-z0-9]+/g, '-');
 
-                let jobUrl = urlMatch?.[1]?.trim() || '';
+                        let jobUrl = urlMatch?.[1]?.trim() || '';
 
-                // If URL is missing or invalid, use default fallback
-                if (!jobUrl || jobUrl.includes('[') || jobUrl.length < 10) {
-                    jobUrl = defaultFallbackUrl;
+                        // If URL is missing or invalid, use default fallback
+                        if (!jobUrl || jobUrl.includes('[') || jobUrl.length < 10) {
+                            jobUrl = defaultFallbackUrl;
+                        }
+
+                        parsedJobs.push({
+                            id,
+                            title,
+                            company,
+                            location: locationMatch?.[1]?.trim() || "Remote / Unspecified",
+                            description: descriptionMatch?.[1]?.trim() || "No description provided.",
+                            url: jobUrl,
+                        });
+                    }
+                });
+
+                // Deterministic Location Shield post-filter
+                let filteredJobs = parsedJobs;
+                if (location) {
+                    const locLower = location.toLowerCase().trim();
+                    filteredJobs = parsedJobs.filter(job => {
+                        const jobLoc = job.location.toLowerCase();
+                        return jobLoc.includes(locLower) || jobLoc.includes('remote');
+                    });
+                    console.log(`[searchJobsCallable] Location shield: filtered down from ${parsedJobs.length} to ${filteredJobs.length} jobs.`);
                 }
 
-                jobs.push({
-                    id,
-                    title,
-                    company,
-                    location: locationMatch?.[1]?.trim() || "Remote / Unspecified",
-                    description: descriptionMatch?.[1]?.trim() || "No description provided.",
-                    url: jobUrl,
-                });
+                // URL validation optimization:
+                // Cap validation to Math.min(liveJobsNeeded, 15) to avoid Cloud Function timeouts
+                const maxToValidate = Math.min(liveJobsNeeded, 15);
+                newValidatedJobs = await validateAndFixJobUrls(filteredJobs, maxToValidate);
+
+            } catch (error: any) {
+                console.error("Gemini Search Exception:", error);
+                throw new functions.https.HttpsError('internal', `Gemini Error: ${error.message}`);
             }
-        });
+        }
+    }
 
-        console.log(`[searchJobsCallable] Parsed ${jobs.length} jobs, validating URLs...`);
+    // 4. Combine and Deduplicate
+    const mergedJobs = [...cachedJobs, ...newValidatedJobs];
+    const uniqueJobs: Job[] = [];
+    const seenIds = new Set<string>();
+    for (const job of mergedJobs) {
+        if (!seenIds.has(job.id)) {
+            seenIds.add(job.id);
+            uniqueJobs.push(job);
+        }
+    }
 
-        // Validate and fix job URLs before caching
-        const validatedJobs = await validateAndFixJobUrls(jobs);
-        console.log(`[searchJobsCallable] Returning ${validatedJobs.length} validated jobs.`);
+    const finalJobs = uniqueJobs.slice(0, validatedJobCount);
 
-        // Save to cache (async, don't block response)
-        if (validatedJobs.length > 0) {
-            const twoWeeksFromNow = admin.firestore.Timestamp.fromDate(
-                new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-            );
+    // 5. Calculate actual credit deduction (proportional to fresh results used in final list)
+    const finalCachedCount = finalJobs.filter(job => cachedJobs.some(c => c.id === job.id)).length;
+    const finalLiveCount = finalJobs.length - finalCachedCount;
+    // Calculate proportional credit deduction. Keep 2 decimals.
+    const creditDeduction = finalJobs.length > 0 ? parseFloat((finalLiveCount / validatedJobCount).toFixed(2)) : 0;
 
-            // 1. Save to query-based cache
-            cacheRef.set({
-                query,
-                location,
-                jobs: validatedJobs,
+    if (creditDeduction > 0) {
+        try {
+            await db.runTransaction(async (transaction) => {
+                const userDoc = await transaction.get(userDocRef);
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    const aiUsageData = userData?.aiUsage || {};
+                    const currentCount = aiUsageData.count || 0;
+
+                    transaction.update(userDocRef, {
+                        'aiUsage.count': admin.firestore.FieldValue.increment(creditDeduction)
+                    });
+                    console.log(`[searchJobsCallable] Deducted ${creditDeduction} credit for user ${userId}. Previous count: ${currentCount}, New: ${currentCount + creditDeduction}`);
+                }
+            });
+        } catch (err) {
+            console.error('[searchJobsCallable] Failed to deduct proportional credit transactionally:', err);
+        }
+    } else {
+        console.log(`[searchJobsCallable] 0 credit deducted because all results were cached.`);
+    }
+
+    // 6. Write combined set back to cache (6-Hour TTL)
+    if (finalJobs.length > 0) {
+        const sixHoursFromNow = admin.firestore.Timestamp.fromDate(new Date(Date.now() + 6 * 60 * 60 * 1000));
+        cacheRef.set({
+            query,
+            location,
+            jobs: uniqueJobs, // Cache all found so far to expand the pool for subsequent searches!
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            lastAccessedAt: admin.firestore.FieldValue.serverTimestamp(),
+            expiresAt: sixHoursFromNow
+        }).catch(err => console.warn('[searchJobsCallable] Failed to save to cache:', err));
+        console.log(`[searchJobsCallable] Saved ${uniqueJobs.length} jobs to cache for "${queryHash}" with 6h TTL`);
+
+        // Index individual jobs for smart search
+        const batch = db.batch();
+        uniqueJobs.forEach(job => {
+            const jobId = generateJobId(job);
+            const jobRef = db.collection('cachedJobs').doc(jobId);
+            batch.set(jobRef, {
+                ...job,
+                company_lower: job.company.toLowerCase(),
+                location_lower: job.location.toLowerCase(),
+                title_keywords: extractKeywords(job.title),
+                sourceQuery: queryHash,
                 createdAt: admin.firestore.FieldValue.serverTimestamp(),
                 lastAccessedAt: admin.firestore.FieldValue.serverTimestamp(),
-                expiresAt: twoWeeksFromNow,
-            }).catch(err => console.warn('Failed to save to cache:', err));
-            console.log(`[searchJobsCallable] Saved ${validatedJobs.length} jobs to cache for "${queryHash}"`);
-
-            // 2. Index individual jobs for smart search
-            const batch = db.batch();
-            validatedJobs.forEach(job => {
-                const jobId = generateJobId(job);
-                const jobRef = db.collection('cachedJobs').doc(jobId);
-                batch.set(jobRef, {
-                    ...job,
-                    company_lower: job.company.toLowerCase(),
-                    location_lower: job.location.toLowerCase(),
-                    title_keywords: extractKeywords(job.title),
-                    sourceQuery: queryHash,
-                    createdAt: admin.firestore.FieldValue.serverTimestamp(),
-                    lastAccessedAt: admin.firestore.FieldValue.serverTimestamp(),
-                }, { merge: true });
-            });
-            batch.commit().then(() => {
-                console.log(`[searchJobsCallable] Indexed ${jobs.length} jobs for smart search`);
-            }).catch(err => console.warn('Failed to index jobs:', err));
-        }
-
-        // 3. Save to user's job history (limit to requested job count)
-        if (validatedJobs.length > 0) {
-            const jobsToSave = validatedJobs.slice(0, validatedJobCount);
-            const historyBatch = db.batch();
-
-            jobsToSave.forEach(job => {
-                const historyRef = db.collection('users').doc(userId)
-                    .collection('jobSearchHistory').doc(job.id);
-                historyBatch.set(historyRef, {
-                    ...job,
-                    source: 'google' as const, // Use 'google' to prevent Partner badge
-                    createdAt: admin.firestore.FieldValue.serverTimestamp(),
-                    searchQuery: fullQuery
-                }, { merge: true });
-            });
-
-            historyBatch.commit().then(() => {
-                console.log(`[searchJobsCallable] Saved ${jobsToSave.length} jobs to user ${userId} history`);
-            }).catch(err => console.warn('Failed to save job history:', err));
-        }
-
-        return { jobs: validatedJobs.slice(0, validatedJobCount), cached: false };
-
-    } catch (error: any) {
-        console.error("Gemini Search Exception:", error);
-        throw new functions.https.HttpsError('internal', `Gemini Error: ${error.message}`);
+            }, { merge: true });
+        });
+        batch.commit().then(() => {
+            console.log(`[searchJobsCallable] Indexed ${uniqueJobs.length} jobs for smart search`);
+        }).catch(err => console.warn('Failed to index jobs:', err));
     }
+
+    // 7. Save to user's job history (limit to final jobs returned)
+    if (finalJobs.length > 0) {
+        const historyBatch = db.batch();
+        finalJobs.forEach(job => {
+            const historyRef = db.collection('users').doc(userId)
+                .collection('jobSearchHistory').doc(job.id);
+            historyRef.set({
+                ...job,
+                source: 'google' as const, // Use 'google' to prevent Partner badge
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                searchQuery: fullQuery
+            }, { merge: true });
+        });
+
+        historyBatch.commit().then(() => {
+            console.log(`[searchJobsCallable] Saved ${finalJobs.length} jobs to user ${userId} history`);
+        }).catch(err => console.warn('Failed to save job history:', err));
+    }
+
+    const isLimited = finalJobs.length < validatedJobCount;
+
+    return { 
+        jobs: finalJobs, 
+        cached: cacheStatus === 'hit',
+        creditDeducted: creditDeduction,
+        requestedCount: validatedJobCount,
+        isLimited
+    };
 });
 
 // Also expose as onRequest for direct HTTP calls (testing)
 export const searchJobs = functions.region('us-west1').runWith({
-    secrets: [geminiApiKey, googleSearchApiKey, googleSearchCx],
+    secrets: [googleSearchApiKey, googleSearchCx],
     timeoutSeconds: 60,
     memory: "512MB"
 }).https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
         try {
-            const apiKey = geminiApiKey.value();
-            if (!apiKey) {
-                res.status(500).json({ error: "Missing API Key." });
-                return;
-            }
 
             const query = (req.query.q as string) || (req.body.data?.query as string) || (req.body.query as string) || 'Software Engineer';
             const location = (req.query.loc as string) || (req.body.data?.location as string) || (req.body.location as string) || '';
@@ -489,10 +564,14 @@ export const searchJobs = functions.region('us-west1').runWith({
                 const cacheDoc = await cacheRef.get();
                 if (cacheDoc.exists) {
                     const cached = cacheDoc.data() as CachedJobSearch;
-                    console.log(`[searchJobs] Cache HIT for "${queryHash}"`);
-                    cacheRef.update({ lastAccessedAt: admin.firestore.FieldValue.serverTimestamp() });
-                    res.json({ result: { jobs: cached.jobs, cached: true } });
-                    return;
+                    const now = admin.firestore.Timestamp.now();
+                    
+                    if (cached.expiresAt && cached.expiresAt.toMillis() > now.toMillis()) {
+                        console.log(`[searchJobs] Cache HIT for "${queryHash}"`);
+                        cacheRef.update({ lastAccessedAt: admin.firestore.FieldValue.serverTimestamp() });
+                        res.json({ result: { jobs: cached.jobs, cached: true } });
+                        return;
+                    }
                 }
             } catch (cacheError) {
                 console.warn('[searchJobs] Cache lookup error:', cacheError);
@@ -529,7 +608,7 @@ export const searchJobs = functions.region('us-west1').runWith({
             const searchContext = searchResults.map(r => `Source: ${r.link}\nTitle: ${r.title}\nSnippet: ${r.snippet}`).join('\n\n');
 
             // 3. Call Gemini API ONLY for parsing (no search grounding)
-            const ai = new GoogleGenAI({ apiKey });
+            const ai = getAIClient();
             const model = 'gemini-2.5-flash';
 
             console.log(`[searchJobs] Calling Gemini (${model}) to parse search results...`);
@@ -600,8 +679,8 @@ URL: [The direct application link from the search results]
 
             // Save to cache and index jobs
             if (validatedJobs.length > 0) {
-                const twoWeeksFromNow = admin.firestore.Timestamp.fromDate(
-                    new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+                const sixHoursFromNow = admin.firestore.Timestamp.fromDate(
+                    new Date(Date.now() + 6 * 60 * 60 * 1000)
                 );
 
                 // 1. Save to query-based cache
@@ -611,7 +690,7 @@ URL: [The direct application link from the search results]
                     jobs: validatedJobs,
                     createdAt: admin.firestore.FieldValue.serverTimestamp(),
                     lastAccessedAt: admin.firestore.FieldValue.serverTimestamp(),
-                    expiresAt: twoWeeksFromNow,
+                    expiresAt: sixHoursFromNow,
                 });
 
                 // 2. Index individual jobs for smart search

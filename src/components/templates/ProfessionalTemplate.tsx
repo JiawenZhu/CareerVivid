@@ -72,7 +72,7 @@ export const ProfessionalTemplate: React.FC<TemplateProps> = ({ resume, themeCol
               <InlineEdit value={sectionTitles?.experience || 'Work Experience'} fieldId="sectionTitles.experience" onFocus={onFocus} placeholder="Experience" />
             </h3>
             {employmentHistory.map((job, index) => (
-              <div key={job.id} className="mb-4">
+              <div key={job.id || `job-${index}`} className="mb-4">
                 <div className="flex justify-between items-baseline">
                   <InlineEdit
                     value={job.jobTitle}
@@ -126,7 +126,7 @@ export const ProfessionalTemplate: React.FC<TemplateProps> = ({ resume, themeCol
                 <InlineEdit value={personalDetails.address} fieldId="personalDetails.address" onFocus={onFocus} placeholder="Address" />
               </div>
               {websites.map((site, index) => (
-                <div key={site.id} className="flex items-center">
+                <div key={site.id || `site-${index}`} className="flex items-center">
                   <IconDisplay iconName={site.icon || 'globe'} size={14} className="mr-3 flex-shrink-0 transform translate-y-px" style={themeColorStyle} />
                   <a href={site.url} target="_blank" rel="noopener noreferrer" className="hover:underline break-all">
                     <InlineEdit value={site.label} fieldId={`websites[${index}].label`} onFocus={onFocus} isLink />
@@ -143,7 +143,7 @@ export const ProfessionalTemplate: React.FC<TemplateProps> = ({ resume, themeCol
             </h3>
             <ul className="space-y-1">
               {skills.map((skill, index) => (
-                <li key={skill.id} className="text-sm bg-gray-100 rounded-md px-3 py-1 flex items-center">
+                <li key={skill.id || `skill-${index}`} className="text-sm bg-gray-100 rounded-md px-3 py-1 flex items-center">
                   <InlineEdit value={skill.name} fieldId={`skills[${index}].name`} onFocus={onFocus} placeholder="Skill" />
                 </li>
               ))}
@@ -155,7 +155,7 @@ export const ProfessionalTemplate: React.FC<TemplateProps> = ({ resume, themeCol
               <InlineEdit value={sectionTitles?.education || 'Education'} fieldId="sectionTitles.education" onFocus={onFocus} placeholder="Education" />
             </h3>
             {education.map((edu, index) => (
-              <div key={edu.id} className="mb-4">
+              <div key={edu.id || `edu-${index}`} className="mb-4">
                 <InlineEdit
                   value={edu.degree}
                   fieldId={`education[${index}].degree`}

@@ -7,10 +7,12 @@
 
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
-import { defineSecret } from "firebase-functions/params";
-import { GoogleGenAI } from "@google/genai";
+import { FieldValue } from "firebase-admin/firestore";
+
+import { getAIClient } from "./utils/ai";
 import cors from "cors";
 import { resolveAuth } from "./utils/authUtils.js";
+import { defineSecret } from "firebase-functions/params";
 
 if (!admin.apps.length) {
     admin.initializeApp();
@@ -18,7 +20,7 @@ if (!admin.apps.length) {
 
 const db = admin.firestore();
 const corsHandler = cors({ origin: true });
-const geminiApiKey = defineSecret("GEMINI_API_KEY");
+
 const googleSearchApiKey = defineSecret("GOOGLE_SEARCH_API_KEY");
 const googleSearchCx = defineSecret("GOOGLE_SEARCH_CX");
 
@@ -93,7 +95,7 @@ function scoreLabel(score: number): ScoredJob["scoreLabel"] {
 // ──────────────────────────────────────────────────────────────────────────────
 
 export const cliJobsHunt = functions.region("us-west1").runWith({
-    secrets: [geminiApiKey, googleSearchApiKey, googleSearchCx],
+    secrets: [googleSearchApiKey, googleSearchCx],
     timeoutSeconds: 120,
     memory: "512MB",
 }).https.onRequest(async (req, res) => {
@@ -119,11 +121,9 @@ export const cliJobsHunt = functions.region("us-west1").runWith({
             targetOrgs?: string[];
         };
 
-        const gemKey = geminiApiKey.value();
         const searchKey = googleSearchApiKey.value();
         const cx = googleSearchCx.value();
 
-        if (!gemKey) { res.status(500).json({ error: "AI key not configured." }); return; }
 
         // ── Step 1: Parallel Job Search ────────────────────────────────────────
         let queries: string[] = [];
@@ -158,7 +158,7 @@ export const cliJobsHunt = functions.region("us-west1").runWith({
         }
 
         // ── Step 2: Parse & Score with Gemini ─────────────────────────────────
-        const ai = new GoogleGenAI({ apiKey: gemKey });
+        const ai = getAIClient();
 
         const searchContext = rawResults.length > 0
             ? rawResults.slice(0, 20).map(r => `URL: ${r.link}\nTitle: ${r.title}\nSnippet: ${r.snippet}`).join("\n\n")
@@ -243,7 +243,7 @@ REQUIRED format — each item must have all fields:
             const ref = db.collection("users").doc(user.uid).collection("jobSearchHistory").doc(job.id);
             historyBatch.set(ref, {
                 ...job,
-                searchedAt: admin.firestore.FieldValue.serverTimestamp(),
+                searchedAt: FieldValue.serverTimestamp(),
                 source: "cli_hunt",
             }, { merge: true });
         });
@@ -310,8 +310,8 @@ export const cliJobsCreate = functions.region("us-west1").runWith({
             jobDescription,
             applicationStatus: "To Apply",
             portalSource: "cli_hunt",
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            createdAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
             userId: user.uid,
             dateSaved: new Date().toISOString().split("T")[0],
             ...(aiScore !== undefined && { aiScore }),
@@ -385,7 +385,7 @@ export const cliJobsUpdate = functions.region("us-west1").runWith({
 
             const updateData: Record<string, any> = {
                 applicationStatus: status as ApplicationStatus,
-                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                updatedAt: FieldValue.serverTimestamp(),
             };
 
             if (notes) updateData.notes = notes;
@@ -632,7 +632,7 @@ export const cliResumesList = functions.region("us-west1").runWith({
 // ──────────────────────────────────────────────────────────────────────────────
 
 export const cliResumeCreate = functions.region("us-west1").runWith({
-    secrets: [geminiApiKey],
+    secrets: [],
     timeoutSeconds: 60,
     memory: "512MB",
 }).https.onRequest(async (req, res) => {
@@ -663,13 +663,13 @@ OUTPUT MUST BE VALID JSON ONLY with this exact structure:
 }`;
 
         try {
-            const ai = new GoogleGenAI({ apiKey: geminiApiKey.value() });
+            const ai = getAIClient();
             const response = await ai.models.generateContent({ model: "gemini-2.5-flash", contents: prompt });
             const cleaned = (response.text || "").replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
             const resumeData = JSON.parse(cleaned);
 
-            resumeData.updatedAt = admin.firestore.FieldValue.serverTimestamp();
-            resumeData.createdAt = admin.firestore.FieldValue.serverTimestamp();
+            resumeData.updatedAt = FieldValue.serverTimestamp();
+            resumeData.createdAt = FieldValue.serverTimestamp();
             if (!resumeData.title) resumeData.title = title;
 
             const ref = await db.collection("users").doc(user.uid).collection("resumes").add(resumeData);
@@ -688,7 +688,7 @@ OUTPUT MUST BE VALID JSON ONLY with this exact structure:
 // ──────────────────────────────────────────────────────────────────────────────
 
 export const cliResumeUpdate = functions.region("us-west1").runWith({
-    secrets: [geminiApiKey],
+    secrets: [],
     timeoutSeconds: 120,
     memory: "512MB",
 }).https.onRequest(async (req, res) => {
@@ -727,16 +727,16 @@ ${JSON.stringify(resumeJson)}`;
             }
             prompt += `\nRETURN ONLY VALID JSON mirroring the current resume structure exactly, applying the refinements requested.`;
 
-            const ai = new GoogleGenAI({ apiKey: geminiApiKey.value() });
+            const ai = getAIClient();
             const response = await ai.models.generateContent({ model: "gemini-2.5-flash", contents: prompt });
             const cleaned = (response.text || "").replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
             const tailoredData = JSON.parse(cleaned);
 
-            tailoredData.updatedAt = admin.firestore.FieldValue.serverTimestamp();
+            tailoredData.updatedAt = FieldValue.serverTimestamp();
             if (newTitle) { tailoredData.title = newTitle; }
             
             if (copy) {
-                tailoredData.createdAt = admin.firestore.FieldValue.serverTimestamp();
+                tailoredData.createdAt = FieldValue.serverTimestamp();
                 const newRef = await db.collection("users").doc(user.uid).collection("resumes").add(tailoredData);
                 res.json({ success: true, resumeId: newRef.id, message: "Tailored resume created successfully." });
             } else {
@@ -786,7 +786,7 @@ export const cliResumeDelete = functions.region("us-west1").runWith({
 // ──────────────────────────────────────────────────────────────────────────────
 
 export const cliCoverLetterCreate = functions.region("us-west1").runWith({
-    secrets: [geminiApiKey],
+    secrets: [],
     timeoutSeconds: 60,
     memory: "512MB",
 }).https.onRequest(async (req, res) => {
@@ -849,7 +849,7 @@ INSTRUCTIONS:
 7. Keep it under 400 words.
 8. CRITICAL: Do NOT invent fake experiences, companies, or dates. Only use facts from the candidate's profile.`;
 
-            const ai = new GoogleGenAI({ apiKey: geminiApiKey.value() });
+            const ai = getAIClient();
             const response = await ai.models.generateContent({ model: "gemini-2.5-flash", contents: prompt });
             const generatedText = response.text || "";
 
@@ -862,7 +862,7 @@ INSTRUCTIONS:
                 companyName,
                 jobDescription,
                 content: generatedText,
-                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                createdAt: FieldValue.serverTimestamp(),
             };
 
             await coverLetterRef.set(coverLetter);

@@ -468,7 +468,7 @@ const SubscriptionPage: React.FC = () => {
                                         {/* Using built in progress bar with a wrapper and passing exact config to match screenshot */}
                                         <div className="mt-1">
                                             <AIUsageProgressBar 
-                                                used={userProfile?.aiUsage?.creditsUsed || 0}
+                                                used={userProfile?.aiUsage?.count || 0}
                                                 limit={currentPlan === 'pro' ? PRO_PLAN_CREDIT_LIMIT : currentPlan === 'max' ? PRO_MAX_PLAN_CREDIT_LIMIT : currentPlan === 'enterprise' ? ENTERPRISE_PLAN_CREDIT_LIMIT : FREE_PLAN_CREDIT_LIMIT}
                                                 isPremium={currentPlan !== 'free'}
                                                 variant="compact"

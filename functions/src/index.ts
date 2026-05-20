@@ -8,8 +8,9 @@ import { v4 as uuidv4 } from "uuid";
 import { Buffer } from "buffer";
 import { ResumeData } from "./types";
 import { defineSecret } from "firebase-functions/params";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { TranslationServiceClient } from "@google-cloud/translate";
+import { getAIClient } from "./utils/ai.js";
+import { GoogleAuth } from "google-auth-library";
 
 const corsHandler = cors({ origin: true });
 
@@ -18,6 +19,7 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 
+// GEMINI_API_KEY preserved only for cliGetInterviewToken
 const geminiApiKey = defineSecret("GEMINI_API_KEY");
 
 // Export the new Proxy Function if needed
@@ -93,6 +95,7 @@ export { agentDeductCredits } from "./agentCredits";
 // CLI Agent Proxy (routes agent Gemini calls through server-side key)
 export { agentProxy } from "./agentProxy";
 export { llmGateway } from "./llmGateway.js";
+export { publicResumeApi } from "./publicResumeApi";
 
 const APP_BASE_URL =
   process.env.CAREERVIVID_APP_URL ||
@@ -340,8 +343,7 @@ export const generateResumePdfHttp = functions
 export const generateAIContent = functions
   .region('us-west1')
   .runWith({
-    timeoutSeconds: 60,
-    secrets: [geminiApiKey],
+    timeoutSeconds: 60
   })
   .https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
@@ -367,11 +369,12 @@ export const generateAIContent = functions
       }
 
       try {
-        const genAI = new GoogleGenerativeAI(geminiApiKey.value());
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
+        const ai = getAIClient();
+        const result = await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: prompt
+        });
+        const text = result.text || "";
         res.json({ result: text });
       } catch (error: any) {
         console.error("AI Generation Error:", error);
@@ -677,6 +680,228 @@ export const getInterviewAuthToken = functions.region('us-west1').https.onCall(a
 });
 
 /**
+ * Web client token vending endpoint for the Live API voice interview feature.
+ *
+ * Validates the web user's auth context, checks credits (minimum 2 credits),
+ * creates a Firestore session document with startTime (source: "web"),
+ * and returns Vertex AI short-lived OAuth token.
+ */
+export const getInterviewVertexToken = functions
+  .region("us-west1")
+  .runWith({ timeoutSeconds: 15, memory: "256MB" })
+  .https.onCall(async (data, context) => {
+    // Verify user authentication
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        "unauthenticated",
+        "User must be logged in to start an interview session."
+      );
+    }
+
+    // Reject anonymous users (Auth Guard)
+    if (context.auth.token.firebase.sign_in_provider === 'anonymous') {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        "Guest users cannot start interview sessions. Please sign up."
+      );
+    }
+
+    const uid = context.auth.uid;
+    const db = admin.firestore();
+
+    try {
+      const userRef = db.collection("users").doc(uid);
+      const userSnap = await userRef.get();
+      const userData = userSnap.data() || {};
+      const plan = userData.plan || "free";
+
+      const monthlyLimit = plan === "max" || plan === "pro_max" ? 10000
+        : plan === "pro_monthly" || plan === "pro" ? 1000
+        : plan === "pro_sprint" ? 300
+        : 100;
+
+      const now = new Date();
+      const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+      const used: number = userData.creditsUsed?.[monthKey] ?? 0;
+      const MIN_CREDITS = 2; // minimum charge for any session
+
+      if (used + MIN_CREDITS > monthlyLimit) {
+        throw new functions.https.HttpsError(
+          "resource-exhausted",
+          "AI credit limit reached. Upgrade at https://careervivid.app/pricing"
+        );
+      }
+
+      // Create session document
+      const sessionRef = db.collection("interviewSessions").doc();
+      await sessionRef.set({
+        uid,
+        role: data.role ?? "unspecified",
+        startedAt: admin.firestore.FieldValue.serverTimestamp(),
+        billed: false,
+        creditsCharged: null,
+        plan,
+        source: "web",
+      });
+
+      // Generate short-lived OAuth token for Vertex AI
+      const auth = new GoogleAuth({
+        scopes: "https://www.googleapis.com/auth/cloud-platform",
+      });
+      const client = await auth.getClient();
+      const accessTokenResponse = await client.getAccessToken();
+      const accessToken = accessTokenResponse.token;
+
+      const project = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || "jastalk-firebase";
+      const location = "us-west1";
+
+      console.log(`[getInterviewVertexToken] uid=${uid} sessionId=${sessionRef.id} role="${data.role ?? "unspecified"}" (Vertex AI Token Vended)`);
+
+      return {
+        accessToken,
+        project,
+        location,
+        sessionId: sessionRef.id,
+        monthlyLimit,
+        creditsUsed: used,
+      };
+
+    } catch (err: any) {
+      console.error("[getInterviewVertexToken] Error:", err);
+      if (err instanceof functions.https.HttpsError) throw err;
+      throw new functions.https.HttpsError("internal", err.message || "Internal server error.");
+    }
+  });
+
+/**
+ * Web billing endpoint — called after the voice interview session ends.
+ *
+ * Calculates duration from the session's startedAt timestamp, charges
+ * 2 credits per minute (min 2 credits, max 60 credits), and marks the
+ * session as billed.
+ */
+export const billInterviewSession = functions
+  .region("us-west1")
+  .runWith({ timeoutSeconds: 30, memory: "256MB" })
+  .https.onCall(async (data, context) => {
+    // Verify user authentication
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        "unauthenticated",
+        "User must be logged in to bill an interview session."
+      );
+    }
+
+    const { sessionId, transcript, feedbackReport } = data as {
+      sessionId?: string;
+      transcript?: Array<{ speaker: string; text: string; isFinal?: boolean; timestamp?: number | null }>;
+      feedbackReport?: {
+        overallScore: number;
+        communicationScore: number;
+        confidenceScore: number;
+        relevanceScore: number;
+        strengths: string;
+        areasForImprovement: string;
+      } | null;
+    };
+
+    if (!sessionId) {
+      throw new functions.https.HttpsError("invalid-argument", "Missing sessionId.");
+    }
+
+    const uid = context.auth.uid;
+    const CREDITS_PER_MINUTE = 2;
+    const MIN_CREDITS = 2;
+    const MAX_CREDITS = 60; // cap at 30 minutes billing
+    const db = admin.firestore();
+
+    try {
+      const sessionRef = db.collection("interviewSessions").doc(sessionId);
+      const userRef = db.collection("users").doc(uid);
+
+      let creditsCharged = 0;
+      let durationMinutes = 0;
+      let creditsRemaining = 0;
+
+      await db.runTransaction(async (tx) => {
+        const sessionSnap = await tx.get(sessionRef);
+        if (!sessionSnap.exists) throw new Error("Session not found.");
+
+        const session = sessionSnap.data()!;
+        if (session.uid !== uid) throw new Error("Session does not belong to this user.");
+
+        // Idempotency — don't double-bill
+        if (session.billed) {
+          creditsCharged = session.creditsCharged ?? 0;
+          durationMinutes = session.durationMinutes ?? 0;
+          const userSnap = await tx.get(userRef);
+          const userData = userSnap.data() || {};
+          const now = new Date();
+          const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+          const used: number = userData.creditsUsed?.[monthKey] ?? 0;
+          const monthlyLimit = userData.plan === "max" || userData.plan === "pro_max" ? 10000
+            : userData.plan === "pro_monthly" || userData.plan === "pro" ? 1000
+            : userData.plan === "pro_sprint" ? 300 : 100;
+          creditsRemaining = Math.max(0, monthlyLimit - used);
+          return;
+        }
+
+        // Calculate duration
+        const startedAt: admin.firestore.Timestamp = session.startedAt;
+        const nowMs = Date.now();
+        const durationMs = nowMs - startedAt.toMillis();
+        durationMinutes = Math.round((durationMs / 60000) * 10) / 10; // 1 decimal
+        const durationMins = durationMs / 60000;
+
+        // Rate: 2 credits / minute. Round UP to the next minute, min 2, max 60.
+        const minsRoundedUp = Math.max(1, Math.ceil(durationMins));
+        creditsCharged = Math.min(MAX_CREDITS, Math.max(MIN_CREDITS, minsRoundedUp * CREDITS_PER_MINUTE));
+
+        const userSnap = await tx.get(userRef);
+        const userData = userSnap.data() || {};
+        const now = new Date();
+        const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+
+        const creditsUsed = userData.creditsUsed || {};
+        const currentMonthUsed = creditsUsed[monthKey] ?? 0;
+        const newMonthUsed = currentMonthUsed + creditsCharged;
+
+        // Deduct/Add credits used
+        tx.update(userRef, {
+          [`creditsUsed.${monthKey}`]: newMonthUsed,
+        });
+
+        // Mark session as billed
+        tx.update(sessionRef, {
+          billed: true,
+          creditsCharged,
+          durationMinutes,
+          endedAt: admin.firestore.FieldValue.serverTimestamp(),
+          transcript: transcript ?? [],
+          feedbackReport: feedbackReport ?? null,
+        });
+
+        const monthlyLimit = userData.plan === "max" || userData.plan === "pro_max" ? 10000
+          : userData.plan === "pro_monthly" || userData.plan === "pro" ? 1000
+          : userData.plan === "pro_sprint" ? 300 : 100;
+        creditsRemaining = Math.max(0, monthlyLimit - newMonthUsed);
+      });
+
+      console.log(`[billInterviewSession] uid=${uid} sessionId=${sessionId} creditsCharged=${creditsCharged} durationMinutes=${durationMinutes}`);
+
+      return {
+        creditsCharged,
+        durationMinutes,
+        creditsRemaining,
+      };
+
+    } catch (err: any) {
+      console.error("[billInterviewSession] Error:", err);
+      throw new functions.https.HttpsError("internal", err.message || "Internal server error.");
+    }
+  });
+
+/**
  * CLI token vending endpoint for the Live API voice interview feature.
  *
  * Validates the user's cv_live_ API key, checks they have at least the minimum
@@ -696,7 +921,7 @@ export const getInterviewAuthToken = functions.region('us-west1').https.onCall(a
  */
 export const cliGetInterviewToken = functions
   .region("us-west1")
-  .runWith({ secrets: ["GEMINI_API_KEY"], timeoutSeconds: 15, memory: "256MB" })
+  .runWith({ timeoutSeconds: 15, memory: "256MB" })
   .https.onRequest(async (req, res) => {
     res.set("Access-Control-Allow-Origin", "*");
     res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -760,16 +985,23 @@ export const cliGetInterviewToken = functions
         source: "cli",   // tag at creation so context queries can filter
       });
 
-      const geminiKey = process.env.GEMINI_API_KEY;
-      if (!geminiKey) {
-        res.status(500).json({ error: "Server configuration error." });
-        return;
-      }
+      // Generate short-lived OAuth token for Vertex AI
+      const auth = new GoogleAuth({
+        scopes: "https://www.googleapis.com/auth/cloud-platform",
+      });
+      const client = await auth.getClient();
+      const accessTokenResponse = await client.getAccessToken();
+      const accessToken = accessTokenResponse.token;
 
-      console.log(`[cliGetInterviewToken] uid=${uid} sessionId=${sessionRef.id} role="${role ?? "unspecified"}"`);
+      const project = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || "jastalk-firebase";
+      const location = "us-west1";
+
+      console.log(`[cliGetInterviewToken] uid=${uid} sessionId=${sessionRef.id} role="${role ?? "unspecified"}" (Vertex AI Token Vended)`);
 
       res.status(200).json({
-        geminiKey,
+        accessToken,
+        project,
+        location,
         sessionId: sessionRef.id,
         monthlyLimit,
         creditsUsed: used,

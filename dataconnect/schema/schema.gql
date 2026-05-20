@@ -1,63 +1,52 @@
-# schema.gql
+# Example schema for simple movie review app
 
-# 👤 Users (Mirror of Auth + Social Stats)
-type User @table(key: "id") {
-  id: String!
-  username: String! @unique
-  displayName: String
-  avatarUrl: String
-  bio: String
-  followerCount: Int! @default(value: 0)
-  followingCount: Int! @default(value: 0)
-  postCount: Int! @default(value: 0)
-  deletedAt: Timestamp # Soft Delete Support
+# User table is keyed by Firebase Auth UID.
+type User @table {
+  # `@default(expr: "auth.uid")` sets it to Firebase Auth UID during insert and upsert.
+  id: String! @default(expr: "auth.uid")
+  username: String! @col(dataType: "varchar(50)")
+  # The `user: User!` field in the Review table generates the following one-to-many query field.
+  #  reviews_on_user: [Review!]!
+  # The `Review` join table the following many-to-many query field.
+  #  movies_via_Review: [Movie!]!
 }
 
-# 📝 Posts (Community Blog Content)
-type Post @table(key: "id") {
-  id: UUID! @default(expr: "uuidV4()")
-  authorId: String!
-  author: User! @ref(fields: ["authorId"])
+# Movie is keyed by a randomly generated UUID.
+type Movie @table {
+  # If you do not pass a 'key' to `@table`, Data Connect automatically adds the following 'id' column.
+  # Feel free to uncomment and customize it.
+  #  id: UUID! @default(expr: "uuidV4()")
   title: String!
-  content: String! # Markdown Content
-  summary: String
-  coverImageUrl: String
-  tags: [String]
-  likesCount: Int! @default(value: 0)
-  commentsCount: Int! @default(value: 0)
-  viewsCount: Int! @default(value: 0)
-  createdAt: Timestamp! @default(expr: "request.time")
-  updatedAt: Timestamp! @default(expr: "request.time")
-  deletedAt: Timestamp # Soft Delete Support
+  imageUrl: String!
+  genre: String
 }
 
-# 🤝 Social Graph (Follow Relationship)
-type Follow @table(key: ["followerId", "followingId"]) {
-  followerId: String!
-  followingId: String!
-  follower: User! @ref(fields: ["followerId"])
-  following: User! @ref(fields: ["followingId"])
-  createdAt: Timestamp! @default(expr: "request.time")
+# MovieMetadata is a metadata attached to a Movie.
+# Movie <-> MovieMetadata is a one-to-one relationship
+type MovieMetadata @table {
+  # @unique ensures each Movie can only one MovieMetadata.
+  movie: Movie! @unique
+  # The movie field adds the following foreign key field. Feel free to uncomment and customize it.
+  #  movieId: UUID!
+  rating: Float
+  releaseYear: Int
+  description: String
 }
 
-# ❤️ Likes
-type Like @table(key: ["userId", "postId"]) {
-  userId: String!
-  postId: UUID!
-  user: User! @ref(fields: ["userId"])
-  post: Post! @ref(fields: ["postId"])
-  createdAt: Timestamp! @default(expr: "request.time")
-}
-
-# 💬 Comments
-type Comment @table(key: "id") {
-  id: UUID! @default(expr: "uuidV4()")
-  authorId: String!
-  postId: UUID!
-  author: User! @ref(fields: ["authorId"])
-  post: Post! @ref(fields: ["postId"])
-  content: String!
-  createdAt: Timestamp! @default(expr: "request.time")
-  updatedAt: Timestamp! @default(expr: "request.time")
-  deletedAt: Timestamp # Soft Delete Support
+# Reviews is a join table between User and Movie.
+# It has a composite primary keys `userUid` and `movieId`.
+# A user can leave reviews for many movies. A movie can have reviews from many users.
+# User  <-> Review is a one-to-many relationship
+# Movie <-> Review is a one-to-many relationship
+# Movie <-> User is a many-to-many relationship
+type Review @table(name: "Reviews", key: ["movie", "user"]) {
+  user: User!
+  # The user field adds the following foreign key field. Feel free to uncomment and customize it.
+  #  userUid: String!
+  movie: Movie!
+  # The movie field adds the following foreign key field. Feel free to uncomment and customize it.
+  #  movieId: UUID!
+  rating: Int
+  reviewText: String
+  reviewDate: Date! @default(expr: "request.time")
 }

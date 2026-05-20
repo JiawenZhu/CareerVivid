@@ -1,8 +1,5 @@
 import * as functions from "firebase-functions/v1";
-import { defineSecret } from "firebase-functions/params";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const geminiApiKey = defineSecret("GEMINI_API_KEY");
+import { getAIClient } from "./utils/ai";
 
 /**
  * AI Resume CSS Generator Cloud Function
@@ -16,7 +13,6 @@ export const generateResumeCSS = functions
     .region("us-west1")
     .runWith({
         timeoutSeconds: 60,
-        secrets: [geminiApiKey],
         memory: "256MB",
     })
     .https.onCall(async (data, context) => {
@@ -81,21 +77,18 @@ Respond with ONLY the JSON object. No explanation outside the JSON.
 `;
 
         try {
-            const genAI = new GoogleGenerativeAI(geminiApiKey.value());
-            const model = genAI.getGenerativeModel({
+            const ai = getAIClient();
+            const result = await ai.models.generateContent({
                 model: "gemini-2.5-flash",
-                generationConfig: {
+                contents: userPrompt,
+                config: {
+                    systemInstruction: systemPrompt,
                     responseMimeType: "application/json",
                     temperature: 0.2,
                 },
             });
 
-            const result = await model.generateContent([
-                { text: systemPrompt },
-                { text: userPrompt },
-            ]);
-
-            const responseText = result.response.text().trim();
+            const responseText = (result.text || "").trim();
             let parsed: { css: string; summary: string; animationName?: string };
 
             try {

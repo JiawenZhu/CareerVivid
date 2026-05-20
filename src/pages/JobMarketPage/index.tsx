@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { getAllPublishedJobs, incrementJobViewCount, searchGoogleJobs } from '../../services/jobService';
@@ -43,6 +43,11 @@ const JobMarketPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true); // Initial load
     const [isSearching, setIsSearching] = useState(false); // Calling API
     const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+    // Search field focus/animation state
+    const [activeField, setActiveField] = useState<'term' | 'location' | null>(null);
+    const termInputRef = useRef<HTMLInputElement>(null);
+    const locationInputRef = useRef<HTMLInputElement>(null);
 
     // Search States
     const [searchQuery, setSearchQuery] = useState({ term: '', location: '' });
@@ -473,99 +478,203 @@ const JobMarketPage: React.FC = () => {
                                 )}
                             </div>
 
-                            {/* Apple Glasses Glassmorphic Search Capsule */}
-                            <form onSubmit={handleSearch} className="flex-1 w-full md:max-w-4xl">
-                                <div className="flex flex-col md:flex-row bg-gray-100/60 dark:bg-gray-900/35 backdrop-blur-xl border border-gray-200/55 dark:border-gray-800/45 p-1.5 rounded-2xl md:rounded-full gap-2 md:gap-0 shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.25)] focus-within:ring-2 focus-within:ring-indigo-500/20 dark:focus-within:ring-indigo-500/10 focus-within:border-indigo-500/40 dark:focus-within:border-indigo-550/30 transition-all duration-350">
-                                                             {/* WHAT Section */}
-                                    <label 
-                                        htmlFor="job-market-term-input"
-                                        onClick={() => document.getElementById('job-market-term-input')?.focus()}
-                                        className="flex-1 flex items-center gap-3 px-4 py-2 hover:bg-gray-200/40 dark:hover:bg-white/5 rounded-xl md:rounded-full transition-all duration-300 group focus-within:bg-gray-200/60 dark:focus-within:bg-white/10 cursor-text"
+                            {/* ✨ Premium Animated Search Bar */}
+                            <form
+                                onSubmit={handleSearch}
+                                className="flex-1 w-full md:max-w-4xl"
+                            >
+                                {/* Search Capsule */}
+                                <div className={`
+                                    flex flex-col md:flex-row items-stretch
+                                    bg-white dark:bg-gray-800
+                                    border-2 transition-all duration-300 ease-out
+                                    rounded-2xl md:rounded-full
+                                    overflow-hidden
+                                    shadow-lg
+                                    ${activeField
+                                        ? 'border-indigo-500 shadow-indigo-500/20 shadow-xl'
+                                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                                    }
+                                `}>
+                                    {/* WHAT Field */}
+                                    <div
+                                        className={`
+                                            relative flex items-center flex-1 min-w-0
+                                            transition-all duration-300 ease-out cursor-text
+                                            ${activeField === 'term'
+                                                ? 'bg-indigo-50 dark:bg-indigo-950/30'
+                                                : activeField === 'location'
+                                                    ? 'opacity-70'
+                                                    : 'hover:bg-gray-50 dark:hover:bg-gray-750'
+                                            }
+                                        `}
+                                        onClick={() => termInputRef.current?.focus()}
                                     >
-                                        <div className="text-gray-400 group-hover:text-indigo-500 group-focus-within:text-indigo-500 transition-colors duration-250 pointer-events-none">
-                                            <Search size={18} />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="text-[9px] font-extrabold uppercase tracking-wider text-gray-400 dark:text-gray-550 group-hover:text-indigo-500/85 group-focus-within:text-indigo-500/85 transition-colors duration-250 pointer-events-none">What</div>
-                                            <input
-                                                id="job-market-term-input"
-                                                type="text"
-                                                placeholder="Job title, keywords, or company"
-                                                className="w-full bg-transparent border-none outline-none p-0 text-sm font-medium text-gray-800 dark:text-gray-150 placeholder-gray-400/85 focus:ring-0 focus:outline-none cursor-text min-h-[22px]"
-                                                value={searchQuery.term}
-                                                onChange={e => setSearchQuery({ ...searchQuery, term: e.target.value })}
+                                        <div className="flex items-center gap-3 w-full px-5 py-3.5">
+                                            <Search
+                                                size={17}
+                                                className={`flex-shrink-0 transition-colors duration-200 ${
+                                                    activeField === 'term'
+                                                        ? 'text-indigo-500'
+                                                        : 'text-gray-400'
+                                                }`}
                                             />
+                                            <div className="flex flex-col flex-1 min-w-0">
+                                                <span className={`text-[10px] font-bold uppercase tracking-widest transition-colors duration-200 ${
+                                                    activeField === 'term'
+                                                        ? 'text-indigo-500'
+                                                        : 'text-gray-400 dark:text-gray-500'
+                                                }`}>
+                                                    What
+                                                </span>
+                                                <input
+                                                    ref={termInputRef}
+                                                    type="text"
+                                                    autoComplete="off"
+                                                    spellCheck={false}
+                                                    placeholder="Job title, keywords, or company"
+                                                    className="w-full bg-transparent border-0 outline-none ring-0 p-0 m-0 text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-0"
+                                                    style={{ boxShadow: 'none' }}
+                                                    value={searchQuery.term}
+                                                    onChange={e => setSearchQuery(prev => ({ ...prev, term: e.target.value }))}
+                                                    onFocus={() => setActiveField('term')}
+                                                    onBlur={() => setActiveField(null)}
+                                                />
+                                            </div>
                                         </div>
-                                    </label>
+                                        {/* Active indicator line - bottom on mobile, right on desktop */}
+                                        <div className={`
+                                            absolute bottom-0 left-0 right-0 h-0.5 md:hidden
+                                            bg-indigo-500 transition-all duration-300
+                                            ${activeField === 'term' ? 'opacity-100' : 'opacity-0'}
+                                        `} />
+                                    </div>
 
-                                    {/* Vertical Divider */}
-                                    <div className="hidden md:block w-[1px] my-2 bg-gray-200/80 dark:bg-gray-800/80" />
+                                    {/* Divider */}
+                                    <div className={`hidden md:block w-px self-stretch my-3 transition-colors duration-300 ${
+                                        activeField ? 'bg-indigo-200 dark:bg-indigo-800' : 'bg-gray-200 dark:bg-gray-700'
+                                    }`} />
+                                    <div className="md:hidden h-px mx-4 transition-colors duration-300 bg-gray-100 dark:bg-gray-700" />
 
-                                    {/* WHERE Section */}
-                                    <label 
-                                        htmlFor="job-market-location-input"
-                                        onClick={() => document.getElementById('job-market-location-input')?.focus()}
-                                        className="flex-1 flex items-center gap-3 px-4 py-2 hover:bg-gray-200/40 dark:hover:bg-white/5 rounded-xl md:rounded-full transition-all duration-300 group focus-within:bg-gray-200/60 dark:focus-within:bg-white/10 cursor-text"
+                                    {/* WHERE Field */}
+                                    <div
+                                        className={`
+                                            relative flex items-center flex-1 min-w-0
+                                            transition-all duration-300 ease-out cursor-text
+                                            ${activeField === 'location'
+                                                ? 'bg-violet-50 dark:bg-violet-950/30'
+                                                : activeField === 'term'
+                                                    ? 'opacity-70'
+                                                    : 'hover:bg-gray-50 dark:hover:bg-gray-750'
+                                            }
+                                        `}
+                                        onClick={() => locationInputRef.current?.focus()}
                                     >
-                                        <div className="text-gray-400 group-hover:text-violet-500 group-focus-within:text-violet-500 transition-colors duration-250 pointer-events-none">
-                                            <MapPin size={18} />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="text-[9px] font-extrabold uppercase tracking-wider text-gray-400 dark:text-gray-550 group-hover:text-violet-500/85 group-focus-within:text-violet-500/85 transition-colors duration-250 pointer-events-none">Where</div>
-                                            <input
-                                                id="job-market-location-input"
-                                                type="text"
-                                                placeholder="City, state, or zip code"
-                                                className="w-full bg-transparent border-none outline-none p-0 text-sm font-medium text-gray-800 dark:text-gray-150 placeholder-gray-400/85 focus:ring-0 focus:outline-none cursor-text min-h-[22px]"
-                                                value={searchQuery.location}
-                                                onChange={e => setSearchQuery({ ...searchQuery, location: e.target.value })}
+                                        <div className="flex items-center gap-3 w-full px-5 py-3.5">
+                                            <MapPin
+                                                size={17}
+                                                className={`flex-shrink-0 transition-colors duration-200 ${
+                                                    activeField === 'location'
+                                                        ? 'text-violet-500'
+                                                        : 'text-gray-400'
+                                                }`}
                                             />
+                                            <div className="flex flex-col flex-1 min-w-0">
+                                                <span className={`text-[10px] font-bold uppercase tracking-widest transition-colors duration-200 ${
+                                                    activeField === 'location'
+                                                        ? 'text-violet-500'
+                                                        : 'text-gray-400 dark:text-gray-500'
+                                                }`}>
+                                                    Where
+                                                </span>
+                                                <input
+                                                    ref={locationInputRef}
+                                                    type="text"
+                                                    autoComplete="off"
+                                                    spellCheck={false}
+                                                    placeholder="City, state, or zip code"
+                                                    className="w-full bg-transparent border-0 outline-none ring-0 p-0 m-0 text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-0"
+                                                    style={{ boxShadow: 'none' }}
+                                                    value={searchQuery.location}
+                                                    onChange={e => setSearchQuery(prev => ({ ...prev, location: e.target.value }))}
+                                                    onFocus={() => setActiveField('location')}
+                                                    onBlur={() => setActiveField(null)}
+                                                />
+                                            </div>
                                         </div>
-                                    </label>
+                                        <div className={`
+                                            absolute bottom-0 left-0 right-0 h-0.5 md:hidden
+                                            bg-violet-500 transition-all duration-300
+                                            ${activeField === 'location' ? 'opacity-100' : 'opacity-0'}
+                                        `} />
+                                    </div>
 
-                                    {/* Vertical Divider */}
-                                    <div className="hidden md:block w-[1px] my-2 bg-gray-200/80 dark:bg-gray-800/80" />
+                                    {/* Divider */}
+                                    <div className={`hidden md:block w-px self-stretch my-3 transition-colors duration-300 ${
+                                        activeField ? 'bg-indigo-200 dark:bg-indigo-800' : 'bg-gray-200 dark:bg-gray-700'
+                                    }`} />
+                                    <div className="md:hidden h-px mx-4 transition-colors duration-300 bg-gray-100 dark:bg-gray-700" />
 
                                     {/* RESULTS Dropdown */}
-                                    <label className="flex items-center justify-between md:justify-start gap-3 px-4 py-2 hover:bg-gray-200/40 dark:hover:bg-white/5 rounded-xl md:rounded-full transition-all duration-300 group cursor-pointer">
+                                    <div className={`
+                                        flex items-center px-5 py-3.5 transition-all duration-300
+                                        ${activeField ? 'opacity-70' : ''}
+                                    `}>
                                         <div className="flex flex-col">
-                                            <div className="text-[9px] font-extrabold uppercase tracking-wider text-gray-400 dark:text-gray-550 group-hover:text-indigo-400 transition-colors duration-250">Results</div>
+                                            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-0.5">
+                                                Results
+                                            </span>
                                             <select
                                                 value={jobCount}
-                                                onChange={(e) => setJobCount(Number(e.target.value))}
-                                                className="bg-transparent border-none outline-none p-0 text-sm font-bold text-gray-800 dark:text-gray-200 focus:ring-0 cursor-pointer pr-6"
+                                                onChange={e => setJobCount(Number(e.target.value))}
+                                                className="bg-transparent border-0 outline-none ring-0 p-0 m-0 text-sm font-bold text-gray-900 dark:text-white focus:outline-none focus:ring-0 cursor-pointer appearance-auto"
+                                                style={{ boxShadow: 'none' }}
                                             >
-                                                <option value={5} className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">5 jobs</option>
-                                                <option value={10} className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">10 jobs</option>
-                                                <option value={15} className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">15 jobs</option>
-                                                <option value={20} className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">20 jobs</option>
+                                                <option value={5}>5 jobs</option>
+                                                <option value={10}>10 jobs</option>
+                                                <option value={15}>15 jobs</option>
+                                                <option value={20}>20 jobs</option>
                                             </select>
                                         </div>
-                                    </label>
+                                    </div>
 
-                                    {/* High-Gloss Search Button */}
-                                    <button
-                                        type="submit"
-                                        disabled={isSearching}
-                                        className="bg-gradient-to-r from-indigo-600 via-indigo-650 to-violet-650 hover:from-indigo-500 hover:via-indigo-600 hover:to-violet-550 disabled:from-indigo-400 disabled:to-indigo-500 disabled:opacity-50 text-white font-bold text-sm py-3 px-7 rounded-xl md:rounded-full shadow-[0_4px_16px_rgba(99,102,241,0.2)] hover:shadow-[0_4px_22px_rgba(99,102,241,0.35)] active:scale-97 transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap self-stretch md:my-0.5 md:mr-0.5"
-                                    >
-                                        {isSearching ? (
-                                            <Loader2 size={16} className="animate-spin" />
-                                        ) : (
-                                            <>
-                                                <Search size={16} />
-                                                <span>Find Jobs</span>
-                                            </>
-                                        )}
-                                    </button>
+                                    {/* Search Button */}
+                                    <div className="p-1.5">
+                                        <button
+                                            type="submit"
+                                            disabled={isSearching}
+                                            className="
+                                                h-full w-full md:w-auto
+                                                flex items-center justify-center gap-2
+                                                bg-gradient-to-r from-indigo-600 to-violet-600
+                                                hover:from-indigo-500 hover:to-violet-500
+                                                disabled:opacity-50 disabled:cursor-not-allowed
+                                                text-white font-bold text-sm
+                                                px-7 py-3 rounded-xl md:rounded-full
+                                                shadow-md hover:shadow-indigo-500/30 hover:shadow-lg
+                                                active:scale-95 transition-all duration-200
+                                                whitespace-nowrap
+                                            "
+                                        >
+                                            {isSearching ? (
+                                                <Loader2 size={16} className="animate-spin" />
+                                            ) : (
+                                                <>
+                                                    <Search size={16} />
+                                                    <span>Find Jobs</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
                                 </div>
 
+                                {/* Credits hint row */}
                                 {aiUsage && (
-                                    <div className="mt-2.5 flex justify-between items-center px-1 text-xs text-gray-500 dark:text-gray-400">
+                                    <div className="mt-2 flex justify-between items-center px-2 text-xs">
                                         <div className="md:hidden">
-                                            <span className="px-2 py-0.5 rounded-full bg-emerald-50/65 dark:bg-emerald-950/20 border border-emerald-250/50 dark:border-emerald-800/30 text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold inline-flex items-center gap-1.2 shadow-sm">
-                                                <span className="w-1.2 h-1.2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                                Credits: <span className="font-extrabold">{getRemainingCreditsText()}</span>
+                                            <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                                Credits: {getRemainingCreditsText()}
                                             </span>
                                         </div>
                                         <span className="ml-auto text-[11px] text-gray-400 dark:text-gray-500">
@@ -575,8 +684,8 @@ const JobMarketPage: React.FC = () => {
                                 )}
                             </form>
 
-                            {/* Glassmorphic Circle Spatial Action Buttons */}
-                            <div className="flex gap-2.5 hidden md:flex items-center">
+                            {/* Circular Spatial Action Buttons */}
+                            <div className="hidden md:flex gap-2.5 items-center">
                                 <button
                                     onClick={handleRefresh}
                                     disabled={isSearching}

@@ -1,15 +1,12 @@
 import { onRequest } from "firebase-functions/v2/https";
-import { defineSecret } from "firebase-functions/params";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getAIClient } from "./utils/ai";
 import cors from "cors";
 
 const corsHandler = cors({ origin: true });
-const geminiApiKey = defineSecret("GEMINI_API_KEY");
 const END_MARKER = "__END_GEMINI__";
 
 export const streamGeminiResponse = onRequest(
   {
-    secrets: [geminiApiKey],
     timeoutSeconds: 300,
     region: "us-west1",
     memory: "1GiB",
@@ -53,30 +50,19 @@ export const streamGeminiResponse = onRequest(
         const isImagenPredict = modelName.startsWith("imagen");
 
         if (isImageMode && isImagenPredict) {
-          // Imagen models and specific image-preview models use the predict endpoint REST API
-          const fetchFn = globalThis.fetch;
-          const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:predict?key=${geminiApiKey.value()}`;
-
-          // Format content into instances array
+          const ai = getAIClient();
           const promptText = typeof contents === 'string' ? contents : JSON.stringify(contents);
-          const bodyPayload = {
-            instances: [{ prompt: promptText }],
-            parameters: { sampleCount: 1 }
-          };
-
-          const fetchRes = await fetchFn(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(bodyPayload)
+          
+          const response = await ai.models.generateImages({
+            model: modelName,
+            prompt: promptText,
+            config: {
+              numberOfImages: 1
+            }
           });
 
-          const data = await fetchRes.json();
-          if (!fetchRes.ok) {
-            throw new Error(data.error?.message || "Imagen API Error");
-          }
-
-          const base64Image = data.predictions?.[0]?.bytesBase64Encoded;
-          const mimeType = data.predictions?.[0]?.mimeType || "image/png";
+          const base64Image = response.generatedImages?.[0]?.image?.imageBytes;
+          const mimeType = response.generatedImages?.[0]?.image?.mimeType || "image/png";
 
           if (!base64Image) {
             throw new Error("No image data returned from model API.");
@@ -100,46 +86,58 @@ export const streamGeminiResponse = onRequest(
           return;
         }
 
-        const genAI = new GoogleGenerativeAI(geminiApiKey.value());
-        const model = genAI.getGenerativeModel({
-          model: modelName,
-          generationConfig: config,
-          systemInstruction,
-        });
+        const ai = getAIClient();
+        const finalConfig = { ...config };
+        if (systemInstruction) {
+          finalConfig.systemInstruction = systemInstruction;
+        }
 
-        let result;
+        let result: any;
         if (isImageMode) {
-          const response = await model.generateContent({ contents });
-          result = { stream: [], response: Promise.resolve(response.response) }; // Mock stream interface
+          result = await ai.models.generateContent({ 
+            model: modelName, 
+            contents, 
+            config: finalConfig 
+          });
         } else {
-          result = await model.generateContentStream({ contents });
+          result = await ai.models.generateContentStream({ 
+            model: modelName, 
+            contents, 
+            config: finalConfig 
+          });
         }
 
         res.setHeader("Content-Type", "text/plain");
         res.setHeader("Transfer-Encoding", "chunked");
 
         let aggregatedText = "";
+        let jsonResponse: any;
 
-        // Handle stream if it exists (for text)
-        if (!isImageMode && result.stream) {
-          for await (const chunk of result.stream) {
+        if (isImageMode) {
+          aggregatedText = result.text || "";
+          jsonResponse = result;
+          if (aggregatedText) res.write(aggregatedText);
+        } else {
+          for await (const chunk of result) {
             try {
-              const chunkText = chunk.text();
+              const chunkText = chunk.text;
               if (chunkText) {
                 aggregatedText += chunkText;
                 res.write(chunkText);
               }
             } catch (e) {
-              // Ignore non-text chunks (like images in stream)
+              // Ignore non-text chunks
             }
           }
+          // Mock the response structure for the client
+          jsonResponse = {
+            candidates: [{
+              content: {
+                parts: [{ text: aggregatedText }]
+              }
+            }]
+          };
         }
-
-        const finalResponse = await result.response;
-        const jsonResponse =
-          typeof (finalResponse as any).toJSON === "function"
-            ? (finalResponse as any).toJSON()
-            : finalResponse;
 
         const payloadJson = JSON.stringify({
           response: jsonResponse,

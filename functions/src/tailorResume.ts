@@ -1,14 +1,10 @@
 import * as functions from "firebase-functions/v1";
-import { defineSecret } from "firebase-functions/params";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const geminiApiKey = defineSecret("GEMINI_API_KEY");
+import { getAIClient } from "./utils/ai";
 
 export const tailorResume = functions
     .region("us-west1")
     .runWith({
         timeoutSeconds: 120, // Longer timeout for full rewrite
-        secrets: [geminiApiKey],
         memory: "1GB", // Slightly more memory for JSON processing
     })
     .https.onCall(async (data, context) => {
@@ -25,11 +21,7 @@ export const tailorResume = functions
             throw new functions.https.HttpsError("invalid-argument", "Missing 'resume' or 'jobDescription'.");
         }
 
-        const genAI = new GoogleGenerativeAI(geminiApiKey.value());
-        const aiModel = genAI.getGenerativeModel({
-            model: "gemini-2.5-flash",
-            generationConfig: { responseMimeType: "application/json" }
-        });
+        const ai = getAIClient();
 
         // Helper to estimate word count
         const countWords = (obj: any): number => {
@@ -169,9 +161,12 @@ OUTPUT JSON STRUCTURE:
             }
 
 
-            const result = await aiModel.generateContent(prompt);
-            const response = await result.response;
-            let generatedText = response.text().replace(/```json/g, "").replace(/```/g, "").trim();
+            const result = await ai.models.generateContent({
+                model: "gemini-2.5-flash",
+                contents: prompt,
+                config: { responseMimeType: "application/json" }
+            });
+            let generatedText = (result.text || "").replace(/```json/g, "").replace(/```/g, "").trim();
 
             let parsedResult;
             try {

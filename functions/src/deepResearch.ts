@@ -1,9 +1,6 @@
 import * as functions from 'firebase-functions/v1';
 import * as admin from 'firebase-admin';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { defineSecret } from 'firebase-functions/params';
-
-const geminiApiKey = defineSecret('GEMINI_API_KEY');
+import { getAIClient } from './utils/ai';
 
 // Initialize Firestore if not already done in index.ts
 if (!admin.apps.length) {
@@ -11,21 +8,13 @@ if (!admin.apps.length) {
 }
 
 /**
- * Helper to get a configured Gemini model
- */
-const getGeminiModel = (apiKey: string, modelName = 'gemini-2.5-flash') => {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    return genAI.getGenerativeModel({ model: modelName });
-};
-
-/**
  * Core Deep Research Logic Flow
  * 1. Generate SEO Title & Slug
  * 2. Generate Content (Markdown)
  * 3. Generate Excerpt
  */
-async function performDeepResearch(topic: string, apiKey: string) {
-    const model = getGeminiModel(apiKey);
+async function performDeepResearch(topic: string) {
+    const ai = getAIClient();
 
     console.log(`Starting Deep Research on topic: ${topic}`);
 
@@ -38,8 +27,11 @@ async function performDeepResearch(topic: string, apiKey: string) {
     Aim for at least 800 words.`;
 
     console.log(`Requesting content generation...`);
-    const contentResponse = await model.generateContent(contentPrompt);
-    const content = contentResponse.response.text();
+    const contentResponse = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: contentPrompt,
+    });
+    const content = contentResponse.text || '';
 
     // Phase 2: Metadata (Title, Excerpt, Keywords)
     const metaPrompt = `Based on the following article content, generate JSON metadata for SEO purposes.
@@ -50,8 +42,11 @@ async function performDeepResearch(topic: string, apiKey: string) {
     ${content.substring(0, 1500)}...`; // truncate to save context limit if needed
 
     console.log(`Requesting metadata generation...`);
-    const metaResponse = await model.generateContent(metaPrompt);
-    let metaText = metaResponse.response.text().trim();
+    const metaResponse = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: metaPrompt,
+    });
+    let metaText = (metaResponse.text || '').trim();
 
     // Strip markdown codeblocks if Gemini still added them
     if (metaText.startsWith('```json')) {
@@ -92,7 +87,7 @@ async function performDeepResearch(topic: string, apiKey: string) {
  * Triggered by the Admin UI "Generate Draft Now" button
  */
 export const generateManualBlogDraft = functions
-    .runWith({ secrets: [geminiApiKey], timeoutSeconds: 540, memory: '1GB' })
+    .runWith({ timeoutSeconds: 540, memory: '1GB' })
     .region('us-west1')
     .https.onCall(async (data, context) => {
         // Must be authenticated
@@ -106,8 +101,7 @@ export const generateManualBlogDraft = functions
         }
 
         try {
-            const apiKey = geminiApiKey.value();
-            const draftData = await performDeepResearch(topic, apiKey);
+            const draftData = await performDeepResearch(topic);
 
             // Save to Firestore
             const docRef = await admin.firestore().collection('blog_posts').add(draftData);
@@ -145,9 +139,9 @@ export const getTrendingChips = functions
 /**
  * Exposed function for the scheduled cron job to call
  */
-export async function runPassiveDeepResearchTask(topic: string, apiKey: string) {
+export async function runPassiveDeepResearchTask(topic: string) {
     console.log(`Executing Passive Cron Task for topic: ${topic}`);
-    const draftData = await performDeepResearch(topic, apiKey);
+    const draftData = await performDeepResearch(topic);
     const docRef = await admin.firestore().collection('blog_posts').add(draftData);
     console.log(`Passive Cron completed. Draft created: ${docRef.id}`);
 }

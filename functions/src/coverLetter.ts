@@ -1,15 +1,11 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
-import { defineSecret } from "firebase-functions/params";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const geminiApiKey = defineSecret("GEMINI_API_KEY");
+import { getAIClient } from "./utils/ai";
 
 export const generateCoverLetter = functions
     .region("us-west1")
     .runWith({
         timeoutSeconds: 60,
-        secrets: [geminiApiKey],
         memory: "512MB",
     })
     .https.onCall(async (data, context) => {
@@ -104,11 +100,12 @@ export const generateCoverLetter = functions
         `;
 
             // 5. Call Gemini
-            const genAI = new GoogleGenerativeAI(geminiApiKey.value());
-            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            const generatedText = response.text();
+            const ai = getAIClient();
+            const result = await ai.models.generateContent({
+                model: "gemini-2.5-flash",
+                contents: prompt,
+            });
+            const generatedText = result.text;
 
             // 6. Save to Firestore
             const coverLetterRef = admin

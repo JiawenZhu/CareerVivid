@@ -1,14 +1,14 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
-import { defineSecret } from "firebase-functions/params";
-import { GoogleGenAI } from "@google/genai";
+
+import { getAIClient } from "./utils/ai";
 
 if (!admin.apps.length) {
     admin.initializeApp();
 }
 
 const db = admin.firestore();
-const geminiApiKey = defineSecret("GEMINI_API_KEY");
+
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -98,7 +98,7 @@ function needsAI(label: string, existingValue?: string): boolean {
 export const generateApplyAnswers = functions
     .region("us-west1")
     .runWith({
-        secrets: [geminiApiKey],
+        secrets: [],
         timeoutSeconds: 120,
         memory: "512MB",
     })
@@ -291,7 +291,7 @@ confidence guide:
 
 Return ONLY the JSON array, no markdown fences.`;
 
-        const ai = new GoogleGenAI({ apiKey: geminiApiKey.value() });
+        const ai = getAIClient();
 
         let aiAnswers: ApplyAnswer[] = [];
         try {

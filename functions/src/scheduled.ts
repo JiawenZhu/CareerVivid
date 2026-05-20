@@ -2,7 +2,7 @@ import * as functions from "firebase-functions/v1";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as admin from "firebase-admin";
 import { defineSecret } from "firebase-functions/params";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getAIClient } from "./utils/ai.js";
 import { runPassiveDeepResearchTask } from "./deepResearch";
 
 if (!admin.apps.length) {
@@ -10,8 +10,6 @@ if (!admin.apps.length) {
 }
 
 const db = admin.firestore();
-const geminiApiKey = defineSecret("GEMINI_API_KEY");
-
 // Helper to create job ID - matches frontend logic
 const createJobId = (title: string, company: string): string => {
     const sanitizedTitle = title.trim().toLowerCase().replace(/[^a-z0-9\s-]/g, '');
@@ -31,25 +29,29 @@ function getFrequencyDays(freq: string): number {
     }
 }
 
-async function generateSmartTopic(baseRole: string, apiKey: string): Promise<string> {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+async function generateSmartTopic(baseRole: string): Promise<string> {
+    const ai = getAIClient();
     try {
-        const result = await model.generateContent(`Generate a specific, engaging interview topic or scenario for a ${baseRole}. Return ONLY the topic title, nothing else. Example: "System Design for High Scale", "Crisis Management Scenario". Keep it short.`);
-        return result.response.text().trim().replace(/^"|"$/g, '') || baseRole;
+        const result = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: `Generate a specific, engaging interview topic or scenario for a ${baseRole}. Return ONLY the topic title, nothing else. Example: "System Design for High Scale", "Crisis Management Scenario". Keep it short.`
+        });
+        return (result.text || "").trim().replace(/^"|"$/g, '') || baseRole;
     } catch (e) {
         console.error("Gemini Topic Gen Error", e);
         return baseRole;
     }
 }
 
-async function generateQuestions(topic: string, apiKey: string): Promise<string[]> {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+async function generateQuestions(topic: string): Promise<string[]> {
+    const ai = getAIClient();
     try {
         const prompt = `Generate 5 challenging interview questions for: "${topic}". Return ONLY the questions as a JSON array of strings. Do not use markdown code blocks.`;
-        const result = await model.generateContent(prompt);
-        const text = result.response.text();
+        const result = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt
+        });
+        const text = result.text || "";
         // Clean markdown code blocks if any
         const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
         return JSON.parse(cleaned);
@@ -68,7 +70,6 @@ async function generateQuestions(topic: string, apiKey: string): Promise<string[
 export const sendPracticeEmails = onSchedule({
     schedule: "every 24 hours",
     timeZone: "America/Los_Angeles",
-    secrets: [geminiApiKey],
     timeoutSeconds: 540,
     memory: "512MiB",
     region: "us-west1"
@@ -97,17 +98,17 @@ export const sendPracticeEmails = onSchedule({
             console.log(`Processing scheduled interview for user ${userDoc.id}`);
 
             try {
-                // Generate Topic
                 let topic = "General Interview";
                 if (prefs.topicSource === 'manual' && prefs.manualTopic) {
                     topic = prefs.manualTopic;
                 } else {
                     const jobTitle = userData.personalDetails?.jobTitle || "Software Engineer";
-                    topic = await generateSmartTopic(jobTitle, geminiApiKey.value());
+                    topic = await generateSmartTopic(jobTitle);
                 }
 
                 // Generate Questions
-                const questions = await generateQuestions(topic, geminiApiKey.value());
+                const questions = await generateQuestions(topic);
+
 
                 // Save to Practice History
                 const jobData = {
@@ -275,8 +276,7 @@ export const passiveDeepResearchCron = onSchedule({
     timeZone: "America/Chicago", // Defaulting to Central
     timeoutSeconds: 540,
     memory: "1GiB",
-    region: "us-west1",
-    secrets: [geminiApiKey]
+    region: "us-west1"
 }, async (event) => {
     console.log("[passiveDeepResearchCron] Checking automation schedule...");
 
@@ -304,15 +304,17 @@ export const passiveDeepResearchCron = onSchedule({
 
         // Ideally fetch a trending topic using Gemini or a News API
         // For now, we will use Gemini to invent a pertinent topic if not provided
-        const genAI = new GoogleGenerativeAI(geminiApiKey.value());
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        const topicRes = await model.generateContent("Give me exactly one modern, highly-relevant, and catchy blog post title about the future of tech careers, AI, or software engineering. Return nothing but the string.");
-        const topic = topicRes.response.text().trim();
+        const ai = getAIClient();
+        const topicRes = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: "Give me exactly one modern, highly-relevant, and catchy blog post title about the future of tech careers, AI, or software engineering. Return nothing but the string."
+        });
+        const topic = (topicRes.text || "").trim();
 
         console.log(`[passiveDeepResearchCron] Selected autonomous topic: ${topic}`);
 
         // Run the agent
-        await runPassiveDeepResearchTask(topic, geminiApiKey.value());
+        await runPassiveDeepResearchTask(topic);
 
     } catch (error) {
         console.error("[passiveDeepResearchCron] Error during execution:", error);

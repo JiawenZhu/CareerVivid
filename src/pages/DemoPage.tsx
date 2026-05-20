@@ -212,6 +212,7 @@ const DemoPage: React.FC = () => {
                 section: 'interviews',
             });
 
+            /*
             // 3. Get Auth Token for Microservice
             const functions = getFunctions(undefined, 'us-west1');
             const getToken = httpsCallable(functions, 'getInterviewAuthToken');
@@ -223,6 +224,9 @@ const DemoPage: React.FC = () => {
             const targetUrl = `${baseUrl}/#/interview-studio/${jobId}?token=${token}`;
 
             window.location.href = targetUrl;
+            */
+
+            navigate(`/interview-studio/${jobId}`);
 
         } catch (e) {
             console.error("Interview start error:", e);

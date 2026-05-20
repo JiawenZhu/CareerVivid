@@ -117,6 +117,7 @@ export interface ResumeData {
   shareConfig?: ShareConfig; // New field for sharing settings
   formattingSettings?: FormattingSettings; // Advanced formatting controls
   customCss?: string; // AI Code Customizer: scoped CSS overrides for resume preview
+  isDefault?: boolean;
 }
 
 export type TemplateId = string;
@@ -266,6 +267,7 @@ export interface PracticeHistoryEntry {
   timestamp: any; // Can be a number or a Firestore Timestamp
   interviewHistory: InterviewAnalysis[];
   section?: string;
+  transcript?: TranscriptEntry[];
 }
 
 // --- Job Tracker Types ---
