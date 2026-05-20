@@ -56,8 +56,8 @@ export async function getCTSSetup(): Promise<CTSSetup | null> {
     console.log(`[CTS] Initializing Cloud Talent Solution for project: ${projectId}...`);
 
     try {
-        const tenantClient = new TenantServiceClient();
-        const companyClient = new CompanyServiceClient();
+        const tenantClient = new TenantServiceClient({ fallback: true });
+        const companyClient = new CompanyServiceClient({ fallback: true });
 
         // 1. List or Create Tenant
         let tenantPath = "";
@@ -180,7 +180,7 @@ export async function createOrUpdateJobsBatch(jobs: Job[]): Promise<void> {
         return;
     }
 
-    const jobClient = new JobServiceClient();
+    const jobClient = new JobServiceClient({ fallback: true });
     
     // Ingest each job in parallel using Promise.allSettled to prevent failures from blocking others
     await Promise.allSettled(jobs.map(async (job) => {
@@ -259,7 +259,7 @@ export async function searchJobsInCTS(query: string, location: string, limit: nu
         ];
     }
 
-    const jobClient = new JobServiceClient();
+    const jobClient = new JobServiceClient({ fallback: true });
     const cleanQuery = query.trim();
 
     try {
@@ -327,7 +327,7 @@ export async function autocompleteCTS(query: string): Promise<string[]> {
         return matches;
     }
 
-    const completionClient = new CompletionClient();
+    const completionClient = new CompletionClient({ fallback: true });
 
     try {
         const [response] = await completionClient.completeQuery({
@@ -360,7 +360,7 @@ export async function purgeExpiredJobsCTS(): Promise<void> {
     fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
     try {
-        const jobClient = new JobServiceClient();
+        const jobClient = new JobServiceClient({ fallback: true });
         
         // Query our Firestore cachedJobs for expired listings (created >14 days ago)
         const snapshot = await db.collection("cachedJobs")
