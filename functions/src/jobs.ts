@@ -4,6 +4,7 @@ import { defineSecret } from "firebase-functions/params";
 import { getAIClient } from "./utils/ai";
 import cors from "cors";
 import { performGoogleSearch } from "./utils/customSearch";
+import { searchJobsInCTS, createOrUpdateJobsBatch } from "./talentSolution";
 
 // Initialize Firebase Admin if not already initialized
 if (!admin.apps.length) {
@@ -90,6 +91,131 @@ const normalizeQuery = (query: string, location: string): string => {
         .replace(/-+/g, '-')          // Collapse multiple dashes
         .replace(/^-|-$/g, '');       // Remove leading/trailing dashes
     return normalized || 'default';   // Fallback if empty
+};
+
+const QUERY_EXPANSIONS: { [key: string]: string[] } = {
+    'it': ['information technology', 'systems', 'network', 'helpdesk', 'support', 'tech', 'technology', 'sysadmin', 'administrator', 'security', 'analyst', 'computer', 'infrastructure'],
+    'software': ['developer', 'engineer', 'programmer', 'coder', 'web', 'frontend', 'backend', 'fullstack', 'full-stack', 'architect', 'qa', 'test', 'devops', 'sre'],
+    'engineer': ['developer', 'programmer', 'coder', 'architect', 'sre', 'devops', 'software', 'systems', 'qa', 'test', 'engineering'],
+    'developer': ['engineer', 'programmer', 'coder', 'architect', 'web', 'software', 'development'],
+    'nurse': ['rn', 'lpn', 'nursing', 'np', 'healthcare', 'medical', 'hospital', 'clinic', 'care'],
+    'doctor': ['md', 'physician', 'healthcare', 'medical', 'hospital', 'clinic', 'pediatrician', 'surgeon'],
+    'teacher': ['educator', 'instructor', 'tutor', 'professor', 'school', 'education', 'learning', 'faculty'],
+    'marketing': ['seo', 'sem', 'growth', 'advertising', 'brand', 'content', 'social media', 'pr', 'communications', 'digital'],
+    'sales': ['account executive', 'ae', 'sdr', 'bdr', 'business development', 'representative', 'account manager', 'inside sales'],
+    'design': ['designer', 'ux', 'ui', 'product designer', 'graphic', 'creative', 'art director', 'illustrator'],
+};
+
+const validateJobRelevance = (job: Job, query: string): boolean => {
+    if (!job || !job.title) return false;
+
+    const titleLower = job.title.toLowerCase();
+
+    // 1. Blacklist generic/polluted titles
+    const GENERIC_TITLE_BLACKLIST = [
+        /\bvarious\b/i,
+        /\bjob openings\b/i,
+        /\bcareer opportunities\b/i,
+        /\bgeneral application\b/i,
+        /\btalent pool\b/i,
+        /\bfuture opportunities\b/i,
+        /\bsubmit resume\b/i,
+        /\bhiring event\b/i,
+        /\bapplication portal\b/i,
+        /\bjoin our team\b/i,
+        /\bcareers\b/i,
+        /\bopportunities\b/i,
+        /\bstaffing\b/i,
+        /\brecruitment\b/i
+    ];
+
+    for (const pattern of GENERIC_TITLE_BLACKLIST) {
+        if (pattern.test(titleLower)) {
+            console.log(`[validateJobRelevance] Discarding generic/polluted title: "${job.title}"`);
+            return false;
+        }
+    }
+
+    // If query is very generic or empty, default to true
+    const cleanQuery = query.trim().toLowerCase();
+    if (!cleanQuery || cleanQuery === 'jobs' || cleanQuery === 'hiring') {
+        return true;
+    }
+
+    // 2. Tokenize query and remove stop words
+    const STOP_WORDS = new Set([
+        'in', 'and', 'a', 'of', 'for', 'to', 'with', 'the', 'an', 'at', 'jobs', 'openings', 'hiring', 'job', 'careers', 'opportunity', 'opportunities', 'near', 'me', 'us'
+    ]);
+
+    const queryTerms = cleanQuery
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .split(/\s+/)
+        .filter(term => term.length > 0 && !STOP_WORDS.has(term));
+
+    if (queryTerms.length === 0) {
+        return true; // fallback
+    }
+
+    // 3. Get expanded keywords for query terms
+    const expandedTerms = new Set<string>();
+    for (const term of queryTerms) {
+        expandedTerms.add(term);
+        const expansions = QUERY_EXPANSIONS[term];
+        if (expansions) {
+            expansions.forEach(exp => expandedTerms.add(exp));
+        }
+    }
+
+    // Also expand common multi-word terms if they exist
+    // e.g., if query has 'information' and 'technology', add 'it'
+    if (queryTerms.includes('information') && queryTerms.includes('technology')) {
+        expandedTerms.add('it');
+    }
+
+    // 4. Verify that at least one expanded term matches the job title
+    let matchesTitle = false;
+    for (const term of expandedTerms) {
+        if (term.includes(' ')) {
+            if (titleLower.includes(term)) {
+                matchesTitle = true;
+                break;
+            }
+        } else {
+            const regex = new RegExp(`\\b${term}\\b`, 'i');
+            if (regex.test(titleLower)) {
+                matchesTitle = true;
+                break;
+            }
+        }
+    }
+
+    // 5. Verify that at least one original query term matches the company name
+    const companyLower = (job.company || '').toLowerCase();
+    let matchesCompany = false;
+    for (const term of queryTerms) {
+        const regex = new RegExp(`\\b${term}\\b`, 'i');
+        if (regex.test(companyLower)) {
+            matchesCompany = true;
+            break;
+        }
+    }
+
+    // 6. Verify that at least one original query term matches the location name
+    const locationLower = (job.location || '').toLowerCase();
+    let matchesLocation = false;
+    for (const term of queryTerms) {
+        if (locationLower.includes(term)) {
+            matchesLocation = true;
+            break;
+        }
+    }
+
+    if (!matchesTitle && !matchesCompany && !matchesLocation) {
+        console.log(`[validateJobRelevance] Discarded irrelevant job: "${job.title}" at "${job.company}" for query "${query}"`);
+        return false;
+    }
+
+    return true;
 };
 
 // Helper to validate a single URL with HEAD request
@@ -194,46 +320,81 @@ export const searchJobsCallable = functions.region('us-west1').runWith({
 
     let cachedJobs: Job[] = [];
     let cacheStatus: 'hit' | 'partial' | 'miss' = 'miss';
+    let ctsJobs: Job[] = [];
+    let isCtsSuccess = false;
 
-    // Check cache first (unless bypassed)
+    // Try Google Cloud Talent Solution first (unless bypassed)
     if (!bypassCache) {
         try {
-            const cacheDoc = await cacheRef.get();
-            if (cacheDoc.exists) {
-                const cached = cacheDoc.data() as CachedJobSearch;
-                const now = admin.firestore.Timestamp.now();
+            ctsJobs = await searchJobsInCTS(query, location, validatedJobCount);
+            if (ctsJobs && ctsJobs.length > 0) {
+                isCtsSuccess = true;
+                cachedJobs = ctsJobs;
+                if (ctsJobs.length >= validatedJobCount) {
+                    cacheStatus = 'hit';
+                    console.log(`[searchJobsCallable] Full CTS HIT for "${query}" in "${location}" - returning ${validatedJobCount} jobs`);
+                    return { 
+                        jobs: ctsJobs.slice(0, validatedJobCount), 
+                        cached: true,
+                        creditDeducted: 0,
+                        requestedCount: validatedJobCount,
+                        isLimited: false
+                    };
+                } else {
+                    cacheStatus = 'partial';
+                    console.log(`[searchJobsCallable] Partial CTS HIT for "${query}" - found ${ctsJobs.length}/${validatedJobCount} jobs`);
+                }
+            }
+        } catch (ctsError) {
+            console.warn('[searchJobsCallable] CTS search failed, falling back to local cache:', ctsError);
+        }
 
-                // Enforce 6-Hour expiration check
-                if (cached.expiresAt && cached.expiresAt.toMillis() > now.toMillis()) {
-                    cachedJobs = cached.jobs || [];
-                    if (cachedJobs.length >= validatedJobCount) {
-                        cacheStatus = 'hit';
-                        console.log(`[searchJobsCallable] Full Cache HIT for "${queryHash}" - returning ${validatedJobCount} cached jobs`);
+        // Secondary fallback to Firestore search cache
+        if (!isCtsSuccess) {
+            try {
+                const cacheDoc = await cacheRef.get();
+                if (cacheDoc.exists) {
+                    const cached = cacheDoc.data() as CachedJobSearch;
+                    const now = admin.firestore.Timestamp.now();
 
-                        // Update lastAccessedAt for TTL tracking (async, don't await)
-                        cacheRef.update({
-                            lastAccessedAt: admin.firestore.FieldValue.serverTimestamp()
-                        }).catch(err => console.warn('Failed to update lastAccessedAt:', err));
+                    // Enforce 6-Hour expiration check
+                    if (cached.expiresAt && cached.expiresAt.toMillis() > now.toMillis()) {
+                        const originalCachedCount = (cached.jobs || []).length;
+                        cachedJobs = (cached.jobs || []).filter(job => validateJobRelevance(job, query));
+                        const discardedCount = originalCachedCount - cachedJobs.length;
+                        if (discardedCount > 0) {
+                            console.log(`[searchJobsCallable] Discarded ${discardedCount} irrelevant cached jobs from the pool.`);
+                        }
 
-                        return { 
-                            jobs: cachedJobs.slice(0, validatedJobCount), 
-                            cached: true,
-                            creditDeducted: 0,
-                            requestedCount: validatedJobCount,
-                            isLimited: false
-                        };
-                    } else if (cachedJobs.length > 0) {
-                        cacheStatus = 'partial';
-                        console.log(`[searchJobsCallable] Partial Cache HIT for "${queryHash}" - found ${cachedJobs.length}/${validatedJobCount} jobs`);
+                        if (cachedJobs.length >= validatedJobCount) {
+                            cacheStatus = 'hit';
+                            console.log(`[searchJobsCallable] Full Cache HIT for "${queryHash}" - returning ${validatedJobCount} cached jobs`);
+
+                            // Update lastAccessedAt for TTL tracking (async, don't await)
+                            cacheRef.update({
+                                lastAccessedAt: admin.firestore.FieldValue.serverTimestamp()
+                            }).catch(err => console.warn('Failed to update lastAccessedAt:', err));
+
+                            return { 
+                                jobs: cachedJobs.slice(0, validatedJobCount), 
+                                cached: true,
+                                creditDeducted: 0,
+                                requestedCount: validatedJobCount,
+                                isLimited: false
+                            };
+                        } else if (cachedJobs.length > 0) {
+                            cacheStatus = 'partial';
+                            console.log(`[searchJobsCallable] Partial Cache HIT for "${queryHash}" - found ${cachedJobs.length}/${validatedJobCount} jobs`);
+                        }
+                    } else {
+                        console.log(`[searchJobsCallable] Cache EXPIRED for "${queryHash}"`);
                     }
                 } else {
-                    console.log(`[searchJobsCallable] Cache EXPIRED for "${queryHash}"`);
+                    console.log(`[searchJobsCallable] Cache MISS for "${queryHash}"`);
                 }
-            } else {
-                console.log(`[searchJobsCallable] Cache MISS for "${queryHash}"`);
+            } catch (cacheError) {
+                console.warn('[searchJobsCallable] Cache lookup error, proceeding with API call:', cacheError);
             }
-        } catch (cacheError) {
-            console.warn('[searchJobsCallable] Cache lookup error, proceeding with API call:', cacheError);
         }
     } else {
         console.log(`[searchJobsCallable] Cache BYPASSED for "${queryHash}" - forcing fresh search`);
@@ -357,6 +518,8 @@ ONLY EXTRACT results that are:
 
 CRITICAL LOCATION REQUIREMENT: The job location MUST be in "${location || 'Remote'}". If the snippet indicates the job is remote, that is acceptable. However, do NOT extract jobs that are physically located in other major cities unless remote.
 
+CRITICAL QUERY RELEVANCY REQUIREMENT: The job title and core function MUST be closely related to the search query: "${query}". Do NOT extract jobs that are completely unrelated to "${query}". For example, if the query is "software engineer", do NOT extract "Recruiting Coordinator", "Sales Manager", or "Office Administrator" even if the snippet mentions the term "software engineer" in the text description.
+
 If you cannot find ANY actual job postings (only meta-information), respond with: NO_JOBS_FOUND
 
 Format the output EXACTLY as follows for each job, using "---" as a separator:
@@ -428,6 +591,13 @@ URL: [The direct application link from the search results]
                 // Cap validation to Math.min(liveJobsNeeded, 15) to avoid Cloud Function timeouts
                 const maxToValidate = Math.min(liveJobsNeeded, 15);
                 newValidatedJobs = await validateAndFixJobUrls(filteredJobs, maxToValidate);
+
+                if (newValidatedJobs.length > 0) {
+                    // Warm up the CTS index by writing parsed jobs in the background
+                    createOrUpdateJobsBatch(newValidatedJobs).catch(err => 
+                        console.warn('[searchJobsCallable] Background CTS batch ingestion failed:', err)
+                    );
+                }
 
             } catch (error: any) {
                 console.error("Gemini Search Exception:", error);
@@ -567,10 +737,22 @@ export const searchJobs = functions.region('us-west1').runWith({
                     const now = admin.firestore.Timestamp.now();
                     
                     if (cached.expiresAt && cached.expiresAt.toMillis() > now.toMillis()) {
-                        console.log(`[searchJobs] Cache HIT for "${queryHash}"`);
-                        cacheRef.update({ lastAccessedAt: admin.firestore.FieldValue.serverTimestamp() });
-                        res.json({ result: { jobs: cached.jobs, cached: true } });
-                        return;
+                        const originalCachedCount = (cached.jobs || []).length;
+                        const validCachedJobs = (cached.jobs || []).filter(job => validateJobRelevance(job, query));
+                        const discardedCount = originalCachedCount - validCachedJobs.length;
+                        
+                        if (discardedCount > 0) {
+                            console.log(`[searchJobs] Discarded ${discardedCount} irrelevant cached jobs from the pool.`);
+                        }
+
+                        if (validCachedJobs.length > 0) {
+                            console.log(`[searchJobs] Cache HIT for "${queryHash}" - returning ${validCachedJobs.length} valid jobs`);
+                            cacheRef.update({ lastAccessedAt: admin.firestore.FieldValue.serverTimestamp() });
+                            res.json({ result: { jobs: validCachedJobs, cached: true } });
+                            return;
+                        } else {
+                            console.log(`[searchJobs] Cache had 0 relevant jobs for "${queryHash}", falling back to live search`);
+                        }
                     }
                 }
             } catch (cacheError) {
@@ -620,6 +802,7 @@ ${searchContext}
 ---
 Based ON ONLY the search results provided above, extract and format the active job openings. 
 CRITICAL: Only include jobs that are currently accepting applications. Do not include expired listings.
+CRITICAL QUERY RELEVANCY REQUIREMENT: The job title and core function MUST be closely related to the search query: "${fullQuery}". Do NOT extract jobs that are completely unrelated to "${fullQuery}". For example, if the query is "software engineer", do NOT extract "Recruiting Coordinator", "Sales Manager", or "Office Administrator" even if the snippet mentions the term "software engineer" in the text description.
 For each job, extract the most direct URL for the application (prioritize official company career portals).
 
 Format the output EXACTLY as follows for each job, using "---" as a separator:
@@ -709,6 +892,11 @@ URL: [The direct application link from the search results]
                     }, { merge: true });
                 });
                 batch.commit().catch(err => console.warn('Failed to index jobs:', err));
+
+                // 3. Warm up the CTS index by writing parsed jobs in the background
+                createOrUpdateJobsBatch(validatedJobs).catch(err => 
+                    console.warn('[searchJobs] Background CTS batch ingestion failed:', err)
+                );
             }
 
             console.log(`[searchJobs] found ${validatedJobs.length} validated jobs.`);
@@ -930,5 +1118,30 @@ export const getCompanyJobs = functions.region('us-west1').runWith({
             res.status(500).json({ error: 'Internal server error while fetching jobs' });
         }
     });
+});
+
+// Callable endpoint for frontend autocomplete suggestions using CTS completion API
+export const getTalentAutocomplete = functions.region('us-west1').runWith({
+    timeoutSeconds: 15,
+    memory: "256MB"
+}).https.onCall(async (data, context) => {
+    // Require authentication
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
+    }
+
+    const { query = '' } = data;
+    if (!query || query.trim().length < 2) {
+        return [];
+    }
+
+    try {
+        const { autocompleteCTS } = require("./talentSolution");
+        const suggestions = await autocompleteCTS(query);
+        return suggestions;
+    } catch (err: any) {
+        console.error('[getTalentAutocomplete] Error fetching suggestions:', err);
+        return [];
+    }
 });
 

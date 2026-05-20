@@ -4,6 +4,7 @@ import * as admin from "firebase-admin";
 import { defineSecret } from "firebase-functions/params";
 import { getAIClient } from "./utils/ai.js";
 import { runPassiveDeepResearchTask } from "./deepResearch";
+import { purgeExpiredJobsCTS } from "./talentSolution";
 
 if (!admin.apps.length) {
     admin.initializeApp();
@@ -318,5 +319,25 @@ export const passiveDeepResearchCron = onSchedule({
 
     } catch (error) {
         console.error("[passiveDeepResearchCron] Error during execution:", error);
+    }
+});
+
+/**
+ * Daily scheduler to purge expired jobs from Google Cloud Talent Solution & Firestore cache.
+ * Keeps storage costs down and ensures data freshness by enforcing 14-day TTL.
+ */
+export const purgeExpiredTalentJobsCron = onSchedule({
+    schedule: "every 24 hours",
+    timeZone: "America/Los_Angeles",
+    timeoutSeconds: 540,
+    memory: "512MiB",
+    region: "us-west1"
+}, async (event) => {
+    console.log("[purgeExpiredTalentJobsCron] Starting daily Cloud Talent Solution expired jobs cleanup...");
+    try {
+        await purgeExpiredJobsCTS();
+        console.log("[purgeExpiredTalentJobsCron] Daily CTS expired jobs cleanup completed successfully.");
+    } catch (error) {
+        console.error("[purgeExpiredTalentJobsCron] Critical error during execution:", error);
     }
 });

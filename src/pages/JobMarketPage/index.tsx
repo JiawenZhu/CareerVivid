@@ -16,6 +16,8 @@ import { HighlightLegend } from './components/HighlightLegend';
 import { JobCard } from './components/JobCard';
 import { formatSalary, getTimeAgo } from './utils/jobFormatters';
 import { getUserJobHistory, deleteUserJob } from '../../services/jobHistoryService';
+import Toast from '../../components/Toast';
+import { getTalentAutocomplete } from '../../services/talentSearchService';
 
 
 const JobMarketPage: React.FC = () => {
@@ -54,6 +56,56 @@ const JobMarketPage: React.FC = () => {
     const [pageToken, setPageToken] = useState<string | undefined>(undefined);
     const [hasPerformedSearch, setHasPerformedSearch] = useState(false);
 
+    // Autocomplete States
+    const [suggestions, setSuggestions] = useState<string[]>([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
+    const autocompleteRef = useRef<HTMLDivElement>(null);
+
+    // Fetch Autocomplete Suggestions (200ms Debounce)
+    useEffect(() => {
+        const term = searchQuery.term.trim();
+        if (term.length < 2) {
+            setSuggestions([]);
+            setShowSuggestions(false);
+            return;
+        }
+
+        const delayDebounceFn = setTimeout(async () => {
+            setIsFetchingSuggestions(true);
+            try {
+                const results = await getTalentAutocomplete(term);
+                setSuggestions(results);
+                if (document.activeElement === termInputRef.current) {
+                    setShowSuggestions(results.length > 0);
+                }
+            } catch (err) {
+                console.error("Autocomplete fetch error:", err);
+            } finally {
+                setIsFetchingSuggestions(false);
+            }
+        }, 200);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery.term]);
+
+    // Handle clicking outside autocomplete suggestions
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (autocompleteRef.current && !autocompleteRef.current.contains(event.target as Node)) {
+                setShowSuggestions(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const handleSelectSuggestion = (suggestion: string) => {
+        setSearchQuery(prev => ({ ...prev, term: suggestion }));
+        setShowSuggestions(false);
+        runSearch(suggestion, searchQuery.location, false);
+    };
+
     // Tracker States
     const [addingToTracker, setAddingToTracker] = useState<string | null>(null);
     const [addedJobs, setAddedJobs] = useState<Set<string>>(new Set());
@@ -61,6 +113,7 @@ const JobMarketPage: React.FC = () => {
 
     // UI States
     const [showLegend, setShowLegend] = useState(false);
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
 
     // Modal States
     const [selectedJob, setSelectedJob] = useState<JobPosting | null>(null);
@@ -194,6 +247,12 @@ const JobMarketPage: React.FC = () => {
         setPageToken(undefined);
         setHasPerformedSearch(true);
 
+        if (bypassCache) {
+            setToastMessage("🚀 Bypassing cache. Forcing a fresh live search...");
+        } else {
+            setToastMessage("🔍 Searching the web for relevant matches...");
+        }
+
         try {
             const result = await searchGoogleJobs(term, loc, jobCount, undefined, bypassCache);
             if (result.jobs) {
@@ -205,13 +264,20 @@ const JobMarketPage: React.FC = () => {
                     requestedCount: result.requestedCount || jobCount,
                     isLimited: result.isLimited
                 });
+                
+                if (result.cached) {
+                    setToastMessage("ℹ️ Loaded relevant matches from search cache.");
+                } else {
+                    setToastMessage("✨ Fresh jobs fetched and cached successfully!");
+                }
+                
                 // Dynamic refresh of AI usage context
                 refreshAIUsage().catch(err => console.warn("Failed to refresh AI credits:", err));
             }
         } catch (error: any) {
             console.error("Google Job Search Failed", error);
             const errorMessage = error?.message || 'Failed to search jobs. Please try again.';
-            alert(`Search Error: ${errorMessage}`);
+            setToastMessage(`❌ Search Error: ${errorMessage}`);
         } finally {
             setIsSearching(false);
         }
@@ -498,6 +564,7 @@ const JobMarketPage: React.FC = () => {
                                 `}>
                                     {/* WHAT Field */}
                                     <div
+                                        ref={autocompleteRef}
                                         className={`
                                             relative flex items-center flex-1 min-w-0
                                             transition-all duration-300 ease-out cursor-text
@@ -537,7 +604,12 @@ const JobMarketPage: React.FC = () => {
                                                     style={{ boxShadow: 'none' }}
                                                     value={searchQuery.term}
                                                     onChange={e => setSearchQuery(prev => ({ ...prev, term: e.target.value }))}
-                                                    onFocus={() => setActiveField('term')}
+                                                    onFocus={() => {
+                                                        setActiveField('term');
+                                                        if (suggestions.length > 0) {
+                                                            setShowSuggestions(true);
+                                                        }
+                                                    }}
                                                     onBlur={() => setActiveField(null)}
                                                 />
                                             </div>
@@ -548,6 +620,31 @@ const JobMarketPage: React.FC = () => {
                                             bg-indigo-500 transition-all duration-300
                                             ${activeField === 'term' ? 'opacity-100' : 'opacity-0'}
                                         `} />
+
+                                        {/* Autocomplete Suggestions Dropdown */}
+                                        {showSuggestions && suggestions.length > 0 && (
+                                            <div 
+                                                className="absolute top-full left-0 right-0 z-50 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl overflow-hidden animate-fade-in-up"
+                                                role="listbox"
+                                            >
+                                                <div className="py-1">
+                                                    {suggestions.map((suggestion, index) => (
+                                                        <button
+                                                            key={index}
+                                                            type="button"
+                                                            className="flex items-center gap-3 w-full px-5 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-150 border-b last:border-b-0 border-gray-100 dark:border-gray-700"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleSelectSuggestion(suggestion);
+                                                            }}
+                                                        >
+                                                            <Search size={14} className="text-gray-400 dark:text-gray-500" />
+                                                            <span>{suggestion}</span>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Divider */}
@@ -1113,6 +1210,14 @@ const JobMarketPage: React.FC = () => {
 
             {/* AI Credit Limit Modal */}
             <CreditLimitModal />
+
+            {/* Toast Notification */}
+            {toastMessage && (
+                <Toast
+                    message={toastMessage}
+                    onClose={() => setToastMessage(null)}
+                />
+            )}
         </div >
     );
 };

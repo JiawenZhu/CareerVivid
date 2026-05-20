@@ -28,7 +28,7 @@ const corsHandler = cors({ origin: true });
 export const verifyAuth = onRequest(
     {
         region: "us-west1",
-        memory: "256MiB",
+        memory: "512MiB",
         timeoutSeconds: 15,
     },
     async (req, res) => {
