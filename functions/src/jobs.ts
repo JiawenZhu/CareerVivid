@@ -4,6 +4,7 @@ import { defineSecret } from "firebase-functions/params";
 import { getAIClient } from "./utils/ai";
 import cors from "cors";
 import { performGoogleSearch } from "./utils/customSearch";
+import type { CustomSearchResult } from "./utils/customSearch";
 import { searchJobsInCTS, createOrUpdateJobsBatch } from "./talentSolution";
 
 // Initialize Firebase Admin if not already initialized
@@ -95,9 +96,9 @@ const normalizeQuery = (query: string, location: string): string => {
 
 const QUERY_EXPANSIONS: { [key: string]: string[] } = {
     'it': ['information technology', 'systems', 'network', 'helpdesk', 'support', 'tech', 'technology', 'sysadmin', 'administrator', 'security', 'analyst', 'computer', 'infrastructure'],
-    'software': ['developer', 'engineer', 'programmer', 'coder', 'web', 'frontend', 'backend', 'fullstack', 'full-stack', 'architect', 'qa', 'test', 'devops', 'sre'],
-    'engineer': ['developer', 'programmer', 'coder', 'architect', 'sre', 'devops', 'software', 'systems', 'qa', 'test', 'engineering'],
-    'developer': ['engineer', 'programmer', 'coder', 'architect', 'web', 'software', 'development'],
+    'software': ['developer', 'engineer', 'programmer', 'coder', 'web', 'frontend', 'backend', 'fullstack', 'full-stack', 'architect', 'qa', 'test', 'devops', 'sre', 'application'],
+    'engineer': ['developer', 'programmer', 'coder', 'architect', 'sre', 'devops', 'systems', 'qa', 'test', 'engineering'],
+    'developer': ['engineer', 'programmer', 'coder', 'architect', 'web', 'software', 'development', 'application'],
     'nurse': ['rn', 'lpn', 'nursing', 'np', 'healthcare', 'medical', 'hospital', 'clinic', 'care'],
     'doctor': ['md', 'physician', 'healthcare', 'medical', 'hospital', 'clinic', 'pediatrician', 'surgeon'],
     'teacher': ['educator', 'instructor', 'tutor', 'professor', 'school', 'education', 'learning', 'faculty'],
@@ -172,51 +173,208 @@ const validateJobRelevance = (job: Job, query: string): boolean => {
         expandedTerms.add('it');
     }
 
-    // 4. Verify that at least one expanded term matches the job title
-    let matchesTitle = false;
-    for (const term of expandedTerms) {
+    const titleMatchesTerm = (term: string): boolean => {
         if (term.includes(' ')) {
-            if (titleLower.includes(term)) {
-                matchesTitle = true;
-                break;
-            }
-        } else {
-            const regex = new RegExp(`\\b${term}\\b`, 'i');
-            if (regex.test(titleLower)) {
-                matchesTitle = true;
-                break;
-            }
+            return titleLower.includes(term);
         }
-    }
+        const regex = new RegExp(`\\b${term}\\b`, 'i');
+        return regex.test(titleLower);
+    };
 
-    // 5. Verify that at least one original query term matches the company name
+    // 4. Verify the job title matches the role intent. For multi-word searches,
+    // each meaningful term's synonym group must be represented. This prevents
+    // "Software Sales Manager" from matching "Software Engineer" on "software" alone.
+    const matchesTitle = queryTerms.length === 1
+        ? Array.from(expandedTerms).some(titleMatchesTerm)
+        : queryTerms.every(term => {
+            const termGroup = new Set<string>([term, ...(QUERY_EXPANSIONS[term] || [])]);
+            return Array.from(termGroup).some(titleMatchesTerm);
+        });
+
+    // 5. Allow company-name searches, but avoid letting a company name like
+    // "Software AG" make an unrelated role match "Software Engineer".
     const companyLower = (job.company || '').toLowerCase();
-    let matchesCompany = false;
+    let matchesCompany = queryTerms.length > 0;
     for (const term of queryTerms) {
         const regex = new RegExp(`\\b${term}\\b`, 'i');
-        if (regex.test(companyLower)) {
-            matchesCompany = true;
+        if (!regex.test(companyLower)) {
+            matchesCompany = false;
             break;
         }
     }
 
-    // 6. Verify that at least one original query term matches the location name
-    const locationLower = (job.location || '').toLowerCase();
-    let matchesLocation = false;
-    for (const term of queryTerms) {
-        if (locationLower.includes(term)) {
-            matchesLocation = true;
-            break;
-        }
-    }
-
-    if (!matchesTitle && !matchesCompany && !matchesLocation) {
+    if (!matchesTitle && !matchesCompany) {
         console.log(`[validateJobRelevance] Discarded irrelevant job: "${job.title}" at "${job.company}" for query "${query}"`);
         return false;
     }
 
     return true;
 };
+
+const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const normalizeLocationText = (value: string): string => value
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const validateJobLocation = (job: Job, location: string): boolean => {
+    const requestedLocation = normalizeLocationText(location);
+    if (!requestedLocation) return true;
+
+    const jobLocation = normalizeLocationText(job.location || '');
+    if (!jobLocation) return false;
+
+    // Remote roles are acceptable for specific city searches, and broad US searches
+    // should not reject remote/nationwide listings.
+    if (jobLocation.includes('remote')) return true;
+    if (['remote', 'anywhere', 'nationwide', 'us', 'usa', 'united states'].includes(requestedLocation)) {
+        return jobLocation.includes('remote') ||
+            jobLocation.includes('united states') ||
+            jobLocation.includes('nationwide') ||
+            jobLocation.includes('usa');
+    }
+
+    if (jobLocation.includes(requestedLocation)) return true;
+
+    const locationTerms = requestedLocation
+        .split(' ')
+        .filter(term => term.length > 0 && !['in', 'near', 'area'].includes(term));
+
+    const longLocationTerms = locationTerms.filter(term => term.length > 2);
+    if (longLocationTerms.length > 1) {
+        return longLocationTerms.every(term => jobLocation.includes(term));
+    }
+    if (longLocationTerms.length === 1) {
+        return jobLocation.includes(longLocationTerms[0]);
+    }
+
+    return locationTerms.some(term => {
+        return new RegExp(`\\b${escapeRegExp(term)}\\b`, 'i').test(jobLocation);
+    });
+};
+
+const filterJobsForSearch = (jobs: Job[], query: string, location: string, sourceLabel: string): Job[] => {
+    const filteredJobs = jobs.filter(job =>
+        validateJobRelevance(job, query) &&
+        validateJobLocation(job, location)
+    );
+    const discardedCount = jobs.length - filteredJobs.length;
+    if (discardedCount > 0) {
+        console.log(`[filterJobsForSearch] Discarded ${discardedCount}/${jobs.length} ${sourceLabel} jobs for "${query}" in "${location}".`);
+    }
+    return filteredJobs;
+};
+
+const mergeUniqueJobs = (...jobGroups: Job[][]): Job[] => {
+    const uniqueJobs: Job[] = [];
+    const seenIds = new Set<string>();
+
+    for (const group of jobGroups) {
+        for (const job of group) {
+            if (!seenIds.has(job.id)) {
+                seenIds.add(job.id);
+                uniqueJobs.push(job);
+            }
+        }
+    }
+
+    return uniqueJobs;
+};
+
+const saveJobsToUserHistory = async (userId: string, jobs: Job[], searchQuery: string): Promise<void> => {
+    if (jobs.length === 0) return;
+
+    const historyBatch = db.batch();
+    jobs.forEach(job => {
+        const historyRef = db.collection('users').doc(userId)
+            .collection('jobSearchHistory').doc(job.id);
+        historyBatch.set(historyRef, {
+            ...job,
+            source: 'google' as const, // Use 'google' to prevent Partner badge
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            searchQuery
+        }, { merge: true });
+    });
+
+    await historyBatch.commit();
+    console.log(`[saveJobsToUserHistory] Saved ${jobs.length} jobs to user ${userId} history`);
+};
+
+const quoteSearchTerm = (value: string): string => `"${value.replace(/"/g, '').trim()}"`;
+
+const buildGoogleJobSearchQueries = (query: string, location: string): string[] => {
+    const quotedQuery = quoteSearchTerm(query);
+    const locationClause = location ? quoteSearchTerm(location) : '';
+    const locationOrRemoteClause = location ? `(${locationClause} OR "Remote")` : '("Remote" OR "United States")';
+    const aggregatorExclusions = '-site:indeed.com -site:linkedin.com -site:ziprecruiter.com -site:glassdoor.com -site:monster.com';
+
+    const firstPartyAtsSites = '(site:jobs.lever.co OR site:boards.greenhouse.io OR site:greenhouse.io OR site:ashbyhq.com OR site:jobs.ashbyhq.com)';
+    const enterpriseAtsSites = '(site:myworkdayjobs.com OR site:workdayjobs.com OR site:jobs.smartrecruiters.com OR site:jobs.jobvite.com OR site:careers.icims.com)';
+
+    const queries = location
+        ? [
+            `${quotedQuery} ${locationClause} ${firstPartyAtsSites}`,
+            `${quotedQuery} ${locationClause} ${enterpriseAtsSites}`,
+            `${quotedQuery} ${locationOrRemoteClause} (apply OR careers OR job) ${aggregatorExclusions}`,
+        ]
+        : [
+            `${quotedQuery} ${firstPartyAtsSites}`,
+            `${quotedQuery} ${enterpriseAtsSites}`,
+            `${quotedQuery} (apply OR careers OR job) ${aggregatorExclusions}`,
+        ];
+
+    return Array.from(new Set(queries.map(searchQuery => searchQuery.replace(/\s+/g, ' ').trim())));
+};
+
+const performGoogleJobSearch = async (
+    query: string,
+    location: string,
+    searchApiKey: string,
+    searchCx: string,
+    requestedCount: number
+): Promise<CustomSearchResult[]> => {
+    const searchQueries = buildGoogleJobSearchQueries(query, location);
+    const maxResults = Math.max(20, Math.min(requestedCount * 4, 40));
+    const dedupedResults: CustomSearchResult[] = [];
+    const seenLinks = new Set<string>();
+
+    for (let index = 0; index < searchQueries.length; index++) {
+        const searchQuery = searchQueries[index];
+        console.log(`[performGoogleJobSearch] Query pass ${index + 1}/${searchQueries.length}: "${searchQuery}"`);
+        const results = await performGoogleSearch(searchQuery, searchApiKey, searchCx, 10);
+
+        for (const result of results) {
+            const normalizedLink = (result.link || '').replace(/\/$/, '').toLowerCase();
+            if (!normalizedLink || seenLinks.has(normalizedLink)) continue;
+            seenLinks.add(normalizedLink);
+            dedupedResults.push(result);
+        }
+    }
+
+    console.log(`[performGoogleJobSearch] Collected ${dedupedResults.length} unique Google results across ${searchQueries.length} query passes.`);
+    return dedupedResults.slice(0, maxResults);
+};
+
+const buildGroundedJobSearchPrompt = (query: string, location: string, count: number, ignoreClause: string = ''): string => `Use Google Search grounding to find up to ${count} active job postings for "${query}" in "${location || 'Remote / United States'}".
+${ignoreClause}
+
+ONLY return real, currently open job postings from official company career pages or direct ATS pages.
+Do NOT return job board search pages, generic career portals, expired listings, articles, salary pages, or broad "all jobs" pages.
+The title and core function must closely match "${query}".
+The location must be "${location || 'Remote / United States'}", remote, or a clearly stated metro/commutable area for that location.
+
+If you cannot find any actual matching job postings, respond with: NO_JOBS_FOUND
+
+Format the output EXACTLY as follows for each job, using "---" as a separator:
+
+Title: [Exact Job Title]
+Company: [Official Company Name]
+Location: [City, State or Remote]
+Description: [Provide a comprehensive job description based on the source. Aim for at least 4-6 sentences.]
+URL: [The direct application link]
+---`;
 
 // Helper to validate a single URL with HEAD request
 const validateJobUrl = async (url: string): Promise<boolean> => {
@@ -321,36 +479,39 @@ export const searchJobsCallable = functions.region('us-west1').runWith({
     let cachedJobs: Job[] = [];
     let cacheStatus: 'hit' | 'partial' | 'miss' = 'miss';
     let ctsJobs: Job[] = [];
-    let isCtsSuccess = false;
 
     // Try Google Cloud Talent Solution first (unless bypassed)
     if (!bypassCache) {
         try {
-            ctsJobs = await searchJobsInCTS(query, location, validatedJobCount);
+            ctsJobs = await searchJobsInCTS(query, location, Math.min(validatedJobCount * 3, 50));
             if (ctsJobs && ctsJobs.length > 0) {
-                isCtsSuccess = true;
-                cachedJobs = ctsJobs;
-                if (ctsJobs.length >= validatedJobCount) {
+                cachedJobs = filterJobsForSearch(ctsJobs, query, location, 'CTS');
+                if (cachedJobs.length >= validatedJobCount) {
                     cacheStatus = 'hit';
+                    const finalCachedJobs = cachedJobs.slice(0, validatedJobCount);
                     console.log(`[searchJobsCallable] Full CTS HIT for "${query}" in "${location}" - returning ${validatedJobCount} jobs`);
+                    await saveJobsToUserHistory(userId, finalCachedJobs, fullQuery);
                     return { 
-                        jobs: ctsJobs.slice(0, validatedJobCount), 
+                        jobs: finalCachedJobs,
                         cached: true,
                         creditDeducted: 0,
                         requestedCount: validatedJobCount,
                         isLimited: false
                     };
-                } else {
+                } else if (cachedJobs.length > 0) {
                     cacheStatus = 'partial';
-                    console.log(`[searchJobsCallable] Partial CTS HIT for "${query}" - found ${ctsJobs.length}/${validatedJobCount} jobs`);
+                    console.log(`[searchJobsCallable] Partial CTS HIT for "${query}" - found ${cachedJobs.length}/${validatedJobCount} relevant jobs`);
+                } else {
+                    console.log(`[searchJobsCallable] CTS returned ${ctsJobs.length} jobs, but none matched deterministic filters.`);
                 }
             }
         } catch (ctsError) {
             console.warn('[searchJobsCallable] CTS search failed, falling back to local cache:', ctsError);
         }
 
-        // Secondary fallback to Firestore search cache
-        if (!isCtsSuccess) {
+        // Secondary fallback to exact Firestore search cache. Even a partial CTS hit
+        // should not block this more precise query+location cache.
+        if (cachedJobs.length < validatedJobCount) {
             try {
                 const cacheDoc = await cacheRef.get();
                 if (cacheDoc.exists) {
@@ -359,15 +520,12 @@ export const searchJobsCallable = functions.region('us-west1').runWith({
 
                     // Enforce 6-Hour expiration check
                     if (cached.expiresAt && cached.expiresAt.toMillis() > now.toMillis()) {
-                        const originalCachedCount = (cached.jobs || []).length;
-                        cachedJobs = (cached.jobs || []).filter(job => validateJobRelevance(job, query));
-                        const discardedCount = originalCachedCount - cachedJobs.length;
-                        if (discardedCount > 0) {
-                            console.log(`[searchJobsCallable] Discarded ${discardedCount} irrelevant cached jobs from the pool.`);
-                        }
+                        const exactCachedJobs = filterJobsForSearch(cached.jobs || [], query, location, 'Firestore cache');
+                        cachedJobs = mergeUniqueJobs(cachedJobs, exactCachedJobs);
 
                         if (cachedJobs.length >= validatedJobCount) {
                             cacheStatus = 'hit';
+                            const finalCachedJobs = cachedJobs.slice(0, validatedJobCount);
                             console.log(`[searchJobsCallable] Full Cache HIT for "${queryHash}" - returning ${validatedJobCount} cached jobs`);
 
                             // Update lastAccessedAt for TTL tracking (async, don't await)
@@ -375,8 +533,9 @@ export const searchJobsCallable = functions.region('us-west1').runWith({
                                 lastAccessedAt: admin.firestore.FieldValue.serverTimestamp()
                             }).catch(err => console.warn('Failed to update lastAccessedAt:', err));
 
+                            await saveJobsToUserHistory(userId, finalCachedJobs, fullQuery);
                             return { 
-                                jobs: cachedJobs.slice(0, validatedJobCount), 
+                                jobs: finalCachedJobs,
                                 cached: true,
                                 creditDeducted: 0,
                                 requestedCount: validatedJobCount,
@@ -453,52 +612,40 @@ export const searchJobsCallable = functions.region('us-west1').runWith({
     let newValidatedJobs: Job[] = [];
 
     if (liveJobsNeeded > 0) {
-        // Cache miss or bypassed - Google Search API is REQUIRED
-        if (!searchApiKey || !searchCx) {
-            console.error('[searchJobsCallable] Google Search API Key or CX missing - cannot proceed');
-            throw new functions.https.HttpsError(
-                'failed-precondition',
-                'Google Search API is not configured. Please contact support.'
-            );
-        }
+        console.log(`[searchJobsCallable] Performing Google Search for "${query}" in "${location}" requesting ${liveJobsNeeded} live jobs`);
 
-        // Build Google CSE query with ATS site restrictions for accuracy
-        const cseQuery = location 
-          ? `"${query}" "${location}" (site:jobs.lever.co OR site:greenhouse.io OR site:ashbyhq.com OR site:myworkdayjobs.com OR site:breezy.hr)` 
-          : `"${query}" (site:jobs.lever.co OR site:greenhouse.io OR site:ashbyhq.com)`;
-
-        console.log(`[searchJobsCallable] Performing Google Search for query: "${cseQuery}" requesting ${liveJobsNeeded} live jobs`);
-
-        // Perform Google Search (which handles pagination for >10 results internally)
-        let searchResults;
-        try {
-            searchResults = await performGoogleSearch(cseQuery, searchApiKey, searchCx, liveJobsNeeded);
+        // Perform multiple official-job query passes. A single exact query is too brittle
+        // for common searches like "Software Engineer" in "Chicago".
+        let searchResults: CustomSearchResult[] = [];
+        if (searchApiKey && searchCx) {
+          try {
+            searchResults = await performGoogleJobSearch(query, location, searchApiKey, searchCx, liveJobsNeeded);
             console.log(`[searchJobsCallable] Google Search returned ${searchResults.length} results.`);
-        } catch (searchError) {
-            console.error('[searchJobsCallable] Google Search failed:', searchError);
-            throw new functions.https.HttpsError(
-                'internal',
-                'Failed to fetch job search results. Please try again.'
-            );
+          } catch (searchError) {
+            console.warn('[searchJobsCallable] Google Custom Search failed; falling back to Gemini grounded search:', searchError);
+          }
+        } else {
+          console.warn('[searchJobsCallable] Google Custom Search API key/CX missing; falling back to Gemini grounded search.');
         }
 
-        if (searchResults.length > 0) {
-            // Format search context for Gemini
-            const searchContext = searchResults.map(r => `Source: ${r.link}\nTitle: ${r.title}\nSnippet: ${r.snippet}`).join('\n\n');
+        // Format search context for Gemini when CSE is healthy. If CSE is unavailable
+        // or empty, use Gemini's Google Search grounding instead of returning a false
+        // "no jobs found" result.
+        const searchContext = searchResults.map(r => `Source: ${r.link}\nTitle: ${r.title}\nSnippet: ${r.snippet}`).join('\n\n');
 
-            // Call Gemini API ONLY for parsing
-            const ai = getAIClient();
-            const model = 'gemini-2.5-flash';
+        const ai = getAIClient();
+        const model = 'gemini-2.5-flash';
 
-            try {
-                console.log(`[searchJobsCallable] Calling Gemini (${model}) to parse search results...`);
+        try {
+            console.log(`[searchJobsCallable] Calling Gemini (${model}) to ${searchResults.length > 0 ? 'parse search results' : 'run grounded job search'}...`);
 
-                // Supply already cached jobs to ignore
-                const ignoreClause = cachedJobs.length > 0 
-                  ? `\nCRITICAL: Already cached jobs to IGNORE (do NOT extract jobs from these companies with these titles): ${JSON.stringify(cachedJobs.map(j => ({title: j.title, company: j.company})))}`
-                  : '';
+            // Supply already cached jobs to ignore
+            const ignoreClause = cachedJobs.length > 0
+              ? `\nCRITICAL: Already cached jobs to IGNORE (do NOT extract jobs from these companies with these titles): ${JSON.stringify(cachedJobs.map(j => ({title: j.title, company: j.company})))}`
+              : '';
 
-                const prompt = `I have performed a Google Search for job openings: "${query}" in "${location}".
+            const prompt = searchResults.length > 0
+              ? `I have performed multiple Google Search query passes for job openings: "${query}" in "${location}".
 Here are the search results:
 ---
 ${searchContext}
@@ -516,7 +663,7 @@ ONLY EXTRACT results that are:
 - Specific job listings with a company name and job title
 - Currently accepting applications
 
-CRITICAL LOCATION REQUIREMENT: The job location MUST be in "${location || 'Remote'}". If the snippet indicates the job is remote, that is acceptable. However, do NOT extract jobs that are physically located in other major cities unless remote.
+CRITICAL LOCATION REQUIREMENT: The job location MUST be in "${location || 'Remote'}". If the snippet indicates the job is remote, that is acceptable. If the user searched for a city, accept postings in that city or its clearly stated metro/commutable area. However, do NOT extract jobs that are physically located in other major cities unless remote.
 
 CRITICAL QUERY RELEVANCY REQUIREMENT: The job title and core function MUST be closely related to the search query: "${query}". Do NOT extract jobs that are completely unrelated to "${query}". For example, if the query is "software engineer", do NOT extract "Recruiting Coordinator", "Sales Manager", or "Office Administrator" even if the snippet mentions the term "software engineer" in the text description.
 
@@ -529,12 +676,18 @@ Company: [Official Company Name]
 Location: [City, State]
 Description: [Provide a comprehensive job description based on the snippets. Aim for at least 4-6 sentences.]
 URL: [The direct application link from the search results]
----`;
+---`
+              : buildGroundedJobSearchPrompt(query, location, liveJobsNeeded, ignoreClause);
 
-                const response = await ai.models.generateContent({
-                    model,
-                    contents: prompt,
-                });
+            const request: any = {
+                model,
+                contents: prompt,
+            };
+            if (searchResults.length === 0) {
+                request.config = { tools: [{ googleSearch: {} }] };
+            }
+
+            const response = await ai.models.generateContent(request);
 
                 const textResponse = response.text || '';
                 console.log(`[searchJobsCallable] Raw Text Response (first 500 chars): ${textResponse.substring(0, 500)}`);
@@ -579,13 +732,11 @@ URL: [The direct application link from the search results]
                 // Deterministic Location Shield post-filter
                 let filteredJobs = parsedJobs;
                 if (location) {
-                    const locLower = location.toLowerCase().trim();
-                    filteredJobs = parsedJobs.filter(job => {
-                        const jobLoc = job.location.toLowerCase();
-                        return jobLoc.includes(locLower) || jobLoc.includes('remote');
-                    });
+                    filteredJobs = parsedJobs.filter(job => validateJobLocation(job, location));
                     console.log(`[searchJobsCallable] Location shield: filtered down from ${parsedJobs.length} to ${filteredJobs.length} jobs.`);
                 }
+
+                filteredJobs = filterJobsForSearch(filteredJobs, query, location, 'live parsed');
 
                 // URL validation optimization:
                 // Cap validation to Math.min(liveJobsNeeded, 15) to avoid Cloud Function timeouts
@@ -603,19 +754,10 @@ URL: [The direct application link from the search results]
                 console.error("Gemini Search Exception:", error);
                 throw new functions.https.HttpsError('internal', `Gemini Error: ${error.message}`);
             }
-        }
     }
 
     // 4. Combine and Deduplicate
-    const mergedJobs = [...cachedJobs, ...newValidatedJobs];
-    const uniqueJobs: Job[] = [];
-    const seenIds = new Set<string>();
-    for (const job of mergedJobs) {
-        if (!seenIds.has(job.id)) {
-            seenIds.add(job.id);
-            uniqueJobs.push(job);
-        }
-    }
+    const uniqueJobs = mergeUniqueJobs(cachedJobs, newValidatedJobs);
 
     const finalJobs = uniqueJobs.slice(0, validatedJobCount);
 
@@ -682,21 +824,7 @@ URL: [The direct application link from the search results]
 
     // 7. Save to user's job history (limit to final jobs returned)
     if (finalJobs.length > 0) {
-        const historyBatch = db.batch();
-        finalJobs.forEach(job => {
-            const historyRef = db.collection('users').doc(userId)
-                .collection('jobSearchHistory').doc(job.id);
-            historyRef.set({
-                ...job,
-                source: 'google' as const, // Use 'google' to prevent Partner badge
-                createdAt: admin.firestore.FieldValue.serverTimestamp(),
-                searchQuery: fullQuery
-            }, { merge: true });
-        });
-
-        historyBatch.commit().then(() => {
-            console.log(`[searchJobsCallable] Saved ${finalJobs.length} jobs to user ${userId} history`);
-        }).catch(err => console.warn('Failed to save job history:', err));
+        await saveJobsToUserHistory(userId, finalJobs, fullQuery);
     }
 
     const isLimited = finalJobs.length < validatedJobCount;
@@ -737,13 +865,7 @@ export const searchJobs = functions.region('us-west1').runWith({
                     const now = admin.firestore.Timestamp.now();
                     
                     if (cached.expiresAt && cached.expiresAt.toMillis() > now.toMillis()) {
-                        const originalCachedCount = (cached.jobs || []).length;
-                        const validCachedJobs = (cached.jobs || []).filter(job => validateJobRelevance(job, query));
-                        const discardedCount = originalCachedCount - validCachedJobs.length;
-                        
-                        if (discardedCount > 0) {
-                            console.log(`[searchJobs] Discarded ${discardedCount} irrelevant cached jobs from the pool.`);
-                        }
+                        const validCachedJobs = filterJobsForSearch(cached.jobs || [], query, location, 'HTTP Firestore cache');
 
                         if (validCachedJobs.length > 0) {
                             console.log(`[searchJobs] Cache HIT for "${queryHash}" - returning ${validCachedJobs.length} valid jobs`);
@@ -762,40 +884,30 @@ export const searchJobs = functions.region('us-west1').runWith({
             const searchApiKey = googleSearchApiKey.value();
             const searchCx = googleSearchCx.value();
 
-            // Google Search API is REQUIRED (no Gemini grounding fallback)
-            if (!searchApiKey || !searchCx) {
-                console.error('[searchJobs] Google Search API Key or CX missing - cannot proceed');
-                res.status(500).json({ error: 'Google Search API is not configured. Please contact support.' });
-                return;
-            }
-
-            // 1. Perform Google Search
-            let searchResults;
-            try {
-                searchResults = await performGoogleSearch(fullQuery + " job openings", searchApiKey, searchCx);
-                console.log(`[searchJobs] Google Search returned ${searchResults.length} results.`);
-            } catch (searchError) {
-                console.error('[searchJobs] Google Search failed:', searchError);
-                res.status(500).json({ error: 'Failed to fetch job search results. Please try again.' });
-                return;
-            }
-
-            if (searchResults.length === 0) {
-                console.log('[searchJobs] No search results found');
-                res.json({ result: { jobs: [], cached: false } });
-                return;
+            // 1. Perform multiple official-job Google Search passes
+            let searchResults: CustomSearchResult[] = [];
+            if (searchApiKey && searchCx) {
+                try {
+                    searchResults = await performGoogleJobSearch(query, location, searchApiKey, searchCx, 10);
+                    console.log(`[searchJobs] Google Search returned ${searchResults.length} results.`);
+                } catch (searchError) {
+                    console.warn('[searchJobs] Google Custom Search failed; falling back to Gemini grounded search:', searchError);
+                }
+            } else {
+                console.warn('[searchJobs] Google Custom Search API key/CX missing; falling back to Gemini grounded search.');
             }
 
             // 2. Format search context for Gemini
             const searchContext = searchResults.map(r => `Source: ${r.link}\nTitle: ${r.title}\nSnippet: ${r.snippet}`).join('\n\n');
 
-            // 3. Call Gemini API ONLY for parsing (no search grounding)
+            // 3. Use Gemini for parsing CSE results, or for grounded search if CSE is unavailable.
             const ai = getAIClient();
             const model = 'gemini-2.5-flash';
 
-            console.log(`[searchJobs] Calling Gemini (${model}) to parse search results...`);
+            console.log(`[searchJobs] Calling Gemini (${model}) to ${searchResults.length > 0 ? 'parse search results' : 'run grounded job search'}...`);
 
-            const prompt = `I have performed a Google Search for job openings: "${fullQuery}".
+            const prompt = searchResults.length > 0
+                ? `I have performed multiple Google Search query passes for job openings: "${fullQuery}".
 Here are the search results:
 ---
 ${searchContext}
@@ -812,12 +924,18 @@ Company: [Official Company Name]
 Location: [City, State]
 Description: [Provide a comprehensive job description based on the snippets. Aim for at least 4-6 sentences.]
 URL: [The direct application link from the search results]
----`;
+---`
+                : buildGroundedJobSearchPrompt(query, location, 10);
 
-            const response = await ai.models.generateContent({
+            const request: any = {
                 model,
                 contents: prompt,
-            });
+            };
+            if (searchResults.length === 0) {
+                request.config = { tools: [{ googleSearch: {} }] };
+            }
+
+            const response = await ai.models.generateContent(request);
 
             const textResponse = response.text || '';
             // No grounding sources needed - we're using Google Search results directly
@@ -856,9 +974,16 @@ URL: [The direct application link from the search results]
                 }
             });
 
+            let filteredJobs = jobs;
+            if (location) {
+                filteredJobs = jobs.filter(job => validateJobLocation(job, location));
+                console.log(`[searchJobs] Location shield: filtered down from ${jobs.length} to ${filteredJobs.length} jobs.`);
+            }
+            filteredJobs = filterJobsForSearch(filteredJobs, query, location, 'HTTP live parsed');
+
             // Validate and fix job URLs before caching
-            console.log(`[searchJobs] Parsed ${jobs.length} jobs, validating URLs...`);
-            const validatedJobs = await validateAndFixJobUrls(jobs);
+            console.log(`[searchJobs] Parsed ${jobs.length} jobs, validating ${filteredJobs.length} filtered URLs...`);
+            const validatedJobs = await validateAndFixJobUrls(filteredJobs);
 
             // Save to cache and index jobs
             if (validatedJobs.length > 0) {
@@ -1005,13 +1130,12 @@ export const smartSearchJobs = functions.region('us-west1').runWith({
             console.log(`[smartSearchJobs] Location query found ${locationResults.size} jobs`);
         }
 
-        // Filter by location if both term and location provided
-        let jobs = Array.from(jobsMap.values());
-        if (searchTerm && locationFilter) {
-            jobs = jobs.filter(job =>
-                job.location.toLowerCase().includes(locationFilter)
-            );
-        }
+        const jobs = filterJobsForSearch(
+            Array.from(jobsMap.values()),
+            searchTerm,
+            locationFilter,
+            'smart search'
+        );
 
         console.log(`[smartSearchJobs] Returning ${jobs.length} unique jobs`);
         return { jobs, source: 'smart_search' };
@@ -1144,4 +1268,3 @@ export const getTalentAutocomplete = functions.region('us-west1').runWith({
         return [];
     }
 });
-

@@ -22,6 +22,13 @@ interface CTSSetup {
     projectId: string;
 }
 
+const generateJobId = (job: Job): string => {
+    const base = `${job.title}-${job.company}`.toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+    return base.substring(0, 100);
+};
+
 let ctsSetup: CTSSetup | null = null;
 let isCtsActive = true;
 let isInitializing = false;
@@ -185,7 +192,7 @@ export async function createOrUpdateJobsBatch(jobs: Job[]): Promise<void> {
     // Ingest each job in parallel using Promise.allSettled to prevent failures from blocking others
     await Promise.allSettled(jobs.map(async (job) => {
         const ctsJob = mapJobToCTSJobSchema(job, setup.companyPath);
-        const jobId = job.id;
+        const jobId = generateJobId(job);
 
         // Check if we already have a record in cachedJobs to update instead of create
         const jobRef = db.collection('cachedJobs').doc(jobId);

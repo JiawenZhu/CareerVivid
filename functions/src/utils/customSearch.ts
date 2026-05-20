@@ -24,7 +24,7 @@ export const performGoogleSearch = async (query: string, apiKey: string, cx: str
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error(`[performGoogleSearch] Page start=${start} Error (${response.status}):`, errorText);
-                return [];
+                throw new Error(`Google Custom Search failed (${response.status}): ${errorText}`);
             }
 
             const data = await response.json();
@@ -37,7 +37,7 @@ export const performGoogleSearch = async (query: string, apiKey: string, cx: str
             }));
         } catch (error) {
             console.error(`[performGoogleSearch] Exception during search page start=${start}:`, error);
-            return [];
+            throw error;
         }
     };
 

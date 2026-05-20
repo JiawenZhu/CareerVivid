@@ -9,15 +9,108 @@ import { useAICreditCheck } from '../../hooks/useAICreditCheck';
 import { submitApplication, getApplicationsForUser } from '../../services/applicationService';
 import { JobPosting, WorkModel } from '../../types';
 import { navigate } from '../../utils/navigation';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { Loader2, Briefcase, ArrowRight, X, FileText, Send, HelpCircle, LayoutDashboard, Search, Filter, MapPin, Building2, DollarSign, Clock, ExternalLink, PlusCircle, CheckCircle2, Mic, RefreshCw, Trash2 } from 'lucide-react';
+import { Loader2, Briefcase, X, FileText, Send, HelpCircle, LayoutDashboard, Search, MapPin, Building2, DollarSign, Clock, ExternalLink, PlusCircle, RefreshCw } from 'lucide-react';
 import { SmartDescription } from './components/SmartDescription';
 import { HighlightLegend } from './components/HighlightLegend';
 import { JobCard } from './components/JobCard';
-import { formatSalary, getTimeAgo } from './utils/jobFormatters';
 import { getUserJobHistory, deleteUserJob } from '../../services/jobHistoryService';
 import Toast from '../../components/Toast';
 import { getTalentAutocomplete } from '../../services/talentSearchService';
+
+type SearchCriteria = {
+    term: string;
+    location: string;
+};
+
+type SearchMetadata = {
+    cached?: boolean;
+    creditDeducted?: number;
+    requestedCount?: number;
+    isLimited?: boolean;
+};
+
+type JobSearchState =
+    | { phase: 'idle' }
+    | { phase: 'loading'; criteria: SearchCriteria }
+    | { phase: 'results'; criteria: SearchCriteria; jobs: JobPosting[]; metadata: SearchMetadata | null; pageToken?: string }
+    | { phase: 'empty'; criteria: SearchCriteria; metadata: SearchMetadata | null }
+    | { phase: 'error'; criteria: SearchCriteria; message: string };
+
+const normalizeText = (value: string | undefined): string =>
+    (value || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+
+const QUERY_EXPANSIONS: Record<string, string[]> = {
+    it: ['information technology', 'systems', 'network', 'helpdesk', 'support', 'tech', 'technology', 'sysadmin', 'administrator', 'security', 'analyst', 'computer', 'infrastructure'],
+    software: ['developer', 'engineer', 'programmer', 'coder', 'web', 'frontend', 'backend', 'fullstack', 'full stack', 'architect', 'qa', 'test', 'devops', 'sre', 'application'],
+    engineer: ['developer', 'programmer', 'coder', 'architect', 'sre', 'devops', 'systems', 'qa', 'test', 'engineering'],
+    developer: ['engineer', 'programmer', 'coder', 'architect', 'web', 'software', 'development', 'application'],
+    nurse: ['rn', 'lpn', 'nursing', 'np', 'healthcare', 'medical', 'hospital', 'clinic', 'care'],
+    doctor: ['md', 'physician', 'healthcare', 'medical', 'hospital', 'clinic', 'pediatrician', 'surgeon'],
+    teacher: ['educator', 'instructor', 'tutor', 'professor', 'school', 'education', 'learning', 'faculty'],
+    marketing: ['seo', 'sem', 'growth', 'advertising', 'brand', 'content', 'social media', 'pr', 'communications', 'digital'],
+    sales: ['account executive', 'ae', 'sdr', 'bdr', 'business development', 'representative', 'account manager', 'inside sales'],
+    design: ['designer', 'ux', 'ui', 'product designer', 'graphic', 'creative', 'art director', 'illustrator'],
+};
+
+const searchTerms = (term: string): string[] => {
+    const stopWords = new Set(['in', 'and', 'a', 'of', 'for', 'to', 'with', 'the', 'an', 'at', 'jobs', 'job', 'hiring', 'near', 'me']);
+    return normalizeText(term).split(' ').filter(value => value.length > 0 && !stopWords.has(value));
+};
+
+const textMatchesTerm = (text: string, term: string): boolean => {
+    const normalizedTerm = normalizeText(term);
+    if (!normalizedTerm) return false;
+    if (normalizedTerm.includes(' ')) return text.includes(normalizedTerm);
+    return new RegExp(`\\b${normalizedTerm}\\b`, 'i').test(text);
+};
+
+const matchesSearchIntent = (job: JobPosting, criteria: SearchCriteria): boolean => {
+    const terms = searchTerms(criteria.term);
+    if (terms.length === 0) return true;
+
+    const title = normalizeText(job.jobTitle);
+    const company = normalizeText(job.companyName);
+    const matchesCompany = terms.every(term => textMatchesTerm(company, term));
+    if (matchesCompany) return true;
+
+    if (terms.length === 1) {
+        const expandedTerms = new Set([terms[0], ...(QUERY_EXPANSIONS[terms[0]] || [])]);
+        return Array.from(expandedTerms).some(term => textMatchesTerm(title, term));
+    }
+
+    return terms.every(term => {
+        const termGroup = new Set([term, ...(QUERY_EXPANSIONS[term] || [])]);
+        return Array.from(termGroup).some(groupTerm => textMatchesTerm(title, groupTerm));
+    });
+};
+
+const matchesSearchLocation = (job: JobPosting, location: string): boolean => {
+    const requestedLocation = normalizeText(location);
+    if (!requestedLocation) return true;
+
+    const jobLocation = normalizeText(job.location);
+    if (jobLocation.includes('remote')) return true;
+    if (['remote', 'anywhere', 'nationwide', 'us', 'usa', 'united states'].includes(requestedLocation)) {
+        return jobLocation.includes('remote') ||
+            jobLocation.includes('united states') ||
+            jobLocation.includes('nationwide') ||
+            jobLocation.includes('usa');
+    }
+    if (jobLocation.includes(requestedLocation)) return true;
+
+    const requestedTerms = requestedLocation.split(' ').filter(Boolean);
+    const longTerms = requestedTerms.filter(term => term.length > 2);
+    if (longTerms.length > 1) return longTerms.every(term => jobLocation.includes(term));
+    if (longTerms.length === 1) return jobLocation.includes(longTerms[0]);
+
+    return requestedTerms.some(term => new RegExp(`\\b${term}\\b`, 'i').test(jobLocation));
+};
+
+const filterSearchResults = (jobs: JobPosting[], criteria: SearchCriteria): JobPosting[] => {
+    return jobs.filter(job => {
+        return matchesSearchIntent(job, criteria) && matchesSearchLocation(job, criteria.location);
+    });
+};
 
 
 const JobMarketPage: React.FC = () => {
@@ -29,22 +122,15 @@ const JobMarketPage: React.FC = () => {
     const { checkCredit, CreditLimitModal } = useAICreditCheck();
 
     // Data States
-    const [originalPartnerJobs, setOriginalPartnerJobs] = useState<JobPosting[]>([]); // Source of truth
-    const [jobs, setJobs] = useState<JobPosting[]>([]); // Displayed partner jobs (filtered)
-    const [googleJobs, setGoogleJobs] = useState<JobPosting[]>([]);
+    const [partnerJobs, setPartnerJobs] = useState<JobPosting[]>([]);
     const [savedJobs, setSavedJobs] = useState<JobPosting[]>([]); // User's saved job history
     const [jobCount, setJobCount] = useState<number>(10); // Number of jobs to search (5-20)
-    const [searchMetadata, setSearchMetadata] = useState<{
-        cached?: boolean;
-        creditDeducted?: number;
-        requestedCount?: number;
-        isLimited?: boolean;
-    } | null>(null);
+    const [searchState, setSearchState] = useState<JobSearchState>({ phase: 'idle' });
 
     // Status States
     const [isLoading, setIsLoading] = useState(true); // Initial load
-    const [isSearching, setIsSearching] = useState(false); // Calling API
     const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const isSearching = searchState.phase === 'loading';
 
     // Search field focus/animation state
     const [activeField, setActiveField] = useState<'term' | 'location' | null>(null);
@@ -53,9 +139,6 @@ const JobMarketPage: React.FC = () => {
 
     // Search States
     const [searchQuery, setSearchQuery] = useState({ term: '', location: '' });
-    const [pageToken, setPageToken] = useState<string | undefined>(undefined);
-    const [hasPerformedSearch, setHasPerformedSearch] = useState(false);
-
     // Autocomplete States
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
@@ -126,8 +209,7 @@ const JobMarketPage: React.FC = () => {
         const fetchInitialJobs = async () => {
             try {
                 const fetchedJobs = await getAllPublishedJobs();
-                setOriginalPartnerJobs(fetchedJobs);
-                setJobs(fetchedJobs);
+                setPartnerJobs(fetchedJobs);
             } catch (error) {
                 console.error("Error fetching jobs:", error);
             } finally {
@@ -222,30 +304,8 @@ const JobMarketPage: React.FC = () => {
             return;
         }
 
-        // 1. Filter Local Partner Jobs
-        if (!term && !loc) {
-            setJobs(originalPartnerJobs);
-        } else {
-            const lowerTerm = term.toLowerCase();
-            const lowerLoc = loc.toLowerCase();
-
-            const filtered = originalPartnerJobs.filter(job => {
-                const matchTerm = !term ||
-                    job.jobTitle.toLowerCase().includes(lowerTerm) ||
-                    job.companyName.toLowerCase().includes(lowerTerm) ||
-                    job.description.toLowerCase().includes(lowerTerm);
-                const matchLoc = !loc ||
-                    job.location.toLowerCase().includes(lowerLoc);
-                return matchTerm && matchLoc;
-            });
-            setJobs(filtered);
-        }
-
-        // 2. Fetch Google Jobs
-        setIsSearching(true);
-        setGoogleJobs([]);
-        setPageToken(undefined);
-        setHasPerformedSearch(true);
+        const criteria = { term, location: loc };
+        setSearchState({ phase: 'loading', criteria });
 
         if (bypassCache) {
             setToastMessage("🚀 Bypassing cache. Forcing a fresh live search...");
@@ -255,31 +315,46 @@ const JobMarketPage: React.FC = () => {
 
         try {
             const result = await searchGoogleJobs(term, loc, jobCount, undefined, bypassCache);
-            if (result.jobs) {
-                setGoogleJobs(result.jobs);
-                setPageToken(result.nextPageToken);
-                setSearchMetadata({
-                    cached: result.cached,
-                    creditDeducted: result.creditDeducted,
-                    requestedCount: result.requestedCount || jobCount,
-                    isLimited: result.isLimited
-                });
-                
-                if (result.cached) {
-                    setToastMessage("ℹ️ Loaded relevant matches from search cache.");
-                } else {
-                    setToastMessage("✨ Fresh jobs fetched and cached successfully!");
+            const metadata = {
+                cached: result.cached,
+                creditDeducted: result.creditDeducted,
+                requestedCount: result.requestedCount || jobCount,
+                isLimited: result.isLimited
+            };
+            const filteredJobs = filterSearchResults(result.jobs || [], criteria);
+
+            setSearchState(filteredJobs.length > 0
+                ? {
+                    phase: 'results',
+                    criteria,
+                    jobs: filteredJobs,
+                    metadata,
+                    pageToken: result.nextPageToken
                 }
-                
-                // Dynamic refresh of AI usage context
-                refreshAIUsage().catch(err => console.warn("Failed to refresh AI credits:", err));
+                : {
+                    phase: 'empty',
+                    criteria,
+                    metadata
+                }
+            );
+
+            if (result.cached) {
+                setToastMessage("ℹ️ Loaded relevant matches from search cache.");
+            } else {
+                setToastMessage("✨ Fresh jobs fetched and cached successfully!");
             }
+
+            // Dynamic refresh of AI usage context
+            refreshAIUsage().catch(err => console.warn("Failed to refresh AI credits:", err));
         } catch (error: any) {
             console.error("Google Job Search Failed", error);
             const errorMessage = error?.message || 'Failed to search jobs. Please try again.';
+            setSearchState({
+                phase: 'error',
+                criteria,
+                message: errorMessage
+            });
             setToastMessage(`❌ Search Error: ${errorMessage}`);
-        } finally {
-            setIsSearching(false);
         }
     };
 
@@ -291,16 +366,42 @@ const JobMarketPage: React.FC = () => {
     };
 
     const handleLoadMore = async () => {
-        if (!pageToken || isLoadingMore || !checkCredit()) return;
+        if (searchState.phase !== 'results' || !searchState.pageToken || isLoadingMore || !checkCredit()) return;
 
         setIsLoadingMore(true);
         try {
-            const result = await searchGoogleJobs(searchQuery.term, searchQuery.location, jobCount, pageToken);
-            if (result.jobs) {
-                setGoogleJobs(prev => [...prev, ...result.jobs]);
-                setPageToken(result.nextPageToken);
-                refreshAIUsage().catch(err => console.warn(err));
-            }
+            const result = await searchGoogleJobs(
+                searchState.criteria.term,
+                searchState.criteria.location,
+                jobCount,
+                searchState.pageToken
+            );
+            const incomingJobs = filterSearchResults(result.jobs || [], searchState.criteria);
+            const mergedJobs = [...searchState.jobs, ...incomingJobs].filter((job, index, allJobs) =>
+                allJobs.findIndex(candidate => candidate.id === job.id) === index
+            );
+            const metadata = {
+                cached: result.cached,
+                creditDeducted: result.creditDeducted,
+                requestedCount: result.requestedCount || jobCount,
+                isLimited: result.isLimited
+            };
+
+            setSearchState(mergedJobs.length > 0
+                ? {
+                    phase: 'results',
+                    criteria: searchState.criteria,
+                    jobs: mergedJobs,
+                    metadata,
+                    pageToken: result.nextPageToken
+                }
+                : {
+                    phase: 'empty',
+                    criteria: searchState.criteria,
+                    metadata
+                }
+            );
+            refreshAIUsage().catch(err => console.warn(err));
         } catch (error) {
             console.error("Load More Failed", error);
         } finally {
@@ -811,25 +912,24 @@ const JobMarketPage: React.FC = () => {
                     </div>
                 ) : (
                     <div className="space-y-10">
-                        {/* Section 1: New Search Results (Google Jobs) */}
-                        {isSearching ? (
+                        {searchState.phase === 'loading' ? (
                             <div className="flex flex-col items-center justify-center py-12 space-y-3">
                                 <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
                                 <p className="text-gray-500">Searching across the web...</p>
                             </div>
-                        ) : googleJobs.length > 0 ? (
+                        ) : searchState.phase === 'results' ? (
                             <div className="space-y-4">
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                     <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                         <Search size={20} className="text-indigo-600" /> New Search Results
                                     </h2>
-                                    {searchMetadata && (searchMetadata.cached || (searchMetadata.creditDeducted ?? 1) < 1) && (
+                                    {searchState.metadata && (searchState.metadata.cached || (searchState.metadata.creditDeducted ?? 1) < 1) && (
                                         <div className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-full text-xs font-medium border border-indigo-100 dark:border-indigo-900/50">
                                             <Clock size={14} className="animate-pulse" />
                                             <span>
-                                                {searchMetadata.cached 
+                                                {searchState.metadata.cached
                                                     ? "🕐 Cached (up to 6h ago) · " 
-                                                    : `🕐 Hybrid Search (${Math.round((1 - (searchMetadata.creditDeducted ?? 0)) * 100)}% from cache) · `}
+                                                    : `🕐 Hybrid Search (${Math.round((1 - (searchState.metadata.creditDeducted ?? 0)) * 100)}% from cache) · `}
                                             </span>
                                             <button 
                                                 type="button"
@@ -843,19 +943,19 @@ const JobMarketPage: React.FC = () => {
                                         </div>
                                     )}
                                 </div>
-                                {searchMetadata?.isLimited && (
+                                {searchState.metadata?.isLimited && (
                                     <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-xl p-4 flex gap-3 text-amber-800 dark:text-amber-300 text-sm">
                                         <span className="text-lg">⚠️</span>
                                         <div>
                                             <p className="font-semibold">Limited results found</p>
                                             <p className="mt-0.5 text-amber-700 dark:text-amber-400">
-                                                We only found {googleJobs.length} jobs in this city matching your search terms (fewer than the {searchMetadata.requestedCount} requested). Try broadening your search terms or checking adjacent cities.
+                                                We only found {searchState.jobs.length} jobs in this city matching your search terms (fewer than the {searchState.metadata.requestedCount} requested). Try broadening your search terms or checking adjacent cities.
                                             </p>
                                         </div>
                                     </div>
                                 )}
                                 <div className="grid gap-4">
-                                    {googleJobs.map((job, idx) => (
+                                    {searchState.jobs.map((job, idx) => (
                                         <JobCard
                                             key={`google-${job.id}-${idx}`}
                                             job={job}
@@ -872,14 +972,14 @@ const JobMarketPage: React.FC = () => {
                                         />
                                     ))}
                                 </div>
-                                {pageToken && (
+                                {searchState.pageToken && (
                                     <div className="flex justify-center pt-8">
                                         <button
                                             onClick={handleLoadMore}
-                                            disabled={isSearching}
+                                            disabled={isLoadingMore}
                                             className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                         >
-                                            {isSearching ? (
+                                            {isLoadingMore ? (
                                                 <>
                                                     <Loader2 className="w-4 h-4 animate-spin" />
                                                     Loading...
@@ -891,14 +991,30 @@ const JobMarketPage: React.FC = () => {
                                     </div>
                                 )}
                             </div>
+                        ) : searchState.phase === 'empty' ? (
+                            <div className="text-center py-20 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
+                                <div className="bg-gray-100 dark:bg-gray-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Search className="w-8 h-8 text-gray-400" />
+                                </div>
+                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">No jobs found</h3>
+                                <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+                                    We couldn't find any job matches for <span className="font-semibold">"{searchState.criteria.term}"</span> {searchState.criteria.location && <span>in <span className="font-semibold">"{searchState.criteria.location}"</span></span>}.
+                                </p>
+                                {renderSuggestions()}
+                            </div>
+                        ) : searchState.phase === 'error' ? (
+                            <div className="text-center py-20 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-red-200 dark:border-red-900/50">
+                                <div className="bg-red-50 dark:bg-red-950/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <X className="w-8 h-8 text-red-500" />
+                                </div>
+                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Search failed</h3>
+                                <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-md mx-auto">{searchState.message}</p>
+                            </div>
                         ) : null}
 
-                        {/* Section 2: Saved Job History */}
-                        {savedJobs.length > 0 && (
+                        {searchState.phase === 'idle' && savedJobs.length > 0 && (
                             <div className="space-y-4">
-                                <h2 className={`text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 ${
-                                    (isSearching || googleJobs.length > 0) ? 'border-t border-gray-200 dark:border-gray-700 pt-8' : ''
-                                }`}>
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                     <Clock size={20} className="text-indigo-600" /> Your Saved Search History
                                 </h2>
                                 <div className="grid gap-4">
@@ -922,16 +1038,15 @@ const JobMarketPage: React.FC = () => {
                             </div>
                         )}
 
-                        {/* Section 3: Partner Jobs (Featured Opportunities) - Moved below Saved Search History */}
-                        {jobs.length > 0 && (
+                        {searchState.phase === 'idle' && partnerJobs.length > 0 && (
                             <div className="space-y-4">
                                 <h2 className={`text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 ${
-                                    (isSearching || googleJobs.length > 0 || savedJobs.length > 0) ? 'border-t border-gray-200 dark:border-gray-700 pt-8' : ''
+                                    savedJobs.length > 0 ? 'border-t border-gray-200 dark:border-gray-700 pt-8' : ''
                                 }`}>
                                     <Briefcase size={20} className="text-indigo-600" /> Featured Opportunities
                                 </h2>
                                 <div className="grid gap-4">
-                                    {jobs.map((job) => (
+                                    {partnerJobs.map((job) => (
                                         <JobCard
                                             key={job.id}
                                             job={job}
@@ -947,18 +1062,6 @@ const JobMarketPage: React.FC = () => {
                                         />
                                     ))}
                                 </div>
-                            </div>
-                        )}
-                        {hasPerformedSearch && jobs.length === 0 && googleJobs.length === 0 && (
-                            <div className="text-center py-20 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
-                                <div className="bg-gray-100 dark:bg-gray-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <Search className="w-8 h-8 text-gray-400" />
-                                </div>
-                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">No jobs found</h3>
-                                <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-                                    We couldn't find any job matches for <span className="font-semibold">"{searchQuery.term}"</span> {searchQuery.location && <span>in <span className="font-semibold">"{searchQuery.location}"</span></span>}.
-                                </p>
-                                {renderSuggestions()}
                             </div>
                         )}
                     </div>
