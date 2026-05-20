@@ -28,13 +28,13 @@ import { onRequest } from "firebase-functions/v2/https";
 import { GoogleGenAI } from "@google/genai";
 import { getAIClient } from "./utils/ai";
 import * as admin from "firebase-admin";
-import cors from "cors";
+import { secureCorsHandler } from "./utils/corsUtils.js";
 import { randomUUID } from "crypto";
 import { resolveAndDeduct, getMonthlyLimit } from "./utils/creditUtils.js";
 
 if (!admin.apps.length) admin.initializeApp();
 
-const corsHandler = cors({ origin: true });
+const corsHandler = secureCorsHandler;
 
 // ── Supported Gemini models ───────────────────────────────────────────────────
 const SUPPORTED_MODELS = new Set([

@@ -12,8 +12,8 @@ import type { AutoFillProfile, AutoFillResult } from './types/autofill.types';
 
 // ── Site Detection ────────────────────────────────────────────────────────────
 
-const isLinkedIn = window.location.hostname.includes('linkedin.com');
-const isIndeed = window.location.hostname.includes('indeed.com');
+const isLinkedIn = window.location.hostname === 'linkedin.com' || window.location.hostname.endsWith('.linkedin.com');
+const isIndeed = window.location.hostname === 'indeed.com' || window.location.hostname.endsWith('.indeed.com');
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 

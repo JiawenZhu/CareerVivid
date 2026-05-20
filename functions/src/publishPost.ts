@@ -1,6 +1,6 @@
 import { onRequest } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
-import cors from "cors";
+import { secureCorsHandler } from "./utils/corsUtils.js";
 import {
     resolveAuth,
     getUserProfile,
@@ -9,7 +9,7 @@ import {
 } from "./utils/authUtils.js";
 
 const db = admin.firestore();
-const corsHandler = cors({ origin: true });
+const corsHandler = secureCorsHandler;
 
 // ── Allowed values ────────────────────────────────────────────────────────────
 const ALLOWED_TYPES = ["article", "whiteboard", "portfolio"] as const;

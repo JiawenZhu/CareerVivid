@@ -1,8 +1,8 @@
 import { onRequest } from "firebase-functions/v2/https";
 import { getAIClient } from "./utils/ai";
-import cors from "cors";
+import { secureCorsHandler } from "./utils/corsUtils.js";
 
-const corsHandler = cors({ origin: true });
+const corsHandler = secureCorsHandler;
 const END_MARKER = "__END_GEMINI__";
 
 export const streamGeminiResponse = onRequest(
@@ -14,10 +14,7 @@ export const streamGeminiResponse = onRequest(
   },
   async (req, res) => {
     corsHandler(req, res, async () => {
-      res.setHeader("Access-Control-Allow-Origin", "*");
       if (req.method === "OPTIONS") {
-        res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-        res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
         res.status(204).end();
         return;
       }
@@ -149,7 +146,6 @@ export const streamGeminiResponse = onRequest(
       } catch (error: any) {
         console.error("Gemini Proxy Error:", error);
         if (!res.headersSent) {
-          res.setHeader("Access-Control-Allow-Origin", "*");
           res.status(500).json({ error: error.message || "Gemini proxy failed" });
         } else {
           res.end();

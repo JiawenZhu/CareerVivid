@@ -22,7 +22,7 @@
 
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
-import cors from "cors";
+import { secureCorsHandler } from "./utils/corsUtils.js";
 import { getAIClient } from "./utils/ai";
 import { Content } from "@google/genai";
 
@@ -31,7 +31,7 @@ if (!admin.apps.length) {
 }
 
 const db = admin.firestore();
-const corsHandler = cors({ origin: true });
+const corsHandler = secureCorsHandler;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Credit costs per model (must match agentCredits.ts)

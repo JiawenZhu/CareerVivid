@@ -1,11 +1,11 @@
 import { onRequest } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
-import cors from "cors";
+import { secureCorsHandler } from "./utils/corsUtils.js";
 import { v4 as uuidv4 } from "uuid";
 import { resolveAuth } from "./utils/authUtils.js";
 
 const db = admin.firestore();
-const corsHandler = cors({ origin: true });
+const corsHandler = secureCorsHandler;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SECTION A — Generic Firestore CRUD Engine

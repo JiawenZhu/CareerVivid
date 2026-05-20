@@ -10,7 +10,7 @@ import * as admin from "firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
 
 import { getAIClient } from "./utils/ai";
-import cors from "cors";
+import { secureCorsHandler } from "./utils/corsUtils.js";
 import { resolveAuth } from "./utils/authUtils.js";
 import { defineSecret } from "firebase-functions/params";
 
@@ -19,7 +19,7 @@ if (!admin.apps.length) {
 }
 
 const db = admin.firestore();
-const corsHandler = cors({ origin: true });
+const corsHandler = secureCorsHandler;
 
 const googleSearchApiKey = defineSecret("GOOGLE_SEARCH_API_KEY");
 const googleSearchCx = defineSecret("GOOGLE_SEARCH_CX");

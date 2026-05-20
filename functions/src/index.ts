@@ -3,7 +3,7 @@ import * as admin from "firebase-admin";
 import chromium from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
 import type { Page } from "puppeteer-core";
-import cors from "cors";
+import { secureCorsHandler } from "./utils/corsUtils.js";
 import { v4 as uuidv4 } from "uuid";
 import { Buffer } from "buffer";
 import { ResumeData } from "./types";
@@ -12,7 +12,7 @@ import { TranslationServiceClient } from "@google-cloud/translate";
 import { getAIClient } from "./utils/ai.js";
 import { GoogleAuth } from "google-auth-library";
 
-const corsHandler = cors({ origin: true });
+const corsHandler = secureCorsHandler;
 
 // Initialize the database connection
 if (!admin.apps.length) {
@@ -186,9 +186,6 @@ export const generateResumePdfHttp = functions
     corsHandler(req, res, async () => {
       // Explicitly handle preflight requests if cors middleware misses it (safety net)
       if (req.method === 'OPTIONS') {
-        res.set('Access-Control-Allow-Origin', '*');
-        res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
         res.status(204).send('');
         return;
       }
@@ -449,9 +446,6 @@ export const getPublicResume = functions.region('us-west1').runWith({ timeoutSec
     corsHandler(req, res, async () => {
       console.log("Inside corsHandler");
       if (req.method === 'OPTIONS') {
-        res.set('Access-Control-Allow-Origin', '*');
-        res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
         res.status(204).send('');
         return;
       }
@@ -538,9 +532,6 @@ export const getPublicResume = functions.region('us-west1').runWith({ timeoutSec
 export const updatePublicResume = functions.region('us-west1').runWith({ timeoutSeconds: 60, memory: "256MB" }).https.onRequest(async (req, res) => {
   corsHandler(req, res, async () => {
     if (req.method === 'OPTIONS') {
-      res.set('Access-Control-Allow-Origin', '*');
-      res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-      res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
       res.status(204).send('');
       return;
     }
@@ -923,94 +914,99 @@ export const cliGetInterviewToken = functions
   .region("us-west1")
   .runWith({ timeoutSeconds: 15, memory: "256MB" })
   .https.onRequest(async (req, res) => {
-    res.set("Access-Control-Allow-Origin", "*");
-    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.set("Access-Control-Allow-Headers", "Content-Type");
-    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
-    if (req.method !== "POST") { res.status(405).json({ error: "Method Not Allowed" }); return; }
-
-    const { apiKey, role } = req.body as { apiKey?: string; role?: string };
-    if (!apiKey || !apiKey.startsWith("cv_live_")) {
-      res.status(401).json({ error: "Invalid or missing API key." });
-      return;
-    }
-
-    const db = admin.firestore();
-    try {
-      // Resolve user from API key
-      const snapshot = await db
-        .collectionGroup("private")
-        .where("key", "==", apiKey)
-        .limit(1)
-        .get();
-
-      if (snapshot.empty) {
-        res.status(401).json({ error: "Invalid or revoked API key." });
+    corsHandler(req, res, async () => {
+      if (req.method === "OPTIONS") {
+        res.status(204).send("");
+        return;
+      }
+      if (req.method !== "POST") {
+        res.status(405).json({ error: "Method Not Allowed" });
         return;
       }
 
-      const uid = snapshot.docs[0].ref.parent.parent!.id;
-      const userRef = db.collection("users").doc(uid);
-      const userSnap = await userRef.get();
-      const userData = userSnap.data() || {};
-      const plan = userData.plan || "free";
+      const { apiKey, role } = req.body as { apiKey?: string; role?: string };
+      if (!apiKey || !apiKey.startsWith("cv_live_")) {
+        res.status(401).json({ error: "Invalid or missing API key." });
+        return;
+      }
 
-      const monthlyLimit = plan === "max" || plan === "pro_max" ? 10000
-        : plan === "pro_monthly" || plan === "pro" ? 1000
-        : plan === "pro_sprint" ? 300
-        : 100;
+      const db = admin.firestore();
+      try {
+        // Resolve user from API key
+        const snapshot = await db
+          .collectionGroup("private")
+          .where("key", "==", apiKey)
+          .limit(1)
+          .get();
 
-      const now = new Date();
-      const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-      const used: number = userData.creditsUsed?.[monthKey] ?? 0;
-      const MIN_CREDITS = 2; // minimum charge for any session
+        if (snapshot.empty) {
+          res.status(401).json({ error: "Invalid or revoked API key." });
+          return;
+        }
 
-      if (used + MIN_CREDITS > monthlyLimit) {
-        res.status(402).json({
-          error: "credit_limit_reached",
-          message: "AI credit limit reached. Upgrade at https://careervivid.app/pricing"
+        const uid = snapshot.docs[0].ref.parent.parent!.id;
+        const userRef = db.collection("users").doc(uid);
+        const userSnap = await userRef.get();
+        const userData = userSnap.data() || {};
+        const plan = userData.plan || "free";
+
+        const monthlyLimit = plan === "max" || plan === "pro_max" ? 10000
+          : plan === "pro_monthly" || plan === "pro" ? 1000
+          : plan === "pro_sprint" ? 300
+          : 100;
+
+        const now = new Date();
+        const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+        const used: number = userData.creditsUsed?.[monthKey] ?? 0;
+        const MIN_CREDITS = 2; // minimum charge for any session
+
+        if (used + MIN_CREDITS > monthlyLimit) {
+          res.status(402).json({
+            error: "credit_limit_reached",
+            message: "AI credit limit reached. Upgrade at https://careervivid.app/pricing"
+          });
+          return;
+        }
+
+        // Create session document (billing happens at end via cliInterviewBill)
+        const sessionRef = db.collection("interviewSessions").doc();
+        await sessionRef.set({
+          uid,
+          role: role ?? "unspecified",
+          startedAt: admin.firestore.FieldValue.serverTimestamp(),
+          billed: false,
+          creditsCharged: null,
+          plan,
+          source: "cli",   // tag at creation so context queries can filter
         });
-        return;
+
+        // Generate short-lived OAuth token for Vertex AI
+        const auth = new GoogleAuth({
+          scopes: "https://www.googleapis.com/auth/cloud-platform",
+        });
+        const client = await auth.getClient();
+        const accessTokenResponse = await client.getAccessToken();
+        const accessToken = accessTokenResponse.token;
+
+        const project = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || "jastalk-firebase";
+        const location = "us-west1";
+
+        console.log(`[cliGetInterviewToken] uid=${uid} sessionId=${sessionRef.id} role="${role ?? "unspecified"}" (Vertex AI Token Vended)`);
+
+        res.status(200).json({
+          accessToken,
+          project,
+          location,
+          sessionId: sessionRef.id,
+          monthlyLimit,
+          creditsUsed: used,
+        });
+
+      } catch (err: any) {
+        console.error("[cliGetInterviewToken] Error:", err);
+        res.status(500).json({ error: err.message || "Internal server error." });
       }
-
-      // Create session document (billing happens at end via cliInterviewBill)
-      const sessionRef = db.collection("interviewSessions").doc();
-      await sessionRef.set({
-        uid,
-        role: role ?? "unspecified",
-        startedAt: admin.firestore.FieldValue.serverTimestamp(),
-        billed: false,
-        creditsCharged: null,
-        plan,
-        source: "cli",   // tag at creation so context queries can filter
-      });
-
-      // Generate short-lived OAuth token for Vertex AI
-      const auth = new GoogleAuth({
-        scopes: "https://www.googleapis.com/auth/cloud-platform",
-      });
-      const client = await auth.getClient();
-      const accessTokenResponse = await client.getAccessToken();
-      const accessToken = accessTokenResponse.token;
-
-      const project = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || "jastalk-firebase";
-      const location = "us-west1";
-
-      console.log(`[cliGetInterviewToken] uid=${uid} sessionId=${sessionRef.id} role="${role ?? "unspecified"}" (Vertex AI Token Vended)`);
-
-      res.status(200).json({
-        accessToken,
-        project,
-        location,
-        sessionId: sessionRef.id,
-        monthlyLimit,
-        creditsUsed: used,
-      });
-
-    } catch (err: any) {
-      console.error("[cliGetInterviewToken] Error:", err);
-      res.status(500).json({ error: err.message || "Internal server error." });
-    }
+    });
   });
 
 /**
@@ -1036,204 +1032,209 @@ export const cliInterviewBill = functions
   .region("us-west1")
   .runWith({ timeoutSeconds: 30, memory: "256MB" })
   .https.onRequest(async (req, res) => {
-    res.set("Access-Control-Allow-Origin", "*");
-    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.set("Access-Control-Allow-Headers", "Content-Type");
-    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
-    if (req.method !== "POST") { res.status(405).json({ error: "Method Not Allowed" }); return; }
-
-    const { apiKey, sessionId, transcript, feedbackReport } = req.body as {
-      apiKey?: string;
-      sessionId?: string;
-      transcript?: Array<{ speaker: string; text: string; isFinal?: boolean; timestamp?: number | null }>;
-      feedbackReport?: {
-        overallScore: number;
-        communicationScore: number;
-        confidenceScore: number;
-        relevanceScore: number;
-        strengths: string;
-        areasForImprovement: string;
-      } | null;
-    };
-
-    if (!apiKey || !apiKey.startsWith("cv_live_")) {
-      res.status(401).json({ error: "Invalid or missing API key." });
-      return;
-    }
-    if (!sessionId) {
-      res.status(400).json({ error: "Missing sessionId." });
-      return;
-    }
-
-    const CREDITS_PER_MINUTE = 2;
-    const MIN_CREDITS = 2;
-    const MAX_CREDITS = 60; // cap at 30 minutes billing
-    const db = admin.firestore();
-
-    try {
-      // Resolve user from API key
-      const snapshot = await db
-        .collectionGroup("private")
-        .where("key", "==", apiKey)
-        .limit(1)
-        .get();
-
-      if (snapshot.empty) {
-        res.status(401).json({ error: "Invalid or revoked API key." });
+    corsHandler(req, res, async () => {
+      if (req.method === "OPTIONS") {
+        res.status(204).send("");
+        return;
+      }
+      if (req.method !== "POST") {
+        res.status(405).json({ error: "Method Not Allowed" });
         return;
       }
 
-      const uid = snapshot.docs[0].ref.parent.parent!.id;
-      const sessionRef = db.collection("interviewSessions").doc(sessionId);
-      const userRef = db.collection("users").doc(uid);
+      const { apiKey, sessionId, transcript, feedbackReport } = req.body as {
+        apiKey?: string;
+        sessionId?: string;
+        transcript?: Array<{ speaker: string; text: string; isFinal?: boolean; timestamp?: number | null }>;
+        feedbackReport?: {
+          overallScore: number;
+          communicationScore: number;
+          confidenceScore: number;
+          relevanceScore: number;
+          strengths: string;
+          areasForImprovement: string;
+        } | null;
+      };
 
-      let creditsCharged = 0;
-      let durationMinutes = 0;
-      let creditsRemaining = 0;
+      if (!apiKey || !apiKey.startsWith("cv_live_")) {
+        res.status(401).json({ error: "Invalid or missing API key." });
+        return;
+      }
+      if (!sessionId) {
+        res.status(400).json({ error: "Missing sessionId." });
+        return;
+      }
 
-      await db.runTransaction(async (tx) => {
-        const sessionSnap = await tx.get(sessionRef);
-        if (!sessionSnap.exists) throw new Error("Session not found.");
+      const CREDITS_PER_MINUTE = 2;
+      const MIN_CREDITS = 2;
+      const MAX_CREDITS = 60; // cap at 30 minutes billing
+      const db = admin.firestore();
 
-        const session = sessionSnap.data()!;
-        if (session.uid !== uid) throw new Error("Session does not belong to this user.");
+      try {
+        // Resolve user from API key
+        const snapshot = await db
+          .collectionGroup("private")
+          .where("key", "==", apiKey)
+          .limit(1)
+          .get();
 
-        // Idempotency — don't double-bill
-        if (session.billed) {
-          creditsCharged = session.creditsCharged ?? 0;
-          durationMinutes = session.durationMinutes ?? 0;
-          const userSnap = await tx.get(userRef);
-          const userData = userSnap.data() || {};
-          const now = new Date();
-          const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-          const used: number = userData.creditsUsed?.[monthKey] ?? 0;
-          const monthlyLimit = userData.plan === "max" || userData.plan === "pro_max" ? 10000
-            : userData.plan === "pro_monthly" || userData.plan === "pro" ? 1000
-            : userData.plan === "pro_sprint" ? 300 : 100;
-          creditsRemaining = Math.max(0, monthlyLimit - used);
+        if (snapshot.empty) {
+          res.status(401).json({ error: "Invalid or revoked API key." });
           return;
         }
 
-        // Calculate duration
-        const startedAt: admin.firestore.Timestamp = session.startedAt;
-        const nowMs = Date.now();
-        const durationMs = nowMs - startedAt.toMillis();
-        durationMinutes = Math.round((durationMs / 60000) * 10) / 10; // 1 decimal
-        const durationMins = durationMs / 60000;
-        creditsCharged = Math.min(MAX_CREDITS, Math.max(MIN_CREDITS, Math.ceil(durationMins * CREDITS_PER_MINUTE)));
+        const uid = snapshot.docs[0].ref.parent.parent!.id;
+        const sessionRef = db.collection("interviewSessions").doc(sessionId);
+        const userRef = db.collection("users").doc(uid);
 
-        // Deduct credits
-        const userSnap = await tx.get(userRef);
-        const userData = userSnap.data() || {};
-        const plan = userData.plan || "free";
-        const monthlyLimit = plan === "max" || plan === "pro_max" ? 10000
-          : plan === "pro_monthly" || plan === "pro" ? 1000
-          : plan === "pro_sprint" ? 300 : 100;
-        const now = new Date();
-        const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-        const used: number = userData.creditsUsed?.[monthKey] ?? 0;
+        let creditsCharged = 0;
+        let durationMinutes = 0;
+        let creditsRemaining = 0;
 
-        // Deduct what we can — never block the bill due to limit overage
-        // (we checked minimum at session start)
-        const actualCharge = Math.min(creditsCharged, monthlyLimit - used);
-        tx.set(userRef, {
-          creditsUsed: { [monthKey]: used + actualCharge },
-        }, { merge: true });
+        await db.runTransaction(async (tx) => {
+          const sessionSnap = await tx.get(sessionRef);
+          if (!sessionSnap.exists) throw new Error("Session not found.");
 
-        // Mark session as billed
-        tx.update(sessionRef, {
-          billed: true,
-          creditsCharged: actualCharge,
-          durationMinutes,
-          billedAt: admin.firestore.FieldValue.serverTimestamp(),
+          const session = sessionSnap.data()!;
+          if (session.uid !== uid) throw new Error("Session does not belong to this user.");
+
+          // Idempotency — don't double-bill
+          if (session.billed) {
+            creditsCharged = session.creditsCharged ?? 0;
+            durationMinutes = session.durationMinutes ?? 0;
+            const userSnap = await tx.get(userRef);
+            const userData = userSnap.data() || {};
+            const now = new Date();
+            const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+            const used: number = userData.creditsUsed?.[monthKey] ?? 0;
+            const monthlyLimit = userData.plan === "max" || userData.plan === "pro_max" ? 10000
+              : userData.plan === "pro_monthly" || userData.plan === "pro" ? 1000
+              : userData.plan === "pro_sprint" ? 300 : 100;
+            creditsRemaining = Math.max(0, monthlyLimit - used);
+            return;
+          }
+
+          // Calculate duration
+          const startedAt: admin.firestore.Timestamp = session.startedAt;
+          const nowMs = Date.now();
+          const durationMs = nowMs - startedAt.toMillis();
+          durationMinutes = Math.round((durationMs / 60000) * 10) / 10; // 1 decimal
+          const durationMins = durationMs / 60000;
+          creditsCharged = Math.min(MAX_CREDITS, Math.max(MIN_CREDITS, Math.ceil(durationMins * CREDITS_PER_MINUTE)));
+
+          // Deduct credits
+          const userSnap = await tx.get(userRef);
+          const userData = userSnap.data() || {};
+          const plan = userData.plan || "free";
+          const monthlyLimit = plan === "max" || plan === "pro_max" ? 10000
+            : plan === "pro_monthly" || plan === "pro" ? 1000
+            : plan === "pro_sprint" ? 300 : 100;
+          const now = new Date();
+          const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+          const used: number = userData.creditsUsed?.[monthKey] ?? 0;
+
+          // Deduct what we can — never block the bill due to limit overage
+          // (we checked minimum at session start)
+          const actualCharge = Math.min(creditsCharged, monthlyLimit - used);
+          tx.set(userRef, {
+            creditsUsed: { [monthKey]: used + actualCharge },
+          }, { merge: true });
+
+          // Mark session as billed
+          tx.update(sessionRef, {
+            billed: true,
+            creditsCharged: actualCharge,
+            durationMinutes,
+            billedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+
+          creditsCharged = actualCharge;
+          creditsRemaining = Math.max(0, monthlyLimit - used - actualCharge);
         });
 
-        creditsCharged = actualCharge;
-        creditsRemaining = Math.max(0, monthlyLimit - used - actualCharge);
-      });
+        console.log(`[cliInterviewBill] uid=${uid} sessionId=${sessionId} duration=${durationMinutes}min credits=${creditsCharged}`);
 
-      console.log(`[cliInterviewBill] uid=${uid} sessionId=${sessionId} duration=${durationMinutes}min credits=${creditsCharged}`);
+        // ── Persist transcript + feedback report (fire-and-forget after billing) ──
+        // These are optional — billing always succeeds regardless of payload presence.
+        if (transcript || feedbackReport) {
+          const persistPayload: Record<string, any> = { source: "cli" };
+          if (Array.isArray(transcript) && transcript.length > 0) {
+            // Normalize CLI entries to be schema-compatible with web TranscriptEntry
+            persistPayload.transcript = transcript.slice(0, 500).map((e) => ({
+              speaker: e.speaker === "ai" || e.speaker === "user" ? e.speaker : "ai",
+              text: String(e.text ?? ""),
+              isFinal: e.isFinal ?? true,
+              timestamp: e.timestamp ?? null,
+            }));
+          }
+          if (feedbackReport && typeof feedbackReport === "object") {
+            persistPayload.feedbackReport = feedbackReport;
+          }
+          // Non-blocking — don't await, don't fail the billing response
+          sessionRef.set(persistPayload, { merge: true }).catch((e: any) =>
+            console.error("[cliInterviewBill] Failed to persist transcript:", e.message)
+          );
 
-      // ── Persist transcript + feedback report (fire-and-forget after billing) ──
-      // These are optional — billing always succeeds regardless of payload presence.
-      if (transcript || feedbackReport) {
-        const persistPayload: Record<string, any> = { source: "cli" };
-        if (Array.isArray(transcript) && transcript.length > 0) {
-          // Normalize CLI entries to be schema-compatible with web TranscriptEntry
-          persistPayload.transcript = transcript.slice(0, 500).map((e) => ({
-            speaker: e.speaker === "ai" || e.speaker === "user" ? e.speaker : "ai",
-            text: String(e.text ?? ""),
-            isFinal: e.isFinal ?? true,
-            timestamp: e.timestamp ?? null,
-          }));
+          // ── Mirror to users/{uid}/practiceHistory so the web Interview Studio ──
+          // shows CLI sessions in its history feed (web reads that subcollection only).
+          const practiceRef = db
+            .collection("users")
+            .doc(uid)
+            .collection("practiceHistory")
+            .doc(sessionId); // use same ID so repeated bills are idempotent
+
+          // Build the web-compatible schema
+          const role: string = (await sessionRef.get()).data()?.role ?? "CLI Interview";
+
+          // Extract questions from AI transcript turns
+          const aiTurns = (persistPayload.transcript ?? [])
+            .filter((e: any) => e.speaker === "ai")
+            .map((e: any) => String(e.text ?? ""))
+            .filter((t: string) => t.endsWith("?"))
+            .slice(0, 10);
+
+          const interviewHistoryEntry = feedbackReport
+            ? [{
+                id: `analysis_${sessionId}`,
+                timestamp: Date.now(),
+                overallScore:      feedbackReport.overallScore      ?? 0,
+                communicationScore: feedbackReport.communicationScore ?? 0,
+                confidenceScore:   feedbackReport.confidenceScore   ?? 0,
+                relevanceScore:    feedbackReport.relevanceScore    ?? 0,
+                strengths:         feedbackReport.strengths         ?? "",
+                areasForImprovement: feedbackReport.areasForImprovement ?? "",
+                source:            "cli",
+                transcript:        persistPayload.transcript ?? [],
+              }]
+            : [];
+
+          practiceRef.set({
+            job: {
+              id:      sessionId,
+              title:   role,
+              company: "CLI Session",
+              location: "",
+              description: "",
+              url: "",
+            },
+            questions:        aiTurns.length > 0 ? aiTurns : [`Mock interview for ${role}`],
+            interviewHistory: interviewHistoryEntry,
+            transcript:       persistPayload.transcript ?? [],
+            timestamp:        admin.firestore.FieldValue.serverTimestamp(),
+            section:          "interviews",
+            source:           "cli",
+          }, { merge: true }).catch((e: any) =>
+            console.error("[cliInterviewBill] Failed to mirror to practiceHistory:", e.message)
+          );
         }
-        if (feedbackReport && typeof feedbackReport === "object") {
-          persistPayload.feedbackReport = feedbackReport;
-        }
-        // Non-blocking — don't await, don't fail the billing response
-        sessionRef.set(persistPayload, { merge: true }).catch((e: any) =>
-          console.error("[cliInterviewBill] Failed to persist transcript:", e.message)
-        );
 
-        // ── Mirror to users/{uid}/practiceHistory so the web Interview Studio ──
-        // shows CLI sessions in its history feed (web reads that subcollection only).
-        const practiceRef = db
-          .collection("users")
-          .doc(uid)
-          .collection("practiceHistory")
-          .doc(sessionId); // use same ID so repeated bills are idempotent
+        res.status(200).json({ creditsCharged, durationMinutes, creditsRemaining });
 
-        // Build the web-compatible schema
-        const role: string = (await sessionRef.get()).data()?.role ?? "CLI Interview";
-
-        // Extract questions from AI transcript turns
-        const aiTurns = (persistPayload.transcript ?? [])
-          .filter((e: any) => e.speaker === "ai")
-          .map((e: any) => String(e.text ?? ""))
-          .filter((t: string) => t.endsWith("?"))
-          .slice(0, 10);
-
-        const interviewHistoryEntry = feedbackReport
-          ? [{
-              id: `analysis_${sessionId}`,
-              timestamp: Date.now(),
-              overallScore:      feedbackReport.overallScore      ?? 0,
-              communicationScore: feedbackReport.communicationScore ?? 0,
-              confidenceScore:   feedbackReport.confidenceScore   ?? 0,
-              relevanceScore:    feedbackReport.relevanceScore    ?? 0,
-              strengths:         feedbackReport.strengths         ?? "",
-              areasForImprovement: feedbackReport.areasForImprovement ?? "",
-              source:            "cli",
-              transcript:        persistPayload.transcript ?? [],
-            }]
-          : [];
-
-        practiceRef.set({
-          job: {
-            id:      sessionId,
-            title:   role,
-            company: "CLI Session",
-            location: "",
-            description: "",
-            url: "",
-          },
-          questions:        aiTurns.length > 0 ? aiTurns : [`Mock interview for ${role}`],
-          interviewHistory: interviewHistoryEntry,
-          transcript:       persistPayload.transcript ?? [],
-          timestamp:        admin.firestore.FieldValue.serverTimestamp(),
-          section:          "interviews",
-          source:           "cli",
-        }, { merge: true }).catch((e: any) =>
-          console.error("[cliInterviewBill] Failed to mirror to practiceHistory:", e.message)
-        );
+      } catch (err: any) {
+        console.error("[cliInterviewBill] Error:", err);
+        res.status(500).json({ error: err.message || "Internal server error." });
       }
-
-      res.status(200).json({ creditsCharged, durationMinutes, creditsRemaining });
-
-    } catch (err: any) {
-      console.error("[cliInterviewBill] Error:", err);
-      res.status(500).json({ error: err.message || "Internal server error." });
-    }
+    });
   });
 
 // ─── CLI Interview Context Retrieval ─────────────────────────────────────────
@@ -1255,74 +1256,79 @@ export const cliGetInterviewContext = functions
   .region("us-west1")
   .runWith({ timeoutSeconds: 15, memory: "256MB" })
   .https.onRequest(async (req, res) => {
-    res.set("Access-Control-Allow-Origin", "*");
-    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.set("Access-Control-Allow-Headers", "Content-Type");
-    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
-    if (req.method !== "POST") { res.status(405).json({ error: "Method Not Allowed" }); return; }
-
-    const { apiKey, limit } = req.body as { apiKey?: string; limit?: number };
-
-    if (!apiKey || !apiKey.startsWith("cv_live_")) {
-      res.status(401).json({ error: "Invalid or missing API key." });
-      return;
-    }
-
-    const db = admin.firestore();
-    try {
-      // Resolve user from API key
-      const snapshot = await db
-        .collectionGroup("private")
-        .where("key", "==", apiKey)
-        .limit(1)
-        .get();
-
-      if (snapshot.empty) {
-        res.status(401).json({ error: "Invalid or revoked API key." });
+    corsHandler(req, res, async () => {
+      if (req.method === "OPTIONS") {
+        res.status(204).send("");
+        return;
+      }
+      if (req.method !== "POST") {
+        res.status(405).json({ error: "Method Not Allowed" });
         return;
       }
 
-      const uid = snapshot.docs[0].ref.parent.parent!.id;
-      const maxSessions = Math.min(Math.max(1, limit ?? 3), 10);
+      const { apiKey, limit } = req.body as { apiKey?: string; limit?: number };
 
-      // Query by uid + startedAt only (single-field index — no composite needed).
-      // We fetch more than needed then client-filter for sessions with transcripts.
-      const sessionsSnap = await db
-        .collection("interviewSessions")
-        .where("uid", "==", uid)
-        .orderBy("startedAt", "desc")
-        .limit(maxSessions * 5)  // over-fetch so we have enough after filtering
-        .get();
-
-      const result: any[] = [];
-      for (const doc of sessionsSnap.docs) {
-        const d = doc.data();
-        // Prefer sessions that have a transcript saved; skip web-only sessions without one
-        // unless the user has no CLI sessions at all (in which case show everything)
-        const hasTranscript = Array.isArray(d.transcript) && d.transcript.length > 0;
-        const isCli = d.source === "cli";
-        if (!hasTranscript && !isCli) continue;  // skip web sessions without transcript
-        result.push({
-          sessionId: doc.id,
-          role: d.role ?? "Unknown Role",
-          startedAt: d.startedAt?.toMillis?.() ?? null,
-          durationMinutes: d.durationMinutes ?? null,
-          creditsCharged: d.creditsCharged ?? null,
-          source: d.source ?? "cli",
-          // Cap transcript to 100 entries to keep API response sane
-          transcript: (d.transcript ?? []).slice(0, 100),
-          feedbackReport: d.feedbackReport ?? null,
-        });
-        if (result.length >= maxSessions) break;
+      if (!apiKey || !apiKey.startsWith("cv_live_")) {
+        res.status(401).json({ error: "Invalid or missing API key." });
+        return;
       }
 
-      console.log(`[cliGetInterviewContext] uid=${uid} returning ${result.length} sessions`);
-      res.status(200).json({ sessions: result });
+      const db = admin.firestore();
+      try {
+        // Resolve user from API key
+        const snapshot = await db
+          .collectionGroup("private")
+          .where("key", "==", apiKey)
+          .limit(1)
+          .get();
 
-    } catch (err: any) {
-      console.error("[cliGetInterviewContext] Error:", err);
-      res.status(500).json({ error: err.message || "Internal server error." });
-    }
+        if (snapshot.empty) {
+          res.status(401).json({ error: "Invalid or revoked API key." });
+          return;
+        }
+
+        const uid = snapshot.docs[0].ref.parent.parent!.id;
+        const maxSessions = Math.min(Math.max(1, limit ?? 3), 10);
+
+        // Query by uid + startedAt only (single-field index — no composite needed).
+        // We fetch more than needed then client-filter for sessions with transcripts.
+        const sessionsSnap = await db
+          .collection("interviewSessions")
+          .where("uid", "==", uid)
+          .orderBy("startedAt", "desc")
+          .limit(maxSessions * 5)  // over-fetch so we have enough after filtering
+          .get();
+
+        const result: any[] = [];
+        for (const doc of sessionsSnap.docs) {
+          const d = doc.data();
+          // Prefer sessions that have a transcript saved; skip web-only sessions without one
+          // unless the user has no CLI sessions at all (in which case show everything)
+          const hasTranscript = Array.isArray(d.transcript) && d.transcript.length > 0;
+          const isCli = d.source === "cli";
+          if (!hasTranscript && !isCli) continue;  // skip web sessions without transcript
+          result.push({
+            sessionId: doc.id,
+            role: d.role ?? "Unknown Role",
+            startedAt: d.startedAt?.toMillis?.() ?? null,
+            durationMinutes: d.durationMinutes ?? null,
+            creditsCharged: d.creditsCharged ?? null,
+            source: d.source ?? "cli",
+            // Cap transcript to 100 entries to keep API response sane
+            transcript: (d.transcript ?? []).slice(0, 100),
+            feedbackReport: d.feedbackReport ?? null,
+          });
+          if (result.length >= maxSessions) break;
+        }
+
+        console.log(`[cliGetInterviewContext] uid=${uid} returning ${result.length} sessions`);
+        res.status(200).json({ sessions: result });
+
+      } catch (err: any) {
+        console.error("[cliGetInterviewContext] Error:", err);
+        res.status(500).json({ error: err.message || "Internal server error." });
+      }
+    });
   });
 
 // ─── CLI Logging ──────────────────────────────────────────────────────────────
@@ -1342,65 +1348,70 @@ export const cliLog = functions
   .region("us-west1")
   .runWith({ timeoutSeconds: 15, memory: "256MB" })
   .https.onRequest(async (req, res) => {
-    res.set("Access-Control-Allow-Origin", "*");
-    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.set("Access-Control-Allow-Headers", "Content-Type");
-    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
-    if (req.method !== "POST") { res.status(405).json({ error: "Method Not Allowed" }); return; }
+    corsHandler(req, res, async () => {
+      if (req.method === "OPTIONS") {
+        res.status(204).send("");
+        return;
+      }
+      if (req.method !== "POST") {
+        res.status(405).json({ error: "Method Not Allowed" });
+        return;
+      }
 
-    const { apiKey, events } = req.body as { apiKey?: string; events?: any[] };
+      const { apiKey, events } = req.body as { apiKey?: string; events?: any[] };
 
-    if (!apiKey || !apiKey.startsWith("cv_live_")) {
-      res.status(401).json({ error: "Invalid or missing API key." });
-      return;
-    }
-    if (!Array.isArray(events) || events.length === 0) {
-      res.status(400).json({ error: "events must be a non-empty array." });
-      return;
-    }
+      if (!apiKey || !apiKey.startsWith("cv_live_")) {
+        res.status(401).json({ error: "Invalid or missing API key." });
+        return;
+      }
+      if (!Array.isArray(events) || events.length === 0) {
+        res.status(400).json({ error: "events must be a non-empty array." });
+        return;
+      }
 
-    const db = admin.firestore();
-    try {
-      // Resolve uid from API key (best-effort — don't fail on lookup error)
-      let uid = "unknown";
+      const db = admin.firestore();
       try {
-        const snapshot = await db
-          .collectionGroup("private")
-          .where("key", "==", apiKey)
-          .limit(1)
-          .get();
-        if (!snapshot.empty) uid = snapshot.docs[0].ref.parent.parent!.id;
-      } catch { /* uid stays "unknown" */ }
+        // Resolve uid from API key (best-effort — don't fail on lookup error)
+        let uid = "unknown";
+        try {
+          const snapshot = await db
+            .collectionGroup("private")
+            .where("key", "==", apiKey)
+            .limit(1)
+            .get();
+          if (!snapshot.empty) uid = snapshot.docs[0].ref.parent.parent!.id;
+        } catch { /* uid stays "unknown" */ }
 
-      // Sanitize and enrich events
-      const sanitized = events.slice(0, 100).map((e: any) => ({
-        level: e.level ?? "info",
-        feature: e.feature ?? "unknown",
-        event: e.event ?? "unknown",
-        sessionId: e.sessionId ?? null,
-        metadata: e.metadata ?? null,
-        errorMessage: e.errorMessage ?? null,
-        errorStack: e.errorStack ?? null,
-        clientTime: e.clientTime ?? null,
-        cliVersion: e.cliVersion ?? "unknown",
-        uid,
-        serverTime: admin.firestore.FieldValue.serverTimestamp(),
-      }));
+        // Sanitize and enrich events
+        const sanitized = events.slice(0, 100).map((e: any) => ({
+          level: e.level ?? "info",
+          feature: e.feature ?? "unknown",
+          event: e.event ?? "unknown",
+          sessionId: e.sessionId ?? null,
+          metadata: e.metadata ?? null,
+          errorMessage: e.errorMessage ?? null,
+          errorStack: e.errorStack ?? null,
+          clientTime: e.clientTime ?? null,
+          cliVersion: e.cliVersion ?? "unknown",
+          uid,
+          serverTime: admin.firestore.FieldValue.serverTimestamp(),
+        }));
 
-      // Write as a batch document (more efficient than one doc per event)
-      await db.collection("cliLogs").add({
-        uid,
-        events: sanitized,
-        batchSize: sanitized.length,
-        feature: sanitized[0]?.feature ?? "unknown",
-        receivedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
+        // Write as a batch document (more efficient than one doc per event)
+        await db.collection("cliLogs").add({
+          uid,
+          events: sanitized,
+          batchSize: sanitized.length,
+          feature: sanitized[0]?.feature ?? "unknown",
+          receivedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
 
-      res.status(200).json({ ok: true, stored: sanitized.length });
-    } catch (err: any) {
-      console.error("[cliLog] Error:", err);
-      res.status(500).json({ error: err.message || "Internal server error." });
-    }
+        res.status(200).json({ ok: true, stored: sanitized.length });
+      } catch (err: any) {
+        console.error("[cliLog] Error:", err);
+        res.status(500).json({ error: err.message || "Internal server error." });
+      }
+    });
   });
 
 /**
@@ -1423,93 +1434,98 @@ export const cliGetLogs = functions
   .region("us-west1")
   .runWith({ timeoutSeconds: 30, memory: "256MB" })
   .https.onRequest(async (req, res) => {
-    res.set("Access-Control-Allow-Origin", "*");
-    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.set("Access-Control-Allow-Headers", "Content-Type");
-    if (req.method === "OPTIONS") { res.status(204).send(""); return; }
-    if (req.method !== "POST") { res.status(405).json({ error: "Method Not Allowed" }); return; }
-
-    const {
-      apiKey, feature, level, uid: filterUid, since, limit: rawLimit,
-    } = req.body as {
-      apiKey?: string; feature?: string; level?: string;
-      uid?: string; since?: string; limit?: number;
-    };
-
-    if (!apiKey || !apiKey.startsWith("cv_live_")) {
-      res.status(401).json({ error: "Invalid or missing API key." });
-      return;
-    }
-
-    const db = admin.firestore();
-    try {
-      // Resolve caller uid and verify admin role
-      const snapshot = await db
-        .collectionGroup("private")
-        .where("key", "==", apiKey)
-        .limit(1)
-        .get();
-
-      if (snapshot.empty) {
-        res.status(401).json({ error: "Invalid or revoked API key." });
+    corsHandler(req, res, async () => {
+      if (req.method === "OPTIONS") {
+        res.status(204).send("");
         return;
       }
-      const callerUid = snapshot.docs[0].ref.parent.parent!.id;
-
-      // Check admin status using the same pattern as the rest of the codebase:
-      // 1. admins/{uid} collection doc existence (primary — used by authUtils)
-      // 2. users/{uid}.role === "admin" (legacy field)
-      // 3. users/{uid}.roles[] includes "admin" (roles array)
-      const [adminDoc, callerSnap] = await Promise.all([
-        db.collection("admins").doc(callerUid).get(),
-        db.collection("users").doc(callerUid).get(),
-      ]);
-      const callerData = callerSnap.data() ?? {};
-      const isAdmin =
-        adminDoc.exists ||
-        callerData.role === "admin" ||
-        (callerData.roles || []).includes("admin");
-
-      if (!isAdmin) {
-        res.status(403).json({ error: "Admin access required." });
+      if (req.method !== "POST") {
+        res.status(405).json({ error: "Method Not Allowed" });
         return;
       }
 
-      // Build query
-      const limit = Math.min(Number(rawLimit) || 100, 500);
-      let query: admin.firestore.Query = db.collection("cliLogs").orderBy("receivedAt", "desc");
+      const {
+        apiKey, feature, level, uid: filterUid, since, limit: rawLimit,
+      } = req.body as {
+        apiKey?: string; feature?: string; level?: string;
+        uid?: string; since?: string; limit?: number;
+      };
 
-      if (feature) query = query.where("feature", "==", feature);
-      if (filterUid) query = query.where("uid", "==", filterUid);
-      if (since) {
-        const sinceDate = new Date(since);
-        if (!isNaN(sinceDate.getTime())) {
-          query = query.where("receivedAt", ">=", admin.firestore.Timestamp.fromDate(sinceDate));
-        }
+      if (!apiKey || !apiKey.startsWith("cv_live_")) {
+        res.status(401).json({ error: "Invalid or missing API key." });
+        return;
       }
 
-      query = query.limit(limit);
-      const querySnap = await query.get();
+      const db = admin.firestore();
+      try {
+        // Resolve caller uid and verify admin role
+        const snapshot = await db
+          .collectionGroup("private")
+          .where("key", "==", apiKey)
+          .limit(1)
+          .get();
 
-      // Expand events, optionally filtering by level
-      const logs: any[] = [];
-      for (const doc of querySnap.docs) {
-        const data = doc.data();
-        const events: any[] = (data.events ?? []).filter((e: any) =>
-          !level || e.level === level
-        );
-        if (events.length > 0) {
-          logs.push({ batchId: doc.id, receivedAt: data.receivedAt?.toDate?.()?.toISOString() ?? null, events });
+        if (snapshot.empty) {
+          res.status(401).json({ error: "Invalid or revoked API key." });
+          return;
         }
+        const callerUid = snapshot.docs[0].ref.parent.parent!.id;
+
+        // Check admin status using the same pattern as the rest of the codebase:
+        // 1. admins/{uid} collection doc existence (primary — used by authUtils)
+        // 2. users/{uid}.role === "admin" (legacy field)
+        // 3. users/{uid}.roles[] includes "admin" (roles array)
+        const [adminDoc, callerSnap] = await Promise.all([
+          db.collection("admins").doc(callerUid).get(),
+          db.collection("users").doc(callerUid).get(),
+        ]);
+        const callerData = callerSnap.data() ?? {};
+        const isAdmin =
+          adminDoc.exists ||
+          callerData.role === "admin" ||
+          (callerData.roles || []).includes("admin");
+
+        if (!isAdmin) {
+          res.status(403).json({ error: "Admin access required." });
+          return;
+        }
+
+        // Build query
+        const limit = Math.min(Number(rawLimit) || 100, 500);
+        let query: admin.firestore.Query = db.collection("cliLogs").orderBy("receivedAt", "desc");
+
+        if (feature) query = query.where("feature", "==", feature);
+        if (filterUid) query = query.where("uid", "==", filterUid);
+        if (since) {
+          const sinceDate = new Date(since);
+          if (!isNaN(sinceDate.getTime())) {
+            query = query.where("receivedAt", ">=", admin.firestore.Timestamp.fromDate(sinceDate));
+          }
+        }
+
+        query = query.limit(limit);
+        const querySnap = await query.get();
+
+        // Expand events, optionally filtering by level
+        const logs: any[] = [];
+        for (const doc of querySnap.docs) {
+          const data = doc.data();
+          const events: any[] = (data.events ?? []).filter((e: any) =>
+            !level || e.level === level
+          );
+          if (events.length > 0) {
+            logs.push({ batchId: doc.id, receivedAt: data.receivedAt?.toDate?.()?.toISOString() ?? null, events });
+          }
+        }
+
+        console.log(`[cliGetLogs] admin=${callerUid} feature=${feature ?? "*"} level=${level ?? "*"} returned=${logs.length} batches`);
+        res.status(200).json({ logs, total: logs.length, limit });
+
+      } catch (err: any) {
+        console.error("[cliGetLogs] Error:", err);
+        res.status(500).json({ error: err.message || "Internal server error." });
       }
-
-      console.log(`[cliGetLogs] admin=${callerUid} feature=${feature ?? "*"} level=${level ?? "*"} returned=${logs.length} batches`);
-      res.status(200).json({ logs, total: logs.length, limit });
-
-    } catch (err: any) {
-      console.error("[cliGetLogs] Error:", err);
-      res.status(500).json({ error: err.message || "Internal server error." });
-    }
+    });
   });
 
 // Social

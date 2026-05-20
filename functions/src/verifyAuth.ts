@@ -20,10 +20,10 @@
  */
 
 import { onRequest } from "firebase-functions/v2/https";
-import cors from "cors";
+import { secureCorsHandler } from "./utils/corsUtils.js";
 import { resolveAuth, getUserProfile } from "./utils/authUtils.js";
 
-const corsHandler = cors({ origin: true });
+const corsHandler = secureCorsHandler;
 
 export const verifyAuth = onRequest(
     {

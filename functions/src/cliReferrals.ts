@@ -6,10 +6,10 @@
 
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
-import cors from "cors";
+import { secureCorsHandler } from "./utils/corsUtils.js";
 import { resolveAuth } from "./utils/authUtils.js";
 
-const corsHandler = cors({ origin: true });
+const corsHandler = secureCorsHandler;
 const db = admin.firestore();
 
 // ── Types ─────────────────────────────────────────────────────────────────────
