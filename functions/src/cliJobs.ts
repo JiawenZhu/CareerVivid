@@ -100,13 +100,7 @@ export const cliJobsHunt = functions.region("us-west1").runWith({
     memory: "512MB",
 }).https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
-        if (req.method === "OPTIONS") {
-            res.set("Access-Control-Allow-Origin", "*");
-            res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-            res.set("Access-Control-Allow-Headers", "Content-Type, x-api-key");
-            res.status(204).send("");
-            return;
-        }
+        // Preflight handled automatically by secureCorsHandler
         if (req.method !== "POST") { res.status(405).json({ error: "Method Not Allowed" }); return; }
 
         const user = await resolveAuth(req);
@@ -265,13 +259,7 @@ export const cliJobsCreate = functions.region("us-west1").runWith({
     memory: "256MB",
 }).https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
-        if (req.method === "OPTIONS") {
-            res.set("Access-Control-Allow-Origin", "*");
-            res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-            res.set("Access-Control-Allow-Headers", "Content-Type, x-api-key");
-            res.status(204).send("");
-            return;
-        }
+        // Preflight handled automatically by secureCorsHandler
         if (req.method !== "POST") { res.status(405).json({ error: "Method Not Allowed" }); return; }
 
         const user = await resolveAuth(req);
@@ -343,13 +331,7 @@ export const cliJobsUpdate = functions.region("us-west1").runWith({
     memory: "256MB",
 }).https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
-        if (req.method === "OPTIONS") {
-            res.set("Access-Control-Allow-Origin", "*");
-            res.set("Access-Control-Allow-Methods", "POST, PATCH, OPTIONS");
-            res.set("Access-Control-Allow-Headers", "Content-Type, x-api-key");
-            res.status(204).send("");
-            return;
-        }
+        // Preflight handled automatically by secureCorsHandler
         if (req.method !== "POST" && req.method !== "PATCH") {
             res.status(405).json({ error: "Method Not Allowed" });
             return;
@@ -420,13 +402,7 @@ export const cliJobsList = functions.region("us-west1").runWith({
     memory: "256MB",
 }).https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
-        if (req.method === "OPTIONS") {
-            res.set("Access-Control-Allow-Origin", "*");
-            res.set("Access-Control-Allow-Methods", "GET, OPTIONS");
-            res.set("Access-Control-Allow-Headers", "Content-Type, x-api-key");
-            res.status(204).send("");
-            return;
-        }
+        // Preflight handled automatically by secureCorsHandler
         if (req.method !== "GET") { res.status(405).json({ error: "Method Not Allowed" }); return; }
 
         const user = await resolveAuth(req);
@@ -483,13 +459,7 @@ export const cliResumeGet = functions.region("us-west1").runWith({
     memory: "256MB",
 }).https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
-        if (req.method === "OPTIONS") {
-            res.set("Access-Control-Allow-Origin", "*");
-            res.set("Access-Control-Allow-Methods", "GET, OPTIONS");
-            res.set("Access-Control-Allow-Headers", "Content-Type, x-api-key");
-            res.status(204).send("");
-            return;
-        }
+        // Preflight handled automatically by secureCorsHandler
         if (req.method !== "GET") { res.status(405).json({ error: "Method Not Allowed" }); return; }
 
         const user = await resolveAuth(req);
@@ -588,13 +558,7 @@ export const cliResumesList = functions.region("us-west1").runWith({
     memory: "256MB",
 }).https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
-        if (req.method === "OPTIONS") {
-            res.set("Access-Control-Allow-Origin", "*");
-            res.set("Access-Control-Allow-Methods", "GET, OPTIONS");
-            res.set("Access-Control-Allow-Headers", "Content-Type, x-api-key");
-            res.status(204).send("");
-            return;
-        }
+        // Preflight handled automatically by secureCorsHandler
         if (req.method !== "GET") { res.status(405).json({ error: "Method Not Allowed" }); return; }
 
         const user = await resolveAuth(req);
@@ -637,7 +601,7 @@ export const cliResumeCreate = functions.region("us-west1").runWith({
     memory: "512MB",
 }).https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
-        if (req.method === "OPTIONS") { res.set("Access-Control-Allow-Origin", "*"); res.set("Access-Control-Allow-Methods", "POST, OPTIONS"); res.set("Access-Control-Allow-Headers", "Content-Type, x-api-key"); res.status(204).send(""); return; }
+        // Preflight handled automatically by secureCorsHandler
         if (req.method !== "POST") { res.status(405).json({ error: "Method Not Allowed" }); return; }
 
         const user = await resolveAuth(req);
@@ -693,7 +657,7 @@ export const cliResumeUpdate = functions.region("us-west1").runWith({
     memory: "512MB",
 }).https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
-        if (req.method === "OPTIONS") { res.set("Access-Control-Allow-Origin", "*"); res.set("Access-Control-Allow-Methods", "POST, OPTIONS"); res.set("Access-Control-Allow-Headers", "Content-Type, x-api-key"); res.status(204).send(""); return; }
+        // Preflight handled automatically by secureCorsHandler
         if (req.method !== "POST") { res.status(405).json({ error: "Method Not Allowed" }); return; }
 
         const user = await resolveAuth(req);
@@ -760,7 +724,7 @@ export const cliResumeDelete = functions.region("us-west1").runWith({
     memory: "256MB",
 }).https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
-        if (req.method === "OPTIONS") { res.set("Access-Control-Allow-Origin", "*"); res.set("Access-Control-Allow-Methods", "POST, DELETE, OPTIONS"); res.set("Access-Control-Allow-Headers", "Content-Type, x-api-key"); res.status(204).send(""); return; }
+        // Preflight handled automatically by secureCorsHandler
         if (req.method !== "POST" && req.method !== "DELETE") { res.status(405).json({ error: "Method Not Allowed" }); return; }
 
         const user = await resolveAuth(req);
@@ -791,7 +755,7 @@ export const cliCoverLetterCreate = functions.region("us-west1").runWith({
     memory: "512MB",
 }).https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
-        if (req.method === "OPTIONS") { res.set("Access-Control-Allow-Origin", "*"); res.set("Access-Control-Allow-Methods", "POST, OPTIONS"); res.set("Access-Control-Allow-Headers", "Content-Type, x-api-key"); res.status(204).send(""); return; }
+        // Preflight handled automatically by secureCorsHandler
         if (req.method !== "POST") { res.status(405).json({ error: "Method Not Allowed" }); return; }
 
         const user = await resolveAuth(req);
@@ -885,7 +849,7 @@ export const cliCoverLettersList = functions.region("us-west1").runWith({
     memory: "256MB",
 }).https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
-        if (req.method === "OPTIONS") { res.set("Access-Control-Allow-Origin", "*"); res.set("Access-Control-Allow-Methods", "GET, OPTIONS"); res.set("Access-Control-Allow-Headers", "Content-Type, x-api-key"); res.status(204).send(""); return; }
+        // Preflight handled automatically by secureCorsHandler
         if (req.method !== "GET") { res.status(405).json({ error: "Method Not Allowed" }); return; }
 
         const user = await resolveAuth(req);

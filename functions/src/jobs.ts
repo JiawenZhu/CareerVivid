@@ -6,6 +6,7 @@ import cors from "cors";
 import { performGoogleSearch } from "./utils/customSearch";
 import type { CustomSearchResult } from "./utils/customSearch";
 import { searchJobsInCTS, createOrUpdateJobsBatch } from "./talentSolution";
+import { secureCorsHandler } from "./utils/corsUtils.js";
 
 // Initialize Firebase Admin if not already initialized
 if (!admin.apps.length) {
@@ -17,7 +18,7 @@ const db = admin.firestore();
 // Define the secrets
 const googleSearchApiKey = defineSecret("GOOGLE_SEARCH_API_KEY");
 const googleSearchCx = defineSecret("GOOGLE_SEARCH_CX");
-const corsHandler = cors({ origin: true });
+const corsHandler = secureCorsHandler;
 
 // Type definitions matching what we want to return to the frontend
 interface Job {
@@ -1178,14 +1179,7 @@ export const getCompanyJobs = functions.region('us-west1').runWith({
     memory: "256MB"
 }).https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
-        // Handle preflight explicitly
-        if (req.method === 'OPTIONS') {
-            res.set('Access-Control-Allow-Origin', '*');
-            res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
-            res.set('Access-Control-Allow-Headers', 'Content-Type');
-            res.status(204).send('');
-            return;
-        }
+        // Preflight handled automatically by secureCorsHandler
 
         if (req.method !== 'GET') {
             res.status(405).json({ error: 'Method Not Allowed' });

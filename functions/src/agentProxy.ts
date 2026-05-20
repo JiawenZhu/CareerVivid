@@ -147,14 +147,7 @@ export const agentProxy = functions
   })
   .https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
-      // Preflight
-      if (req.method === "OPTIONS") {
-        res.set("Access-Control-Allow-Origin", "*");
-        res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-        res.set("Access-Control-Allow-Headers", "Content-Type");
-        res.status(204).send("");
-        return;
-      }
+      // Preflight handled automatically by secureCorsHandler
 
       if (req.method !== "POST") {
         res.status(405).json({ error: "Method Not Allowed" });
