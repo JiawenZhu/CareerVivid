@@ -144,7 +144,7 @@ describe('CustomSidebarNode - Interaction UX', () => {
                 depth={0}
                 isOpen={false}
                 onToggle={mockOnToggle}
-                isEditMode={false}
+                isEditMode={true}
             />
         );
 

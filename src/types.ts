@@ -146,7 +146,7 @@ export interface EmailPreferences {
   lastSentAt?: any; // Firestore Timestamp
 }
 
-export type SidebarNodeType = 'system' | 'custom-folder' | 'custom-file' | 'resume' | 'portfolio' | 'whiteboard' | 'post' | 'sop';
+export type SidebarNodeType = 'system' | 'custom-folder' | 'custom-file' | 'resume' | 'portfolio' | 'whiteboard' | 'post' | 'sop' | 'project';
 
 export interface SidebarNode {
   id: string;           // Unique identifier (e.g., path or UUID)

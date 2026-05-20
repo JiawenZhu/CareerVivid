@@ -19,13 +19,25 @@ export const useWorkspaceSync = () => {
         // Create a map of existing items to preserve their parent IDs
         const existingNodeParentMap = new Map(nodes.map(n => [n.id.toString(), n.parent]));
 
+        // Filter nodes to remove any lingering mock projects or scanned projects
+        const cleanExistingNodes = nodes.filter(n => {
+            const lowText = n.text.toLowerCase();
+            const isProjectOrMock = n.id.toString().startsWith('project-') || 
+                                   n.data?.type === 'project' ||
+                                   n.id === 'project-claude-code' || 
+                                   n.id === 'project-antigravity' || 
+                                   n.id === 'project-codex' || 
+                                   ['claude-code', 'antigravity', 'codex', 'claude-code-source-code'].includes(lowText);
+            return !isProjectOrMock;
+        });
+
         // Collect all items that SHOULD be nodes
         const workspaceItems: SidebarNode[] = [
             ...resumes.map(r => {
                 const id = `resume-${r.id}`;
                 return {
                     id,
-                    parent: existingNodeParentMap.get(id) ?? '/newresume', // Use existing parent if moved
+                    parent: existingNodeParentMap.get(id) ?? 0,
                     text: r.title,
                     droppable: false,
                     data: { isSystemNode: false, type: 'resume' as SidebarNodeType, isHidden: false }
@@ -35,7 +47,7 @@ export const useWorkspaceSync = () => {
                 const id = `portfolio-${p.id}`;
                 return {
                     id,
-                    parent: existingNodeParentMap.get(id) ?? '/portfolio',
+                    parent: existingNodeParentMap.get(id) ?? 0,
                     text: p.title || 'Untitled Portfolio',
                     droppable: false,
                     data: { isSystemNode: false, type: 'portfolio' as SidebarNodeType, isHidden: false }
@@ -45,7 +57,7 @@ export const useWorkspaceSync = () => {
                 const id = `whiteboard-${w.id}`;
                 return {
                     id,
-                    parent: existingNodeParentMap.get(id) ?? '/whiteboard',
+                    parent: existingNodeParentMap.get(id) ?? 0,
                     text: w.title || 'Untitled Whiteboard',
                     droppable: false,
                     data: { isSystemNode: false, type: 'whiteboard' as SidebarNodeType, isHidden: false }
@@ -55,7 +67,7 @@ export const useWorkspaceSync = () => {
                 const id = `post-${p.id}`;
                 return {
                     id,
-                    parent: existingNodeParentMap.get(id) ?? '/my-posts',
+                    parent: existingNodeParentMap.get(id) ?? 0,
                     text: p.title || 'Untitled Post',
                     droppable: false,
                     data: { isSystemNode: false, type: 'post' as SidebarNodeType, isHidden: false }
@@ -63,19 +75,32 @@ export const useWorkspaceSync = () => {
             })
         ];
 
-        // Identify only truly missing items or items that need update (text changes)
-        const existingNodeIds = new Set(nodes.map(n => n.id.toString()));
-        const newItemsToAdd = workspaceItems.filter(item => !existingNodeIds.has(item.id.toString()));
+        // Identify only truly missing items or items that need update (text or parent changes)
+        const cleanExistingNodeIds = new Set(cleanExistingNodes.map(n => n.id.toString()));
+        const newItemsToAdd = workspaceItems.filter(item => !cleanExistingNodeIds.has(item.id.toString()));
 
-        let hasChanges = newItemsToAdd.length > 0;
+        let hasChanges = newItemsToAdd.length > 0 || cleanExistingNodes.length !== nodes.length;
 
-        // Also check for title updates in existing items
+        // Also check for title updates or icon/parent updates in existing items
         const workspaceItemMap = new Map(workspaceItems.map(item => [item.id, item]));
-        const updatedNodes = nodes.map(node => {
+        const updatedNodes = cleanExistingNodes.map(node => {
             const workspaceItem = workspaceItemMap.get(node.id);
-            if (workspaceItem && workspaceItem.text !== node.text) {
-                hasChanges = true;
-                return { ...node, text: workspaceItem.text };
+            if (workspaceItem) {
+                const hasTextChange = workspaceItem.text !== node.text;
+                const hasParentChange = workspaceItem.parent !== node.parent;
+                const hasIconChange = workspaceItem.data?.icon !== node.data?.icon;
+                if (hasTextChange || hasParentChange || hasIconChange) {
+                    hasChanges = true;
+                    return {
+                        ...node,
+                        text: workspaceItem.text,
+                        parent: workspaceItem.parent,
+                        data: {
+                            ...node.data,
+                            icon: workspaceItem.data?.icon ?? node.data?.icon
+                        }
+                    };
+                }
             }
             return node;
         });
