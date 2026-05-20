@@ -714,33 +714,7 @@ const JobMarketPage: React.FC = () => {
                     </div>
                 ) : (
                     <div className="space-y-10">
-                        {/* Section 1: Partner Jobs (Featured Opportunities) - Moved to top */}
-                        {jobs.length > 0 && (
-                            <div className="space-y-4">
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                                    <Briefcase size={20} className="text-indigo-600" /> Featured Opportunities
-                                </h2>
-                                <div className="grid gap-4">
-                                    {jobs.map((job) => (
-                                        <JobCard
-                                            key={job.id}
-                                            job={job}
-                                            onSelect={setSelectedJob}
-                                            onAddToTracker={handleAddToTracker}
-                                            onApply={handleApplyClick}
-                                            onMockInterview={handleMockInterview}
-                                            isAdding={addingToTracker === job.id}
-                                            isAdded={addedJobs.has(job.id)}
-                                            isApplied={userApplications.has(job.id)}
-                                            formatSalary={formatSalary}
-                                            getTimeAgo={getTimeAgo}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Section 2: New Search Results (Google Jobs) */}
+                        {/* Section 1: New Search Results (Google Jobs) */}
                         {isSearching ? (
                             <div className="flex flex-col items-center justify-center py-12 space-y-3">
                                 <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
@@ -748,7 +722,7 @@ const JobMarketPage: React.FC = () => {
                             </div>
                         ) : googleJobs.length > 0 ? (
                             <div className="space-y-4">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-gray-200 dark:border-gray-700 pt-8">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                     <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                         <Search size={20} className="text-indigo-600" /> New Search Results
                                     </h2>
@@ -822,10 +796,12 @@ const JobMarketPage: React.FC = () => {
                             </div>
                         ) : null}
 
-                        {/* Section 3: Saved Job History */}
+                        {/* Section 2: Saved Job History */}
                         {savedJobs.length > 0 && (
                             <div className="space-y-4">
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 border-t border-gray-200 dark:border-gray-700 pt-8">
+                                <h2 className={`text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 ${
+                                    (isSearching || googleJobs.length > 0) ? 'border-t border-gray-200 dark:border-gray-700 pt-8' : ''
+                                }`}>
                                     <Clock size={20} className="text-indigo-600" /> Your Saved Search History
                                 </h2>
                                 <div className="grid gap-4">
@@ -838,6 +814,34 @@ const JobMarketPage: React.FC = () => {
                                             onApply={handleApplyClick}
                                             onMockInterview={handleMockInterview}
                                             onDelete={handleDeleteJob}
+                                            isAdding={addingToTracker === job.id}
+                                            isAdded={addedJobs.has(job.id)}
+                                            isApplied={userApplications.has(job.id)}
+                                            formatSalary={formatSalary}
+                                            getTimeAgo={getTimeAgo}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Section 3: Partner Jobs (Featured Opportunities) - Moved below Saved Search History */}
+                        {jobs.length > 0 && (
+                            <div className="space-y-4">
+                                <h2 className={`text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 ${
+                                    (isSearching || googleJobs.length > 0 || savedJobs.length > 0) ? 'border-t border-gray-200 dark:border-gray-700 pt-8' : ''
+                                }`}>
+                                    <Briefcase size={20} className="text-indigo-600" /> Featured Opportunities
+                                </h2>
+                                <div className="grid gap-4">
+                                    {jobs.map((job) => (
+                                        <JobCard
+                                            key={job.id}
+                                            job={job}
+                                            onSelect={setSelectedJob}
+                                            onAddToTracker={handleAddToTracker}
+                                            onApply={handleApplyClick}
+                                            onMockInterview={handleMockInterview}
                                             isAdding={addingToTracker === job.id}
                                             isAdded={addedJobs.has(job.id)}
                                             isApplied={userApplications.has(job.id)}
