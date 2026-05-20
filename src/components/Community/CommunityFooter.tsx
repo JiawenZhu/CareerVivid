@@ -20,25 +20,11 @@ const CommunityFooter: React.FC = () => {
                     </span>
                 </div>
 
-                {/* Professional GitHub Star Link */}
-                <a
-                    href={REPO_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group relative flex items-center gap-2.5 px-5 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:border-primary-500 dark:hover:border-primary-400 rounded-2xl transition-all duration-300 shadow-sm hover:shadow-md overflow-hidden"
-                >
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <Star size={16} className="text-yellow-400 fill-yellow-400" />
-                    <span className="text-sm font-bold text-gray-700 dark:text-gray-300">
-                        Star on GitHub
-                    </span>
-                    <Github size={18} className="text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
-                </a>
             </div>
 
             {/* Subtle attribution if needed, or just let it be clean */}
             <p className="text-[11px] font-medium text-gray-400 dark:text-gray-600 uppercase tracking-[0.2em]">
-                CareerVivid Open Source Ecosystem
+                CareerVivid AI Network
             </p>
         </div>
     );

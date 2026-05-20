@@ -159,9 +159,6 @@ const Dashboard: React.FC = () => {
                                 )}
                                 <LanguageSelect />
                                 <ThemeToggle />
-                                <a href="https://github.com/Jastalk/CareerVivid" target="_blank" rel="noopener noreferrer" className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors hidden md:block" title="Open Source Project">
-                                    <Github size={20} />
-                                </a>
                                 <button onClick={toggleNavPosition} className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors hidden md:block" title="Toggle Sidebar">
                                     <PanelLeft size={20} />
                                 </button>
