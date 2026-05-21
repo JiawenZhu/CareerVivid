@@ -49,6 +49,10 @@ const ExtensionHome: React.FC = () => {
     const [submittedJobId, setSubmittedJobId] = useState<string | null>(null);
     const [markedApplied, setMarkedApplied] = useState(false);
 
+    // Phase 2: prefetch cache state
+    const [prefetchReady, setPrefetchReady] = useState(false);
+    const [prefetchCacheKey, setPrefetchCacheKey] = useState<string | null>(null);
+
     // Listen for FILL_COMPLETE from content script (relayed via background)
     useEffect(() => {
         const handleMessage = (message: any) => {
@@ -58,13 +62,17 @@ const ExtensionHome: React.FC = () => {
             if (message.type === 'FILL_COMPLETE') {
                 setFillResult(message.result);
                 setIsFilling(false);
+                // Phase 2: auto-populate job ID from scraped data for one-tap "Mark Applied"
+                if (!submittedJobId && scrapedJob) {
+                    setSubmittedJobId(window.location.href);
+                }
             }
         };
         chrome.runtime.onMessage.addListener(handleMessage);
         return () => chrome.runtime.onMessage.removeListener(handleMessage);
-    }, []);
+    }, [submittedJobId, scrapedJob]);
 
-    // On mount: get tab info, ATS context, cached profile
+    // On mount: get tab info, ATS context, cached profile, prefetch cache
     useEffect(() => {
         if (typeof chrome === 'undefined' || !chrome.tabs) return;
 
@@ -76,6 +84,19 @@ const ExtensionHome: React.FC = () => {
             const url = tab.url;
             const isKnownJobSite = ['linkedin.com/jobs', 'indeed.com', 'greenhouse.io', 'jobs.lever.co', 'myworkdayjobs.com', 'ashbyhq.com'].some(s => url.includes(s));
             setIsJobSite(isKnownJobSite);
+
+            // Phase 2: check for prefetched answers for this exact URL
+            const cacheKey = `prefetch_${btoa(url).slice(0, 40)}`;
+            setPrefetchCacheKey(cacheKey);
+            chrome.storage.local.get([cacheKey], (cached: any) => {
+                const hit = cached[cacheKey];
+                const TTL = 30 * 60 * 1000;
+                if (hit && (Date.now() - hit.cachedAt) < TTL && hit.answers?.length) {
+                    setPrefetchReady(true);
+                    // Pre-populate answers silently — shown when user opens panel
+                    setAiAnswers(hit.answers);
+                }
+            });
 
             if (tab.id) {
                 // Extract job data
@@ -120,6 +141,14 @@ const ExtensionHome: React.FC = () => {
     // ── AI Smart Fill handler ───────────────────────────────────────────────────
     const handleSmartFill = useCallback(() => {
         if (!currentTab) return;
+
+        // Phase 2: if prefetch already ran, serve from cache immediately
+        if (prefetchReady && aiAnswers.length > 0) {
+            setShowAiPanel(true);
+            setFillAllConfirm(false);
+            return;
+        }
+
         setIsGeneratingAI(true);
         setAiError(null);
         setShowAiPanel(false);
@@ -155,13 +184,27 @@ const ExtensionHome: React.FC = () => {
                     if (res?.success && res.answers) {
                         setAiAnswers(res.answers);
                         setShowAiPanel(true);
+                        // Update prefetch cache with fresh answers
+                        if (prefetchCacheKey) {
+                            chrome.storage.local.set({
+                                [prefetchCacheKey]: {
+                                    answers: res.answers,
+                                    aiCount: res.aiCount || 0,
+                                    companyName: scrapedJob?.company || '',
+                                    jobTitle: scrapedJob?.title || '',
+                                    pageUrl: currentTab.url,
+                                    cachedAt: Date.now(),
+                                },
+                            });
+                            setPrefetchReady(true);
+                        }
                     } else {
                         setAiError(res?.error || 'Failed to generate AI answers. Please try again.');
                     }
                 });
             });
         });
-    }, [currentTab, scrapedJob]);
+    }, [currentTab, scrapedJob, prefetchReady, aiAnswers, prefetchCacheKey]);
 
     // ── Inject a single AI answer into the form ────────────────────────────────
     const handleInjectAnswer = useCallback((answer: AIAnswer) => {
@@ -352,11 +395,15 @@ const ExtensionHome: React.FC = () => {
                                 <button
                                     onClick={handleSmartFill}
                                     disabled={isFilling || isGeneratingAI}
-                                    title="Uses AI to generate personalized answers for open-ended questions"
-                                    className="flex items-center justify-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white py-3 rounded-xl font-semibold shadow-lg shadow-indigo-200 transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
+                                    title={prefetchReady ? 'AI answers are pre-generated and ready!' : 'Uses AI to generate personalized answers for open-ended questions'}
+                                    className={`flex items-center justify-center gap-1.5 disabled:opacity-60 text-white py-3 rounded-xl font-semibold shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] text-xs ${
+                                        prefetchReady
+                                            ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200'
+                                            : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200'
+                                    }`}
                                 >
                                     {isGeneratingAI ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-                                    {isGeneratingAI ? 'Thinking...' : 'Smart Fill 🧠'}
+                                    {isGeneratingAI ? 'Thinking...' : prefetchReady ? 'Smart Fill ✨' : 'Smart Fill 🧠'}
                                 </button>
                             </div>
 

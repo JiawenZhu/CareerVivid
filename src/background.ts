@@ -255,6 +255,121 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             return true;
         }
 
+        // ── Phase 2: Silent Prefetch — cache AI answers before popup opens ───────────
+        // Triggered by content script ~1.5s after landing on an application page.
+        // Stores result in chrome.storage.local keyed by URL (TTL: 30 minutes).
+        // When popup opens, answers are served instantly from cache.
+        case 'PREFETCH_AI_ANSWERS': {
+            const { pageUrl, questions, companyName, jobTitle, jobDescription } = message;
+
+            // Check if we already have a fresh cache for this URL
+            const cacheKey = `prefetch_${btoa(pageUrl).slice(0, 40)}`;
+            chrome.storage.local.get([cacheKey, 'firebaseIdToken'], async (stored: any) => {
+                const cached = stored[cacheKey];
+                const now = Date.now();
+                const TTL = 30 * 60 * 1000; // 30 minutes
+
+                // Serve from cache if still fresh
+                if (cached && (now - cached.cachedAt) < TTL) {
+                    console.debug('[CareerVivid] Prefetch hit:', pageUrl);
+                    return;
+                }
+
+                const idToken: string | undefined = stored.firebaseIdToken;
+                if (!idToken || !questions?.length) return;
+
+                try {
+                    // Call generateApplyAnswers via onCall endpoint
+                    const endpoint = 'https://us-west1-jastalk-firebase.cloudfunctions.net/generateApplyAnswers';
+                    const resp = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${idToken}`,
+                        },
+                        body: JSON.stringify({
+                            data: { questions, companyName, jobTitle, jobDescription },
+                        }),
+                    });
+
+                    if (!resp.ok) return;
+
+                    const json = await resp.json() as any;
+                    const result = json.result || json;
+
+                    if (result?.answers?.length) {
+                        // Cache answers + job context by URL key
+                        chrome.storage.local.set({
+                            [cacheKey]: {
+                                answers: result.answers,
+                                aiCount: result.aiCount || 0,
+                                companyName,
+                                jobTitle,
+                                pageUrl,
+                                cachedAt: now,
+                            },
+                            // Also store the latest prefetch key so popup can look it up
+                            latestPrefetchKey: cacheKey,
+                        });
+                        console.debug('[CareerVivid] Prefetch cached:', jobTitle, 'at', companyName);
+                    }
+                } catch (err) {
+                    // Fire-and-forget — never throw to content script
+                    console.debug('[CareerVivid] Prefetch failed silently:', err);
+                }
+            });
+
+            // Always respond immediately so the content script message channel closes
+            sendResponse({ success: true });
+            return true;
+        }
+
+        // ── Phase 2: Auto-log to tracker when fill completes ─────────────────────
+        // Content script sends FILL_COMPLETE after running autofill.
+        // Background relays it to the popup AND auto-logs a "To Apply" entry
+        // in the tracker so the user has a record without any manual action.
+        case 'AUTO_LOG_APPLICATION': {
+            const { job: autoJob, filledCount } = message;
+            if (!autoJob?.title) { sendResponse({ success: false }); return true; }
+
+            chrome.storage.local.get(['trackedJobs', 'firebaseIdToken'], async (stored: any) => {
+                const jobs: any[] = stored.trackedJobs || [];
+                const idToken: string | undefined = stored.firebaseIdToken;
+
+                // Deduplicate by URL — don’t log the same application twice
+                const alreadyLogged = jobs.some(
+                    (j: any) => j.url === autoJob.url || (j.title === autoJob.title && j.company === autoJob.company)
+                );
+
+                if (!alreadyLogged) {
+                    const entry = {
+                        ...autoJob,
+                        status: 'To Apply',
+                        filledCount,
+                        savedAt: new Date().toISOString(),
+                        autoLogged: true,
+                    };
+                    jobs.unshift(entry); // newest first
+                    chrome.storage.local.set({ trackedJobs: jobs });
+
+                    // Best-effort: also persist to Firebase if authenticated
+                    if (idToken) {
+                        fetch('https://us-west1-jastalk-firebase.cloudfunctions.net/cliJobsHunt', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${idToken}`,
+                            },
+                            body: JSON.stringify({ job: entry }),
+                        }).catch(() => { /* best-effort */ });
+                    }
+                }
+
+                sendResponse({ success: true, alreadyLogged });
+            });
+            return true;
+        }
+
         // ── NEW: Store Firebase ID token (called from popup after login) ──────────
         case 'STORE_AUTH_TOKEN':
             chrome.storage.local.set({ firebaseIdToken: message.idToken }, () => {

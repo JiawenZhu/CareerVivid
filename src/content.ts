@@ -291,10 +291,24 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
         // Relay result back to popup for the results panel
         chrome.runtime.sendMessage({ type: 'FILL_COMPLETE', result });
+
+        // Phase 2: Auto-log to job tracker (best-effort, no user action needed)
+        if (result.filledCount > 0) {
+          const job = extractJobData();
+          if (job) {
+            chrome.runtime.sendMessage({
+              type: 'AUTO_LOG_APPLICATION',
+              job,
+              filledCount: result.filledCount,
+            });
+          }
+        }
+
         sendResponse({ success: true, result });
       });
       return true; // Keep channel open for async
     }
+
 
     // ── NEW: Extract all form questions for AI answer generation ──────────────
     // Returns { questions: [{ label, type, options? }] }
@@ -372,6 +386,64 @@ function init(): void {
   injectStyles();
   injectSaveButton();
   injectFAB();
+  // Kick off silent prefetch after a short delay so the form is fully rendered
+  setTimeout(silentPrefetch, 1500);
+}
+
+/**
+ * Phase 2 — Silent Prefetch Pipeline
+ *
+ * Runs automatically when the user lands on an application page.
+ * Extracts job data + form questions and fires PREFETCH_AI_ANSWERS to the
+ * background service worker, which calls generateApplyAnswers and caches
+ * the result in chrome.storage.local keyed by the current URL.
+ *
+ * Result: by the time the user opens the popup and clicks Smart Fill,
+ * answers are already ready — zero wait time.
+ */
+async function silentPrefetch(): Promise<void> {
+  try {
+    const context = getATSContext();
+    if (!context.isApplicationPage) return;
+
+    // Collect form questions
+    const adapter = detectAdapter();
+    if (!adapter) return;
+
+    const fields = adapter.getFormFields();
+    const questions = fields
+      .filter(f => f.type !== 'file' && f.type !== 'unknown' && f.label)
+      .map(f => {
+        const q: { label: string; type: string; options?: string[] } = {
+          label: f.label,
+          type: f.type,
+        };
+        if (f.element instanceof HTMLSelectElement) {
+          q.options = Array.from(f.element.options)
+            .filter(o => o.value && o.value !== '')
+            .map(o => o.text.trim());
+        }
+        return q;
+      });
+
+    if (questions.length === 0) return;
+
+    // Extract job context
+    const job = extractJobData();
+
+    // Signal background to prefetch — fire-and-forget from content script's perspective
+    chrome.runtime.sendMessage({
+      type: 'PREFETCH_AI_ANSWERS',
+      pageUrl: window.location.href,
+      questions,
+      companyName: job?.company || document.title,
+      jobTitle:    job?.title   || document.querySelector('h1')?.textContent?.trim() || 'Unknown Role',
+      jobDescription: job?.description || '',
+    });
+  } catch (e) {
+    // Prefetch is best-effort — never surface errors to the user
+    console.debug('[CareerVivid] prefetch skipped:', e);
+  }
 }
 
 // Re-run on SPA navigation (LinkedIn, Indeed use pushState routing)
