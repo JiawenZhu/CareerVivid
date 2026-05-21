@@ -97,6 +97,27 @@ const ExtensionLogin: React.FC = () => {
                     >
                         Create Free Account
                     </button>
+
+                    {/* Dev-only: bypass auth for local testing */}
+                    {process.env.NODE_ENV !== 'production' && (
+                        <button
+                            onClick={() => {
+                                if (typeof chrome === 'undefined' || !chrome.storage) return;
+                                const devProfile = {
+                                    uid: 'dev-jiawen',
+                                    displayName: 'Jiawen Zhu',
+                                    email: 'zhujiawen519@gmail.com',
+                                    initials: 'JZ',
+                                };
+                                chrome.storage.local.set({ devModeAuth: devProfile, isAuthenticated: true }, () => {
+                                    chrome.runtime.sendMessage({ type: 'AUTH_STATE_CHANGED', isAuthenticated: true }).catch(() => {});
+                                });
+                            }}
+                            className="w-full py-2.5 px-4 font-semibold rounded-xl border border-dashed border-amber-300 text-amber-600 bg-amber-50 hover:bg-amber-100 transition-all text-sm"
+                        >
+                            ⚡ Dev Auto-Login (Skip Auth)
+                        </button>
+                    )}
                 </div>
             </div>
 

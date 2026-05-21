@@ -366,6 +366,45 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 });
 
 
+// ── Auth Bridge: careervivid.app ↔ extension background ──────────────────────
+//
+// Two complementary channels so auth always arrives regardless of timing:
+//   1. externally_connectable  — web app sends directly via chrome.runtime.sendMessage(extId,…)
+//                                 extId is discovered from the <meta name="cv-ext-id"> tag we inject here.
+//   2. postMessage relay        — web app posts CV_AUTH_TOKEN to window; content script
+//                                 forwards it to the background (fallback for timing races).
+
+(function installAuthBridge() {
+    const hostname = window.location.hostname;
+    const isCareerVividOrigin =
+        hostname === 'careervivid.app' ||
+        hostname === 'localhost' ||
+        hostname === '127.0.0.1';
+
+    if (!isCareerVividOrigin) return;
+
+    // Expose extension ID via a <meta> tag so AuthContext can use externally_connectable
+    const meta = document.createElement('meta');
+    meta.setAttribute('name', 'cv-ext-id');
+    meta.setAttribute('content', chrome.runtime.id);
+    (document.head || document.documentElement).appendChild(meta);
+
+    // Notify the web app that the extension is ready (resolves timing race on page load)
+    window.dispatchEvent(new CustomEvent('CV_EXT_READY'));
+
+    // Relay postMessage tokens → background (belt-and-suspenders fallback)
+    window.addEventListener('message', (event) => {
+        if (event.source !== window || typeof event.data !== 'object' || !event.data) return;
+        const { type, token } = event.data as { type: string; token?: string };
+
+        if (type === 'CV_AUTH_TOKEN' && token) {
+            chrome.runtime.sendMessage({ type: 'STORE_AUTH_TOKEN', idToken: token });
+        } else if (type === 'CV_AUTH_LOGOUT') {
+            chrome.runtime.sendMessage({ type: 'AUTH_CLEAR' });
+        }
+    });
+})();
+
 // ── Initialization & SPA Navigation Observer ──────────────────────────────────
 
 function init(): void {

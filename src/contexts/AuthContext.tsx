@@ -226,6 +226,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   }, [currentUser]);
 
+  // Push auth state to the Chrome extension whenever it changes.
+  // Two channels used simultaneously:
+  //   1. chrome.runtime.sendMessage(extId, …) via externally_connectable — direct, wakes service worker
+  //   2. window.postMessage → content script relay — fallback for timing races on page load
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const syncToExtension = async () => {
+      const extId = document.querySelector<HTMLMetaElement>('meta[name="cv-ext-id"]')?.content;
+      const chromeRT = (window as any).chrome?.runtime;
+
+      if (currentUser) {
+        try {
+          const token = await currentUser.getIdToken();
+          if (extId && chromeRT?.sendMessage) {
+            chromeRT.sendMessage(extId, { type: 'AUTH_SUCCESS', token }, () => {
+              void (window as any).chrome?.runtime?.lastError;
+            });
+          }
+          window.postMessage({ type: 'CV_AUTH_TOKEN', token }, window.location.origin);
+        } catch { /* non-critical */ }
+      } else {
+        const currentExtId = document.querySelector<HTMLMetaElement>('meta[name="cv-ext-id"]')?.content;
+        if (currentExtId && chromeRT?.sendMessage) {
+          chromeRT.sendMessage(currentExtId, { type: 'AUTH_LOGOUT' }, () => {
+            void (window as any).chrome?.runtime?.lastError;
+          });
+        }
+        window.postMessage({ type: 'CV_AUTH_LOGOUT' }, window.location.origin);
+      }
+    };
+
+    syncToExtension();
+
+    // Re-sync when content script signals it's ready — resolves the timing race
+    // where onAuthStateChanged fires before the content script injects the meta tag
+    window.addEventListener('CV_EXT_READY', syncToExtension);
+    return () => window.removeEventListener('CV_EXT_READY', syncToExtension);
+  }, [currentUser]);
+
   const logOut = () => {
     trackUsage(currentUser?.uid || '', 'sign_out');
     signOut(auth);
