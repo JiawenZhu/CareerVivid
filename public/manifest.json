@@ -15,6 +15,13 @@
     "https://*/*",
     "https://careervivid.app/*"
   ],
+  "externally_connectable": {
+    "matches": [
+      "https://careervivid.app/*",
+      "http://localhost/*",
+      "http://127.0.0.1/*"
+    ]
+  },
   "action": {
     "default_popup": "index.html",
     "default_icon": {

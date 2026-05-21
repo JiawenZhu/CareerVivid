@@ -28,26 +28,33 @@ const ExtensionLayout: React.FC = () => {
                 return;
             }
 
-            // Check each cookie name in priority order
-            let checkedCount = 0;
-            const totalCookies = AUTH_COOKIE_NAMES.length;
+            // First check storage: covers dev bypass and background-synced cookie auth
+            chrome.storage.local.get(['isAuthenticated', 'devModeAuth'], (stored) => {
+                if (stored.isAuthenticated || stored.devModeAuth) {
+                    setCookieAuth(true);
+                    setIsLoading(false);
+                    return;
+                }
 
-            AUTH_COOKIE_NAMES.forEach((cookieName) => {
-                chrome.cookies.get({ url: AUTH_DOMAIN, name: cookieName }, (cookie) => {
-                    checkedCount++;
+                // Fall back to direct cookie check
+                let checkedCount = 0;
+                const totalCookies = AUTH_COOKIE_NAMES.length;
 
-                    if (cookie && cookieAuth !== true) {
-                        // Found a valid auth cookie - user is logged in!
-                        setCookieAuth(true);
-                        setIsLoading(false);
-                        return;
-                    }
+                AUTH_COOKIE_NAMES.forEach((cookieName) => {
+                    chrome.cookies.get({ url: AUTH_DOMAIN, name: cookieName }, (cookie) => {
+                        checkedCount++;
 
-                    // All cookies checked, none found
-                    if (checkedCount === totalCookies && cookieAuth === null) {
-                        setCookieAuth(false);
-                        setIsLoading(false);
-                    }
+                        if (cookie) {
+                            setCookieAuth(true);
+                            setIsLoading(false);
+                            return;
+                        }
+
+                        if (checkedCount === totalCookies) {
+                            setCookieAuth(false);
+                            setIsLoading(false);
+                        }
+                    });
                 });
             });
         };

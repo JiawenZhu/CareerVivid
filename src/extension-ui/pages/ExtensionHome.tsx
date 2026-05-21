@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import {
     Plus, Briefcase, Mic, ExternalLink, FileText, Wand2,
     Settings, Zap, CheckCircle, AlertCircle, Loader2, ChevronRight,
-    Sparkles, ChevronDown, ChevronUp, Copy, CheckCheck, Send
+    Sparkles, ChevronDown, ChevronUp, Copy, CheckCheck, Send, LogOut
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useResumes } from '../../hooks/useResumes';
@@ -27,9 +27,18 @@ interface AIAnswer {
 }
 
 
+interface DevProfile {
+    uid: string;
+    displayName: string;
+    email: string;
+    initials: string;
+}
+
 const ExtensionHome: React.FC = () => {
-    const { userProfile, currentUser } = useAuth();
+    const { userProfile, currentUser, logOut } = useAuth();
     const { resumes } = useResumes();
+    const [isDevMode, setIsDevMode] = useState(false);
+    const [devProfile, setDevProfile] = useState<DevProfile | null>(null);
     const [currentTab, setCurrentTab] = useState<{ url: string; title: string } | null>(null);
     const [isJobSite, setIsJobSite] = useState(false);
     const [isApplicationPage, setIsApplicationPage] = useState(false);
@@ -92,10 +101,14 @@ const ExtensionHome: React.FC = () => {
             }
         });
 
-        // Check if a profile is already synced
-        chrome.storage.local.get(['autofillProfile', 'selectedResumeId'], (result) => {
+        // Check if a profile is already synced and detect dev bypass mode
+        chrome.storage.local.get(['autofillProfile', 'selectedResumeId', 'devModeAuth'], (result) => {
             setHasProfile(!!result.autofillProfile);
             setSelectedResumeId((result.selectedResumeId as string | undefined) || null);
+            if (result.devModeAuth) {
+                setIsDevMode(true);
+                setDevProfile(result.devModeAuth as DevProfile);
+            }
         });
     }, []);
 
@@ -239,6 +252,18 @@ const ExtensionHome: React.FC = () => {
         });
     }, [hasProfile, currentUser, resumes]);
 
+    const handleSignOut = useCallback(async () => {
+        await new Promise<void>(resolve =>
+            chrome.storage.local.remove(
+                ['devModeAuth', 'isAuthenticated', 'autofillProfile', 'selectedResumeId', 'firebaseIdToken'],
+                resolve
+            )
+        );
+        chrome.runtime.sendMessage({ type: 'AUTH_STATE_CHANGED', isAuthenticated: false }).catch(() => {});
+        logOut();
+        window.location.reload();
+    }, [logOut]);
+
     const handleAction = (action: string) => {
         if (action === 'save_job' && currentTab?.url && scrapedJob) {
             import('../../services/userJobService').then(async ({ userJobService }) => {
@@ -276,20 +301,32 @@ const ExtensionHome: React.FC = () => {
             {/* Header */}
             <header className="flex items-center justify-between px-5 py-4 bg-white border-b border-gray-100 shadow-sm sticky top-0 z-10">
                 <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-indigo-400 to-indigo-600 shadow ring-2 ring-white flex items-center justify-center text-white font-bold text-sm">
-                        {userProfile?.displayName?.[0] || userProfile?.email?.[0] || 'U'}
+                    <div className={`h-9 w-9 rounded-full shadow ring-2 ring-white flex items-center justify-center text-white font-bold text-sm ${isDevMode ? 'bg-gradient-to-tr from-amber-400 to-orange-500' : 'bg-gradient-to-tr from-indigo-400 to-indigo-600'}`}>
+                        {isDevMode ? (devProfile?.initials || 'JZ') : (userProfile?.displayName?.[0] || userProfile?.email?.[0] || 'U')}
                     </div>
                     <div>
                         <h1 className="text-sm font-bold text-gray-900 leading-tight">
-                            {userProfile?.displayName || 'CareerVivid User'}
+                            {isDevMode ? (devProfile?.displayName || 'Jiawen Zhu') : (userProfile?.displayName || 'CareerVivid User')}
                         </h1>
-                        <p className="text-[10px] uppercase tracking-wide text-indigo-600 font-semibold">CareerVivid</p>
+                        {isDevMode ? (
+                            <p className="text-[10px] font-semibold text-amber-500">Dev Bypass ⚡</p>
+                        ) : (
+                            <p className="text-[10px] uppercase tracking-wide text-indigo-600 font-semibold">CareerVivid</p>
+                        )}
                     </div>
                 </div>
-                <button onClick={() => window.open('https://careervivid.app/profile', '_blank')}
-                    className="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
-                    <Settings size={18} />
-                </button>
+                <div className="flex items-center gap-1">
+                    <button onClick={() => window.open('https://careervivid.app/profile', '_blank')}
+                        title="Settings"
+                        className="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+                        <Settings size={18} />
+                    </button>
+                    <button onClick={handleSignOut}
+                        title="Sign Out"
+                        className="p-2 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors">
+                        <LogOut size={18} />
+                    </button>
+                </div>
             </header>
 
             <main className="flex-1 p-4 space-y-4 overflow-y-auto">

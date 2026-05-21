@@ -26,25 +26,67 @@ chrome.runtime.onInstalled.addListener((details) => {
     });
 });
 
-// ── Auth: Detect Firebase session via cookies ─────────────────────────────────
+// ── Auth: External messages from careervivid.app (externally_connectable) ────
+//
+// The web app calls chrome.runtime.sendMessage(extensionId, { type, token })
+// after discovering the extensionId from the <meta name="cv-ext-id"> tag
+// injected by the content script.
+
+chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
+    const origin = sender.origin || '';
+    const isAllowed =
+        origin === 'https://careervivid.app' ||
+        origin === 'http://localhost' ||
+        origin === 'http://localhost:3000' ||
+        origin === 'http://127.0.0.1' ||
+        origin === 'http://127.0.0.1:3000';
+
+    if (!isAllowed) {
+        sendResponse({ error: 'Unauthorized origin' });
+        return;
+    }
+
+    const storeAuth = (idToken: string | null) => {
+        const updates = idToken
+            ? { firebaseIdToken: idToken, isAuthenticated: true }
+            : { firebaseIdToken: null, isAuthenticated: false };
+        chrome.storage.local.set(updates, () => {
+            chrome.runtime.sendMessage({
+                type: 'AUTH_STATE_CHANGED',
+                isAuthenticated: !!idToken,
+            }).catch(() => { });
+            sendResponse({ success: true });
+        });
+    };
+
+    if (message.type === 'AUTH_SUCCESS') {
+        storeAuth(message.token ?? null);
+        return true;
+    }
+    if (message.type === 'AUTH_LOGOUT') {
+        storeAuth(null);
+        return true;
+    }
+
+    sendResponse({ error: 'Unknown message type' });
+});
+
+// ── Auth: Detect Firebase session via cookies (legacy fallback) ───────────────
 
 function checkAuthToken(): void {
-    const checkCookie = (name: string) =>
-        chrome.cookies.get({ url: 'https://careervivid.app', name }, (cookie) => {
-            if (cookie) chrome.storage.local.set({ isAuthenticated: true });
-        });
-
     chrome.cookies.get({ url: 'https://careervivid.app', name: 'session' }, (cookie) => {
         const isAuthenticated = !!cookie;
-        chrome.storage.local.set({ isAuthenticated }, () => {
+        const updates: Record<string, any> = { isAuthenticated };
+        updates.firebaseIdToken = cookie ? cookie.value : null;
+        chrome.storage.local.set(updates, () => {
             chrome.runtime.sendMessage({ type: 'AUTH_STATE_CHANGED', isAuthenticated }).catch(() => { });
         });
     });
-    checkCookie('__session');
 }
 
 chrome.cookies.onChanged.addListener((changeInfo) => {
-    if (changeInfo.cookie.domain.includes('careervivid.app')) {
+    const domain = changeInfo.cookie.domain;
+    if (domain.includes('careervivid.app') || domain.includes('localhost')) {
         checkAuthToken();
     }
 });
@@ -255,9 +297,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             return true;
         }
 
-        // ── NEW: Store Firebase ID token (called from popup after login) ──────────
-        case 'STORE_AUTH_TOKEN':
-            chrome.storage.local.set({ firebaseIdToken: message.idToken }, () => {
+        // Store Firebase ID token (relayed from careervivid.app content script or popup)
+        case 'STORE_AUTH_TOKEN': {
+            const idToken: string | null = message.idToken ?? null;
+            const updates = idToken
+                ? { firebaseIdToken: idToken, isAuthenticated: true }
+                : { firebaseIdToken: null, isAuthenticated: false };
+            chrome.storage.local.set(updates, () => {
+                chrome.runtime.sendMessage({
+                    type: 'AUTH_STATE_CHANGED',
+                    isAuthenticated: !!idToken,
+                }).catch(() => { });
+                sendResponse({ success: true });
+            });
+            return true;
+        }
+
+        // Clear auth state (logout relay from careervivid.app content script)
+        case 'AUTH_CLEAR':
+            chrome.storage.local.set({ firebaseIdToken: null, isAuthenticated: false }, () => {
+                chrome.runtime.sendMessage({ type: 'AUTH_STATE_CHANGED', isAuthenticated: false }).catch(() => { });
                 sendResponse({ success: true });
             });
             return true;
