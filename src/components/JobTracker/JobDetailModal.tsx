@@ -10,18 +10,34 @@ import { navigate } from '../../utils/navigation';
 import { useAICreditCheck } from '../../hooks/useAICreditCheck';
 
 // Reusable components for the top section
-const EditableField: React.FC<{ label: string; value: string; onChange: (value: string) => void; type?: string; placeholder?: string }> = ({ label, value, onChange, type = 'text', placeholder }) => (
-    <div>
-        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">{label}</label>
-        <input
-            type={type}
-            value={value || ''}
-            onChange={e => onChange(e.target.value)}
-            placeholder={placeholder}
-            className="mt-1 block w-full bg-transparent border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:border-primary-500 transition-colors"
-        />
-    </div>
-);
+const EditableField: React.FC<{ label: string; value: string; onChange: (value: string) => void; type?: string; placeholder?: string }> = ({ label, value, onChange, type = 'text', placeholder }) => {
+    const isUrl = value && (value.startsWith('http://') || value.startsWith('https://'));
+    return (
+        <div>
+            <div className="flex justify-between items-center">
+                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">{label}</label>
+                {isUrl && (
+                    <a
+                        href={value}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-semibold text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-1 transition-colors"
+                    >
+                        <span>Open URL</span>
+                        <ExternalLink size={12} />
+                    </a>
+                )}
+            </div>
+            <input
+                type={type}
+                value={value || ''}
+                onChange={e => onChange(e.target.value)}
+                placeholder={placeholder}
+                className="mt-1 block w-full bg-transparent border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:border-primary-500 transition-colors"
+            />
+        </div>
+    );
+};
 
 const EditableSelect: React.FC<{ label: string; value: string; onChange: (value: string) => void; options: readonly string[] }> = ({ label, value, onChange, options }) => (
     <div>
@@ -503,7 +519,20 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
 
     const formatDateForInput = (date: any) => {
         if (!date) return '';
-        const d = date.toDate ? date.toDate() : new Date(date);
+        
+        let d: Date;
+        if (date.toDate && typeof date.toDate === 'function') {
+            d = date.toDate();
+        } else if (date && typeof date === 'object' && typeof date.seconds === 'number') {
+            d = new Date(date.seconds * 1000);
+        } else {
+            d = new Date(date);
+        }
+        
+        if (isNaN(d.getTime())) {
+            return '';
+        }
+        
         return d.toISOString().split('T')[0];
     };
 
