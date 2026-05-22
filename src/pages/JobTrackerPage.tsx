@@ -13,6 +13,9 @@ import { ArrowLeft, PlusCircle } from 'lucide-react';
 import { navigate } from '../utils/navigation';
 import AppLayout from '../components/Layout/AppLayout';
 import { useNavigation } from '../contexts/NavigationContext';
+import { db } from '../firebase';
+import { doc, getDoc, deleteDoc } from 'firebase/firestore';
+
 
 const JobTrackerPage: React.FC = () => {
     const { currentUser } = useAuth();
@@ -79,8 +82,6 @@ const JobTrackerPage: React.FC = () => {
                 if (scrapeId) {
                     if (currentUser?.uid) {
                         try {
-                            const { db } = await import('../firebase');
-                            const { doc, getDoc, deleteDoc } = await import('firebase/firestore');
                             const docRef = doc(db, 'users', currentUser.uid, 'temporaryScrapes', scrapeId);
                             const docSnap = await getDoc(docRef);
 

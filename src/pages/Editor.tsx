@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { navigate } from '../utils/navigation';
 import { ResumeData } from '../types';
 import { useEditor } from '../hooks/useEditor';
+import { db } from '../firebase';
+import { doc, getDoc, deleteDoc } from 'firebase/firestore';
 import { TEMPLATES } from '../templates';
 
 // UI Components
@@ -166,8 +168,6 @@ const Editor: React.FC<EditorProps> = (props) => {
                 if (scrapeId) {
                     if (currentUser?.uid) {
                         try {
-                            const { db } = await import('../firebase');
-                            const { doc, getDoc, deleteDoc } = await import('firebase/firestore');
                             const docRef = doc(db, 'users', currentUser.uid, 'temporaryScrapes', scrapeId);
                             const docSnap = await getDoc(docRef);
 
