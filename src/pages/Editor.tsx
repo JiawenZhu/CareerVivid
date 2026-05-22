@@ -120,35 +120,86 @@ const Editor: React.FC<EditorProps> = (props) => {
     const [initialTailorModalOpen, setInitialTailorModalOpen] = useState(false);
     const [initialJobDescription, setInitialJobDescription] = useState('');
 
+    // Auto-clear transit data from session storage after the tailor modal is successfully opened/stabilized
     useEffect(() => {
+        if (initialTailorModalOpen) {
+            const timer = setTimeout(() => {
+                sessionStorage.removeItem('transit_resume_tailor');
+                sessionStorage.removeItem('transit_resume_tailor_data');
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [initialTailorModalOpen]);
+
+    useEffect(() => {
+        // 1. Intercept URL search params and move them to sessionStorage if matching the tailor transition source
+        const params = new URLSearchParams(window.location.search);
+        const source = params.get('source');
+        if (source === 'extension_tailor') {
+            const scrapeId = params.get('scrapeId') || '';
+            const fallbackDescription = params.get('fallbackDescription') || '';
+            sessionStorage.setItem('transit_resume_tailor', JSON.stringify({ scrapeId, fallbackDescription }));
+
+            // Cleanse URL immediately to keep query parameters clean and avoid double-triggering
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+        }
+
+        // 2. Consume from sessionStorage
         const syncTransitJob = async () => {
-            const params = new URLSearchParams(window.location.search);
-            const source = params.get('source');
-            const scrapeId = params.get('scrapeId');
+            const transitStr = sessionStorage.getItem('transit_resume_tailor');
+            if (!transitStr) return;
 
-            if (source === 'extension_tailor' && scrapeId && currentUser?.uid) {
-                try {
-                    const { db } = await import('../firebase');
-                    const { doc, getDoc, deleteDoc } = await import('firebase/firestore');
-                    const docRef = doc(db, 'users', currentUser.uid, 'temporaryScrapes', scrapeId);
-                    const docSnap = await getDoc(docRef);
+            try {
+                const transitData = JSON.parse(transitStr);
+                const { scrapeId, fallbackDescription } = transitData;
 
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        const jd = data.description || '';
-                        setInitialJobDescription(jd);
-                        setInitialTailorModalOpen(true);
-
-                        // Delete transit document immediately for privacy
-                        await deleteDoc(docRef);
-                    }
-                } catch (error) {
-                    console.error('Error syncing transit job in Editor:', error);
-                } finally {
-                    // Cleanse URL
-                    const newUrl = window.location.pathname;
-                    window.history.replaceState({}, document.title, newUrl);
+                // If cached parsed data already exists in sessionStorage, use it directly (resolves StrictMode double-fetch/early-delete)
+                const cachedDataStr = sessionStorage.getItem('transit_resume_tailor_data');
+                if (cachedDataStr) {
+                    const cachedData = JSON.parse(cachedDataStr);
+                    setInitialJobDescription(cachedData.description || '');
+                    setInitialTailorModalOpen(true);
+                    return;
                 }
+
+                if (scrapeId) {
+                    if (currentUser?.uid) {
+                        try {
+                            const { db } = await import('../firebase');
+                            const { doc, getDoc, deleteDoc } = await import('firebase/firestore');
+                            const docRef = doc(db, 'users', currentUser.uid, 'temporaryScrapes', scrapeId);
+                            const docSnap = await getDoc(docRef);
+
+                            if (docSnap.exists()) {
+                                const data = docSnap.data();
+                                const jd = data.description || '';
+
+                                // Cache the fetched results in sessionStorage first
+                                sessionStorage.setItem(
+                                    'transit_resume_tailor_data',
+                                    JSON.stringify({ description: jd })
+                                );
+
+                                setInitialJobDescription(jd);
+                                setInitialTailorModalOpen(true);
+
+                                // Delete transit document from Firestore
+                                await deleteDoc(docRef);
+                            }
+                        } catch (error) {
+                            console.error('Error syncing transit job in Editor:', error);
+                        }
+                    }
+                    // Wait for currentUser?.uid if not loaded yet
+                } else if (fallbackDescription) {
+                    setInitialJobDescription(fallbackDescription);
+                    setInitialTailorModalOpen(true);
+                }
+            } catch (e) {
+                console.error('Error parsing transit resume tailor from sessionStorage:', e);
+                sessionStorage.removeItem('transit_resume_tailor');
+                sessionStorage.removeItem('transit_resume_tailor_data');
             }
         };
 
