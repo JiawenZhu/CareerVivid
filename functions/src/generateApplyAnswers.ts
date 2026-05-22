@@ -2,6 +2,7 @@ import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 
 import { getAIClient } from "./utils/ai";
+import { getLabelHash } from "./answerLibrary";
 
 if (!admin.apps.length) {
     admin.initializeApp();
@@ -25,7 +26,7 @@ interface ApplyAnswer {
     label: string;
     answer: string;
     confidence: "high" | "medium" | "low";
-    source: "profile_field" | "ai_generated" | "skipped";
+    source: "profile_field" | "ai_generated" | "answer_library" | "skipped";
     reasoning?: string;
 }
 
@@ -139,9 +140,6 @@ export const generateApplyAnswers = functions
             );
         }
 
-        // Deduct 3 credits for the AI answer generation
-        await deductCredits(userId, 3);
-
         // ── 1. Fetch user's career profile (CV markdown) ──────────────────────
 
         let cvMarkdown = "";
@@ -235,22 +233,66 @@ EXISTING JOB EVALUATION:
 
         if (aiQuestions.length === 0) {
             // All fields are structured — no AI needed
-            return { success: true, answers: structuredAnswers, aiCount: 0 };
+            return { success: true, answers: structuredAnswers, aiCount: 0, structuredCount: structuredAnswers.length };
         }
 
-        // ── 4. Build Gemini prompt (career-ops apply.md rules) ────────────────
+        // ── 4. Check Answer Library for high-confidence cached answers ────────
+        const libraryRef = db.collection("users").doc(userId).collection("answerLibrary");
+        const libraryAnswers: ApplyAnswer[] = [];
+        const geminiQuestions: ApplyQuestion[] = [];
+        const matchedKeys: string[] = [];
 
-        const questionsBlock = aiQuestions
-            .map((q, i) => {
-                const optionNote = q.options?.length
-                    ? `\n   Available options: ${q.options.join(", ")}`
-                    : "";
-                const typeNote = q.type === "textarea" ? " (long answer expected)" : "";
-                return `${i + 1}. "${q.label}"${typeNote}${optionNote}`;
-            })
-            .join("\n");
+        try {
+            const keysToCheck = aiQuestions.map((q) => getLabelHash(q.label));
+            if (keysToCheck.length > 0) {
+                const refs = keysToCheck.map((key) => libraryRef.doc(key));
+                const snaps = await db.getAll(...refs);
 
-        const prompt = `You are helping a job seeker complete an application form. Generate personalized, compelling answers to each question below.
+                aiQuestions.forEach((q, idx) => {
+                    const snap = snaps.find((s) => s.id === keysToCheck[idx]);
+                    if (snap && snap.exists) {
+                        const data = snap.data();
+                        if (data && data.confidence === "high" && data.answer) {
+                            libraryAnswers.push({
+                                label: q.label,
+                                answer: data.answer,
+                                confidence: "high" as const,
+                                source: "answer_library" as const,
+                                reasoning: "Retrieved from your CareerVivid Answer Library",
+                            });
+                            matchedKeys.push(snap.id);
+                            return;
+                        }
+                    }
+                    geminiQuestions.push(q);
+                });
+            } else {
+                geminiQuestions.push(...aiQuestions);
+            }
+        } catch (err) {
+            console.error("[generateApplyAnswers] Answer library check failed:", err);
+            geminiQuestions.push(...aiQuestions);
+        }
+
+        let aiAnswers: ApplyAnswer[] = [];
+
+        if (geminiQuestions.length > 0) {
+            // Deduct 3 credits for the AI answer generation (since we actually need to call Gemini)
+            await deductCredits(userId, 3);
+
+            // ── 5. Build Gemini prompt (career-ops apply.md rules) ────────────────
+
+            const questionsBlock = geminiQuestions
+                .map((q, i) => {
+                    const optionNote = q.options?.length
+                        ? `\n   Available options: ${q.options.join(", ")}`
+                        : "";
+                    const typeNote = q.type === "textarea" ? " (long answer expected)" : "";
+                    return `${i + 1}. "${q.label}"${typeNote}${optionNote}`;
+                })
+                .join("\n");
+
+            const prompt = `You are helping a job seeker complete an application form. Generate personalized, compelling answers to each question below.
 
 === CANDIDATE CV ===
 ${cvMarkdown || "(No CV provided — use general professional language)"}
@@ -274,7 +316,7 @@ ${questionsBlock}
 7. Do NOT fabricate experiences not in the CV
 8. For select fields with options, choose the most appropriate option exactly as written
 
-Return a JSON array with exactly ${aiQuestions.length} objects, one per question, in the same order:
+Return a JSON array with exactly ${geminiQuestions.length} objects, one per question, in the same order:
 [
   {
     "label": "exact question label",
@@ -291,44 +333,92 @@ confidence guide:
 
 Return ONLY the JSON array, no markdown fences.`;
 
-        const ai = getAIClient();
+            const ai = getAIClient();
 
-        let aiAnswers: ApplyAnswer[] = [];
-        try {
-            const response = await ai.models.generateContent({
-                model: "gemini-2.5-flash",
-                contents: prompt,
-            });
+            try {
+                const response = await ai.models.generateContent({
+                    model: "gemini-2.5-flash",
+                    contents: prompt,
+                });
 
-            const text = (response.text || "").trim()
-                .replace(/^```(?:json)?\s*/i, "")
-                .replace(/\s*```\s*$/i, "")
-                .trim();
+                const text = (response.text || "").trim()
+                    .replace(/^```(?:json)?\s*/i, "")
+                    .replace(/\s*```\s*$/i, "")
+                    .trim();
 
-            const parsed = JSON.parse(text) as any[];
+                const parsed = JSON.parse(text) as any[];
 
-            aiAnswers = parsed.map((item: any, idx: number) => ({
-                label: item.label || aiQuestions[idx]?.label || "",
-                answer: item.answer || "",
-                confidence: (["high", "medium", "low"].includes(item.confidence)
-                    ? item.confidence
-                    : "low") as "high" | "medium" | "low",
-                source: "ai_generated" as const,
-                reasoning: item.reasoning || undefined,
-            }));
-        } catch (parseError: any) {
-            console.error("[generateApplyAnswers] Gemini parse error:", parseError);
-            // Return low-confidence empty answers rather than crashing
-            aiAnswers = aiQuestions.map((q) => ({
-                label: q.label,
-                answer: "",
-                confidence: "low" as const,
-                source: "skipped" as const,
-                reasoning: "AI generation failed — please fill manually",
-            }));
+                aiAnswers = parsed.map((item: any, idx: number) => ({
+                    label: item.label || geminiQuestions[idx]?.label || "",
+                    answer: item.answer || "",
+                    confidence: (["high", "medium", "low"].includes(item.confidence)
+                        ? item.confidence
+                        : "low") as "high" | "medium" | "low",
+                    source: "ai_generated" as const,
+                    reasoning: item.reasoning || undefined,
+                }));
+            } catch (parseError: any) {
+                console.error("[generateApplyAnswers] Gemini parse error:", parseError);
+                // Return low-confidence empty answers rather than crashing
+                aiAnswers = geminiQuestions.map((q) => ({
+                    label: q.label,
+                    answer: "",
+                    confidence: "low" as const,
+                    source: "skipped" as const,
+                    reasoning: "AI generation failed — please fill manually",
+                }));
+            }
+
+            // Automatically save any high-confidence generated answers to the library
+            try {
+                const batch = db.batch();
+                let savedCount = 0;
+                for (const ans of aiAnswers) {
+                    if (ans.answer && ans.confidence === "high" && ans.source === "ai_generated") {
+                        const labelKey = getLabelHash(ans.label);
+                        const docRef = libraryRef.doc(labelKey);
+                        batch.set(
+                            docRef,
+                            {
+                                label: ans.label,
+                                normalizedLabel: labelKey,
+                                answer: ans.answer,
+                                confidence: ans.confidence,
+                                companyName,
+                                jobTitle,
+                                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                                usageCount: admin.firestore.FieldValue.increment(1),
+                            },
+                            { merge: true }
+                        );
+                        savedCount++;
+                    }
+                }
+                if (savedCount > 0) {
+                    await batch.commit();
+                    console.log(`[generateApplyAnswers] Saved ${savedCount} answers to user library`);
+                }
+            } catch (saveErr) {
+                console.error("[generateApplyAnswers] Error saving generated answers to library:", saveErr);
+            }
         }
 
-        // ── 5. Merge structured + AI answers in original question order ────────
+        // For library-resolved answers, increment their usage counts (non-blocking)
+        if (matchedKeys.length > 0) {
+            const batch = db.batch();
+            matchedKeys.forEach((key) => {
+                const docRef = libraryRef.doc(key);
+                batch.update(docRef, {
+                    usageCount: admin.firestore.FieldValue.increment(1),
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                });
+            });
+            batch.commit().catch((err) =>
+                console.error("[generateApplyAnswers] Usage count increment failed:", err)
+            );
+        }
+
+        // ── 6. Merge structured + library + AI answers in original question order ──
 
         const allAnswers: ApplyAnswer[] = questions.map((q) => {
             const structured = structuredAnswers.find(
@@ -336,8 +426,13 @@ Return ONLY the JSON array, no markdown fences.`;
             );
             if (structured) return structured;
 
-            const ai = aiAnswers.find((a) => a.label === q.label);
-            if (ai) return ai;
+            const libAns = libraryAnswers.find(
+                (a) => a.label === q.label
+            );
+            if (libAns) return libAns;
+
+            const aiAns = aiAnswers.find((a) => a.label === q.label);
+            if (aiAns) return aiAns;
 
             return {
                 label: q.label,
@@ -347,7 +442,7 @@ Return ONLY the JSON array, no markdown fences.`;
             };
         });
 
-        // ── 6. Log to Firestore for audit (non-blocking) ─────────────────────
+        // ── 7. Log to Firestore for audit (non-blocking) ─────────────────────
 
         db.collection("users")
             .doc(userId)
@@ -358,18 +453,21 @@ Return ONLY the JSON array, no markdown fences.`;
                 jobId: jobId || null,
                 questionCount: questions.length,
                 aiQuestionCount: aiQuestions.length,
+                libraryResolvedCount: libraryAnswers.length,
+                geminiResolvedCount: aiAnswers.length,
                 timestamp: admin.firestore.FieldValue.serverTimestamp(),
             })
             .catch(() => { });
 
         console.log(
-            `[generateApplyAnswers] User ${userId} — ${aiQuestions.length} AI answers for "${jobTitle}" at ${companyName}`
+            `[generateApplyAnswers] User ${userId} — ${aiQuestions.length} total Qs, ${libraryAnswers.length} resolved from Library, ${aiAnswers.length} from Gemini`
         );
 
         return {
             success: true,
             answers: allAnswers,
             aiCount: aiAnswers.length,
+            libraryCount: libraryAnswers.length,
             structuredCount: structuredAnswers.length,
         };
     });

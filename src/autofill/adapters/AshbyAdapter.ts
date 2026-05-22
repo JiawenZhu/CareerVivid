@@ -43,14 +43,20 @@ export class AshbyAdapter implements ATSAdapter {
     // Secondary: Ashby embeds a form with this class pattern
     if (document.querySelector('._ashby-application-form_')) return true;
     if (document.querySelector('[class*="ashby-application"]')) return true;
+    if (document.querySelector('[class*="ashby-embed"]')) return true;
+    if (document.querySelector('[class*="ashby_"]')) return true;
 
     // Tertiary: URL path contains /application (Ashby's apply page convention)
     const path = window.location.pathname;
-    if (path.includes('/application')) return true;
+    const isAshbyHost = /ashby/i.test(window.location.hostname);
+    if (isAshbyHost && path.includes('/application')) return true;
 
     // Quaternary: Look for Ashby's characteristic form question structure
     if (document.querySelector('[data-name="application-form"]')) return true;
     if (document.querySelector('form[data-testid="application-form"]')) return true;
+
+    // Check if there's any form or application container inside an ashby element
+    if (document.querySelector('[class*="ashby"] form')) return true;
 
     return false;
   }

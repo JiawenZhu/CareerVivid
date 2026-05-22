@@ -15,6 +15,8 @@ import ShareResumeModal from '../components/ShareResumeModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { ResumeData } from '../types';
 import AppLayout from '../components/Layout/AppLayout';
+import { db } from '../firebase';
+import { doc, getDoc, deleteDoc } from 'firebase/firestore';
 
 const loadingMessages = [
     "Analyzing your prompt...",
@@ -46,6 +48,8 @@ const GenerationHub: React.FC = () => {
     const [error, setError] = useState('');
     const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
     const [placeholder, setPlaceholder] = useState('');
+    const [activeTailoringJob, setActiveTailoringJob] = useState<{ title: string; company: string } | null>(null);
+    const [isSyncingTransit, setIsSyncingTransit] = useState(false);
 
     const [selectedIndustry, setSelectedIndustry] = useState<Industry | null>(null);
 
@@ -58,6 +62,49 @@ const GenerationHub: React.FC = () => {
         confirmText: 'Delete',
         onConfirm: async () => { },
     });
+
+    useEffect(() => {
+        const syncTransitJob = async () => {
+            const params = new URLSearchParams(window.location.search);
+            const source = params.get('source');
+            const scrapeId = params.get('scrapeId');
+
+            if (source === 'extension_tailor' && scrapeId) {
+                if (!currentUser) return; // Wait until auth state is resolved
+
+                setIsSyncingTransit(true);
+                try {
+                    const docRef = doc(db, 'users', currentUser.uid, 'temporaryScrapes', scrapeId);
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        sessionStorage.setItem('jobDescriptionForOptimization', data.description || '');
+                        sessionStorage.setItem('jobTitleForOptimization', data.title || '');
+                        sessionStorage.setItem('jobCompanyForOptimization', data.company || '');
+                        
+                        setPrompt(`Tailor my resume for a ${data.title} role at ${data.company}`);
+                        setActiveTailoringJob({
+                            title: data.title || '',
+                            company: data.company || '',
+                        });
+
+                        // Delete transit document immediately for privacy
+                        await deleteDoc(docRef);
+                    }
+                } catch (error) {
+                    console.error('Error syncing transit job:', error);
+                } finally {
+                    setIsSyncingTransit(false);
+                    // Cleanse URL
+                    const newUrl = window.location.pathname;
+                    window.history.replaceState({}, document.title, newUrl);
+                }
+            }
+        };
+
+        syncTransitJob();
+    }, [currentUser]);
 
     useEffect(() => {
         let interval: number;
@@ -270,15 +317,17 @@ const GenerationHub: React.FC = () => {
         );
     };
 
-    if (isLoading) {
+    if (isLoading || isSyncingTransit) {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center p-4">
                 <div className="text-center">
                     <Loader2 className="w-16 h-16 text-primary-500 animate-spin mx-auto" />
-                    <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mt-6">Generating your resume...</h1>
+                    <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mt-6">
+                        {isSyncingTransit ? "Synchronizing Job Details..." : "Generating your resume..."}
+                    </h1>
                     <div className="h-6 mt-2">
                         <p key={loadingMessageIndex} className="text-gray-500 dark:text-gray-400 animate-fade-in">
-                            {loadingMessages[loadingMessageIndex]}
+                            {isSyncingTransit ? "Fetching description details from secure extension bridge..." : loadingMessages[loadingMessageIndex]}
                         </p>
                     </div>
                 </div>
@@ -317,6 +366,36 @@ const GenerationHub: React.FC = () => {
                                 </button>
                             </div>
                         </div>
+
+                        {activeTailoringJob && (
+                            <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-blue-500/10 border border-indigo-100 dark:border-indigo-900/30 flex items-center justify-between animate-fade-in">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 rounded-lg bg-indigo-500 text-white animate-pulse">
+                                        <Zap size={16} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                                            Tailoring Mode Active ✨
+                                        </h3>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                            Matching your resume with <strong>{activeTailoringJob.title}</strong> at <strong>{activeTailoringJob.company}</strong>. Select any resume below to optimize, or click "New Resume".
+                                        </p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        setActiveTailoringJob(null);
+                                        sessionStorage.removeItem('jobDescriptionForOptimization');
+                                        sessionStorage.removeItem('jobTitleForOptimization');
+                                        sessionStorage.removeItem('jobCompanyForOptimization');
+                                        setPrompt('');
+                                    }}
+                                    className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors font-medium px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        )}
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             {isLoadingResumes

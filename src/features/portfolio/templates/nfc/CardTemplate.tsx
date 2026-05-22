@@ -7,7 +7,9 @@ import {
     Download, QrCode, ExternalLink, User, RotateCcw
 } from 'lucide-react';
 import { FaTiktok, FaWeixin, FaWeibo, FaFacebookF } from 'react-icons/fa';
-import QRCodeSVG from 'react-qr-code';
+import QRCodeImport, { type QRCodeProps } from 'react-qr-code';
+
+const QRCode = ((QRCodeImport as any)?.default ?? (QRCodeImport as any)?.QRCode ?? QRCodeImport) as React.ComponentType<QRCodeProps>;
 
 // --- Types ---
 
@@ -336,7 +338,7 @@ const CardTemplate: React.FC<CardTemplateProps> = ({ data, onEdit, onUpdate, isF
                             style={{ transform: 'none' }}
                         >
                             <div className="bg-white p-4 rounded-xl shadow-lg">
-                                <QRCodeSVG
+                                <QRCode
                                     value={profileUrl}
                                     size={isVertical ? 160 : 120}
                                     level="H"

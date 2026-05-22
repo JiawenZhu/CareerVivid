@@ -5,54 +5,36 @@ import { useTheme } from '../../contexts/ThemeContext';
 import ExtensionLogin from '../pages/ExtensionLogin';
 import ExtensionHome from '../pages/ExtensionHome';
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// CONFIGURATION: Update these if your web app uses different cookie names
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const AUTH_COOKIE_NAMES = ['__session', 'session', 'token'] as const;
-const AUTH_DOMAIN = 'https://careervivid.app';
-
 const ExtensionLayout: React.FC = () => {
     const { currentUser, loading: authLoading } = useAuth();
     const { theme } = useTheme();
     const [cookieAuth, setCookieAuth] = useState<boolean | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // COOKIE-FIRST CHECK: Runs immediately to avoid "Sign In" flash
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Ask the background service worker to hydrate auth. The popup is
+    // transient, so cookies/IndexedDB/tabs must be checked outside React.
     useEffect(() => {
-        const checkCookieAuth = () => {
-            if (typeof chrome === 'undefined' || !chrome.cookies) {
-                // Not in extension context, rely on Firebase Auth only
+        const hydrateAuth = () => {
+            if (typeof chrome === 'undefined' || !chrome.runtime) {
+                setCookieAuth(false);
                 setIsLoading(false);
                 return;
             }
 
-            // Check each cookie name in priority order
-            let checkedCount = 0;
-            const totalCookies = AUTH_COOKIE_NAMES.length;
+            chrome.runtime.sendMessage({ type: 'HYDRATE_AUTH' }, (response) => {
+                const err = chrome.runtime.lastError;
+                if (err) {
+                    setCookieAuth(false);
+                    setIsLoading(false);
+                    return;
+                }
 
-            AUTH_COOKIE_NAMES.forEach((cookieName) => {
-                chrome.cookies.get({ url: AUTH_DOMAIN, name: cookieName }, (cookie) => {
-                    checkedCount++;
-
-                    if (cookie && cookieAuth !== true) {
-                        // Found a valid auth cookie - user is logged in!
-                        setCookieAuth(true);
-                        setIsLoading(false);
-                        return;
-                    }
-
-                    // All cookies checked, none found
-                    if (checkedCount === totalCookies && cookieAuth === null) {
-                        setCookieAuth(false);
-                        setIsLoading(false);
-                    }
-                });
+                setCookieAuth(response?.isAuthenticated === true);
+                setIsLoading(false);
             });
         };
 
-        checkCookieAuth();
+        hydrateAuth();
 
         // Listen for auth state changes from background script
         const handleMessage = (message: any) => {
@@ -63,7 +45,25 @@ const ExtensionLayout: React.FC = () => {
 
         if (typeof chrome !== 'undefined' && chrome.runtime) {
             chrome.runtime.onMessage.addListener(handleMessage);
-            return () => chrome.runtime.onMessage.removeListener(handleMessage);
+            const handleStorageChange = (changes: { [key: string]: chrome.storage.StorageChange }, areaName: string) => {
+                if (areaName !== 'local') return;
+                if (
+                    changes.isAuthenticated ||
+                    changes.firebaseIdToken ||
+                    changes.authToken ||
+                    changes.uid
+                ) {
+                    chrome.storage.local.get(['isAuthenticated', 'firebaseIdToken', 'authToken', 'uid'], (stored) => {
+                        setCookieAuth(stored.isAuthenticated === true && !!stored.uid && !!(stored.firebaseIdToken || stored.authToken));
+                        setIsLoading(false);
+                    });
+                }
+            };
+            chrome.storage.onChanged.addListener(handleStorageChange);
+            return () => {
+                chrome.runtime.onMessage.removeListener(handleMessage);
+                chrome.storage.onChanged.removeListener(handleStorageChange);
+            };
         }
     }, []);
 

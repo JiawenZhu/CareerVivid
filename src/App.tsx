@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useAuth } from './contexts/AuthContext';
 import { CartProvider } from './features/commerce/context/CartContext';
 import { Loader2 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
@@ -22,6 +22,7 @@ const ChatBot = React.lazy(() => import('./components/ChatBot'));
 const AuthPage = React.lazy(() => import('./pages/AuthPage'));
 const SignInPage = React.lazy(() => import('./pages/SignInPage'));
 const SignUpPage = React.lazy(() => import('./pages/SignUpPage'));
+const ExtensionAuthCompletePage = React.lazy(() => import('./pages/ExtensionAuthCompletePage'));
 const LandingPage = React.lazy(() => import('./pages/LandingPage'));
 const TechLandingPage = React.lazy(() => import('./pages/TechLandingPage'));
 const PricingPage = React.lazy(() => import('./pages/PricingPage'));
@@ -123,7 +124,6 @@ import CreditCelebration from './components/CreditCelebration';
 
 const AppContent: React.FC = () => {
   const { currentUser, userProfile, loading, isAdmin, isAdminLoading, isEmailVerified } = useAuth();
-  const [isExtension, setIsExtension] = useState(false);
   useGuestDataMigration(); // Global guest data migration
   useWorkspaceSync(); // Global sync of workspace items to sidebar nodes
 
@@ -136,24 +136,6 @@ const AppContent: React.FC = () => {
       });
     }
   }, [isAdmin]);
-
-  // Check if we log in through the extension
-  useEffect(() => {
-    const checkContext = async () => {
-      const context = await isExtensionContext();
-      setIsExtension(context);
-    };
-    checkContext();
-  }, []);
-
-  // Extension Context Check
-  if (isExtension) {
-    return (
-      <ThemeProvider>
-        <ExtensionLayout />
-      </ThemeProvider>
-    );
-  }
 
   // SEO Helper runs on every render to update canonical tags
   // Since App.tsx re-renders on path changes (due to setPath), this works perfectly.
@@ -332,7 +314,13 @@ const AppContent: React.FC = () => {
     // 2. Flattened Routing Logic
 
     // -- Authentication Routes --
-    if (path === '/signin' || path.startsWith('/signin?')) {
+    if (path === '/extension-auth-complete' || path.startsWith('/extension-auth-complete?')) {
+      content = (
+        <ProtectedRoute>
+          <ExtensionAuthCompletePage />
+        </ProtectedRoute>
+      );
+    } else if (path === '/signin' || path.startsWith('/signin?')) {
       const params = new URLSearchParams(window.location.search);
       const cliPort = params.get('cli_port');
       if (currentUser && !cliPort) {
@@ -342,7 +330,9 @@ const AppContent: React.FC = () => {
         content = <SignInPage />;
       }
     } else if (path === '/signup') {
-      content = currentUser ? <AuthRedirect target="/dashboard" /> : <SignUpPage />;
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get('redirect');
+      content = currentUser ? <AuthRedirect target={redirect ? decodeURIComponent(redirect) : '/dashboard'} /> : <SignUpPage />;
     } else if (path === '/auth') {
       if (currentUser) {
         content = <AuthRedirect target="/dashboard" />;
@@ -672,13 +662,21 @@ const AppContent: React.FC = () => {
   );
 };
 const App: React.FC = () => {
+  const isExt = isExtensionContext();
+
+  if (isExt) {
+    return (
+      <ThemeProvider>
+        <ExtensionLayout />
+      </ThemeProvider>
+    );
+  }
+
   return (
     <DndProvider backend={MultiBackend} options={getBackendOptions()}>
-      <AuthProvider>
-        <AppContent />
-        <CreditCelebration />
-        <PWABadge />
-      </AuthProvider>
+      <AppContent />
+      <CreditCelebration />
+      <PWABadge />
     </DndProvider>
   );
 };

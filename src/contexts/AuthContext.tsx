@@ -1,12 +1,14 @@
 
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
-import { onAuthStateChanged, User, signOut } from 'firebase/auth';
+import { onAuthStateChanged, onIdTokenChanged, User, signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { doc, getDoc, onSnapshot, updateDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { trackUsage } from '../services/trackingService';
 import { FREE_PLAN_CREDIT_LIMIT, PRO_PLAN_CREDIT_LIMIT, PRO_MAX_PLAN_CREDIT_LIMIT, ENTERPRISE_PLAN_CREDIT_LIMIT } from '../config/creditCosts';
 import { navigate } from '../utils/navigation';
 import { UserProfile } from '../types';
+import { createExtensionAuthPayload, syncAuthWithExtension } from '../utils/extensionAuthBridge';
+import { isExtensionContext } from '../services/extensionStorage';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -38,6 +40,41 @@ const AuthContext = createContext<AuthContextType>({
 
 export const useAuth = () => useContext(AuthContext);
 
+const buildFallbackUserProfile = (user: User): UserProfile => ({
+  uid: user.uid,
+  email: user.email || '',
+  displayName: user.displayName || '',
+  createdAt: null,
+  status: 'active',
+  plan: 'free',
+  role: 'user',
+  promotions: { isPremium: false },
+  aiUsage: { count: 0, lastResetDate: null, monthlyLimit: FREE_PLAN_CREDIT_LIMIT }
+});
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  value !== null &&
+  typeof value === 'object' &&
+  (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
+
+const removeUndefinedFirestoreValues = <T,>(value: T): T => {
+  if (Array.isArray(value)) {
+    return value.map(item =>
+      item === undefined ? null : removeUndefinedFirestoreValues(item)
+    ) as T;
+  }
+
+  if (isPlainObject(value)) {
+    return Object.fromEntries(
+      Object.entries(value)
+        .filter(([, entryValue]) => entryValue !== undefined)
+        .map(([key, entryValue]) => [key, removeUndefinedFirestoreValues(entryValue)])
+    ) as T;
+  }
+
+  return value;
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -53,12 +90,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setCurrentUser(user);
       setIsEmailVerified(user ? user.emailVerified : false);
 
-      if (!user) {
+      if (user) {
+        try {
+          const token = await user.getIdToken();
+          if (typeof document !== 'undefined') {
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            document.cookie = `session=${token}; path=/; max-age=31536000; SameSite=Lax${isLocalhost ? '' : '; secure'}`;
+          }
+
+          const apiKey = auth.app.options.apiKey || null;
+
+          if (!isExtensionContext()) {
+            // Direct web-to-extension auth sync. This is fire-and-forget here;
+            // the dedicated extension auth route performs the blocking ACK flow.
+            createExtensionAuthPayload(user, apiKey).then((payload) => {
+              syncAuthWithExtension(payload, { attempts: 2, retryDelayMs: 500 });
+            }).catch((err) => {
+              console.debug('[CareerVivid] Extension auth sync skipped:', err);
+            });
+          }
+        } catch (err) {
+          console.error("Error setting session cookie:", err);
+        }
+      } else {
         setIsAdmin(false);
         setIsPremium(false);
         setUserProfile(null);
         setIsAdminLoading(false);
         setLoading(false);
+        if (typeof document !== 'undefined') {
+          document.cookie = "session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
+        }
+        if (!isExtensionContext()) {
+          // Direct web-to-extension auth sync (clear). The extension popup is
+          // not a Firebase web-app origin, so it must never clear background
+          // auth just because its own Firebase Auth instance has no user.
+          syncAuthWithExtension(null, { attempts: 2, retryDelayMs: 500 });
+        }
       }
     });
 
@@ -66,22 +134,65 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   useEffect(() => {
+    const unsubscribeToken = onIdTokenChanged(auth, async (user) => {
+      if (!user || isExtensionContext()) return;
+
+      try {
+        const apiKey = auth.app.options.apiKey || null;
+        const payload = await createExtensionAuthPayload(user, apiKey);
+        await syncAuthWithExtension(payload, { attempts: 2, retryDelayMs: 500 });
+      } catch (err) {
+        console.debug('[CareerVivid] Extension token refresh sync skipped:', err);
+      }
+    });
+
+    return () => unsubscribeToken();
+  }, []);
+
+  useEffect(() => {
     if (!currentUser) return;
+
+    setLoading(true);
+    setIsAdminLoading(true);
 
     // We need both the user profile and the admin status to be resolved
     // before we set global loading to false to prevent UI flashes (e.g. Admin tag popping in).
+    let isActive = true;
     let userProfileLoaded = false;
     let adminCheckDone = false;
 
     const tryFinishLoading = () => {
-      if (userProfileLoaded && adminCheckDone) {
+      if (isActive && userProfileLoaded && adminCheckDone) {
         setLoading(false);
       }
     };
 
+    const failOpenUserProfile = (reason: string, error?: unknown) => {
+      if (!isActive || userProfileLoaded) return;
+
+      if (error) {
+        console.error(`[AuthContext] ${reason}; continuing with fallback profile.`, error);
+      } else {
+        console.warn(`[AuthContext] ${reason}; continuing with fallback profile.`);
+      }
+
+      setUserProfile(buildFallbackUserProfile(currentUser));
+      setIsPremium(false);
+      setAiUsage({ count: 0, limit: FREE_PLAN_CREDIT_LIMIT });
+      userProfileLoaded = true;
+      tryFinishLoading();
+    };
+
+    const profileLoadTimeout = window.setTimeout(() => {
+      failOpenUserProfile('User profile load timed out');
+    }, 10000);
+
     // Real-time listener for user profile data (including premium status)
     const userDocRef = doc(db, 'users', currentUser.uid);
     const unsubscribeUser = onSnapshot(userDocRef, async (docSnap) => {
+      if (!isActive) return;
+      window.clearTimeout(profileLoadTimeout);
+
       if (docSnap.exists()) {
         const userData = docSnap.data() as UserProfile;
         setUserProfile(userData);
@@ -160,6 +271,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           uid: currentUser.uid,
           email: currentUser.email || '',
           displayName: currentUser.displayName || '',
+          status: 'active',
           plan: 'free',
           role: 'user',
           createdAt: serverTimestamp(),
@@ -173,10 +285,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.error('Failed to initialize user profile:', err);
         }
         setIsPremium(false);
-        setUserProfile(null);
+        setUserProfile(buildFallbackUserProfile(currentUser));
+        setAiUsage({ count: 0, limit: FREE_PLAN_CREDIT_LIMIT });
       }
       userProfileLoaded = true;
       tryFinishLoading();
+    }, (error) => {
+      window.clearTimeout(profileLoadTimeout);
+      failOpenUserProfile('User profile listener failed', error);
     });
 
     // One-time check for admin status
@@ -222,20 +338,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     checkAdmin();
 
-    return () => unsubscribeUser();
+    return () => {
+      isActive = false;
+      window.clearTimeout(profileLoadTimeout);
+      unsubscribeUser();
+    };
 
   }, [currentUser]);
 
-  const logOut = () => {
-    trackUsage(currentUser?.uid || '', 'sign_out');
-    signOut(auth);
+  const logOut = async () => {
+    if (currentUser?.uid) {
+      trackUsage(currentUser.uid, 'sign_out').catch(() => {
+        // Sign-out must not be blocked by analytics or Firestore logging.
+      });
+    }
+
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.error('Failed to sign out:', err);
+    }
+
     navigate('/');
   };
 
   const updateUserProfile = async (data: Partial<UserProfile>) => {
     if (!currentUser) return;
     const userRef = doc(db, 'users', currentUser.uid);
-    await updateDoc(userRef, data);
+    await updateDoc(userRef, removeUndefinedFirestoreValues(data));
   };
 
   const refreshAIUsage = async () => {

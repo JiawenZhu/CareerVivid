@@ -75,7 +75,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
             <InlineEdit value={`${personalDetails.city}${personalDetails.country ? `, ${personalDetails.country}` : ''}`} fieldId="personalDetails.city" onFocus={onFocus} placeholder="City, Country" />
           </div>
           {websites.map((site, index) => (
-            <a key={site.id} href={site.url} target="_blank" rel="noopener noreferrer" className="hover:opacity-80 flex items-center gap-1">
+            <a key={site.id || `website-${index}`} href={site.url} target="_blank" rel="noopener noreferrer" className="hover:opacity-80 flex items-center gap-1">
               <IconDisplay iconName={site.icon || 'globe'} size={12} />
               <InlineEdit value={site.label} fieldId={`websites[${index}].label`} onFocus={onFocus} isLink />
               {site.showUrl && <span className="text-gray-500 ml-1">{site.url}</span>}
@@ -138,7 +138,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
             style={{ ...titleStyle, ...paragraphStyle }}
           />
           {employmentHistory.map((job, index) => (
-            <div key={job.id} style={{ marginBottom: 'var(--paragraph-gap, 0.5rem)' }}>
+            <div key={job.id || `job-${index}`} style={{ marginBottom: 'var(--paragraph-gap, 0.5rem)' }}>
               <div className="flex justify-between items-baseline">
                 <InlineEdit
                   value={job.jobTitle}
@@ -179,7 +179,7 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
             style={{ ...titleStyle, ...paragraphStyle }}
           />
           {education.map((edu, index) => (
-            <div key={edu.id} style={{ marginBottom: 'var(--paragraph-gap, 0.5rem)' }}>
+            <div key={edu.id || `education-${index}`} style={{ marginBottom: 'var(--paragraph-gap, 0.5rem)' }}>
               <div className="flex justify-between items-baseline">
                 <InlineEdit
                   value={edu.degree}
@@ -214,4 +214,3 @@ export const ModernTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
     </div>
   );
 };
-

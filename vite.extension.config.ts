@@ -22,6 +22,7 @@ export default defineConfig(({ mode }) => {
         build: {
             outDir: 'dist-extension',
             emptyOutDir: true,
+            minify: false,
             rollupOptions: {
                 input: {
                     main: path.resolve(__dirname, 'index.extension.html'),

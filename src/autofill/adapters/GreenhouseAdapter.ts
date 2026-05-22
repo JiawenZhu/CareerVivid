@@ -28,11 +28,12 @@ export class GreenhouseAdapter implements ATSAdapter {
   isApplicationPage(): boolean {
     // Greenhouse application pages have a form with id="application_form"
     // or a recognizable apply button in the URL/DOM
+    const isGreenhouseHost = /greenhouse\.io/i.test(window.location.hostname);
     return (
       !!document.querySelector('#application_form') ||
       !!document.querySelector('[data-provides="greenhouse-apply"]') ||
-      window.location.pathname.includes('/jobs/') ||
-      window.location.pathname.includes('/apply')
+      !!document.querySelector('form[action*="greenhouse.io"]') ||
+      (isGreenhouseHost && (window.location.pathname.includes('/jobs/') || window.location.pathname.includes('/apply')))
     );
   }
 

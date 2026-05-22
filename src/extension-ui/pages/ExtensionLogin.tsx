@@ -1,6 +1,7 @@
 import React from 'react';
 import { FileText, Mic, BarChart3 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
+import { getAppUrl } from '../../utils/extensionUtils';
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // LOGO ASSETS: Dynamic theming based on user preference
@@ -14,11 +15,20 @@ const ExtensionLogin: React.FC = () => {
     const logoSrc = isDarkMode ? LOGO_DARK : LOGO_LIGHT;
 
     const openWebPage = (path: string) => {
+        const url = getAppUrl(path);
         if (typeof chrome !== 'undefined' && chrome.tabs) {
-            chrome.tabs.create({ url: `https://careervivid.app${path}` });
+            chrome.tabs.create({ url });
         } else {
-            window.open(`https://careervivid.app${path}`, '_blank');
+            window.open(url, '_blank');
         }
+    };
+
+    const openAuthPage = (mode: 'signin' | 'signup') => {
+        const extensionId = typeof chrome !== 'undefined' && chrome.runtime?.id
+            ? `&extension_id=${encodeURIComponent(chrome.runtime.id)}`
+            : '';
+        const redirect = encodeURIComponent('/extension-auth-complete');
+        openWebPage(`/${mode}?redirect=${redirect}${extensionId}`);
     };
 
     return (
@@ -79,8 +89,8 @@ const ExtensionLogin: React.FC = () => {
                 {/* Auth Buttons */}
                 <div className="w-full max-w-[280px] space-y-3">
                     <button
-                        onClick={() => openWebPage('/signin')}
-                        className={`w-full py-3.5 px-4 font-semibold rounded-xl shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] ${isDarkMode
+                        onClick={() => openAuthPage('signin')}
+                        className={`w-full py-3 px-4 font-semibold rounded-xl shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] text-sm ${isDarkMode
                             ? 'bg-white text-gray-900 hover:bg-gray-100'
                             : 'bg-gray-900 text-white hover:bg-black shadow-gray-200'
                             }`}
@@ -89,8 +99,8 @@ const ExtensionLogin: React.FC = () => {
                     </button>
 
                     <button
-                        onClick={() => openWebPage('/signup')}
-                        className={`w-full py-3.5 px-4 font-semibold rounded-xl border transition-all ${isDarkMode
+                        onClick={() => openAuthPage('signup')}
+                        className={`w-full py-3 px-4 font-semibold rounded-xl border transition-all text-sm ${isDarkMode
                             ? 'bg-gray-800 text-gray-200 border-gray-700 hover:bg-gray-700'
                             : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
                             }`}

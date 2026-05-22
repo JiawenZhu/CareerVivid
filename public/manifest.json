@@ -5,14 +5,26 @@
   "description": "Autofill job applications on Greenhouse, Lever, LinkedIn & more using your AI-powered CareerVivid resume. Track applications, tailor resumes, and practice interviews.",
   "permissions": [
     "storage",
+    "unlimitedStorage",
     "cookies",
     "activeTab",
     "tabs",
     "contextMenus",
-    "scripting"
+    "scripting",
+    "alarms"
   ],
+  "externally_connectable": {
+    "matches": [
+      "https://careervivid.app/*",
+      "https://*.careervivid.app/*",
+      "http://localhost/*",
+      "http://127.0.0.1/*"
+    ]
+  },
   "host_permissions": [
     "https://*/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*",
     "https://careervivid.app/*"
   ],
   "action": {
@@ -30,7 +42,9 @@
   "content_scripts": [
     {
       "matches": [
-        "https://*/*"
+        "https://*/*",
+        "http://localhost/*",
+        "http://127.0.0.1/*"
       ],
       "js": ["content.js"],
       "css": ["content.css"],
@@ -49,6 +63,6 @@
     }
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebase.com https://firebasestorage.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com wss://*.firebaseio.com; img-src 'self' data: https: blob:;"
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebase.com https://firebasestorage.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com wss://*.firebaseio.com https://*.cloudfunctions.net https://us-west1-jastalk-firebase.cloudfunctions.net; img-src 'self' data: https: blob:;"
   }
 }

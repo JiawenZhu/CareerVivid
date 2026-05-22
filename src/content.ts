@@ -15,6 +15,49 @@ import type { AutoFillProfile, AutoFillResult } from './types/autofill.types';
 const isLinkedIn = window.location.hostname === 'linkedin.com' || window.location.hostname.endsWith('.linkedin.com');
 const isIndeed = window.location.hostname === 'indeed.com' || window.location.hostname.endsWith('.indeed.com');
 
+let extensionContextInvalidated = false;
+let isUserAuthenticated = false;
+
+type CareerVividAuthPayload = {
+  token: string;
+  uid: string;
+  refreshToken?: string | null;
+  expirationTime?: number | null;
+  apiKey?: string | null;
+};
+
+function sendRuntimeMessage<T = any>(
+  message: any,
+  callback?: (response: T | undefined) => void
+): boolean {
+  if (extensionContextInvalidated) return false;
+
+  try {
+    if (!chrome?.runtime?.id) {
+      extensionContextInvalidated = true;
+      return false;
+    }
+
+    chrome.runtime.sendMessage(message, (response: T | undefined) => {
+      const err = chrome.runtime.lastError;
+      if (err?.message?.includes('Extension context invalidated')) {
+        extensionContextInvalidated = true;
+        return;
+      }
+      callback?.(response);
+    });
+    return true;
+  } catch (err: any) {
+    if (err?.message?.includes('Extension context invalidated')) {
+      extensionContextInvalidated = true;
+      return false;
+    }
+
+    console.debug('[CareerVivid Extension] Runtime message skipped:', err);
+    return false;
+  }
+}
+
 // ── Styles ────────────────────────────────────────────────────────────────────
 
 // Injected into the page as a <style> tag to avoid CSP issues with inline styles
@@ -99,6 +142,33 @@ function injectStyles(): void {
 
 // ── Job Data Extraction ───────────────────────────────────────────────────────
 
+function getCompanyFromPage(): string {
+  // 1. Try og:site_name metadata
+  const siteName = document.querySelector('meta[property="og:site_name"]')?.getAttribute('content');
+  if (siteName) return siteName.trim();
+
+  // 2. Try common company name selectors on ATS pages
+  const selectors = ['.company-name', '[class*="companyName"]', '.company', '.brand', '.logo-text'];
+  for (const selector of selectors) {
+    const el = document.querySelector(selector);
+    if (el && el.textContent) {
+      const txt = el.textContent.trim();
+      if (txt && txt.length < 50) return txt;
+    }
+  }
+
+  // 3. Fallback to capitalized domain name
+  try {
+    const hostname = window.location.hostname.replace(/^www\./i, '');
+    const firstPart = hostname.split('.')[0];
+    if (firstPart) {
+      return firstPart.charAt(0).toUpperCase() + firstPart.slice(1);
+    }
+  } catch (e) {}
+
+  return document.title || 'Unknown Company';
+}
+
 function extractJobData(): { title: string; company: string; location: string; description: string; url: string } | null {
   try {
     if (isLinkedIn) {
@@ -118,11 +188,25 @@ function extractJobData(): { title: string; company: string; location: string; d
       if (title && company) return { title, company, location: location || '', description, url: window.location.href };
     } else {
       // Generic ATS extraction using Open Graph tags / page title
-      const title = document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
+      let title = document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
         document.querySelector('h1')?.textContent?.trim() || '';
       const description = document.querySelector('meta[name="description"]')?.getAttribute('content') ||
         document.querySelector('[class*="description"]')?.textContent?.trim() || '';
-      if (title) return { title, company: document.title, location: '', description, url: window.location.href };
+      
+      const company = getCompanyFromPage();
+
+      // Clean up title (remove trailing company name, e.g. "Software Engineer - OpenAI" -> "Software Engineer")
+      if (title && company) {
+        const cleanPatterns = [
+          new RegExp(`\\s*[-|–|—|:|•]\\s*${company}.*`, 'i'),
+          new RegExp(`\\s*at\\s*${company}.*`, 'i'),
+        ];
+        for (const pattern of cleanPatterns) {
+          title = title.replace(pattern, '').trim();
+        }
+      }
+
+      if (title) return { title, company, location: '', description, url: window.location.href };
     }
   } catch (e) {
     console.error('[CareerVivid] Job extraction error:', e);
@@ -152,21 +236,21 @@ let fabEl: HTMLButtonElement | null = null;
 function injectFAB(): void {
   const context = getATSContext();
   if (!context.isApplicationPage) return;
-  if (document.getElementById('cv-autofill-fab')) return;
+
+  const existingFab = document.getElementById('cv-autofill-fab') as HTMLButtonElement;
+  if (existingFab) {
+    fabEl = existingFab;
+    resetFAB();
+    return;
+  }
 
   const fab = document.createElement('button');
   fab.id = 'cv-autofill-fab';
-  fab.className = 'cv-fab';
-  fab.innerHTML = `
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
-    </svg>
-    <span>Autofill with CareerVivid</span>
-  `;
+  fabEl = fab;
+  resetFAB();
 
   fab.addEventListener('click', handleAutofillClick);
   document.body.appendChild(fab);
-  fabEl = fab;
 }
 
 async function handleAutofillClick(): Promise<void> {
@@ -177,25 +261,40 @@ async function handleAutofillClick(): Promise<void> {
   fabEl.disabled = true;
 
   // Retrieve profile from background via message
-  chrome.runtime.sendMessage({ type: 'AUTOFILL_APPLICATION' }, (response) => {
+  const sent = sendRuntimeMessage<{ error?: string }>({ type: 'AUTOFILL_APPLICATION' }, (response) => {
     // The actual fill result comes back via FILL_COMPLETE message
     if (response?.error) {
       showToast(`❌ ${response.error}`);
       resetFAB();
     }
   });
+
+  if (!sent) {
+    showToast('CareerVivid extension was reloaded. Refresh this page, then try again.');
+    resetFAB();
+  }
 }
 
 function resetFAB(): void {
   if (!fabEl) return;
   fabEl.classList.remove('cv-fab-loading', 'cv-fab-done');
   fabEl.disabled = false;
-  fabEl.innerHTML = `
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
-    </svg>
-    <span>Autofill with CareerVivid</span>
-  `;
+  if (isUserAuthenticated) {
+    fabEl.classList.add('cv-fab-done');
+    fabEl.innerHTML = `
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 6L9 17l-5-5"/>
+      </svg>
+      <span>Autofill Active</span>
+    `;
+  } else {
+    fabEl.innerHTML = `
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+      </svg>
+      <span>Autofill with CareerVivid</span>
+    `;
+  }
 }
 
 // ── Save Job Buttons (Listing Pages) ─────────────────────────────────────────
@@ -216,7 +315,7 @@ function createSaveButton(): HTMLButtonElement {
     btn.textContent = 'Saving...';
     const job = extractJobData();
     if (job) {
-      chrome.runtime.sendMessage({ type: 'SAVE_JOB', job }, (res) => {
+      const sent = sendRuntimeMessage<{ success?: boolean }>({ type: 'SAVE_JOB', job }, (res) => {
         if (res?.success) {
           btn.classList.add('cv-btn-success');
           btn.textContent = '✓ Saved';
@@ -225,6 +324,10 @@ function createSaveButton(): HTMLButtonElement {
           setTimeout(() => btn.textContent = 'Save Job', 2000);
         }
       });
+      if (!sent) {
+        btn.textContent = 'Refresh page';
+        setTimeout(() => btn.textContent = 'Save Job', 2000);
+      }
     } else {
       btn.textContent = 'No job data';
     }
@@ -266,6 +369,12 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       sendResponse({ context: getATSContext() });
       break;
 
+    case 'AUTH_STATE_CHANGED':
+      isUserAuthenticated = message.isAuthenticated === true;
+      resetFAB();
+      sendResponse({ success: true });
+      break;
+
     // Background forwards the user's profile; we run the fill engine
     case 'FILL_FORM': {
       const profile: AutoFillProfile = message.profile;
@@ -290,13 +399,13 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         showToast(parts.join('  ·  '));
 
         // Relay result back to popup for the results panel
-        chrome.runtime.sendMessage({ type: 'FILL_COMPLETE', result });
+        sendRuntimeMessage({ type: 'FILL_COMPLETE', result });
 
         // Phase 2: Auto-log to job tracker (best-effort, no user action needed)
         if (result.filledCount > 0) {
           const job = extractJobData();
           if (job) {
-            chrome.runtime.sendMessage({
+            sendRuntimeMessage({
               type: 'AUTO_LOG_APPLICATION',
               job,
               filledCount: result.filledCount,
@@ -373,6 +482,20 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       return true; // Keep channel open for async
     }
 
+    case 'GET_CAREERVIVID_AUTH': {
+      if (!isCareerVividWebApp()) {
+        sendResponse({ success: false, error: 'not_careervivid_page' });
+        break;
+      }
+
+      readCareerVividIndexedDbAuth().then((authPayload) => {
+        sendResponse({ success: !!authPayload, auth: authPayload });
+      }).catch((err: Error) => {
+        sendResponse({ success: false, error: err.message });
+      });
+      return true;
+    }
+
     default:
       break;
   }
@@ -382,25 +505,256 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
 // ── Initialization & SPA Navigation Observer ──────────────────────────────────
 
-function init(): void {
-  injectStyles();
-  injectSaveButton();
-  injectFAB();
-  // Kick off silent prefetch after a short delay so the form is fully rendered
-  setTimeout(silentPrefetch, 1500);
+// ── CareerVivid Web Auth Sync ─────────────────────────────────────────────────
+
+function isCareerVividWebApp(): boolean {
+  return (
+    window.location.hostname === 'careervivid.app' ||
+    window.location.hostname.endsWith('.careervivid.app') ||
+    ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') &&
+      (document.querySelector('meta[property="og:site_name"]')?.getAttribute('content') === 'CareerVivid' ||
+       document.title.includes('CareerVivid')))
+  );
 }
 
-/**
- * Phase 2 — Silent Prefetch Pipeline
- *
- * Runs automatically when the user lands on an application page.
- * Extracts job data + form questions and fires PREFETCH_AI_ANSWERS to the
- * background service worker, which calls generateApplyAnswers and caches
- * the result in chrome.storage.local keyed by the current URL.
- *
- * Result: by the time the user opens the popup and clicks Smart Fill,
- * answers are already ready — zero wait time.
- */
+function startCareerVividAuthSync(): void {
+  const isCareerVividSite =
+    isCareerVividWebApp();
+
+  if (!isCareerVividSite) return;
+
+  console.log('[CareerVivid Extension] Main site detected. Starting IndexedDB auth sync.');
+
+  let lastToken = '';
+  let missedChecks = 0;
+
+  const sendAuth = (data: {
+    token: string;
+    uid: string;
+    refreshToken?: string | null;
+    expirationTime?: number | null;
+    apiKey?: string | null;
+  }) => {
+    return sendRuntimeMessage({
+      type: 'SAVE_AUTH_TOKEN',
+      ...data,
+    });
+  };
+
+  const clearAuth = () => {
+    return sendRuntimeMessage({ type: 'CLEAR_AUTH_TOKEN' });
+  };
+
+  const checkAuth = () => {
+    readCareerVividIndexedDbAuth().then((authPayload) => {
+      if (authPayload) {
+        if (authPayload.token !== lastToken) {
+          missedChecks = 0;
+          lastToken = authPayload.token;
+          sendAuth(authPayload);
+        }
+        return;
+      }
+
+      missedChecks += 1;
+      if (lastToken !== '' && missedChecks >= 2) {
+        lastToken = '';
+        clearAuth();
+      }
+    }).catch((e) => {
+      console.debug('[CareerVivid Extension] Error reading Firebase IndexedDB auth:', e);
+    });
+  };
+
+  checkAuth();
+  const authInterval = setInterval(() => {
+    if (extensionContextInvalidated) {
+      clearInterval(authInterval);
+      return;
+    }
+    checkAuth();
+  }, 2500);
+  window.addEventListener('focus', checkAuth);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      checkAuth();
+    }
+  });
+}
+
+function readCareerVividIndexedDbAuth(): Promise<CareerVividAuthPayload | null> {
+  return new Promise((resolve, reject) => {
+    try {
+      const request = indexedDB.open('firebaseLocalStorageDb');
+      request.onerror = () => resolve(null);
+      request.onsuccess = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        if (!db.objectStoreNames.contains('firebaseLocalStorage')) {
+          db.close();
+          resolve(null);
+          return;
+        }
+
+        const transaction = db.transaction(['firebaseLocalStorage'], 'readonly');
+        const objectStore = transaction.objectStore('firebaseLocalStorage');
+        const getAllRequest = objectStore.getAll();
+
+        getAllRequest.onsuccess = (e) => {
+          const results = (e.target as IDBRequest).result;
+          const userVal = (results || [])
+            .map((item: any) => parseFirebaseIndexedDbValue(item?.value))
+            .filter((value: any) => value && value.uid && value.stsTokenManager?.accessToken)
+            .sort((a: any, b: any) => (b.stsTokenManager.expirationTime || 0) - (a.stsTokenManager.expirationTime || 0))[0];
+
+          db.close();
+
+          if (!userVal?.stsTokenManager) {
+            resolve(null);
+            return;
+          }
+
+          resolve({
+            token: userVal.stsTokenManager.accessToken,
+            refreshToken: userVal.stsTokenManager.refreshToken,
+            expirationTime: userVal.stsTokenManager.expirationTime,
+            apiKey: userVal.apiKey,
+            uid: userVal.uid,
+          });
+        };
+        getAllRequest.onerror = () => {
+          db.close();
+          resolve(null);
+        };
+      };
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+function parseFirebaseIndexedDbValue(value: any): any {
+  if (!value) return null;
+  if (typeof value !== 'string') return value;
+
+  try {
+    return JSON.parse(value);
+  } catch (_) {
+    return null;
+  }
+}
+
+function checkAuthStatus(callback?: () => void): void {
+  let resolved = false;
+
+  const timeout = setTimeout(() => {
+    if (!resolved) {
+      resolved = true;
+      console.warn('[CareerVivid] Auth check timed out after 500ms. Defaulting to unauthenticated state.');
+      isUserAuthenticated = false;
+      callback?.();
+    }
+  }, 500);
+
+  const sent = sendRuntimeMessage<{ isAuthenticated: boolean }>({ type: 'CHECK_AUTH_STATUS' }, (res) => {
+    if (!resolved) {
+      resolved = true;
+      clearTimeout(timeout);
+      isUserAuthenticated = res?.isAuthenticated === true;
+      callback?.();
+    }
+  });
+
+  if (!sent && !resolved) {
+    resolved = true;
+    clearTimeout(timeout);
+    isUserAuthenticated = false;
+    callback?.();
+  }
+}
+
+// ─── Resource-Safe DOM Injection Manager (5-Second Limit) ───────────────────
+
+let injectionObserver: MutationObserver | null = null;
+let injectionTimeout: number | null = null;
+let lastKnownUrl = window.location.href;
+let rafPending = false;
+
+function throttledInject(): void {
+  if (rafPending) return;
+  rafPending = true;
+
+  requestAnimationFrame(() => {
+    try {
+      injectSaveButton();
+      injectFAB();
+    } catch (e) {
+      console.error('[CareerVivid] Injection error during render pass:', e);
+    } finally {
+      rafPending = false;
+    }
+  });
+}
+
+function startInjectionWindow(): void {
+  stopInjectionWindow();
+  throttledInject();
+
+  injectionObserver = new MutationObserver((mutations) => {
+    const hasStructureChanges = mutations.some(m => m.addedNodes.length > 0 || m.removedNodes.length > 0);
+    if (hasStructureChanges) {
+      throttledInject();
+    }
+  });
+
+  try {
+    injectionObserver.observe(document.documentElement, {
+      childList: true,
+      subtree: true
+    });
+  } catch (e) {
+    console.warn('[CareerVivid] Failed to start MutationObserver:', e);
+  }
+
+  injectionTimeout = window.setTimeout(() => {
+    stopInjectionWindow();
+    console.debug('[CareerVivid] DOM scanning window ended (5-second timeout reached).');
+  }, 5000);
+}
+
+function stopInjectionWindow(): void {
+  if (injectionObserver) {
+    injectionObserver.disconnect();
+    injectionObserver = null;
+  }
+  if (injectionTimeout) {
+    clearTimeout(injectionTimeout);
+    injectionTimeout = null;
+  }
+}
+
+function setupSpaNavigationListener(): void {
+  const handleUrlChange = () => {
+    if (window.location.href !== lastKnownUrl) {
+      lastKnownUrl = window.location.href;
+      console.debug('[CareerVivid] SPA URL transition detected. Re-triggering injection safety window.');
+      startInjectionWindow();
+    }
+  };
+
+  window.addEventListener('popstate', handleUrlChange);
+  window.addEventListener('hashchange', handleUrlChange);
+
+  // Non-invasive polling fallback to catch framework-level SPA transitions (like Next.js)
+  // without dangerous monkey-patching of history.pushState/replaceState which crashes host pages.
+  const spaInterval = setInterval(() => {
+    if (extensionContextInvalidated) {
+      clearInterval(spaInterval);
+      return;
+    }
+    handleUrlChange();
+  }, 1000);
+}
+
 async function silentPrefetch(): Promise<void> {
   try {
     const context = getATSContext();
@@ -432,7 +786,7 @@ async function silentPrefetch(): Promise<void> {
     const job = extractJobData();
 
     // Signal background to prefetch — fire-and-forget from content script's perspective
-    chrome.runtime.sendMessage({
+    sendRuntimeMessage({
       type: 'PREFETCH_AI_ANSWERS',
       pageUrl: window.location.href,
       questions,
@@ -440,22 +794,62 @@ async function silentPrefetch(): Promise<void> {
       jobTitle:    job?.title   || document.querySelector('h1')?.textContent?.trim() || 'Unknown Role',
       jobDescription: job?.description || '',
     });
+
+    // Signal background to prefetch cover letter as well if description is present
+    if (job?.description) {
+      sendRuntimeMessage({
+        type: 'PREFETCH_COVER_LETTER',
+        pageUrl: window.location.href,
+        companyName: job?.company || document.title,
+        jobTitle:    job?.title   || document.querySelector('h1')?.textContent?.trim() || 'Unknown Role',
+        jobDescription: job.description,
+      });
+    }
   } catch (e) {
     // Prefetch is best-effort — never surface errors to the user
     console.debug('[CareerVivid] prefetch skipped:', e);
   }
 }
 
-// Re-run on SPA navigation (LinkedIn, Indeed use pushState routing)
-const observer = new MutationObserver(() => {
-  injectSaveButton();
-  injectFAB();
-});
+/**
+ * Asynchronous, error-safe entry point for the content script.
+ */
+async function safeInit(): Promise<void> {
+  try {
+    injectStyles();
 
-if (document.readyState === 'complete') {
-  init();
-} else {
-  window.addEventListener('load', init);
+    checkAuthStatus(async () => {
+      try {
+        startInjectionWindow();
+        setupSpaNavigationListener();
+
+        if (isCareerVividWebApp()) {
+          startCareerVividAuthSync();
+        }
+
+        const context = getATSContext();
+        if (context.isApplicationPage) {
+          setTimeout(() => {
+            silentPrefetch().catch(e => {
+              console.debug('[CareerVivid] Safe prefetch skipped:', e);
+            });
+          }, 1500);
+        }
+      } catch (innerError) {
+        console.error('[CareerVivid] Safe initialization callback failed:', innerError);
+      }
+    });
+
+  } catch (outerError) {
+    console.error('[CareerVivid] Unhandled content script boot error:', outerError);
+  }
 }
 
-observer.observe(document.documentElement, { childList: true, subtree: true });
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  safeInit();
+} else {
+  window.addEventListener('DOMContentLoaded', () => {
+    safeInit();
+  });
+}
+

@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       VitePWA({
-        registerType: 'prompt',
+        registerType: 'autoUpdate',
         injectRegister: 'auto',
         includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
         manifest: {
@@ -83,7 +83,7 @@ export default defineConfig(({ mode }) => {
           ],
           cleanupOutdatedCaches: true,
           clientsClaim: true,
-          skipWaiting: false // Forces SW to enter 'waiting' state so prompt works correctly
+          skipWaiting: true
         }
       })
     ],

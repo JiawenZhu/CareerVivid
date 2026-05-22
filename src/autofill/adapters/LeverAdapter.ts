@@ -22,10 +22,12 @@ export class LeverAdapter implements ATSAdapter {
   ];
 
   isApplicationPage(): boolean {
+    const isLeverHost = /lever\.co/i.test(window.location.hostname);
     return (
-      window.location.pathname.includes('/apply') ||
+      (isLeverHost && window.location.pathname.includes('/apply')) ||
       !!document.querySelector('.application-page') ||
-      !!document.querySelector('[data-qa="apply-form"]')
+      !!document.querySelector('[data-qa="apply-form"]') ||
+      !!document.querySelector('form[action*="lever.co"]')
     );
   }
 
@@ -81,12 +83,14 @@ export class LeverAdapter implements ATSAdapter {
   // ── Private helpers ────────────────────────────────────────────────────────
 
   private _extractLabel(wrapper: HTMLElement): string {
-    // Lever-specific label class
-    const label = wrapper.querySelector<HTMLElement>('.application-label, label, [class*="label"]');
+    // Lever often places .application-label as a sibling of .application-field inside
+    // an outer <label> / .application-question wrapper.
+    const labelContainer = wrapper.closest<HTMLElement>('label, .application-question, .field-group') || wrapper;
+    const label = labelContainer.querySelector<HTMLElement>('.application-label, label, [class*="label"]');
     if (label) {
-      return (label.innerText ?? label.textContent ?? '').replace(/\*/g, '').replace(/\s+/g, ' ').trim();
+      return this._normalizeLabelText(label.innerText ?? label.textContent ?? '');
     }
-    return '';
+    return this._getClosestLabel(wrapper);
   }
 
   private _getClosestLabel(el: HTMLElement): string {
@@ -95,17 +99,24 @@ export class LeverAdapter implements ATSAdapter {
     for (let i = 0; i < 4 && parent; i++) {
       const label = parent.querySelector<HTMLElement>('label, [class*="label"]');
       if (label && !label.contains(el)) {
-        return (label.innerText ?? label.textContent ?? '').replace(/\*/g, '').trim();
+        return this._normalizeLabelText(label.innerText ?? label.textContent ?? '');
       }
       parent = parent.parentElement;
     }
 
-    return (
+    return this._normalizeLabelText(
       el.getAttribute('aria-label') ||
       el.getAttribute('placeholder') ||
       el.getAttribute('name') ||
       ''
     );
+  }
+
+  private _normalizeLabelText(value: string): string {
+    return value
+      .replace(/[*✱]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
   private _getType(el: HTMLElement): FieldType {
