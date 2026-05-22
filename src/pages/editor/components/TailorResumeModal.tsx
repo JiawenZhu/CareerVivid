@@ -12,6 +12,7 @@ interface TailorResumeModalProps {
     resume: ResumeData;
     onResumeChange: (updates: Partial<ResumeData>) => void;
     theme?: string;
+    initialJobDescription?: string;
 }
 
 type Step = 'INPUT' | 'PREVIEW';
@@ -22,7 +23,7 @@ interface AiAnalysis {
     suggestions: string[];
 }
 
-const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, resume, onResumeChange, theme }) => {
+const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, resume, onResumeChange, theme, initialJobDescription }) => {
     const [step, setStep] = useState<Step>('INPUT');
     const [jobDescription, setJobDescription] = useState('');
 
@@ -54,8 +55,10 @@ const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ isOpen, onClose, 
             setWordCountStats(null);
             setInjectedKeywords([]);
             setKeywordCoverage(null);
+        } else if (initialJobDescription) {
+            setJobDescription(initialJobDescription);
         }
-    }, [isOpen]);
+    }, [isOpen, initialJobDescription]);
 
     if (!isOpen) return null;
 

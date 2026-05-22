@@ -359,7 +359,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Failed to sign out:', err);
     }
 
-    navigate('/');
+    if (!isExtensionContext()) {
+      navigate('/');
+    }
   };
 
   const updateUserProfile = async (data: Partial<UserProfile>) => {

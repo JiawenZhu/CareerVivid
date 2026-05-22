@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { navigate } from '../utils/navigation';
 import { ResumeData } from '../types';
 import { useEditor } from '../hooks/useEditor';
@@ -117,6 +117,44 @@ const Editor: React.FC<EditorProps> = (props) => {
     // so the overflow banner can fade transparently behind them
     const [isAnyDropdownOpen, setIsAnyDropdownOpen] = useState(false);
 
+    const [initialTailorModalOpen, setInitialTailorModalOpen] = useState(false);
+    const [initialJobDescription, setInitialJobDescription] = useState('');
+
+    useEffect(() => {
+        const syncTransitJob = async () => {
+            const params = new URLSearchParams(window.location.search);
+            const source = params.get('source');
+            const scrapeId = params.get('scrapeId');
+
+            if (source === 'extension_tailor' && scrapeId && currentUser?.uid) {
+                try {
+                    const { db } = await import('../firebase');
+                    const { doc, getDoc, deleteDoc } = await import('firebase/firestore');
+                    const docRef = doc(db, 'users', currentUser.uid, 'temporaryScrapes', scrapeId);
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        const jd = data.description || '';
+                        setInitialJobDescription(jd);
+                        setInitialTailorModalOpen(true);
+
+                        // Delete transit document immediately for privacy
+                        await deleteDoc(docRef);
+                    }
+                } catch (error) {
+                    console.error('Error syncing transit job in Editor:', error);
+                } finally {
+                    // Cleanse URL
+                    const newUrl = window.location.pathname;
+                    window.history.replaceState({}, document.title, newUrl);
+                }
+            }
+        };
+
+        syncTransitJob();
+    }, [currentUser?.uid]);
+
     if (!resume && (!isShared && !isGuestMode)) return <div className="flex justify-center items-center h-screen dark:text-white">{t('editor.loading_resume')}</div>;
     if (!resume) return null;
 
@@ -157,6 +195,8 @@ const Editor: React.FC<EditorProps> = (props) => {
                 onDismissGuideArrow={() => setShowGuideArrow(false)}
                 onExportToGoogleDocs={handleGoogleDocsExport}
                 onDropdownChange={setIsAnyDropdownOpen}
+                initialTailorModalOpen={initialTailorModalOpen}
+                initialJobDescription={initialJobDescription}
             />
 
             <div className="flex-grow flex overflow-hidden relative h-[calc(100vh-64px)]">

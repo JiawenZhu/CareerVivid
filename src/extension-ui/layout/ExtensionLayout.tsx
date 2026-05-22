@@ -40,6 +40,7 @@ const ExtensionLayout: React.FC = () => {
         const handleMessage = (message: any) => {
             if (message.type === 'AUTH_STATE_CHANGED') {
                 setCookieAuth(message.isAuthenticated);
+                setIsLoading(false);
             }
         };
 
@@ -47,16 +48,30 @@ const ExtensionLayout: React.FC = () => {
             chrome.runtime.onMessage.addListener(handleMessage);
             const handleStorageChange = (changes: { [key: string]: chrome.storage.StorageChange }, areaName: string) => {
                 if (areaName !== 'local') return;
-                if (
-                    changes.isAuthenticated ||
-                    changes.firebaseIdToken ||
-                    changes.authToken ||
-                    changes.uid
-                ) {
-                    chrome.storage.local.get(['isAuthenticated', 'firebaseIdToken', 'authToken', 'uid'], (stored) => {
-                        setCookieAuth(stored.isAuthenticated === true && !!stored.uid && !!(stored.firebaseIdToken || stored.authToken));
-                        setIsLoading(false);
+                
+                const authKeys = ['isAuthenticated', 'firebaseIdToken', 'authToken', 'uid', 'devModeAuth'];
+                const anyKeyChanged = authKeys.some(key => changes[key] !== undefined);
+                
+                if (anyKeyChanged) {
+                    const isAnyKeyCleared = authKeys.some(key => {
+                        const change = changes[key];
+                        return change && (change.newValue === null || change.newValue === undefined);
                     });
+                    
+                    if (isAnyKeyCleared) {
+                        // Synchronously drop context and loading state on sign-out!
+                        setCookieAuth(false);
+                        setIsLoading(false);
+                    } else {
+                        // Async fetch: Retrieve fresh state
+                        chrome.storage.local.get(authKeys, (stored) => {
+                            const isAuth = (stored.isAuthenticated === true || stored.devModeAuth === true) && 
+                                           !!stored.uid && 
+                                           !!(stored.firebaseIdToken || stored.authToken || stored.devModeAuth);
+                            setCookieAuth(isAuth);
+                            setIsLoading(false);
+                        });
+                    }
                 }
             };
             chrome.storage.onChanged.addListener(handleStorageChange);

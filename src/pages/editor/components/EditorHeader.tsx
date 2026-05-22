@@ -31,6 +31,8 @@ interface EditorHeaderProps {
     onDismissGuideArrow?: () => void;
     onExportToGoogleDocs?: () => void;
     onDropdownChange?: (isOpen: boolean) => void;
+    initialTailorModalOpen?: boolean;
+    initialJobDescription?: string;
 }
 
 const EditorHeader: React.FC<EditorHeaderProps> = ({
@@ -38,7 +40,8 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
     hasAnnotations, hasViewedFeedback, commentsCount, showAnnotationOverlay,
     theme, showGuideArrow, onResumeChange, onExport, onTranslate,
     onToggleFeedback, onShare, onToggleTheme, setViewMode, onDismissGuideArrow,
-    onExportToGoogleDocs, onDropdownChange
+    onExportToGoogleDocs, onDropdownChange,
+    initialTailorModalOpen, initialJobDescription
 }) => {
     const { t } = useTranslation();
     const [isDesktopDownloadMenuOpen, setIsDesktopDownloadMenuOpen] = useState(false);
@@ -46,6 +49,19 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
     const [isMobileMoreMenuOpen, setIsMobileMoreMenuOpen] = useState(false);
     const [isCoverLetterModalOpen, setIsCoverLetterModalOpen] = useState(false);
     const [isTailorModalOpen, setIsTailorModalOpen] = useState(false);
+    const [tailorJobDescription, setTailorJobDescription] = useState('');
+
+    useEffect(() => {
+        if (initialTailorModalOpen) {
+            setIsTailorModalOpen(true);
+        }
+    }, [initialTailorModalOpen]);
+
+    useEffect(() => {
+        if (initialJobDescription) {
+            setTailorJobDescription(initialJobDescription);
+        }
+    }, [initialJobDescription]);
 
     const [isDownloadClosing, setIsDownloadClosing] = useState(false);
     const [isTranslateClosing, setIsTranslateClosing] = useState(false);
@@ -369,6 +385,7 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
                 resume={resume}
                 onResumeChange={onResumeChange}
                 theme={theme}
+                initialJobDescription={tailorJobDescription}
             />
         </header>
     );

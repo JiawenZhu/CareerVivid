@@ -613,7 +613,12 @@ const ExtensionHome: React.FC = () => {
                     throw new Error(res?.error || 'Failed to create transit doc via background');
                 }
 
-                window.open(getAppUrl(`/newresume?source=extension_tailor&scrapeId=${res.scrapeId}`), '_blank');
+                const targetResumeId = selectedResumeId || resumes[0]?.id;
+                if (targetResumeId) {
+                    window.open(getAppUrl(`/edit/${targetResumeId}?source=extension_tailor&scrapeId=${res.scrapeId}`), '_blank');
+                } else {
+                    window.open(getAppUrl(`/newresume?source=extension_tailor&scrapeId=${res.scrapeId}`), '_blank');
+                }
             } catch (error: any) {
                 const errorStr = typeof error === 'string' ? error : (error?.message || String(error));
                 if (
@@ -625,8 +630,13 @@ const ExtensionHome: React.FC = () => {
                     window.open(getAppUrl('/signin'), '_blank');
                 } else {
                     console.error('Error creating transit doc:', error);
+                    const targetResumeId = selectedResumeId || resumes[0]?.id;
                     chrome.storage.local.set({ pending_tailor_jd: scrapedJob.description || '' }, () => {
-                        window.open(getAppUrl(`/newresume?source=extension_tailor&jobTitle=${encodeURIComponent(scrapedJob.title)}`), '_blank');
+                        if (targetResumeId) {
+                            window.open(getAppUrl(`/edit/${targetResumeId}?source=extension_tailor&jobTitle=${encodeURIComponent(scrapedJob.title)}`), '_blank');
+                        } else {
+                            window.open(getAppUrl(`/newresume?source=extension_tailor&jobTitle=${encodeURIComponent(scrapedJob.title)}`), '_blank');
+                        }
                     });
                 }
             } finally {
