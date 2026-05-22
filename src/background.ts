@@ -259,6 +259,21 @@ function broadcastAuthState(isAuthenticated: boolean): void {
     });
 }
 
+function broadcastResumeSelection(resumeId: string): void {
+    chrome.runtime.sendMessage({ type: 'RESUME_CHANGED', resumeId }, () => {
+        const err = chrome.runtime.lastError;
+    });
+
+    chrome.tabs.query({}, (tabs) => {
+        tabs.forEach((tab) => {
+            if (!tab.id) return;
+            chrome.tabs.sendMessage(tab.id, { type: 'RESUME_CHANGED', resumeId }, () => {
+                const err = chrome.runtime.lastError;
+            });
+        });
+    });
+}
+
 let pendingAuthClearTimer: ReturnType<typeof setTimeout> | null = null;
 
 function persistAuthToken(
@@ -1032,6 +1047,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         // User selected a resume in the popup → sync it from Firebase
         case 'SYNC_PROFILE':
             syncProfileFromFirebase(message.userId, message.resumeId).then(() => {
+                broadcastResumeSelection(message.resumeId);
                 sendResponse({ success: true });
             }).catch((err) => {
                 sendResponse({ success: false, error: err.message });
@@ -1477,6 +1493,27 @@ chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => 
     if (message.type === 'CLEAR_AUTH_TOKEN') {
         clearAuthToken(() => {
             sendResponse({ success: true });
+        });
+        return true;
+    }
+
+    if (message.type === 'SELECTED_RESUME_CHANGED') {
+        const { resumeId } = message;
+        chrome.storage.local.set({ selectedResumeId: resumeId }, () => {
+            chrome.storage.local.get(['uid'], (result) => {
+                const userId = result.uid;
+                if (userId) {
+                    syncProfileFromFirebase(userId, resumeId).then(() => {
+                        broadcastResumeSelection(resumeId);
+                        sendResponse({ success: true });
+                    }).catch((err) => {
+                        sendResponse({ success: false, error: err.message });
+                    });
+                } else {
+                    broadcastResumeSelection(resumeId);
+                    sendResponse({ success: true, warning: 'No active user ID in extension storage to sync full profile details' });
+                }
+            });
         });
         return true;
     }

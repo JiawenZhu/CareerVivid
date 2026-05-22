@@ -361,6 +361,11 @@ function injectSaveButton(): void {
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   switch (message.type) {
 
+    case 'RESUME_CHANGED':
+      window.postMessage({ type: 'CAREER_VIVID_EXTENSION_RESUME_CHANGED', resumeId: message.resumeId }, '*');
+      sendResponse({ success: true });
+      break;
+
     case 'EXTRACT_JOB_DATA':
       sendResponse({ job: extractJobData() });
       break;
@@ -578,6 +583,25 @@ function startCareerVividAuthSync(): void {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       checkAuth();
+    }
+  });
+
+  // Handle resume selection changes originating from the main web application
+  window.addEventListener('message', (event) => {
+    if (event.data?.type === 'CAREER_VIVID_WEB_RESUME_CHANGED') {
+      const resumeId = event.data.resumeId;
+      if (resumeId) {
+        readCareerVividIndexedDbAuth().then((authPayload) => {
+          const resolvedUserId = authPayload?.uid;
+          if (resolvedUserId) {
+            sendRuntimeMessage({
+              type: 'SYNC_PROFILE',
+              userId: resolvedUserId,
+              resumeId
+            });
+          }
+        });
+      }
     }
   });
 }

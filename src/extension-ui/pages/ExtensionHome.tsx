@@ -796,12 +796,41 @@ const ExtensionHome: React.FC = () => {
                             </div>
                             <h2 className="text-base font-bold text-gray-900">Ready to Autofill</h2>
                             {hasProfile && (
-                                <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
-                                    <FileText size={11} />
-                                    Using: <span className="font-medium text-gray-700">{selectedResumeName}</span>
-                                    <button onClick={() => window.open('https://careervivid.app/extension', '_blank')}
-                                        className="text-indigo-500 hover:underline ml-1">change</button>
-                                </p>
+                                <div className="text-xs text-gray-500 mt-1 flex items-center gap-1.5">
+                                    <FileText size={12} className="text-indigo-500 flex-shrink-0" />
+                                    <span className="font-medium">Using:</span>
+                                    <select
+                                        value={selectedResumeId || resumes[0]?.id || ''}
+                                        onChange={(e) => {
+                                            const newResumeId = e.target.value;
+                                            if (!newResumeId) return;
+                                            setSelectedResumeId(newResumeId);
+                                            chrome.storage.local.set({ selectedResumeId: newResumeId });
+                                            if (resolvedUserId) {
+                                                chrome.runtime.sendMessage({
+                                                    type: 'SYNC_PROFILE',
+                                                    userId: resolvedUserId,
+                                                    resumeId: newResumeId
+                                                }, (res) => {
+                                                    const _ = chrome.runtime.lastError;
+                                                    if (res?.success) {
+                                                        console.log('Profile synced with resume:', newResumeId);
+                                                    } else {
+                                                        console.error('Failed to sync profile:', res?.error);
+                                                    }
+                                                });
+                                                window.postMessage({ type: 'CAREER_VIVID_EXTENSION_RESUME_CHANGED', resumeId: newResumeId }, '*');
+                                            }
+                                        }}
+                                        className="bg-transparent hover:bg-white/80 border border-gray-200 hover:border-indigo-300 text-gray-700 text-xs font-semibold rounded-lg px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 max-w-[170px] truncate shadow-sm transition-all cursor-pointer"
+                                    >
+                                        {resumes.map((resume) => (
+                                            <option key={resume.id} value={resume.id}>
+                                                {resume.title || 'Untitled Resume'}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                             )}
 
                             {/* Fill Result Panel */}
