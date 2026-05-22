@@ -554,24 +554,51 @@ const ExtensionHome: React.FC = () => {
 
     const handleAction = async (action: string) => {
         if (action === 'save_job' && currentTab?.url && scrapedJob) {
-            import('../../services/userJobService').then(async ({ userJobService }) => {
-                if (resolvedUserId) {
-                    try {
-                        await userJobService.addJob(resolvedUserId, {
-                            companyName: scrapedJob.company,
-                            jobTitle: scrapedJob.title,
-                            jobPostURL: currentTab.url,
-                            applicationStatus: 'To Apply',
-                            jobDescription: scrapedJob.description || '',
-                            location: '',
-                        } as any);
-                        alert('Job Saved to Dashboard!');
-                    } catch (_) { }
-                } else {
-                    alert('Please sign in to CareerVivid before saving jobs.');
-                    window.open(getAppUrl('/login'), '_blank');
+            if (!resolvedUserId) {
+                alert('Please sign in to CareerVivid before saving jobs.');
+                window.open(getAppUrl('/login'), '_blank');
+                return;
+            }
+            try {
+                setIsPreparingTransit(true);
+                const tokenRes = await new Promise<{ firebaseIdToken?: string }>(resolve => {
+                    chrome.storage.local.get(['firebaseIdToken'], resolve);
+                });
+                const token = tokenRes.firebaseIdToken;
+
+                if (!token || token === 'mock-dev-id-token') {
+                    window.open(getAppUrl(`/job-tracker?source=extension_tracker&fallbackDescription=${encodeURIComponent(scrapedJob.description || '')}`), '_blank');
+                    return;
                 }
-            });
+
+                // If real token, delegate transit doc creation to background service worker to bypass CORS:
+                const res = await new Promise<any>((resolve) => {
+                    chrome.runtime.sendMessage({
+                        type: 'CREATE_TRANSIT_DOC',
+                        userId: resolvedUserId,
+                        job: {
+                            title: scrapedJob.title || '',
+                            company: scrapedJob.company || '',
+                            description: scrapedJob.description || '',
+                            url: currentTab?.url || ''
+                        }
+                    }, (response) => {
+                        const _ = chrome.runtime.lastError; // Suppress unchecked runtime.lastError
+                        resolve(response);
+                    });
+                });
+
+                if (!res?.success || !res?.scrapeId) {
+                    throw new Error(res?.error || 'Failed to create transit doc via background');
+                }
+
+                window.open(getAppUrl(`/job-tracker?source=extension_tracker&scrapeId=${res.scrapeId}`), '_blank');
+            } catch (error: any) {
+                console.error('Error creating transit doc for tracker:', error);
+                window.open(getAppUrl(`/job-tracker?source=extension_tracker&fallbackDescription=${encodeURIComponent(scrapedJob.description || '')}`), '_blank');
+            } finally {
+                setIsPreparingTransit(false);
+            }
         } else if (action === 'tailor_resume' && scrapedJob) {
             if (!resolvedUserId) {
                 alert('Please sign in to CareerVivid before tailoring your resume.');

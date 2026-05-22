@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { useJobTracker } from '../hooks/useJobTracker';
@@ -25,6 +25,57 @@ const JobTrackerPage: React.FC = () => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [highlightForNewJob, setHighlightForNewJob] = useState(false);
     const [viewMode, setViewMode] = useState<'kanban' | 'strategy'>('kanban');
+
+    const [initialJobDescription, setInitialJobDescription] = useState('');
+    const [autoSubmit, setAutoSubmit] = useState(false);
+
+    useEffect(() => {
+        const syncTransitJob = async () => {
+            const params = new URLSearchParams(window.location.search);
+            const source = params.get('source');
+            const scrapeId = params.get('scrapeId');
+            const fallbackDescription = params.get('fallbackDescription');
+
+            if (source === 'extension_tracker') {
+                if (scrapeId && currentUser?.uid) {
+                    try {
+                        const { db } = await import('../firebase');
+                        const { doc, getDoc, deleteDoc } = await import('firebase/firestore');
+                        const docRef = doc(db, 'users', currentUser.uid, 'temporaryScrapes', scrapeId);
+                        const docSnap = await getDoc(docRef);
+
+                        if (docSnap.exists()) {
+                            const data = docSnap.data();
+                            const jd = data.description || '';
+                            setInitialJobDescription(jd);
+                            setAutoSubmit(true);
+                            setIsAddModalOpen(true);
+
+                            // Delete transit document immediately for privacy
+                            await deleteDoc(docRef);
+                        }
+                    } catch (error) {
+                        console.error('Error syncing transit job in JobTrackerPage:', error);
+                    } finally {
+                        // Cleanse URL
+                        const newUrl = window.location.pathname;
+                        window.history.replaceState({}, document.title, newUrl);
+                    }
+                } else if (fallbackDescription) {
+                    const jd = decodeURIComponent(fallbackDescription);
+                    setInitialJobDescription(jd);
+                    setAutoSubmit(true);
+                    setIsAddModalOpen(true);
+
+                    // Cleanse URL
+                    const newUrl = window.location.pathname;
+                    window.history.replaceState({}, document.title, newUrl);
+                }
+            }
+        };
+
+        syncTransitJob();
+    }, [currentUser?.uid]);
 
     const handleCardClick = (job: JobApplicationData) => {
         setSelectedJob(job);
@@ -146,8 +197,18 @@ const JobTrackerPage: React.FC = () => {
 
                 {isAddModalOpen && (
                     <AddJobModal
-                        onClose={() => setIsAddModalOpen(false)}
-                        onJobAdded={handleJobAdded}
+                        onClose={() => {
+                            setIsAddModalOpen(false);
+                            setInitialJobDescription('');
+                            setAutoSubmit(false);
+                        }}
+                        onJobAdded={(jobData) => {
+                            handleJobAdded(jobData);
+                            setInitialJobDescription('');
+                            setAutoSubmit(false);
+                        }}
+                        initialJobDescription={initialJobDescription}
+                        autoSubmit={autoSubmit}
                     />
                 )}
 

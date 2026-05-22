@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Loader2, Wand2, FileText } from 'lucide-react';
 import { JobApplicationData } from '../../types';
@@ -8,18 +8,25 @@ import { parseJobDescriptionFromText } from '../../services/geminiService';
 interface AddJobModalProps {
     onClose: () => void;
     onJobAdded: (jobData: Omit<JobApplicationData, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => void;
+    initialJobDescription?: string;
+    autoSubmit?: boolean;
 }
 
-const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onJobAdded }) => {
+const AddJobModal: React.FC<AddJobModalProps> = ({ 
+    onClose, 
+    onJobAdded,
+    initialJobDescription = '',
+    autoSubmit = false
+}) => {
     const { currentUser } = useAuth();
     const { t } = useTranslation();
-    const [description, setDescription] = useState('');
+    const [description, setDescription] = useState(initialJobDescription);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const [hasAutoSubmitted, setHasAutoSubmitted] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!description.trim() || !currentUser) {
+    const handleAnalyzeText = async (textToAnalyze: string) => {
+        if (!textToAnalyze.trim() || !currentUser) {
             setError(t('job_tracker.modal.error_empty'));
             return;
         }
@@ -28,7 +35,7 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onJobAdded }) => {
         setError('');
 
         try {
-            const parsedData = await parseJobDescriptionFromText(currentUser.uid, description);
+            const parsedData = await parseJobDescriptionFromText(currentUser.uid, textToAnalyze);
 
             onJobAdded({
                 jobTitle: parsedData.jobTitle || 'Untitled Job',
@@ -36,7 +43,7 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onJobAdded }) => {
                 location: parsedData.location || '',
                 jobPostURL: '', // No URL in this flow
                 applicationStatus: 'To Apply',
-                jobDescription: description,
+                jobDescription: textToAnalyze,
             });
 
         } catch (err: any) {
@@ -48,12 +55,27 @@ const AddJobModal: React.FC<AddJobModalProps> = ({ onClose, onJobAdded }) => {
                 companyName: 'Unknown Company',
                 jobPostURL: '',
                 applicationStatus: 'To Apply',
-                jobDescription: description,
+                jobDescription: textToAnalyze,
             });
         } finally {
             setIsLoading(false);
         }
     };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        await handleAnalyzeText(description);
+    };
+
+    useEffect(() => {
+        if (initialJobDescription) {
+            setDescription(initialJobDescription);
+        }
+        if (autoSubmit && initialJobDescription && currentUser && !hasAutoSubmitted) {
+            setHasAutoSubmitted(true);
+            handleAnalyzeText(initialJobDescription);
+        }
+    }, [initialJobDescription, autoSubmit, currentUser, hasAutoSubmitted]);
 
     return (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
