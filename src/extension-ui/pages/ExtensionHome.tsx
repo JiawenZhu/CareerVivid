@@ -10,6 +10,7 @@ import { useResumes } from '../../hooks/useResumes';
 import { getAppUrl } from '../../utils/extensionUtils';
 import { db } from '../../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { analyzeResumeMatch } from '../../services/geminiService';
 
 interface AutoFillResult {
     platform: string;
@@ -88,6 +89,8 @@ const ExtensionHome: React.FC = () => {
     const [localProfile, setLocalProfile] = useState<any>(null);
     const [restUserProfile, setRestUserProfile] = useState<any>(null);
     const [localPhotoURL, setLocalPhotoURL] = useState<string | null>(null);
+    const [matchScore, setMatchScore] = useState<number | null>(null);
+    const [isCalculatingScore, setIsCalculatingScore] = useState(false);
 
     const userProfile = contextUserProfile || restUserProfile;
 
@@ -165,6 +168,40 @@ const ExtensionHome: React.FC = () => {
             return () => chrome.storage.onChanged.removeListener(handleStorageChange);
         }
     }, []);
+
+    useEffect(() => {
+        if (!scrapedJob?.description || !localProfile) {
+            setMatchScore(null);
+            return;
+        }
+
+        const runAnalysis = async () => {
+            try {
+                setIsCalculatingScore(true);
+                // Construct a unified resume text from localProfile structured fields
+                const resumeParts = [
+                    localProfile.summary || '',
+                    localProfile.skills?.join(', ') || '',
+                    localProfile.workExperience?.map((w: any) => `${w.title} at ${w.company}\n${w.description}`).join('\n\n') || '',
+                    localProfile.education?.map((e: any) => `${e.degree} in ${e.fieldOfStudy} from ${e.school}`).join('\n\n') || '',
+                ];
+                const resumeText = resumeParts.filter(Boolean).join('\n\n');
+                const uid = resolvedUserId || 'guest_user';
+                
+                const result = await analyzeResumeMatch(uid, resumeText, scrapedJob.description);
+                if (typeof result?.matchPercentage === 'number') {
+                    setMatchScore(Math.round(result.matchPercentage));
+                }
+            } catch (err) {
+                console.error("[CareerVivid] Match score calculation failed:", err);
+                setMatchScore(null);
+            } finally {
+                setIsCalculatingScore(false);
+            }
+        };
+
+        runAnalysis();
+    }, [scrapedJob?.description, localProfile, resolvedUserId]);
 
     const handleSignOut = () => {
         if (typeof chrome !== 'undefined' && chrome.storage) {
@@ -823,7 +860,8 @@ const ExtensionHome: React.FC = () => {
                                     {atsPlatform || 'Application'} Detected
                                 </span>
                             </div>
-                            <h2 className="text-base font-bold text-gray-900">Ready to Autofill</h2>
+                            <h2 className="text-base font-bold text-gray-900">1-Click Auto Fill & Apply</h2>
+                            <p className="text-[11px] text-gray-500 mt-0.5">Populate forms and bespoke screening answers instantly.</p>
                             {hasProfile && (
                                 <div className="text-xs text-gray-500 mt-1 flex items-center gap-1.5">
                                     <FileText size={12} className="text-indigo-500 flex-shrink-0" />
@@ -895,7 +933,7 @@ const ExtensionHome: React.FC = () => {
                                     className="flex items-center justify-center gap-1.5 bg-gray-900 hover:bg-black disabled:opacity-60 text-white py-3 rounded-xl font-semibold shadow transition-all hover:scale-[1.02] active:scale-[0.98] text-xs"
                                 >
                                     {isFilling ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
-                                    Quick Fill
+                                    Auto Fill Profile
                                 </button>
                                 <button
                                     onClick={handleSmartFill}
@@ -908,7 +946,7 @@ const ExtensionHome: React.FC = () => {
                                     }`}
                                 >
                                     {isGeneratingAI ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-                                    {isGeneratingAI ? 'Thinking...' : prefetchReady ? 'Smart Fill ✨' : 'Smart Fill 🧠'}
+                                    {isGeneratingAI ? 'Thinking...' : prefetchReady ? 'Auto Fill AI' : 'Auto Fill AI'}
                                 </button>
                             </div>
 
@@ -1074,9 +1112,26 @@ const ExtensionHome: React.FC = () => {
                 <div className="bg-white rounded-2xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.03)] border border-gray-100">
                     <div className="flex items-start justify-between mb-1">
                         <div>
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 text-[10px] font-bold uppercase tracking-wider mb-2">
-                                {isJobSite ? 'Job Detected' : 'Ready to Apply'}
-                            </span>
+                            <div className="flex items-center flex-wrap gap-1.5 mb-2">
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 text-[10px] font-bold uppercase tracking-wider">
+                                    {isJobSite ? 'Job Detected' : 'Ready to Apply'}
+                                </span>
+                                {isCalculatingScore && (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider border border-blue-100">
+                                        <Loader2 className="w-2.5 h-2.5 animate-spin" /> Matching...
+                                    </span>
+                                )}
+                                {matchScore !== null && !isCalculatingScore && (
+                                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                                        matchScore >= 70 ? 'bg-green-50 text-green-600 border-green-100' :
+                                        matchScore >= 40 ? 'bg-yellow-50 text-yellow-600 border-yellow-100' :
+                                        'bg-red-50 text-red-600 border-red-100'
+                                    }`}>
+                                        <Sparkles size={10} className={matchScore >= 70 ? 'text-green-500' : ''} />
+                                        {matchScore}% Match
+                                    </span>
+                                )}
+                            </div>
                             <h2 className="text-base font-bold text-gray-900 leading-tight">
                                 {isJobSite && scrapedJob ? scrapedJob.title : 'Supercharge Your Job Hunt'}
                             </h2>
