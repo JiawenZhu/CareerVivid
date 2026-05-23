@@ -119,7 +119,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsAdminLoading(false);
         setLoading(false);
         if (typeof document !== 'undefined') {
-          document.cookie = "session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
+          const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+          document.cookie = `session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax${isLocalhost ? '' : '; secure'}`;
         }
         if (!isExtensionContext()) {
           // Direct web-to-extension auth sync (clear). The extension popup is

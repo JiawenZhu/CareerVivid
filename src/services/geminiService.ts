@@ -676,14 +676,30 @@ const jobParseSchema = {
     properties: {
         jobTitle: { type: "STRING", description: "The job title. Return 'Untitled Job' if not found." },
         companyName: { type: "STRING", description: "The company name. Return 'Unknown Company' if not found." },
-        location: { type: "STRING", description: "The job location (e.g., city, state, or 'Remote'). Return an empty string if not found." },
+        location: { type: "STRING", description: "The job location (e.g., 'Remote - US; New York City', or city/state). Return empty string if not found." },
+        salaryRange: { type: "STRING", description: "Extract any visible salary boundaries or compensation ranges (e.g., '$120k - $150k'). Return empty string if not found." },
+        jobPostURL: { type: "STRING", description: "The original marketing job post link if present in context or text. Return empty string if not found." },
+        directApplicationURL: { type: "STRING", description: "The specific ATS hosting portal submission link (e.g., https://jobs.ashbyhq.com/..., Greenhouse, Lever, etc.) if present. Return empty string if not found." }
     },
-    required: ["jobTitle", "companyName", "location"]
+    required: ["jobTitle", "companyName", "location", "salaryRange", "jobPostURL", "directApplicationURL"]
 };
 
-export const parseJobDescriptionFromText = async (userId: string, descriptionText: string): Promise<Partial<JobApplicationData>> => {
+export const parseJobDescriptionFromText = async (
+    userId: string, 
+    descriptionText: string,
+    metadataUrl?: string
+): Promise<Partial<JobApplicationData> & { directApplicationURL?: string }> => {
     try {
-        const prompt = `Analyze the following job description text... ${descriptionText}`;
+        const prompt = `Analyze the following job description text to extract structural metadata. 
+Original Job Post URL / Browser metadata URL context: ${metadataUrl || 'None provided'}
+
+Job description text:
+${descriptionText}
+
+Please parse and return the structured JSON payload according to the schema. 
+For 'jobPostURL', prioritize using the original browser metadata URL context provided (${metadataUrl || ''}) if it is valid. Otherwise, look for it in the text.
+For 'directApplicationURL', look for any ATS hosting portals (like greenhouse.io, ashbyhq.com, lever.co, workday.com, etc.) in the text.`;
+
         const result = await callGeminiProxy({
             modelName: 'gemini-2.5-flash',
             contents: prompt,

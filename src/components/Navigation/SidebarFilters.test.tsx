@@ -111,6 +111,7 @@ describe('Sidebar Component - Sorting and Filtering UX', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        localStorage.clear();
 
         (useAuth as any).mockReturnValue({
             currentUser: { email: 'test@careervivid.com', displayName: 'Jiawen' },
@@ -244,5 +245,43 @@ describe('Sidebar Component - Sorting and Filtering UX', () => {
         // Empty state is rendered
         expect(screen.getByText('No Files Found')).toBeInTheDocument();
         expect(screen.getByText('No items match the "resume" filter.')).toBeInTheDocument();
+    });
+
+    it('Test 6: Selecting filter and sorting options writes the selections to localStorage', () => {
+        render(<Sidebar />);
+
+        const dropdownButton = screen.getByTitle('Filter & Sort');
+        fireEvent.click(dropdownButton);
+
+        // Select 'Resumes' filter
+        const resumesFilterOpt = screen.getByText('Resumes');
+        fireEvent.click(resumesFilterOpt);
+
+        const currentPreferences = JSON.parse(localStorage.getItem('cv_sidebar_preferences') || '{}');
+        expect(currentPreferences.filterType).toBe('resume');
+
+        // Select 'Recently Modified' sort option
+        const recentlyModifiedOpt = screen.getByText('Recently Modified');
+        fireEvent.click(recentlyModifiedOpt);
+
+        const updatedPreferences = JSON.parse(localStorage.getItem('cv_sidebar_preferences') || '{}');
+        expect(updatedPreferences.filterType).toBe('resume');
+        expect(updatedPreferences.sortBy).toBe('updatedAt');
+    });
+
+    it('Test 7: Renders sidebar using saved preferences from localStorage on mount', () => {
+        // Set initial preferences in localStorage
+        localStorage.setItem('cv_sidebar_preferences', JSON.stringify({
+            filterType: 'interview',
+            sortBy: 'updatedAt'
+        }));
+
+        render(<Sidebar />);
+
+        // Should only render the interview item: 'Fourth Interview'
+        expect(screen.getByText('Fourth Interview')).toBeInTheDocument();
+        expect(screen.queryByText('First Resume')).not.toBeInTheDocument();
+        expect(screen.queryByText('Second Portfolio')).not.toBeInTheDocument();
+        expect(screen.queryByText('Third Whiteboard')).not.toBeInTheDocument();
     });
 });

@@ -91,10 +91,47 @@ const Sidebar: React.FC = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     // Filter/Sort States
-    const [sortBy, setSortBy] = useState<'createdAt' | 'updatedAt'>('createdAt');
-    const [filterType, setFilterType] = useState<string>('all');
+    const [sortBy, setSortBy] = useState<'createdAt' | 'updatedAt'>(() => {
+        try {
+            const current = localStorage.getItem('cv_sidebar_preferences');
+            if (current) {
+                const preferences = JSON.parse(current);
+                if (preferences.sortBy === 'createdAt' || preferences.sortBy === 'updatedAt') {
+                    return preferences.sortBy;
+                }
+            }
+        } catch (err) {
+            console.error('Error reading sort preference', err);
+        }
+        return 'createdAt';
+    });
+    const [filterType, setFilterType] = useState<string>(() => {
+        try {
+            const current = localStorage.getItem('cv_sidebar_preferences');
+            if (current) {
+                const preferences = JSON.parse(current);
+                if (preferences.filterType) {
+                    return preferences.filterType;
+                }
+            }
+        } catch (err) {
+            console.error('Error reading filter preference', err);
+        }
+        return 'all';
+    });
     const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
     const filterDropdownRef = useRef<HTMLDivElement>(null);
+
+    const savePreference = (key: 'filterType' | 'sortBy', value: string) => {
+        try {
+            const current = localStorage.getItem('cv_sidebar_preferences');
+            const preferences = current ? JSON.parse(current) : {};
+            preferences[key] = value;
+            localStorage.setItem('cv_sidebar_preferences', JSON.stringify(preferences));
+        } catch (err) {
+            console.error('Error saving preference to localStorage', err);
+        }
+    };
 
     const lastSavedNodesRef = useRef<string>('');
 
@@ -299,6 +336,7 @@ const Sidebar: React.FC = () => {
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setFilterType(opt.value);
+                                                savePreference('filterType', opt.value);
                                             }}
                                             className={`w-full flex items-center justify-between px-3.5 py-1.5 hover:bg-indigo-50/40 dark:hover:bg-indigo-500/5 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all text-left ${filterType === opt.value ? 'text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50/20 dark:bg-indigo-500/5' : ''}`}
                                         >
@@ -321,6 +359,7 @@ const Sidebar: React.FC = () => {
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setSortBy(opt.value as any);
+                                                savePreference('sortBy', opt.value);
                                             }}
                                             className={`w-full flex items-center justify-between px-3.5 py-1.5 hover:bg-indigo-50/40 dark:hover:bg-indigo-500/5 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all text-left ${sortBy === opt.value ? 'text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50/20 dark:bg-indigo-500/5' : ''}`}
                                         >

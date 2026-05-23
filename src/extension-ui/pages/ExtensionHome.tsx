@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import {
     Plus, Briefcase, Mic, ExternalLink, FileText, Wand2,
     Settings, Zap, CheckCircle, AlertCircle, Loader2, ChevronRight,
-    Sparkles, ChevronDown, ChevronUp, Copy, CheckCheck, Send, LogOut
+    Sparkles, ChevronDown, ChevronUp, Copy, CheckCheck, Send
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useResumes } from '../../hooks/useResumes';
@@ -63,11 +63,31 @@ function parseFirestoreRestValue(val: any): any {
     }
 }
 
+const getRandomAvatar = (seed: string): string => {
+    const avatars = [
+        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80',
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&h=150&q=80',
+        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&h=150&q=80',
+        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&h=150&q=80',
+        'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&h=150&q=80',
+        'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=150&h=150&q=80',
+        'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&h=150&q=80',
+        'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&h=150&q=80',
+    ];
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+        hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % avatars.length;
+    return avatars[index];
+};
+
 const ExtensionHome: React.FC = () => {
     const { userProfile: contextUserProfile, currentUser, logOut } = useAuth();
     const [resolvedUserId, setResolvedUserId] = useState<string | null>(null);
     const [localProfile, setLocalProfile] = useState<any>(null);
     const [restUserProfile, setRestUserProfile] = useState<any>(null);
+    const [localPhotoURL, setLocalPhotoURL] = useState<string | null>(null);
 
     const userProfile = contextUserProfile || restUserProfile;
 
@@ -113,17 +133,19 @@ const ExtensionHome: React.FC = () => {
 
     useEffect(() => {
         const loadLocalState = () => {
-            chrome.storage.local.get(['devModeAuth', 'autofillProfile', 'selectedResumeId'], (res) => {
+            chrome.storage.local.get(['devModeAuth', 'autofillProfile', 'selectedResumeId', 'photoURL'], (res) => {
                 if (res.devModeAuth) {
                     setLocalProfile(null);
                     setHasProfile(false);
                     setSelectedResumeId(null);
+                    setLocalPhotoURL(null);
                     return;
                 }
 
                 setLocalProfile(res.autofillProfile || null);
                 setHasProfile(!!res.autofillProfile);
                 setSelectedResumeId((res.selectedResumeId as string | undefined) || null);
+                setLocalPhotoURL(res.photoURL || null);
             });
         };
 
@@ -132,7 +154,7 @@ const ExtensionHome: React.FC = () => {
         // Listen for storage changes to keep state synced
         const handleStorageChange = (changes: { [key: string]: chrome.storage.StorageChange }, areaName: string) => {
             if (areaName === 'local') {
-                if (changes.devModeAuth || changes.autofillProfile || changes.selectedResumeId) {
+                if (changes.devModeAuth || changes.autofillProfile || changes.selectedResumeId || changes.photoURL) {
                     loadLocalState();
                 }
             }
@@ -171,21 +193,29 @@ const ExtensionHome: React.FC = () => {
                 ];
                 
                 if (chrome.cookies) {
-                    let clearedCount = 0;
-                    const totalClears = domains.length * cookieNames.length;
-                    
+                    const promises: Promise<void>[] = [];
                     domains.forEach((domain) => {
                         cookieNames.forEach((name) => {
-                            chrome.cookies.remove({ url: domain, name }, () => {
-                                clearedCount++;
-                                if (clearedCount === totalClears) {
+                            promises.push(
+                                new Promise<void>((resolve) => {
                                     try {
-                                        logOut();
-                                    } catch (_) {}
-                                    window.location.reload();
-                                }
-                            });
+                                        chrome.cookies.remove({ url: domain, name }, () => {
+                                            const _ = chrome.runtime.lastError;
+                                            resolve();
+                                        });
+                                    } catch (_) {
+                                        resolve();
+                                    }
+                                })
+                            );
                         });
+                    });
+                    
+                    Promise.all(promises).finally(() => {
+                        try {
+                            logOut();
+                        } catch (_) {}
+                        window.location.reload();
                     });
                 } else {
                     try {
@@ -567,7 +597,7 @@ const ExtensionHome: React.FC = () => {
                 const token = tokenRes.firebaseIdToken;
 
                 if (!token || token === 'mock-dev-id-token') {
-                    window.open(getAppUrl(`/job-tracker?source=extension_tracker&fallbackDescription=${encodeURIComponent(scrapedJob.description || '')}`), '_blank');
+                    window.open(getAppUrl(`/job-tracker?source=extension_tracker&fallbackDescription=${encodeURIComponent(scrapedJob.description || '')}&url=${encodeURIComponent(currentTab?.url || '')}`), '_blank');
                     return;
                 }
 
@@ -595,7 +625,7 @@ const ExtensionHome: React.FC = () => {
                 window.open(getAppUrl(`/job-tracker?source=extension_tracker&scrapeId=${res.scrapeId}`), '_blank');
             } catch (error: any) {
                 console.error('Error creating transit doc for tracker:', error);
-                window.open(getAppUrl(`/job-tracker?source=extension_tracker&fallbackDescription=${encodeURIComponent(scrapedJob.description || '')}`), '_blank');
+                window.open(getAppUrl(`/job-tracker?source=extension_tracker&fallbackDescription=${encodeURIComponent(scrapedJob.description || '')}&url=${encodeURIComponent(currentTab?.url || '')}`), '_blank');
             } finally {
                 setIsPreparingTransit(false);
             }
@@ -660,9 +690,9 @@ const ExtensionHome: React.FC = () => {
                     const targetResumeId = selectedResumeId || resumes[0]?.id;
                     chrome.storage.local.set({ pending_tailor_jd: scrapedJob.description || '' }, () => {
                         if (targetResumeId) {
-                            window.open(getAppUrl(`/edit/${targetResumeId}?source=extension_tailor&jobTitle=${encodeURIComponent(scrapedJob.title)}`), '_blank');
+                            window.open(getAppUrl(`/edit/${targetResumeId}?source=extension_tailor&jobTitle=${encodeURIComponent(scrapedJob.title)}&fallbackDescription=${encodeURIComponent(scrapedJob.description || '')}`), '_blank');
                         } else {
-                            window.open(getAppUrl(`/newresume?source=extension_tailor&jobTitle=${encodeURIComponent(scrapedJob.title)}`), '_blank');
+                            window.open(getAppUrl(`/newresume?source=extension_tailor&jobTitle=${encodeURIComponent(scrapedJob.title)}&fallbackDescription=${encodeURIComponent(scrapedJob.description || '')}`), '_blank');
                         }
                     });
                 }
@@ -750,10 +780,16 @@ const ExtensionHome: React.FC = () => {
             {/* Header */}
             <header className="flex items-center justify-between px-5 py-4 bg-white border-b border-gray-100 shadow-sm sticky top-0 z-10">
                 <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-indigo-400 to-indigo-600 shadow ring-2 ring-white flex items-center justify-center text-white font-bold text-sm">
-                        {(userProfile?.displayName?.[0] || userProfile?.email?.[0]) || 
-                         (localProfile ? `${localProfile.firstName?.[0] || ''}${localProfile.lastName?.[0] || ''}`.toUpperCase() || 'U' : 'U')}
-                    </div>
+                    {(() => {
+                        const resolvedPhotoUrl = (userProfile as any)?.photoURL || currentUser?.photoURL || localPhotoURL;
+                        const seed = userProfile?.email || currentUser?.email || localProfile?.email || userProfile?.uid || 'careervivid';
+                        const avatarUrl = resolvedPhotoUrl || getRandomAvatar(seed);
+                        return (
+                            <div className="h-9 w-9 rounded-full bg-gray-200 shadow ring-2 ring-white flex items-center justify-center overflow-hidden">
+                                <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+                            </div>
+                        );
+                    })()}
                     <div>
                         <h1 className="text-sm font-bold text-gray-900 leading-tight">
                             {userProfile?.displayName || 
@@ -771,13 +807,6 @@ const ExtensionHome: React.FC = () => {
                         className="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
                     >
                         <Settings size={18} />
-                    </button>
-                    <button 
-                        onClick={handleSignOut}
-                        title="Sign Out"
-                        className="p-2 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
-                    >
-                        <LogOut size={18} />
                     </button>
                 </div>
             </header>

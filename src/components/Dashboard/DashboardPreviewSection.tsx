@@ -112,14 +112,14 @@ function DashboardPreviewSection<T>({
             ) : items.length === 0 ? (
                 <div 
                     onClick={onViewAll}
-                    className={`bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] p-10 text-center border border-dashed border-gray-300/50 dark:border-gray-800/50 transition-all hover:border-gray-400 dark:hover:border-gray-700 flex flex-col justify-center items-center shadow-sm group/empty
-                        ${onViewAll ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/40' : ''}
+                    className={`bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl p-10 text-center border border-dashed border-slate-200/80 dark:border-slate-800/80 transition-all duration-300 hover:border-indigo-500/40 dark:hover:border-indigo-400/40 flex flex-col justify-center items-center shadow-sm group/empty
+                        ${onViewAll ? 'cursor-pointer hover:bg-gray-50/50 dark:hover:bg-gray-800/40' : ''}
                     `}
                 >
-                    <div className="w-12 h-12 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4 group-hover/empty:scale-110 transition-transform duration-300">
-                        <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover/empty:text-primary-500 transition-colors" />
+                    <div className="w-12 h-12 bg-gray-50 dark:bg-gray-800/60 rounded-full flex items-center justify-center mb-4 group-hover/empty:scale-110 transition-transform duration-300 border border-slate-200/20 dark:border-slate-800/20">
+                        <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover/empty:text-indigo-500 dark:group-hover/empty:text-indigo-400 transition-colors" />
                     </div>
-                    <p className="text-[14px] text-gray-500 dark:text-gray-400 font-medium group-hover/empty:text-primary-500 transition-colors">{emptyMessage}</p>
+                    <p className="text-[14px] text-gray-500 dark:text-gray-400 font-medium group-hover/empty:text-indigo-500 dark:group-hover/empty:text-indigo-400 transition-colors">{emptyMessage}</p>
                 </div>
             ) : viewMode === 'row' ? (
                 <div className="flex gap-5 overflow-x-auto pb-6 snap-x pt-2 pr-6 -mx-6 px-6 scrollbar-hide">

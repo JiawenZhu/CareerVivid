@@ -69,36 +69,56 @@ const GenerationHub: React.FC = () => {
             const source = params.get('source');
             const scrapeId = params.get('scrapeId');
 
-            if (source === 'extension_tailor' && scrapeId) {
-                if (!currentUser) return; // Wait until auth state is resolved
+            if (source === 'extension_tailor') {
+                if (scrapeId) {
+                    if (!currentUser) return; // Wait until auth state is resolved
 
-                setIsSyncingTransit(true);
-                try {
-                    const docRef = doc(db, 'users', currentUser.uid, 'temporaryScrapes', scrapeId);
-                    const docSnap = await getDoc(docRef);
+                    setIsSyncingTransit(true);
+                    try {
+                        const docRef = doc(db, 'users', currentUser.uid, 'temporaryScrapes', scrapeId);
+                        const docSnap = await getDoc(docRef);
 
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        sessionStorage.setItem('jobDescriptionForOptimization', data.description || '');
-                        sessionStorage.setItem('jobTitleForOptimization', data.title || '');
-                        sessionStorage.setItem('jobCompanyForOptimization', data.company || '');
+                        if (docSnap.exists()) {
+                            const data = docSnap.data();
+                            sessionStorage.setItem('jobDescriptionForOptimization', data.description || '');
+                            sessionStorage.setItem('jobTitleForOptimization', data.title || '');
+                            sessionStorage.setItem('jobCompanyForOptimization', data.company || '');
+                            
+                            setPrompt(`Tailor my resume for a ${data.title} role at ${data.company}`);
+                            setActiveTailoringJob({
+                                title: data.title || '',
+                                company: data.company || '',
+                            });
+
+                            // Delete transit document immediately for privacy
+                            await deleteDoc(docRef);
+                        }
+                    } catch (error) {
+                        console.error('Error syncing transit job:', error);
+                    } finally {
+                        setIsSyncingTransit(false);
+                        // Cleanse URL
+                        const newUrl = window.location.pathname;
+                        window.history.replaceState({}, document.title, newUrl);
+                    }
+                } else {
+                    const fallbackDescription = params.get('fallbackDescription');
+                    const jobTitle = params.get('jobTitle') || '';
+                    if (fallbackDescription) {
+                        sessionStorage.setItem('jobDescriptionForOptimization', fallbackDescription);
+                        sessionStorage.setItem('jobTitleForOptimization', jobTitle);
+                        sessionStorage.setItem('jobCompanyForOptimization', '');
                         
-                        setPrompt(`Tailor my resume for a ${data.title} role at ${data.company}`);
+                        setPrompt(`Tailor my resume for a ${jobTitle} role`);
                         setActiveTailoringJob({
-                            title: data.title || '',
-                            company: data.company || '',
+                            title: jobTitle || 'Specified Job',
+                            company: '',
                         });
 
-                        // Delete transit document immediately for privacy
-                        await deleteDoc(docRef);
+                        // Cleanse URL
+                        const newUrl = window.location.pathname;
+                        window.history.replaceState({}, document.title, newUrl);
                     }
-                } catch (error) {
-                    console.error('Error syncing transit job:', error);
-                } finally {
-                    setIsSyncingTransit(false);
-                    // Cleanse URL
-                    const newUrl = window.location.pathname;
-                    window.history.replaceState({}, document.title, newUrl);
                 }
             }
         };

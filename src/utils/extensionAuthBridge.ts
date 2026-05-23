@@ -7,6 +7,7 @@ export type ExtensionAuthPayload = {
   expirationTime?: number | null;
   apiKey?: string | null;
   email?: string | null;
+  photoURL?: string | null;
 };
 
 export type ExtensionAuthSyncResult = {
@@ -17,6 +18,7 @@ export type ExtensionAuthSyncResult = {
 };
 
 const DEFAULT_EXTENSION_IDS = [
+  'eeijfnjmjelapkebgockoeaadonbchdd',
   'lmpgqdmlkjipeoagilaebklidjngdgjg',
   'lmpgodmlkjipeoagilaebklidjngdgjg',
 ];
@@ -72,6 +74,7 @@ export const createExtensionAuthPayload = async (
     expirationTime: parseJwtExpiration(token) || (user as any).stsTokenManager?.expirationTime || null,
     apiKey: apiKey || null,
     email: user.email || null,
+    photoURL: user.photoURL || null,
   };
 };
 
@@ -81,8 +84,26 @@ const sendExternalMessage = (
   message: Record<string, unknown>
 ): Promise<ExtensionAuthSyncResult> => {
   return new Promise((resolve) => {
+    let resolved = false;
+
+    // 2-second fallback timeout to prevent hanging if Chrome fails to invoke the callback
+    const timer = window.setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        resolve({
+          extensionId,
+          ok: false,
+          error: 'Handshake timeout (extension did not respond within 2000ms).',
+        });
+      }
+    }, 2000);
+
     try {
       runtime.sendMessage(extensionId, message, (response: unknown) => {
+        if (resolved) return;
+        resolved = true;
+        window.clearTimeout(timer);
+
         const lastError = runtime.lastError;
         if (lastError) {
           resolve({
@@ -100,6 +121,9 @@ const sendExternalMessage = (
         });
       });
     } catch (err: any) {
+      if (resolved) return;
+      resolved = true;
+      window.clearTimeout(timer);
       resolve({
         extensionId,
         ok: false,

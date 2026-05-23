@@ -10,13 +10,13 @@ interface JobApplicationCardProps {
 }
 
 const JobApplicationCard: React.FC<JobApplicationCardProps> = ({ job, onClick, onDelete, onDragStart }) => (
-    <div draggable onDragStart={onDragStart} onClick={onClick} className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 transition-all duration-300 hover:border-primary-500/30 dark:hover:border-primary-400/30 hover:shadow-lg flex flex-col p-5 relative group cursor-pointer overflow-hidden">
+    <div draggable onDragStart={onDragStart} onClick={onClick} className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl border border-slate-200/80 dark:border-slate-800/80 transition-all duration-300 hover:border-indigo-500/40 dark:hover:border-indigo-400/40 shadow-sm hover:shadow-md hover:shadow-indigo-500/[0.03] flex flex-col p-5 relative group cursor-pointer overflow-hidden">
         <div className="flex justify-between items-start mb-2">
-            <div>
-                <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">{job.jobTitle}</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">{job.companyName}</p>
+            <div className="flex-1 min-w-0 pr-2">
+                <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100 truncate">{job.jobTitle}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 truncate">{job.companyName}</p>
             </div>
-            <div className="bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 text-xs font-semibold px-2.5 py-1 rounded-full">
+            <div className="bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400 text-[11px] font-bold px-2 py-0.5 rounded-full border border-indigo-100/50 dark:border-indigo-900/30 flex-shrink-0 flex items-center justify-center self-start">
                 {job.applicationStatus}
             </div>
         </div>

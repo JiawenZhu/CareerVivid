@@ -48,6 +48,7 @@ type ExtensionAuthPayload = {
     expirationTime?: number | null;
     apiKey?: string | null;
     email?: string | null;
+    photoURL?: string | null;
     source?: string | null;
 };
 
@@ -301,7 +302,8 @@ function persistAuthToken(
         'tokenExpirationTime',
         'firebaseApiKey',
         'uid',
-        'userEmail'
+        'userEmail',
+        'photoURL'
     ], (current) => {
         if (pendingAuthClearTimer) {
             clearTimeout(pendingAuthClearTimer);
@@ -324,6 +326,7 @@ function persistAuthToken(
             firebaseApiKey: payload.apiKey !== undefined ? payload.apiKey : (current.firebaseApiKey || null),
             uid,
             userEmail: payload.email !== undefined ? payload.email : (current.userEmail || null),
+            photoURL: (payload as any).photoURL !== undefined ? (payload as any).photoURL : (current.photoURL || null),
             authSyncSource: payload.source || 'unknown',
             authSyncedAt: new Date().toISOString(),
         };
@@ -409,6 +412,7 @@ function clearAuthToken(callback?: () => void): void {
             firebaseApiKey: null,
             uid: null,
             userEmail: null,
+            photoURL: null,
             authSyncSource: null,
             authSyncedAt: null,
             selectedResumeId: null,
@@ -1399,8 +1403,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         // ── NEW: Internal relay of SAVE/CLEAR auth tokens from content script ─────
         case 'SAVE_AUTH_TOKEN': {
-            const { token, uid, refreshToken, expirationTime, apiKey, email, source } = message;
-            persistAuthToken({ token, uid, refreshToken, expirationTime, apiKey, email, source: source || 'internal_message' }, () => {
+            const { token, uid, refreshToken, expirationTime, apiKey, email, photoURL, source } = message;
+            persistAuthToken({ token, uid, refreshToken, expirationTime, apiKey, email, photoURL, source: source || 'internal_message' } as any, () => {
                 sendResponse({ success: true });
             });
             return true;
@@ -1481,10 +1485,10 @@ chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => 
     }
 
     if (message.type === 'SAVE_AUTH_TOKEN' || message.type === 'AUTH_SUCCESS') {
-        const { token, uid, refreshToken, expirationTime, apiKey, email, source } = message;
+        const { token, uid, refreshToken, expirationTime, apiKey, email, photoURL, source } = message;
         const payload = token ? parseJwt(token) : null;
         const resolvedUid = uid || payload?.user_id || payload?.sub || null;
-        persistAuthToken({ token, uid: resolvedUid, refreshToken, expirationTime, apiKey, email, source: source || 'external_message' }, () => {
+        persistAuthToken({ token, uid: resolvedUid, refreshToken, expirationTime, apiKey, email, photoURL, source: source || 'external_message' } as any, () => {
             sendResponse({ success: true, isAuthenticated: true, uid: resolvedUid, source: 'external_message' });
         });
         return true;
