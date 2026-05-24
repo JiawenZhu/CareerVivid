@@ -34,6 +34,11 @@ import { SidebarNode } from '../../types';
 import { SidebarContextMenu } from './SidebarContextMenu';
 import ConfirmationModal from '../ConfirmationModal';
 import { getPathForNodeId } from '../../utils/workspaceNavigation';
+import { useResumes } from '../../hooks/useResumes';
+import { usePortfolios } from '../../hooks/usePortfolios';
+import { useWhiteboards } from '../../hooks/useWhiteboards';
+import { usePracticeHistory } from '../../hooks/useJobHistory';
+import { useMyCommunityPosts } from '../../hooks/useMyCommunityPosts';
 
 const generateDefaultNodes = (t: any): SidebarNode[] => {
     return [];
@@ -45,6 +50,12 @@ const Sidebar: React.FC = () => {
     const { currentUser, userProfile, updateUserProfile, logOut, aiUsage, isPremium } = useAuth();
     const { theme, setTheme } = useTheme();
     const currentPath = window.location.pathname;
+
+    const { updateResume, deleteResume } = useResumes();
+    const { updatePortfolio, deletePortfolio } = usePortfolios();
+    const { updateWhiteboard, deleteWhiteboard } = useWhiteboards();
+    const { deletePracticeHistory } = usePracticeHistory();
+    const { deletePost: deleteCommunityPost } = useMyCommunityPosts();
 
     const isResizingRef = useRef(false);
 
@@ -211,16 +222,55 @@ const Sidebar: React.FC = () => {
         setEditValue(text);
     };
 
-    const saveRename = (id: string) => {
+    const saveRename = async (id: string) => {
         if (editValue.trim() !== '') {
-            updateNodeTitle(id, editValue.trim());
+            const trimmedValue = editValue.trim();
+            updateNodeTitle(id, trimmedValue);
+            
+            try {
+                if (id.startsWith('resume-')) {
+                    const rawId = id.replace('resume-', '');
+                    await updateResume(rawId, { title: trimmedValue });
+                } else if (id.startsWith('portfolio-')) {
+                    const rawId = id.replace('portfolio-', '');
+                    await updatePortfolio(rawId, { title: trimmedValue });
+                } else if (id.startsWith('whiteboard-')) {
+                    const rawId = id.replace('whiteboard-', '');
+                    await updateWhiteboard(rawId, { title: trimmedValue });
+                }
+            } catch (err) {
+                console.error('Error syncing rename with Firestore:', err);
+            }
         }
         setEditingNodeId(null);
     };
 
-    const confirmDelete = () => {
+    const confirmDelete = async () => {
         if (deleteNodeId) {
-            deleteNode(deleteNodeId);
+            const id = deleteNodeId;
+            deleteNode(id);
+            
+            try {
+                if (id.startsWith('resume-')) {
+                    const rawId = id.replace('resume-', '');
+                    await deleteResume(rawId);
+                } else if (id.startsWith('portfolio-')) {
+                    const rawId = id.replace('portfolio-', '');
+                    await deletePortfolio(rawId);
+                } else if (id.startsWith('whiteboard-')) {
+                    const rawId = id.replace('whiteboard-', '');
+                    await deleteWhiteboard(rawId);
+                } else if (id.startsWith('interview-')) {
+                    const rawId = id.replace('interview-', '');
+                    await deletePracticeHistory(rawId);
+                } else if (id.startsWith('post-')) {
+                    const rawId = id.replace('post-', '');
+                    await deleteCommunityPost(rawId);
+                }
+            } catch (err) {
+                console.error('Error syncing delete with Firestore:', err);
+            }
+            
             setIsDeleteModalOpen(false);
             setDeleteNodeId(null);
         }
