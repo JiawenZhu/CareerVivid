@@ -8,7 +8,6 @@ import { SidebarNode } from '../../types';
 import { SidebarContextMenu } from './SidebarContextMenu';
 import { createPortal } from 'react-dom';
 import ConfirmationModal from '../ConfirmationModal';
-import MoveToModal from './MoveToModal';
 
 interface Props {
     node: NodeModel<SidebarNode['data']>;
@@ -230,7 +229,6 @@ export const CustomSidebarNode: React.FC<Props> = ({ node, depth, isOpen, onTogg
                     }}
                     onDelete={handleDelete}
                     onNewSubfolder={type === 'custom-folder' ? handleNewSubfolder : undefined}
-                    onMove={() => setIsMoveModalOpen(true)}
                 />,
                 document.body
             )}
@@ -247,19 +245,6 @@ export const CustomSidebarNode: React.FC<Props> = ({ node, depth, isOpen, onTogg
                 variant="danger"
                 onConfirm={confirmDelete}
                 onCancel={() => setIsDeleteModalOpen(false)}
-            />
-
-            {/* Modern Move To Modal */}
-            <MoveToModal
-                isOpen={isMoveModalOpen}
-                currentNodeId={node.id.toString()}
-                currentNodeText={node.text}
-                nodes={nodes}
-                onClose={() => setIsMoveModalOpen(false)}
-                onSelect={(targetId) => {
-                    moveNode(node.id.toString(), targetId);
-                    setIsMoveModalOpen(false);
-                }}
             />
         </div >
     );

@@ -7,7 +7,6 @@ import { useWorkspaceItemActions } from '../../hooks/useWorkspaceItemActions';
 import { SidebarContextMenu } from '../Navigation/SidebarContextMenu';
 import { createPortal } from 'react-dom';
 import ConfirmationModal from '../ConfirmationModal';
-import MoveToModal from '../Navigation/MoveToModal';
 
 interface InterviewHistoryCardProps {
     entry: PracticeHistoryEntry;
@@ -132,10 +131,6 @@ const InterviewHistoryCard: React.FC<InterviewHistoryCardProps> = ({ entry, onSh
                         handleDelete();
                         setContextMenu(null);
                     }}
-                    onMove={() => {
-                        onMove();
-                        setContextMenu(null);
-                    }}
                 />,
                 document.body
             )}
@@ -152,17 +147,6 @@ const InterviewHistoryCard: React.FC<InterviewHistoryCardProps> = ({ entry, onSh
                     onDelete(entry.id);
                 }}
                 onCancel={() => setIsDeleteModalOpen(false)}
-            />
-
-            <MoveToModal
-                isOpen={isMoveModalOpen}
-                currentNodeId={`interview-${entry.id}`}
-                currentNodeText={entry.job.title}
-                nodes={nodes}
-                onClose={() => setIsMoveModalOpen(false)}
-                onSelect={(targetId) => {
-                    confirmMove(targetId);
-                }}
             />
         </div>
     );

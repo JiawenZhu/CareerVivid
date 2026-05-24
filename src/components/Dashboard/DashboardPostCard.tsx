@@ -7,7 +7,6 @@ import { useWorkspaceItemActions } from '../../hooks/useWorkspaceItemActions';
 import { SidebarContextMenu } from '../Navigation/SidebarContextMenu';
 import { createPortal } from 'react-dom';
 import ConfirmationModal from '../ConfirmationModal';
-import MoveToModal from '../Navigation/MoveToModal';
 
 interface DashboardPostCardProps {
     post: CommunityPost;
@@ -108,10 +107,6 @@ const DashboardPostCard: React.FC<DashboardPostCardProps> = ({ post, onDelete, o
                         handleDelete();
                         setContextMenu(null);
                     }}
-                    onMove={() => {
-                        onMove();
-                        setContextMenu(null);
-                    }}
                 />,
                 document.body
             )}
@@ -128,17 +123,6 @@ const DashboardPostCard: React.FC<DashboardPostCardProps> = ({ post, onDelete, o
                     onDelete(post.id, post.coverImage);
                 }}
                 onCancel={() => setIsDeleteModalOpen(false)}
-            />
-
-            <MoveToModal
-                isOpen={isMoveModalOpen}
-                currentNodeId={`post-${post.id}`}
-                currentNodeText={post.title}
-                nodes={nodes}
-                onClose={() => setIsMoveModalOpen(false)}
-                onSelect={(targetId) => {
-                    confirmMove(targetId);
-                }}
             />
         </div>
     );

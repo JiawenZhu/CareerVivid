@@ -9,7 +9,6 @@ interface SidebarContextMenuProps {
     onRename: () => void;
     onDelete: () => void;
     onNewSubfolder?: () => void;
-    onMove?: () => void;
     isFolder?: boolean;
     nodeTitle: string;
 }
@@ -21,7 +20,6 @@ export const SidebarContextMenu: React.FC<SidebarContextMenuProps> = ({
     onRename,
     onDelete,
     onNewSubfolder,
-    onMove,
     isFolder,
     nodeTitle
 }) => {
@@ -50,7 +48,7 @@ export const SidebarContextMenu: React.FC<SidebarContextMenuProps> = ({
 
     // Ensure menu stays within viewport
     const menuWidth = 200;
-    const menuHeight = isFolder ? 220 : 180;
+    const menuHeight = isFolder ? 180 : 140;
 
     let adjustedX = x;
     let adjustedY = y;
@@ -97,12 +95,6 @@ export const SidebarContextMenu: React.FC<SidebarContextMenuProps> = ({
                         onClick={() => { onNewSubfolder(); onClose(); }}
                     />
                 )}
-
-                <ContextMenuItem
-                    icon={<ArrowRightCircle size={14} />}
-                    label="Move to..."
-                    onClick={() => { onMove?.(); onClose(); }}
-                />
 
                 <div className="h-px bg-gray-100 dark:bg-gray-800 my-1 mx-1" />
 

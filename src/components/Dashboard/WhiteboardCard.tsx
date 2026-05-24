@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Edit3, Copy, Trash2, PenTool, Share2, Folder } from 'lucide-react';
+import { Edit3, Copy, Trash2, PenTool, Share2 } from 'lucide-react';
 import { WhiteboardData } from '../../types';
 import { navigate } from '../../utils/navigation';
 import { useWorkspaceItemActions } from '../../hooks/useWorkspaceItemActions';
 import { SidebarContextMenu } from '../Navigation/SidebarContextMenu';
 import { createPortal } from 'react-dom';
 import ConfirmationModal from '../ConfirmationModal';
-import MoveToModal from '../Navigation/MoveToModal';
 
 interface WhiteboardCardProps {
     whiteboard: WhiteboardData;
@@ -115,9 +114,8 @@ const WhiteboardCard: React.FC<WhiteboardCardProps> = ({ whiteboard, onUpdate, o
 
             <div className="p-2.5 flex justify-between items-center bg-gray-50/50 dark:bg-[#10141a]">
                 <div className="flex gap-1.5">
-                    <button onClick={navigateToEdit} title="Edit Whiteboard" className="p-2 block rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"><Edit3 size={16} /></button>
+                    <button onClick={(e) => { e.stopPropagation(); setIsEditingTitle(true); }} title="Rename Whiteboard" className="p-2 block rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"><Edit3 size={16} /></button>
                     <button onClick={() => onDuplicate(whiteboard.id)} title="Duplicate Whiteboard" className="p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"><Copy size={16} /></button>
-                    <button onClick={onMove} title="Move to Folder" className="p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"><Folder size={16} /></button>
                     <button onClick={handleDelete} title="Delete Whiteboard" className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"><Trash2 size={16} /></button>
                 </div>
                 {onShare && (
@@ -140,10 +138,6 @@ const WhiteboardCard: React.FC<WhiteboardCardProps> = ({ whiteboard, onUpdate, o
                         handleDelete();
                         setContextMenu(null);
                     }}
-                    onMove={() => {
-                        onMove();
-                        setContextMenu(null);
-                    }}
                 />,
                 document.body
             )}
@@ -160,17 +154,6 @@ const WhiteboardCard: React.FC<WhiteboardCardProps> = ({ whiteboard, onUpdate, o
                     onDelete(whiteboard.id);
                 }}
                 onCancel={() => setIsDeleteModalOpen(false)}
-            />
-
-            <MoveToModal
-                isOpen={isMoveModalOpen}
-                currentNodeId={`whiteboard-${whiteboard.id}`}
-                currentNodeText={whiteboard.title}
-                nodes={nodes}
-                onClose={() => setIsMoveModalOpen(false)}
-                onSelect={(targetId) => {
-                    confirmMove(targetId);
-                }}
             />
         </div>
     );
