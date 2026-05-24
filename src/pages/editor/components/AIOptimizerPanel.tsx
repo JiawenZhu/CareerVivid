@@ -12,7 +12,7 @@ import { calculateResumeScore, parseBulletPoints } from '../../../utils/resumeSc
 import { improveSection } from '../../../services/geminiService';
 
 interface AIOptimizerPanelProps {
-    ruleId: 'actionVerbs' | 'quantifiableMetrics' | 'similarBullets';
+    ruleId: 'actionVerbs' | 'quantifiableMetrics' | 'similarBullets' | 'bulletDensity';
     resume: ResumeData;
     currentUserUid: string;
     onUpdate: (updates: Partial<ResumeData>) => void;
@@ -41,7 +41,7 @@ const AIOptimizerPanel: React.FC<AIOptimizerPanelProps> = ({
     const [refiningMap, setRefiningMap] = useState<Record<string, boolean>>({});
 
     const scoreData = calculateResumeScore(resume);
-    const { repeatedVerbs, nonQuantifiableBullets, similarBulletPairs } = scoreData;
+    const { repeatedVerbs, nonQuantifiableBullets, similarBulletPairs, bulletDensityIssues } = scoreData;
 
     // A. Coaching Details Config
     const getCoachingDetails = () => {
@@ -73,6 +73,15 @@ const AIOptimizerPanel: React.FC<AIOptimizerPanelProps> = ({
                     whyTitle: 'Why vary achievement focus areas?',
                     explanation: 'Every achievement in your resume should highlight a different skill or accomplishment. Having identical or highly similar bullet points across different jobs limits the breadth of your represented abilities.'
                 };
+            case 'bulletDensity':
+                return {
+                    title: 'Ideal Bullet Densities',
+                    themeClass: 'from-amber-500/10 to-orange-500/10 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200/50 dark:border-amber-800/30',
+                    iconClass: 'bg-amber-500 text-white shadow-md shadow-amber-500/20',
+                    highlightColor: 'text-amber-600 dark:text-amber-400',
+                    whyTitle: 'Why aim for 3-6 bullet achievements?',
+                    explanation: 'A good experience description should strike the perfect balance of detail and readability. Bullet points that are too short (1-2 lines) look incomplete, long lists (7+ lines) lead to reader fatigue, and plain paragraphs are extremely hard for recruiters to scan in 6 seconds.'
+                };
         }
     };
 
@@ -82,7 +91,8 @@ const AIOptimizerPanel: React.FC<AIOptimizerPanelProps> = ({
     const handleAiRewrite = async (
         jobId: string,
         bulletIndex: number,
-        currentText: string
+        currentText: string,
+        issueType?: 'too_few' | 'too_many' | 'paragraph'
     ) => {
         const loadingKey = `${jobId}-${bulletIndex}`;
         setLoadingMap(prev => ({ ...prev, [loadingKey]: true }));
@@ -95,6 +105,14 @@ const AIOptimizerPanel: React.FC<AIOptimizerPanelProps> = ({
             instruction = 'Rewrite this resume achievement to integrate quantifiable metrics, percentages, dollar amounts, or business outcome numbers. If actual numbers are unknown, simulate a highly realistic, professional estimation to show how it would look.';
         } else if (ruleId === 'similarBullets') {
             instruction = 'Rewrite this resume achievement to focus on a completely different skill or professional outcome. Make it professional, highly impactful, and distinct.';
+        } else if (ruleId === 'bulletDensity') {
+            if (issueType === 'paragraph') {
+                instruction = 'Convert this plain-paragraph experience description into a beautifully written, bulleted list of 3-4 professional achievements. Output the list cleanly formatted where each point starts with a new line and a dash (e.g. \\n- Suggestion).';
+            } else if (issueType === 'too_few') {
+                instruction = 'This work experience is too short. Suggest 1-2 additional high-impact professional achievements tailored to the role, and combine them with the existing achievement. Output the complete set as a cleanly formatted list of 3-5 markdown bullets (each starting with a newline and a dash, e.g. \\n- Suggestion).';
+            } else if (issueType === 'too_many') {
+                instruction = 'This work experience is too long and cluttered. Consolidate these bullet achievements into a highly professional, concise, and scannable list of 4-5 key bullet points (each starting with a newline and a dash, e.g. \\n- Suggestion).';
+            }
         }
 
         try {
@@ -197,14 +215,20 @@ const AIOptimizerPanel: React.FC<AIOptimizerPanelProps> = ({
         const updatedHistory = resume.employmentHistory.map(job => {
             if (job.id !== jobId) return job;
 
-            // Split current description into bullet lines
-            const bullets = parseBulletPoints(job.description || '');
-            if (bulletIndex >= 0 && bulletIndex < bullets.length) {
-                bullets[bulletIndex] = newText;
+            let newDescription = '';
+            if (ruleId === 'bulletDensity') {
+                // For bullet density, we are updating the full list of bullets
+                const items = parseBulletPoints(newText);
+                newDescription = items.map(b => `- ${b}`).join('\n');
+            } else {
+                // Split current description into bullet lines
+                const bullets = parseBulletPoints(job.description || '');
+                if (bulletIndex >= 0 && bulletIndex < bullets.length) {
+                    bullets[bulletIndex] = newText;
+                }
+                newDescription = bullets.map(b => `- ${b}`).join('\n');
             }
 
-            // Reconstruct with markdown bullet markers
-            const newDescription = bullets.map(b => `- ${b}`).join('\n');
             return {
                 ...job,
                 description: newDescription
@@ -554,6 +578,88 @@ const AIOptimizerPanel: React.FC<AIOptimizerPanelProps> = ({
                         ) : (
                             <div className="p-8 text-center bg-gray-50/50 dark:bg-gray-900/30 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 text-gray-400">
                                 All your resume achievements are fully distinct and varied. Excellent job!
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* 4. IDEAL BULLET DENSITIES UI */}
+                {ruleId === 'bulletDensity' && (
+                    <div className="space-y-3">
+                        {bulletDensityIssues.length > 0 ? (
+                            bulletDensityIssues.map(item => {
+                                const loadingKey = `${item.experienceId}-0`; // unified index 0 for full description
+                                const isLoading = !!loadingMap[loadingKey];
+                                const rewrite = rewrites[loadingKey];
+
+                                // Determine custom button text and tags
+                                let buttonText = '✨ Optimize Density';
+                                let tagText = 'Needs Work';
+                                let tagClass = 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/20';
+                                
+                                if (item.issueType === 'paragraph') {
+                                    buttonText = '✨ Format as Bullets';
+                                    tagText = 'Paragraph Format';
+                                    tagClass = 'bg-orange-50 text-orange-600 border-orange-100 dark:bg-orange-950/20 dark:text-orange-400 dark:border-orange-900/20';
+                                } else if (item.issueType === 'too_few') {
+                                    buttonText = '✨ Suggest Achievements';
+                                    tagText = 'Too Few Bullets';
+                                    tagClass = 'bg-purple-50 text-purple-600 border-purple-100 dark:bg-purple-950/20 dark:text-purple-400 dark:border-purple-900/20';
+                                } else if (item.issueType === 'too_many') {
+                                    buttonText = '✨ Consolidate Bullets';
+                                    tagText = 'Too Many Bullets';
+                                    tagClass = 'bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-900/20';
+                                }
+
+                                return (
+                                    <div key={item.experienceId} className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-4 space-y-3.5 shadow-sm">
+                                        <div className="flex justify-between items-start gap-2">
+                                            <div>
+                                                <span className="text-[10px] font-bold text-gray-400 uppercase leading-none">
+                                                    {item.company} — {item.jobTitle}
+                                                </span>
+                                            </div>
+                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${tagClass}`}>
+                                                {tagText}
+                                            </span>
+                                        </div>
+
+                                        <div className="bg-gray-50/50 dark:bg-gray-900/50 rounded-xl p-3 border border-gray-100/50 dark:border-gray-800/50">
+                                            {item.issueType === 'paragraph' ? (
+                                                <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
+                                                    {item.text}
+                                                </p>
+                                            ) : (
+                                                <ul className="list-disc list-inside space-y-1.5">
+                                                    {parseBulletPoints(item.text).map((bullet, bIdx) => (
+                                                        <li key={bIdx} className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
+                                                            {bullet}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+
+                                        {/* AI rewrite button */}
+                                        {!rewrite && (
+                                            <button
+                                                onClick={() => handleAiRewrite(item.experienceId, 0, item.text, item.issueType)}
+                                                disabled={isLoading}
+                                                className="flex items-center justify-center gap-1.5 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/20 dark:hover:bg-amber-950/30 text-amber-600 dark:text-amber-400 font-semibold py-2 px-3 rounded-lg text-xs transition-colors active:scale-95 disabled:opacity-50 shadow-sm"
+                                            >
+                                                {isLoading ? <Loader2 className="animate-spin" size={14} /> : <Sparkles size={14} />}
+                                                <span>{isLoading ? 'Processing with AI...' : buttonText}</span>
+                                            </button>
+                                        )}
+
+                                        {/* Custom Refinement suggestion card */}
+                                        {rewrite && renderSuggestionCard(item.experienceId, 0, rewrite, loadingKey, 'amber', 'SUGGESTED REWRITE DESCRIPTION')}
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <div className="p-8 text-center bg-gray-50/50 dark:bg-gray-900/30 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 text-gray-400">
+                                All your resume experiences have perfect bullet point density. Excellent job!
                             </div>
                         )}
                     </div>

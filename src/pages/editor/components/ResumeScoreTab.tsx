@@ -28,7 +28,7 @@ const ResumeScoreTab: React.FC<ResumeScoreTabProps> = ({
     onUpdate 
 }) => {
     const { t } = useTranslation();
-    const [focusedRule, setFocusedRule] = useState<'actionVerbs' | 'quantifiableMetrics' | 'similarBullets' | null>(null);
+    const [focusedRule, setFocusedRule] = useState<'actionVerbs' | 'quantifiableMetrics' | 'similarBullets' | 'bulletDensity' | null>(null);
     const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
         completion: true,
         quality: false,
@@ -240,7 +240,7 @@ const ResumeScoreTab: React.FC<ResumeScoreTabProps> = ({
                             
                             <div className="space-y-4 pt-2">
                                 {qualityItems.map(item => {
-                                    const isAiActionable = item.id === 'actionVerbs' || item.id === 'quantifiableMetrics' || item.id === 'similarBullets';
+                                    const isAiActionable = item.id === 'actionVerbs' || item.id === 'quantifiableMetrics' || item.id === 'similarBullets' || item.id === 'bulletDensity';
                                     
                                     return (
                                         <div key={item.id} className="space-y-1">

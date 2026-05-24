@@ -37,6 +37,15 @@ export interface SimilarBulletPair {
     similarity: number; // 0 to 1
 }
 
+export interface BulletDensityIssue {
+    experienceId: string;
+    company: string;
+    jobTitle: string;
+    count: number;
+    text: string;
+    issueType: 'too_few' | 'too_many' | 'paragraph';
+}
+
 export interface ScoreBreakdown {
     overallScore: number;
     
@@ -53,6 +62,7 @@ export interface ScoreBreakdown {
     repeatedVerbs: RepeatedVerbOccurrence[];
     nonQuantifiableBullets: NonQuantifiableBullet[];
     similarBulletPairs: SimilarBulletPair[];
+    bulletDensityIssues: BulletDensityIssue[];
 }
 
 const ACTION_VERBS = [
@@ -183,6 +193,7 @@ export const calculateResumeScore = (resume: ResumeData): ScoreBreakdown => {
     const repeatedVerbs: RepeatedVerbOccurrence[] = [];
     const nonQuantifiableBullets: NonQuantifiableBullet[] = [];
     const similarBulletPairs: SimilarBulletPair[] = [];
+    const bulletDensityIssues: BulletDensityIssue[] = [];
 
     // Experience scanning setup
     const allJobs = resume.employmentHistory || [];
@@ -334,21 +345,60 @@ export const calculateResumeScore = (resume: ResumeData): ScoreBreakdown => {
     // Check Bullet Point Counts per Experience (sweet spot: 3 to 6 bullets per job)
     let experienceBulletCountOk = true;
     let totalJobsEvaluated = 0;
-    allJobs.forEach(h => {
-        const bullets = parseBulletPoints(h.description || '');
-        if (bullets.length > 0) {
+    
+    allJobs.forEach(job => {
+        const rawDesc = (job.description || '').trim();
+        if (rawDesc.length > 10) {
             totalJobsEvaluated++;
-            if (bullets.length < 3 || bullets.length > 6) {
+            const bullets = parseBulletPoints(rawDesc);
+            const count = bullets.length;
+            
+            // Check if plain paragraph format
+            const hasBulletMarkers = /^\s*[-*•+]/m.test(job.description || '');
+            
+            if (!hasBulletMarkers && count <= 2) {
+                bulletDensityIssues.push({
+                    experienceId: job.id,
+                    company: job.employer || 'Company',
+                    jobTitle: job.jobTitle || 'Role',
+                    count,
+                    text: rawDesc,
+                    issueType: 'paragraph'
+                });
+                experienceBulletCountOk = false;
+            } else if (count < 3) {
+                bulletDensityIssues.push({
+                    experienceId: job.id,
+                    company: job.employer || 'Company',
+                    jobTitle: job.jobTitle || 'Role',
+                    count,
+                    text: rawDesc,
+                    issueType: 'too_few'
+                });
+                experienceBulletCountOk = false;
+            } else if (count > 6) {
+                bulletDensityIssues.push({
+                    experienceId: job.id,
+                    company: job.employer || 'Company',
+                    jobTitle: job.jobTitle || 'Role',
+                    count,
+                    text: rawDesc,
+                    issueType: 'too_many'
+                });
                 experienceBulletCountOk = false;
             }
         }
     });
     
-    const bulletFeedback = (totalJobsEvaluated === 0) 
-        ? 'No experience bullet points found.'
-        : experienceBulletCountOk
-            ? 'Excellent bullet density! Your job descriptions are concise and informative.'
-            : 'Aim for 3-6 key achievement bullet points per work experience to avoid clutter.';
+    let bulletFeedback = '';
+    if (totalJobsEvaluated === 0) {
+        bulletFeedback = 'No experience bullet points found.';
+    } else if (experienceBulletCountOk) {
+        bulletFeedback = 'Excellent bullet density! Your job descriptions are concise and informative.';
+    } else {
+        const companies = bulletDensityIssues.map(i => i.company).join(', ');
+        bulletFeedback = `Aim for 3-6 key achievement bullet points per work experience to avoid clutter. We found issues at: ${companies}.`;
+    }
             
     qualityItems.push({
         id: 'bulletDensity',
@@ -465,6 +515,7 @@ export const calculateResumeScore = (resume: ResumeData): ScoreBreakdown => {
         lengthItems,
         repeatedVerbs,
         nonQuantifiableBullets,
-        similarBulletPairs
+        similarBulletPairs,
+        bulletDensityIssues
     };
 };
