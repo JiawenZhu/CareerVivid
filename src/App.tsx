@@ -23,6 +23,7 @@ const AuthPage = React.lazy(() => import('./pages/AuthPage'));
 const SignInPage = React.lazy(() => import('./pages/SignInPage'));
 const SignUpPage = React.lazy(() => import('./pages/SignUpPage'));
 const ExtensionAuthCompletePage = React.lazy(() => import('./pages/ExtensionAuthCompletePage'));
+const ExtensionWelcomePage = React.lazy(() => import('./pages/ExtensionWelcomePage'));
 const LandingPage = React.lazy(() => import('./pages/LandingPage'));
 const TechLandingPage = React.lazy(() => import('./pages/TechLandingPage'));
 const PricingPage = React.lazy(() => import('./pages/PricingPage'));
@@ -318,6 +319,12 @@ const AppContent: React.FC = () => {
       content = (
         <ProtectedRoute>
           <ExtensionAuthCompletePage />
+        </ProtectedRoute>
+      );
+    } else if (path === '/extension-welcome') {
+      content = (
+        <ProtectedRoute>
+          <ExtensionWelcomePage />
         </ProtectedRoute>
       );
     } else if (path === '/signin' || path.startsWith('/signin?')) {
@@ -628,7 +635,12 @@ const AppContent: React.FC = () => {
       content = <ProtectedRoute><JobPostingEditor jobId={jobId} /></ProtectedRoute>;
     }
 
-    // Root and /product both render the marketing landing page
+    // Authenticated users should treat root as their app home.
+    else if (path === '/' && currentUser) {
+      content = <AuthRedirect target="/dashboard" />;
+    }
+
+    // Public landing routes
     else if (path === '/' || path === '/product') {
       content = <LandingPage />;
     }

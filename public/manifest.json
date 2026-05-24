@@ -11,7 +11,8 @@
     "tabs",
     "contextMenus",
     "scripting",
-    "alarms"
+    "alarms",
+    "sidePanel"
   ],
   "externally_connectable": {
     "matches": [
@@ -28,7 +29,6 @@
     "https://careervivid.app/*"
   ],
   "action": {
-    "default_popup": "index.html",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
@@ -38,6 +38,9 @@
   "background": {
     "service_worker": "background.js",
     "type": "module"
+  },
+  "side_panel": {
+    "default_path": "index.html"
   },
   "content_scripts": [
     {
@@ -58,7 +61,12 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["icons/*"],
+      "resources": [
+        "index.html",
+        "assets/*",
+        "icons/*",
+        "content.css"
+      ],
       "matches": ["<all_urls>"]
     }
   ],

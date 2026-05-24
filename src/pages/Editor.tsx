@@ -61,6 +61,7 @@ const Editor: React.FC<EditorProps> = (props) => {
         setIsConfirmModalOpen,
         showCelebration,
         isGuestMode,
+        isResumeLoading,
         isTemplateLoading,
         alertState,
         setAlertState,
@@ -105,7 +106,9 @@ const Editor: React.FC<EditorProps> = (props) => {
         updateResume,
         isExportSuccessModalOpen,
         setIsExportSuccessModalOpen,
-        exportedDocUrl
+        exportedDocUrl,
+        translationSuccessModal,
+        setTranslationSuccessModal
     } = useEditor({
         resumeId,
         initialData,
@@ -206,7 +209,29 @@ const Editor: React.FC<EditorProps> = (props) => {
         syncTransitJob();
     }, [currentUser?.uid]);
 
-    if (!resume && (!isShared && !isGuestMode)) return <div className="flex justify-center items-center h-screen dark:text-white">{t('editor.loading_resume')}</div>;
+    if (!resume && (!isShared && !isGuestMode)) {
+        if (isResumeLoading) {
+            return <div className="flex justify-center items-center h-screen dark:text-white">{t('editor.loading_resume')}</div>;
+        }
+
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-gray-950 px-6 text-white">
+                <div className="max-w-md text-center">
+                    <h1 className="text-2xl font-semibold">Resume not found for this account</h1>
+                    <p className="mt-3 text-sm leading-6 text-gray-300">
+                        This resume is not available under {currentUser?.email || 'the current sign-in'}. Please sign back into the account that owns this resume and try again.
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => navigate('/dashboard')}
+                        className="mt-6 rounded-md bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700"
+                    >
+                        Go to Dashboard
+                    </button>
+                </div>
+            </div>
+        );
+    }
     if (!resume) return null;
 
     const resumeForPreview = tempPhoto ? { ...resume, personalDetails: { ...resume.personalDetails, photo: tempPhoto } } : resume;
@@ -318,6 +343,20 @@ const Editor: React.FC<EditorProps> = (props) => {
                 onConfirm={() => navigate('/signup')}
                 onCancel={() => setIsSignupPromptOpen(false)}
                 confirmText={t('auth.sign_up_free')}
+            />
+            <ConfirmationModal
+                isOpen={translationSuccessModal.isOpen}
+                title={t('editor.translation_complete')}
+                message={t('editor.translation_success_msg')}
+                confirmText={t('editor.go_to_translated') || 'Go to Translated Resume'}
+                cancelText={t('editor.stay_on_current') || 'Stay on Current Page'}
+                onConfirm={() => {
+                    navigate(`/edit/${translationSuccessModal.newResumeId}`);
+                    setTranslationSuccessModal({ isOpen: false, newResumeId: '' });
+                }}
+                onCancel={() => {
+                    setTranslationSuccessModal({ isOpen: false, newResumeId: '' });
+                }}
             />
             <AlertModal
                 isOpen={alertState.isOpen}

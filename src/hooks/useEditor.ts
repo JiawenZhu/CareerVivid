@@ -13,7 +13,14 @@ import { subscribeToComments, Comment } from '../services/commentService';
 import { TEMPLATES } from '../templates';
 import { createNewResume } from '../constants';
 import { auth, functions } from '../firebase';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { resolveChunkFieldId } from '../utils/resumeTextChunks';
+import { initializeApp, deleteApp } from 'firebase/app';
+import {
+    GoogleAuthProvider,
+    getAuth,
+    signInWithPopup,
+    User
+} from 'firebase/auth';
 import { httpsCallable } from 'firebase/functions';
 
 interface UseEditorProps {
@@ -65,6 +72,12 @@ export const useEditor = ({
     const [isTranslating, setIsTranslating] = useState(false);
     const [isExportSuccessModalOpen, setIsExportSuccessModalOpen] = useState(false);
     const [exportedDocUrl, setExportedDocUrl] = useState('');
+    const [googleAccessToken, setGoogleAccessToken] = useState<string | null>(null);
+    const [translationSuccessModal, setTranslationSuccessModal] = useState<{
+        isOpen: boolean;
+        newResumeId: string;
+    }>({ isOpen: false, newResumeId: '' });
+
 
     // Optimization & Preview States
     const [optimizationJob, setOptimizationJob] = useState<{ title: string; description: string; analysis?: ResumeMatchAnalysis } | null>(null);
@@ -96,7 +109,7 @@ export const useEditor = ({
         switch (sidebarMode) {
             case 'closed': return '0px';
             case 'expanded': return 'calc(100% - 2rem)';
-            default: return '450px';
+            default: return '520px';
         }
     }, [isDesktop, sidebarMode]);
 
@@ -143,10 +156,20 @@ export const useEditor = ({
         if (isDesktop && sidebarMode === 'closed') setSidebarMode('standard');
         if (!isDesktop && viewMode === 'preview') setViewMode('edit');
         setTimeout(() => {
-            const element = document.getElementById(fieldId);
+            const { baseFieldId, formFieldId } = resolveChunkFieldId(fieldId);
+            const exactElement = document.getElementById(formFieldId) ||
+                document.getElementById(baseFieldId) ||
+                document.getElementById(`${baseFieldId}.chunk.0`);
+            const container = document.getElementById(`container-${baseFieldId}`);
+            const element = exactElement || container?.querySelector<HTMLElement>('textarea, input, select, button, [tabindex]:not([tabindex="-1"])');
+            const scrollTarget = element || container;
+
+            if (scrollTarget) {
+                scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
             if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                element.focus();
+                element.focus({ preventScroll: true });
                 element.classList.add('ring-2', 'ring-primary-500', 'ring-offset-2', 'bg-primary-50', 'dark:bg-primary-900/20');
                 setTimeout(() => {
                     element.classList.remove('ring-2', 'ring-primary-500', 'ring-offset-2', 'bg-primary-50', 'dark:bg-primary-900/20');
@@ -244,8 +267,7 @@ export const useEditor = ({
         setIsTranslating(true);
         try {
             const newResumeId = await duplicateAndTranslateResume(resume.id!, targetLanguageCode);
-            navigate(`/editor/${newResumeId}`);
-            setAlertState({ isOpen: true, title: t('editor.translation_complete'), message: t('editor.translation_success_msg') });
+            setTranslationSuccessModal({ isOpen: true, newResumeId });
         } catch (error: any) {
             console.error('Translation failed:', error);
             setAlertState({ isOpen: true, title: t('editor.translation_failed'), message: error.message || 'Failed' });
@@ -254,39 +276,196 @@ export const useEditor = ({
         }
     };
 
-    const handleGoogleDocsExport = async () => {
-        if (!currentUser || !currentUser.email) return;
+    const getGoogleDocExportUrl = (docUrl: string) => {
+        const docId = docUrl.match(/\/document\/d\/([^/?#]+)/)?.[1];
+        return docId ? `https://docs.google.com/document/d/${docId}/export?format=docx` : '';
+    };
 
-        setIsExporting(true);
-        setExportProgress("Requesting Google Drive Access...");
+    const triggerDownloadUrl = (url: string, fileName: string) => {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const getDriveAccessToken = async (user: User) => {
+        const provider = new GoogleAuthProvider();
+        provider.addScope('https://www.googleapis.com/auth/drive.file');
+        provider.setCustomParameters({ login_hint: user.email || '' });
+
+        // Initialize a temporary secondary Firebase app to sign in with Google in a sandboxed auth instance.
+        // This completely avoids linking conflicts and does not affect the main app's authentication state!
+        const tempAppName = `gdoc-export-${Date.now()}`;
+        const tempApp = initializeApp(auth.app.options, tempAppName);
+        const tempAuth = getAuth(tempApp);
 
         try {
-            const provider = new GoogleAuthProvider();
-            provider.addScope('https://www.googleapis.com/auth/drive.file');
-            provider.setCustomParameters({ login_hint: currentUser.email, prompt: 'consent' });
-            const result = await signInWithPopup(auth, provider);
-            const googleEmail = result.user.email;
-            if (googleEmail?.toLowerCase() !== currentUser.email.toLowerCase()) {
-                setAlertState({ isOpen: true, title: "Account Mismatch", message: `Please use the same Google account as your CareerVivid login (${currentUser.email}). You selected: ${googleEmail}` });
-                setIsExporting(false);
-                setExportProgress('');
-                return;
-            }
+            const result = await signInWithPopup(tempAuth, provider);
             const credential = GoogleAuthProvider.credentialFromResult(result);
             const accessToken = credential?.accessToken;
             if (!accessToken) throw new Error("Failed to authorize Google Drive access.");
-            setExportProgress("Generating Google Doc...");
+            return accessToken;
+        } finally {
+            // Safely clean up the temporary app in memory
+            deleteApp(tempApp).catch(err => console.error("Temp App cleanup failed:", err));
+        }
+    };
+
+    const openGoogleDocsExportTab = () => {
+        const exportTab = window.open('', '_blank');
+        if (!exportTab) return null;
+        exportTab.opener = null;
+        exportTab.document.title = 'Preparing Google Doc...';
+        exportTab.document.body.innerHTML = `
+            <main style="font-family: Inter, Arial, sans-serif; display: grid; min-height: 100vh; place-items: center; margin: 0; color: #111827; background-color: #f9fafb;">
+                <div style="text-align: center; padding: 24px;">
+                    <div style="margin-bottom: 20px; display: inline-block; width: 48px; height: 48px; border: 4px solid #3b82f6; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite;"></div>
+                    <h1 style="font-size: 22px; font-weight: 600; margin-bottom: 8px; color: #1f2937;">Preparing your Google Doc...</h1>
+                    <p style="color: #6b7280; font-size: 15px; margin: 0; max-width: 320px; line-height: 1.5;">We are generating your resume document. This page will automatically redirect once it is ready.</p>
+                </div>
+                <style>
+                    @keyframes spin {
+                        to { transform: rotate(360deg); }
+                    }
+                </style>
+            </main>
+        `;
+        return exportTab;
+    };
+
+    const isGoogleDocUrl = (url: string) => {
+        try {
+            const parsedUrl = new URL(url);
+            return parsedUrl.hostname === 'docs.google.com' && parsedUrl.pathname.startsWith('/document/d/');
+        } catch {
+            return false;
+        }
+    };
+
+    const openGeneratedGoogleDoc = (docUrl: string, exportTab: Window | null) => {
+        if (!isGoogleDocUrl(docUrl)) {
+            exportTab?.close();
+            throw new Error("Google Docs export finished, but the returned document link was invalid.");
+        }
+        if (exportTab && !exportTab.closed) {
+            exportTab.location.href = docUrl;
+            return;
+        }
+        window.open(docUrl, '_blank', 'noopener,noreferrer');
+    };
+
+    const handleGoogleDocsExport = async (format: 'google-docs' | 'docx' = 'google-docs') => {
+        if (handleGuestAction('download')) return;
+        if (!resume) return;
+
+        if (!currentUser || !currentUser.email) {
+            setAlertState({ isOpen: true, title: "Export Failed", message: "Please sign in before exporting your resume." });
+            return;
+        }
+
+        setIsExporting(true);
+        setExportProgress(format === 'docx' ? "Preparing Word document..." : "Preparing Google Doc...");
+
+        let exportTab: Window | null = null;
+        const cacheKey = `gdoc_access_token_${currentUser.uid}`;
+        let tokenToUse = googleAccessToken;
+        let isPreAuthorized = false;
+
+        // Try to retrieve a valid cached token from sessionStorage if React state is empty
+        if (!tokenToUse) {
+            try {
+                const cached = sessionStorage.getItem(cacheKey);
+                if (cached) {
+                    const { token, expiresAt } = JSON.parse(cached);
+                    if (expiresAt > Date.now() + 60000) { // 1 minute safety buffer
+                        tokenToUse = token;
+                        setGoogleAccessToken(token);
+                        isPreAuthorized = true;
+                    }
+                }
+            } catch (e) {
+                console.warn("Failed to retrieve cached Google token:", e);
+            }
+        } else {
+            isPreAuthorized = true;
+        }
+
+        try {
+            // 1. If we don't have the Google access token yet, request it first.
+            // We do NOT open the exportTab yet, to prevent the browser from seeing two popups (Auth popup + exportTab)
+            // in the same click handler and triggering the popup blocker.
+            if (!tokenToUse) {
+                setExportProgress("Requesting Google Drive Access...");
+                const accessToken = await getDriveAccessToken(currentUser);
+                tokenToUse = accessToken;
+                setGoogleAccessToken(accessToken);
+
+                // Cache the token in sessionStorage (valid for ~1 hour)
+                try {
+                    const expiresAt = Date.now() + 3500 * 1000;
+                    sessionStorage.setItem(cacheKey, JSON.stringify({ token: accessToken, expiresAt }));
+                } catch (e) {
+                    console.error("Failed to cache Google token:", e);
+                }
+            }
+
+            // 2. Now that we have the access token:
+            // - If this was a subsequent export (token was already cached), we can open the exportTab immediately
+            //   since no Auth popup was triggered. This is 100% blocker-free!
+            // - If this was the first export (just finished Auth popup), opening a new tab programmatically now
+            //   might be blocked by browser popup blockers since it's inside an async promise chain.
+            //   So we only attempt exportTab if the token was already cached. Otherwise, we rely on the modal!
+            if (format === 'google-docs' && isPreAuthorized) {
+                exportTab = openGoogleDocsExportTab();
+            }
+
+            setExportProgress(format === 'docx' ? "Generating Word document..." : "Generating Google Doc...");
             const exportFn = httpsCallable(functions, 'exportToGoogleDocs');
-            const response = await exportFn({ resumeData: resume, accessToken });
+            const response = await exportFn({ resumeData: resume, accessToken: tokenToUse });
             const { docUrl } = response.data as any;
-            setExportedDocUrl(docUrl);
-            setIsExportSuccessModalOpen(true);
-            window.open(docUrl, '_blank');
-            setToastMessage("Resume Exported to Google Docs!");
+
+            if (format === 'docx') {
+                const docxUrl = getGoogleDocExportUrl(docUrl);
+                if (!docxUrl) throw new Error("Could not create the Word document download link.");
+
+                triggerDownloadUrl(docxUrl, `${resume.title.replace(/[^a-zA-Z0-9]/g, '_')}.docx`);
+                setToastMessage("Word document download started.");
+            } else {
+                if (isPreAuthorized && exportTab) {
+                    openGeneratedGoogleDoc(docUrl, exportTab);
+                    setToastMessage("Google Doc opened in new tab.");
+                } else {
+                    setExportedDocUrl(docUrl);
+                    setIsExportSuccessModalOpen(true);
+                    setToastMessage("Resume exported to Google Docs.");
+                }
+            }
+
+            trackUsage(currentUser.uid, 'resume_download', { format });
         } catch (error: any) {
             console.error("Google Docs Export Failed:", error);
+            if (exportTab) {
+                try { exportTab.close(); } catch (e) {}
+            }
+
             if (error.code === 'auth/popup-closed-by-user') {
                 setToastMessage("Export cancelled.");
+            } else if (error.code === 'auth/credential-already-in-use' || error.code === 'auth/account-exists-with-different-credential') {
+                setAlertState({
+                    isOpen: true,
+                    title: "Google Docs Export Failed",
+                    message: "That Google account is already connected to another CareerVivid login. Please export with the same Google account you use for this resume account, or sign out and use the account that owns this resume."
+                });
+            } else if (error.code === 'auth/user-mismatch') {
+                setAlertState({
+                    isOpen: true,
+                    title: "Account Mismatch",
+                    message: `Please choose the same Google account as your CareerVivid login (${currentUser.email}).`
+                });
             } else {
                 setAlertState({ isOpen: true, title: "Export Failed", message: error.message || "Could not connect to Google Drive. Please try again." });
             }
@@ -326,7 +505,7 @@ export const useEditor = ({
     // Layout Effects
     useLayoutEffect(() => {
         const simpleCalculateScale = () => {
-            const sideWidth = isDesktop && sidebarMode !== 'closed' ? (sidebarMode === 'expanded' ? window.innerWidth - 32 : 450) : 0;
+            const sideWidth = isDesktop && sidebarMode !== 'closed' ? (sidebarMode === 'expanded' ? window.innerWidth - 32 : 520) : 0;
             const available = window.innerWidth - sideWidth;
             const originalWidth = 794;
             if (available < originalWidth + 64) {
@@ -503,6 +682,7 @@ export const useEditor = ({
         setIsConfirmModalOpen,
         showCelebration,
         isGuestMode,
+        isResumeLoading,
         isTemplateLoading,
         alertState,
         setAlertState,
@@ -547,6 +727,8 @@ export const useEditor = ({
         updateResume,
         isExportSuccessModalOpen,
         setIsExportSuccessModalOpen,
-        exportedDocUrl
+        exportedDocUrl,
+        translationSuccessModal,
+        setTranslationSuccessModal
     };
 };

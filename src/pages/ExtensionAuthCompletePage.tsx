@@ -17,7 +17,7 @@ const ExtensionAuthCompletePage: React.FC = () => {
 
   const nextUrl = useMemo(() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get('return_to') || '/dashboard';
+    return params.get('return_to') || '/extension-welcome';
   }, []);
 
   useEffect(() => {

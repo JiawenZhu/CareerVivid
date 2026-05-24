@@ -89,7 +89,7 @@ const ExtensionLayout: React.FC = () => {
     // Loading state
     if (stillLoading) {
         return (
-            <div className="min-h-[520px] w-[380px] bg-gray-50 flex items-center justify-center">
+            <div className="min-h-[520px] h-screen w-full bg-[#f7f8fb] flex items-center justify-center">
                 <div className="flex flex-col items-center gap-3">
                     <div className="h-8 w-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-xs text-gray-400">Loading...</p>
@@ -101,8 +101,8 @@ const ExtensionLayout: React.FC = () => {
     // If not authenticated, show Login screen
     if (!isAuthenticated) {
         return (
-            <div className={`min-h-[520px] w-[380px] ${theme === 'dark' ? 'dark' : ''}`}>
-                <div className="bg-white min-h-[520px] text-gray-900">
+            <div className={`min-h-[520px] h-screen w-full ${theme === 'dark' ? 'dark' : ''}`}>
+                <div className="bg-white min-h-[520px] h-full text-gray-900">
                     <ExtensionLogin />
                 </div>
             </div>
@@ -111,8 +111,8 @@ const ExtensionLayout: React.FC = () => {
 
     // Authenticated View: Show Home Dashboard
     return (
-        <div className={`min-h-[520px] w-[380px] ${theme === 'dark' ? 'dark' : ''}`}>
-            <div className="bg-gray-50 min-h-[520px] text-gray-900">
+        <div className={`min-h-[520px] h-screen w-full ${theme === 'dark' ? 'dark' : ''}`}>
+            <div className="bg-[#f7f8fb] min-h-[520px] h-full text-gray-900">
                 <ExtensionHome />
             </div>
         </div>

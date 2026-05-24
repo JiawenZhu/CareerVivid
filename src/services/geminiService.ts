@@ -630,26 +630,94 @@ Your entire response MUST be a valid JSON object that conforms to the provided s
     }
 };
 
+const granularCategorySchema = {
+    type: "OBJECT",
+    properties: {
+        score: { type: "NUMBER", description: "Score (0-100) for this specific match category." },
+        rating: { type: "STRING", description: "Rating: 'Great', 'Good', 'Fair', or 'Missing'." },
+        impact: { type: "STRING", description: "Impact: 'High Impact', 'Medium Impact', or 'Low Impact'." },
+        details: { type: "ARRAY", description: "Bullet points detailing match points, missing requirements, or improvements.", items: { type: "STRING" } }
+    },
+    required: ["score", "rating", "impact", "details"]
+};
+
 const resumeMatchSchema = {
     type: "OBJECT",
     properties: {
         totalKeywords: { type: "NUMBER", description: "The total number of unique, important keywords extracted from the job description." },
         matchedKeywords: { type: "ARRAY", description: "A list of keywords found in both the job description and the resume.", items: { type: "STRING" } },
         missingKeywords: { type: "ARRAY", description: "A list of important keywords from the job description that were NOT found in the resume.", items: { type: "STRING" } },
-        matchPercentage: { type: "NUMBER", description: "A percentage score (0-100) representing the ratio of matched keywords to total keywords." },
+        matchPercentage: { type: "NUMBER", description: "A percentage score (0-100) representing the overall match score between resume and job." },
         summary: { type: "STRING", description: "A brief, 2-3 sentence summary of the resume's strengths and weaknesses against the job description." },
+        verdict: { type: "STRING", description: "Overall AI text verdict summary (e.g. 'Great Fit! Your resume strongly aligns...')" },
+        verdictCategory: { type: "STRING", description: "Overall verdict classification: 'Great', 'Good', 'Fair', or 'Missing'." },
+        qualifications: { 
+            type: "OBJECT",
+            properties: granularCategorySchema.properties,
+            required: granularCategorySchema.required,
+            description: "Breakdown of qualifications match (degrees, certifications, academic requirements, etc.)" 
+        },
+        responsibilities: { 
+            type: "OBJECT",
+            properties: granularCategorySchema.properties,
+            required: granularCategorySchema.required,
+            description: "Breakdown of responsibilities match (prior experience scope, seniority levels, project duties, role alignment)" 
+        },
+        keywords: { 
+            type: "OBJECT",
+            properties: granularCategorySchema.properties,
+            required: granularCategorySchema.required,
+            description: "Breakdown of keyword and tech skills match (hard tools, programming languages, software, and core methodologies)" 
+        },
+        jobTitle: { 
+            type: "OBJECT",
+            properties: granularCategorySchema.properties,
+            required: granularCategorySchema.required,
+            description: "Breakdown of job title and seniority level match (exact match, seniority hierarchy level, or translation of titles)" 
+        }
     },
-    required: ["totalKeywords", "matchedKeywords", "missingKeywords", "matchPercentage", "summary"]
+    required: [
+        "totalKeywords", 
+        "matchedKeywords", 
+        "missingKeywords", 
+        "matchPercentage", 
+        "summary", 
+        "verdict", 
+        "verdictCategory", 
+        "qualifications", 
+        "responsibilities", 
+        "keywords", 
+        "jobTitle"
+    ]
 };
 
 export const analyzeResumeMatch = async (userId: string, resumeText: string, jobDescription: string): Promise<ResumeMatchAnalysis> => {
     try {
-        const prompt = `Act as an expert recruiter scanning a resume for a job opening.
-Job Description:
-${jobDescription}
+        // Truncate job description and resume content to ensure ultra-high execution speed
+        const cleanJd = jobDescription.slice(0, 2500);
+        const cleanResume = resumeText.slice(0, 4000);
+
+        const prompt = `Act as an expert scanning engine. Analyze resume against job description.
+
+Job Description (Core):
+${cleanJd}
+
 Resume:
-${resumeText}
-Return match stats in described JSON schema.`;
+${cleanResume}
+
+Audit matches across these four categories in the response schema:
+1. Qualifications: Degrees, study fields, certifications, licenses.
+2. Responsibilities: Scope, project scale, seniority level, duties.
+3. Keywords: Core tools, tech skills, software.
+4. Job Title: Current/past titles compared with target seniority.
+
+CRITICAL RULES FOR ULTRA-FAST RESPONSE:
+- Keep overall summary and verdict to 1-2 short sentences.
+- Limit 'details' lists under EACH category to exactly 2 key short points.
+- Limit totalKeywords, matchedKeywords, and missingKeywords arrays to at most 6-8 core tech skills. Do not list large lists.
+- Be highly concise and brief.
+
+Return JSON matching the schema.`;
 
         const result = await callGeminiProxy({
             modelName: 'gemini-2.5-flash',

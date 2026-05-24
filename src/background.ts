@@ -26,6 +26,28 @@ chrome.runtime.onInstalled.addListener((details) => {
     });
 });
 
+function openNativeSidePanel(tabId?: number): Promise<void> {
+    const sidePanel = (chrome as any).sidePanel;
+
+    if (!sidePanel?.open || !tabId) {
+        return Promise.reject(new Error('Side panel API unavailable'));
+    }
+
+    return sidePanel.open({ tabId });
+}
+
+if ((chrome as any).sidePanel?.setPanelBehavior) {
+    (chrome as any).sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch((error: unknown) => {
+        console.debug('[CareerVivid] Side panel behavior setup skipped:', error);
+    });
+}
+
+chrome.action.onClicked.addListener((tab) => {
+    openNativeSidePanel(tab.id).catch((error: unknown) => {
+        console.debug('[CareerVivid] Toolbar side panel open failed:', error);
+    });
+});
+
 // ── Auth: Detect Firebase session via cookies ─────────────────────────────────
 
 const AUTH_DOMAINS = [
@@ -932,6 +954,18 @@ function normalizeResumeToProfile(
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     switch (message.type) {
+        case 'OPEN_SIDE_PANEL': {
+            const tabId = sender.tab?.id;
+
+            openNativeSidePanel(tabId).then(() => {
+                sendResponse({ success: true });
+            }).catch((error: any) => {
+                console.debug('[CareerVivid] Native side panel open failed:', error);
+                sendResponse({ success: false, error: error?.message || 'Unable to open side panel' });
+            });
+
+            return true;
+        }
 
         // Fetch user profile from Firestore REST via background to bypass CORS origin checks in popup
         case 'FETCH_USER_PROFILE': {
@@ -1448,10 +1482,28 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
 
         // Open popup for resume selection
-        case 'OPEN_RESUME_PICKER':
-            chrome.action.openPopup();
-            sendResponse({ success: true });
+        case 'OPEN_RESUME_PICKER': {
+            const tabId = sender.tab?.id;
+
+            if (tabId) {
+                openNativeSidePanel(tabId).then(() => {
+                    sendResponse({ success: true });
+                }).catch((error: any) => {
+                    sendResponse({ success: false, error: error?.message || 'Unable to open side panel' });
+                });
+                return true;
+            }
+
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                const activeTabId = tabs[0]?.id;
+                openNativeSidePanel(activeTabId).then(() => {
+                    sendResponse({ success: true });
+                }).catch((error: any) => {
+                    sendResponse({ success: false, error: error?.message || 'Unable to open side panel' });
+                });
+            });
             return true;
+        }
 
         // Save a job to local tracker + Firebase (if logged in)
         case 'SAVE_JOB':

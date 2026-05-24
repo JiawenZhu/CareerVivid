@@ -93,6 +93,8 @@
     "translation_complete": "翻译完成",
     "translation_failed": "翻译失败",
     "translation_success_msg": "您的简历已翻译并保存为新简历。",
+    "go_to_translated": "前往已翻译的简历",
+    "stay_on_current": "留在当前页面",
     "congrats": "恭喜！",
     "new_resume_ready": "您的新简历已准备就绪。开始编辑吧！",
     "job_context": "职位背景",

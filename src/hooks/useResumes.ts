@@ -435,7 +435,7 @@ export const useResumes = (userIdOverride?: string | null) => {
             if (resumes.length === 1) {
                 navigate('/newresume');
             } else {
-                navigate('/');
+                navigate('/dashboard');
             }
         } catch (error) {
             console.error("Error deleting resume:", error);

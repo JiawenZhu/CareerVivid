@@ -93,6 +93,8 @@
     "translation_complete": "Translation Complete",
     "translation_failed": "Translation Failed",
     "translation_success_msg": "Your resume has been translated and saved as a new resume.",
+    "go_to_translated": "Zum übersetzten Lebenslauf wechseln",
+    "stay_on_current": "Auf aktueller Seite bleiben",
     "congrats": "Congratulations!",
     "new_resume_ready": "Your new resume is ready. Let's start editing!",
     "job_context": "Job Context",

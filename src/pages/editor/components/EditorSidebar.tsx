@@ -55,21 +55,21 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
                 `}
                 style={{ width: isDesktop ? sidebarWidth : '100%' }}
             >
-                <div className="w-full h-full flex flex-col" style={{ minWidth: isDesktop ? '450px' : '100%' }}>
+                <div className="w-full h-full flex flex-col" style={{ minWidth: isDesktop ? '520px' : '100%' }}>
 
-                    <div className="flex items-center justify-between p-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                        <button onClick={() => setActiveTab('content')} className={`flex-1 py-2 text-sm font-semibold rounded-md flex items-center justify-center gap-2 transition-colors ${activeTab === 'content' ? 'bg-white dark:bg-gray-800 text-primary-600 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
+                    <div className="flex items-center justify-between gap-1 border-b border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900">
+                        <button onClick={() => setActiveTab('content')} className={`flex-1 rounded-md py-2 text-sm font-semibold flex items-center justify-center gap-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 ${activeTab === 'content' ? 'bg-white dark:bg-gray-800 text-primary-600 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
                             <FileInput size={16} /> Content
                         </button>
-                        <button onClick={() => setActiveTab('template')} className={`flex-1 py-2 text-sm font-semibold rounded-md flex items-center justify-center gap-2 transition-colors ${activeTab === 'template' ? 'bg-white dark:bg-gray-800 text-primary-600 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
+                        <button onClick={() => setActiveTab('template')} className={`flex-1 rounded-md py-2 text-sm font-semibold flex items-center justify-center gap-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 ${activeTab === 'template' ? 'bg-white dark:bg-gray-800 text-primary-600 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
                             <Code size={16} /> Template
                         </button>
-                        <button onClick={() => setActiveTab('design')} className={`flex-1 py-2 text-sm font-semibold rounded-md flex items-center justify-center gap-2 transition-colors ${activeTab === 'design' ? 'bg-white dark:bg-gray-800 text-primary-600 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
+                        <button onClick={() => setActiveTab('design')} className={`flex-1 rounded-md py-2 text-sm font-semibold flex items-center justify-center gap-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 ${activeTab === 'design' ? 'bg-white dark:bg-gray-800 text-primary-600 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
                             <Palette size={16} /> Design
                         </button>
                     </div>
 
-                    <div className="flex-grow overflow-y-auto p-4 custom-scrollbar">
+                    <div className="custom-scrollbar flex-grow overflow-y-auto p-4">
                         {activeTab === 'content' && (
                             <div className="animate-fade-in">
                                 <ResumeForm
