@@ -31,6 +31,16 @@ interface EditorProps {
     initialActiveTab?: 'content' | 'template' | 'design' | 'comments' | 'score';
 }
 
+const pdfExportMessages = [
+    "Initiating headless PDF renderer...",
+    "Polishing layout styles and margins...",
+    "Optimizing color swatches and palettes...",
+    "Calculating exact page break dimensions...",
+    "Applying high-definition text rendering...",
+    "Generating secure PDF buffer...",
+    "Almost ready for download!",
+];
+
 const Editor: React.FC<EditorProps> = (props) => {
     const {
         resumeId,
@@ -121,6 +131,24 @@ const Editor: React.FC<EditorProps> = (props) => {
     // Track if any header dropdown (Download / Translate) is open
     // so the overflow banner can fade transparently behind them
     const [isAnyDropdownOpen, setIsAnyDropdownOpen] = useState(false);
+
+    const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+
+    useEffect(() => {
+        let interval: number;
+        if (isExporting) {
+            setLoadingMessageIndex(0);
+            interval = window.setInterval(() => {
+                setLoadingMessageIndex(prev => {
+                    if (prev >= pdfExportMessages.length - 1) {
+                        return prev;
+                    }
+                    return prev + 1;
+                });
+            }, 1800);
+        }
+        return () => clearInterval(interval);
+    }, [isExporting]);
 
     const [initialTailorModalOpen, setInitialTailorModalOpen] = useState(false);
     const [initialJobDescription, setInitialJobDescription] = useState('');
@@ -365,10 +393,22 @@ const Editor: React.FC<EditorProps> = (props) => {
                 onClose={() => setAlertState({ isOpen: false, title: '', message: '' })}
             />
             {isExporting && (
-                <div className="fixed inset-0 bg-black/60 z-[101] flex items-center justify-center">
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg text-center">
-                        <Loader2 className="w-12 h-12 text-primary-500 animate-spin mx-auto" />
-                        <p className="mt-4 font-semibold">{exportProgress}</p>
+                <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-[101] flex items-center justify-center animate-fade-in">
+                    <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl text-center max-w-sm w-full mx-4 border border-gray-100 dark:border-gray-700 shadow-2xl space-y-4">
+                        <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
+                            <Loader2 className="w-16 h-16 text-primary-500 animate-spin absolute" strokeWidth={2.5} />
+                            <Sparkles className="w-6 h-6 text-primary-600 animate-pulse" />
+                        </div>
+                        <div className="space-y-1">
+                            <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                                {exportProgress || 'Exporting Document...'}
+                            </h3>
+                            <div className="h-6 overflow-hidden">
+                                <p key={loadingMessageIndex} className="text-xs text-gray-400 dark:text-gray-500 font-semibold animate-fade-in">
+                                    {pdfExportMessages[loadingMessageIndex]}
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
