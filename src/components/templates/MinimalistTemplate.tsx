@@ -150,16 +150,16 @@ export const MinimalistTemplate: React.FC<TemplateProps> = ({ resume, themeColor
             </div>
             <div>
                  <h2 className="text-sm font-semibold tracking-widest text-gray-500 text-center mb-6" style={titleStyle}>SKILLS</h2>
-                 <div className="flex flex-col gap-2.5">
+                 <div className="flex flex-col gap-2.5 max-w-md mx-auto">
                     {skills.map((skill, index) => (
-                        <div key={skill.id} className="flex items-start justify-center gap-2 text-sm text-center">
+                        <div key={skill.id} className="flex items-start gap-2 text-sm text-left">
                             <span className="text-gray-400 select-none mt-1 flex-shrink-0">•</span>
                             <InlineEdit 
                                 value={skill.name} 
                                 fieldId={`skills[${index}].name`} 
                                 onFocus={onFocus} 
                                 placeholder="Skill"
-                                className="text-center block"
+                                className="block text-left"
                             />
                         </div>
                     ))}
