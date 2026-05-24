@@ -29,7 +29,7 @@ interface UseEditorProps {
     isShared?: boolean;
     onSharedUpdate?: (data: Partial<ResumeData>) => void;
     initialViewMode?: 'edit' | 'preview';
-    initialActiveTab?: 'content' | 'template' | 'design' | 'comments';
+    initialActiveTab?: 'content' | 'template' | 'design' | 'comments' | 'score';
 }
 
 export const useEditor = ({
@@ -52,7 +52,7 @@ export const useEditor = ({
     const [activeTemplate, setActiveTemplate] = useState<TemplateInfo>(TEMPLATES[0]);
 
     const [viewMode, setViewMode] = useState<'edit' | 'preview'>(initialViewMode);
-    const [activeTab, setActiveTab] = useState<'content' | 'template' | 'design' | 'comments'>(initialActiveTab);
+    const [activeTab, setActiveTab] = useState<'content' | 'template' | 'design' | 'comments' | 'score'>(initialActiveTab);
     const [previousTab, setPreviousTab] = useState<'content' | 'template' | 'design'>('content');
 
     const [sidebarMode, setSidebarMode] = useState<'closed' | 'standard' | 'expanded'>('standard');

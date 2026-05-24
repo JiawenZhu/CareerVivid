@@ -28,7 +28,7 @@ interface EditorProps {
     isShared?: boolean;
     onSharedUpdate?: (data: Partial<ResumeData>) => void;
     initialViewMode?: 'edit' | 'preview';
-    initialActiveTab?: 'content' | 'template' | 'design' | 'comments';
+    initialActiveTab?: 'content' | 'template' | 'design' | 'comments' | 'score';
 }
 
 const Editor: React.FC<EditorProps> = (props) => {
