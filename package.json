@@ -124,7 +124,6 @@
   "overrides": {
     "@mapbox/node-pre-gyp": "^2.0.3",
     "fast-xml-builder": "^1.2.0",
-    "ajv": "^8.18.0",
     "minimatch": "^10.2.1",
     "dompurify": "^3.3.2",
     "lodash-es": "^4.17.23",
