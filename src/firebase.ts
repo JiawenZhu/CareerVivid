@@ -20,7 +20,16 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null);
+
+// Safely initialize analytics - bypass in extension environment to avoid CSP/Cookie/IndexedDB exceptions
+const isExtension = typeof window !== 'undefined' && 
+    (window.location.protocol === 'chrome-extension:' || 
+     (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id));
+
+const analytics = (!isExtension && typeof window !== 'undefined')
+    ? isSupported().then(yes => yes ? getAnalytics(app) : null).catch(() => null)
+    : Promise.resolve(null);
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
