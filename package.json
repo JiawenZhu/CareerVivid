@@ -124,12 +124,12 @@
   "overrides": {
     "@mapbox/node-pre-gyp": "^2.0.3",
     "fast-xml-builder": "^1.2.0",
-    "ajv": "^8.18.0",
     "minimatch": "^10.2.1",
     "dompurify": "^3.3.2",
     "lodash-es": "^4.17.23",
     "@tootallnate/once": "^3.0.1",
     "nanoid": "^3.3.11",
+    "mermaid": "^11.15.0",
     "@excalidraw/mermaid-to-excalidraw": {
       "nanoid": "^5.0.9"
     },
@@ -138,6 +138,7 @@
     "braces": "3.0.3",
     "cross-spawn": "7.0.6",
     "cookie": "0.7.2",
+    "qs": "^6.15.2",
     "semver": "^7.5.4",
     "micromatch": "^4.0.8",
     "ws": ">=7.5.10",

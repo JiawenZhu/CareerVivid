@@ -397,9 +397,39 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             return text;
         }
 
-        // Algolia wraps matches in <em> tags by default
-        const highlightedHtml = highlightResult.title.value;
-        return <span dangerouslySetInnerHTML={{ __html: highlightedHtml.replace(/<em>/g, '<mark class="bg-yellow-200 dark:bg-yellow-900/50 text-gray-900 dark:text-white rounded px-0.5">').replace(/<\/em>/g, '</mark>') }} />;
+        const highlightedValue = String(highlightResult.title.value);
+        const segments = highlightedValue.split(/(<\/?em>)/g);
+        const nodes: React.ReactNode[] = [];
+        let inHighlight = false;
+
+        for (const [index, segment] of segments.entries()) {
+            if (segment === '<em>') {
+                inHighlight = true;
+                continue;
+            }
+            if (segment === '</em>') {
+                inHighlight = false;
+                continue;
+            }
+            if (!segment) {
+                continue;
+            }
+
+            if (inHighlight) {
+                nodes.push(
+                    <mark
+                        key={`highlight-${index}`}
+                        className="bg-yellow-200 dark:bg-yellow-900/50 text-gray-900 dark:text-white rounded px-0.5"
+                    >
+                        {segment}
+                    </mark>
+                );
+            } else {
+                nodes.push(<React.Fragment key={`text-${index}`}>{segment}</React.Fragment>);
+            }
+        }
+
+        return <span>{nodes}</span>;
     };
 
     // Determine click handler
