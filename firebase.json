@@ -106,6 +106,10 @@
         "region": "us-west1"
       },
       {
+        "source": "/portfolio/*/edit/**",
+        "destination": "/index.html"
+      },
+      {
         "source": "/portfolio/**",
         "function": "renderSeoContent",
         "region": "us-west1"
