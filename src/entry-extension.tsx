@@ -5,6 +5,9 @@ import App from './App';
 import { AuthProvider } from './contexts/AuthContext';
 import './i18n';
 import './index.css'; // CRITICAL: Import Tailwind CSS
+import { quietProductionConsole } from './utils/quietConsole';
+
+quietProductionConsole();
 
 const applyExtensionSurfaceClass = () => {
     if (typeof window === 'undefined') return;

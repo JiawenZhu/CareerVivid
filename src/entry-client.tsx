@@ -5,6 +5,9 @@ import App from './App';
 import { AuthProvider } from './contexts/AuthContext';
 import './i18n'; // Initialize i18next
 import './index.css';
+import { quietProductionConsole } from './utils/quietConsole';
+
+quietProductionConsole();
 
 // HANDLE DYNAMIC IMPORT ERRORS
 // Catches "Failed to fetch dynamically imported module" via unhandled promise rejections
@@ -13,7 +16,6 @@ window.addEventListener('unhandledrejection', (event) => {
     event.reason?.message?.includes('Strict MIME type checking');
 
   if (isChunkLoadError) {
-    console.warn('Caught chunk load error/MIME mismatch. Reloading to fetch new version...');
     const lastReload = sessionStorage.getItem('last_chunk_reload');
     const now = Date.now();
     if (!lastReload || now - parseInt(lastReload) > 10000) {
@@ -25,7 +27,6 @@ window.addEventListener('unhandledrejection', (event) => {
 
 // Catches Vite-specific preload errors
 window.addEventListener('vite:preloadError', (event) => {
-  console.log('Caught vite:preloadError, reloading page to fetch new chunks...');
   const lastReload = sessionStorage.getItem('last_chunk_reload_vite');
   const now = Date.now();
   if (!lastReload || now - parseInt(lastReload) > 10000) {
