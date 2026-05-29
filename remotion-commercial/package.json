@@ -9,10 +9,15 @@
     "still": "remotion still src/index.ts CareerVividCommercial renders/careervivid-commercial-still.png --frame=120"
   },
   "dependencies": {
-    "@remotion/cli": "^4.0.451",
+    "@remotion/cli": "^4.0.469",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
-    "remotion": "^4.0.451",
+    "remotion": "^4.0.469",
     "typescript": "^6.0.3"
+  },
+  "overrides": {
+    "fast-uri": "^3.1.2",
+    "postcss": "^8.5.14",
+    "ws": "^8.20.1"
   }
 }

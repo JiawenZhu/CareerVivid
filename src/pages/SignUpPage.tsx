@@ -12,6 +12,7 @@ import Logo from '../components/Logo';
 import { navigate } from '../utils/navigation';
 import { queueTransactionalAuthEmail } from '../services/transactionalEmailService';
 import { resolveSignedInWorkspace } from '../services/authAccountLinkingService';
+import { getSafeRelativeRedirect } from '../utils/security';
 
 const SignUpPage: React.FC = () => {
     const { t } = useTranslation();
@@ -117,7 +118,7 @@ const SignUpPage: React.FC = () => {
             const redirectParams = new URLSearchParams(window.location.search);
             const redirectUrl = redirectParams.get('redirect');
             if (redirectUrl) {
-                window.location.href = decodeURIComponent(redirectUrl);
+                navigate(getSafeRelativeRedirect(redirectUrl));
             }
         } catch (err: any) {
             handleAuthError(err);
@@ -171,7 +172,7 @@ const SignUpPage: React.FC = () => {
             const redirectParams = new URLSearchParams(window.location.search);
             const redirectUrl = redirectParams.get('redirect');
             if (redirectUrl) {
-                window.location.href = decodeURIComponent(redirectUrl);
+                navigate(getSafeRelativeRedirect(redirectUrl));
             }
         } catch (err: any) {
             handleAuthError(err);

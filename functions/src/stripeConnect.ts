@@ -7,6 +7,33 @@ const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
 
 // Application Fee Percentage (e.g., 5%)
 const APPLICATION_FEE_PERCENT = 0.05;
+const DEFAULT_COMMERCE_URL = "https://careervivid.app/commerce";
+
+const getSafeCommerceRedirectUrl = (redirectUrl: unknown): string => {
+    if (typeof redirectUrl !== "string" || !redirectUrl.trim()) {
+        return DEFAULT_COMMERCE_URL;
+    }
+
+    try {
+        const parsedUrl = new URL(redirectUrl);
+        const isAllowedHost = parsedUrl.hostname === "careervivid.app" ||
+            parsedUrl.hostname === "localhost" ||
+            parsedUrl.hostname === "127.0.0.1";
+        const isAllowedProtocol = parsedUrl.protocol === "https:" ||
+            (parsedUrl.protocol === "http:" && parsedUrl.hostname !== "careervivid.app");
+
+        if (!isAllowedHost || !isAllowedProtocol) {
+            return DEFAULT_COMMERCE_URL;
+        }
+
+        parsedUrl.pathname = "/commerce";
+        parsedUrl.search = "";
+        parsedUrl.hash = "";
+        return parsedUrl.toString();
+    } catch {
+        return DEFAULT_COMMERCE_URL;
+    }
+};
 
 /**
  * Creates a Stripe Express Connect account for the user and generates an account link for onboarding.
@@ -58,10 +85,16 @@ export const createConnectAccount = onCall(
 
             // 3. Create an Account Link for onboarding
             // This link expires in a few minutes, so we always generate a new one.
+            const commerceRedirectUrl = getSafeCommerceRedirectUrl(request.data?.redirectUrl);
+            const refreshUrl = new URL(commerceRedirectUrl);
+            refreshUrl.searchParams.set("refresh", "true");
+            const returnUrl = new URL(commerceRedirectUrl);
+            returnUrl.searchParams.set("success", "true");
+
             const accountLink = await stripe.accountLinks.create({
                 account: accountId,
-                refresh_url: `${request.data.redirectUrl || 'https://careervivid.app/commerce'}?refresh=true`,
-                return_url: `${request.data.redirectUrl || 'https://careervivid.app/commerce'}?success=true`,
+                refresh_url: refreshUrl.toString(),
+                return_url: returnUrl.toString(),
                 type: "account_onboarding",
             });
 

@@ -114,7 +114,7 @@ describe('Sidebar Component - Sorting and Filtering UX', () => {
         localStorage.clear();
 
         (useAuth as any).mockReturnValue({
-            currentUser: { email: 'test@careervivid.com', displayName: 'Jiawen' },
+            currentUser: { uid: 'test-user', email: 'test@careervivid.com', displayName: 'Jiawen' },
             userProfile: { sidebarNodes: mockNodes },
             updateUserProfile: vi.fn(),
             logOut: vi.fn(),

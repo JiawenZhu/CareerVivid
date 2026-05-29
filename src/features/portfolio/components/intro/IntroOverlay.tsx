@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { IntroPageConfig } from '../../types/portfolio';
 import { Play, Pause, Volume2, VolumeX, Gamepad2 } from 'lucide-react';
 import PianoGame from './games/PianoGame';
+import DOMPurify from 'dompurify';
 
 interface IntroOverlayProps {
     config: IntroPageConfig;
@@ -36,6 +37,14 @@ const IntroOverlay: React.FC<IntroOverlayProps> = ({ config, onEnter, position =
     // Game Specific
     const gameType = activeAsset?.gameType;
     const embedCode = activeAsset?.embedCode;
+    const sanitizedEmbedCode = React.useMemo(() => {
+        if (!embedCode) return '';
+        return DOMPurify.sanitize(embedCode, {
+            USE_PROFILES: { html: true },
+            ADD_TAGS: ['iframe'],
+            ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'height', 'loading', 'referrerpolicy', 'sandbox', 'scrolling', 'src', 'title', 'width'],
+        });
+    }, [embedCode]);
 
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -128,10 +137,10 @@ const IntroOverlay: React.FC<IntroOverlayProps> = ({ config, onEnter, position =
                                 portfolioId={portfolioId}
                                 isPreview={isPreview}
                             />
-                        ) : gameType === 'custom' && embedCode ? (
+                        ) : gameType === 'custom' && sanitizedEmbedCode ? (
                             <div
                                 className="w-full h-full"
-                                dangerouslySetInnerHTML={{ __html: embedCode }}
+                                dangerouslySetInnerHTML={{ __html: sanitizedEmbedCode }}
                             />
                         ) : (
                             <div className="text-center text-white p-8">

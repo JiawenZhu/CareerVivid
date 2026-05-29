@@ -12,8 +12,8 @@ import { trackUsage } from '../services/trackingService';
 import Logo from '../components/Logo';
 import { queueTransactionalAuthEmail } from '../services/transactionalEmailService';
 import { resolveSignedInWorkspace } from '../services/authAccountLinkingService';
-
-
+import { navigate } from '../utils/navigation';
+import { getSafeRelativeRedirect } from '../utils/security';
 
 const AuthPage: React.FC = () => {
     const { t } = useTranslation();
@@ -121,7 +121,7 @@ const AuthPage: React.FC = () => {
             const params = new URLSearchParams(window.location.search);
             const redirectUrl = params.get('redirect');
             if (redirectUrl) {
-                window.location.href = decodeURIComponent(redirectUrl);
+                navigate(getSafeRelativeRedirect(redirectUrl));
             }
         } catch (err: any) {
             handleAuthError(err);
@@ -169,7 +169,7 @@ const AuthPage: React.FC = () => {
             const params = new URLSearchParams(window.location.search);
             const redirectUrl = params.get('redirect');
             if (redirectUrl) {
-                window.location.href = decodeURIComponent(redirectUrl);
+                navigate(getSafeRelativeRedirect(redirectUrl));
             }
         } catch (err: any) {
             handleAuthError(err);

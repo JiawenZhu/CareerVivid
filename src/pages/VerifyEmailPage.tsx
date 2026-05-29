@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { MailCheck, Loader2, CheckCircle2 } from 'lucide-react';
 import { queueTransactionalAuthEmail } from '../services/transactionalEmailService';
 import { navigate } from '../utils/navigation';
+import { getSafeRelativeRedirect } from '../utils/security';
 
 const VerifyEmailPage: React.FC = () => {
     const { currentUser, logOut, isEmailVerified, refreshEmailVerification } = useAuth();
@@ -13,16 +14,7 @@ const VerifyEmailPage: React.FC = () => {
 
     const continueTarget = useMemo(() => {
         const params = new URLSearchParams(window.location.search);
-        const rawRedirect = params.get('redirect') || '/dashboard';
-
-        try {
-            const decoded = decodeURIComponent(rawRedirect);
-            const targetUrl = new URL(decoded, window.location.origin);
-            if (targetUrl.origin !== window.location.origin) return '/dashboard';
-            return `${targetUrl.pathname}${targetUrl.search}${targetUrl.hash}`;
-        } catch {
-            return rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/dashboard';
-        }
+        return getSafeRelativeRedirect(params.get('redirect'));
     }, []);
 
     const handleVerificationCheck = useCallback(async (silent = false) => {

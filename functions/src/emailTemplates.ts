@@ -16,6 +16,10 @@ export interface EmailTemplateProps {
         url: string;
     };
     footerText?: string;
+    preheader?: string;
+    eyebrow?: string;
+    closingName?: string;
+    closingRole?: string;
 }
 
 /**
@@ -183,3 +187,25 @@ export function generateNeoBrutalistEmail(props: EmailTemplateProps): string {
 </html>
     `;
 }
+
+export function generateCareerVividEmail(props: EmailTemplateProps): string {
+    return generateNeoBrutalistEmail(props);
+}
+
+export {
+    careerVividEmailTemplateCatalog,
+    careerVividEmailTokens,
+    generateCareerVividModuleEmail,
+} from './emailTemplateLibrary';
+
+export type {
+    CareerVividEmailActivity,
+    CareerVividEmailButton,
+    CareerVividEmailFeature,
+    CareerVividEmailModule,
+    CareerVividEmailStat,
+    CareerVividEmailTemplateCatalogItem,
+    CareerVividEmailVisual,
+    CareerVividModuleEmailProps,
+    CareerVividProductMockup,
+} from './emailTemplateLibrary';

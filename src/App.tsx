@@ -99,6 +99,7 @@ import { MultiBackend, getBackendOptions } from '@minoru/react-dnd-treeview';
 
 // Navigation utility
 import { navigate, getPathFromUrl } from './utils/navigation';
+import { getSafeRelativeRedirect } from './utils/security';
 
 
 const LoadingFallback = () => (
@@ -109,7 +110,7 @@ const LoadingFallback = () => (
 
 const AuthRedirect = ({ target }: { target: string }) => {
   useEffect(() => {
-    navigate(target);
+    navigate(getSafeRelativeRedirect(target));
   }, [target]);
   return <LoadingFallback />;
 };
@@ -332,14 +333,14 @@ const AppContent: React.FC = () => {
       const cliPort = params.get('cli_port');
       if (currentUser && !cliPort) {
         const redirect = params.get('redirect');
-        content = <AuthRedirect target={redirect ? decodeURIComponent(redirect) : '/dashboard'} />;
+        content = <AuthRedirect target={getSafeRelativeRedirect(redirect)} />;
       } else {
         content = <SignInPage />;
       }
     } else if (path === '/signup') {
       const params = new URLSearchParams(window.location.search);
       const redirect = params.get('redirect');
-      content = currentUser ? <AuthRedirect target={redirect ? decodeURIComponent(redirect) : '/dashboard'} /> : <SignUpPage />;
+      content = currentUser ? <AuthRedirect target={getSafeRelativeRedirect(redirect)} /> : <SignUpPage />;
     } else if (path === '/auth') {
       if (currentUser) {
         content = <AuthRedirect target="/dashboard" />;
