@@ -22,6 +22,10 @@ export const isSafeUrl = (url: string): boolean => {
 
   try {
     const parsedUrl = new URL(url);
+    if (!['https:', 'http:'].includes(parsedUrl.protocol)) {
+      return false;
+    }
+
     const hostname = parsedUrl.hostname.toLowerCase();
     
     return ALLOWED_DOMAINS.some(domain => 
@@ -33,15 +37,20 @@ export const isSafeUrl = (url: string): boolean => {
   }
 };
 
+export const getSafeRedirectTarget = (url: string, fallback = '/'): string => (
+  isSafeUrl(url) ? url : fallback
+);
+
 /**
  * Safely redirects the browser to the specified URL.
  * Falls back to root if the URL is deemed unsafe.
  */
 export const safeRedirect = (url: string): void => {
-  if (isSafeUrl(url)) {
-    window.location.href = url;
-  } else {
+  const target = getSafeRedirectTarget(url);
+
+  if (target !== url) {
     console.error('Blocked unsafe redirect to:', url);
-    window.location.href = '/';
   }
+
+  window.location.assign(target);
 };

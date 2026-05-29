@@ -12,6 +12,7 @@ import { trackUsage } from '../services/trackingService';
 import Logo from '../components/Logo';
 import { navigate } from '../utils/navigation';
 import { useAuth } from '../contexts/AuthContext';
+import { safeRedirect } from '../utils/security';
 
 const SignInPage: React.FC = () => {
     const { t } = useTranslation();
@@ -132,7 +133,7 @@ const SignInPage: React.FC = () => {
             const params = new URLSearchParams(window.location.search);
             const redirectUrl = params.get('redirect');
             if (redirectUrl) {
-                window.location.href = decodeURIComponent(redirectUrl);
+                safeRedirect(decodeURIComponent(redirectUrl));
             } else if (!cliPort) {
                 navigate('/dashboard');
             }
@@ -167,7 +168,7 @@ const SignInPage: React.FC = () => {
             const params = new URLSearchParams(window.location.search);
             const redirectUrl = params.get('redirect');
             if (redirectUrl) {
-                window.location.href = decodeURIComponent(redirectUrl);
+                safeRedirect(decodeURIComponent(redirectUrl));
             } else if (!cliPort) {
                 navigate('/dashboard');
             }

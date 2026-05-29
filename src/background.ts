@@ -5,6 +5,23 @@
 
 import type { AutoFillProfile } from './types/autofill.types';
 
+const getExtensionFirebaseConfig = () => {
+    const config = {
+        apiKey: import.meta.env?.VITE_FIREBASE_API_KEY || '',
+        authDomain: import.meta.env?.VITE_FIREBASE_AUTH_DOMAIN || '',
+        projectId: import.meta.env?.VITE_FIREBASE_PROJECT_ID || '',
+        storageBucket: import.meta.env?.VITE_FIREBASE_STORAGE_BUCKET || '',
+        messagingSenderId: import.meta.env?.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
+        appId: import.meta.env?.VITE_FIREBASE_APP_ID || '',
+    };
+
+    if (!config.apiKey || !config.authDomain || !config.projectId || !config.appId) {
+        throw new Error('Missing Firebase web configuration for extension profile sync');
+    }
+
+    return config;
+};
+
 // ── Installation Handler ──────────────────────────────────────────────────────
 
 chrome.runtime.onInstalled.addListener((details) => {
@@ -107,14 +124,7 @@ async function syncProfileFromFirebase(userId: string, resumeId: string): Promis
         const { getFirestore, doc, getDoc } = await import('firebase/firestore');
         const { getAuth } = await import('firebase/auth');
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCRMb5eCJJKEOWcIVfkxJh780B_9oFLHEs",
-            authDomain: "jastalk-firebase.firebaseapp.com",
-            projectId: "jastalk-firebase",
-            storageBucket: "jastalk-firebase.firebasestorage.app",
-            messagingSenderId: "882267873237",
-            appId: "1:882267873237:web:65ba38c60e0ec617c7a3b0"
-        };
+        const firebaseConfig = getExtensionFirebaseConfig();
 
         const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
         const db = getFirestore(app);
