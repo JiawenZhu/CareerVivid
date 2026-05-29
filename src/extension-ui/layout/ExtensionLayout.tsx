@@ -5,72 +5,80 @@ import { useTheme } from '../../contexts/ThemeContext';
 import ExtensionLogin from '../pages/ExtensionLogin';
 import ExtensionHome from '../pages/ExtensionHome';
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// CONFIGURATION: Update these if your web app uses different cookie names
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const AUTH_COOKIE_NAMES = ['__session', 'session', 'token'] as const;
-const AUTH_DOMAIN = 'https://careervivid.app';
-
 const ExtensionLayout: React.FC = () => {
     const { currentUser, loading: authLoading } = useAuth();
     const { theme } = useTheme();
     const [cookieAuth, setCookieAuth] = useState<boolean | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // COOKIE-FIRST CHECK: Runs immediately to avoid "Sign In" flash
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Ask the background service worker to hydrate auth. The popup is
+    // transient, so cookies/IndexedDB/tabs must be checked outside React.
     useEffect(() => {
-        const checkCookieAuth = () => {
-            if (typeof chrome === 'undefined' || !chrome.cookies) {
-                // Not in extension context, rely on Firebase Auth only
+        const hydrateAuth = () => {
+            if (typeof chrome === 'undefined' || !chrome.runtime) {
+                setCookieAuth(false);
                 setIsLoading(false);
                 return;
             }
 
-            // First check storage: covers dev bypass and background-synced cookie auth
-            chrome.storage.local.get(['isAuthenticated', 'devModeAuth'], (stored) => {
-                if (stored.isAuthenticated || stored.devModeAuth) {
-                    setCookieAuth(true);
+            chrome.runtime.sendMessage({ type: 'HYDRATE_AUTH' }, (response) => {
+                const err = chrome.runtime.lastError;
+                if (err) {
+                    setCookieAuth(false);
                     setIsLoading(false);
                     return;
                 }
 
-                // Fall back to direct cookie check
-                let checkedCount = 0;
-                const totalCookies = AUTH_COOKIE_NAMES.length;
-
-                AUTH_COOKIE_NAMES.forEach((cookieName) => {
-                    chrome.cookies.get({ url: AUTH_DOMAIN, name: cookieName }, (cookie) => {
-                        checkedCount++;
-
-                        if (cookie) {
-                            setCookieAuth(true);
-                            setIsLoading(false);
-                            return;
-                        }
-
-                        if (checkedCount === totalCookies) {
-                            setCookieAuth(false);
-                            setIsLoading(false);
-                        }
-                    });
-                });
+                setCookieAuth(response?.isAuthenticated === true);
+                setIsLoading(false);
             });
         };
 
-        checkCookieAuth();
+        hydrateAuth();
 
         // Listen for auth state changes from background script
         const handleMessage = (message: any) => {
             if (message.type === 'AUTH_STATE_CHANGED') {
                 setCookieAuth(message.isAuthenticated);
+                setIsLoading(false);
             }
         };
 
         if (typeof chrome !== 'undefined' && chrome.runtime) {
             chrome.runtime.onMessage.addListener(handleMessage);
-            return () => chrome.runtime.onMessage.removeListener(handleMessage);
+            const handleStorageChange = (changes: { [key: string]: chrome.storage.StorageChange }, areaName: string) => {
+                if (areaName !== 'local') return;
+                
+                const authKeys = ['isAuthenticated', 'firebaseIdToken', 'authToken', 'uid', 'devModeAuth'];
+                const anyKeyChanged = authKeys.some(key => changes[key] !== undefined);
+                
+                if (anyKeyChanged) {
+                    const isAnyKeyCleared = authKeys.some(key => {
+                        const change = changes[key];
+                        return change && (change.newValue === null || change.newValue === undefined);
+                    });
+                    
+                    if (isAnyKeyCleared) {
+                        // Synchronously drop context and loading state on sign-out!
+                        setCookieAuth(false);
+                        setIsLoading(false);
+                    } else {
+                        // Async fetch: Retrieve fresh state
+                        chrome.storage.local.get(authKeys, (stored) => {
+                            const isAuth = (stored.isAuthenticated === true || stored.devModeAuth === true) && 
+                                           !!stored.uid && 
+                                           !!(stored.firebaseIdToken || stored.authToken || stored.devModeAuth);
+                            setCookieAuth(isAuth);
+                            setIsLoading(false);
+                        });
+                    }
+                }
+            };
+            chrome.storage.onChanged.addListener(handleStorageChange);
+            return () => {
+                chrome.runtime.onMessage.removeListener(handleMessage);
+                chrome.storage.onChanged.removeListener(handleStorageChange);
+            };
         }
     }, []);
 
@@ -81,7 +89,7 @@ const ExtensionLayout: React.FC = () => {
     // Loading state
     if (stillLoading) {
         return (
-            <div className="min-h-[520px] w-[380px] bg-gray-50 flex items-center justify-center">
+            <div className="min-h-[520px] h-screen w-full bg-[#f7f8fb] flex items-center justify-center">
                 <div className="flex flex-col items-center gap-3">
                     <div className="h-8 w-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-xs text-gray-400">Loading...</p>
@@ -93,8 +101,8 @@ const ExtensionLayout: React.FC = () => {
     // If not authenticated, show Login screen
     if (!isAuthenticated) {
         return (
-            <div className={`min-h-[520px] w-[380px] ${theme === 'dark' ? 'dark' : ''}`}>
-                <div className="bg-white min-h-[520px] text-gray-900">
+            <div className={`min-h-[520px] h-screen w-full ${theme === 'dark' ? 'dark' : ''}`}>
+                <div className="bg-white min-h-[520px] h-full text-gray-900">
                     <ExtensionLogin />
                 </div>
             </div>
@@ -103,8 +111,8 @@ const ExtensionLayout: React.FC = () => {
 
     // Authenticated View: Show Home Dashboard
     return (
-        <div className={`min-h-[520px] w-[380px] ${theme === 'dark' ? 'dark' : ''}`}>
-            <div className="bg-gray-50 min-h-[520px] text-gray-900">
+        <div className={`min-h-[520px] h-screen w-full ${theme === 'dark' ? 'dark' : ''}`}>
+            <div className="bg-[#f7f8fb] min-h-[520px] h-full text-gray-900">
                 <ExtensionHome />
             </div>
         </div>

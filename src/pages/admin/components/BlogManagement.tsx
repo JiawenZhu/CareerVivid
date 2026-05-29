@@ -121,7 +121,8 @@ const BlogManagement: React.FC = () => {
             const matchesSearch = (post.title || '').toLowerCase().includes(searchTerm.toLowerCase());
             let matchesDate = true;
             if (filterDate) {
-                const postDate = post.publishedAt?.toDate().toISOString().split('T')[0];
+                const dateObj = post.publishedAt?.toDate ? post.publishedAt.toDate() : (post.publishedAt ? new Date(post.publishedAt) : null);
+                const postDate = dateObj && !isNaN(dateObj.getTime()) ? dateObj.toISOString().split('T')[0] : '';
                 matchesDate = postDate === filterDate;
             }
             return matchesSearch && matchesDate;

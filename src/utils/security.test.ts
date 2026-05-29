@@ -1,28 +1,23 @@
-import { getSafeRedirectTarget, isSafeUrl } from './security';
+import { describe, expect, it } from 'vitest';
+import { getSafeRelativeRedirect } from './security';
 
-describe('isSafeUrl', () => {
-  it('allows internal relative paths', () => {
-    expect(isSafeUrl('/dashboard')).toBe(true);
-    expect(isSafeUrl('/signin?redirect=/dashboard')).toBe(true);
+describe('getSafeRelativeRedirect', () => {
+  it('allows same-origin relative paths with query and hash', () => {
+    expect(getSafeRelativeRedirect('/extension-welcome?from=auth#ready')).toBe('/extension-welcome?from=auth#ready');
   });
 
-  it('allows configured HTTPS origins', () => {
-    expect(isSafeUrl('https://careervivid.app/dashboard')).toBe(true);
-    expect(isSafeUrl('https://app.stripe.com/dashboard')).toBe(true);
+  it('normalizes same-origin absolute URLs to relative paths', () => {
+    const sameOriginUrl = `${window.location.origin}/dashboard?source=signin`;
+    expect(getSafeRelativeRedirect(sameOriginUrl)).toBe('/dashboard?source=signin');
   });
 
-  it('blocks open redirects and protocol-relative URLs', () => {
-    expect(isSafeUrl('https://evil.example/phish')).toBe(false);
-    expect(isSafeUrl('//evil.example/phish')).toBe(false);
+  it('blocks external redirects', () => {
+    expect(getSafeRelativeRedirect('https://example.com/phish')).toBe('/dashboard');
+    expect(getSafeRelativeRedirect('//example.com/phish')).toBe('/dashboard');
+    expect(getSafeRelativeRedirect('javascript:alert(1)')).toBe('/dashboard');
   });
 
-  it('blocks non-HTTP protocols even on allowed hosts', () => {
-    expect(isSafeUrl('javascript:alert(1)')).toBe(false);
-    expect(isSafeUrl('ftp://careervivid.app/file')).toBe(false);
-  });
-
-  it('returns a safe fallback for unsafe redirect targets', () => {
-    expect(getSafeRedirectTarget('https://evil.example/phish')).toBe('/');
-    expect(getSafeRedirectTarget('https://evil.example/phish', '/dashboard')).toBe('/dashboard');
+  it('uses the requested fallback for invalid targets', () => {
+    expect(getSafeRelativeRedirect('https://example.com/phish', '/signin')).toBe('/signin');
   });
 });

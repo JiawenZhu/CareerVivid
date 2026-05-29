@@ -17,6 +17,7 @@ import CommentSection from '../../components/Community/CommentSection';
 import { generateGEOStructuredData } from '../../utils/geoUtils';
 import UserProfileSnippet from '../../components/Community/UserProfileSnippet';
 import mermaid from 'mermaid';
+import DOMPurify from 'dompurify';
 import ResumePreview from '../../components/ResumePreview';
 import { TEMPLATES } from '../../features/portfolio/templates';
 import LinkTreeVisual from '../../features/portfolio/templates/linkinbio/LinkTreeVisual';
@@ -50,7 +51,9 @@ const MermaidDiagram: React.FC<{ chart: string }> = ({ chart }) => {
 
                 const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
                 const { svg } = await mermaid.render(id, chart);
-                setSvg(svg);
+                setSvg(DOMPurify.sanitize(svg, {
+                    USE_PROFILES: { svg: true, svgFilters: true },
+                }));
                 setError(null);
             } catch (err) {
                 console.error('Mermaid render error:', err);
@@ -164,11 +167,14 @@ const PostContent: React.FC<{ post: any }> = ({ post }) => {
         const whiteboard = post.whiteboardData;
         const svgContent = whiteboard?.thumbnailSvg || post.assetThumbnail;
         if (svgContent?.startsWith('<svg')) {
+            const sanitizedSvgContent = DOMPurify.sanitize(svgContent, {
+                USE_PROFILES: { svg: true, svgFilters: true },
+            });
             return (
                 <div className="w-full bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 p-4 md:p-8 flex items-center justify-center overflow-auto shadow-sm">
                     <div 
                         className="[&_svg]:max-w-full [&_svg]:h-auto flex items-center justify-center"
-                        dangerouslySetInnerHTML={{ __html: svgContent }} 
+                        dangerouslySetInnerHTML={{ __html: sanitizedSvgContent }}
                     />
                 </div>
             );

@@ -16,15 +16,21 @@ import type { ATSAdapter, AutoFillProfile, AutoFillResult, FormField, ATSContext
 import { mapFieldToValue } from './FieldMapper';
 import { GreenhouseAdapter } from './adapters/GreenhouseAdapter';
 import { LeverAdapter } from './adapters/LeverAdapter';
+import { AshbyAdapter } from './adapters/AshbyAdapter';
+import { WorkdayAdapter } from './adapters/WorkdayAdapter';
 
 /**
  * Registry of all available ATS adapters.
  * Adapters are tried in order; the first match wins.
- * Add new adapters here as they are implemented.
+ * Priority: Lever → Ashby → Greenhouse → Workday
+ *   - Lever/Ashby/Greenhouse: simple, predictable DOM — check first
+ *   - Workday: complex multi-step SPA — check last to avoid false positives
  */
 const ADAPTER_REGISTRY: ATSAdapter[] = [
   new LeverAdapter(),
+  new AshbyAdapter(),
   new GreenhouseAdapter(),
+  new WorkdayAdapter(),
 ];
 
 /**

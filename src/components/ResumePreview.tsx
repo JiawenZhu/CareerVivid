@@ -42,14 +42,24 @@ import { ZenithTemplate } from './templates/ZenithTemplate';
 interface ResumePreviewProps {
   resume: ResumeData;
   template: TemplateId;
+  previewId?: string;
+  className?: string;
   previewRef?: React.RefObject<HTMLDivElement>;
   onUpdate?: (data: Partial<ResumeData>) => void;
   onFocus?: (fieldId: string) => void;
 }
 
+const escapeCssIdentifier = (value: string) => {
+  if (typeof window !== 'undefined' && window.CSS?.escape) {
+    return window.CSS.escape(value);
+  }
+
+  return value.replace(/[^a-zA-Z0-9_-]/g, '\\$&');
+};
+
 // Wrapped in React.memo to prevent unnecessary re-renders when props haven't changed.
 // This is crucial for performance as the resume preview can be expensive to render.
-const ResumePreview: React.FC<ResumePreviewProps> = React.memo(({ resume, template, previewRef, onUpdate, onFocus }) => {
+const ResumePreview: React.FC<ResumePreviewProps> = React.memo(({ resume, template, previewId: previewIdOverride, className, previewRef, onUpdate, onFocus }) => {
   const renderTemplate = () => {
     const props = { resume, themeColor: resume.themeColor, titleFont: resume.titleFont, bodyFont: resume.bodyFont, onUpdate, onFocus };
     switch (template) {
@@ -95,7 +105,10 @@ const ResumePreview: React.FC<ResumePreviewProps> = React.memo(({ resume, templa
   };
 
   // Get formatting settings with defaults
-  const fmt = resume.formattingSettings || DEFAULT_FORMATTING_SETTINGS;
+  const fmt = {
+    ...DEFAULT_FORMATTING_SETTINGS,
+    ...(resume.formattingSettings || {}),
+  };
 
   // CSS variables for real-time formatting
   const formattingStyles: React.CSSProperties = {
@@ -106,23 +119,81 @@ const ResumePreview: React.FC<ResumePreviewProps> = React.memo(({ resume, templa
     '--page-margin': `${fmt.pageMargin}rem`,
   } as React.CSSProperties;
 
-  const previewId = `resume-preview-${resume.id || 'default'}`;
+  const previewId = previewIdOverride || `resume-preview-${resume.id || 'default'}`;
+  const previewSelector = `#${escapeCssIdentifier(previewId)}`;
+  const formattingCss = `
+    ${previewSelector} .cv-format-surface {
+      font-size: calc(16px * var(--body-scale, 1));
+      line-height: var(--line-height, 1.4);
+    }
+    ${previewSelector} .cv-format-surface :where(div, p, span, a, li) {
+      line-height: var(--line-height, 1.4) !important;
+    }
+    ${previewSelector} .cv-format-surface :where(.text-xs) {
+      font-size: calc(0.75rem * var(--body-scale, 1)) !important;
+    }
+    ${previewSelector} .cv-format-surface :where(.text-sm) {
+      font-size: calc(0.875rem * var(--body-scale, 1)) !important;
+    }
+    ${previewSelector} .cv-format-surface :where(.text-base) {
+      font-size: calc(1rem * var(--body-scale, 1)) !important;
+    }
+    ${previewSelector} .cv-format-surface :where(.text-md) {
+      font-size: calc(1rem * var(--body-scale, 1)) !important;
+    }
+    ${previewSelector} .cv-format-surface :where(.text-lg) {
+      font-size: calc(1.125rem * var(--body-scale, 1)) !important;
+    }
+    ${previewSelector} .cv-format-surface :where(.text-xl) {
+      font-size: calc(1.25rem * var(--body-scale, 1)) !important;
+    }
+    ${previewSelector} .cv-format-surface :where(.text-2xl) {
+      font-size: calc(1.5rem * var(--body-scale, 1)) !important;
+    }
+    ${previewSelector} .cv-format-surface :where(.text-3xl) {
+      font-size: calc(1.875rem * var(--body-scale, 1)) !important;
+    }
+    ${previewSelector} .cv-format-surface :where(.text-4xl) {
+      font-size: calc(2.25rem * var(--body-scale, 1)) !important;
+    }
+    ${previewSelector} .cv-format-surface :where(.text-5xl) {
+      font-size: calc(3rem * var(--body-scale, 1)) !important;
+    }
+    ${previewSelector} .cv-format-surface :where(section) {
+      margin-bottom: var(--section-gap, 1.5rem) !important;
+    }
+    ${previewSelector} .cv-format-surface :where(p, ul, ol, [data-field-id$=".description"], [data-field-id="professionalSummary"]) {
+      margin-bottom: var(--paragraph-gap, 0.5rem) !important;
+    }
+    ${previewSelector} .cv-format-surface > :first-child:not(.flex) {
+      padding: var(--page-margin, 2rem) !important;
+    }
+    ${previewSelector} .cv-format-surface > .flex > aside {
+      padding: var(--page-margin, 2rem) !important;
+    }
+    ${previewSelector} .cv-format-surface > .flex > main {
+      padding: calc(var(--page-margin, 2rem) * 1.25) var(--page-margin, 2rem) !important;
+    }
+  `;
 
   return (
     <div
       id={previewId}
-      className="w-full min-h-[297mm] max-w-full bg-white shadow-lg relative"
+      data-resume-preview-root="true"
+      className={`w-full min-h-[297mm] max-w-full bg-white shadow-lg relative ${className || ''}`}
       ref={previewRef}
       style={formattingStyles}
     >
       {/* Scoped custom CSS injection — AI Code Customizer writes here */}
+      <style>{formattingCss}</style>
       {resume.customCss && (
         <style>{`#${previewId} { ${resume.customCss} }`}</style>
       )}
-      {renderTemplate()}
+      <div className="cv-format-surface">
+        {renderTemplate()}
+      </div>
     </div>
   );
 });
 
 export default ResumePreview;
-

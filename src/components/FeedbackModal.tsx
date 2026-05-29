@@ -56,7 +56,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, onSubmit
     setIsLoading(true);
 
     try {
-      await addDoc(collection(db, "feedback"), {
+      const feedbackPayload: Record<string, any> = {
         userId: currentUser.uid,
         userEmail: currentUser.email || 'N/A',
         rating,
@@ -64,8 +64,13 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, onSubmit
         createdAt: serverTimestamp(),
         status: 'New', // Default status for new feedback
         source,
-        context,
-      });
+      };
+
+      if (context !== undefined) {
+        feedbackPayload.context = context;
+      }
+
+      await addDoc(collection(db, "feedback"), feedbackPayload);
 
       setIsSuccess(true);
       if (onSubmitted) onSubmitted();

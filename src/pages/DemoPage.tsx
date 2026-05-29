@@ -212,6 +212,20 @@ const DemoPage: React.FC = () => {
                 section: 'interviews',
             });
 
+            /*
+            // 3. Get Auth Token for Microservice
+            const functions = getFunctions(undefined, 'us-west1');
+            const getToken = httpsCallable(functions, 'getInterviewAuthToken');
+            const result = await getToken();
+            const { token } = result.data as { token: string };
+
+            // 4. Redirect to External Interview Studio
+            const baseUrl = 'https://careervivid-371634100960.us-west1.run.app';
+            const targetUrl = `${baseUrl}/#/interview-studio/${jobId}?token=${token}`;
+
+            window.location.href = targetUrl;
+            */
+
             navigate(`/interview-studio/${jobId}`);
 
         } catch (e) {

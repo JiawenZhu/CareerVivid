@@ -289,9 +289,4 @@ export const SUPPORTED_TRANSLATE_LANGUAGES = [
 
 export const EXPORT_OPTIONS = [
   { id: 'pdf', name: 'PDF Document', recommendation: 'Best for job applications and professional sharing.' },
-  { id: 'png', name: 'PNG Image (Full)', recommendation: 'High-quality image of the entire resume.' },
-  { id: '1:1', name: 'Square Image (1:1)', recommendation: 'Ideal for profile pictures or social media posts.' },
-  { id: '16:9', name: 'Widescreen Image (16:9)', recommendation: 'Great for presentation slides or banners.' },
-  { id: '9:16', name: 'Story Image (9:16)', recommendation: 'Perfect for sharing on mobile stories.' },
-  { id: '4:5', name: 'Portrait Image (4:5)', recommendation: 'Optimized for social media feeds.' },
 ];

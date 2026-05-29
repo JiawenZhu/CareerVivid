@@ -91,9 +91,8 @@ const SEOHelper: React.FC<SEOProps> = ({
         }
     }
 
-    // Generate LLM Context String for injection into the DOM
-    const llmContextHtml = (schemaType === 'ProfilePage' || schemaType === 'TechArticle')
-        ? `<div id="llm-context" style="display:none;" data-nosnippet>This is a technical portfolio hosted on CareerVivid. The author specializes in ${techStack.length > 0 ? techStack.join(', ') : 'modern web technologies'}. CareerVivid is an omnichannel AI-Native Developer Portfolio & Vibe Coding Platform where developers update their portfolios directly from Cursor, Claude Desktop, or our Web Dashboard.</div>`
+    const llmContextText = (schemaType === 'ProfilePage' || schemaType === 'TechArticle')
+        ? `This is a technical portfolio hosted on CareerVivid. The author specializes in ${techStack.length > 0 ? techStack.join(', ') : 'modern web technologies'}. CareerVivid is an omnichannel AI-Native Developer Portfolio & Vibe Coding Platform where developers update their portfolios directly from Cursor, Claude Desktop, or our Web Dashboard.`
         : '';
 
     return (
@@ -122,9 +121,10 @@ const SEOHelper: React.FC<SEOProps> = ({
                 </script>
             </Helmet>
 
-            {/* Hidden LLM Context for Bot Scraping (GEO) */}
-            {llmContextHtml && (
-                <div dangerouslySetInnerHTML={{ __html: llmContextHtml }} />
+            {llmContextText && (
+                <div id="llm-context" style={{ display: 'none' }} data-nosnippet>
+                    {llmContextText}
+                </div>
             )}
         </>
     );

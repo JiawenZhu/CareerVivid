@@ -11,9 +11,10 @@ const AutoResizeTextarea: React.FC<AutoResizeTextareaProps> = ({
   value, 
   onChange, 
   className, 
-  maxHeight = 600, 
-  minHeight = 100,
+  maxHeight,
+  minHeight = 36,
   style,
+  onFocus,
   ...props 
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -29,7 +30,7 @@ const AutoResizeTextarea: React.FC<AutoResizeTextareaProps> = ({
       const effectiveMinHeight = minHeight || 0;
       const targetHeight = Math.max(scrollHeight, effectiveMinHeight);
 
-      if (targetHeight > maxHeight) {
+      if (maxHeight && targetHeight > maxHeight) {
         textarea.style.height = `${maxHeight}px`;
         textarea.style.overflowY = 'auto';
       } else {
@@ -44,6 +45,14 @@ const AutoResizeTextarea: React.FC<AutoResizeTextareaProps> = ({
     adjustHeight();
   }, [value]);
 
+  // Adjust height on mount with a small delay for stable layout settling (e.g. tab transitions)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      adjustHeight();
+    }, 60);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Adjust height on window resize
   useEffect(() => {
     window.addEventListener('resize', adjustHeight);
@@ -56,6 +65,10 @@ const AutoResizeTextarea: React.FC<AutoResizeTextareaProps> = ({
       value={value}
       onChange={(e) => {
         onChange(e);
+      }}
+      onFocus={(e) => {
+        adjustHeight();
+        if (onFocus) onFocus(e);
       }}
       className={`resize-none transition-[height] duration-100 ease-out ${className}`}
       style={{ minHeight: `${minHeight}px`, ...style }}

@@ -9,7 +9,7 @@
     "dev": "ts-node index.ts"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.8.0"
+    "@modelcontextprotocol/sdk": "^1.29.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
@@ -20,16 +20,17 @@
     "node": ">=18"
   },
   "overrides": {
-    "hono": "^4.12.18",
-    "ip-address": "^10.1.1",
     "braces": "3.0.3",
     "cross-spawn": "7.0.6",
     "cookie": "0.7.2",
-    "qs": "^6.15.2",
     "semver": "^7.5.4",
     "ajv": "^6.12.6",
     "micromatch": "^4.0.8",
-    "ws": ">=7.5.10",
-    "axios": ">=1.7.4"
+    "ws": "^8.20.1",
+    "axios": ">=1.7.4",
+    "hono": "^4.12.18",
+    "express-rate-limit": "^8.5.1",
+    "ip-address": "^10.1.1",
+    "qs": "^6.15.2"
   }
 }

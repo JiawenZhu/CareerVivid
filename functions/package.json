@@ -42,11 +42,13 @@
     "react-dom": "^18.3.1",
     "react-i18next": "^16.5.0",
     "react-router-dom": "^6.30.2",
-    "stripe": "^20.0.0"
+    "stripe": "^20.0.0",
+    "uuid": "^11.1.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/nodemailer": "^7.0.4",
+    "@types/uuid": "^10.0.0",
     "fast-xml-parser": "^5.7.0",
     "typescript": "^5.0.0"
   },
@@ -63,12 +65,12 @@
     "braces": "3.0.3",
     "cross-spawn": "7.0.6",
     "cookie": "0.7.2",
-    "qs": "^6.15.2",
     "semver": "^7.5.4",
     "ajv": "^6.12.6",
     "micromatch": "^4.0.8",
-    "uuid": "^11.1.1",
-    "ws": ">=7.5.10"
+    "ws": "^8.20.1",
+    "qs": "^6.15.2",
+    "uuid": "^11.1.1"
   },
   "engines": {
     "node": "22"

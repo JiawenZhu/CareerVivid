@@ -9,6 +9,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useTranslation } from 'react-i18next';
 import { enUS, es, fr, de, zhCN } from 'date-fns/locale';
+import DOMPurify from 'dompurify';
 import ResumePreview from '../ResumePreview';
 import { TEMPLATES } from '../../features/portfolio/templates';
 import LinkTreeVisual from '../../features/portfolio/templates/linkinbio/LinkTreeVisual';
@@ -231,11 +232,14 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             const svgThumbnail = whiteboard?.thumbnailSvg || thumbnail;
 
             if (svgThumbnail?.startsWith('<svg')) {
+                const sanitizedSvgThumbnail = DOMPurify.sanitize(svgThumbnail, {
+                    USE_PROFILES: { svg: true, svgFilters: true },
+                });
                 return (
                     <div className="w-full h-full bg-white dark:bg-gray-950 flex items-center justify-center p-2 overflow-hidden relative group-hover:bg-gray-50 dark:group-hover:bg-gray-900 transition-colors">
                         <div
                             className="w-full h-full flex items-center justify-center [&_svg]:max-w-full [&_svg]:max-h-full [&_svg]:w-auto [&_svg]:h-auto"
-                            dangerouslySetInnerHTML={{ __html: svgThumbnail }}
+                            dangerouslySetInnerHTML={{ __html: sanitizedSvgThumbnail }}
                         />
                         {/* Subtle grid pattern for whiteboard feel */}
                         <div className="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(#000 0.5px, transparent 0.5px)', backgroundSize: '10px 10px' }}></div>
@@ -397,39 +401,35 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             return text;
         }
 
-        const highlightedValue = String(highlightResult.title.value);
-        const segments = highlightedValue.split(/(<\/?em>)/g);
-        const nodes: React.ReactNode[] = [];
-        let inHighlight = false;
+        // Algolia wraps matches in <em> tags by default
+        const highlightedHtml = highlightResult.title.value;
+        const parts = highlightedHtml.split(/(<\/?em>)/gi);
+        let isHighlighted = false;
 
-        for (const [index, segment] of segments.entries()) {
-            if (segment === '<em>') {
-                inHighlight = true;
-                continue;
-            }
-            if (segment === '</em>') {
-                inHighlight = false;
-                continue;
-            }
-            if (!segment) {
-                continue;
-            }
+        return (
+            <span>
+                {parts.map((part: string, index: number) => {
+                    const lowerPart = part.toLowerCase();
+                    if (lowerPart === '<em>') {
+                        isHighlighted = true;
+                        return null;
+                    }
+                    if (lowerPart === '</em>') {
+                        isHighlighted = false;
+                        return null;
+                    }
+                    if (!part) return null;
 
-            if (inHighlight) {
-                nodes.push(
-                    <mark
-                        key={`highlight-${index}`}
-                        className="bg-yellow-200 dark:bg-yellow-900/50 text-gray-900 dark:text-white rounded px-0.5"
-                    >
-                        {segment}
-                    </mark>
-                );
-            } else {
-                nodes.push(<React.Fragment key={`text-${index}`}>{segment}</React.Fragment>);
-            }
-        }
-
-        return <span>{nodes}</span>;
+                    return isHighlighted ? (
+                        <mark key={index} className="bg-yellow-200 dark:bg-yellow-900/50 text-gray-900 dark:text-white rounded px-0.5">
+                            {part}
+                        </mark>
+                    ) : (
+                        <React.Fragment key={index}>{part}</React.Fragment>
+                    );
+                })}
+            </span>
+        );
     };
 
     // Determine click handler

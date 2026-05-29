@@ -11,6 +11,8 @@ import { navigate } from '../utils/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '../contexts/NavigationContext';
 import { useResumes } from '../hooks/useResumes';
+import { db } from '../firebase';
+import { doc, getDoc, deleteDoc } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useAICreditCheck } from '../hooks/useAICreditCheck';
 import InterviewHistoryCard from '../components/Dashboard/InterviewHistoryCard';
@@ -84,6 +86,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
 
     const { practiceHistory, addJob, isLoading: isLoadingHistory, deletePracticeHistory } = usePracticeHistory();
     const { resumes } = useResumes();
+    const [isSyncingTransit, setIsSyncingTransit] = useState(false);
 
     // AI Credit Check Hook
     const { checkCredit, CreditLimitModal } = useAICreditCheck();
@@ -174,6 +177,51 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
         };
     }, []);
 
+    useEffect(() => {
+        const syncTransitPractice = async () => {
+            const params = new URLSearchParams(window.location.search);
+            const source = params.get('source');
+            const scrapeId = params.get('scrapeId');
+
+            if (source === 'extension_practice' && scrapeId) {
+                if (!currentUser) return; // Wait until auth state is resolved
+
+                setIsSyncingTransit(true);
+                try {
+                    const docRef = doc(db, 'users', currentUser.uid, 'temporaryScrapes', scrapeId);
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        const jobData = {
+                            title: data.title || 'Unknown Role',
+                            company: data.company || 'Custom Practice',
+                            location: '',
+                            description: data.description || '',
+                            url: data.url || ''
+                        };
+
+                        // Delete transit document immediately for privacy
+                        await deleteDoc(docRef);
+
+                        // Cleanse URL
+                        const newUrl = window.location.pathname;
+                        window.history.replaceState({}, document.title, newUrl);
+
+                        // Start interview immediately
+                        await handleStartInterview(jobData.description, jobData);
+                    }
+                } catch (error) {
+                    console.error('Error syncing transit job:', error);
+                } finally {
+                    setIsSyncingTransit(false);
+                }
+            }
+        };
+
+        syncTransitPractice();
+    }, [currentUser, resumes]);
+
 
     const handleStartInterview = async (generationPrompt: string, jobData?: Omit<Job, 'id'>) => {
         if (!generationPrompt.trim() || !currentUser) return;
@@ -196,6 +244,21 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
 
             // Add job to practice history
             const newJobId = await addJob(job, questions);
+
+            /*
+            // Get authentication token for microservice (us-west1 region)
+            const functions = getFunctions(undefined, 'us-west1');
+            const getToken = httpsCallable(functions, 'getInterviewAuthToken');
+            const result = await getToken();
+            const { token } = result.data as { token: string };
+
+            // Construct redirect URL to Interview Microservice
+            const baseUrl = 'https://careervivid-371634100960.us-west1.run.app';
+            const targetUrl = `${baseUrl}/#/interview-studio/${newJobId}?token=${token}`;
+
+            // Redirect to external microservice
+            window.location.href = targetUrl;
+            */
 
             const activeResume = resumes.find(r => r.isDefault) || resumes[0];
             const resumeContext = activeResume ? formatResumeForContext(activeResume) : '';
@@ -259,6 +322,17 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                 const startSavedInterview = async () => {
                     setIsLoading(true);
                     try {
+                        /*
+                        const functions = getFunctions(undefined, 'us-west1');
+                        const getToken = httpsCallable(functions, 'getInterviewAuthToken');
+                        const result = await getToken();
+                        const { token } = result.data as { token: string };
+
+                        const baseUrl = 'https://careervivid-371634100960.us-west1.run.app';
+                        const targetUrl = `${baseUrl}/#/interview-studio/${jobId}?token=${token}`;
+                        window.location.href = targetUrl;
+                        */
+
                         const activeResume = resumes.find(r => r.isDefault) || resumes[0];
                         const resumeContext = activeResume ? formatResumeForContext(activeResume) : '';
 
@@ -358,15 +432,17 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
         );
     };
 
-    if (isLoading && !isInterviewModalOpen) {
+    if ((isLoading || isSyncingTransit) && !isInterviewModalOpen) {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center p-4">
                 <div className="text-center">
                     <Loader2 className="w-16 h-16 text-primary-500 animate-spin mx-auto" />
-                    <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mt-6">{t('interview_studio.preparing')}</h1>
+                    <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mt-6">
+                        {isSyncingTransit ? "Synchronizing Job Details..." : t('interview_studio.preparing')}
+                    </h1>
                     <div className="h-6 mt-2">
                         <p key={loadingMessageIndex} className="text-gray-500 dark:text-gray-400 animate-fade-in">
-                            {t(`interview_studio.loading_${loadingMessageIndex + 1}`)}
+                            {isSyncingTransit ? "Preparing your AI mock interview room..." : t(`interview_studio.loading_${loadingMessageIndex + 1}`)}
                         </p>
                     </div>
                 </div>

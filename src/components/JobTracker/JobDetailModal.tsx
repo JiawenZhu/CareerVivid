@@ -10,18 +10,34 @@ import { navigate } from '../../utils/navigation';
 import { useAICreditCheck } from '../../hooks/useAICreditCheck';
 
 // Reusable components for the top section
-const EditableField: React.FC<{ label: string; value: string; onChange: (value: string) => void; type?: string; placeholder?: string }> = ({ label, value, onChange, type = 'text', placeholder }) => (
-    <div>
-        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">{label}</label>
-        <input
-            type={type}
-            value={value || ''}
-            onChange={e => onChange(e.target.value)}
-            placeholder={placeholder}
-            className="mt-1 block w-full bg-transparent border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:border-primary-500 transition-colors"
-        />
-    </div>
-);
+const EditableField: React.FC<{ label: string; value: string; onChange: (value: string) => void; type?: string; placeholder?: string }> = ({ label, value, onChange, type = 'text', placeholder }) => {
+    const isUrl = value && (value.startsWith('http://') || value.startsWith('https://'));
+    return (
+        <div>
+            <div className="flex justify-between items-center">
+                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">{label}</label>
+                {isUrl && (
+                    <a
+                        href={value}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-semibold text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center gap-1 transition-colors"
+                    >
+                        <span>Open URL</span>
+                        <ExternalLink size={12} />
+                    </a>
+                )}
+            </div>
+            <input
+                type={type}
+                value={value || ''}
+                onChange={e => onChange(e.target.value)}
+                placeholder={placeholder}
+                className="mt-1 block w-full bg-transparent border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:border-primary-500 transition-colors"
+            />
+        </div>
+    );
+};
 
 const EditableSelect: React.FC<{ label: string; value: string; onChange: (value: string) => void; options: readonly string[] }> = ({ label, value, onChange, options }) => (
     <div>
@@ -416,6 +432,20 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
         }
     }, [allResumes, selectedResumeId]);
 
+    // Sync resume selection changes originating from the extension
+    useEffect(() => {
+        const handleMessage = (event: MessageEvent) => {
+            if (event.data?.type === 'CAREER_VIVID_EXTENSION_RESUME_CHANGED') {
+                const newResumeId = event.data.resumeId;
+                if (newResumeId) {
+                    setSelectedResumeId(newResumeId);
+                }
+            }
+        };
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
+    }, []);
+
     // Effect to scroll and highlight prep notes when they are first generated
     useEffect(() => {
         if (!prevPrepNotesRef.current && job.prep_RoleOverview) {
@@ -489,7 +519,20 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
 
     const formatDateForInput = (date: any) => {
         if (!date) return '';
-        const d = date.toDate ? date.toDate() : new Date(date);
+        
+        let d: Date;
+        if (date.toDate && typeof date.toDate === 'function') {
+            d = date.toDate();
+        } else if (date && typeof date === 'object' && typeof date.seconds === 'number') {
+            d = new Date(date.seconds * 1000);
+        } else {
+            d = new Date(date);
+        }
+        
+        if (isNaN(d.getTime())) {
+            return '';
+        }
+        
         return d.toISOString().split('T')[0];
     };
 
@@ -505,19 +548,19 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
     };
 
     const getResumeContext = (): string => {
-        const latestResume = resumes[0];
-        if (!latestResume) return "No resume available.";
+        const activeResume = resumes.find(r => r.id === selectedResumeId) || resumes[0];
+        if (!activeResume) return "No resume available.";
         // ... (rest of the function is the same)
-        let context = `Name: ${latestResume.personalDetails.firstName} ${latestResume.personalDetails.lastName} \n`;
-        context += `Job Title: ${latestResume.personalDetails.jobTitle} \n\nSUMMARY: \n${latestResume.professionalSummary} \n\n`;
-        if (latestResume.employmentHistory.length > 0) {
+        let context = `Name: ${activeResume.personalDetails.firstName} ${activeResume.personalDetails.lastName} \n`;
+        context += `Job Title: ${activeResume.personalDetails.jobTitle} \n\nSUMMARY: \n${activeResume.professionalSummary} \n\n`;
+        if (activeResume.employmentHistory.length > 0) {
             context += `EXPERIENCE: \n`;
-            latestResume.employmentHistory.forEach(job => {
+            activeResume.employmentHistory.forEach(job => {
                 context += `- ${job.jobTitle} at ${job.employer} \n${job.description} \n`;
             });
         }
-        if (latestResume.skills.length > 0) {
-            context += `\nSKILLS: ${latestResume.skills.map(s => s.name).join(', ')} \n`;
+        if (activeResume.skills.length > 0) {
+            context += `\nSKILLS: ${activeResume.skills.map(s => s.name).join(', ')} \n`;
         }
         return context;
     };
@@ -787,7 +830,10 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({ job, onClose, onUpdate,
                                 <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{t('job_tracker.modal.compare_resume')}</label>
                                 <select
                                     value={selectedResumeId}
-                                    onChange={e => setSelectedResumeId(e.target.value)}
+                                    onChange={e => {
+                                        setSelectedResumeId(e.target.value);
+                                        window.postMessage({ type: 'CAREER_VIVID_WEB_RESUME_CHANGED', resumeId: e.target.value }, '*');
+                                    }}
                                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700"
                                 >
                                     {allResumes.map(r => <option key={r.id} value={r.id}>{r.title}</option>)}

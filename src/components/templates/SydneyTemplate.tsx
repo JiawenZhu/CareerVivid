@@ -77,7 +77,7 @@ export const SydneyTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
             <InlineEdit value={sectionTitles?.education || 'Education'} fieldId="sectionTitles.education" onFocus={onFocus} placeholder="Education" />
           </h2>
           {education.map((edu, index) => (
-            <div key={edu.id} className="mb-4 text-sm">
+            <div key={edu.id} className="mb-4 text-sm" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
               <InlineEdit 
                 value={edu.degree} 
                 fieldId={`education[${index}].degree`} 
@@ -155,7 +155,7 @@ export const SydneyTemplate: React.FC<TemplateProps> = ({ resume, themeColor, ti
             <InlineEdit value={sectionTitles?.experience || 'Experience'} fieldId="sectionTitles.experience" onFocus={onFocus} placeholder="Experience" />
           </h2>
           {employmentHistory.map((job, index) => (
-            <div key={job.id} className="mb-6 relative pl-6">
+            <div key={job.id} className="mb-6 relative pl-6" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                <div className="absolute left-0 top-1 w-3 h-3 bg-gray-800 rounded-full border-2 border-white" style={{backgroundColor: themeColor}}></div>
                <div className="absolute left-[5px] top-4 h-full w-px bg-gray-200"></div>
               <div className="flex gap-1 text-xs font-bold text-gray-500 mb-1">

@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Share2, Download, ChevronDown, FileText, Image as ImageIcon, Loader2, Languages, Eye, MoreVertical, Edit as EditIcon, Moon, Sun, Sparkles, Wand2 } from 'lucide-react';
+import { ArrowLeft, Share2, Download, ChevronDown, FileText, FileType, Loader2, Languages, Eye, MoreVertical, Edit as EditIcon, Moon, Sun, Sparkles, Wand2 } from 'lucide-react';
 import CoverLetterManagerModal from './CoverLetterManagerModal';
 import TailorResumeModal from './TailorResumeModal';
 import { useTranslation } from 'react-i18next';
-import { ResumeData, UserProfile } from '../../../types';
+import { ResumeData } from '../../../types';
 import ThemeToggle from '../../../components/ThemeToggle';
-import { EXPORT_OPTIONS, SUPPORTED_TRANSLATE_LANGUAGES } from '../../../constants';
+import { SUPPORTED_TRANSLATE_LANGUAGES } from '../../../constants';
 import { navigate } from '../../../utils/navigation';
 
 interface EditorHeaderProps {
@@ -29,16 +29,19 @@ interface EditorHeaderProps {
     onToggleTheme: () => void;
     setViewMode: (mode: 'edit' | 'preview') => void;
     onDismissGuideArrow?: () => void;
-    onExportToGoogleDocs?: () => void;
+    onExportToGoogleDocs?: (format?: 'google-docs' | 'docx') => void;
     onDropdownChange?: (isOpen: boolean) => void;
+    initialTailorModalOpen?: boolean;
+    initialJobDescription?: string;
 }
 
 const EditorHeader: React.FC<EditorHeaderProps> = ({
     resume, currentUser, isShared, isGuestMode, isTranslating,
-    hasAnnotations, hasViewedFeedback, commentsCount, showAnnotationOverlay,
+    isExporting, hasAnnotations, hasViewedFeedback, commentsCount, showAnnotationOverlay,
     theme, showGuideArrow, onResumeChange, onExport, onTranslate,
     onToggleFeedback, onShare, onToggleTheme, setViewMode, onDismissGuideArrow,
-    onExportToGoogleDocs, onDropdownChange
+    onExportToGoogleDocs, onDropdownChange,
+    initialTailorModalOpen, initialJobDescription
 }) => {
     const { t } = useTranslation();
     const [isDesktopDownloadMenuOpen, setIsDesktopDownloadMenuOpen] = useState(false);
@@ -46,6 +49,31 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
     const [isMobileMoreMenuOpen, setIsMobileMoreMenuOpen] = useState(false);
     const [isCoverLetterModalOpen, setIsCoverLetterModalOpen] = useState(false);
     const [isTailorModalOpen, setIsTailorModalOpen] = useState(false);
+    const [tailorJobDescription, setTailorJobDescription] = useState('');
+
+    useEffect(() => {
+        if (initialTailorModalOpen) {
+            setIsTailorModalOpen(true);
+        }
+    }, [initialTailorModalOpen]);
+
+    useEffect(() => {
+        if (initialJobDescription) {
+            setTailorJobDescription(initialJobDescription);
+        }
+    }, [initialJobDescription]);
+
+    useEffect(() => {
+        const handleOpenTailor = (e: Event) => {
+            const customEvent = e as CustomEvent;
+            if (customEvent.detail?.jobDescription) {
+                setTailorJobDescription(customEvent.detail.jobDescription);
+            }
+            setIsTailorModalOpen(true);
+        };
+        window.addEventListener('open-ai-tailor', handleOpenTailor);
+        return () => window.removeEventListener('open-ai-tailor', handleOpenTailor);
+    }, []);
 
     const [isDownloadClosing, setIsDownloadClosing] = useState(false);
     const [isTranslateClosing, setIsTranslateClosing] = useState(false);
@@ -54,6 +82,30 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
     const desktopDownloadMenuRef = useRef<HTMLDivElement>(null);
     const translateMenuRef = useRef<HTMLDivElement>(null);
     const mobileMoreMenuRef = useRef<HTMLDivElement>(null);
+
+    const exportActions = [
+        {
+            id: 'pdf',
+            title: 'Export as PDF',
+            description: 'Recommended. Matches the resume preview exactly.',
+            icon: FileText,
+            action: () => onExport('pdf')
+        },
+        {
+            id: 'google-docs',
+            title: 'Export to Google Docs',
+            description: 'Creates an editable Google Doc in your Drive.',
+            icon: FileText,
+            action: () => onExportToGoogleDocs?.('google-docs')
+        },
+        {
+            id: 'docx',
+            title: 'Export as .DOCX',
+            description: 'Best for editing in Word or uploading to Google Docs.',
+            icon: FileType,
+            action: () => onExportToGoogleDocs?.('docx')
+        }
+    ];
 
     const closeDownloadMenu = () => {
         setIsDownloadClosing(true);
@@ -187,12 +239,15 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
                                         </>
                                     )}
                                     <div className="border-t my-1 dark:border-gray-600"></div>
-                                    <p className="px-4 py-2 text-xs text-gray-400">Download</p>
-                                    {EXPORT_OPTIONS.slice(0, 2).map(opt => (
-                                        <button key={opt.id} onClick={() => { onExport(opt.id); closeMobileMoreMenu(); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                            {opt.id === 'pdf' ? <FileText size={16} /> : <ImageIcon size={16} />} {opt.name}
-                                        </button>
-                                    ))}
+                                    <p className="px-4 py-2 text-xs text-gray-400">Export</p>
+                                    {exportActions.map(action => {
+                                        const Icon = action.icon;
+                                        return (
+                                            <button key={action.id} onClick={() => { action.action(); closeMobileMoreMenu(); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                <Icon size={16} /> {action.title}
+                                            </button>
+                                        );
+                                    })}
                                     <div className="border-t my-1 dark:border-gray-600"></div>
                                     <button onClick={() => { onToggleTheme(); closeMobileMoreMenu(); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                         {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />} Toggle Theme
@@ -216,31 +271,31 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
                                     onDropdownChange?.(true);
                                 }
                             }}
-                            className="flex items-center gap-2 bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg shadow-soft hover:bg-primary-700 transition-colors"
+                            disabled={isExporting}
+                            className="flex items-center gap-2 bg-primary-100 text-primary-700 dark:bg-primary-900/20 dark:text-primary-300 border border-primary-200 dark:border-primary-800 font-semibold py-2 px-4 rounded-lg shadow-soft hover:bg-primary-200 dark:hover:bg-primary-900/35 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                         >
-                            <Download size={18} />
-                            <span>{t('editor.download')}</span>
+                            {isExporting ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
+                            <span>Download PDF</span>
                             <ChevronDown size={18} />
                         </button>
                         {isDesktopDownloadMenuOpen && (
-                            <div className={`absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-50 border dark:border-gray-700 origin-top-right ${isDownloadClosing ? 'animate-dropdown-out' : 'animate-dropdown-in'}`}>
-                                <div className="py-1">
-                                    {EXPORT_OPTIONS.map(opt => {
-                                        let name = opt.name;
-                                        let rec = opt.recommendation;
-                                        if (opt.id === 'pdf') { name = t('export.pdf'); rec = t('export.pdf_rec'); }
-                                        else if (opt.id === 'png') { name = t('export.png'); rec = t('export.png_rec'); }
-                                        else if (opt.id === '1:1') { name = t('export.square'); rec = t('export.square_rec'); }
-                                        else if (opt.id === '16:9') { name = t('export.widescreen'); rec = t('export.widescreen_rec'); }
-                                        else if (opt.id === '9:16') { name = t('export.story'); rec = t('export.story_rec'); }
-                                        else if (opt.id === '4:5') { name = t('export.portrait'); rec = t('export.portrait_rec'); }
-
+                            <div className={`absolute right-0 mt-2 w-[360px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl ring-1 ring-black/5 dark:border-gray-700 dark:bg-gray-800 origin-top-right ${isDownloadClosing ? 'animate-dropdown-out' : 'animate-dropdown-in'}`}>
+                                <div className="divide-y divide-slate-100 dark:divide-gray-700">
+                                    {exportActions.map(action => {
+                                        const Icon = action.icon;
                                         return (
-                                            <button key={opt.id} onClick={() => { onExport(opt.id); closeDownloadMenu(); }} className="w-full text-left flex items-start gap-3 px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                {opt.id === 'pdf' ? <FileText className="mt-1" /> : <ImageIcon className="mt-1" />}
-                                                <div>
-                                                    <p className="font-semibold">{name}</p>
-                                                    <p className="text-xs text-gray-500 dark:text-gray-400">{rec}</p>
+                                            <button
+                                                key={action.id}
+                                                onClick={() => { action.action(); closeDownloadMenu(); }}
+                                                disabled={isExporting}
+                                                className="group flex w-full items-start gap-4 px-5 py-4 text-left transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:bg-gray-700/70"
+                                            >
+                                                <span className="mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-600 group-hover:bg-primary-100 dark:bg-primary-900/20 dark:text-primary-300">
+                                                    <Icon size={20} />
+                                                </span>
+                                                <div className="min-w-0">
+                                                    <p className="text-base font-bold text-[#18083d] dark:text-white">{action.title}</p>
+                                                    <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-gray-400">{action.description}</p>
                                                 </div>
                                             </button>
                                         );
@@ -311,18 +366,6 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
                         </button>
                     )}
 
-                    {/* NEW: GOOGLE DOCS BUTTON */}
-                    {!isShared && (
-                        <button
-                            onClick={onExportToGoogleDocs}
-                            className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                            title="Export to Google Docs"
-                        >
-                            <FileText size={16} />
-                            <span className="hidden lg:inline">Exp. Docs</span>
-                        </button>
-                    )}
-
                     {/* FEEDBACK / SHARE BUTTONS (Moved to Center) */}
                     {!isShared && !isGuestMode && (
                         <div className="flex items-center">
@@ -369,6 +412,7 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
                 resume={resume}
                 onResumeChange={onResumeChange}
                 theme={theme}
+                initialJobDescription={tailorJobDescription}
             />
         </header>
     );

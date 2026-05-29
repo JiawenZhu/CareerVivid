@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import {
     signInWithEmailAndPassword,
     signInWithPopup,
-    sendPasswordResetEmail,
 } from 'firebase/auth';
 import { auth, googleProvider, db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
@@ -12,7 +11,15 @@ import { trackUsage } from '../services/trackingService';
 import Logo from '../components/Logo';
 import { navigate } from '../utils/navigation';
 import { useAuth } from '../contexts/AuthContext';
-import { safeRedirect } from '../utils/security';
+import { queueTransactionalAuthEmail } from '../services/transactionalEmailService';
+import { resolveSignedInWorkspace } from '../services/authAccountLinkingService';
+import { getSafeRelativeRedirect } from '../utils/security';
+
+const normalizeCliPort = (port: string | null): string | null => {
+    if (!port || !/^\d{1,5}$/.test(port)) return null;
+    const parsedPort = Number(port);
+    return parsedPort >= 1 && parsedPort <= 65535 ? String(parsedPort) : null;
+};
 
 const SignInPage: React.FC = () => {
     const { t } = useTranslation();
@@ -29,6 +36,14 @@ const SignInPage: React.FC = () => {
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
+        const redirectUrl = params.get('redirect');
+        const safeRedirectUrl = getSafeRelativeRedirect(redirectUrl, '');
+        if (safeRedirectUrl) {
+            if (safeRedirectUrl.startsWith('/extension-welcome')) {
+                window.location.replace(safeRedirectUrl);
+                return;
+            }
+        }
         
         // Handle pre-filled email (frictionless transition)
         const emailParam = params.get('email');
@@ -36,7 +51,7 @@ const SignInPage: React.FC = () => {
             setEmail(decodeURIComponent(emailParam));
         }
 
-        const port = params.get('cli_port');
+        const port = normalizeCliPort(params.get('cli_port'));
         if (port) {
             setCliPort(port);
         }
@@ -127,13 +142,17 @@ const SignInPage: React.FC = () => {
         setSuccess('');
         try {
             const cred = await signInWithEmailAndPassword(auth, email, password);
-            trackUsage(cred.user.uid, 'sign_in');
+            const user = await resolveSignedInWorkspace();
+            trackUsage(user.uid, 'sign_in', {
+                resolvedWorkspace: user.uid !== cred.user.uid,
+                provider: 'password',
+            });
 
             // Check for redirect param
             const params = new URLSearchParams(window.location.search);
             const redirectUrl = params.get('redirect');
             if (redirectUrl) {
-                safeRedirect(decodeURIComponent(redirectUrl));
+                navigate(getSafeRelativeRedirect(redirectUrl));
             } else if (!cliPort) {
                 navigate('/dashboard');
             }
@@ -149,13 +168,16 @@ const SignInPage: React.FC = () => {
         setSuccess('');
         try {
             const result = await signInWithPopup(auth, googleProvider);
-            const user = result.user;
+            const user = await resolveSignedInWorkspace();
 
             const userDocRef = doc(db, 'users', user.uid);
             const userDoc = await getDoc(userDocRef);
 
             if (userDoc.exists()) {
-                trackUsage(user.uid, 'sign_in', { provider: 'google' });
+                trackUsage(user.uid, 'sign_in', {
+                    provider: 'google',
+                    resolvedWorkspace: user.uid !== result.user.uid,
+                });
             } else {
                 // New user signing up via Google - redirect to signup
                 await auth.signOut();
@@ -168,7 +190,7 @@ const SignInPage: React.FC = () => {
             const params = new URLSearchParams(window.location.search);
             const redirectUrl = params.get('redirect');
             if (redirectUrl) {
-                safeRedirect(decodeURIComponent(redirectUrl));
+                navigate(getSafeRelativeRedirect(redirectUrl));
             } else if (!cliPort) {
                 navigate('/dashboard');
             }
@@ -187,7 +209,7 @@ const SignInPage: React.FC = () => {
         setError('');
         setSuccess('');
         try {
-            await sendPasswordResetEmail(auth, email);
+            await queueTransactionalAuthEmail({ type: 'password_reset', email });
             setSuccess(t('auth.reset_sent'));
         } catch (err: any) {
             handleAuthError(err);

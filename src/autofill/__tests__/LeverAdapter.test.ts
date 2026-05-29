@@ -91,6 +91,33 @@ describe('LeverAdapter.getFormFields — Strategy A', () => {
     expect(fields[1].label).toBe('Last Name');
   });
 
+  it('discovers labels from Lever parent label wrappers', () => {
+    document.body.innerHTML = `
+      <li class="application-question">
+        <label>
+          <div class="application-label">Full name<span class="required">✱</span></div>
+          <div class="application-field">
+            <input type="text" name="name" required />
+          </div>
+        </label>
+      </li>
+      <li class="application-question">
+        <label>
+          <div class="application-label">Email<span class="required">✱</span></div>
+          <div class="application-field">
+            <input type="email" name="email" required />
+          </div>
+        </label>
+      </li>
+    `;
+
+    const fields = adapter.getFormFields();
+
+    expect(fields).toHaveLength(2);
+    expect(fields[0].label).toBe('Full name');
+    expect(fields[1].label).toBe('Email');
+  });
+
   it('discovers textarea fields in .application-field', () => {
     document.body.innerHTML = `
       <div class="application-field">

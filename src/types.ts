@@ -386,12 +386,25 @@ export interface JobApplicationData {
   section?: string;
 }
 
+export interface GranularMatchCategory {
+  score: number;       // 0 - 100
+  rating: string;      // "Great", "Good", "Missing", "Fair"
+  impact: string;      // "High Impact", "Medium Impact", "Low Impact"
+  details: string[];   // Specific list of matching suggestions/bullet points
+}
+
 export interface ResumeMatchAnalysis {
   totalKeywords: number;
   matchedKeywords: string[];
   missingKeywords: string[];
   matchPercentage: number;
   summary: string;
+  verdict?: string;         // Overall AI text summary
+  verdictCategory?: string; // "Great", "Good", "Missing"
+  qualifications?: GranularMatchCategory;
+  responsibilities?: GranularMatchCategory;
+  keywords?: GranularMatchCategory;
+  jobTitle?: GranularMatchCategory;
 }
 
 

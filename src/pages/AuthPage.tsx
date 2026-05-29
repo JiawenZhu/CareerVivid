@@ -4,17 +4,16 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     signInWithPopup,
-    sendEmailVerification,
-    sendPasswordResetEmail,
 } from 'firebase/auth';
 import { auth, googleProvider, db } from '../firebase';
-import { doc, setDoc, getDoc, serverTimestamp, collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { Eye, EyeOff, ArrowLeft, Loader2, Mail, Lock, ChevronRight } from 'lucide-react';
 import { trackUsage } from '../services/trackingService';
 import Logo from '../components/Logo';
-import { safeRedirect } from '../utils/security';
-
-
+import { queueTransactionalAuthEmail } from '../services/transactionalEmailService';
+import { resolveSignedInWorkspace } from '../services/authAccountLinkingService';
+import { navigate } from '../utils/navigation';
+import { getSafeRelativeRedirect } from '../utils/security';
 
 const AuthPage: React.FC = () => {
     const { t } = useTranslation();
@@ -86,23 +85,6 @@ const AuthPage: React.FC = () => {
         return localStorage.getItem('careervivid_referral') || undefined;
     }
 
-    const lookupPartnerByReferralCode = async (refCode: string) => {
-        try {
-            const q = query(
-                collection(db, 'users'),
-                where('referralCode', '==', refCode),
-                where('role', '==', 'academic_partner')
-            );
-            const snap = await getDocs(q);
-            if (!snap.empty) {
-                return snap.docs[0].id; // Return partner UID
-            }
-        } catch (err) {
-            console.error('Error looking up referral code:', err);
-        }
-        return null;
-    };
-
     const handleAuthAction = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -111,41 +93,26 @@ const AuthPage: React.FC = () => {
         try {
             if (isLogin) {
                 const cred = await signInWithEmailAndPassword(auth, email, password);
-                trackUsage(cred.user.uid, 'sign_in');
+                const user = await resolveSignedInWorkspace();
+                trackUsage(user.uid, 'sign_in', {
+                    provider: 'password',
+                    resolvedWorkspace: user.uid !== cred.user.uid,
+                });
             } else {
                 const cred = await createUserWithEmailAndPassword(auth, email, password);
-                const actionCodeSettings = {
-                    url: window.location.href.split('#')[0],
-                };
-                await sendEmailVerification(cred.user, actionCodeSettings);
+                await queueTransactionalAuthEmail({ type: 'email_verification' });
 
                 const referredBy = getReferralCode();
-                let academicPartnerId: string | undefined;
-                let grantTrial = false;
-
-                if (referredBy) {
-                    academicPartnerId = await lookupPartnerByReferralCode(referredBy);
-                    if (academicPartnerId) {
-                        grantTrial = true;
-                    }
-                }
-
-                const expiresAt = grantTrial
-                    ? Timestamp.fromDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
-                    : undefined;
 
                 await setDoc(doc(db, 'users', cred.user.uid), {
                     uid: cred.user.uid,
                     email: cred.user.email,
+                    authProvider: 'password',
+                    emailVerified: cred.user.emailVerified,
                     createdAt: serverTimestamp(),
                     promotions: {},
                     status: 'active',
-                    ...(referredBy ? { referredBy } : {}),
-                    ...(academicPartnerId ? { academicPartnerId } : {}),
-                    ...(grantTrial ? {
-                        plan: 'pro_sprint',
-                        expiresAt: expiresAt
-                    } : {})
+                    ...(referredBy ? { referredBy } : {})
                 });
                 trackUsage(cred.user.uid, 'sign_in', { signup: true });
             }
@@ -154,7 +121,7 @@ const AuthPage: React.FC = () => {
             const params = new URLSearchParams(window.location.search);
             const redirectUrl = params.get('redirect');
             if (redirectUrl) {
-                safeRedirect(decodeURIComponent(redirectUrl));
+                navigate(getSafeRelativeRedirect(redirectUrl));
             }
         } catch (err: any) {
             handleAuthError(err);
@@ -168,26 +135,13 @@ const AuthPage: React.FC = () => {
         setSuccess('');
         try {
             const result = await signInWithPopup(auth, googleProvider);
-            const user = result.user;
+            const user = await resolveSignedInWorkspace();
 
             const userDocRef = doc(db, 'users', user.uid);
             const userDoc = await getDoc(userDocRef);
 
             if (!userDoc.exists()) {
                 const referredBy = getReferralCode();
-                let academicPartnerId: string | undefined;
-                let grantTrial = false;
-
-                if (referredBy) {
-                    academicPartnerId = await lookupPartnerByReferralCode(referredBy);
-                    if (academicPartnerId) {
-                        grantTrial = true;
-                    }
-                }
-
-                const expiresAt = grantTrial
-                    ? Timestamp.fromDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
-                    : undefined;
 
                 await setDoc(userDocRef, {
                     uid: user.uid,
@@ -197,23 +151,25 @@ const AuthPage: React.FC = () => {
                     createdAt: serverTimestamp(),
                     promotions: {},
                     status: 'active',
-                    ...(referredBy ? { referredBy } : {}),
-                    ...(academicPartnerId ? { academicPartnerId } : {}),
-                    ...(grantTrial ? {
-                        plan: 'pro_sprint',
-                        expiresAt: expiresAt
-                    } : {})
+                    ...(referredBy ? { referredBy } : {})
                 });
-                trackUsage(user.uid, 'sign_in', { signup: true, provider: 'google' });
+                trackUsage(user.uid, 'sign_in', {
+                    signup: true,
+                    provider: 'google',
+                    resolvedWorkspace: user.uid !== result.user.uid,
+                });
             } else {
-                trackUsage(user.uid, 'sign_in', { provider: 'google' });
+                trackUsage(user.uid, 'sign_in', {
+                    provider: 'google',
+                    resolvedWorkspace: user.uid !== result.user.uid,
+                });
             }
 
             // Check for redirect param
             const params = new URLSearchParams(window.location.search);
             const redirectUrl = params.get('redirect');
             if (redirectUrl) {
-                safeRedirect(decodeURIComponent(redirectUrl));
+                navigate(getSafeRelativeRedirect(redirectUrl));
             }
         } catch (err: any) {
             handleAuthError(err);
@@ -230,7 +186,7 @@ const AuthPage: React.FC = () => {
         setError('');
         setSuccess('');
         try {
-            await sendPasswordResetEmail(auth, email);
+            await queueTransactionalAuthEmail({ type: 'password_reset', email });
             setSuccess(t('auth.reset_sent'));
         } catch (err: any) {
             handleAuthError(err);

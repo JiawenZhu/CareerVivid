@@ -61,7 +61,16 @@
         "headers": [
           {
             "key": "Cache-Control",
-            "value": "max-age=31536000"
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "regex": "^/(?:$|[^.]*$)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
           }
         ]
       },
@@ -95,6 +104,10 @@
         "source": "/shared/**",
         "function": "renderSeoContent",
         "region": "us-west1"
+      },
+      {
+        "source": "/portfolio/*/edit/**",
+        "destination": "/index.html"
       },
       {
         "source": "/portfolio/**",

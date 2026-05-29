@@ -12,14 +12,6 @@ jobs:
     name: Build & Lint
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyCRMb5eCJJKEOWcIVfkxJh780B_9oFLHEs' }}
-      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'jastalk-firebase.firebaseapp.com' }}
-      NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'jastalk-firebase' }}
-      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'jastalk-firebase.firebasestorage.app' }}
-      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '882267873237' }}
-      NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID || '1:882267873237:web:65ba38c60e0ec617c7a3b0' }}
-      NEXT_PUBLIC_USE_FIREBASE_EMULATOR: "false"
 
     steps:
       - name: Checkout code
@@ -28,18 +20,25 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install root dependencies
         run: npm ci
 
       - name: Install next-app dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
         working-directory: next-app
 
       - name: Build project
         run: npm run build
+        env:
+          VITE_FIREBASE_API_KEY: test-api-key
+          VITE_FIREBASE_AUTH_DOMAIN: localhost
+          VITE_FIREBASE_PROJECT_ID: test-project
+          VITE_FIREBASE_STORAGE_BUCKET: test-project.appspot.com
+          VITE_FIREBASE_MESSAGING_SENDER_ID: "123"
+          VITE_FIREBASE_APP_ID: test-app
 
       - name: Lint
         run: npm run lint

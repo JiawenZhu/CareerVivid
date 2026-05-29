@@ -93,6 +93,8 @@
     "translation_complete": "翻译完成",
     "translation_failed": "翻译失败",
     "translation_success_msg": "您的简历已翻译并保存为新简历。",
+    "go_to_translated": "前往已翻译的简历",
+    "stay_on_current": "留在当前页面",
     "congrats": "恭喜！",
     "new_resume_ready": "您的新简历已准备就绪。开始编辑吧！",
     "job_context": "职位背景",
@@ -243,7 +245,7 @@
     "error_exists": "该电子邮件已有账户。请直接“登录”。",
     "error_weak": "密码太弱。请至少使用 6 个字符。",
     "error_diff_cred": "该电子邮件已存在关联不同登录方式的账户。",
-    "reset_sent": "密码重置邮件已发送！请检查您的收件箱。",
+    "reset_sent": "如果此邮箱关联了 CareerVivid 密码账号，重置链接会发送到您的收件箱。",
     "enter_email_reset": "请输入您的电子邮件地址以重置密码。"
   },
   "faq": {

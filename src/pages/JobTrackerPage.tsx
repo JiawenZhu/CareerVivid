@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { useJobTracker } from '../hooks/useJobTracker';
@@ -13,6 +13,9 @@ import { ArrowLeft, PlusCircle } from 'lucide-react';
 import { navigate } from '../utils/navigation';
 import AppLayout from '../components/Layout/AppLayout';
 import { useNavigation } from '../contexts/NavigationContext';
+import { db } from '../firebase';
+import { doc, getDoc, deleteDoc } from 'firebase/firestore';
+
 
 const JobTrackerPage: React.FC = () => {
     const { currentUser } = useAuth();
@@ -25,6 +28,102 @@ const JobTrackerPage: React.FC = () => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [highlightForNewJob, setHighlightForNewJob] = useState(false);
     const [viewMode, setViewMode] = useState<'kanban' | 'strategy'>('kanban');
+
+    const [initialJobDescription, setInitialJobDescription] = useState('');
+    const [initialJobPostUrl, setInitialJobPostUrl] = useState('');
+    const [autoSubmit, setAutoSubmit] = useState(false);
+
+    // Auto-clear transit data from session storage after the modal is successfully opened/stabilized
+    useEffect(() => {
+        if (isAddModalOpen) {
+            const timer = setTimeout(() => {
+                sessionStorage.removeItem('transit_job_tracker');
+                sessionStorage.removeItem('transit_job_tracker_data');
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [isAddModalOpen]);
+
+    useEffect(() => {
+        // 1. Intercept URL search params and move them to sessionStorage if matching the tracker transition source
+        const params = new URLSearchParams(window.location.search);
+        const source = params.get('source');
+        if (source === 'extension_tracker') {
+            const scrapeId = params.get('scrapeId') || '';
+            const fallbackDescription = params.get('fallbackDescription') || '';
+            const url = params.get('url') || '';
+            sessionStorage.setItem('transit_job_tracker', JSON.stringify({ scrapeId, fallbackDescription, url }));
+
+            // Cleanse URL immediately to keep query parameters clean and avoid double-triggering
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+        }
+
+        // 2. Consume from sessionStorage
+        const syncTransitJob = async () => {
+            const transitStr = sessionStorage.getItem('transit_job_tracker');
+            if (!transitStr) return;
+
+            try {
+                const transitData = JSON.parse(transitStr);
+                const { scrapeId, fallbackDescription, url } = transitData;
+
+                // If cached parsed data already exists in sessionStorage, use it directly (resolves StrictMode double-fetch/early-delete)
+                const cachedDataStr = sessionStorage.getItem('transit_job_tracker_data');
+                if (cachedDataStr) {
+                    const cachedData = JSON.parse(cachedDataStr);
+                    setInitialJobDescription(cachedData.description || '');
+                    setInitialJobPostUrl(cachedData.url || '');
+                    setAutoSubmit(true);
+                    setIsAddModalOpen(true);
+                    return;
+                }
+
+                if (scrapeId) {
+                    if (currentUser?.uid) {
+                        try {
+                            const docRef = doc(db, 'users', currentUser.uid, 'temporaryScrapes', scrapeId);
+                            const docSnap = await getDoc(docRef);
+
+                            if (docSnap.exists()) {
+                                const data = docSnap.data();
+                                const jd = data.description || '';
+                                const jobUrl = data.url || data.jobPostURL || '';
+
+                                // Cache the fetched results in sessionStorage first
+                                sessionStorage.setItem(
+                                    'transit_job_tracker_data',
+                                    JSON.stringify({ description: jd, url: jobUrl })
+                                );
+
+                                setInitialJobDescription(jd);
+                                setInitialJobPostUrl(jobUrl);
+                                setAutoSubmit(true);
+                                setIsAddModalOpen(true);
+
+                                // Delete transit document from Firestore
+                                await deleteDoc(docRef);
+                            }
+                        } catch (error) {
+                            console.error('Error syncing transit job in JobTrackerPage:', error);
+                        }
+                    }
+                    // Wait for currentUser?.uid if not loaded yet
+                } else if (fallbackDescription) {
+                    setInitialJobDescription(fallbackDescription);
+                    setInitialJobPostUrl(url || '');
+                    setAutoSubmit(true);
+                    setIsAddModalOpen(true);
+                }
+            } catch (e) {
+                console.error('Error parsing transit job tracker from sessionStorage:', e);
+                sessionStorage.removeItem('transit_job_tracker');
+                sessionStorage.removeItem('transit_job_tracker_data');
+            }
+        };
+
+        syncTransitJob();
+    }, [currentUser?.uid]);
 
     const handleCardClick = (job: JobApplicationData) => {
         setSelectedJob(job);
@@ -146,8 +245,21 @@ const JobTrackerPage: React.FC = () => {
 
                 {isAddModalOpen && (
                     <AddJobModal
-                        onClose={() => setIsAddModalOpen(false)}
-                        onJobAdded={handleJobAdded}
+                        onClose={() => {
+                            setIsAddModalOpen(false);
+                            setInitialJobDescription('');
+                            setInitialJobPostUrl('');
+                            setAutoSubmit(false);
+                        }}
+                        onJobAdded={(jobData) => {
+                            handleJobAdded(jobData);
+                            setInitialJobDescription('');
+                            setInitialJobPostUrl('');
+                            setAutoSubmit(false);
+                        }}
+                        initialJobDescription={initialJobDescription}
+                        initialJobPostUrl={initialJobPostUrl}
+                        autoSubmit={autoSubmit}
                     />
                 )}
 

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useLayoutEffect } from 'react';
-import { Edit3, Copy, Trash2, Share2, Folder } from 'lucide-react';
+import { Edit3, Copy, Trash2, Share2 } from 'lucide-react';
 import { PortfolioData } from '../features/portfolio/types/portfolio';
 import { navigate } from '../utils/navigation';
 import { TEMPLATES } from '../features/portfolio/templates';
@@ -9,7 +9,6 @@ import { useWorkspaceItemActions } from '../hooks/useWorkspaceItemActions';
 import { SidebarContextMenu } from './Navigation/SidebarContextMenu';
 import { createPortal } from 'react-dom';
 import ConfirmationModal from './ConfirmationModal';
-import MoveToModal from './Navigation/MoveToModal';
 
 interface PortfolioCardProps {
     portfolio: PortfolioData;
@@ -173,8 +172,8 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
             <div className="p-2.5 flex justify-between items-center bg-gray-50/50 dark:bg-[#10141a]">
                 <div className="flex gap-1.5">
                     <button
-                        onClick={navigateToEdit}
-                        title="Edit Portfolio"
+                        onClick={(e) => { e.stopPropagation(); setIsEditingTitle(true); }}
+                        title="Rename Portfolio"
                         className="p-2 block rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
                     >
                         <Edit3 size={16} />
@@ -185,13 +184,6 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
                         className="p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
                     >
                         <Copy size={16} />
-                    </button>
-                    <button
-                        onClick={onMove}
-                        title="Move to Folder"
-                        className="p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
-                    >
-                        <Folder size={16} />
                     </button>
                     <button
                         onClick={handleDelete}
@@ -225,10 +217,6 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
                         handleDelete();
                         setContextMenu(null);
                     }}
-                    onMove={() => {
-                        onMove();
-                        setContextMenu(null);
-                    }}
                 />,
                 document.body
             )}
@@ -245,17 +233,6 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
                     onDelete(portfolio.id);
                 }}
                 onCancel={() => setIsDeleteModalOpen(false)}
-            />
-
-            <MoveToModal
-                isOpen={isMoveModalOpen}
-                currentNodeId={`portfolio-${portfolio.id}`}
-                currentNodeText={portfolio.title}
-                nodes={nodes}
-                onClose={() => setIsMoveModalOpen(false)}
-                onSelect={(targetId) => {
-                    confirmMove(targetId);
-                }}
             />
         </div>
     );

@@ -3,10 +3,31 @@ import React, { useEffect, useState } from 'react';
 import { FileText, Check, Loader2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useResumes } from '../../hooks/useResumes';
+import { getAppUrl } from '../../utils/extensionUtils';
 
 const ExtensionResumes: React.FC = () => {
     const { currentUser } = useAuth();
-    const { resumes, isLoading } = useResumes();
+    const [resolvedUserId, setResolvedUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (currentUser?.uid) {
+            setResolvedUserId(currentUser.uid);
+        } else {
+            chrome.storage.local.get(['devModeAuth', 'autofillProfile', 'uid'], (res) => {
+                if (res.devModeAuth) {
+                    setResolvedUserId(null);
+                } else if (res.uid) {
+                    setResolvedUserId(res.uid);
+                } else if (res.autofillProfile?.uid) {
+                    setResolvedUserId(res.autofillProfile.uid);
+                } else {
+                    setResolvedUserId(null);
+                }
+            });
+        }
+    }, [currentUser]);
+
+    const { resumes, isLoading } = useResumes(resolvedUserId);
     const [selectedResumeId, setSelectedResumeId] = useState<string | null>(null);
     const [syncingId, setSyncingId] = useState<string | null>(null);
     const [syncedId, setSyncedId] = useState<string | null>(null);
@@ -20,12 +41,12 @@ const ExtensionResumes: React.FC = () => {
     }, []);
 
     const handleSelectResume = async (resumeId: string) => {
-        if (!currentUser || syncingId) return;
+        if (!resolvedUserId || syncingId) return;
         setSyncingId(resumeId);
 
         chrome.runtime.sendMessage({
             type: 'SYNC_PROFILE',
-            userId: currentUser.uid,
+            userId: resolvedUserId,
             resumeId,
         }, (res) => {
             setSyncingId(null);
@@ -56,7 +77,7 @@ const ExtensionResumes: React.FC = () => {
                     <div className="text-center py-8">
                         <p className="text-sm text-gray-400">No resumes found.</p>
                         <button
-                            onClick={() => window.open('https://careervivid.app/newresume', '_blank')}
+                            onClick={() => window.open(getAppUrl('/newresume'), '_blank')}
                             className="mt-3 text-sm font-semibold text-indigo-600 hover:underline"
                         >
                             Create your first resume →

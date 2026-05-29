@@ -5,7 +5,6 @@ import { getIconForNode } from '../../utils/workspaceIcons';
 import { SidebarContextMenu } from './SidebarContextMenu';
 import { createPortal } from 'react-dom';
 import ConfirmationModal from '../ConfirmationModal';
-import MoveToModal from './MoveToModal';
 import { navigate } from '../../utils/navigation';
 import { getPathForNodeId } from '../../utils/workspaceNavigation';
 import { useWorkspaceItemActions } from '../../hooks/useWorkspaceItemActions';
@@ -116,10 +115,6 @@ const WorkspaceCard: React.FC<WorkspaceCardProps> = ({ node, isSystem = false })
                         handleDelete();
                         setContextMenu(null);
                     }}
-                    onMove={() => {
-                        onMove();
-                        setContextMenu(null);
-                    }}
                     onNewSubfolder={node.droppable ? () => {
                         // handle subfolder creation logic if needed
                         setContextMenu(null);
@@ -140,17 +135,6 @@ const WorkspaceCard: React.FC<WorkspaceCardProps> = ({ node, isSystem = false })
                 variant="danger"
                 onConfirm={confirmDelete}
                 onCancel={() => setIsDeleteModalOpen(false)}
-            />
-
-            <MoveToModal
-                isOpen={isMoveModalOpen}
-                currentNodeId={node.id.toString()}
-                currentNodeText={node.text}
-                nodes={nodes}
-                onClose={() => setIsMoveModalOpen(false)}
-                onSelect={(targetId) => {
-                    confirmMove(targetId);
-                }}
             />
         </div>
     );

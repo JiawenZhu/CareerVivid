@@ -4,6 +4,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import App from './App';
 import { AuthProvider } from './contexts/AuthContext';
 import './i18n'; // Initialize i18next
+import './index.css';
 
 // HANDLE DYNAMIC IMPORT ERRORS
 // Catches "Failed to fetch dynamically imported module" via unhandled promise rejections

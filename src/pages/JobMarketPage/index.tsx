@@ -536,6 +536,21 @@ const JobMarketPage: React.FC = () => {
             // Add to practice history and get job ID
             const newJobId = await addJob(interviewJobData, []);
 
+            /*
+            // Get auth token from Cloud Function
+            const functions = getFunctions(undefined, 'us-west1');
+            const getToken = httpsCallable(functions, 'getInterviewAuthToken');
+            const result = await getToken();
+            const { token } = result.data as { token: string };
+
+            // Construct redirect URL to external Interview Microservice
+            const baseUrl = 'https://careervivid-371634100960.us-west1.run.app';
+            const targetUrl = `${baseUrl}/#/interview-studio/${newJobId}?token=${token}`;
+
+            // Open in new tab
+            window.open(targetUrl, '_blank');
+            */
+
             navigate(`/interview-studio/${newJobId}`);
         } catch (error) {
             console.error("Error starting mock interview:", error);

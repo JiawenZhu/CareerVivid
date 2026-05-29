@@ -8,7 +8,11 @@ import { SidebarNode } from '../../types';
 import { SidebarContextMenu } from './SidebarContextMenu';
 import { createPortal } from 'react-dom';
 import ConfirmationModal from '../ConfirmationModal';
-import MoveToModal from './MoveToModal';
+import { useResumes } from '../../hooks/useResumes';
+import { usePortfolios } from '../../hooks/usePortfolios';
+import { useWhiteboards } from '../../hooks/useWhiteboards';
+import { usePracticeHistory } from '../../hooks/useJobHistory';
+import { useMyCommunityPosts } from '../../hooks/useMyCommunityPosts';
 
 interface Props {
     node: NodeModel<SidebarNode['data']>;
@@ -46,6 +50,13 @@ const getIcon = (id: string, isOpen: boolean, type: string) => {
 
 export const CustomSidebarNode: React.FC<Props> = ({ node, depth, isOpen, onToggle, isEditMode = false }) => {
     const { toggleNodeVisibility, updateNodeTitle, activeNodeId, setActiveNode, deleteNode, addNode, moveNode, nodes } = useSidebarStore();
+    
+    const { updateResume, deleteResume } = useResumes();
+    const { updatePortfolio, deletePortfolio } = usePortfolios();
+    const { updateWhiteboard, deleteWhiteboard } = useWhiteboards();
+    const { deletePracticeHistory } = usePracticeHistory();
+    const { deletePost: deleteCommunityPost } = useMyCommunityPosts();
+
     const [isEditing, setIsEditing] = useState(false);
     const [editValue, setEditValue] = useState(node.text);
     const [contextMenu, setContextMenu] = useState<{ x: number, y: number } | null>(null);
@@ -85,8 +96,31 @@ export const CustomSidebarNode: React.FC<Props> = ({ node, depth, isOpen, onTogg
         setIsDeleteModalOpen(true);
     };
 
-    const confirmDelete = () => {
-        deleteNode(node.id.toString());
+    const confirmDelete = async () => {
+        const id = node.id.toString();
+        deleteNode(id);
+        
+        try {
+            if (id.startsWith('resume-')) {
+                const rawId = id.replace('resume-', '');
+                await deleteResume(rawId);
+            } else if (id.startsWith('portfolio-')) {
+                const rawId = id.replace('portfolio-', '');
+                await deletePortfolio(rawId);
+            } else if (id.startsWith('whiteboard-')) {
+                const rawId = id.replace('whiteboard-', '');
+                await deleteWhiteboard(rawId);
+            } else if (id.startsWith('interview-')) {
+                const rawId = id.replace('interview-', '');
+                await deletePracticeHistory(rawId);
+            } else if (id.startsWith('post-')) {
+                const rawId = id.replace('post-', '');
+                await deleteCommunityPost(rawId);
+            }
+        } catch (err) {
+            console.error('Error syncing delete in custom node with Firestore:', err);
+        }
+        
         setIsDeleteModalOpen(false);
     };
 
@@ -107,9 +141,26 @@ export const CustomSidebarNode: React.FC<Props> = ({ node, depth, isOpen, onTogg
         if (!isOpen) onToggle(node.id);
     };
 
-    const submitRename = () => {
+    const submitRename = async () => {
         if (editValue.trim() !== '') {
-            updateNodeTitle(node.id.toString(), editValue.trim());
+            const trimmedValue = editValue.trim();
+            const id = node.id.toString();
+            updateNodeTitle(id, trimmedValue);
+            
+            try {
+                if (id.startsWith('resume-')) {
+                    const rawId = id.replace('resume-', '');
+                    await updateResume(rawId, { title: trimmedValue });
+                } else if (id.startsWith('portfolio-')) {
+                    const rawId = id.replace('portfolio-', '');
+                    await updatePortfolio(rawId, { title: trimmedValue });
+                } else if (id.startsWith('whiteboard-')) {
+                    const rawId = id.replace('whiteboard-', '');
+                    await updateWhiteboard(rawId, { title: trimmedValue });
+                }
+            } catch (err) {
+                console.error('Error syncing rename in custom node with Firestore:', err);
+            }
         }
         setIsEditing(false);
     };
@@ -230,7 +281,6 @@ export const CustomSidebarNode: React.FC<Props> = ({ node, depth, isOpen, onTogg
                     }}
                     onDelete={handleDelete}
                     onNewSubfolder={type === 'custom-folder' ? handleNewSubfolder : undefined}
-                    onMove={() => setIsMoveModalOpen(true)}
                 />,
                 document.body
             )}
@@ -247,19 +297,6 @@ export const CustomSidebarNode: React.FC<Props> = ({ node, depth, isOpen, onTogg
                 variant="danger"
                 onConfirm={confirmDelete}
                 onCancel={() => setIsDeleteModalOpen(false)}
-            />
-
-            {/* Modern Move To Modal */}
-            <MoveToModal
-                isOpen={isMoveModalOpen}
-                currentNodeId={node.id.toString()}
-                currentNodeText={node.text}
-                nodes={nodes}
-                onClose={() => setIsMoveModalOpen(false)}
-                onSelect={(targetId) => {
-                    moveNode(node.id.toString(), targetId);
-                    setIsMoveModalOpen(false);
-                }}
             />
         </div >
     );

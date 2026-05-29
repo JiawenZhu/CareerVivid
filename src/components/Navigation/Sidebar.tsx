@@ -34,6 +34,11 @@ import { SidebarNode } from '../../types';
 import { SidebarContextMenu } from './SidebarContextMenu';
 import ConfirmationModal from '../ConfirmationModal';
 import { getPathForNodeId } from '../../utils/workspaceNavigation';
+import { useResumes } from '../../hooks/useResumes';
+import { usePortfolios } from '../../hooks/usePortfolios';
+import { useWhiteboards } from '../../hooks/useWhiteboards';
+import { usePracticeHistory } from '../../hooks/useJobHistory';
+import { useMyCommunityPosts } from '../../hooks/useMyCommunityPosts';
 
 const generateDefaultNodes = (t: any): SidebarNode[] => {
     return [];
@@ -45,6 +50,12 @@ const Sidebar: React.FC = () => {
     const { currentUser, userProfile, updateUserProfile, logOut, aiUsage, isPremium } = useAuth();
     const { theme, setTheme } = useTheme();
     const currentPath = window.location.pathname;
+
+    const { updateResume, deleteResume } = useResumes();
+    const { updatePortfolio, deletePortfolio } = usePortfolios();
+    const { updateWhiteboard, deleteWhiteboard } = useWhiteboards();
+    const { deletePracticeHistory } = usePracticeHistory();
+    const { deletePost: deleteCommunityPost } = useMyCommunityPosts();
 
     const isResizingRef = useRef(false);
 
@@ -91,10 +102,47 @@ const Sidebar: React.FC = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     // Filter/Sort States
-    const [sortBy, setSortBy] = useState<'createdAt' | 'updatedAt'>('createdAt');
-    const [filterType, setFilterType] = useState<string>('all');
+    const [sortBy, setSortBy] = useState<'createdAt' | 'updatedAt'>(() => {
+        try {
+            const current = localStorage.getItem('cv_sidebar_preferences');
+            if (current) {
+                const preferences = JSON.parse(current);
+                if (preferences.sortBy === 'createdAt' || preferences.sortBy === 'updatedAt') {
+                    return preferences.sortBy;
+                }
+            }
+        } catch (err) {
+            console.error('Error reading sort preference', err);
+        }
+        return 'createdAt';
+    });
+    const [filterType, setFilterType] = useState<string>(() => {
+        try {
+            const current = localStorage.getItem('cv_sidebar_preferences');
+            if (current) {
+                const preferences = JSON.parse(current);
+                if (preferences.filterType) {
+                    return preferences.filterType;
+                }
+            }
+        } catch (err) {
+            console.error('Error reading filter preference', err);
+        }
+        return 'all';
+    });
     const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
     const filterDropdownRef = useRef<HTMLDivElement>(null);
+
+    const savePreference = (key: 'filterType' | 'sortBy', value: string) => {
+        try {
+            const current = localStorage.getItem('cv_sidebar_preferences');
+            const preferences = current ? JSON.parse(current) : {};
+            preferences[key] = value;
+            localStorage.setItem('cv_sidebar_preferences', JSON.stringify(preferences));
+        } catch (err) {
+            console.error('Error saving preference to localStorage', err);
+        }
+    };
 
     const lastSavedNodesRef = useRef<string>('');
 
@@ -174,16 +222,55 @@ const Sidebar: React.FC = () => {
         setEditValue(text);
     };
 
-    const saveRename = (id: string) => {
+    const saveRename = async (id: string) => {
         if (editValue.trim() !== '') {
-            updateNodeTitle(id, editValue.trim());
+            const trimmedValue = editValue.trim();
+            updateNodeTitle(id, trimmedValue);
+            
+            try {
+                if (id.startsWith('resume-')) {
+                    const rawId = id.replace('resume-', '');
+                    await updateResume(rawId, { title: trimmedValue });
+                } else if (id.startsWith('portfolio-')) {
+                    const rawId = id.replace('portfolio-', '');
+                    await updatePortfolio(rawId, { title: trimmedValue });
+                } else if (id.startsWith('whiteboard-')) {
+                    const rawId = id.replace('whiteboard-', '');
+                    await updateWhiteboard(rawId, { title: trimmedValue });
+                }
+            } catch (err) {
+                console.error('Error syncing rename with Firestore:', err);
+            }
         }
         setEditingNodeId(null);
     };
 
-    const confirmDelete = () => {
+    const confirmDelete = async () => {
         if (deleteNodeId) {
-            deleteNode(deleteNodeId);
+            const id = deleteNodeId;
+            deleteNode(id);
+            
+            try {
+                if (id.startsWith('resume-')) {
+                    const rawId = id.replace('resume-', '');
+                    await deleteResume(rawId);
+                } else if (id.startsWith('portfolio-')) {
+                    const rawId = id.replace('portfolio-', '');
+                    await deletePortfolio(rawId);
+                } else if (id.startsWith('whiteboard-')) {
+                    const rawId = id.replace('whiteboard-', '');
+                    await deleteWhiteboard(rawId);
+                } else if (id.startsWith('interview-')) {
+                    const rawId = id.replace('interview-', '');
+                    await deletePracticeHistory(rawId);
+                } else if (id.startsWith('post-')) {
+                    const rawId = id.replace('post-', '');
+                    await deleteCommunityPost(rawId);
+                }
+            } catch (err) {
+                console.error('Error syncing delete with Firestore:', err);
+            }
+            
             setIsDeleteModalOpen(false);
             setDeleteNodeId(null);
         }
@@ -299,6 +386,7 @@ const Sidebar: React.FC = () => {
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setFilterType(opt.value);
+                                                savePreference('filterType', opt.value);
                                             }}
                                             className={`w-full flex items-center justify-between px-3.5 py-1.5 hover:bg-indigo-50/40 dark:hover:bg-indigo-500/5 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all text-left ${filterType === opt.value ? 'text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50/20 dark:bg-indigo-500/5' : ''}`}
                                         >
@@ -321,6 +409,7 @@ const Sidebar: React.FC = () => {
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setSortBy(opt.value as any);
+                                                savePreference('sortBy', opt.value);
                                             }}
                                             className={`w-full flex items-center justify-between px-3.5 py-1.5 hover:bg-indigo-50/40 dark:hover:bg-indigo-500/5 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all text-left ${sortBy === opt.value ? 'text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50/20 dark:bg-indigo-500/5' : ''}`}
                                         >

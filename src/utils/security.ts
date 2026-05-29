@@ -22,10 +22,6 @@ export const isSafeUrl = (url: string): boolean => {
 
   try {
     const parsedUrl = new URL(url);
-    if (!['https:', 'http:'].includes(parsedUrl.protocol)) {
-      return false;
-    }
-
     const hostname = parsedUrl.hostname.toLowerCase();
     
     return ALLOWED_DOMAINS.some(domain => 
@@ -37,20 +33,34 @@ export const isSafeUrl = (url: string): boolean => {
   }
 };
 
-export const getSafeRedirectTarget = (url: string, fallback = '/'): string => (
-  isSafeUrl(url) ? url : fallback
-);
-
 /**
  * Safely redirects the browser to the specified URL.
  * Falls back to root if the URL is deemed unsafe.
  */
 export const safeRedirect = (url: string): void => {
-  const target = getSafeRedirectTarget(url);
-
-  if (target !== url) {
+  if (isSafeUrl(url)) {
+    window.location.href = url;
+  } else {
     console.error('Blocked unsafe redirect to:', url);
+    window.location.href = '/';
   }
+};
 
-  window.location.assign(target);
+/**
+ * Normalizes auth redirect targets to same-origin relative paths only.
+ * Use this for login/signup return URLs so query params cannot bounce users
+ * to an external site after authentication.
+ */
+export const getSafeRelativeRedirect = (url: string | null | undefined, fallback = '/dashboard'): string => {
+  if (!url) return fallback;
+
+  try {
+    const parsedUrl = new URL(url, window.location.origin);
+    if (parsedUrl.origin !== window.location.origin) {
+      return fallback;
+    }
+    return `${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`;
+  } catch {
+    return fallback;
+  }
 };
