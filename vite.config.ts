@@ -4,6 +4,16 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
+const NEXT_SEO_LOCALES = ['de', 'es', 'fr', 'ja', 'ko', 'zh'] as const;
+
+const NEXT_SEO_NAVIGATION_DENYLIST = [
+  /^\/__/,
+  /^\/_next(?:\/|$)/,
+  /^\/nextjs(?:\/|$)/,
+  /^\/j(?:\/|$)/,
+  new RegExp(`^/(?:${NEXT_SEO_LOCALES.join('|')})(?:/|$)`)
+];
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
   return {
@@ -39,8 +49,11 @@ export default defineConfig(({ mode }) => {
           ]
         },
         workbox: {
-          globPatterns: ['**/*.{js,css,html}'],
-          navigateFallbackDenylist: [/^\/__/],
+          // Keep the SPA shell updateable without storing every route chunk
+          // under a long-lived service-worker cache.
+          globPatterns: ['index.html', 'assets/index-*.js', 'assets/index-*.css'],
+          globIgnores: ['nextjs/**/*'],
+          navigateFallbackDenylist: NEXT_SEO_NAVIGATION_DENYLIST,
           runtimeCaching: [
             {
               urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
