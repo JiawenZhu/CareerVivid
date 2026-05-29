@@ -197,21 +197,6 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
             // Add job to practice history
             const newJobId = await addJob(job, questions);
 
-            /*
-            // Get authentication token for microservice (us-west1 region)
-            const functions = getFunctions(undefined, 'us-west1');
-            const getToken = httpsCallable(functions, 'getInterviewAuthToken');
-            const result = await getToken();
-            const { token } = result.data as { token: string };
-
-            // Construct redirect URL to Interview Microservice
-            const baseUrl = 'https://careervivid-371634100960.us-west1.run.app';
-            const targetUrl = `${baseUrl}/#/interview-studio/${newJobId}?token=${token}`;
-
-            // Redirect to external microservice
-            window.location.href = targetUrl;
-            */
-
             const activeResume = resumes.find(r => r.isDefault) || resumes[0];
             const resumeContext = activeResume ? formatResumeForContext(activeResume) : '';
 
@@ -274,17 +259,6 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                 const startSavedInterview = async () => {
                     setIsLoading(true);
                     try {
-                        /*
-                        const functions = getFunctions(undefined, 'us-west1');
-                        const getToken = httpsCallable(functions, 'getInterviewAuthToken');
-                        const result = await getToken();
-                        const { token } = result.data as { token: string };
-
-                        const baseUrl = 'https://careervivid-371634100960.us-west1.run.app';
-                        const targetUrl = `${baseUrl}/#/interview-studio/${jobId}?token=${token}`;
-                        window.location.href = targetUrl;
-                        */
-
                         const activeResume = resumes.find(r => r.isDefault) || resumes[0];
                         const resumeContext = activeResume ? formatResumeForContext(activeResume) : '';
 

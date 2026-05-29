@@ -97,6 +97,7 @@ import { MultiBackend, getBackendOptions } from '@minoru/react-dnd-treeview';
 
 // Navigation utility
 import { navigate, getPathFromUrl } from './utils/navigation';
+import { isSafeUrl } from './utils/security';
 
 
 const LoadingFallback = () => (
@@ -107,7 +108,17 @@ const LoadingFallback = () => (
 
 const AuthRedirect = ({ target }: { target: string }) => {
   useEffect(() => {
-    navigate(target);
+    if (!isSafeUrl(target)) {
+      navigate('/dashboard');
+      return;
+    }
+
+    if (target.startsWith('/') && !target.startsWith('//')) {
+      navigate(target);
+      return;
+    }
+
+    window.location.assign(target);
   }, [target]);
   return <LoadingFallback />;
 };
