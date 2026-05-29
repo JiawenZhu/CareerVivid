@@ -6,6 +6,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import Logo from './Logo';
 import LanguageSelect from './LanguageSelect';
+import { resolveUserDisplayName } from '../utils/userDisplayName';
 
 interface PublicHeaderProps {
     variant?: 'default' | 'brutalist' | 'editorial';
@@ -42,8 +43,13 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
     const mobileLinkClasses = isEditorial
         ? 'text-sm font-semibold text-[#665a4a] hover:text-[#211b16] dark:text-[#aaa39a] dark:hover:text-[#f4f1e9]'
         : 'text-sm text-gray-600 dark:text-gray-400';
-    const profileName = userProfile?.displayName || currentUser?.displayName || 'CareerVivid member';
     const profileEmail = currentUser?.email || userProfile?.email || '';
+    const profileName = resolveUserDisplayName({
+        profileDisplayName: userProfile?.displayName,
+        email: profileEmail,
+        authDisplayName: currentUser?.displayName,
+        fallback: 'CareerVivid member',
+    });
     const profileInitial = (profileName || profileEmail || 'C').trim().charAt(0).toUpperCase();
     const profileDropdownClasses = isEditorial
         ? 'rounded-2xl border border-[#e2d4c2] bg-[#fffaf1] shadow-xl shadow-[#6b4b1f]/10 dark:border-[#37332d] dark:bg-[#262522] dark:shadow-black/30'

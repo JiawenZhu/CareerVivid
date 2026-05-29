@@ -39,6 +39,7 @@ import { usePortfolios } from '../../hooks/usePortfolios';
 import { useWhiteboards } from '../../hooks/useWhiteboards';
 import { usePracticeHistory } from '../../hooks/useJobHistory';
 import { useMyCommunityPosts } from '../../hooks/useMyCommunityPosts';
+import { resolveUserDisplayName } from '../../utils/userDisplayName';
 
 const generateDefaultNodes = (t: any): SidebarNode[] => {
     return [];
@@ -56,6 +57,12 @@ const Sidebar: React.FC = () => {
     const { updateWhiteboard, deleteWhiteboard } = useWhiteboards();
     const { deletePracticeHistory } = usePracticeHistory();
     const { deletePost: deleteCommunityPost } = useMyCommunityPosts();
+    const displayName = resolveUserDisplayName({
+        profileDisplayName: userProfile?.displayName,
+        email: userProfile?.email || currentUser?.email,
+        authDisplayName: currentUser?.displayName,
+        fallback: 'My Profile',
+    });
 
     const isResizingRef = useRef(false);
 
@@ -584,7 +591,7 @@ const Sidebar: React.FC = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                            {currentUser.displayName || 'My Profile'}
+                            {displayName}
                         </p>
                     </div>
                 </div>

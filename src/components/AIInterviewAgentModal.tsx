@@ -404,23 +404,17 @@ ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
         },
         callbacks: {
           onopen: async () => {
-            console.log("[AI Interview] WebSocket connection opened successfully.");
             setStatus('listening');
             if (!inputAudioContextRef.current || !mediaStreamRef.current) {
-              console.warn("[AI Interview] Missing input audio context or media stream on open.");
               return;
             }
 
             try {
               if (inputAudioContextRef.current.state === 'suspended') {
-                console.log("[AI Interview] Input AudioContext is suspended. Resuming...");
                 await inputAudioContextRef.current.resume();
-                console.log("[AI Interview] Input AudioContext resumed successfully. State:", inputAudioContextRef.current.state);
               }
               if (outputAudioContextRef.current?.state === 'suspended') {
-                console.log("[AI Interview] Output AudioContext is suspended. Resuming...");
                 await outputAudioContextRef.current.resume();
-                console.log("[AI Interview] Output AudioContext resumed successfully. State:", outputAudioContextRef.current.state);
               }
             } catch (e) {
               console.error("[AI Interview] Error resuming audio contexts:", e);
@@ -431,7 +425,6 @@ ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
             const scriptProcessor = inputAudioContextRef.current.createScriptProcessor(4096, 1, 1);
             scriptProcessorRef.current = scriptProcessor;
 
-            let audioChunkCount = 0;
             scriptProcessor.onaudioprocess = (audioProcessingEvent) => {
               // Mute mic while AI is speaking (mirrors CV CLI behavior)
               if (isCleaningUpRef.current || isSpeakingRef.current) return;
@@ -440,10 +433,6 @@ ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
               // Downsample the input buffer from the context's native rate to 16kHz
               const inputSampleRate = inputAudioContextRef.current?.sampleRate || 48000;
               const downsampled = downsampleBuffer(inputData, inputSampleRate, 16000);
-
-              if (audioChunkCount++ % 100 === 0) {
-                console.log(`[AI Interview] Captured & resampled audio chunk #${audioChunkCount}. Original rate: ${inputSampleRate}Hz. Size: ${downsampled.length} samples.`);
-              }
 
               const buffer = new Int16Array(downsampled.length);
               for (let i = 0; i < downsampled.length; i++) {
@@ -462,10 +451,8 @@ ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
             };
             source.connect(scriptProcessor);
             scriptProcessor.connect(inputAudioContextRef.current.destination);
-            console.log("[AI Interview] Audio processing graph initialized and connected.");
           },
           onmessage: async (message: LiveServerMessage) => {
-            console.log("[AI Interview] Received WebSocket message from server:", message);
             resetInactivityTimer();
 
             const processTranscription = (transcription: { text?: string } | undefined, speaker: 'user' | 'ai') => {
@@ -498,7 +485,6 @@ ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
             const base64Audio = message.serverContent?.modelTurn?.parts[0]?.inlineData?.data;
             if (base64Audio && outputAudioContextRef.current) {
-              console.log("[AI Interview] Playing back AI audio response chunk...");
               setStatus('speaking');
               isSpeakingRef.current = true; // mute mic
               const ctx = outputAudioContextRef.current;
@@ -523,8 +509,7 @@ ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
               setTranscript(prev => prev.map(t => ({ ...t, isFinal: true })));
             }
           },
-          onclose: (event?: any) => {
-            console.log("[AI Interview] WebSocket connection closed by server. Event:", event);
+          onclose: () => {
             setStatus('ended');
             cleanup();
           },

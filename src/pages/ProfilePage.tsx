@@ -10,6 +10,7 @@ import { httpsCallable } from 'firebase/functions';
 import { EmailPreferences } from '../types';
 import EmailPracticeSettings from '../components/EmailPracticeSettings';
 import { navigate } from '../utils/navigation';
+import { getEmailDisplayName, resolveUserDisplayName } from '../utils/userDisplayName';
 
 const defaultEmailPrefs: EmailPreferences = {
     enabled: false,
@@ -61,13 +62,16 @@ const ProfilePage: React.FC = () => {
     const [nameError, setNameError] = useState('');
     const [nameSuccess, setNameSuccess] = useState('');
 
+    const resolvedDisplayName = resolveUserDisplayName({
+        profileDisplayName: userProfile?.displayName,
+        email: userProfile?.email || currentUser?.email,
+        authDisplayName: currentUser?.displayName,
+        fallback: 'Community Member',
+    });
+
     useEffect(() => {
-        if (currentUser?.displayName) {
-            setDisplayName(currentUser.displayName);
-        } else if (userProfile?.displayName && userProfile.displayName !== 'Anonymous Developer' && userProfile.displayName !== 'Community Member') {
-            setDisplayName(userProfile.displayName);
-        }
-    }, [currentUser, userProfile]);
+        setDisplayName(resolvedDisplayName);
+    }, [resolvedDisplayName]);
 
     const handleUpdateName = async () => {
         if (!currentUser) return;
@@ -75,8 +79,12 @@ const ProfilePage: React.FC = () => {
         setNameError('');
         setNameSuccess('');
         try {
-            await updateProfile(currentUser, { displayName });
-            await updateUserProfile({ displayName });
+            const nextDisplayName = displayName.trim() || getEmailDisplayName(currentUser.email);
+            await updateProfile(currentUser, { displayName: nextDisplayName });
+            await updateUserProfile({
+                displayName: nextDisplayName,
+                displayNameSource: displayName.trim() ? 'manual' : 'email',
+            });
             setIsEditingName(false);
             setNameSuccess(t('profile.name_updated', 'Name updated successfully.'));
             setTimeout(() => setNameSuccess(''), 3000);
@@ -283,7 +291,7 @@ const ProfilePage: React.FC = () => {
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-3">
-                                    <p className="text-gray-500 dark:text-gray-400 font-medium">@{userProfile?.displayName || currentUser?.displayName || 'Community Member'}</p>
+                                    <p className="text-gray-500 dark:text-gray-400 font-medium">@{resolvedDisplayName}</p>
                                     <button
                                         onClick={() => setIsEditingName(true)}
                                         className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
