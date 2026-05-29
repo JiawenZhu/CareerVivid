@@ -15,6 +15,14 @@ import { GoogleAuth } from "google-auth-library";
 
 const corsHandler = secureCorsHandler;
 
+function getPlanMonthlyLimit(plan?: string, seats = 1): number {
+  if (plan === "enterprise") return Math.max(1, seats) * 1500;
+  if (plan === "max" || plan === "pro_max") return 5000;
+  if (plan === "pro_monthly" || plan === "pro") return 1000;
+  if (plan === "pro_sprint") return 300;
+  return 100;
+}
+
 // Initialize the database connection
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -40,9 +48,21 @@ export { getCompanyJobs } from "./jobs";
 export * from './stripe';
 export * from './stripeConnect';
 export { onUserCreated, onPartnerApplicationUpdated, onApplicationCreated, onUserProfileSync } from "./triggers";
-export { onEmailRequestCreated } from "./email";
+export { onEmailRequestCreated, onContactMessageCreated } from "./email";
+export { onFeedbackCreated } from "./customerSupport";
 export { sendSubscriptionNotifications } from "./subscriptionNotifications";
 export { sendTestEmails } from "./sendTestEmails";
+export {
+  sendLifecycleActivationEmails,
+  onLifecycleUsageLogCreated,
+  onResumeCreatedLifecycle,
+  onEmailPreferencesUpdated,
+  sendEmailPreferenceUpdateNotifications,
+  sendLifecycleDemoEmails,
+} from "./lifecycleEmails";
+export { sendTransactionalAuthEmail } from "./transactionalEmails";
+export { resolveSignedInWorkspace } from "./authAccountLinking";
+export { requestAccountDeletion, purgeSoftDeletedUsers } from "./accountDeletion";
 export { generateCoverLetter } from "./coverLetter";
 export { tailorResume } from "./tailorResume";
 export { exportToGoogleDocs } from "./googleDocs";
@@ -83,6 +103,7 @@ export { evaluateJob, generateLinkedInOutreach, generateDeepResearch, saveCareer
 
 // Auto-Apply: AI answer generation for Chrome Extension
 export { generateApplyAnswers } from "./generateApplyAnswers";
+export { analyzeExtensionResumeMatch } from "./extensionResumeMatch";
 export { saveAnswerLibrary, getAnswerLibrary } from "./answerLibrary";
 
 // CLI Job Hunt API
@@ -98,6 +119,7 @@ export { agentDeductCredits } from "./agentCredits";
 export { agentProxy } from "./agentProxy";
 export { llmGateway } from "./llmGateway.js";
 export { publicResumeApi } from "./publicResumeApi";
+export { resolveImageForAIEdit } from "./imageProxy";
 
 const APP_BASE_URL =
   process.env.CAREERVIVID_APP_URL ||
@@ -292,10 +314,12 @@ export const generateResumePdfHttp = functions
       }
 
       // Check Premium Status (Common for both paths)
-      const userDoc = await admin.firestore().collection('users').doc(userId).get();
+      const userRef = admin.firestore().collection('users').doc(userId);
+      const userDoc = await userRef.get();
       const userData = userDoc.data();
 
       let isPremium = false;
+      let hasDownloadCredit = false;
 
       if (userData) {
         const plan = userData.plan || 'free';
@@ -304,12 +328,16 @@ export const generateResumePdfHttp = functions
           : false;
         const isMonthlyActive = plan === 'pro_monthly' &&
           (userData.stripeSubscriptionStatus === 'active' || userData.stripeSubscriptionStatus === 'trialing');
+        const isCurrentPaidPlan = ['pro', 'max', 'pro_max', 'enterprise', 'premium'].includes(plan);
         const hasLegacyPremium = userData.promotions?.isPremium === true;
 
-        isPremium = isSprintValid || isMonthlyActive || hasLegacyPremium;
+        isPremium = isCurrentPaidPlan || isSprintValid || isMonthlyActive || hasLegacyPremium;
+        hasDownloadCredit = Number(userData.downloadCredits || 0) > 0;
       }
 
-      if (!isPremium) {
+      const shouldUseDownloadCredit = !isPublicAccess && !isPremium && hasDownloadCredit;
+
+      if (!isPremium && !shouldUseDownloadCredit) {
         // If public access, we don't show upgrade URL, just deny
         res.status(403).json({
           error: isPublicAccess
@@ -318,6 +346,35 @@ export const generateResumePdfHttp = functions
           upgradeUrl: isPublicAccess ? undefined : '/pricing'
         });
         return;
+      }
+
+      let consumedDownloadCredit = false;
+
+      if (shouldUseDownloadCredit) {
+        try {
+          await admin.firestore().runTransaction(async (transaction) => {
+            const latestUserDoc = await transaction.get(userRef);
+            const latestUserData = latestUserDoc.data();
+            const latestCredits = Number(latestUserData?.downloadCredits || 0);
+
+            if (latestCredits <= 0) {
+              throw new Error('No PDF download credits are available.');
+            }
+
+            transaction.set(userRef, {
+              downloadCredits: admin.firestore.FieldValue.increment(-1),
+              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            }, { merge: true });
+          });
+          consumedDownloadCredit = true;
+        } catch (error: any) {
+          console.error("PDF download credit reservation failed:", error);
+          res.status(403).json({
+            error: "No PDF download credits are available. Please purchase a one-time PDF export or upgrade.",
+            upgradeUrl: "/pricing",
+          });
+          return;
+        }
       }
 
       try {
@@ -331,6 +388,12 @@ export const generateResumePdfHttp = functions
 
       } catch (error: any) {
         console.error("PDF Generation Error:", error);
+        if (consumedDownloadCredit) {
+          await userRef.set({
+            downloadCredits: admin.firestore.FieldValue.increment(1),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          }, { merge: true });
+        }
         if (!res.headersSent) {
           res.status(500).json({ error: "Failed to generate PDF", details: error.message });
         }
@@ -708,10 +771,7 @@ export const getInterviewVertexToken = functions
       const userData = userSnap.data() || {};
       const plan = userData.plan || "free";
 
-      const monthlyLimit = plan === "max" || plan === "pro_max" ? 10000
-        : plan === "pro_monthly" || plan === "pro" ? 1000
-        : plan === "pro_sprint" ? 300
-        : 100;
+      const monthlyLimit = getPlanMonthlyLimit(plan, userData.seats || 1);
 
       const now = new Date();
       const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -725,7 +785,29 @@ export const getInterviewVertexToken = functions
         );
       }
 
-      // Create session document
+      const project = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || "jastalk-firebase";
+      const location = process.env.GOOGLE_CLOUD_LOCATION || "us-west1";
+
+      // Prewarm mode keeps the exact token function hot without creating a billable interview session.
+      const auth = new GoogleAuth({
+        scopes: "https://www.googleapis.com/auth/cloud-platform",
+      });
+      const client = await auth.getClient();
+      const accessTokenResponse = await client.getAccessToken();
+      const accessToken = accessTokenResponse.token;
+
+      if (data?.prewarm === true) {
+        console.log(`[getInterviewVertexToken] uid=${uid} role="${data.role ?? "unspecified"}" prewarmed`);
+        return {
+          prewarmed: true,
+          project,
+          location,
+          monthlyLimit,
+          creditsUsed: used,
+        };
+      }
+
+      // Create session document only when the user actually starts the interview.
       const sessionRef = db.collection("interviewSessions").doc();
       await sessionRef.set({
         uid,
@@ -736,17 +818,6 @@ export const getInterviewVertexToken = functions
         plan,
         source: "web",
       });
-
-      // Generate short-lived OAuth token for Vertex AI
-      const auth = new GoogleAuth({
-        scopes: "https://www.googleapis.com/auth/cloud-platform",
-      });
-      const client = await auth.getClient();
-      const accessTokenResponse = await client.getAccessToken();
-      const accessToken = accessTokenResponse.token;
-
-      const project = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || "jastalk-firebase";
-      const location = "us-west1";
 
       console.log(`[getInterviewVertexToken] uid=${uid} sessionId=${sessionRef.id} role="${data.role ?? "unspecified"}" (Vertex AI Token Vended)`);
 
@@ -832,9 +903,7 @@ export const billInterviewSession = functions
           const now = new Date();
           const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
           const used: number = userData.creditsUsed?.[monthKey] ?? 0;
-          const monthlyLimit = userData.plan === "max" || userData.plan === "pro_max" ? 10000
-            : userData.plan === "pro_monthly" || userData.plan === "pro" ? 1000
-            : userData.plan === "pro_sprint" ? 300 : 100;
+          const monthlyLimit = getPlanMonthlyLimit(userData.plan, userData.seats || 1);
           creditsRemaining = Math.max(0, monthlyLimit - used);
           return;
         }
@@ -874,9 +943,7 @@ export const billInterviewSession = functions
           feedbackReport: feedbackReport ?? null,
         });
 
-        const monthlyLimit = userData.plan === "max" || userData.plan === "pro_max" ? 10000
-          : userData.plan === "pro_monthly" || userData.plan === "pro" ? 1000
-          : userData.plan === "pro_sprint" ? 300 : 100;
+        const monthlyLimit = getPlanMonthlyLimit(userData.plan, userData.seats || 1);
         creditsRemaining = Math.max(0, monthlyLimit - newMonthUsed);
       });
 
@@ -952,10 +1019,7 @@ export const cliGetInterviewToken = functions
         const userData = userSnap.data() || {};
         const plan = userData.plan || "free";
 
-        const monthlyLimit = plan === "max" || plan === "pro_max" ? 10000
-          : plan === "pro_monthly" || plan === "pro" ? 1000
-          : plan === "pro_sprint" ? 300
-          : 100;
+        const monthlyLimit = getPlanMonthlyLimit(plan, userData.seats || 1);
 
         const now = new Date();
         const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -1109,9 +1173,7 @@ export const cliInterviewBill = functions
             const now = new Date();
             const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
             const used: number = userData.creditsUsed?.[monthKey] ?? 0;
-            const monthlyLimit = userData.plan === "max" || userData.plan === "pro_max" ? 10000
-              : userData.plan === "pro_monthly" || userData.plan === "pro" ? 1000
-              : userData.plan === "pro_sprint" ? 300 : 100;
+            const monthlyLimit = getPlanMonthlyLimit(userData.plan, userData.seats || 1);
             creditsRemaining = Math.max(0, monthlyLimit - used);
             return;
           }
@@ -1128,9 +1190,7 @@ export const cliInterviewBill = functions
           const userSnap = await tx.get(userRef);
           const userData = userSnap.data() || {};
           const plan = userData.plan || "free";
-          const monthlyLimit = plan === "max" || plan === "pro_max" ? 10000
-            : plan === "pro_monthly" || plan === "pro" ? 1000
-            : plan === "pro_sprint" ? 300 : 100;
+          const monthlyLimit = getPlanMonthlyLimit(plan, userData.seats || 1);
           const now = new Date();
           const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
           const used: number = userData.creditsUsed?.[monthKey] ?? 0;

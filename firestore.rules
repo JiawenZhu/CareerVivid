@@ -27,12 +27,89 @@ service cloud.firestore {
         );
     }
 
+    function isUserOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function protectedUserFields() {
+      return [
+        'downloadCredits',
+        'creditsUsed',
+        'aiUsage',
+        'plan',
+        'resumeLimit',
+        'expiresAt',
+        'promotions',
+        'stripeCustomerId',
+        'stripeSubscriptionId',
+        'stripeSubscriptionStatus',
+        'subscriptionStatus',
+        'billingStatus',
+        'cancelAtPeriodEnd',
+        'currentPeriodStart',
+        'currentPeriodEnd',
+        'priceId',
+        'role',
+        'roles',
+        'seats'
+      ];
+    }
+
+    function touchesProtectedUserFields() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasAny(protectedUserFields());
+    }
+
+    function hasSafeCreatePromotions() {
+      return !request.resource.data.keys().hasAny(['promotions']) ||
+        (
+          request.resource.data.promotions is map &&
+          request.resource.data.promotions.get('isPremium', false) == false &&
+          request.resource.data.promotions.get('tokenCredits', 0) == 0
+        );
+    }
+
+    function hasSafeCreateAiUsage() {
+      return !request.resource.data.keys().hasAny(['aiUsage']) ||
+        (
+          request.resource.data.aiUsage is map &&
+          request.resource.data.aiUsage.get('count', 0) == 0 &&
+          request.resource.data.aiUsage.get('monthlyLimit', 100) <= 100
+        );
+    }
+
+    function hasSafeUserCreateEntitlements(userId) {
+      return request.resource.data.get('uid', userId) == userId &&
+        request.resource.data.get('downloadCredits', 0) == 0 &&
+        request.resource.data.get('plan', 'free') == 'free' &&
+        request.resource.data.get('resumeLimit', 1) <= 1 &&
+        request.resource.data.get('role', 'user') == 'user' &&
+        !request.resource.data.keys().hasAny([
+          'expiresAt',
+          'stripeCustomerId',
+          'stripeSubscriptionId',
+          'stripeSubscriptionStatus',
+          'subscriptionStatus',
+          'billingStatus',
+          'cancelAtPeriodEnd',
+          'currentPeriodStart',
+          'currentPeriodEnd',
+          'priceId',
+          'roles',
+          'creditsUsed',
+          'seats'
+        ]) &&
+        hasSafeCreatePromotions() &&
+        hasSafeCreateAiUsage();
+    }
+
     // ---------------------------------------------------------
     // 👤 CORE USER DATA (Recursive - Covers EVERYTHING)
     // ---------------------------------------------------------
     match /users/{userId} {
       allow read: if true;
-      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow create: if isAdmin() || (isUserOwner(userId) && hasSafeUserCreateEntitlements(userId));
+      allow update: if isAdmin() || (isUserOwner(userId) && !touchesProtectedUserFields());
+      allow delete: if isAdmin();
 
       match /resumes/{resumeId} {
         allow read: if request.auth != null && (request.auth.uid == userId || isAdmin() || isBusinessPartner())

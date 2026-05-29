@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import {
     signInWithEmailAndPassword,
     signInWithPopup,
-    sendPasswordResetEmail,
 } from 'firebase/auth';
 import { auth, googleProvider, db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
@@ -12,6 +11,8 @@ import { trackUsage } from '../services/trackingService';
 import Logo from '../components/Logo';
 import { navigate } from '../utils/navigation';
 import { useAuth } from '../contexts/AuthContext';
+import { queueTransactionalAuthEmail } from '../services/transactionalEmailService';
+import { resolveSignedInWorkspace } from '../services/authAccountLinkingService';
 
 const SignInPage: React.FC = () => {
     const { t } = useTranslation();
@@ -28,6 +29,14 @@ const SignInPage: React.FC = () => {
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
+        const redirectUrl = params.get('redirect');
+        if (redirectUrl) {
+            const decodedRedirectUrl = decodeURIComponent(redirectUrl);
+            if (decodedRedirectUrl.startsWith('/extension-welcome')) {
+                window.location.replace(decodedRedirectUrl);
+                return;
+            }
+        }
         
         // Handle pre-filled email (frictionless transition)
         const emailParam = params.get('email');
@@ -126,7 +135,11 @@ const SignInPage: React.FC = () => {
         setSuccess('');
         try {
             const cred = await signInWithEmailAndPassword(auth, email, password);
-            trackUsage(cred.user.uid, 'sign_in');
+            const user = await resolveSignedInWorkspace();
+            trackUsage(user.uid, 'sign_in', {
+                resolvedWorkspace: user.uid !== cred.user.uid,
+                provider: 'password',
+            });
 
             // Check for redirect param
             const params = new URLSearchParams(window.location.search);
@@ -148,13 +161,16 @@ const SignInPage: React.FC = () => {
         setSuccess('');
         try {
             const result = await signInWithPopup(auth, googleProvider);
-            const user = result.user;
+            const user = await resolveSignedInWorkspace();
 
             const userDocRef = doc(db, 'users', user.uid);
             const userDoc = await getDoc(userDocRef);
 
             if (userDoc.exists()) {
-                trackUsage(user.uid, 'sign_in', { provider: 'google' });
+                trackUsage(user.uid, 'sign_in', {
+                    provider: 'google',
+                    resolvedWorkspace: user.uid !== result.user.uid,
+                });
             } else {
                 // New user signing up via Google - redirect to signup
                 await auth.signOut();
@@ -186,7 +202,7 @@ const SignInPage: React.FC = () => {
         setError('');
         setSuccess('');
         try {
-            await sendPasswordResetEmail(auth, email);
+            await queueTransactionalAuthEmail({ type: 'password_reset', email });
             setSuccess(t('auth.reset_sent'));
         } catch (err: any) {
             handleAuthError(err);

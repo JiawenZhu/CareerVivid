@@ -10,6 +10,9 @@ import { UserProfile } from '../types';
 import { createExtensionAuthPayload, syncAuthWithExtension } from '../utils/extensionAuthBridge';
 import { isExtensionContext } from '../services/extensionStorage';
 
+const isDevelopment = () => import.meta.env?.DEV === true ||
+  (typeof process !== 'undefined' && process.env.NODE_ENV === 'development');
+
 interface AuthContextType {
   currentUser: User | null;
   userProfile: UserProfile | null;
@@ -20,6 +23,7 @@ interface AuthContextType {
   isPremium: boolean;
   aiUsage: { count: number; limit: number } | null;
   refreshAIUsage: () => Promise<void>;
+  refreshEmailVerification: () => Promise<boolean>;
   logOut: () => void;
   updateUserProfile: (data: Partial<UserProfile>) => Promise<void>;
 }
@@ -34,6 +38,7 @@ const AuthContext = createContext<AuthContextType>({
   isPremium: false,
   aiUsage: null,
   refreshAIUsage: async () => { },
+  refreshEmailVerification: async () => false,
   logOut: () => { },
   updateUserProfile: async () => { },
 });
@@ -94,7 +99,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           const token = await user.getIdToken();
           if (typeof document !== 'undefined') {
-            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const isLocalhost = isDevelopment() &&
+              (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
             document.cookie = `session=${token}; path=/; max-age=31536000; SameSite=Lax${isLocalhost ? '' : '; secure'}`;
           }
 
@@ -119,7 +125,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsAdminLoading(false);
         setLoading(false);
         if (typeof document !== 'undefined') {
-          const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+          const isLocalhost = isDevelopment() &&
+            (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
           document.cookie = `session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax${isLocalhost ? '' : '; secure'}`;
         }
         if (!isExtensionContext()) {
@@ -137,6 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const unsubscribeToken = onIdTokenChanged(auth, async (user) => {
       if (!user || isExtensionContext()) return;
+      setIsEmailVerified(user.emailVerified);
 
       try {
         const apiKey = auth.app.options.apiKey || null;
@@ -365,6 +373,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const refreshEmailVerification = async () => {
+    const user = auth.currentUser;
+    if (!user) {
+      setIsEmailVerified(false);
+      return false;
+    }
+
+    try {
+      await user.reload();
+      const refreshedUser = auth.currentUser || user;
+      const verified = refreshedUser.emailVerified;
+      setCurrentUser(refreshedUser);
+      setIsEmailVerified(verified);
+
+      if (verified) {
+        await refreshedUser.getIdToken(true).catch(() => undefined);
+      }
+
+      return verified;
+    } catch (err) {
+      console.error('Failed to refresh email verification state:', err);
+      return false;
+    }
+  };
+
   const updateUserProfile = async (data: Partial<UserProfile>) => {
     if (!currentUser) return;
     const userRef = doc(db, 'users', currentUser.uid);
@@ -419,6 +452,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isPremium,
     aiUsage,
     refreshAIUsage,
+    refreshEmailVerification,
     logOut,
     updateUserProfile,
   }), [
@@ -431,6 +465,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isPremium,
     aiUsage,
     refreshAIUsage,
+    refreshEmailVerification,
     logOut,
     updateUserProfile
   ]);

@@ -3,6 +3,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { defineSecret } from "firebase-functions/params";
 import Stripe from "stripe";
 import * as admin from "firebase-admin";
+import { generateCareerVividEmail } from "./emailTemplates";
 
 const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
 const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
@@ -11,7 +12,8 @@ const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
 const PRICE_IDS = {
     SPRINT: "price_1ScLNsRJNflGxv32cvu6cTsK", // The 7-Day Sprint - One-time
     MONTHLY: "price_1ScLOaRJNflGxv32BwQnSBs0", // Legacy Pro Monthly - Subscription
-    DOWNLOAD_ONCE: "price_1ScLPERJNflGxv32Wxtpvg62", // Download Once - $1.99
+    DOWNLOAD_ONCE: "price_1TcIecRJNflGxv32sYZFOnn5", // Download Once - $2.99
+    DOWNLOAD_ONCE_LEGACY: "price_1ScLPERJNflGxv32Wxtpvg62", // Download Once - $1.99 legacy price
     NFC_CUSTOM: "price_1So67jRJNflGxv32TKsC7AbX", // Custom NFC Card - $12.90
     NFC_STANDARD: "price_1So6AtRJNflGxv32qHMPnhwz", // Standard NFC Card - $9.89
     // New Live Current Plans
@@ -24,9 +26,18 @@ const PRICE_IDS = {
 const ONE_TIME_PRICE_IDS = [
     PRICE_IDS.SPRINT,
     PRICE_IDS.DOWNLOAD_ONCE,
+    PRICE_IDS.DOWNLOAD_ONCE_LEGACY,
     PRICE_IDS.NFC_CUSTOM,
     PRICE_IDS.NFC_STANDARD,
 ];
+
+const DOWNLOAD_ONCE_PRICE_IDS = [
+    PRICE_IDS.DOWNLOAD_ONCE,
+    PRICE_IDS.DOWNLOAD_ONCE_LEGACY,
+];
+
+// One visible "Download Once" purchase gets backend retry allowance for failed exports.
+const PDF_DOWNLOAD_CREDITS_PER_PURCHASE = 3;
 
 /**
  * Creates a Stripe checkout session for purchasing a plan
@@ -35,6 +46,7 @@ export const createCheckoutSession = onCall(
     {
         secrets: [stripeSecretKey],
         region: "us-west1",
+        memory: "512MiB",
     },
     async (request) => {
         // Verify authentication
@@ -139,6 +151,7 @@ export const stripeWebhook = onRequest(
     {
         secrets: [stripeSecretKey, stripeWebhookSecret],
         region: "us-west1",
+        memory: "512MiB",
     },
     async (req, res) => {
         const stripe = new Stripe(stripeSecretKey.value(), {
@@ -209,6 +222,97 @@ export const stripeWebhook = onRequest(
             console.error("Error processing webhook:", error);
             res.status(500).send(`Webhook processing error: ${error.message}`);
         }
+    }
+);
+
+async function grantPdfDownloadCreditForCheckoutSession(
+    session: Stripe.Checkout.Session,
+    userId: string,
+    source: "webhook" | "return_verification"
+): Promise<{ credited: boolean; downloadCredits: number }> {
+    const priceId = session.metadata?.priceId;
+
+    if (!priceId || !DOWNLOAD_ONCE_PRICE_IDS.includes(priceId as any)) {
+        throw new HttpsError("invalid-argument", "Checkout session is not for a PDF download credit.");
+    }
+
+    if (session.payment_status !== "paid") {
+        throw new HttpsError("failed-precondition", "Checkout session has not been paid.");
+    }
+
+    const db = admin.firestore();
+    const userRef = db.collection("users").doc(userId);
+    const processedRef = db.collection("stripeProcessedCheckoutSessions").doc(session.id);
+    const stripeCustomerId = typeof session.customer === "string" ? session.customer : session.customer?.id || null;
+    const paymentIntentId = typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id || null;
+    let credited = false;
+    let downloadCredits = 0;
+
+    await db.runTransaction(async (transaction) => {
+        const [processedDoc, userDoc] = await Promise.all([
+            transaction.get(processedRef),
+            transaction.get(userRef),
+        ]);
+        const currentCredits = Number(userDoc.data()?.downloadCredits || 0);
+
+        if (processedDoc.exists) {
+            downloadCredits = currentCredits;
+            return;
+        }
+
+        downloadCredits = currentCredits + PDF_DOWNLOAD_CREDITS_PER_PURCHASE;
+        credited = true;
+
+        transaction.set(userRef, {
+            downloadCredits: admin.firestore.FieldValue.increment(PDF_DOWNLOAD_CREDITS_PER_PURCHASE),
+            stripeCustomerId: stripeCustomerId || userDoc.data()?.stripeCustomerId || null,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true });
+
+        transaction.set(processedRef, {
+            sessionId: session.id,
+            userId,
+            priceId,
+            purchaseType: "pdf_download_credit",
+            creditsGranted: PDF_DOWNLOAD_CREDITS_PER_PURCHASE,
+            customer: stripeCustomerId,
+            paymentIntent: paymentIntentId,
+            source,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+    });
+
+    return { credited, downloadCredits };
+}
+
+export const verifyPdfCreditCheckout = onCall(
+    {
+        secrets: [stripeSecretKey],
+        region: "us-west1",
+        memory: "512MiB",
+    },
+    async (request) => {
+        if (!request.auth) {
+            throw new HttpsError("unauthenticated", "User must be authenticated");
+        }
+
+        const sessionId = String(request.data?.sessionId || "");
+        if (!sessionId.startsWith("cs_")) {
+            throw new HttpsError("invalid-argument", "Missing or invalid checkout session ID.");
+        }
+
+        const stripe = new Stripe(stripeSecretKey.value(), {
+            apiVersion: "2026-02-25.clover",
+        });
+
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        const sessionUserId = session.metadata?.userId;
+
+        if (sessionUserId !== request.auth.uid) {
+            throw new HttpsError("permission-denied", "Checkout session does not belong to this user.");
+        }
+
+        return grantPdfDownloadCreditForCheckoutSession(session, request.auth.uid, "return_verification");
     }
 );
 
@@ -453,17 +557,13 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     const userRef = admin.firestore().collection("users").doc(userId);
 
     try {
-        if (priceId === PRICE_IDS.DOWNLOAD_ONCE) {
-            // Download Once purchase - increment download credits
-            await userRef.set(
-                {
-                    downloadCredits: admin.firestore.FieldValue.increment(1),
-                    stripeCustomerId: session.customer,
-                    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-                },
-                { merge: true }
+        if (priceId && DOWNLOAD_ONCE_PRICE_IDS.includes(priceId as any)) {
+            const result = await grantPdfDownloadCreditForCheckoutSession(session, userId, "webhook");
+            console.log(
+                result.credited
+                    ? `Download credit added for user ${userId}`
+                    : `Download credit already processed for session ${session.id}`
             );
-            console.log(`Download credit added for user ${userId}`);
         } else if (priceId === PRICE_IDS.SPRINT) {
             // One-time Sprint purchase
             const expiresAt = admin.firestore.Timestamp.fromMillis(
@@ -741,11 +841,6 @@ async function sendPaymentFailedEmail(
 /**
  * Send cancellation confirmation email with win-back CTA
  */
-import { generateNeoBrutalistEmail } from "./emailTemplates";
-
-/**
- * Send cancellation confirmation email with win-back CTA
- */
 async function sendCancellationConfirmationEmail(
     userEmail: string,
     userName: string,
@@ -754,26 +849,29 @@ async function sendCancellationConfirmationEmail(
     const mailRef = admin.firestore().collection("mail").doc();
     const APP_URL = "https://careervivid.app";
 
-    const emailHtml = generateNeoBrutalistEmail({
-        title: "Subscription Canceled",
+    const emailHtml = generateCareerVividEmail({
+        title: "Your subscription is canceled",
         userName: userName,
+        eyebrow: "Subscription notice",
+        preheader: `Your premium access remains active until ${accessEndDate}.`,
         messageLines: [
-            "We're sorry to see you go. Your subscription cancellation has been confirmed."
+            "Your subscription cancellation has been confirmed.",
+            "You can keep using premium features until the access end date below. After that, your account will move back to the free plan."
         ],
         boxContent: {
-            title: "Access Details",
-            type: "warning", // Yellow box
+            title: "Access details",
+            type: "warning",
             lines: [
                 "<strong>Your premium access will remain active until:</strong>",
                 `<span style="font-size: 18px; font-weight: bold;">${accessEndDate}</span>`,
-                "After this date, your account will revert to the free plan."
+                "You can resubscribe any time if you want to restore premium access later."
             ]
         },
         mainButton: {
-            text: "Resubscribe Now",
+            text: "View plans",
             url: `${APP_URL}/subscription`
         },
-        footerText: "We'd love to have you back!"
+        footerText: "You can continue using CareerVivid on the free plan after premium access ends."
     });
 
     await mailRef.set({
@@ -815,63 +913,31 @@ function generateInvoiceEmailHTML(
     planName: string,
     invoiceUrl: string
 ): string {
-    return `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }
-        .container { max-width: 600px; margin: 0 auto; background: white; }
-        .header { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 40px 20px; text-align: center; }
-        .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
-        .content { padding: 40px 30px; }
-        .content p { margin: 0 0 16px 0; font-size: 16px; }
-        .invoice-details { background: #f8f9fa; padding: 24px; margin: 24px 0; border-radius: 8px; border-left: 4px solid #6366f1; }
-        .invoice-details h3 { margin: 0 0 16px 0; font-size: 18px; color: #1f2937; }
-        .invoice-details p { margin: 8px 0; font-size: 15px; }
-        .invoice-details strong { color: #1f2937; font-weight: 600; }
-        .button { display: inline-block; padding: 14px 28px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; }
-        .button:hover { opacity: 0.9; }
-        .footer { text-align: center; padding: 30px 20px; color: #6b7280; font-size: 13px; background: #f9fafb; border-top: 1px solid #e5e7eb; }
-        .footer p { margin: 8px 0; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>✓ Payment Received</h1>
-        </div>
-        <div class="content">
-            <p>Hello <strong>${userName}</strong>,</p>
-            <p>Thank you for your payment! Your invoice has been paid successfully and your account has been updated.</p>
-            
-            <div class="invoice-details">
-                <h3>Invoice Details</h3>
-                <p><strong>Invoice Number:</strong> ${invoiceNumber}</p>
-                <p><strong>Amount Paid:</strong> $${amount}</p>
-                <p><strong>Payment Date:</strong> ${date}</p>
-                <p><strong>Plan:</strong> ${planName}</p>
-            </div>
-            
-            <p>You can download your invoice using the button below:</p>
-            <div style="text-align: center;">
-                <a href="${invoiceUrl}" class="button">Download Invoice</a>
-            </div>
-            
-            <p style="margin-top: 30px;">If you have any questions about your invoice or payment, please don't hesitate to contact our support team.</p>
-            
-            <p style="margin-top: 20px;">Best regards,<br><strong>The CareerVivid Team</strong></p>
-        </div>
-        <div class="footer">
-            <p>This is an automated message from CareerVivid</p>
-            <p>If you have any questions, contact us at <a href="mailto:support@careervivid.app" style="color: #6366f1;">support@careervivid.app</a></p>
-        </div>
-    </div>
-</body>
-</html>
-    `;
+    return generateCareerVividEmail({
+        title: "Payment received",
+        userName,
+        eyebrow: "Receipt",
+        preheader: `Your CareerVivid invoice ${invoiceNumber} has been paid.`,
+        messageLines: [
+            "Thank you. Your payment was received and your CareerVivid account has been updated.",
+            "You can download the invoice for your records from the link below."
+        ],
+        boxContent: {
+            title: "Invoice details",
+            type: "success",
+            lines: [
+                `<strong>Invoice number:</strong> ${invoiceNumber}`,
+                `<strong>Amount paid:</strong> $${amount}`,
+                `<strong>Payment date:</strong> ${date}`,
+                `<strong>Plan:</strong> ${planName}`
+            ]
+        },
+        mainButton: {
+            text: "Download invoice",
+            url: invoiceUrl
+        },
+        footerText: "This is an automated billing receipt from CareerVivid."
+    });
 }
 
 /**
@@ -914,9 +980,6 @@ Contact us at support@careervivid.app
 /**
  * Generate HTML email for payment failed
  */
-/**
- * Generate HTML email for payment failed
- */
 function generatePaymentFailedEmailHTML(
     userName: string,
     invoiceNumber: string,
@@ -925,31 +988,33 @@ function generatePaymentFailedEmailHTML(
 ): string {
     const APP_URL = "https://careervivid.app";
 
-    return generateNeoBrutalistEmail({
-        title: "Payment Failed",
+    return generateCareerVividEmail({
+        title: "Payment needs attention",
         userName: userName,
+        eyebrow: "Billing issue",
+        preheader: "We could not process your recent CareerVivid payment.",
         messageLines: [
             "We were unable to process your payment for the following invoice.",
-            "<strong>⚠️ Your premium access has been temporarily paused.</strong>"
+            "<strong>Your premium access has been temporarily paused.</strong>"
         ],
         boxContent: {
-            title: "Action Required",
+            title: "Invoice details",
             type: "critical",
             lines: [
-                `<strong>Invoice Number:</strong> ${invoiceNumber}`,
-                `<strong>Amount Due:</strong> $${amount}`,
-                `<strong>Status:</strong> Payment Failed`
+                `<strong>Invoice number:</strong> ${invoiceNumber}`,
+                `<strong>Amount due:</strong> $${amount}`,
+                `<strong>Status:</strong> Payment failed`
             ]
         },
         mainButton: {
-            text: "Update Payment Method",
+            text: "Update payment method",
             url: invoiceUrl
         },
         secondaryButton: {
-            text: "Resubscribe",
+            text: "View plans",
             url: `${APP_URL}/subscription`
         },
-        footerText: "Please update your payment method to restore access."
+        footerText: "Contact support@careervivid.app if you believe this notice is incorrect."
     });
 }
 

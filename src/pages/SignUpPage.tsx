@@ -3,14 +3,15 @@ import { useTranslation } from 'react-i18next';
 import {
     createUserWithEmailAndPassword,
     signInWithPopup,
-    sendEmailVerification,
 } from 'firebase/auth';
 import { auth, googleProvider, db } from '../firebase';
-import { doc, setDoc, getDoc, serverTimestamp, collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { Eye, EyeOff, ArrowLeft, Loader2, Mail, Lock, ChevronRight, Users } from 'lucide-react';
 import { trackUsage } from '../services/trackingService';
 import Logo from '../components/Logo';
 import { navigate } from '../utils/navigation';
+import { queueTransactionalAuthEmail } from '../services/transactionalEmailService';
+import { resolveSignedInWorkspace } from '../services/authAccountLinkingService';
 
 const SignUpPage: React.FC = () => {
     const { t } = useTranslation();
@@ -86,23 +87,6 @@ const SignUpPage: React.FC = () => {
         return localStorage.getItem('careervivid_referral') || undefined;
     }
 
-    const lookupPartnerByReferralCode = async (refCode: string) => {
-        try {
-            const q = query(
-                collection(db, 'users'),
-                where('referralCode', '==', refCode),
-                where('role', '==', 'academic_partner')
-            );
-            const snap = await getDocs(q);
-            if (!snap.empty) {
-                return snap.docs[0].id; // Return partner UID
-            }
-        } catch (err) {
-            console.error('Error looking up referral code:', err);
-        }
-        return null;
-    };
-
     const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -110,42 +94,22 @@ const SignUpPage: React.FC = () => {
         setSuccess('');
         try {
             const cred = await createUserWithEmailAndPassword(auth, email, password);
-            const actionCodeSettings = {
-                url: window.location.href.split('#')[0],
-            };
-            await sendEmailVerification(cred.user, actionCodeSettings);
+            await queueTransactionalAuthEmail({ type: 'email_verification' });
 
             const referredBy = getReferralCode();
-            let academicPartnerId: string | undefined;
-            let grantTrial = false;
-
-            if (referredBy) {
-                academicPartnerId = await lookupPartnerByReferralCode(referredBy);
-                if (academicPartnerId) {
-                    grantTrial = true;
-                }
-            }
-
-            const expiresAt = grantTrial
-                ? Timestamp.fromDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
-                : undefined;
-
             const params = new URLSearchParams(window.location.search);
             const source = params.get('source');
 
             await setDoc(doc(db, 'users', cred.user.uid), {
                 uid: cred.user.uid,
                 email: cred.user.email,
+                authProvider: 'password',
+                emailVerified: cred.user.emailVerified,
                 createdAt: serverTimestamp(),
                 promotions: {},
                 status: 'active',
                 ...(referredBy ? { referredBy } : {}),
-                ...(academicPartnerId ? { academicPartnerId } : {}),
-                ...(source ? { source } : {}),
-                ...(grantTrial ? {
-                    plan: 'pro_sprint',
-                    expiresAt: expiresAt
-                } : {})
+                ...(source ? { source } : {})
             });
             trackUsage(cred.user.uid, 'sign_in', { signup: true });
 
@@ -167,26 +131,13 @@ const SignUpPage: React.FC = () => {
         setSuccess('');
         try {
             const result = await signInWithPopup(auth, googleProvider);
-            const user = result.user;
+            const user = await resolveSignedInWorkspace();
 
             const userDocRef = doc(db, 'users', user.uid);
             const userDoc = await getDoc(userDocRef);
 
             if (!userDoc.exists()) {
                 const referredBy = getReferralCode();
-                let academicPartnerId: string | undefined;
-                let grantTrial = false;
-
-                if (referredBy) {
-                    academicPartnerId = await lookupPartnerByReferralCode(referredBy);
-                    if (academicPartnerId) {
-                        grantTrial = true;
-                    }
-                }
-
-                const expiresAt = grantTrial
-                    ? Timestamp.fromDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
-                    : undefined;
 
                 const params = new URLSearchParams(window.location.search);
                 const source = params.get('source');
@@ -196,20 +147,24 @@ const SignUpPage: React.FC = () => {
                     email: user.email,
                     displayName: user.displayName,
                     photoURL: user.photoURL,
+                    authProvider: 'google',
+                    emailVerified: user.emailVerified,
                     createdAt: serverTimestamp(),
                     promotions: {},
                     status: 'active',
                     ...(referredBy ? { referredBy } : {}),
-                    ...(academicPartnerId ? { academicPartnerId } : {}),
-                    ...(source ? { source } : {}),
-                    ...(grantTrial ? {
-                        plan: 'pro_sprint',
-                        expiresAt: expiresAt
-                    } : {})
+                    ...(source ? { source } : {})
                 });
-                trackUsage(user.uid, 'sign_in', { signup: true, provider: 'google' });
+                trackUsage(user.uid, 'sign_in', {
+                    signup: true,
+                    provider: 'google',
+                    resolvedWorkspace: user.uid !== result.user.uid,
+                });
             } else {
-                trackUsage(user.uid, 'sign_in', { provider: 'google' });
+                trackUsage(user.uid, 'sign_in', {
+                    provider: 'google',
+                    resolvedWorkspace: user.uid !== result.user.uid,
+                });
             }
 
             // Check for redirect param

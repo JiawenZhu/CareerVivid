@@ -3,14 +3,13 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
-  sendPasswordResetEmail,
-  sendEmailVerification,
 } from 'firebase/auth';
 import { auth, googleProvider, db } from '../../firebase';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { Shield, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { navigate } from '../../utils/navigation';
+import { queueTransactionalAuthEmail } from '../../services/transactionalEmailService';
 
 interface AdminLoginPageProps {
   accessDenied?: boolean;
@@ -79,13 +78,14 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ accessDenied }) => {
         const cred = await createUserWithEmailAndPassword(auth, email, password);
         const user = cred.user;
 
-        // Send verification email
-        await sendEmailVerification(user);
+        await queueTransactionalAuthEmail({ type: 'email_verification' });
 
         // Create user document in Firestore (optional for admins, but good practice)
         await setDoc(doc(db, 'users', user.uid), {
           uid: user.uid,
           email: user.email,
+          authProvider: 'password',
+          emailVerified: user.emailVerified,
           createdAt: serverTimestamp(),
           status: 'active',
           promotions: {}
@@ -155,8 +155,8 @@ const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ accessDenied }) => {
     setError('');
     setSuccess('');
     try {
-      await sendPasswordResetEmail(auth, email);
-      setSuccess('Password reset email sent! Please check your inbox to continue.');
+      await queueTransactionalAuthEmail({ type: 'password_reset', email });
+      setSuccess('If this email has a CareerVivid password account, a reset link will arrive in your inbox.');
     } catch (err: any) {
       handleAuthError(err);
     }

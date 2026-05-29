@@ -1,4 +1,4 @@
-import { doc, getDoc, updateDoc, Timestamp, increment, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { FREE_PLAN_CREDIT_LIMIT, PRO_PLAN_CREDIT_LIMIT, PRO_MAX_PLAN_CREDIT_LIMIT, ENTERPRISE_PLAN_CREDIT_LIMIT } from '../config/creditCosts';
 
@@ -7,6 +7,18 @@ export interface AIUsageData {
     lastResetDate: Timestamp;
     monthlyLimit: number;
 }
+
+const getExpectedLimit = (userData: any): number => {
+    let expectedLimit = FREE_PLAN_CREDIT_LIMIT;
+    const plan = userData.plan || 'free';
+
+    if (plan === 'pro' || plan === 'premium' || plan === 'pro_monthly' || plan === 'pro_sprint') expectedLimit = PRO_PLAN_CREDIT_LIMIT;
+    else if (plan === 'max' || plan === 'pro_max') expectedLimit = PRO_MAX_PLAN_CREDIT_LIMIT;
+    else if (plan === 'enterprise') expectedLimit = (userData.seats || 1) * ENTERPRISE_PLAN_CREDIT_LIMIT;
+
+    const tokenCredits = userData.promotions?.tokenCredits || 0;
+    return expectedLimit + tokenCredits;
+};
 
 /**
  * Get current AI usage for a user, automatically resetting if a month has passed
@@ -21,17 +33,14 @@ export const getAIUsage = async (userId: string): Promise<AIUsageData> => {
 
     const userData = userSnap.data();
     const aiUsage = userData.aiUsage;
+    const expectedLimit = getExpectedLimit(userData);
 
-    // Initialize if doesn't exist
     if (!aiUsage) {
-        const defaultUsage: AIUsageData = {
+        return {
             count: 0,
-            lastResetDate: serverTimestamp() as any, // Initialize with server time
-            monthlyLimit: FREE_PLAN_CREDIT_LIMIT // Default for free users
+            lastResetDate: Timestamp.now(),
+            monthlyLimit: expectedLimit
         };
-
-        await updateDoc(userRef, { aiUsage: defaultUsage });
-        return { ...defaultUsage, lastResetDate: Timestamp.now() };
     }
 
     // Check if month has passed, reset if needed
@@ -40,31 +49,11 @@ export const getAIUsage = async (userId: string): Promise<AIUsageData> => {
     const monthsPassed = (now.getFullYear() - lastReset.getFullYear()) * 12 +
         (now.getMonth() - lastReset.getMonth());
 
-    // Determine correct limit based on plan
-    let expectedLimit = FREE_PLAN_CREDIT_LIMIT;
-    const plan = userData.plan || 'free';
-
-    if (plan === 'pro' || plan === 'premium' || plan === 'pro_monthly' || plan === 'pro_sprint') expectedLimit = PRO_PLAN_CREDIT_LIMIT;
-    else if (plan === 'max' || plan === 'pro_max') expectedLimit = PRO_MAX_PLAN_CREDIT_LIMIT;
-    else if (plan === 'enterprise') expectedLimit = ENTERPRISE_PLAN_CREDIT_LIMIT;
-
-    const tokenCredits = userData.promotions?.tokenCredits || 0;
-    expectedLimit += tokenCredits;
-
-    // Self-healing: If limit is incorrect (e.g. user upgraded but DB didn't sync), fix it.
-    // Also reset if month passed.
-    if (monthsPassed >= 1 || aiUsage.monthlyLimit !== expectedLimit) {
-        const resetUsage: AIUsageData = {
-            count: monthsPassed >= 1 ? 0 : aiUsage.count, // Reset count only if month passed
-            lastResetDate: monthsPassed >= 1 ? Timestamp.now() : aiUsage.lastResetDate,
-            monthlyLimit: expectedLimit
-        };
-
-        await updateDoc(userRef, { aiUsage: resetUsage });
-        return resetUsage;
-    }
-
-    return aiUsage as AIUsageData;
+    return {
+        count: monthsPassed >= 1 ? 0 : Number(aiUsage.count || 0),
+        lastResetDate: monthsPassed >= 1 ? Timestamp.now() : (aiUsage.lastResetDate || Timestamp.now()),
+        monthlyLimit: expectedLimit
+    };
 };
 
 /**
@@ -78,10 +67,8 @@ export const incrementAIUsage = async (userId: string, amount: number = 1): Prom
         throw new Error('Monthly AI usage limit reached');
     }
 
-    const userRef = doc(db, 'users', userId);
-    await updateDoc(userRef, {
-        'aiUsage.count': increment(amount)
-    });
+    // Credit counters are server-authoritative. Client writes to aiUsage/creditsUsed
+    // are blocked by Firestore rules so users cannot grant themselves credits.
 };
 
 /**
@@ -96,23 +83,7 @@ export const canUseAI = async (userId: string): Promise<boolean> => {
  * Update monthly limit based on user's plan
  */
 export const updateAILimit = async (userId: string, plan: string): Promise<void> => {
-    const userRef = doc(db, 'users', userId);
-    let limit = FREE_PLAN_CREDIT_LIMIT;
-
-    if (plan === 'pro' || plan === 'premium' || plan === 'pro_monthly' || plan === 'pro_sprint') {
-        limit = PRO_PLAN_CREDIT_LIMIT;
-    } else if (plan === 'max' || plan === 'pro_max') {
-        limit = PRO_MAX_PLAN_CREDIT_LIMIT;
-    } else if (plan === 'enterprise') {
-        limit = ENTERPRISE_PLAN_CREDIT_LIMIT;
-    }
-
-    const docSnap = await getDoc(userRef);
-    const userData = docSnap.data();
-    const tokenCredits = userData?.promotions?.tokenCredits || 0;
-    limit += tokenCredits;
-
-    await updateDoc(userRef, {
-        'aiUsage.monthlyLimit': limit
-    });
+    void userId;
+    void plan;
+    // Credit limits are derived from the plan on read and enforced by backend functions.
 };

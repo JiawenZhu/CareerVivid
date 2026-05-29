@@ -2,11 +2,10 @@ import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { getDataConnect } from "firebase-admin/data-connect";
 import { syncUserBackend, connectorConfig } from "./dataconnect-generated";
-import { generateNeoBrutalistEmail } from "./emailTemplates";
+import { queueHydratedLifecycleEmail } from "./emailDataBinding";
 import { defineSecret } from "firebase-functions/params";
 
 const INITIAL_PARTNER_PASSWORD = defineSecret("INITIAL_PARTNER_PASSWORD");
-const novuSecretKey = defineSecret("NOVU_SECRET_KEY");
 
 /**
  * Trigger: On User Created
@@ -18,7 +17,6 @@ const novuSecretKey = defineSecret("NOVU_SECRET_KEY");
  * 5. Link Student to Partner via `academicPartnerId`.
  */
 export const onUserCreated = functions
-    .runWith({ secrets: [novuSecretKey] })
     .region('us-west1')
     .firestore
     .document('users/{userId}')
@@ -31,65 +29,30 @@ export const onUserCreated = functions
             return null;
         }
 
-        // --- NEW: Send Welcome Email ---
+        // --- Queue hydrated welcome email ---
         try {
             if (newUser.email) {
-                const userName = newUser.displayName || newUser.personalDetails?.firstName || "there";
-                const emailHtml = generateNeoBrutalistEmail({
-                    title: "Welcome to CareerVivid",
-                    userName: userName,
-                    messageLines: [
-                        "We're thrilled to have you on board! Get ready to supercharge your career journey.",
-                        "With CareerVivid, you can create stunning resumes, track your job applications, and prepare for interviews with AI."
-                    ],
-                    boxContent: {
-                        title: "Get Started",
-                        type: "success",
-                        lines: [
-                            "<strong>Complete your profile</strong> to get personalized recommendations.",
-                            "<strong>Upload your resume</strong> to kickstart the AI analysis.",
-                            "Explore our premium templates to stand out."
-                        ]
-                    },
-                    mainButton: {
-                        text: "Go to Dashboard",
-                        url: "https://careervivid.app/dashboard"
-                    },
-                    footerText: "Let's build your future together!"
+                const authUser = await admin.auth().getUser(userId).catch((error) => {
+                    console.warn(`Could not inspect auth provider for welcome email gating (${userId}):`, error);
+                    return null;
                 });
+                const usesPasswordProvider = authUser?.providerData.some(
+                    (provider) => provider.providerId === "password"
+                ) || newUser.authProvider === "password";
+                const isVerified = authUser?.emailVerified === true || newUser.emailVerified === true;
 
-                await admin.firestore().collection("mail").add({
-                    to: newUser.email,
-                    message: {
-                        subject: "Welcome to CareerVivid! 🚀",
-                        html: emailHtml,
-                        text: "Welcome to CareerVivid! We're thrilled to have you on board. Go to https://careervivid.app/dashboard to get started."
-                    }
-                });
-                console.log(`Welcome email queued for ${newUser.email}`);
+                if (usesPasswordProvider && !isVerified) {
+                    console.log(`Skipping onboarding welcome for unverified password user ${newUser.email}.`);
+                } else {
+                    const welcomeResult = await queueHydratedLifecycleEmail(userId, "onboarding_welcome", {
+                        reason: "user_created"
+                    });
+                    console.log(`Welcome email result for ${newUser.email}:`, welcomeResult);
+                }
             }
 
-            // --- Novu Workflow: onboarding-welcome ---
-            const { Novu } = await import('@novu/api');
-            const novu = new Novu({ secretKey: novuSecretKey.value() });
-            
-            await novu.trigger({
-                workflowId: 'onboarding-welcome',
-                to: {
-                    subscriberId: userId,
-                    email: newUser.email,
-                    firstName: newUser.displayName?.split(' ')[0] || newUser.personalDetails?.firstName,
-                    lastName: newUser.personalDetails?.lastName
-                },
-                payload: {
-                    firstName: newUser.displayName?.split(' ')[0] || newUser.personalDetails?.firstName || 'there',
-                    dashboardUrl: 'https://careervivid.app/dashboard'
-                }
-            });
-            console.log(`[Novu] onboarding-welcome triggered for ${userId}`);
-
         } catch (e) {
-            console.error("Error sending welcome email or novu trigger:", e);
+            console.error("Error queueing welcome email:", e);
         }
 
         // --- Referral Logic ---

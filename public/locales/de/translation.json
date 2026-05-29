@@ -245,7 +245,7 @@
     "error_exists": "An account with this email already exists. Please \"Sign in\" instead.",
     "error_weak": "Password is too weak. Please use at least 6 characters.",
     "error_diff_cred": "An account with this email already exists using a different sign-in method.",
-    "reset_sent": "Password reset email sent! Please check your inbox.",
+    "reset_sent": "If this email has a CareerVivid password account, a reset link will arrive in your inbox.",
     "enter_email_reset": "Please enter your email address to reset your password."
   },
   "faq": {

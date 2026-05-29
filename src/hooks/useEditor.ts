@@ -14,14 +14,10 @@ import { TEMPLATES } from '../templates';
 import { createNewResume } from '../constants';
 import { auth, functions } from '../firebase';
 import { resolveChunkFieldId } from '../utils/resumeTextChunks';
-import { initializeApp, deleteApp } from 'firebase/app';
-import {
-    GoogleAuthProvider,
-    getAuth,
-    signInWithPopup,
-    User
-} from 'firebase/auth';
+import { STRIPE_PRICE_IDS } from '../config/stripePrices';
+import { User } from 'firebase/auth';
 import { httpsCallable } from 'firebase/functions';
+import { getGoogleDriveAccessToken } from '../utils/googleDriveAuth';
 
 interface UseEditorProps {
     resumeId?: string;
@@ -42,7 +38,7 @@ export const useEditor = ({
 }: UseEditorProps) => {
     // Hooks & Context
     const { getResumeById, updateResume, isLoading: isResumeLoading } = useResumes();
-    const { currentUser, isPremium, isAdmin } = useAuth();
+    const { currentUser, userProfile, isPremium } = useAuth();
     const { theme, toggleTheme } = useTheme();
     const { t } = useTranslation();
 
@@ -68,6 +64,7 @@ export const useEditor = ({
     const [isSignupPromptOpen, setIsSignupPromptOpen] = useState(false);
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
+    const [isBuyingPdfCredit, setIsBuyingPdfCredit] = useState(false);
     const [exportProgress, setExportProgress] = useState('');
     const [isTranslating, setIsTranslating] = useState(false);
     const [isExportSuccessModalOpen, setIsExportSuccessModalOpen] = useState(false);
@@ -103,6 +100,53 @@ export const useEditor = ({
 
     // Memoized Values
     const sampleResumeForPreview = useMemo(() => createNewResume(), []);
+    const [verifiedDownloadCredits, setVerifiedDownloadCredits] = useState(0);
+    const downloadCredits = Math.max(Number(userProfile?.downloadCredits || 0), verifiedDownloadCredits);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const pdfCreditStatus = params.get('pdfCredit');
+        const sessionId = params.get('session_id');
+
+        if (!pdfCreditStatus) return;
+
+        if (pdfCreditStatus === 'success' && sessionId && !currentUser) return;
+
+        const clearCheckoutParams = () => {
+            params.delete('pdfCredit');
+            params.delete('session_id');
+            const query = params.toString();
+            window.history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`);
+        };
+
+        if (pdfCreditStatus === 'success') {
+            if (sessionId && currentUser) {
+                setToastMessage('Payment received. Confirming your PDF credit...');
+                const verifyCheckout = httpsCallable(functions, 'verifyPdfCreditCheckout');
+
+                verifyCheckout({ sessionId })
+                    .then((result: any) => {
+                        const nextCredits = Number(result.data?.downloadCredits || 1);
+                        setVerifiedDownloadCredits(Math.max(1, nextCredits));
+                        setToastMessage(
+                            result.data?.credited
+                                ? 'PDF credit added. You can download your resume now.'
+                                : 'PDF credit already applied. You can download your resume now.'
+                        );
+                    })
+                    .catch((error) => {
+                        console.error('PDF credit verification failed:', error);
+                        setToastMessage('Payment received. Your PDF credit is still syncing; try again in a moment.');
+                    });
+            } else {
+                setToastMessage('Checkout complete. Your PDF credit is being added; try download in a moment.');
+            }
+        } else if (pdfCreditStatus === 'cancelled') {
+            setToastMessage('PDF credit checkout cancelled.');
+        }
+
+        clearCheckoutParams();
+    }, [currentUser]);
 
     const sidebarWidth = useMemo(() => {
         if (!isDesktop) return '100%';
@@ -198,6 +242,56 @@ export const useEditor = ({
         return false;
     };
 
+    const handleBuyOneTimePdfCredit = useCallback(async () => {
+        if (!currentUser) {
+            setIsSignupPromptOpen(true);
+            return;
+        }
+
+        if (!resume?.id) return;
+
+        setIsBuyingPdfCredit(true);
+
+        try {
+            const priceId = STRIPE_PRICE_IDS.DOWNLOAD_ONCE;
+            await trackUsage(currentUser.uid, 'checkout_session_start', {
+                priceId,
+                purchaseType: 'pdf_download_credit',
+                resumeId: resume.id,
+            });
+
+            const createCheckoutSession = httpsCallable(functions, 'createCheckoutSession');
+            const returnUrl = `${window.location.origin}/edit/${resume.id}`;
+            const result: any = await createCheckoutSession({
+                priceId,
+                quantity: 1,
+                mode: 'payment',
+                successUrl: `${returnUrl}?pdfCredit=success&session_id={CHECKOUT_SESSION_ID}`,
+                cancelUrl: `${returnUrl}?pdfCredit=cancelled`,
+                metadata: {
+                    purchaseType: 'pdf_download_credit',
+                    resumeId: resume.id,
+                },
+            });
+
+            if (result.data?.url) {
+                window.location.href = result.data.url;
+                return;
+            }
+
+            throw new Error('No checkout URL returned');
+        } catch (error: any) {
+            console.error("PDF credit checkout failed:", error);
+            setAlertState({
+                isOpen: true,
+                title: 'Checkout unavailable',
+                message: 'We could not open checkout for the one-time PDF download. Please try again.',
+            });
+        } finally {
+            setIsBuyingPdfCredit(false);
+        }
+    }, [currentUser, resume]);
+
     const handleExport = async (optionId: string) => {
         if (handleGuestAction('download')) return;
         if (!resume) return;
@@ -207,7 +301,8 @@ export const useEditor = ({
         setExportProgress(t('editor.generating', { format: formatName }));
 
         try {
-            if (optionId === 'pdf' && !isPremium) {
+            const canUseDownloadCredit = !isShared && downloadCredits > 0;
+            if (optionId === 'pdf' && !isPremium && !canUseDownloadCredit) {
                 setIsExporting(false);
                 setIsUpgradeModalOpen(true);
                 return;
@@ -225,6 +320,9 @@ export const useEditor = ({
                 link.href = url;
                 link.download = `${resume.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
                 document.body.appendChild(link); link.click(); document.body.removeChild(link);
+                if (canUseDownloadCredit) {
+                    setVerifiedDownloadCredits((current) => Math.max(0, current - 1));
+                }
                 if (!isGuestMode && !isShared) setIsFeedbackModalOpen(true);
             } else {
                 const elementToCapture = document.querySelector('.origin-top') as HTMLElement;
@@ -258,7 +356,7 @@ export const useEditor = ({
             setAlertState({ isOpen: true, title: t('editor.export_failed'), message: t('editor.export_failed_msg') });
         } finally {
             setIsExporting(false);
-            setExportProgress('');
+        setExportProgress('');
         }
     };
 
@@ -292,29 +390,6 @@ export const useEditor = ({
         document.body.removeChild(link);
     };
 
-    const getDriveAccessToken = async (user: User) => {
-        const provider = new GoogleAuthProvider();
-        provider.addScope('https://www.googleapis.com/auth/drive.file');
-        provider.setCustomParameters({ login_hint: user.email || '' });
-
-        // Initialize a temporary secondary Firebase app to sign in with Google in a sandboxed auth instance.
-        // This completely avoids linking conflicts and does not affect the main app's authentication state!
-        const tempAppName = `gdoc-export-${Date.now()}`;
-        const tempApp = initializeApp(auth.app.options, tempAppName);
-        const tempAuth = getAuth(tempApp);
-
-        try {
-            const result = await signInWithPopup(tempAuth, provider);
-            const credential = GoogleAuthProvider.credentialFromResult(result);
-            const accessToken = credential?.accessToken;
-            if (!accessToken) throw new Error("Failed to authorize Google Drive access.");
-            return accessToken;
-        } finally {
-            // Safely clean up the temporary app in memory
-            deleteApp(tempApp).catch(err => console.error("Temp App cleanup failed:", err));
-        }
-    };
-
     const openGoogleDocsExportTab = () => {
         const exportTab = window.open('', '_blank');
         if (!exportTab) return null;
@@ -346,6 +421,19 @@ export const useEditor = ({
         }
     };
 
+    const getExportUser = async () => {
+        if (currentUser?.email) return currentUser;
+        if (auth.currentUser?.email) return auth.currentUser;
+
+        try {
+            await (auth as any).authStateReady?.();
+        } catch (error) {
+            console.warn("Firebase auth state was not ready for export:", error);
+        }
+
+        return auth.currentUser?.email ? auth.currentUser : null;
+    };
+
     const openGeneratedGoogleDoc = (docUrl: string, exportTab: Window | null) => {
         if (!isGoogleDocUrl(docUrl)) {
             exportTab?.close();
@@ -362,7 +450,9 @@ export const useEditor = ({
         if (handleGuestAction('download')) return;
         if (!resume) return;
 
-        if (!currentUser || !currentUser.email) {
+        const exportUser = await getExportUser();
+
+        if (!exportUser || !exportUser.email) {
             setAlertState({ isOpen: true, title: "Export Failed", message: "Please sign in before exporting your resume." });
             return;
         }
@@ -371,7 +461,7 @@ export const useEditor = ({
         setExportProgress(format === 'docx' ? "Preparing Word document..." : "Preparing Google Doc...");
 
         let exportTab: Window | null = null;
-        const cacheKey = `gdoc_access_token_${currentUser.uid}`;
+        const cacheKey = `gdoc_access_token_${exportUser.uid}`;
         let tokenToUse = googleAccessToken;
         let isPreAuthorized = false;
 
@@ -399,8 +489,8 @@ export const useEditor = ({
             // We do NOT open the exportTab yet, to prevent the browser from seeing two popups (Auth popup + exportTab)
             // in the same click handler and triggering the popup blocker.
             if (!tokenToUse) {
-                setExportProgress("Requesting Google Drive Access...");
-                const accessToken = await getDriveAccessToken(currentUser);
+                setExportProgress("Choose a Google account for Drive access...");
+                const accessToken = await getGoogleDriveAccessToken(exportUser, auth, 'gdoc-export');
                 tokenToUse = accessToken;
                 setGoogleAccessToken(accessToken);
 
@@ -445,7 +535,7 @@ export const useEditor = ({
                 }
             }
 
-            trackUsage(currentUser.uid, 'resume_download', { format });
+            trackUsage(exportUser.uid, 'resume_download', { format });
         } catch (error: any) {
             console.error("Google Docs Export Failed:", error);
             if (exportTab) {
@@ -458,13 +548,13 @@ export const useEditor = ({
                 setAlertState({
                     isOpen: true,
                     title: "Google Docs Export Failed",
-                    message: "That Google account is already connected to another CareerVivid login. Please export with the same Google account you use for this resume account, or sign out and use the account that owns this resume."
+                    message: "That Google account could not be authorized for Drive from this session. Please choose another Google account for Docs access, or sign in to CareerVivid with that Google account and try again."
                 });
             } else if (error.code === 'auth/user-mismatch') {
                 setAlertState({
                     isOpen: true,
-                    title: "Account Mismatch",
-                    message: `Please choose the same Google account as your CareerVivid login (${currentUser.email}).`
+                    title: "Google Docs Export Failed",
+                    message: "Please choose a Google account with Drive access and try again."
                 });
             } else {
                 setAlertState({ isOpen: true, title: "Export Failed", message: error.message || "Could not connect to Google Drive. Please try again." });
@@ -693,6 +783,8 @@ export const useEditor = ({
         isUpgradeModalOpen,
         setIsUpgradeModalOpen,
         isExporting,
+        isBuyingPdfCredit,
+        downloadCredits,
         exportProgress,
         isTranslating,
         optimizationJob,
@@ -719,6 +811,7 @@ export const useEditor = ({
         handleFocusField,
         handleTemplateSelect,
         handleExport,
+        handleBuyOneTimePdfCredit,
         handleTranslateResume,
         handleGoogleDocsExport,
         toggleFeedbackOverlay,
