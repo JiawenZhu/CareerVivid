@@ -1,8 +1,28 @@
 #!/usr/bin/env zx
 
+import { existsSync, readFileSync } from 'fs'
+import { parse as parseDotEnv } from 'dotenv'
+
+const requiredFirebaseClientEnvKeys = [
+    'VITE_FIREBASE_API_KEY',
+    'VITE_FIREBASE_AUTH_DOMAIN',
+    'VITE_FIREBASE_PROJECT_ID',
+    'VITE_FIREBASE_APP_ID'
+]
+
+const dotEnv = existsSync('.env') ? parseDotEnv(readFileSync('.env')) : {}
+const missingFirebaseClientEnvKeys = requiredFirebaseClientEnvKeys.filter((key) => {
+    const value = process.env[key] || dotEnv[key]
+    return !value || !String(value).trim()
+})
+
 console.log(chalk.blue('🚀 Starting CareerVivid Build Process...'))
 
 try {
+    if (missingFirebaseClientEnvKeys.length > 0) {
+        throw new Error(`Missing Firebase client env vars: ${missingFirebaseClientEnvKeys.join(', ')}`)
+    }
+
     console.log(chalk.yellow('\n📦 Building Vite App...'))
     await $`npm run build:vite`
 
