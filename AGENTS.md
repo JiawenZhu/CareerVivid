@@ -28,7 +28,7 @@ Do not use `/Users/jiawenzhu/Developer/careervivid` for new production work unle
 2. Check `git status --short --branch` before editing.
 3. Create a task branch from the clean baseline for each fix.
 4. Use GitHub Dependabot as the required source of truth when GitHub is reachable.
-5. If Aikido issue listing is blocked by a paid-plan gate, pivot to Dependabot plus local audits instead of retrying repeatedly.
+5. Do not depend on removed or unavailable scanner integrations; use Dependabot plus local audits as the baseline workflow.
 6. Keep security changes minimal, reviewable, and scoped to the finding.
 7. Preserve existing product behavior and visual design unless the security finding requires a narrow product-facing change.
 8. Run targeted tests for touched code, plus the relevant build command before marking work ready.
@@ -56,4 +56,3 @@ Expected a JavaScript-or-Wasm module script but the server responded with a MIME
 ```
 
 The clean release branch includes safeguards for SPA rewrites and service-worker caching. Future changes should preserve those protections.
-
