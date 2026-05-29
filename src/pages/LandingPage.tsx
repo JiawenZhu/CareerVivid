@@ -1,476 +1,516 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
-import { useTranslation } from 'react-i18next';
+import {
+    ArrowRight,
+    Briefcase,
+    Building2,
+    CheckCircle2,
+    Chrome,
+    ClipboardCheck,
+    FileText,
+    LayoutDashboard,
+    Lock,
+    Mic,
+    Search,
+    ShieldCheck,
+    Sparkles,
+    Users,
+    Wand2,
+} from 'lucide-react';
 import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
-import HeroVideo from '../components/HeroVideo';
-import { navigate } from '../utils/navigation';
-import { ArrowRight, CheckCircle2, Wand2, LayoutTemplate, Mic, Globe, Star, Loader2, Github, Users, Building, ChevronDown, Check, Terminal, Sparkles } from 'lucide-react';
-import { PricingComparison } from '../components/Landing/PricingComparison';
-import { CompetitorComparison } from '../components/Landing/CompetitorComparison';
 import CommunityShowcaseHero from '../components/Landing/CommunityShowcaseHero';
-import { getLandingPageSettings, DEFAULT_LANDING_PAGE_SETTINGS } from '../services/systemSettingsService';
+import { navigate } from '../utils/navigation';
+
+const SEO_TITLE = 'CareerVivid | AI Job Search Workspace & Chrome Extension';
+const SEO_DESCRIPTION = 'CareerVivid is an AI job-search workspace for resumes, job tracking, interview prep, portfolios, and Chrome extension autofill.';
+const SEO_KEYWORDS = 'AI job search workspace, Chrome extension job autofill, AI resume builder, job tracker, resume match, interview coach, application tracker, ATS resume optimization';
+const SEO_IMAGE = 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Fog_image.png?alt=media';
+
+const featureTabs = [
+    { label: 'Job Tracker', icon: Briefcase, href: '/job-tracker' },
+    { label: 'AI Resume Builder', icon: FileText, href: '/newresume' },
+    { label: 'Resume Tailor', icon: Wand2, href: '/newresume' },
+    { label: 'Autofill Applications', icon: Chrome, href: '/extension-welcome' },
+    { label: 'Resume Match', icon: Search, href: '/newresume' },
+    { label: 'Interview Coach', icon: Mic, href: '/interview-studio' },
+    { label: 'Career Pipeline', icon: LayoutDashboard, href: '/job-tracker' },
+];
+
+const experienceEntries = [
+    {
+        number: '1.',
+        label: 'Pipeline workspace',
+        title: 'Job Tracker & Application Context',
+        organization: 'CareerVivid product workspace',
+        date: 'Available now',
+        href: '/job-tracker',
+        bullets: [
+            'Captures each role with company, location, links, status, priority, due dates, and the next action that keeps the search moving.',
+            'Keeps resume match, interview prep, notes, and follow-up history attached to the same opportunity instead of spreading context across tabs.',
+            'Gives active job seekers a calm board for repeated work: save the role, prepare the application, follow up, and review what changed.',
+        ],
+    },
+    {
+        number: '2.',
+        label: 'Resume system',
+        title: 'AI Resume Builder & Tailoring Flow',
+        organization: 'ATS-ready resume workspace',
+        date: 'Available now',
+        href: '/newresume',
+        bullets: [
+            'Turns a resume into structured sections that are easier to edit, score, export, and reuse across different job targets.',
+            'Compares a resume against a job description so users can see matched keywords, missing proof, and the most important improvements.',
+            'Keeps the tone practical and reviewable, helping users improve materials without losing control of their own story.',
+        ],
+    },
+    {
+        number: '3.',
+        label: 'Browser workflow',
+        title: 'Chrome Extension for Job Pages',
+        organization: 'CareerVivid browser assistant',
+        date: 'Pending Chrome review',
+        href: '/extension-welcome',
+        bullets: [
+            'Brings CareerVivid to the job posting page so users can save a role, analyze fit, and move work back into the tracker.',
+            'Supports the application moment directly, where job details, requirements, and forms are already visible.',
+            'Keeps the browser workflow connected to the main account instead of becoming another isolated job-search tool.',
+        ],
+    },
+    {
+        number: '4.',
+        label: 'Interview practice',
+        title: 'AI Interview Coach & Feedback Reports',
+        organization: 'Practice and feedback workspace',
+        date: 'Available now',
+        href: '/interview-studio',
+        bullets: [
+            'Runs role-specific mock interviews and keeps preparation tied to the job the user is pursuing.',
+            'Exports feedback reports that help users see communication, confidence, and answer relevance in a concrete way.',
+            'Helps candidates build a repeatable preparation loop before high-pressure recruiter, technical, or behavioral interviews.',
+        ],
+    },
+];
+
+const expertiseBlocks = [
+    {
+        title: 'Workflow Design',
+        items: ['Job pipeline', 'Application context', 'Follow-up tracking', 'Role notes'],
+    },
+    {
+        title: 'AI Assistance',
+        items: ['Gemini-powered prep', 'Resume match', 'Keyword review', 'Interview feedback'],
+    },
+    {
+        title: 'Browser Tools',
+        items: ['Chrome extension', 'Job clipping', 'Form assistance', 'Context menus'],
+    },
+    {
+        title: 'Trust Practices',
+        items: ['Clear product claims', 'Privacy policy', 'User-owned data', 'No fake review blocks'],
+    },
+];
+
+const trustNotes = [
+    {
+        icon: ShieldCheck,
+        title: 'Plain claims',
+        copy: 'CareerVivid explains what exists today and avoids inflated social proof. That matters more than decorative trust badges.',
+    },
+    {
+        icon: Lock,
+        title: 'Private workspace',
+        copy: 'Saved jobs, resumes, prep notes, and application context stay inside the user account and product workflow.',
+    },
+    {
+        icon: Users,
+        title: 'Built for repeated use',
+        copy: 'The app is designed for the daily rhythm of searching, applying, following up, and improving materials.',
+    },
+];
+
+const faqs = [
+    {
+        question: 'Is CareerVivid just a resume builder?',
+        answer: 'No. The resume builder is one piece of the workspace. CareerVivid also includes a job tracker, resume matching, interview prep, application notes, and Chrome extension workflows.',
+    },
+    {
+        question: 'Do I need my own AI API key?',
+        answer: 'No for the hosted app. CareerVivid uses managed Gemini-powered features through the app. Developers who self-host can configure their own Firebase and Gemini setup.',
+    },
+    {
+        question: 'Can I use it while applying on other job sites?',
+        answer: 'Yes. The Chrome extension workflow is designed to help save roles and work with application pages from the browser while keeping the final workspace organized in CareerVivid.',
+    },
+];
+
+const PaperSection = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
+    <section className={`relative overflow-hidden border-t border-[#e6dac8] bg-[#f7f1e7] text-[#211b16] ${className}`}>
+        <div
+            className="pointer-events-none absolute inset-0 opacity-55"
+            style={{
+                backgroundImage:
+                    'linear-gradient(to right, rgba(139, 90, 22, 0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(139, 90, 22, 0.06) 1px, transparent 1px)',
+                backgroundSize: '64px 64px',
+            }}
+        />
+        <div className="relative">{children}</div>
+    </section>
+);
+
+const ProductIndex = () => (
+    <section className="border-y border-gray-200 bg-white/90 py-4 dark:border-gray-800 dark:bg-gray-950/80">
+        <div className="mx-auto flex max-w-7xl gap-3 overflow-x-auto px-4 pb-1 sm:px-6 lg:px-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {featureTabs.map(({ label, icon: Icon, href }) => (
+                <button
+                    key={label}
+                    onClick={() => navigate(href)}
+                    className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-black text-gray-700 shadow-sm transition hover:-translate-y-0.5 hover:border-gray-300 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                >
+                    <Icon size={16} className="text-blue-600 dark:text-blue-300" />
+                    {label}
+                </button>
+            ))}
+        </div>
+    </section>
+);
+
+const ProfileSnapshot = () => (
+    <aside className="rounded-lg border border-[#e4d3bc] bg-[#f9efe0]/75 p-6 shadow-sm shadow-[#8b5a16]/5 lg:sticky lg:top-28">
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-[#a97935]">Profile Snapshot</p>
+        <p className="mt-5 text-[15px] font-medium leading-8 text-[#665a4a]">
+            CareerVivid is a focused AI career workspace for job seekers who want fewer scattered tools and a clearer application routine. It combines a resume builder, job tracker, Chrome workflow, and interview coach so each role has context, preparation, and a next step.
+        </p>
+        <button
+            onClick={() => navigate('/signup')}
+            className="mt-6 inline-flex items-center gap-2 text-sm font-black text-[#9a651f] transition hover:text-[#211b16]"
+        >
+            Create your own workspace <ArrowRight size={15} />
+        </button>
+    </aside>
+);
+
+const ExperienceTimeline = () => (
+    <div className="relative">
+        <div className="absolute bottom-4 left-[18px] top-4 hidden w-px bg-[#d9c5aa] sm:block" />
+        <div className="space-y-10">
+            {experienceEntries.map((entry) => (
+                <article key={entry.title} className="relative grid gap-4 sm:grid-cols-[72px_1fr]">
+                    <div className="hidden pt-1 text-right font-mono text-sm text-[#7d6e5e] sm:block">{entry.number}</div>
+                    <div>
+                        <div className="absolute left-[14px] top-2 hidden h-2.5 w-2.5 rounded-full bg-[#a97935] ring-4 ring-[#f7f1e7] sm:block" />
+                        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                            <div>
+                                <p className="text-xs font-black uppercase tracking-[0.18em] text-[#a97935]">{entry.label}</p>
+                                <h3 className="mt-1 text-2xl font-black tracking-tight text-[#211b16]">{entry.title}</h3>
+                                <p className="mt-1 text-base font-bold text-[#665a4a]">{entry.organization}</p>
+                            </div>
+                            <p className="font-mono text-sm font-bold text-[#a97935]">{entry.date}</p>
+                        </div>
+                        <ul className="space-y-3">
+                            {entry.bullets.map((bullet) => (
+                                <li key={bullet} className="grid grid-cols-[14px_1fr] gap-3 text-[15px] font-medium leading-7 text-[#665a4a]">
+                                    <span className="text-[#a97935]">-</span>
+                                    <span>{bullet}</span>
+                                </li>
+                            ))}
+                        </ul>
+                        <button
+                            onClick={() => navigate(entry.href)}
+                            className="mt-5 inline-flex items-center gap-2 text-sm font-black text-[#211b16] transition hover:text-[#9a651f]"
+                        >
+                            Open this workflow <ArrowRight size={15} />
+                        </button>
+                    </div>
+                </article>
+            ))}
+        </div>
+    </div>
+);
+
+const ExpertisePanel = () => (
+    <div className="grid gap-4 lg:grid-cols-[1fr_0.95fr]">
+        <div className="grid gap-4 sm:grid-cols-2">
+            {expertiseBlocks.map((block) => (
+                <div key={block.title} className="rounded-lg border border-[#e4d3bc] bg-[#fffaf1]/80 p-5">
+                    <h3 className="font-mono text-sm font-black uppercase tracking-[0.14em] text-[#8b5a16]">{block.title}</h3>
+                    <ul className="mt-4 space-y-2">
+                        {block.items.map((item) => (
+                            <li key={item} className="text-[15px] font-semibold text-[#665a4a]">{item}</li>
+                        ))}
+                    </ul>
+                </div>
+            ))}
+        </div>
+        <div className="rounded-lg border border-[#e4d3bc] bg-[#211b16] p-6 text-[#f7f1e7] shadow-xl shadow-[#6b4b1f]/10">
+            <p className="font-mono text-xs font-black uppercase tracking-[0.18em] text-[#d3a15e]">Product routine</p>
+            <pre className="mt-5 overflow-x-auto text-sm leading-7 text-[#f4dfbf]">
+{`function prepareApplication(role) {
+  const context = saveJob(role);
+  const match = compareResume(context);
+  const prep = generateInterviewPlan(match);
+  return nextAction(prep);
+}`}
+            </pre>
+        </div>
+    </div>
+);
+
+const TrustNotes = () => (
+    <div className="grid gap-4 md:grid-cols-3">
+        {trustNotes.map(({ icon: Icon, title, copy }) => (
+            <div key={title} className="rounded-lg border border-[#e4d3bc] bg-[#fffaf1]/85 p-6">
+                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-lg bg-[#f2dfc2] text-[#8b5a16]">
+                    <Icon size={21} />
+                </div>
+                <h3 className="text-lg font-black text-[#211b16]">{title}</h3>
+                <p className="mt-3 text-sm font-medium leading-6 text-[#665a4a]">{copy}</p>
+            </div>
+        ))}
+    </div>
+);
 
 const LandingPage: React.FC = () => {
-    const { t, ready } = useTranslation();
-    const [resumeSuffix, setResumeSuffix] = React.useState(DEFAULT_LANDING_PAGE_SETTINGS.featuredResumeSuffix);
-
-    React.useEffect(() => {
-        // One-time fetch — settings rarely change, no real-time listener needed.
-        getLandingPageSettings().then((settings) => {
-            if (settings?.featuredResumeSuffix) {
-                setResumeSuffix(settings.featuredResumeSuffix);
-            }
-        });
-    }, []);
-
-    // Show loading state while i18n is initializing
-    if (!ready) {
-        return (
-            <div className="flex flex-col justify-center items-center h-screen bg-white dark:bg-gray-950">
-                <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
-            </div>
-        );
-    }
-
-    const websiteSchema = {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "CareerVivid",
-        "url": "https://careervivid.app/",
-        "description": t('landing.hero_subtitle'),
-        "potentialAction": {
-            "@type": "SearchAction",
-            "target": "https://careervivid.app/job-market?q={search_term_string}",
-            "query-input": "required name=search_term_string"
-        }
+    const structuredData = {
+        '@context': 'https://schema.org',
+        '@graph': [
+            {
+                '@type': 'Organization',
+                '@id': 'https://careervivid.app/#organization',
+                name: 'CareerVivid',
+                url: 'https://careervivid.app/',
+                logo: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Flogo_light_mode.png?alt=media&token=627ec9de-a950-41f7-9138-dd7a33518c55',
+            },
+            {
+                '@type': 'WebSite',
+                '@id': 'https://careervivid.app/#website',
+                name: 'CareerVivid',
+                url: 'https://careervivid.app/',
+                description: SEO_DESCRIPTION,
+                publisher: { '@id': 'https://careervivid.app/#organization' },
+            },
+            {
+                '@type': 'WebApplication',
+                '@id': 'https://careervivid.app/#job-workspace',
+                name: 'CareerVivid',
+                alternateName: 'CareerVivid Job Search Workspace',
+                url: 'https://careervivid.app/',
+                image: SEO_IMAGE,
+                applicationCategory: 'BusinessApplication',
+                applicationSubCategory: 'Job Search Workspace',
+                operatingSystem: 'Web',
+                offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD', name: 'CareerVivid Free' },
+                featureList: [
+                    'AI resume builder and tailoring',
+                    'Job application tracker',
+                    'Resume match scoring',
+                    'Interview preparation and feedback',
+                    'Portfolio and whiteboard workspace',
+                    'Chrome extension job capture and autofill',
+                    'Gemini-powered career workflows',
+                ],
+                description: SEO_DESCRIPTION,
+                publisher: { '@id': 'https://careervivid.app/#organization' },
+            },
+            {
+                '@type': 'BrowserApplication',
+                '@id': 'https://careervivid.app/#chrome-extension',
+                name: 'CareerVivid Chrome Extension',
+                url: 'https://careervivid.app/extension-welcome',
+                browserRequirements: 'Chrome',
+                applicationCategory: 'BusinessApplication',
+                applicationSubCategory: 'Job Application Autofill',
+                operatingSystem: 'Chrome',
+                featureList: [
+                    'Save job postings from the browser',
+                    'Autofill job applications',
+                    'Analyze resume match on job pages',
+                    'Send roles into the CareerVivid job tracker',
+                ],
+                description: 'The CareerVivid Chrome extension helps job seekers save roles, autofill applications, analyze job fit, and keep browser work connected to their CareerVivid workspace.',
+                publisher: { '@id': 'https://careervivid.app/#organization' },
+            },
+            {
+                '@type': 'FAQPage',
+                '@id': 'https://careervivid.app/#faq',
+                mainEntity: [
+                    {
+                        '@type': 'Question',
+                        name: 'What is CareerVivid?',
+                        acceptedAnswer: {
+                            '@type': 'Answer',
+                            text: 'CareerVivid is an AI job-search workspace that brings resumes, job tracking, interview prep, portfolios, and Chrome extension application workflows into one account.',
+                        },
+                    },
+                    {
+                        '@type': 'Question',
+                        name: 'Does CareerVivid have a Chrome extension?',
+                        acceptedAnswer: {
+                            '@type': 'Answer',
+                            text: 'Yes. CareerVivid includes a Chrome extension workflow for saving jobs, analyzing fit, autofilling application forms, and sending application context back to the main workspace.',
+                        },
+                    },
+                    {
+                        '@type': 'Question',
+                        name: 'How does CareerVivid use Gemini?',
+                        acceptedAnswer: {
+                            '@type': 'Answer',
+                            text: 'CareerVivid uses Gemini-powered workflows for resume tailoring, job-description matching, interview preparation, and career workspace automation.',
+                        },
+                    },
+                ],
+            },
+        ],
     };
 
     return (
-        <div className="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col font-sans selection:bg-primary-100 dark:selection:bg-primary-900">
-            <Helmet>
-                <script type="application/ld+json">
-                    {JSON.stringify(websiteSchema)}
-                </script>
+        <div className="min-h-screen bg-[#fbfbfe] text-gray-950 selection:bg-emerald-100 dark:bg-gray-950 dark:text-white">
+            <Helmet titleTemplate="%s">
+                <title>{SEO_TITLE}</title>
+                <meta name="title" content={SEO_TITLE} />
+                <meta name="description" content={SEO_DESCRIPTION} />
+                <meta name="keywords" content={SEO_KEYWORDS} />
+                <link rel="canonical" href="https://careervivid.app/" />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="https://careervivid.app/" />
+                <meta property="og:site_name" content="CareerVivid" />
+                <meta property="og:title" content={SEO_TITLE} />
+                <meta property="og:description" content={SEO_DESCRIPTION} />
+                <meta property="og:image" content={SEO_IMAGE} />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content={SEO_TITLE} />
+                <meta name="twitter:description" content={SEO_DESCRIPTION} />
+                <meta name="twitter:image" content={SEO_IMAGE} />
+                <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
             </Helmet>
-            <PublicHeader />
-            <main className="flex-grow">
-                {/* --- Master Showcase Hero (Community First & Terminal Transition) --- */}
+            <PublicHeader variant="editorial" />
+            <main>
                 <CommunityShowcaseHero />
+                <ProductIndex />
 
-
-
-                {/* --- Feature Showcase Sections --- */}
-
-                {/* Section A: Resume Builder */}
-                <section className="py-16 sm:py-24 bg-gray-50 dark:bg-gray-900/50 overflow-hidden">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid md:grid-cols-2 gap-16 items-center">
-                            <motion.div 
-                                className="order-2 md:order-1 relative"
-                                initial={{ opacity: 0, y: 40 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                                viewport={{ once: true, margin: "-50px" }}
-                            >
-                                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-2 transform -rotate-2 hover:rotate-0 transition-transform duration-500">
-                                    <img
-                                        src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop"
-                                        alt="Drag and Drop Editor"
-                                        className="rounded-xl w-full lg:hidden"
-                                    />
-                                    <iframe
-                                        src={`https://careervivid.app/${resumeSuffix}?viewMode=edit&activeTab=template`}
-                                        className="w-full h-[500px] rounded-xl hidden lg:block border-0 bg-gray-50"
-                                        title="Resume Builder Feature"
-                                    />
-                                </div>
-                                {/* ATS Score Badge - hidden on mobile to prevent overflow */}
-                                <div className="hidden sm:flex absolute -bottom-6 -left-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 items-center gap-3 animate-bounce-slow z-10">
-                                    <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg text-green-600">
-                                        <CheckCircle2 size={24} />
-                                    </div>
-                                    <div>
-                                        <div className="text-sm font-bold text-gray-900 dark:text-white">{t('landing.ats_score')}</div>
-                                        <div className="text-xs text-gray-500 dark:text-gray-400">{t('landing.ats_optimized')}</div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                            <motion.div 
-                                className="order-1 md:order-2"
-                                initial={{ opacity: 0, y: 40 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-                                viewport={{ once: true, margin: "-50px" }}
-                            >
-                                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-xl flex items-center justify-center mb-6">
-                                    <LayoutTemplate size={24} />
-                                </div>
-                                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 sm:mb-8 text-gray-900 dark:text-white tracking-tight">{t('landing.feature_editor_title')}</h2>
-                                <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-10 font-medium leading-relaxed">
-                                    {t('landing.feature_editor_desc')}
-                                </p>
-                                <ul className="space-y-5">
-                                    {[t('landing.feature_editor_1'), t('landing.feature_editor_2'), t('landing.feature_editor_3')].map((item, i) => (
-                                        <li key={i} className="flex items-center gap-4 text-lg text-gray-700 dark:text-gray-200 font-medium">
-                                            <CheckCircle2 size={24} className="text-green-500 flex-shrink-0" /> {item}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </motion.div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Section A-Community: Community Feed */}
-                <section className="py-16 sm:py-24 bg-white dark:bg-gray-950 overflow-hidden">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid md:grid-cols-2 gap-16 items-center">
-                            <div className="order-1">
-                                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 text-orange-600 rounded-xl flex items-center justify-center mb-6">
-                                    <Users size={24} />
-                                </div>
-                                <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-8 text-gray-900 dark:text-white tracking-tight">Autonomous Job Tracking.</h2>
-                                <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-10 font-medium leading-relaxed">
-                                    Stop updating spreadsheets. Your AI agent automatically tracks your job applications, monitors interview stages, and categorizes active opportunities seamlessly in one Kanban board.
-                                </p>
-                                <ul className="space-y-5">
-                                    {[
-                                        "Auto-scan job boards",
-                                        "Smart pipeline tracking",
-                                        "Automated follow-up reminders"
-                                    ].map((item, i) => (
-                                        <li key={i} className="flex items-center gap-4 text-lg text-gray-700 dark:text-gray-200 font-medium">
-                                            <CheckCircle2 size={24} className="text-orange-500 flex-shrink-0" /> {item}
-                                        </li>
-                                    ))}
-                                </ul>
-                                <button onClick={() => navigate('/dashboard')} className="mt-10 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white rounded-2xl font-extrabold text-lg transition-all shadow-lg hover:shadow-orange-500/25 flex items-center gap-3">
-                                    Explore the Tracker <ArrowRight size={20} />
-                                </button>
-                            </div>
-                            <div className="order-2 relative">
-                                <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 transform rotate-2 hover:rotate-0 transition-transform duration-500">
-                                    {/* Abstract representation of a community feed */}
-                                    <div className="space-y-6">
-                                        <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
-                                            <div className="flex items-center gap-3 mb-4">
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-orange-400 to-pink-500"></div>
-                                                <div>
-                                                    <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded mb-1"></div>
-                                                    <div className="h-3 w-16 bg-gray-100 dark:bg-gray-800 rounded"></div>
-                                                </div>
-                                            </div>
-                                            <div className="h-24 w-full bg-blue-50 dark:bg-blue-900/20 rounded-lg mb-4 border border-blue-100 dark:border-blue-800/30 flex items-center justify-center">
-                                                <Terminal className="text-blue-400" size={32} />
-                                            </div>
-                                            <div className="flex gap-4">
-                                                <div className="h-6 w-12 bg-gray-100 dark:bg-gray-800 rounded-full"></div>
-                                                <div className="h-6 w-12 bg-gray-100 dark:bg-gray-800 rounded-full"></div>
-                                            </div>
-                                        </div>
-                                        <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 opacity-70">
-                                            <div className="flex items-center gap-3 mb-4">
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-400 to-teal-500"></div>
-                                                <div>
-                                                    <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded mb-1"></div>
-                                                    <div className="h-3 w-20 bg-gray-100 dark:bg-gray-800 rounded"></div>
-                                                </div>
-                                            </div>
-                                            <div className="h-16 w-full bg-gray-100 dark:bg-gray-800 rounded-lg mb-4"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                {/* Floating Badge */}
-                                <div className="hidden sm:flex absolute -top-6 -right-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 items-center gap-3 animate-bounce-slow delay-700 z-10">
-                                    <div className="bg-orange-100 dark:bg-orange-900/30 p-2 rounded-lg text-orange-600">
-                                        <Star size={24} className="fill-current" />
-                                    </div>
-                                    <div>
-                                        <div className="text-sm font-bold text-gray-900 dark:text-white">Active Pipeline</div>
-                                        <div className="text-xs text-gray-500 dark:text-gray-400">Never miss an interview</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Section A2: Portfolio Builder */}
-                <section className="py-16 sm:py-24 bg-white dark:bg-gray-950 overflow-hidden">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid md:grid-cols-2 gap-16 items-center">
-                            <div className="order-1">
-                                <div className="w-12 h-12 bg-pink-100 dark:bg-pink-900/30 text-pink-600 rounded-xl flex items-center justify-center mb-6">
-                                    <Globe size={24} />
-                                </div>
-                                <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-8 text-gray-900 dark:text-white tracking-tight">{t('landing.feature_portfolio_title') || "Your Personal Portfolio Website"}</h2>
-                                <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-10 font-medium leading-relaxed">
-                                    {t('landing.feature_portfolio_desc') || "Instantly generate a stunning, mobile-responsive personal website from your resume. Showcase your projects, skills, and experience with a unique URL."}
-                                </p>
-                                <ul className="space-y-5">
-                                    {[
-                                        t('landing.feature_portfolio_1') || "One-Click Publish from Resume",
-                                        t('landing.feature_portfolio_2') || "Beautiful, Professional Themes",
-                                        t('landing.feature_portfolio_3') || "Custom Username URL (careervivid.app/portfolio/you)"
-                                    ].map((item, i) => (
-                                        <li key={i} className="flex items-center gap-4 text-lg text-gray-700 dark:text-gray-200 font-medium">
-                                            <CheckCircle2 size={24} className="text-pink-500 flex-shrink-0" /> {item}
-                                        </li>
-                                    ))}
-                                </ul>
-                                <button onClick={() => navigate('/auth')} className="mt-10 px-8 py-4 bg-pink-600 hover:bg-pink-700 text-white rounded-2xl font-extrabold text-lg transition-all shadow-lg hover:shadow-pink-500/25 flex items-center gap-3">
-                                    {t('landing.cta_build_portfolio') || "Build Your Website"} <ArrowRight size={20} />
-                                </button>
-                            </div>
-                            <div className="order-2 relative">
-                                <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-2 transform rotate-2 hover:rotate-0 transition-transform duration-500">
-                                    <img
-                                        src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=2055&auto=format&fit=crop"
-                                        alt="Portfolio Website Builder"
-                                        className="rounded-xl w-full shadow-inner"
-                                    />
-                                </div>
-                                {/* Floating Badge */}
-                                <div className="hidden sm:flex absolute -top-6 -right-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 items-center gap-3 animate-bounce-slow delay-700 z-10">
-                                    <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg text-blue-600">
-                                        <LayoutTemplate size={24} />
-                                    </div>
-                                    <div>
-                                        <div className="text-sm font-bold text-gray-900 dark:text-white">Mobile Ready</div>
-                                        <div className="text-xs text-gray-500 dark:text-gray-400">Responsive Design</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Section B: AI Features */}
-                <section className="py-24 bg-white dark:bg-gray-950">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid md:grid-cols-2 gap-16 items-center">
+                <PaperSection className="py-16 sm:py-24">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <div className="mb-14 grid gap-4 border-b border-[#e2d4c2] pb-10 sm:grid-cols-[1fr_auto] sm:items-end">
                             <div>
-                                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 text-purple-600 rounded-xl flex items-center justify-center mb-6">
-                                    <Wand2 size={24} />
-                                </div>
-                                <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-8 text-gray-900 dark:text-white tracking-tight">{t('landing.feature_ai_title')}</h2>
-                                <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-10 font-medium leading-relaxed">
-                                    {t('landing.feature_ai_desc')}
+                                <p className="font-mono text-sm font-black uppercase tracking-[0.18em] text-[#a97935]">Professional Experience</p>
+                                <h2 className="mt-3 text-4xl font-black tracking-tight text-[#211b16] sm:text-5xl">
+                                    A trustworthy job-search system, written like a product resume.
+                                </h2>
+                            </div>
+                            <p className="font-mono text-sm font-bold text-[#7d6e5e]">Updated May 25, 2026</p>
+                        </div>
+
+                        <div className="grid gap-10 lg:grid-cols-[340px_1fr]">
+                            <ProfileSnapshot />
+                            <ExperienceTimeline />
+                        </div>
+                    </div>
+                </PaperSection>
+
+                <PaperSection className="py-16 sm:py-24">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <div className="mb-10">
+                            <p className="font-mono text-sm font-black uppercase tracking-[0.18em] text-[#a97935]">Technical Implementations</p>
+                            <h2 className="mt-3 text-4xl font-black tracking-tight text-[#211b16] sm:text-5xl">
+                                Practical tools for the parts of job search that repeat every week.
+                            </h2>
+                            <p className="mt-5 max-w-3xl text-lg font-medium leading-8 text-[#665a4a]">
+                                The lower page now reads like a clear product record: what each system does, why it exists, and where the user should go next.
+                            </p>
+                        </div>
+                        <ExpertisePanel />
+                    </div>
+                </PaperSection>
+
+                <PaperSection className="py-16 sm:py-24">
+                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+                            <div>
+                                <p className="font-mono text-sm font-black uppercase tracking-[0.18em] text-[#a97935]">Trust Comes From Clarity</p>
+                                <h2 className="mt-3 text-4xl font-black tracking-tight text-[#211b16] sm:text-5xl">
+                                    One workspace. Clear context for every application.
+                                </h2>
+                                <p className="mt-5 text-lg font-medium leading-8 text-[#665a4a]">
+                                    CareerVivid should feel like a reliable workbench, not a loud promise machine. The page keeps the strongest claims tied to visible product workflows.
                                 </p>
-                                <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800">
-                                    <div className="flex items-start gap-4">
-                                        <div className="p-2 bg-primary-100 dark:bg-primary-900/50 rounded-lg text-primary-600">
-                                            <Wand2 size={20} />
+                                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                                    <button onClick={() => navigate('/signup')} className="inline-flex items-center justify-center gap-3 rounded-lg bg-[#211b16] px-6 py-4 font-black text-white shadow-lg shadow-[#6b4b1f]/15">
+                                        Start free <ArrowRight size={18} />
+                                    </button>
+                                    <button onClick={() => navigate('/pricing')} className="inline-flex items-center justify-center gap-3 rounded-lg border border-[#d8c6ad] bg-[#fffaf1] px-6 py-4 font-black text-[#211b16]">
+                                        View pricing
+                                    </button>
+                                </div>
+                            </div>
+                            <TrustNotes />
+                        </div>
+                    </div>
+                </PaperSection>
+
+                <PaperSection className="py-16 sm:py-24">
+                    <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
+                        <div>
+                            <p className="font-mono text-sm font-black uppercase tracking-[0.18em] text-[#a97935]">For Teams & Education</p>
+                            <h2 className="mt-3 text-4xl font-black tracking-tight text-[#211b16] sm:text-5xl">
+                                Start personal. Expand when the workflow needs a cohort.
+                            </h2>
+                        </div>
+                        <div className="grid gap-4">
+                            {[
+                                [Building2, 'Career center dashboard', 'Invite students, allocate credits, and monitor progress when CareerVivid is used by a cohort.'],
+                                [ClipboardCheck, 'Application context', 'Store role, company, location, links, dates, notes, and preparation in one place.'],
+                                [Sparkles, 'Gemini-powered assistance', 'Generate focused prep and resume suggestions from the user saved context.'],
+                            ].map(([Icon, title, copy]) => {
+                                const LucideIcon = Icon as typeof Building2;
+                                return (
+                                    <div key={title as string} className="grid gap-4 rounded-lg border border-[#e4d3bc] bg-[#fffaf1]/85 p-5 sm:grid-cols-[44px_1fr]">
+                                        <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#f2dfc2] text-[#8b5a16]">
+                                            <LucideIcon size={21} />
                                         </div>
                                         <div>
-                                            <h4 className="font-semibold text-gray-900 dark:text-white mb-1">{t('landing.feature_ai_instant')}</h4>
-                                            <p className="text-sm text-gray-600 dark:text-gray-400">{t('landing.feature_ai_example')}</p>
+                                            <h3 className="text-lg font-black text-[#211b16]">{title as string}</h3>
+                                            <p className="mt-2 text-sm font-medium leading-6 text-[#665a4a]">{copy as string}</p>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div className="relative">
-                                <div className="absolute inset-0 bg-gradient-to-r from-purple-200 to-blue-200 dark:from-purple-900/20 dark:to-blue-900/20 rounded-full blur-3xl opacity-50"></div>
-                                <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6">
-                                    <div className="space-y-4">
-                                        <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded w-3/4"></div>
-                                        <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded w-full"></div>
-                                        <div className="h-4 bg-gray-100 dark:bg-gray-700 rounded w-5/6"></div>
-                                        <div className="mt-4 p-4 bg-primary-50 dark:bg-primary-900/20 rounded-lg border border-primary-100 dark:border-primary-800/50">
-                                            <div className="flex items-center gap-2 text-primary-600 text-sm font-medium mb-2">
-                                                <Wand2 size={14} /> {t('landing.feature_ai_suggestion')}
-                                            </div>
-                                            <p className="text-gray-700 dark:text-gray-300 text-sm">
-                                                {t('landing.feature_ai_tip')}
-                                            </p>
-                                            <button className="mt-3 text-xs font-semibold text-primary-600 hover:text-primary-700">{t('landing.feature_ai_apply')}</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                );
+                            })}
                         </div>
                     </div>
-                </section>
+                </PaperSection>
 
-                {/* Section C: Interview Prep */}
-                <section className="py-24 bg-gray-50 dark:bg-gray-900/50">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid md:grid-cols-2 gap-16 items-center">
-                            <div className="order-2 md:order-1">
-                                <div className="bg-gray-900 text-white rounded-2xl shadow-xl border border-gray-800 p-8 relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 p-4 opacity-20">
-                                        <Mic size={120} />
-                                    </div>
-                                    <div className="relative z-10 space-y-6">
-                                        <div className="flex items-start gap-4">
-                                            <div className="w-10 h-10 rounded-full bg-gray-700 flex-shrink-0"></div>
-                                            <div className="bg-gray-800 p-4 rounded-2xl rounded-tl-none max-w-[80%]">
-                                                <p className="text-sm text-gray-300">{t('landing.feature_interview_question')}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-start gap-4 justify-end">
-                                            <div className="bg-primary-600 p-4 rounded-2xl rounded-tr-none max-w-[80%]">
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                                                    <span className="text-xs font-medium text-white/80">{t('landing.feature_interview_recording')}</span>
-                                                </div>
-                                                <p className="text-sm text-white">{t('landing.feature_interview_answer')}</p>
-                                            </div>
-                                            <div className="w-10 h-10 rounded-full bg-primary-200 flex-shrink-0"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="order-1 md:order-2">
-                                <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 rounded-xl flex items-center justify-center mb-6">
-                                    <Mic size={24} />
-                                </div>
-                                <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-8 text-gray-900 dark:text-white tracking-tight">{t('landing.feature_interview_title')}</h2>
-                                <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-10 font-medium leading-relaxed">
-                                    {t('landing.feature_interview_desc')}
-                                </p>
-                                <button onClick={() => navigate('/interview-studio')} className="text-primary-600 font-extrabold text-xl hover:text-primary-700 flex items-center gap-3 group">
-                                    {t('landing.feature_interview_cta')} <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
-                                </button>
-                            </div>
+                <PaperSection className="py-16 sm:py-24">
+                    <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+                        <div className="text-center">
+                            <p className="font-mono text-sm font-black uppercase tracking-[0.18em] text-[#a97935]">FAQ</p>
+                            <h2 className="mt-3 text-4xl font-black tracking-tight text-[#211b16] sm:text-5xl">Questions before you start</h2>
                         </div>
-                    </div>
-                </section>
-
-                {/* Section D: Global */}
-                <section className="py-24 bg-white dark:bg-gray-950">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-2xl mb-8">
-                            <Globe size={32} />
-                        </div>
-                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-8 text-gray-900 dark:text-white tracking-tight">{t('landing.feature_translate_title')}</h2>
-                        <p className="text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-14 font-medium leading-relaxed">
-                            {t('landing.feature_translate_desc')}
-                        </p>
-                        <div className="flex flex-wrap justify-center gap-4 text-sm font-medium text-gray-500 dark:text-gray-400">
-                            {['English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese', 'Hindi', 'Arabic', '+ 28 more'].map((lang) => (
-                                <span key={lang} className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-full">
-                                    {lang}
-                                </span>
+                        <div className="mt-10 space-y-4">
+                            {faqs.map(({ question, answer }) => (
+                                <details key={question} className="group rounded-lg border border-[#e4d3bc] bg-[#fffaf1]/85 p-6">
+                                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-black text-[#211b16] [&::-webkit-details-marker]:hidden">
+                                        {question}
+                                        <ArrowRight size={18} className="shrink-0 transition group-open:rotate-90" />
+                                    </summary>
+                                    <p className="mt-4 text-base font-medium leading-7 text-[#665a4a]">{answer}</p>
+                                </details>
                             ))}
                         </div>
                     </div>
-                </section>
+                </PaperSection>
 
-                {/* --- Competitor Comparison — immediately above the AI Credit Plans header --- */}
-                <CompetitorComparison />
-
-                {/* --- Pricing Section --- */}
-                <PricingComparison />
-
-                {/* --- Teams & Education Section --- */}
-                <section className="py-24 bg-slate-50 dark:bg-slate-900/50">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid md:grid-cols-2 gap-16 items-center">
-                            <div className="order-2 md:order-1 relative">
-                                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6">
-                                    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100 dark:border-gray-700">
-                                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center text-blue-600">
-                                            <Users size={24} />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-gray-900 dark:text-white">Career Center Admin</h4>
-                                            <p className="text-sm text-gray-500">Managing 150+ Students</p>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
-                                            <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Class of 2026 Cohort</span>
-                                            <span className="text-xs bg-green-100 text-green-700 font-bold px-2 py-1 rounded-full">100% Active</span>
-                                        </div>
-                                        <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
-                                            <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Engineering Bootcamp</span>
-                                            <span className="text-xs bg-blue-100 text-blue-700 font-bold px-2 py-1 rounded-full">50 Seats Allocated</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="order-1 md:order-2">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 mb-6 tracking-wider uppercase">
-                                    <Building size={14} /> For Teams & Education
-                                </div>
-                                <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-8 text-gray-900 dark:text-white tracking-tight">Empower your entire cohort.</h2>
-                                <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-10 font-medium leading-relaxed">
-                                    CareerVivid is built for bootcamps, universities, and career centers. Assign the <code className="bg-gray-200 dark:bg-gray-800 px-3 py-1 rounded text-lg text-primary-600 dark:text-primary-400">academic_partner</code> role to instructors and seamlessly allocate AI credits to students.
-                                </p>
-                                <ul className="space-y-5 mb-10">
-                                    <li className="flex items-center gap-4 text-lg text-gray-700 dark:text-gray-200 font-medium">
-                                        <CheckCircle2 size={24} className="text-blue-500 flex-shrink-0" /> Centralized Admin Dashboard
-                                    </li>
-                                    <li className="flex items-center gap-4 text-lg text-gray-700 dark:text-gray-200 font-medium">
-                                        <CheckCircle2 size={24} className="text-blue-500 flex-shrink-0" /> Custom AI Token Limits per Student
-                                    </li>
-                                    <li className="flex items-center gap-4 text-lg text-gray-700 dark:text-gray-200 font-medium">
-                                        <CheckCircle2 size={24} className="text-blue-500 flex-shrink-0" /> View cohort-level job placement statistics
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* --- FAQ Section --- */}
-                <section className="py-24 bg-white dark:bg-gray-950">
-                    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="text-center mb-16">
-                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">Frequently Asked Questions</h2>
-                            <div className="flex items-center justify-center gap-3 text-gray-500 font-bold text-xl">
-                                <Check size={24} className="text-green-500" /> Trusted by developers and professionals worldwide.
-                            </div>
-                        </div>
-
-                        <div className="space-y-6">
-                            <details className="group bg-gray-50 dark:bg-gray-900 rounded-3xl p-8 cursor-pointer border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors [&_summary::-webkit-details-marker]:hidden">
-                                <summary className="flex justify-between items-center font-extrabold text-2xl text-gray-900 dark:text-white">
-                                    Can I host this myself for free?
-                                    <ChevronDown className="transition-transform group-open:rotate-180" size={28} />
-                                </summary>
-                                <p className="mt-6 text-xl text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                                    Yes! CareerVivid is strictly open-source core. You can clone the repository from GitHub and run it locally. Note that you will need to set up your own Firebase instance and provide your own Gemini API key for AI features.
-                                </p>
-                            </details>
-                            <details className="group bg-gray-50 dark:bg-gray-900 rounded-3xl p-8 cursor-pointer border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors [&_summary::-webkit-details-marker]:hidden">
-                                <summary className="flex justify-between items-center font-extrabold text-2xl text-gray-900 dark:text-white">
-                                    Do I need my own AI API key for the Cloud version?
-                                    <ChevronDown className="transition-transform group-open:rotate-180" size={28} />
-                                </summary>
-                                <p className="mt-6 text-xl text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                                    No. The managed SaaS version of CareerVivid (Cloud) includes a generous monthly token allocation handled through our secure, scalable proxy. Zero API key configuration required.
-                                </p>
-                            </details>
-                            <details className="group bg-gray-50 dark:bg-gray-900 rounded-3xl p-8 cursor-pointer border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors [&_summary::-webkit-details-marker]:hidden">
-                                <summary className="flex justify-between items-center font-extrabold text-2xl text-gray-900 dark:text-white">
-                                    How does team pricing work for bootcamps?
-                                    <ChevronDown className="transition-transform group-open:rotate-180" size={28} />
-                                </summary>
-                                <p className="mt-6 text-xl text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                                    We offer custom bulk pricing for educational institutions and bootcamps. Instructors receive a dedicated dashboard to invite students via email links and allocate AI credits automatically.
-                                </p>
-                            </details>
-                        </div>
-                    </div>
-                </section>
-
-                {/* --- CTA Section --- */}
-                <section className="py-24 relative overflow-hidden bg-gray-900 dark:bg-black">
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary-900/20 to-purple-900/20"></div>
-                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-                        <h2 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white mb-10 tracking-tight leading-tight">
-                            {t('landing.cta_title')}
-                        </h2>
-                        <p className="text-2xl text-gray-300 mb-12 max-w-3xl mx-auto font-medium leading-relaxed">
-                            {t('landing.cta_desc')}
+                <section className="bg-[#211b16] py-16 text-[#fffaf1] sm:py-24">
+                    <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+                        <p className="font-mono text-sm font-black uppercase tracking-[0.18em] text-[#d3a15e]">Ready when your next application is</p>
+                        <h2 className="mt-4 text-4xl font-black tracking-tight sm:text-6xl">Create one workspace for the whole search.</h2>
+                        <p className="mx-auto mt-5 max-w-2xl text-lg font-medium leading-8 text-[#e7d4b9]">
+                            Build the resume, save the role, prepare the interview, and keep the next action visible.
                         </p>
-                        <div className="flex flex-col sm:flex-row justify-center gap-6">
-                            <button onClick={() => navigate('/auth')} className="px-10 py-5 bg-white text-gray-900 rounded-2xl font-extrabold text-xl hover:bg-gray-100 transition-colors shadow-2xl">
-                                {t('landing.cta_button')}
+                        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+                            <button onClick={() => navigate('/signup')} className="inline-flex items-center justify-center gap-3 rounded-lg bg-[#fffaf1] px-6 py-4 font-black text-[#211b16]">
+                                Sign up free <ArrowRight size={18} />
+                            </button>
+                            <button onClick={() => navigate('/contact')} className="inline-flex items-center justify-center gap-3 rounded-lg border border-[#fffaf1]/20 px-6 py-4 font-black text-[#fffaf1]">
+                                Contact support
                             </button>
                         </div>
                     </div>

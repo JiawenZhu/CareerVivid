@@ -9,26 +9,29 @@
     href="https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Flogo_light_mode.png?alt=media&token=627ec9de-a950-41f7-9138-dd7a33518c55" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#ffffff" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
   <!-- Primary Meta Tags -->
   <meta name="robots" content="index, follow">
-  <title>CareerVivid | AI Job Hunting SaaS Powered by Gemini & Vertex AI</title>
-  <meta name="title" content="CareerVivid | AI Job Hunting SaaS Powered by Gemini & Vertex AI">
+  <title>CareerVivid | AI Job Search Workspace & Chrome Extension</title>
+  <meta name="title" content="CareerVivid | AI Job Search Workspace & Chrome Extension">
   <meta name="description"
-    content="CareerVivid is a pure SaaS platform leveraging Google's Gemini 2.5 Flash and Vertex AI. Use our intelligent agent to discover relevant jobs, automatically generate personalized technical interview prep, and streamline your entire job hunt.">
+    content="CareerVivid is an AI job-search workspace for resumes, job tracking, interview prep, portfolios, and Chrome extension autofill.">
   <meta name="keywords"
-    content="AI job tracker, Gemini 2.5 Flash, Vertex AI, SaaS job search, technical interview prep notes, AI career agent, software developer jobs">
+    content="AI job search workspace, Chrome extension job autofill, AI resume builder, job tracker, resume match, interview coach, application tracker, ATS resume optimization, CareerVivid">
   <meta name="author" content="CareerVivid">
+  <meta name="application-name" content="CareerVivid">
+  <meta name="apple-mobile-web-app-title" content="CareerVivid">
+  <meta name="category" content="AI job search, career management, Chrome extension">
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://careervivid.app/">
   <meta property="og:site_name" content="CareerVivid">
-  <meta property="og:title" content="CareerVivid | AI Job Hunting SaaS Powered by Gemini & Vertex AI">
+  <meta property="og:title" content="CareerVivid | AI Job Search Workspace & Chrome Extension">
   <meta property="og:description"
-    content="CareerVivid is a pure SaaS platform leveraging Google's Gemini 2.5 Flash and Vertex AI. Use our intelligent agent to discover relevant jobs, automatically generate personalized technical interview prep, and streamline your entire job hunt.">
+    content="CareerVivid is an AI job-search workspace for resumes, job tracking, interview prep, portfolios, and Chrome extension autofill.">
   <meta property="og:image"
     content="https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Fog_image.png?alt=media">
   <meta property="og:image:width" content="1200">
@@ -38,17 +41,15 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@careervivid">
   <meta name="twitter:url" content="https://careervivid.app/">
-  <meta name="twitter:title" content="CareerVivid | AI Job Hunting SaaS Powered by Gemini & Vertex AI">
+  <meta name="twitter:title" content="CareerVivid | AI Job Search Workspace & Chrome Extension">
   <meta name="twitter:description"
-    content="CareerVivid is a pure SaaS platform leveraging Google's Gemini 2.5 Flash and Vertex AI. Use our intelligent agent to discover relevant jobs, automatically generate personalized technical interview prep, and streamline your entire job hunt.">
+    content="CareerVivid is an AI job-search workspace for resumes, job tracking, interview prep, portfolios, and Chrome extension autofill.">
   <meta name="twitter:image"
     content="https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Fog_image.png?alt=media">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://firebasestorage.googleapis.com">
-
-  <script src="https://cdn.tailwindcss.com"></script>
 
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
@@ -62,132 +63,6 @@
       rel="stylesheet">
   </noscript>
 
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          },
-          colors: {
-            primary: {
-              DEFAULT: 'hsl(var(--primary))',
-              foreground: 'hsl(var(--primary-foreground))',
-              50: 'hsl(220, 70%, 97%)',
-              100: 'hsl(220, 70%, 94%)',
-              200: 'hsl(220, 70%, 88%)',
-              300: 'hsl(220, 70%, 82%)',
-              400: 'hsl(220, 70%, 70%)',
-              500: 'hsl(220, 70%, 60%)',
-              600: 'hsl(220, 70%, 50%)',
-              700: 'hsl(220, 70%, 42%)',
-              800: 'hsl(220, 70%, 34%)',
-              900: 'hsl(220, 70%, 26%)',
-              950: 'hsl(220, 70%, 15%)',
-            },
-            gray: {
-              50: '#F7F7F8',
-              100: '#F2F2F3',
-              200: '#E8E8EA',
-              300: '#D9D9DC',
-              400: '#BDBDC2',
-              500: '#8A8A93',
-              600: '#5F5F69',
-              700: '#4B4B55',
-              800: '#2A2A31',
-              900: '#1C1C21',
-              950: '#121215',
-            },
-          },
-          boxShadow: {
-            'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
-            'md': '0 8px 12px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.07)',
-            'lg': '0 12px 16px -4px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08)',
-            'xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-          },
-          borderRadius: {
-            'lg': '12px',
-            'xl': '16px',
-          },
-          keyframes: {
-            blink: {
-              '50%': { opacity: '0' },
-            },
-            'fade-in': {
-              from: { opacity: '0', transform: 'translateY(10px)' },
-              to: { opacity: '1', transform: 'translateY(0)' },
-            },
-            'celebration-fade-in-out': {
-              '0%': { opacity: '0' },
-              '20%': { opacity: '1' },
-              '80%': { opacity: '1' },
-              '100%': { opacity: '0' },
-            },
-            'celebration-sparkle': {
-              '0%, 100%': { transform: 'scale(1)', opacity: '1' },
-              '50%': { transform: 'scale(1.3)', opacity: '0.8' },
-            },
-            'gentle-pulse': {
-              '0%, 100%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(96, 165, 250, 0.4)' },
-              '50%': { transform: 'scale(1.02)', boxShadow: '0 0 0 10px rgba(96, 165, 250, 0)' },
-            },
-            'highlight-fade': {
-              '0%': { backgroundColor: 'hsl(220, 70%, 94%)' },
-              '100%': { backgroundColor: 'transparent' },
-            }
-          },
-          animation: {
-            blink: 'blink 1s step-end infinite',
-            'fade-in': 'fade-in 0.5s ease-out forwards',
-            'celebration-fade-in-out': 'celebration-fade-in-out 4s ease-in-out forwards',
-            'celebration-sparkle': 'celebration-sparkle 1s ease-in-out infinite',
-            'gentle-pulse': 'gentle-pulse 2.5s ease-in-out infinite',
-            'highlight': 'highlight-fade 2s ease-out',
-          },
-        }
-      }
-    }
-  </script>
-  <script type="importmap">
-{
-  "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.553.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.0",
-    "jspdf": "https://aistudiocdn.com/jspdf@^3.0.3",
-    "html2canvas": "https://aistudiocdn.com/html2canvas@^1.4.1",
-    "@stripe/stripe-js": "https://aistudiocdn.com/@stripe/stripe-js@^4.3.0",
-    "firebase/app": "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js",
-    "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js",
-    "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js",
-    "firebase/storage": "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js",
-    "firebase/analytics": "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js",
-    "firebase/functions": "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js",
-    "firebase/": "https://aistudiocdn.com/firebase@^12.6.0/",
-    "firebase-functions": "https://aistudiocdn.com/firebase-functions@^7.0.0",
-    "firebase-admin": "https://aistudiocdn.com/firebase-admin@^13.6.0",
-    "@sparticuz/chromium": "https://aistudiocdn.com/@sparticuz/chromium@^141.0.0",
-    "puppeteer-core": "https://aistudiocdn.com/puppeteer-core@^24.30.0",
-    "cors": "https://aistudiocdn.com/cors@^2.8.5",
-    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
-    "uuid": "https://aistudiocdn.com/uuid@^13.0.0",
-    "buffer": "https://aistudiocdn.com/buffer@^6.0.3",
-    "@google/generative-ai": "https://aistudiocdn.com/@google/generative-ai@^0.24.1",
-    "firebase-functions/": "https://aistudiocdn.com/firebase-functions@^7.0.0/",
-    "fs": "https://aistudiocdn.com/fs@^0.0.1-security",
-    "url": "https://aistudiocdn.com/url@^0.11.4",
-    "path": "https://aistudiocdn.com/path@^0.12.7",
-    "react-i18next": "https://aistudiocdn.com/react-i18next@^16.3.5",
-    "i18next": "https://aistudiocdn.com/i18next@^25.6.3",
-    "i18next-http-backend": "https://aistudiocdn.com/i18next-http-backend@^3.0.2",
-    "i18next-browser-languagedetector": "https://aistudiocdn.com/i18next-browser-languagedetector@^8.2.0",
-    "@google-cloud/translate": "https://aistudiocdn.com/@google-cloud/translate@^9.3.0"
-  }
-}
-</script>
   <script type="application/ld+json">
     [
       {
@@ -200,20 +75,42 @@
       },
       {
         "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
+        "@type": "WebApplication",
         "name": "CareerVivid",
-        "operatingSystem": "Web, CLI, Terminal",
+        "alternateName": "CareerVivid Job Search Workspace",
+        "operatingSystem": "Web",
         "applicationCategory": "BusinessApplication",
+        "applicationSubCategory": "Job Search Workspace",
         "offers": [
           { "@type": "Offer", "price": "6.00", "priceCurrency": "USD", "name": "CareerVivid Pro SaaS" }
         ],
         "featureList": [
-          "Gemini 2.5 Flash Driven Job Search",
-          "Vertex AI Interview Prep Generation",
-          "Automated Resume Matching",
-          "Interactive Architecture Whiteboards"
+          "AI resume builder and tailoring",
+          "Job application tracker",
+          "Resume match scoring",
+          "Interview preparation and feedback",
+          "Portfolio and whiteboard workspace",
+          "Chrome extension job capture and autofill",
+          "Gemini-powered career workflows"
         ],
-        "description": "CareerVivid is a pure SaaS platform leveraging Google's Gemini 2.5 Flash and Vertex AI. Use our intelligent agent to discover relevant jobs, automatically generate personalized technical interview prep, and streamline your entire job hunt.",
+        "description": "CareerVivid is an AI job-search workspace for resumes, job tracking, interview prep, portfolios, and Chrome extension autofill.",
+        "url": "https://careervivid.app"
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BrowserApplication",
+        "name": "CareerVivid Chrome Extension",
+        "browserRequirements": "Chrome",
+        "applicationCategory": "BusinessApplication",
+        "applicationSubCategory": "Job Application Autofill",
+        "operatingSystem": "Chrome",
+        "featureList": [
+          "Save job postings from the browser",
+          "Autofill job applications",
+          "Analyze resume match on job pages",
+          "Send roles into the CareerVivid job tracker"
+        ],
+        "description": "The CareerVivid Chrome extension helps job seekers save roles, autofill applications, analyze job fit, and keep browser work connected to their CareerVivid workspace.",
         "url": "https://careervivid.app"
       },
       {
@@ -222,26 +119,26 @@
         "mainEntity": [
           {
             "@type": "Question",
-            "name": "How does CareerVivid use Gemini and Vertex AI for job hunting?",
+            "name": "What is CareerVivid?",
             "acceptedAnswer": {
                "@type": "Answer",
-               "text": "CareerVivid leverages Google's Gemini 2.5 Flash model and Vertex AI infrastructure to instantly parse live job postings, extracting hidden requirements and matching them securely against your technical profile with extreme speed."
+               "text": "CareerVivid is an AI job-search workspace that brings resumes, job tracking, interview prep, portfolios, and Chrome extension application workflows into one account."
             }
           },
           {
             "@type": "Question",
-            "name": "How does AI generate technical interview preparation notes?",
+            "name": "Does CareerVivid have a Chrome extension?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "By analyzing the exact job description using Gemini models, CareerVivid's AI agent autonomously generates targeted system design patterns, behavioral questions, coding test heuristics, and company-specific trivia directly tailored to the role."
+              "text": "Yes. CareerVivid includes a Chrome extension workflow for saving jobs, analyzing fit, autofilling application forms, and sending application context back to the main workspace."
             }
           },
           {
             "@type": "Question",
-            "name": "Is CareerVivid a SaaS platform?",
+            "name": "How does CareerVivid use Gemini?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes, CareerVivid is a pure SaaS (Software as a Service) platform built on highly scalable Google Cloud architecture. We offer an integrated Web and CLI experience for developers to streamline their career growth."
+              "text": "CareerVivid uses Gemini-powered workflows for resume tailoring, job-description matching, interview preparation, and career workspace automation."
             }
           }
         ]
