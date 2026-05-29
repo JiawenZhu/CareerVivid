@@ -1,5 +1,6 @@
 import React from 'react';
 import { Settings } from 'lucide-react';
+import { resolveUserDisplayName } from '../../utils/userDisplayName';
 
 interface ExtensionHeaderProps {
     userProfile: any;
@@ -34,7 +35,15 @@ export const ExtensionHeader: React.FC<ExtensionHeaderProps> = ({
     localProfile
 }) => {
     const resolvedPhotoUrl = userProfile?.photoURL || currentUser?.photoURL || localPhotoURL;
-    const seed = userProfile?.email || currentUser?.email || localProfile?.email || userProfile?.uid || 'careervivid';
+    const email = userProfile?.email || currentUser?.email || localProfile?.email || '';
+    const localProfileName = localProfile ? `${localProfile.firstName || ''} ${localProfile.lastName || ''}`.trim() : '';
+    const displayName = resolveUserDisplayName({
+        profileDisplayName: userProfile?.displayName || localProfileName,
+        email,
+        authDisplayName: currentUser?.displayName,
+        fallback: 'CareerVivid User',
+    });
+    const seed = email || userProfile?.uid || 'careervivid';
     const avatarUrl = resolvedPhotoUrl || getRandomAvatar(seed);
 
     return (
@@ -45,8 +54,7 @@ export const ExtensionHeader: React.FC<ExtensionHeaderProps> = ({
                 </div>
                 <div className="min-w-0">
                     <h1 className="text-sm font-bold !text-slate-950 leading-tight truncate max-w-[220px]">
-                        {userProfile?.displayName || 
-                         (localProfile ? `${localProfile.firstName || ''} ${localProfile.lastName || ''}`.trim() || 'CareerVivid User' : 'CareerVivid User')}
+                        {displayName}
                     </h1>
                     <p className="text-[10px] uppercase tracking-wide font-semibold !text-indigo-600">
                         CareerVivid

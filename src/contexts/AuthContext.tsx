@@ -9,6 +9,7 @@ import { navigate } from '../utils/navigation';
 import { UserProfile } from '../types';
 import { createExtensionAuthPayload, syncAuthWithExtension } from '../utils/extensionAuthBridge';
 import { isExtensionContext } from '../services/extensionStorage';
+import { getEmailDisplayName } from '../utils/userDisplayName';
 
 const isDevelopment = () => import.meta.env?.DEV === true ||
   (typeof process !== 'undefined' && process.env.NODE_ENV === 'development');
@@ -48,7 +49,8 @@ export const useAuth = () => useContext(AuthContext);
 const buildFallbackUserProfile = (user: User): UserProfile => ({
   uid: user.uid,
   email: user.email || '',
-  displayName: user.displayName || '',
+  displayName: getEmailDisplayName(user.email) || user.displayName || '',
+  displayNameSource: getEmailDisplayName(user.email) ? 'email' : undefined,
   createdAt: null,
   status: 'active',
   plan: 'free',
@@ -279,7 +281,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const defaultProfile: Partial<UserProfile> = {
           uid: currentUser.uid,
           email: currentUser.email || '',
-          displayName: currentUser.displayName || '',
+          displayName: getEmailDisplayName(currentUser.email) || currentUser.displayName || '',
+          displayNameSource: getEmailDisplayName(currentUser.email) ? 'email' : undefined,
           status: 'active',
           plan: 'free',
           role: 'user',
