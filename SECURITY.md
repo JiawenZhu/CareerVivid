@@ -1,5 +1,11 @@
 # Security Policy
 
+Operational security notes are kept under `docs/security/`:
+
+- `docs/security/branch-protection.md`
+- `docs/security/security-audit-log.md`
+- `docs/security/source-generated-security-audit-fragment.md`
+
 ## Supported Versions
 
 Use this section to tell people about which versions of your project are

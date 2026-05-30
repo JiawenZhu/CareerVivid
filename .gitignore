@@ -1,4 +1,4 @@
-# Logs
+# Logs and diagnostics
 logs
 *.log
 npm-debug.log*
@@ -43,15 +43,30 @@ dist-ssr/
 dist-extension/
 build/
 .cache/
+coverage/
+test-results/
+playwright-report/
 
 # Environment Variables
 .env
 .env.local
 .env.*.local
 
-# Service Account Keys
+# Local security credentials and setup files
 *-adminsdk-*.json
 *-service-account*.json
+*agent-key*.json
+careervivid-agent-key.json
+google-application-credentials*.json
+application_default_credentials.json
+*.pem
+*.p12
+*.key
+*.crt
+.secrets/
+secrets/
+security-setup/
+security-local/
 
 # Standalone lottery engine repo (has own git)
 megamillions-engine/
@@ -66,8 +81,13 @@ sop-assets/
 *SOP*
 *sop*
 
-# Agent skills (local AI assistant config, not app code)
-.agent/skills/
+# Agent and local assistant workspaces
+.agent/
+.claude/
+.codex-local/
+.local-workspaces/
+local-workspaces/
+.venv/
 
 
 # Job automation tool
@@ -80,4 +100,19 @@ vectorlotto/
 
 # Community content MD
 community-content/
+docs/community/content/
 
+# Non-code marketing, media, and generated handoff artifacts
+backups/
+release/chrome-extension/*.zip
+public/avatars/
+public/video_assets/
+docs/marketing/images/
+marketing-studio/
+remotion-commercial/out/
+remotion-commercial/renders/
+*.mp4
+*.mov
+*.webm
+*.m4v
+*.wav
