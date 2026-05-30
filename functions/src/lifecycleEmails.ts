@@ -11,6 +11,8 @@ import {
 import {
   HydratedLifecycleEmailKey,
   findUserIdByEmail,
+  getResumePerformanceSnapshot,
+  hydrateEmailContext,
   queueHydratedLifecycleEmail,
 } from "./emailDataBinding";
 
@@ -25,6 +27,8 @@ const MIN_ACCOUNT_AGE_FOR_WELCOME_MS = 15 * 60 * 1000;
 const LIFECYCLE_EMAIL_COOLDOWN_MS = 6 * 60 * 60 * 1000;
 const EMAIL_PREFERENCE_NOTIFICATION_QUEUE = "email_preference_notification_queue";
 const EMAIL_PREFERENCE_CONFIRMATION_DELAY_MS = 5 * 60 * 1000;
+const RESUME_PERFORMANCE_REPEAT_MS = 7 * 24 * 60 * 60 * 1000;
+const ACTIVE_USER_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 
 export type LifecycleEmailKey =
   | "welcome_first_resume"
@@ -139,12 +143,14 @@ const timestampToMillis = (value: unknown): number => {
 
 const normalizePreferencePayload = (value: unknown): string => {
   if (!value || typeof value !== "object") return "";
+  const bookkeepingKeys = new Set(["lastSentAt", "lastQueuedAt", "lastDeliveredAt", "updatedAt"]);
 
   const sortObject = (input: unknown): unknown => {
     if (Array.isArray(input)) return input.map(sortObject);
     if (!input || typeof input !== "object") return input;
 
     return Object.keys(input as Record<string, unknown>)
+      .filter((key) => !bookkeepingKeys.has(key))
       .sort()
       .reduce<Record<string, unknown>>((acc, key) => {
         acc[key] = sortObject((input as Record<string, unknown>)[key]);
@@ -166,6 +172,32 @@ const getUserName = (userData: admin.firestore.DocumentData): string => {
 
 const getUserEmail = (userData: admin.firestore.DocumentData, override?: string): string => {
   return String(override || userData.email || "").trim();
+};
+
+const getMostRecentUserActivityMs = (userData: admin.firestore.DocumentData): number => {
+  const candidates = [
+    userData.lastActiveAt,
+    userData.lastLogin,
+    userData.lastLoginAt,
+    userData.lastSeenAt,
+    userData.updatedAt,
+    userData.createdAt,
+  ];
+
+  return Math.max(...candidates.map(timestampToMillis), 0);
+};
+
+const isRecentlyActiveUser = (userData: admin.firestore.DocumentData, now = Date.now()): boolean => {
+  const lastActivity = getMostRecentUserActivityMs(userData);
+  return lastActivity > 0 && now - lastActivity <= ACTIVE_USER_WINDOW_MS;
+};
+
+const wasResumePerformanceMilestoneSentRecently = (
+  userData: admin.firestore.DocumentData,
+  now = Date.now()
+): boolean => {
+  const sentAt = timestampToMillis(userData.lifecycleEmails?.sent?.resume_performance_milestone?.sentAt);
+  return sentAt > 0 && now - sentAt < RESUME_PERFORMANCE_REPEAT_MS;
 };
 
 const isLifecycleEmailSuppressed = (
@@ -582,6 +614,77 @@ export const sendEmailPreferenceUpdateNotifications = functions
     return null;
   });
 
+export const sendResumePerformanceMilestoneEmails = functions
+  .region(REGION)
+  .pubsub
+  .schedule("0 8 * * *")
+  .timeZone("America/Chicago")
+  .onRun(async () => {
+    const usersSnap = await db
+      .collection("users")
+      .orderBy("createdAt", "desc")
+      .limit(250)
+      .get();
+
+    let evaluated = 0;
+    let queued = 0;
+    let skipped = 0;
+    const now = Date.now();
+
+    for (const userDoc of usersSnap.docs) {
+      evaluated += 1;
+      const userData = userDoc.data();
+
+      if (!getUserEmail(userData)) {
+        skipped += 1;
+        continue;
+      }
+
+      if (!isRecentlyActiveUser(userData, now)) {
+        skipped += 1;
+        continue;
+      }
+
+      if (wasResumePerformanceMilestoneSentRecently(userData, now)) {
+        skipped += 1;
+        continue;
+      }
+
+      try {
+        const context = await hydrateEmailContext(userDoc.id);
+        if (!context?.activeResumeId) {
+          skipped += 1;
+          continue;
+        }
+
+        const snapshot = getResumePerformanceSnapshot(context);
+        if (!snapshot) {
+          skipped += 1;
+          continue;
+        }
+
+        const result = await queueHydratedLifecycleEmail(userDoc.id, "resume_performance_milestone", {
+          reason: "daily_resume_performance_milestone",
+          metadata: {
+            score: snapshot.score,
+            scoreLabel: snapshot.label,
+            scoreSource: snapshot.source,
+            resumeId: context.activeResumeId,
+          },
+        });
+
+        if (result.queued) queued += 1;
+        else skipped += 1;
+      } catch (error) {
+        skipped += 1;
+        console.error(`[LifecycleEmails] Failed resume performance milestone for ${userDoc.id}:`, error);
+      }
+    }
+
+    console.log(`[LifecycleEmails] Resume performance milestones evaluated=${evaluated}, queued=${queued}, skipped=${skipped}.`);
+    return null;
+  });
+
 export const sendLifecycleDemoEmails = functions
   .region(REGION)
   .https
@@ -610,6 +713,7 @@ export const sendLifecycleDemoEmails = functions
         "onboarding_welcome",
         "feature_ai_editor",
         "weekly_status_digest",
+        "resume_performance_milestone",
       ];
       for (const key of demoKeys) {
         const result = await queueHydratedLifecycleEmail(resolvedUserId, key, {

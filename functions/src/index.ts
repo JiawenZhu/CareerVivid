@@ -58,6 +58,7 @@ export {
   onResumeCreatedLifecycle,
   onEmailPreferencesUpdated,
   sendEmailPreferenceUpdateNotifications,
+  sendResumePerformanceMilestoneEmails,
   sendLifecycleDemoEmails,
 } from "./lifecycleEmails";
 export { sendTransactionalAuthEmail } from "./transactionalEmails";

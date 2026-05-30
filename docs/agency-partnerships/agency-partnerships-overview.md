@@ -2,6 +2,16 @@
 
 Last updated: 2026-05-30
 
+## Agent Guardrails
+
+Agency partnership work should stay isolated from CareerVivid core code. Before handing this project to Claude Code, Google Antigravity, Codex, or another coding agent, point them to:
+
+- `docs/agency-partnerships/AGENCY_AGENT_GUARDRAILS.md`
+- `src/features/agency-partner/AGENTS.md`
+- `functions/src/agencyPartner/AGENTS.md`
+
+New agency frontend code belongs in `src/features/agency-partner/`. New agency backend code belongs in `functions/src/agencyPartner/`. Agency docs and tracker spreadsheets belong in `docs/agency-partnerships/`.
+
 ## Purpose
 
 CareerVivid's agency partnership product is a candidate preparation layer for staffing agencies. It is not an ATS replacement and not a candidate marketplace. The first product goal is to help a local branch prepare the candidates it already receives, so recruiters spend less time fixing resumes and more time placing qualified people.
@@ -310,4 +320,3 @@ Cloud Functions and Firestore rules were not redeployed for the latest share/rea
 3. Track product functionality and future features in the functionality tracker workbook.
 4. Add a basic pilot outcome report once one branch tests the flow.
 5. Add seat limits, CSV export, and consent revocation before paid rollout.
-

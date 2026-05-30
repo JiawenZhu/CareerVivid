@@ -1,0 +1,163 @@
+name: Daily Security Heartbeat
+
+on:
+  schedule:
+    # GitHub cron is UTC. Running at both 10:00 and 11:00 UTC plus the local-time
+    # guard below keeps this at 5:00 AM America/Chicago across DST changes.
+    - cron: "0 10,11 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: read
+  security-events: read
+  actions: read
+
+concurrency:
+  group: daily-security-heartbeat-main
+  cancel-in-progress: false
+
+jobs:
+  heartbeat:
+    name: Delta scan and fast-forward updates
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Local 5 AM gate
+        id: local_time
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            echo "Manual dispatch bypassed the local-time gate." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          LOCAL_HOUR="$(TZ=America/Chicago date +%H)"
+          if [ "$LOCAL_HOUR" = "05" ]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            echo "Running at 5:00 AM America/Chicago." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping duplicate UTC trigger because local hour is ${LOCAL_HOUR}, not 05." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Checkout main
+        if: steps.local_time.outputs.should_run == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        if: steps.local_time.outputs.should_run == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Inspect repository delta
+        if: steps.local_time.outputs.should_run == 'true'
+        id: delta
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          gh pr list --state open --base main \
+            --json number,title,url,headRefName,headRefOid,author \
+            --jq '[.[] | select(.author.login == "dependabot[bot]")]' > dependabot-prs.json
+
+          DEPENDABOT_PR_COUNT="$(jq length dependabot-prs.json)"
+          if ! ALERT_COUNT="$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/dependabot/alerts?state=open&per_page=100" \
+            --jq '[.[] | select(.security_vulnerability.severity == "critical" or .security_vulnerability.severity == "high" or .security_vulnerability.severity == "medium")] | length')"; then
+            ALERT_COUNT="0"
+            echo "::warning::Could not read Dependabot alerts with the workflow token. Continuing with PR delta only."
+          fi
+
+          echo "dependabot_pr_count=${DEPENDABOT_PR_COUNT}" >> "$GITHUB_OUTPUT"
+          echo "dependabot_alert_count=${ALERT_COUNT}" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## Daily security heartbeat delta"
+            echo ""
+            echo "- Dependabot PRs targeting main: ${DEPENDABOT_PR_COUNT}"
+            echo "- Open medium/high/critical Dependabot alerts: ${ALERT_COUNT}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$DEPENDABOT_PR_COUNT" -eq 0 ] && [ "$ALERT_COUNT" -eq 0 ]; then
+            echo "should_update=false" >> "$GITHUB_OUTPUT"
+            echo "- Decision: no delta; skipping commit and push routines." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "should_update=true" >> "$GITHUB_OUTPUT"
+            echo "- Decision: delta found; running merge and scan sequence." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Skip clean no-op day
+        if: steps.local_time.outputs.should_run == 'true' && steps.delta.outputs.should_update == 'false'
+        run: echo "No dependency alerts or update PRs found. Nothing to commit or push."
+
+      - name: Fast-forward Dependabot PR branches
+        if: steps.local_time.outputs.should_run == 'true' && steps.delta.outputs.should_update == 'true' && steps.delta.outputs.dependabot_pr_count != '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git config user.name "careervivid-security-bot"
+          git config user.email "security-bot@careervivid.app"
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+
+          jq -r '.[] | [.number, .headRefName, .title, .url] | @tsv' dependabot-prs.json | while IFS=$'\t' read -r number ref title url; do
+            echo "Merging Dependabot PR #${number}: ${title}"
+            git fetch origin "pull/${number}/head:dependabot-pr-${number}"
+            git merge --ff-only "dependabot-pr-${number}"
+            echo "- Fast-forwarded [#${number} ${title}](${url})." >> "$GITHUB_STEP_SUMMARY"
+          done
+
+      - name: Stop if alerts exist without mergeable updates
+        if: steps.local_time.outputs.should_run == 'true' && steps.delta.outputs.should_update == 'true' && steps.delta.outputs.dependabot_pr_count == '0'
+        shell: bash
+        run: |
+          echo "Dependabot alerts exist, but there are no Dependabot PR branches to fast-forward." >> "$GITHUB_STEP_SUMMARY"
+          echo "No safe automated push can be made without an update branch." >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+
+      - name: Install dependencies
+        if: steps.local_time.outputs.should_run == 'true' && steps.delta.outputs.should_update == 'true' && steps.delta.outputs.dependabot_pr_count != '0'
+        shell: bash
+        run: |
+          npm ci
+          npm --prefix functions ci
+          npm --prefix next-app ci
+
+      - name: Consolidated security and compliance scan
+        if: steps.local_time.outputs.should_run == 'true' && steps.delta.outputs.should_update == 'true' && steps.delta.outputs.dependabot_pr_count != '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          npm audit --omit=dev --audit-level=high
+          npm --prefix functions audit --omit=dev --audit-level=high
+          npm run build
+          npm --prefix functions run build
+          npm run lint
+
+      - name: Push fast-forwarded main
+        if: steps.local_time.outputs.should_run == 'true' && steps.delta.outputs.should_update == 'true' && steps.delta.outputs.dependabot_pr_count != '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if git diff --quiet origin/main..HEAD; then
+            echo "Merged branches did not change main; skipping push." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          git push origin HEAD:main
+          echo "Pushed fast-forwarded dependency updates to main after clean scans." >> "$GITHUB_STEP_SUMMARY"
