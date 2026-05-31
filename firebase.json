@@ -48,7 +48,25 @@
         ]
       },
       {
-        "source": "/assets/main.js",
+        "source": "/assets/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
+      },
+      {
+        "source": "/_next/static/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
+      },
+      {
+        "source": "/sw.js",
         "headers": [
           {
             "key": "Cache-Control",
@@ -57,7 +75,16 @@
         ]
       },
       {
-        "source": "**/*.@(js|css)",
+        "source": "/workbox-*.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/manifest.webmanifest",
         "headers": [
           {
             "key": "Cache-Control",
@@ -150,14 +177,6 @@
         "region": "us-west1"
       },
       {
-        "source": "/zh/demo",
-        "destination": "/index.html"
-      },
-      {
-        "source": "/es/demo",
-        "destination": "/index.html"
-      },
-      {
         "source": "/_next/static/**",
         "destination": "/nextjs/_next/static/:splat"
       },
@@ -166,60 +185,12 @@
         "destination": "/nextjs/_next/:splat"
       },
       {
-        "source": "/zh/pricing",
-        "destination": "/nextjs/zh/pricing.html"
+        "regex": "^/(de|es|fr|ja|ko|zh)/(about|blog|contact|pricing|privacy|signin|signup|terms)/?$",
+        "destination": "/nextjs/:1/:2.html"
       },
       {
-        "source": "/zh/contact",
-        "destination": "/nextjs/zh/contact.html"
-      },
-      {
-        "source": "/zh/signin",
-        "destination": "/nextjs/zh/signin.html"
-      },
-      {
-        "source": "/zh/signup",
-        "destination": "/nextjs/zh/signup.html"
-      },
-      {
-        "source": "/zh/blog",
-        "destination": "/nextjs/zh/blog.html"
-      },
-      {
-        "source": "/es/pricing",
-        "destination": "/nextjs/es/pricing.html"
-      },
-      {
-        "source": "/es/contact",
-        "destination": "/nextjs/es/contact.html"
-      },
-      {
-        "source": "/es/signin",
-        "destination": "/nextjs/es/signin.html"
-      },
-      {
-        "source": "/es/signup",
-        "destination": "/nextjs/es/signup.html"
-      },
-      {
-        "source": "/es/blog",
-        "destination": "/nextjs/es/blog.html"
-      },
-      {
-        "source": "/zh",
-        "destination": "/nextjs/zh.html"
-      },
-      {
-        "source": "/zh/",
-        "destination": "/nextjs/zh.html"
-      },
-      {
-        "source": "/es",
-        "destination": "/nextjs/es.html"
-      },
-      {
-        "source": "/es/",
-        "destination": "/nextjs/es.html"
+        "regex": "^/(de|es|fr|ja|ko|zh)/?$",
+        "destination": "/nextjs/:1.html"
       },
       {
         "source": "/j/*",

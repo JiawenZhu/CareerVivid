@@ -23,25 +23,6 @@ const MinimalTemplate = ({ data }: { data: PortfolioData }) => (
     </div>
 );
 
-const VisualTemplate = ({ data }: { data: PortfolioData }) => (
-    <div className="min-h-full bg-zinc-950 text-white p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2 p-12 bg-zinc-900 rounded-3xl mb-4 flex flex-col justify-center items-center text-center">
-                <h1 className="text-5xl font-serif mb-4">{data.hero.headline}</h1>
-                <button className="bg-white text-black px-6 py-2 rounded-full mt-4 font-medium hover:scale-105 transition-transform">{data.hero.ctaText}</button>
-            </div>
-            {data.projects.map((p, i) => (
-                <div key={i} className="aspect-square bg-zinc-800 rounded-3xl p-8 hover:bg-zinc-700 transition-colors relative overflow-hidden group">
-                    {/* Placeholder for image */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
-                        <h3 className="text-xl font-bold">{p.title}</h3>
-                    </div>
-                </div>
-            ))}
-        </div>
-    </div>
-);
-
 // --- The Main Editor Component ---
 interface EditorProps {
     initialData: PortfolioData;
@@ -121,7 +102,6 @@ export const PortfolioEditor: React.FC<EditorProps> = ({ initialData, onBack }) 
                             className="w-full bg-zinc-900 border border-zinc-700 rounded-md px-3 py-2 text-sm text-white outline-none"
                         >
                             <option value="minimal">Minimalist</option>
-                            <option value="visual">Visual Grid</option>
                             <option value="corporate">Corporate</option>
                         </select>
                     </div>
@@ -143,7 +123,6 @@ export const PortfolioEditor: React.FC<EditorProps> = ({ initialData, onBack }) 
                         {/* Dynamic Template Renderer */}
                         <div className="w-full h-full overflow-y-auto scrollbar-thin">
                             {data.theme === 'minimal' && <MinimalTemplate data={data} />}
-                            {data.theme === 'visual' && <VisualTemplate data={data} />}
                             {data.theme === 'corporate' && <MinimalTemplate data={data} />} {/* Fallback for now */}
                         </div>
                     </div>

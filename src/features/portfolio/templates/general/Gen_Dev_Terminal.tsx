@@ -46,8 +46,8 @@ const DevTerminal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
 
     return (
         <>
-        <div className={`bg-zinc-950 text-emerald-400 font-mono min-h-full selection:bg-emerald-400/30 selection:text-emerald-100 overflow-x-hidden ${responsiveClass('p-2', 'md:p-8')}`}>
-            <div className="max-w-5xl mx-auto border border-zinc-800 rounded-lg bg-black/50 shadow-2xl backdrop-blur-sm overflow-hidden">
+        <div className={`min-h-full overflow-x-hidden bg-[#07110d] font-mono text-emerald-300 selection:bg-emerald-400/30 selection:text-emerald-50 ${responsiveClass('p-2', 'md:p-8')}`}>
+            <div className="mx-auto max-w-5xl overflow-hidden rounded-lg border border-emerald-500/15 bg-[#050807] shadow-2xl shadow-emerald-950/40 backdrop-blur-sm">
                 {/* Terminal Header */}
                 <div className="bg-zinc-900 px-3 py-2 border-b border-zinc-800 flex items-center gap-2 sticky top-0 z-10">
                     <div className="flex gap-2">
@@ -64,7 +64,7 @@ const DevTerminal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
                 <div className={`space-y-12 ${responsiveClass('p-4', 'md:p-10 md:space-y-16')}`}>
                     {/* Hero Section */}
                     <section className="space-y-6">
-                        <div className="text-zinc-500 text-sm mb-2">$ whoami</div>
+                        <div onClick={() => onEdit?.('hero.headline')} className="mb-2 text-sm text-zinc-400 cursor-pointer hover:text-emerald-300">$ whoami</div>
                         {/* Avatar */}
                         {hero.avatarUrl && (
                             <img
@@ -79,14 +79,14 @@ const DevTerminal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
                         )}
                         <h1
                             onClick={() => onEdit?.('hero.headline')}
-                            className={`font-bold tracking-tight cursor-pointer hover:bg-emerald-500/10 hover:text-emerald-300 transition-colors rounded -ml-2 pl-2 break-words ${responsiveClass('text-3xl sm:text-4xl', 'md:text-6xl')}`}
+                            className={`-ml-2 cursor-pointer rounded pl-2 font-black tracking-tight text-emerald-50 transition-colors hover:bg-emerald-500/10 hover:text-emerald-200 break-words ${responsiveClass('text-3xl sm:text-4xl', 'md:text-5xl')}`}
                             title="Click to edit headline"
                         >
                             <TypewriterText text={hero.headline} disableAnimation={!!onEdit} />
                         </h1>
                         <p
                             onClick={() => onEdit?.('hero.subheadline')}
-                            className={`text-zinc-400 max-w-2xl border-l-2 border-emerald-500/30 pl-4 py-1 cursor-pointer hover:border-emerald-500 hover:text-emerald-300 transition-colors ${responsiveClass('text-lg', 'md:text-xl')}`}
+                            className={`max-w-2xl cursor-pointer border-l-2 border-emerald-400/50 py-1 pl-4 leading-8 text-zinc-200 transition-colors hover:border-emerald-300 hover:text-emerald-100 ${responsiveClass('text-base', 'md:text-lg')}`}
                             title="Click to edit subheadline"
                         >
                             {hero.subheadline}
@@ -94,13 +94,31 @@ const DevTerminal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
 
                         <div className="flex flex-wrap gap-4 pt-4">
                             {hero.ctaPrimaryLabel && (
-                                <a href={hero.ctaPrimaryUrl} className={`bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 px-4 py-2 rounded border border-emerald-500/50 transition-colors flex items-center gap-2 group justify-center ${responsiveClass('w-full', 'sm:w-auto sm:justify-start')}`}>
+                                <a
+                                    href={hero.ctaPrimaryUrl}
+                                    onClick={(event) => {
+                                        if (onEdit) {
+                                            event.preventDefault();
+                                            onEdit('hero.buttons');
+                                        }
+                                    }}
+                                    className={`bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 px-4 py-2 rounded border border-emerald-500/50 transition-colors flex items-center gap-2 group justify-center ${responsiveClass('w-full', 'sm:w-auto sm:justify-start')}`}
+                                >
                                     <Command size={16} />
                                     <span>{hero.ctaPrimaryLabel}</span>
                                 </a>
                             )}
                             {hero.ctaSecondaryLabel && (
-                                <a href={hero.ctaSecondaryUrl} className={`px-4 py-2 text-zinc-400 hover:text-emerald-400 transition-colors flex items-center gap-2 justify-center ${responsiveClass('w-full', 'sm:w-auto sm:justify-start')}`}>
+                                <a
+                                    href={hero.ctaSecondaryUrl}
+                                    onClick={(event) => {
+                                        if (onEdit) {
+                                            event.preventDefault();
+                                            onEdit('hero.buttons');
+                                        }
+                                    }}
+                                    className={`px-4 py-2 text-zinc-400 hover:text-emerald-400 transition-colors flex items-center gap-2 justify-center ${responsiveClass('w-full', 'sm:w-auto sm:justify-start')}`}
+                                >
                                     {hero.ctaSecondaryLabel} <Hash size={16} />
                                 </a>
                             )}
@@ -109,13 +127,17 @@ const DevTerminal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
 
                     {/* Tech Stack - "npm install" style */}
                     <section>
-                        <div className="text-zinc-500 text-sm mb-4 border-b border-zinc-800 pb-2 flex justify-between">
+                        <div onClick={() => onEdit?.('techStack')} className="text-zinc-500 text-sm mb-4 border-b border-zinc-800 pb-2 flex justify-between cursor-pointer hover:text-emerald-300">
                             <span>$ ls ./skills/</span>
                             <span className="text-zinc-700">r-x</span>
                         </div>
                         <div className={`grid gap-3 ${responsiveClass('grid-cols-1', 'sm:grid-cols-2 md:grid-cols-4 md:gap-4')}`}>
                             {(techStack || []).map((skill, idx) => (
-                                <div key={skill.id || `skill-${idx}`} className="flex items-center gap-2 text-zinc-300 hover:text-emerald-300 transition-colors group">
+                                <div
+                                    key={skill.id || `skill-${idx}`}
+                                    onClick={() => onEdit?.(`techStack.${idx}.name`)}
+                                    className="flex items-center gap-2 text-zinc-200 transition-colors hover:text-emerald-200 group cursor-pointer"
+                                >
                                     <div className="w-2 h-2 bg-emerald-500/50 rounded-full group-hover:bg-emerald-400" />
                                     {skill.name}
                                 </div>
@@ -125,12 +147,12 @@ const DevTerminal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
 
                     {/* About Section */}
                     <section>
-                        <div className="text-zinc-500 text-sm mb-4 border-b border-zinc-800 pb-2">
+                        <div onClick={() => onEdit?.('about')} className="text-zinc-500 text-sm mb-4 border-b border-zinc-800 pb-2 cursor-pointer hover:text-emerald-300">
                             <span>$ cat about.md</span>
                         </div>
                         <div
                             onClick={() => onEdit?.('about')}
-                            className={`text-zinc-300 leading-relaxed font-sans opacity-90 border-l-2 border-zinc-800 pl-4 cursor-pointer hover:border-emerald-500 hover:text-emerald-100 transition-colors ${responsiveClass('text-sm', 'md:text-base')}`}
+                            className={`cursor-pointer border-l-2 border-zinc-700 pl-4 font-sans leading-8 text-zinc-200 transition-colors hover:border-emerald-400 hover:text-emerald-50 ${responsiveClass('text-sm', 'md:text-base')}`}
                             title="Click to edit about me"
                         >
                             {about}
@@ -139,43 +161,76 @@ const DevTerminal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
 
                     {/* Projects - Git Repo Cards */}
                     <section>
-                        <div className="text-zinc-500 text-sm mb-6 border-b border-zinc-800 pb-2">
+                        <div onClick={() => onEdit?.('projects')} className="text-zinc-500 text-sm mb-6 border-b border-zinc-800 pb-2 cursor-pointer hover:text-emerald-300">
                             <span>$ git log --oneline --graph</span>
                         </div>
                         <div className="grid gap-6">
                             {(projects || []).map((project, idx) => (
-                                <div key={project.id || `proj-${idx}`} className="border border-zinc-800 bg-zinc-900/30 rounded p-4 hover:border-emerald-500/30 transition-all group">
+                                <div key={project.id || `proj-${idx}`} className="group rounded border border-zinc-700/80 bg-zinc-900/70 p-4 transition-all hover:border-emerald-500/50">
                                     <div className={`flex justify-between items-start mb-2 ${responsiveClass('flex-col gap-2', 'sm:flex-row sm:gap-0')}`}>
                                         <div className="flex items-center gap-2">
                                             <GitBranch size={16} className="text-emerald-500 shrink-0" />
                                             <h3
-                                                onClick={() => onEdit?.(`projects.${project.id || idx}.title`)}
+                                                onClick={() => onEdit?.(`projects.${idx}.title`)}
                                                 className="font-bold text-lg text-emerald-100 group-hover:text-emerald-400 transition-colors cursor-pointer break-words"
                                             >
                                                 {project.title}
                                             </h3>
                                         </div>
-                                        <span className={`text-xs text-zinc-600 font-mono px-2 py-0.5 border border-zinc-800 rounded ${responsiveClass('self-start', 'sm:self-auto')}`}>Public</span>
+                                        <span onClick={() => onEdit?.(`projects.${idx}.title`)} className={`text-xs text-zinc-600 font-mono px-2 py-0.5 border border-zinc-800 rounded cursor-pointer hover:text-emerald-300 ${responsiveClass('self-start', 'sm:self-auto')}`}>Public</span>
                                     </div>
                                     <p
-                                        onClick={() => onEdit?.(`projects.${project.id || idx}.description`)}
-                                        className="text-zinc-400 mb-4 text-sm pl-6 border-l border-zinc-800/50 ml-2 cursor-pointer hover:text-emerald-300 hover:border-emerald-500/50 transition-colors"
+                                        onClick={() => onEdit?.(`projects.${idx}.description`)}
+                                        className="mb-4 ml-2 cursor-pointer border-l border-zinc-700 pl-6 text-sm leading-6 text-zinc-300 transition-colors hover:border-emerald-500/50 hover:text-emerald-200"
                                     >
                                         {project.description}
                                     </p>
                                     <div className="flex flex-wrap items-center gap-4 pl-6 ml-2 text-sm text-zinc-500">
                                         {project.link && (
-                                            <a href={project.link} target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-emerald-400 transition-colors">
+                                            <a
+                                                href={project.link}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                onClick={(event) => {
+                                                    if (onEdit) {
+                                                        event.preventDefault();
+                                                        onEdit(`projects.${idx}.link`);
+                                                    }
+                                                }}
+                                                className="flex items-center gap-1 hover:text-emerald-400 transition-colors"
+                                            >
                                                 <ExternalLink size={14} /> Documentation
                                             </a>
                                         )}
                                         {project.demoUrl && (
-                                            <a href={project.demoUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-emerald-400 transition-colors">
+                                            <a
+                                                href={project.demoUrl}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                onClick={(event) => {
+                                                    if (onEdit) {
+                                                        event.preventDefault();
+                                                        onEdit(`projects.${idx}.demoUrl`);
+                                                    }
+                                                }}
+                                                className="flex items-center gap-1 hover:text-emerald-400 transition-colors"
+                                            >
                                                 <ExternalLink size={14} /> Live Demo
                                             </a>
                                         )}
                                         {project.repoUrl && (
-                                            <a href={project.repoUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-emerald-400 transition-colors">
+                                            <a
+                                                href={project.repoUrl}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                onClick={(event) => {
+                                                    if (onEdit) {
+                                                        event.preventDefault();
+                                                        onEdit(`projects.${idx}.repoUrl`);
+                                                    }
+                                                }}
+                                                className="flex items-center gap-1 hover:text-emerald-400 transition-colors"
+                                            >
                                                 <Github size={14} /> Source
                                             </a>
                                         )}
@@ -183,13 +238,17 @@ const DevTerminal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
                                     </div>
                                 </div>
                             ))}
-                            {(!projects || projects.length === 0) && <span className="text-zinc-600 italic">// No repos found</span>}
+                            {(!projects || projects.length === 0) && (
+                                <span onClick={() => onEdit?.('projects.add')} className="text-zinc-600 italic cursor-pointer hover:text-emerald-300">
+                                    // No repos found
+                                </span>
+                            )}
                         </div>
                     </section>
 
                     {/* Timeline */}
                     <section>
-                        <div className="text-zinc-500 text-sm mb-6 border-b border-zinc-800 pb-2">
+                        <div onClick={() => onEdit?.('timeline')} className="text-zinc-500 text-sm mb-6 border-b border-zinc-800 pb-2 cursor-pointer hover:text-emerald-300">
                             <span>$ history | grep 'work'</span>
                         </div>
                         <div className="space-y-6">
@@ -198,16 +257,21 @@ const DevTerminal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
                                     <div className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-zinc-800 border-2 border-zinc-950" />
                                     <div className={`flex mb-1 ${responsiveClass('flex-col', 'sm:flex-row sm:justify-between sm:items-baseline')}`}>
                                         <h3
-                                            onClick={() => onEdit?.(`timeline.${job.id || idx}.jobTitle`)}
+                                            onClick={() => onEdit?.(`timeline.${idx}.jobTitle`)}
                                             className={`text-emerald-200 font-bold flex gap-1 cursor-pointer hover:text-emerald-400 ${responsiveClass('text-base flex-col', 'md:text-lg sm:flex-row sm:items-center sm:gap-2')}`}
                                         >
-                                            {job.jobTitle} <span className="text-zinc-500 font-normal text-sm hover:text-zinc-400" onClick={(e) => { e.stopPropagation(); onEdit?.(`timeline.${job.id || idx}.employer`); }}>@ {job.employer}</span>
+                                            {job.jobTitle} <span className="text-zinc-500 font-normal text-sm hover:text-zinc-400" onClick={(e) => { e.stopPropagation(); onEdit?.(`timeline.${idx}.employer`); }}>@ {job.employer}</span>
                                         </h3>
-                                        <span className={`text-zinc-600 text-xs font-mono ${responsiveClass('mb-2', 'sm:mb-0')}`}>{job.startDate} — {job.endDate}</span>
+                                        <span
+                                            onClick={() => onEdit?.(`timeline.${idx}.startDate`)}
+                                            className={`text-zinc-600 text-xs font-mono cursor-pointer hover:text-zinc-400 ${responsiveClass('mb-2', 'sm:mb-0')}`}
+                                        >
+                                            {job.startDate} — {job.endDate}
+                                        </span>
                                     </div>
                                     <p
-                                        onClick={() => onEdit?.(`timeline.${job.id || idx}.description`)}
-                                        className="text-zinc-400 text-sm cursor-pointer hover:text-emerald-300 transition-colors"
+                                        onClick={() => onEdit?.(`timeline.${idx}.description`)}
+                                    className="cursor-pointer text-sm leading-6 text-zinc-300 transition-colors hover:text-emerald-200"
                                     >
                                         {job.description}
                                     </p>
@@ -223,7 +287,16 @@ const DevTerminal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
                             <span>System Operational</span>
                         </div>
                         <div className="flex gap-4">
-                            <a href={`mailto:${data.contactEmail}`} className="hover:text-emerald-400 transition-colors flex items-center gap-2">
+                            <a
+                                href={`mailto:${data.contactEmail}`}
+                                onClick={(event) => {
+                                    if (onEdit) {
+                                        event.preventDefault();
+                                        onEdit('contactEmail');
+                                    }
+                                }}
+                                className="hover:text-emerald-400 transition-colors flex items-center gap-2"
+                            >
                                 <Mail size={14} /> Contact
                             </a>
                         </div>

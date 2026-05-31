@@ -11,10 +11,12 @@ import { AshbyAdapter } from '../adapters/AshbyAdapter';
 import * as fillUtils from '../fillUtils';
 
 vi.mock('../fillUtils', () => ({
+  fillFileInputReactSafe: vi.fn().mockResolvedValue(undefined),
   fillInputReactSafe: vi.fn().mockResolvedValue(undefined),
   fillSelectByValue:  vi.fn().mockResolvedValue(undefined),
   fillTextarea:       vi.fn().mockResolvedValue(undefined),
   clickRadioByLabel:  vi.fn().mockResolvedValue(undefined),
+  isDemographicField: vi.fn().mockReturnValue(false),
 }));
 
 const adapter = new AshbyAdapter();
@@ -93,6 +95,49 @@ describe('AshbyAdapter.getFormFields', () => {
     expect(adapter.getFormFields()).toEqual([]);
   });
 
+  it('discovers fields on modern Ashby pages without a form element', () => {
+    document.body.innerHTML = `
+      <main class="ashby-application-container">
+        <div class="ashby-application-form-question">
+          <div>Name *</div>
+          <input id="_systemfield_name" name="_systemfield_name" type="text" placeholder="Type here..." />
+        </div>
+        <div class="ashby-application-form-question">
+          <div>Email *</div>
+          <input id="_systemfield_email" name="_systemfield_email" type="email" placeholder="hello@example.com..." />
+        </div>
+        <div class="ashby-application-form-question">
+          <div>Resume *</div>
+          <button>Upload File</button>
+          <input id="_systemfield_resume" type="file" />
+        </div>
+        <div class="ashby-application-form-question">
+          <div>Phone Number *</div>
+          <input id="20f8883c-d278-427c-9465-dc614f612e1f" name="20f8883c-d278-427c-9465-dc614f612e1f" type="tel" placeholder="1-415-555-1234..." />
+        </div>
+        <div class="ashby-application-form-question">
+          <div>Where are you currently located? *</div>
+          <input role="combobox" placeholder="Start typing..." />
+        </div>
+        <div class="ashby-application-form-question">
+          <div>Additional Information</div>
+          <p>Please share anything else you want us to know.</p>
+          <textarea id="f189fed2-624b-41a1-a76f-0c67a2611d1a" placeholder="Type here..."></textarea>
+        </div>
+      </main>
+    `;
+
+    const fields = adapter.getFormFields();
+    const byLabel = Object.fromEntries(fields.map((field) => [field.label, field.type]));
+
+    expect(byLabel.Name).toBe('text');
+    expect(byLabel.Email).toBe('email');
+    expect(byLabel.Resume).toBe('file');
+    expect(byLabel['Phone Number']).toBe('tel');
+    expect(byLabel['Where are you currently located?']).toBe('text');
+    expect(byLabel['Additional Information']).toBe('textarea');
+  });
+
   it('discovers fields via label[for] association', () => {
     document.body.innerHTML = `
       <div data-ashby-application="true">
@@ -159,7 +204,7 @@ describe('AshbyAdapter.getFormFields', () => {
     expect(fields[1].type).toBe('textarea');
   });
 
-  it('skips file upload inputs', () => {
+  it('discovers file upload inputs', () => {
     document.body.innerHTML = `
       <div data-ashby-application="true">
         <form>
@@ -176,9 +221,11 @@ describe('AshbyAdapter.getFormFields', () => {
     `;
 
     const fields = adapter.getFormFields();
-    // Only text input should be found; file upload is excluded
-    expect(fields).toHaveLength(1);
-    expect(fields[0].label).toBe('First name');
+    // Both file input and text input should be found
+    expect(fields).toHaveLength(2);
+    expect(fields[0].label).toBe('Resume');
+    expect(fields[0].type).toBe('file');
+    expect(fields[1].label).toBe('First name');
   });
 
   it('discovers select fields', () => {

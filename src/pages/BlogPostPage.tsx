@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import PublicHeader from '../components/PublicHeader';
@@ -8,34 +7,27 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Helmet } from 'react-helmet-async';
 import { generateGEOStructuredData } from '../utils/geoUtils';
-import { Loader2, Calendar, User, ArrowLeft, Facebook, Twitter, Linkedin } from 'lucide-react';
+import { Loader2, Calendar, User, ArrowLeft, Facebook, Twitter, Linkedin, BookOpen } from 'lucide-react';
 import { navigate } from '../utils/navigation';
 import ArticleAudioPlayer from '../components/blog/ArticleAudioPlayer';
 
-// --- Simple Markdown Renderer for Blog Content ---
 const MarkdownRenderer: React.FC<{ text: string }> = ({ text = '' }) => {
     const renderContent = (content: string) => {
-        // Split content by links [text](url)
         const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
         const parts = [];
         let lastIndex = 0;
         let match;
 
         while ((match = linkRegex.exec(content)) !== null) {
-            // Text before link
             if (match.index > lastIndex) {
                 parts.push({ type: 'text', content: content.slice(lastIndex, match.index) });
             }
-            // The link
             parts.push({ type: 'link', text: match[1], url: match[2] });
             lastIndex = linkRegex.lastIndex;
         }
-        // Remaining text
         if (lastIndex < content.length) {
             parts.push({ type: 'text', content: content.slice(lastIndex) });
         }
-
-        // If no links found, return single text part to process bold
         if (parts.length === 0) parts.push({ type: 'text', content });
 
         return parts.map((part, i) => {
@@ -46,22 +38,21 @@ const MarkdownRenderer: React.FC<{ text: string }> = ({ text = '' }) => {
                         href={part.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 hover:underline break-words"
+                        className="font-black text-[#9a651f] underline decoration-[#d9c5aa] underline-offset-4 transition hover:text-[#211b16]"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {part.text}
                     </a>
                 );
-            } else {
-                // Process bold (**text**) inside text parts
-                const boldParts = part.content.split(/(\*\*.*?\*\*)/g);
-                return boldParts.map((bp, j) => {
-                    if (bp.startsWith('**') && bp.endsWith('**')) {
-                        return <strong key={`${i}-${j}`} className="font-semibold text-gray-900 dark:text-white">{bp.slice(2, -2)}</strong>;
-                    }
-                    return <span key={`${i}-${j}`}>{bp}</span>;
-                });
             }
+
+            const boldParts = part.content.split(/(\*\*.*?\*\*)/g);
+            return boldParts.map((bp, j) => {
+                if (bp.startsWith('**') && bp.endsWith('**')) {
+                    return <strong key={`${i}-${j}`} className="font-black text-[#211b16]">{bp.slice(2, -2)}</strong>;
+                }
+                return <span key={`${i}-${j}`}>{bp}</span>;
+            });
         });
     };
 
@@ -71,32 +62,32 @@ const MarkdownRenderer: React.FC<{ text: string }> = ({ text = '' }) => {
         const line = lines[i];
 
         if (line.trim().startsWith('### ')) {
-            elements.push(<h3 key={i} className="text-xl font-bold mt-8 mb-4 text-gray-900 dark:text-white">{renderContent(line.substring(4))}</h3>);
+            elements.push(<h3 key={i} className="mt-9 mb-4 text-2xl font-black tracking-tight text-[#211b16]">{renderContent(line.substring(4))}</h3>);
         } else if (line.trim().startsWith('## ')) {
-            elements.push(<h2 key={i} className="text-2xl font-bold mt-10 mb-5 text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-800 pb-2">{renderContent(line.substring(3))}</h2>);
+            elements.push(<h2 key={i} className="mt-12 mb-5 border-b border-[#e4d3bc] pb-3 text-3xl font-black tracking-tight text-[#211b16]">{renderContent(line.substring(3))}</h2>);
         } else if (line.trim().startsWith('# ')) {
-            elements.push(<h1 key={i} className="text-3xl font-extrabold mt-12 mb-6 text-gray-900 dark:text-white">{renderContent(line.substring(2))}</h1>);
+            elements.push(<h1 key={i} className="mt-12 mb-6 text-4xl font-black tracking-tight text-[#211b16]">{renderContent(line.substring(2))}</h1>);
         } else if (line.trim().startsWith('* ') || line.trim().startsWith('- ')) {
             elements.push(
-                <li key={i} className="ml-4 list-disc text-gray-700 dark:text-gray-300 pl-2 mb-2">
+                <li key={i} className="ml-5 list-disc pl-2 text-[17px] font-medium leading-8 text-[#665a4a] marker:text-[#a97935]">
                     {renderContent(line.substring(line.indexOf(' ') + 1))}
                 </li>
             );
         } else if (/^\d+\.\s/.test(line.trim())) {
             elements.push(
-                <div key={i} className="flex items-start mb-2 text-gray-700 dark:text-gray-300">
-                    <span className="mr-2 font-semibold">{line.match(/^\d+\./)?.[0]}</span>
+                <div key={i} className="mb-3 grid grid-cols-[32px_1fr] text-[17px] font-medium leading-8 text-[#665a4a]">
+                    <span className="font-mono font-black text-[#a97935]">{line.match(/^\d+\./)?.[0]}</span>
                     <span>{renderContent(line.substring(line.indexOf('.') + 2))}</span>
                 </div>
             );
         } else if (line.trim() === '') {
-            elements.push(<div key={i} className="h-4"></div>);
+            elements.push(<div key={i} className="h-4" />);
         } else {
-            elements.push(<p key={i} className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4 text-lg">{renderContent(line)}</p>);
+            elements.push(<p key={i} className="mb-5 text-[17px] font-medium leading-8 text-[#665a4a]">{renderContent(line)}</p>);
         }
     }
 
-    return <div className="prose dark:prose-invert max-w-none">{elements}</div>;
+    return <div className="max-w-none">{elements}</div>;
 };
 
 const BlogPostPage: React.FC<{ postId: string }> = ({ postId }) => {
@@ -114,7 +105,7 @@ const BlogPostPage: React.FC<{ postId: string }> = ({ postId }) => {
                     setPost({ id: docSnap.id, ...docSnap.data() } as BlogPost);
                 }
             } catch (error) {
-                console.error("Error fetching post:", error);
+                console.error('Error fetching post:', error);
             } finally {
                 setLoading(false);
             }
@@ -124,37 +115,36 @@ const BlogPostPage: React.FC<{ postId: string }> = ({ postId }) => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-white dark:bg-gray-950 flex items-center justify-center">
-                <Loader2 className="w-10 h-10 animate-spin text-primary-600" />
+            <div className="flex min-h-screen items-center justify-center bg-[#f7f1e7]">
+                <Loader2 className="h-10 w-10 animate-spin text-[#a97935]" />
             </div>
         );
     }
 
     if (!post) {
         return (
-            <div className="min-h-screen bg-white dark:bg-gray-950 flex flex-col">
-                <PublicHeader />
-                <div className="flex-grow flex flex-col items-center justify-center">
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{t('blog.post_not_found')}</h1>
-                    <button onClick={() => navigate('/blog')} className="text-primary-600 hover:underline">{t('blog.back_to_blog')}</button>
+            <div className="flex min-h-screen flex-col bg-[#f7f1e7]">
+                <PublicHeader variant="editorial" />
+                <div className="flex flex-grow flex-col items-center justify-center px-4 text-center">
+                    <h1 className="mb-4 text-2xl font-black text-[#211b16]">{t('blog.post_not_found')}</h1>
+                    <button onClick={() => navigate('/blog')} className="font-black text-[#9a651f] hover:underline">{t('blog.back_to_blog')}</button>
                 </div>
             </div>
         );
     }
 
-    // Handle legacy data where content might be stored as 'body'
     const displayContent = post.content || (post as any).body || t('blog.no_content');
 
     return (
-        <div className="bg-white dark:bg-gray-950 min-h-screen flex flex-col font-sans">
+        <div className="min-h-screen bg-[#f7f1e7] text-[#211b16]">
             <Helmet>
                 <title>{post.title} | CareerVivid Blog</title>
-                <meta name="description" content={post.excerpt} />
+                <meta name="description" content={post.excerpt || ''} />
                 <meta property="og:title" content={post.title} />
                 <meta property="og:type" content="article" />
                 <meta property="og:url" content={`${window.location.origin}/blog/${post.id}`} />
                 {post.coverImage && <meta property="og:image" content={post.coverImage} />}
-                <meta property="og:description" content={post.excerpt} />
+                <meta property="og:description" content={post.excerpt || ''} />
                 <script type="application/ld+json">
                     {JSON.stringify(generateGEOStructuredData({
                         title: post.title,
@@ -165,65 +155,84 @@ const BlogPostPage: React.FC<{ postId: string }> = ({ postId }) => {
                     }, post.faqs))}
                 </script>
             </Helmet>
-            <PublicHeader />
-            <main className="flex-grow pt-24 pb-20">
-                <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                    {/* Breadcrumb */}
-                    <button onClick={() => navigate('/blog')} className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white mb-8 transition-colors">
+            <PublicHeader variant="editorial" />
+            <main className="relative overflow-hidden pt-28">
+                <div
+                    className="pointer-events-none absolute inset-0 opacity-55"
+                    style={{
+                        backgroundImage:
+                            'linear-gradient(to right, rgba(139, 90, 22, 0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(139, 90, 22, 0.06) 1px, transparent 1px)',
+                        backgroundSize: '64px 64px',
+                    }}
+                />
+
+                <article className="relative mx-auto max-w-5xl px-4 pb-20 sm:px-6 lg:px-8">
+                    <button
+                        onClick={() => navigate('/blog')}
+                        className="mb-8 inline-flex items-center gap-2 rounded-full border border-[#e4d3bc] bg-[#fffaf1] px-4 py-2 text-sm font-black text-[#665a4a] transition hover:border-[#bfa782] hover:text-[#211b16]"
+                    >
                         <ArrowLeft size={16} /> {t('blog.back_to_articles')}
                     </button>
 
-                    {/* Header */}
-                    <header className="mb-10 text-center">
-                        <div className="inline-block px-3 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs font-bold uppercase tracking-wider mb-6">
-                            {post.category || 'General'}
-                        </div>
-                        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight">
-                            {post.title}
-                        </h1>
-                        <div className="flex items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-400">
-                            <div className="flex items-center gap-2">
-                                <User size={16} /> {post.author || t('blog.team')}
+                    <header className="grid gap-8 lg:grid-cols-[1fr_280px]">
+                        <div>
+                            <div className="inline-flex items-center gap-2 rounded-full border border-[#e4d3bc] bg-[#fffaf1] px-3 py-1 text-xs font-black uppercase tracking-[0.14em] text-[#9a651f]">
+                                <BookOpen size={14} /> {post.category || 'General'}
                             </div>
-                            <div className="flex items-center gap-2">
-                                <Calendar size={16} />
-                                {post.publishedAt?.toDate
-                                    ? post.publishedAt.toDate().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
-                                    : t('blog.recently')}
+                            <h1 className="mt-6 text-4xl font-black leading-tight tracking-tight text-[#211b16] sm:text-5xl lg:text-6xl">
+                                {post.title}
+                            </h1>
+                            <div className="mt-6 flex flex-wrap gap-4 text-sm font-bold text-[#7d6e5e]">
+                                <div className="flex items-center gap-2">
+                                    <User size={16} /> {post.author || t('blog.team')}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Calendar size={16} />
+                                    {post.publishedAt?.toDate
+                                        ? post.publishedAt.toDate().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+                                        : t('blog.recently')}
+                                </div>
                             </div>
                         </div>
+
+                        <aside className="rounded-xl border border-[#e4d3bc] bg-[#fffaf1]/90 p-5 shadow-sm">
+                            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#a97935]">Reading Note</p>
+                            <p className="mt-4 text-sm font-medium leading-7 text-[#665a4a]">
+                                This article is written as a practical field note: direct context first, then concrete
+                                steps a job seeker can reuse.
+                            </p>
+                        </aside>
                     </header>
 
-
-                    {/* Audio Player */}
-                    <div className="mb-8">
+                    <div className="mt-8">
                         <ArticleAudioPlayer articleId={post.id} />
                     </div>
 
-                    {/* Feature Image */}
                     {post.coverImage && (
-                        <div className="mb-12 rounded-2xl overflow-hidden shadow-lg aspect-video">
-                            <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover" />
+                        <div className="mt-8 overflow-hidden rounded-xl border border-[#e4d3bc] bg-[#fffaf1] shadow-xl shadow-[#8b5a16]/8">
+                            <img src={post.coverImage} alt={post.title} className="aspect-video h-full w-full object-cover" />
                         </div>
                     )}
 
-                    {/* Content */}
-                    <div className="max-w-3xl mx-auto">
+                    <div className="mx-auto mt-12 max-w-3xl rounded-xl border border-[#e4d3bc] bg-[#fffaf1]/90 p-6 shadow-sm sm:p-10">
                         <MarkdownRenderer text={displayContent} />
 
-                        {/* Share */}
-                        <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-800">
-                            <p className="text-sm font-semibold text-gray-900 dark:text-white mb-4">{t('blog.share_article')}</p>
-                            <div className="flex gap-4">
-                                <button className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-900/30 dark:hover:text-blue-400 transition-colors">
-                                    <Twitter size={20} />
-                                </button>
-                                <button className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900/30 dark:hover:text-blue-500 transition-colors">
-                                    <Linkedin size={20} />
-                                </button>
-                                <button className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-blue-100 hover:text-blue-800 dark:hover:bg-blue-900/30 dark:hover:text-blue-600 transition-colors">
-                                    <Facebook size={20} />
-                                </button>
+                        <div className="mt-14 border-t border-[#e4d3bc] pt-7">
+                            <p className="mb-4 text-sm font-black uppercase tracking-[0.16em] text-[#a97935]">{t('blog.share_article')}</p>
+                            <div className="flex gap-3">
+                                {[
+                                    { icon: Twitter, label: 'Twitter' },
+                                    { icon: Linkedin, label: 'LinkedIn' },
+                                    { icon: Facebook, label: 'Facebook' },
+                                ].map(({ icon: Icon, label }) => (
+                                    <button
+                                        key={label}
+                                        className="flex h-10 w-10 items-center justify-center rounded-full border border-[#e4d3bc] bg-[#fffaf1] text-[#665a4a] transition hover:-translate-y-0.5 hover:border-[#bfa782] hover:text-[#211b16]"
+                                        aria-label={label}
+                                    >
+                                        <Icon size={18} />
+                                    </button>
+                                ))}
                             </div>
                         </div>
                     </div>

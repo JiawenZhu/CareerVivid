@@ -13,7 +13,6 @@ window.addEventListener('unhandledrejection', (event) => {
     event.reason?.message?.includes('Strict MIME type checking');
 
   if (isChunkLoadError) {
-    console.warn('Caught chunk load error/MIME mismatch. Reloading to fetch new version...');
     const lastReload = sessionStorage.getItem('last_chunk_reload');
     const now = Date.now();
     if (!lastReload || now - parseInt(lastReload) > 10000) {
@@ -25,7 +24,6 @@ window.addEventListener('unhandledrejection', (event) => {
 
 // Catches Vite-specific preload errors
 window.addEventListener('vite:preloadError', (event) => {
-  console.log('Caught vite:preloadError, reloading page to fetch new chunks...');
   const lastReload = sessionStorage.getItem('last_chunk_reload_vite');
   const now = Date.now();
   if (!lastReload || now - parseInt(lastReload) > 10000) {
@@ -38,8 +36,6 @@ window.addEventListener('vite:preloadError', (event) => {
 // Specifically handles QuotaExceededError which prevents login/SW registration
 window.addEventListener('unhandledrejection', (event) => {
   if (event.reason?.name === 'QuotaExceededError' || (event.reason?.message && event.reason.message.includes('Quota exceeded'))) {
-    console.error('CRITICAL: Storage quota exceeded. Initiating emergency cleanup...');
-    
     // 1. Clear large, non-essential localStorage items
     localStorage.removeItem('guestResume');
     

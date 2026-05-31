@@ -1,7 +1,6 @@
 import { db, analytics } from '../firebase';
 import { collection, addDoc, serverTimestamp, doc, increment, setDoc } from 'firebase/firestore';
 import { TrackEventType } from '../types';
-import { logEvent } from 'firebase/analytics';
 import { AI_CREDIT_COSTS } from '../config/creditCosts';
 
 
@@ -19,7 +18,7 @@ const EVENT_CREDIT_MAP: Partial<Record<TrackEventType, number>> = {
   'resume_suggestion': AI_CREDIT_COSTS.BULLET_EDIT,
   'resume_parse_text': 0,
   'resume_parse_file': 0,
-  'resume_match_analysis': 0,
+  'resume_match_analysis': AI_CREDIT_COSTS.JOB_SEARCH,
   'portfolio_generation': AI_CREDIT_COSTS.PORTFOLIO_GENERATE,
   'portfolio_refinement': AI_CREDIT_COSTS.PORTFOLIO_REFINE,
   'job_parse_description': 0,
@@ -34,10 +33,13 @@ const EVENT_CREDIT_MAP: Partial<Record<TrackEventType, number>> = {
 };
 
 const CREDIT_CONSUMING_EVENTS = Object.keys(EVENT_CREDIT_MAP) as TrackEventType[];
+const isExtensionBuild = import.meta.env?.VITE_EXTENSION_BUILD === 'true';
 
 export const trackUsage = async (userId: string, eventType: TrackEventType, metadata: TrackMetadata = {}) => {
   if (!userId) {
-    console.error('[TrackUsage] Called without userId! Event:', eventType);
+    if (import.meta.env.DEV) {
+      console.debug('[TrackUsage] Called without userId! Event:', eventType);
+    }
     return;
   }
   // console.log(`[TrackUsage] Called for ${eventType}, User: ${userId}`);
@@ -58,7 +60,8 @@ export const trackUsage = async (userId: string, eventType: TrackEventType, meta
   // 2. Log to Google Analytics (Non-blocking)
   try {
     const analyticsInstance = await analytics;
-    if (analyticsInstance) {
+    if (!isExtensionBuild && analyticsInstance) {
+      const { logEvent } = await import('firebase/analytics');
       if (metadata.tokenUsage) {
         logEvent(analyticsInstance, 'token_usage', {
           category: eventType,
@@ -74,14 +77,16 @@ export const trackUsage = async (userId: string, eventType: TrackEventType, meta
   } catch (e) { }
 
   // 3. Deduct AI Credit (Critical Path)
-  if (CREDIT_CONSUMING_EVENTS.includes(eventType)) {
+  if (CREDIT_CONSUMING_EVENTS.includes(eventType) && userId && !userId.startsWith('guest')) {
     try {
       const { incrementAIUsage } = await import('./aiUsageService');
       // Use explicit override → weighted cost from config → safe fallback of 1
       const deductAmount = metadata.deductCredits ?? EVENT_CREDIT_MAP[eventType] ?? 1;
       await incrementAIUsage(userId, deductAmount);
     } catch (err) {
-      console.error(`Failed to deduct credit for ${eventType}:`, err);
+      if (import.meta.env.DEV) {
+        console.debug(`Failed to deduct credit for ${eventType}:`, err);
+      }
     }
   }
 };
@@ -95,7 +100,9 @@ export const trackDemoEvent = async (eventType: 'totalResumeGenerations' | 'tota
       [eventType]: increment(1),
     }, { merge: true });
   } catch (error) {
-    console.error(`Error tracking demo event (${eventType}):`, error);
+    if (import.meta.env.DEV) {
+      console.debug(`Error tracking demo event (${eventType}):`, error);
+    }
     // This is a non-critical background task, so we don't throw an error to the user.
   }
 };
@@ -107,6 +114,8 @@ export const trackDemoConversion = async (eventType: 'convertedResumeUsers' | 'c
       [eventType]: increment(1),
     }, { merge: true });
   } catch (error) {
-    console.error(`Error tracking demo conversion (${eventType}):`, error);
+    if (import.meta.env.DEV) {
+      console.debug(`Error tracking demo conversion (${eventType}):`, error);
+    }
   }
 };

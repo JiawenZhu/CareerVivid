@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { navigate } from '../utils/navigation';
 import {
@@ -10,33 +9,28 @@ import {
     Shield,
     Settings,
     Plus,
-    Trash2,
     Zap,
-    Layout,
-    Database
+    Database,
+    Sparkles,
+    Calendar
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { httpsCallable } from 'firebase/functions';
-import { functions, db } from '../firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { trackUsage } from '../services/trackingService';
+import { functions } from '../firebase';
 import {
-    FREE_PLAN_CREDIT_LIMIT,
     PRO_PLAN_CREDIT_LIMIT,
     PRO_MAX_PLAN_CREDIT_LIMIT,
     ENTERPRISE_PLAN_CREDIT_LIMIT
 } from '../config/creditCosts';
-import AIUsageProgressBar from '../components/AIUsageProgressBar';
 
 const BillingDashboard: React.FC = () => {
-    const { currentUser, userProfile, isPremium, aiUsage } = useAuth();
-    const { t } = useTranslation();
+    const { currentUser, userProfile, aiUsage } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [newTeamMember, setNewTeamMember] = useState('');
 
     const currentPlan = userProfile?.plan || 'free';
     const isEnterprise = currentPlan === 'enterprise';
+    const legacyProPlans = ['premium', 'pro_monthly', 'pro_sprint'];
 
     const plans = [
         { id: 'pro', name: 'Pro', price: '$9', limit: PRO_PLAN_CREDIT_LIMIT, priceId: 'price_1TJoONRJNflGxv32zSqxC9bZ' },
@@ -47,6 +41,8 @@ const BillingDashboard: React.FC = () => {
     const handleUpgrade = async (priceId: string) => {
         if (!currentUser) return;
         setIsLoading(true);
+        setError('');
+
         try {
             const createCheckoutSession = httpsCallable(functions, 'createCheckoutSession');
             const result: any = await createCheckoutSession({
@@ -63,236 +59,289 @@ const BillingDashboard: React.FC = () => {
 
     const getReadablePlanName = (plan: string) => {
         switch (plan) {
-            case 'pro': return 'Pro';
+            case 'pro':
+                return 'Pro';
             case 'max':
-            case 'pro_max': return 'Max';
-            case 'enterprise': return 'Enterprise';
+            case 'pro_max':
+                return 'Max';
+            case 'enterprise':
+                return 'Enterprise';
             case 'premium':
             case 'pro_monthly':
             case 'pro_sprint':
                 return 'Pro (Legacy)';
-            case 'free': return 'Free';
-            default: return plan;
+            case 'free':
+                return 'Free';
+            default:
+                return plan;
         }
     };
 
     const readablePlan = getReadablePlanName(currentPlan);
+    const activePlan = plans.find((plan) => plan.id === currentPlan)
+        || (legacyProPlans.includes(currentPlan) ? plans[0] : undefined);
+    const creditLimit = aiUsage?.limit || activePlan?.limit || PRO_PLAN_CREDIT_LIMIT;
+    const creditsUsed = aiUsage?.count || 0;
+    const creditsRemaining = Math.max(creditLimit - creditsUsed, 0);
+    const creditsPercent = creditLimit > 0 ? Math.min((creditsUsed / creditLimit) * 100, 100) : 0;
+    const planBillingLabel = currentPlan === 'free'
+        ? 'Free workspace'
+        : isEnterprise
+            ? 'Team subscription'
+            : 'Monthly subscription';
+    const renewalLabel = userProfile?.expiresAt?.toDate
+        ? userProfile.expiresAt.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : 'No renewal date';
+
+    const isCurrentPlan = (planId: string) => {
+        if (currentPlan === planId) return true;
+        if (planId === 'pro' && legacyProPlans.includes(currentPlan)) return true;
+        if (planId === 'max' && currentPlan === 'pro_max') return true;
+        return false;
+    };
 
     return (
-        <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950 font-sans selection:bg-primary-500/30 relative overflow-hidden">
-            {/* Background glowing orb matching pricing page */}
-            <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary-500/10 dark:bg-primary-600/10 blur-[120px] rounded-full pointer-events-none z-0" />
-            
-            <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50 sticky top-0 z-10 transition-all duration-300">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                    <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-gray-900 dark:text-white hover:opacity-70 transition-all group">
-                        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform stroke-[2.5]" />
-                        <span className="text-sm font-semibold">Dashboard</span>
+        <div className="relative min-h-screen overflow-hidden bg-[#f7f1e7] pb-20 font-sans text-[#211b16] selection:bg-[#f3f2ff] dark:bg-[#1f1f1d] dark:text-[#f4f1e9] dark:selection:bg-[#37332d]">
+            <header className="sticky top-0 z-10 border-b border-[#e4d3bc]/70 bg-[#f7f1e7]/88 backdrop-blur-xl dark:border-[#37332d] dark:bg-[#1f1f1d]/88">
+                <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="group inline-flex items-center gap-2 rounded-xl border border-[#e4d3bc] bg-white/70 px-3 py-2 text-sm font-semibold text-[#665a4a] shadow-sm transition hover:border-[#d9c7ad] hover:bg-white hover:text-[#211b16] dark:border-[#37332d] dark:bg-[#262522] dark:text-[#aaa39a] dark:hover:text-[#f4f1e9]"
+                    >
+                        <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-0.5" />
+                        <span>Dashboard</span>
                     </button>
-                    <div className="flex items-center gap-4">
-                        <div className="px-4 py-1.5 bg-gradient-to-r from-primary-500/10 to-purple-500/10 dark:from-primary-900/40 dark:to-purple-900/40 text-primary-700 dark:text-primary-300 border border-primary-200/50 dark:border-primary-800/50 rounded-full text-xs font-black uppercase tracking-widest shadow-sm flex items-center gap-2">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
-                            </span>
-                            {readablePlan}
-                        </div>
-                    </div>
+
+                    <span className="inline-flex items-center gap-2 rounded-full border border-[#e6dac8] bg-[#fffaf1] px-3 py-1.5 text-xs font-bold text-[#665a4a] shadow-sm dark:border-[#37332d] dark:bg-[#262522] dark:text-[#aaa39a]">
+                        <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                        {readablePlan}
+                    </span>
                 </div>
             </header>
 
-            <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative z-10">
-                <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="grid lg:grid-cols-3 gap-8"
-                >
-                    {/* Left Column: Sub & Usage */}
-                    <div className="lg:col-span-2 space-y-8">
-                        {/* Plan Summary Card */}
-                        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-3xl p-8 border border-gray-200/50 dark:border-gray-800/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
-                            <div className="flex items-center gap-5 mb-8">
-                                <div className="p-3.5 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg shadow-indigo-500/20 text-white">
-                                    <CreditCard size={24} />
-                                </div>
-                                <div>
-                                    <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Billing & Plan</h2>
-                                    <p className="text-gray-500 dark:text-gray-400 font-medium text-sm mt-1">Manage your DevTool subscription</p>
+            <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+                {error && (
+                    <div className="mb-5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700 shadow-sm dark:border-rose-900/60 dark:bg-rose-950/30 dark:text-rose-300">
+                        {error}
+                    </div>
+                )}
+
+                <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_330px]">
+                    <section className="space-y-5">
+                        <section className="rounded-[28px] border border-[#e6dac8] bg-white p-5 shadow-[0_24px_70px_rgba(66,52,38,0.08)] dark:border-[#37332d] dark:bg-[#262522] sm:p-6 lg:p-7">
+                            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#f3f2ff] text-[#625bd5] shadow-sm dark:bg-[#302e2a] dark:text-[#8d88e6]">
+                                        <CreditCard size={24} />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-2xl font-bold leading-tight text-[#211b16] dark:text-[#f4f1e9] sm:text-3xl">
+                                            Billing &amp; Plan
+                                        </h1>
+                                        <p className="mt-1 text-sm font-medium leading-6 text-[#665a4a] dark:text-[#aaa39a]">
+                                            Manage your CareerVivid subscription.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="grid sm:grid-cols-2 gap-6">
-                                <div className="relative overflow-hidden p-6 bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-800/50 dark:to-gray-800/30 rounded-2xl border border-gray-200/50 dark:border-gray-700/50 group hover:border-primary-500/30 transition-colors">
-                                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                        <Shield size={64} />
-                                    </div>
-                                    <span className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest block mb-3">Active Plan</span>
-                                    <div className="flex items-baseline gap-2 relative z-10">
-                                        <span className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-purple-600 capitalize tracking-tight">{readablePlan}</span>
-                                    </div>
-                                    <span className="text-xs font-bold text-gray-400 dark:text-gray-500 italic block mt-1 relative z-10">Monthly Subscription</span>
-                                </div>
-                                <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-800/50 dark:to-gray-800/30 rounded-2xl border border-gray-200/50 dark:border-gray-700/50 hover:border-purple-500/30 transition-colors">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <span className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">AI Credit Usage</span>
-                                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                                    </div>
-                                    {aiUsage && (
-                                        <AIUsageProgressBar
-                                            used={aiUsage.count}
-                                            limit={aiUsage.limit}
-                                            isPremium={isPremium}
-                                            variant="minimal"
-                                        />
-                                    )}
-                                </div>
-                            </div>
-                        </div>
+                            <div className="mt-7 grid gap-4 lg:grid-cols-2">
+                                <article className="relative overflow-hidden rounded-2xl border border-[#e6dac8] bg-[#fffaf1] p-5 shadow-sm dark:border-[#37332d] dark:bg-[#1f1f1d]">
+                                    <Shield className="pointer-events-none absolute -right-6 top-5 h-28 w-28 text-[#e6dac8]/60 dark:text-[#37332d]/60" strokeWidth={1.1} />
+                                    <div className="relative">
+                                        <p className="text-[11px] font-bold text-[#7d6e5e] dark:text-[#aaa39a]">Active plan</p>
+                                        <h2 className="mt-6 text-3xl font-bold leading-none text-[#211b16] dark:text-[#f4f1e9] sm:text-4xl">
+                                            {readablePlan}
+                                        </h2>
+                                        <p className="mt-3 text-sm font-semibold capitalize text-[#7d6e5e] dark:text-[#aaa39a]">
+                                            {planBillingLabel}
+                                        </p>
 
-                        {/* Enterprise Team Management */}
-                        {isEnterprise && (
-                            <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-3xl p-8 border-2 border-amber-500/30 shadow-lg shadow-amber-500/5">
-                                <div className="flex items-center justify-between mb-8">
-                                    <div className="flex items-center gap-5">
-                                        <div className="p-3.5 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl text-white shadow-lg shadow-amber-500/20">
-                                            <Users size={24} />
+                                        <div className="mt-5 flex flex-wrap gap-2 text-xs font-semibold text-[#665a4a] dark:text-[#aaa39a]">
+                                            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e6dac8] bg-white px-2.5 py-1.5 shadow-sm dark:border-[#37332d] dark:bg-[#262522]">
+                                                <Calendar size={12} />
+                                                {renewalLabel}
+                                            </span>
+                                            <span className="rounded-full border border-[#e6dac8] bg-white px-2.5 py-1.5 shadow-sm dark:border-[#37332d] dark:bg-[#262522]">
+                                                {isEnterprise ? `${userProfile?.seats || 1} seat${(userProfile?.seats || 1) === 1 ? '' : 's'}` : 'Career workspace'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </article>
+
+                                <article className="rounded-2xl border border-[#e6dac8] bg-[#fffaf1] p-5 shadow-sm dark:border-[#37332d] dark:bg-[#1f1f1d]">
+                                    <div className="mb-7 flex items-center justify-between gap-3">
+                                        <p className="text-[11px] font-bold text-[#7d6e5e] dark:text-[#aaa39a]">AI credit usage</p>
+                                        <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_0_4px_rgba(52,211,153,0.16)]" />
+                                    </div>
+
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#eef0ff] text-[#625bd5] dark:bg-[#302e2a] dark:text-[#8d88e6]">
+                                            <Sparkles size={17} />
                                         </div>
                                         <div>
-                                            <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Team Management</h2>
-                                            <p className="text-gray-500 dark:text-gray-400 font-medium text-sm mt-1">Managing {userProfile?.seats || 1} Developer Seats</p>
+                                            <h2 className="text-lg font-bold leading-tight text-[#211b16] dark:text-[#f4f1e9]">
+                                                {readablePlan} AI Credits
+                                            </h2>
+                                            <p className="mt-0.5 text-xs font-semibold text-[#7d6e5e] dark:text-[#aaa39a]">
+                                                {creditLimit.toLocaleString()} credits per month
+                                            </p>
                                         </div>
                                     </div>
-                                    <button className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all hover:rotate-90">
-                                        <Settings size={20} />
+
+                                    <div className="mt-5 h-2.5 overflow-hidden rounded-full bg-[#e9e3d9] shadow-inner dark:bg-[#37332d]">
+                                        <div
+                                            className="h-full rounded-full bg-[#625bd5] transition-all duration-500 dark:bg-[#8d88e6]"
+                                            style={{ width: `${creditsPercent}%` }}
+                                        />
+                                    </div>
+
+                                    <div className="mt-3 flex items-center justify-between gap-3 text-xs font-bold text-[#3c4658] dark:text-[#f4f1e9]">
+                                        <span>{creditsUsed.toLocaleString()} / {creditLimit.toLocaleString()} used</span>
+                                        <span className="text-[#665a4a] dark:text-[#aaa39a]">{creditsRemaining.toLocaleString()} left</span>
+                                    </div>
+                                </article>
+                            </div>
+                        </section>
+
+                        {isEnterprise && (
+                            <section className="rounded-[28px] border border-[#d8c5aa] bg-[#fffaf1] p-5 shadow-sm dark:border-[#37332d] dark:bg-[#262522] sm:p-6 lg:p-7">
+                                <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#f9efe0] text-[#a97935] shadow-sm dark:bg-[#302e2a] dark:text-[#caa26c]">
+                                            <Users size={21} />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-xl font-bold text-[#211b16] dark:text-[#f4f1e9]">Team management</h2>
+                                            <p className="mt-1 text-sm font-medium text-[#665a4a] dark:text-[#aaa39a]">Manage {userProfile?.seats || 1} developer seats.</p>
+                                        </div>
+                                    </div>
+                                    <button className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#e6dac8] bg-white text-[#665a4a] shadow-sm transition hover:border-[#d9c7ad] hover:text-[#211b16] dark:border-[#37332d] dark:bg-[#1f1f1d] dark:text-[#aaa39a] dark:hover:text-[#f4f1e9]">
+                                        <Settings size={18} />
                                     </button>
                                 </div>
 
-                                <div className="space-y-6">
-                                    <div className="flex gap-3">
-                                        <div className="relative flex-grow">
-                                            <input
-                                                type="email"
-                                                placeholder="developer@company.com"
-                                                value={newTeamMember}
-                                                onChange={(e) => setNewTeamMember(e.target.value)}
-                                                className="w-full bg-gray-50/50 dark:bg-gray-950/50 border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-3.5 text-sm focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 outline-none transition-all dark:text-white placeholder-gray-400"
-                                            />
-                                        </div>
-                                        <button className="bg-gradient-to-r from-gray-900 to-gray-800 dark:from-white dark:to-gray-200 dark:text-gray-900 text-white px-6 py-3.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:opacity-90 hover:scale-[1.02] transition-all shadow-md">
-                                            <Plus size={18} /> Invite
-                                        </button>
-                                    </div>
-
-                                    <div className="border border-gray-200/50 dark:border-gray-800/50 rounded-2xl divide-y divide-gray-100 dark:divide-gray-800/50 overflow-hidden bg-white dark:bg-gray-900">
-                                        <div className="p-4 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center text-xs font-black text-white uppercase shadow-inner">
-                                                    {userProfile?.displayName?.[0] || userProfile?.email?.[0]}
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                                                        {userProfile?.email}
-                                                        <span className="text-[9px] bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 px-2 py-0.5 rounded-full font-black tracking-widest border border-primary-200 dark:border-primary-800">ADMIN</span>
-                                                    </p>
-                                                    <p className="text-xs text-gray-500 mt-0.5">Workspace Owner</p>
-                                                </div>
-                                            </div>
-                                            <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Active</span>
-                                        </div>
-                                    </div>
+                                <div className="flex flex-col gap-3 sm:flex-row">
+                                    <input
+                                        type="email"
+                                        placeholder="developer@company.com"
+                                        value={newTeamMember}
+                                        onChange={(event) => setNewTeamMember(event.target.value)}
+                                        className="min-h-11 flex-1 rounded-xl border border-[#e6dac8] bg-white px-4 text-sm font-medium text-[#211b16] outline-none transition placeholder:text-[#9b9186] focus:border-[#625bd5] focus:ring-2 focus:ring-[#625bd5]/20 dark:border-[#37332d] dark:bg-[#1f1f1d] dark:text-[#f4f1e9]"
+                                    />
+                                    <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#211b16] px-5 text-sm font-bold text-white shadow-sm transition hover:bg-[#362a21] dark:bg-[#f4f1e9] dark:text-[#211b16] dark:hover:bg-white">
+                                        <Plus size={17} />
+                                        Invite
+                                    </button>
                                 </div>
-                            </div>
+                            </section>
                         )}
 
                         {!isEnterprise && currentPlan !== 'max' && currentPlan !== 'pro_max' && (
-                            <div className="relative overflow-hidden bg-gray-900 dark:bg-black rounded-3xl p-8 border border-gray-800 shadow-2xl group">
-                                <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 via-purple-500/10 to-pink-500/10 opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
-                                <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary-500/20 rounded-full blur-3xl group-hover:bg-primary-500/30 transition-colors duration-500" />
-                                
-                                <div className="relative z-10 text-white">
-                                    <h3 className="text-2xl font-black mb-3 flex items-center gap-3 tracking-tight">
-                                        <Zap className="text-yellow-400 fill-current drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]" size={28} />
-                                        Upgrade to Enterprise
-                                    </h3>
-                                    <p className="text-gray-400 text-sm mb-8 leading-relaxed max-w-md">
-                                        Need more than <span className="text-white font-bold">10,000</span> credits? Pooled team balances, SSO, and Private Workspaces start at just $12 per seat.
-                                    </p>
-                                    <button onClick={() => navigate('/pricing')} className="bg-white text-gray-900 font-bold py-3.5 px-8 rounded-xl text-sm hover:bg-gray-100 hover:scale-[1.02] transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-                                        Explore Enterprise
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                            <section className="rounded-[28px] border border-[#211b16]/10 bg-[#211b16] p-5 text-[#f4f1e9] shadow-[0_24px_70px_rgba(66,52,38,0.16)] dark:border-[#37332d] dark:bg-[#262522] sm:p-6 lg:p-7">
+                                <div className="flex max-w-2xl flex-col gap-5">
+                                    <div>
+                                        <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fff4cc] text-[#a97935] shadow-sm">
+                                            <Zap size={22} fill="currentColor" />
+                                        </div>
+                                        <h2 className="text-2xl font-bold leading-tight text-[#f4f1e9] sm:text-3xl">
+                                            Upgrade to Enterprise
+                                        </h2>
+                                        <p className="mt-3 text-sm font-medium leading-6 text-[#d7d0c6]">
+                                            Need shared team credits? Each seat adds <span className="font-bold text-white">1,500</span> pooled credits, SSO, and private workspaces.
+                                        </p>
+                                    </div>
 
-                    {/* Right Column: Other Tiers */}
-                    <div className="space-y-6">
-                        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-3xl p-6 border border-gray-200/50 dark:border-gray-800/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]">
-                            <h3 className="text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-6">Available Tiers</h3>
-                            <div className="space-y-4">
-                                {plans.map(p => {
-                                    // Treat legacy plans as 'pro' for the selection active state
-                                    const isCurrentPlan = currentPlan === p.id || (p.id === 'pro' && ['premium', 'pro_monthly', 'pro_sprint'].includes(currentPlan));
-                                    
-                                    return (
-                                        <div key={p.id} className={`p-5 rounded-2xl border-2 transition-all duration-300 relative overflow-hidden group ${
-                                            isCurrentPlan 
-                                            ? 'border-primary-500 bg-primary-50/50 dark:bg-primary-900/10 shadow-md shadow-primary-500/10' 
-                                            : 'border-gray-200/50 dark:border-gray-800/50 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer'
-                                        }`}>
-                                            {isCurrentPlan && (
-                                                <div className="absolute top-0 right-0 -mt-2 -mr-2 w-12 h-12 bg-primary-500/10 rounded-full blur-xl" />
-                                            )}
-                                            
-                                            <div className="flex justify-between items-start mb-3 relative z-10">
-                                                <span className="font-bold text-gray-900 dark:text-white text-lg tracking-tight">{p.name}</span>
-                                                <span className="text-sm font-black text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/40 px-2 py-1 rounded-md">{p.price}</span>
+                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                                        <button
+                                            onClick={() => navigate('/pricing')}
+                                            className="inline-flex w-full items-center justify-center rounded-xl bg-[#fffaf1] px-5 py-3 text-sm font-bold text-[#211b16] shadow-sm transition hover:bg-white sm:w-auto"
+                                        >
+                                            Explore Enterprise
+                                        </button>
+                                        <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#d7d0c6]">
+                                            <Users size={15} />
+                                            Shared credits and team controls
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        )}
+                    </section>
+
+                    <aside className="space-y-5 xl:sticky xl:top-24 xl:self-start">
+                        <div className="rounded-[24px] border border-[#e6dac8] bg-white p-5 shadow-sm dark:border-[#37332d] dark:bg-[#262522]">
+                            <div className="mb-5">
+                                <h2 className="text-base font-bold text-[#211b16] dark:text-[#f4f1e9]">Available tiers</h2>
+                                <p className="mt-1 text-xs font-semibold text-[#7d6e5e] dark:text-[#aaa39a]">Pick the right monthly capacity.</p>
+                            </div>
+
+                            <div className="space-y-3">
+                                {plans.map((plan) => (
+                                    <article
+                                        key={plan.id}
+                                        className={`rounded-2xl border p-4 shadow-sm transition ${
+                                            isCurrentPlan(plan.id)
+                                                ? 'border-[#625bd5] bg-[#f5f4ff] ring-1 ring-[#625bd5]/30 dark:border-[#8d88e6] dark:bg-[#302e2a]'
+                                                : 'border-[#e6dac8] bg-[#fffaf1] hover:border-[#d9c7ad] dark:border-[#37332d] dark:bg-[#1f1f1d]'
+                                        }`}
+                                    >
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div>
+                                                <h3 className="text-sm font-bold text-[#211b16] dark:text-[#f4f1e9]">{plan.name}</h3>
+                                                <p className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-bold text-[#7d6e5e] dark:text-[#aaa39a]">
+                                                    <Zap size={12} />
+                                                    {plan.limit.toLocaleString()} credits {plan.id === 'enterprise' ? '/ seat / mo' : '/ mo'}
+                                                </p>
                                             </div>
-                                            <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 dark:text-gray-400 tracking-wider">
-                                                <Zap size={14} className={isCurrentPlan ? "text-primary-500" : ""} /> {p.limit.toLocaleString()} CREDITS / MO
+                                            <div className="rounded-lg bg-white px-2 py-1 text-sm font-bold text-[#625bd5] shadow-sm dark:bg-[#262522] dark:text-[#8d88e6]">
+                                                {plan.price}
                                             </div>
-                                            
-                                            {!isCurrentPlan && (
+                                        </div>
+
+                                        <div className="mt-4">
+                                            {isCurrentPlan(plan.id) ? (
+                                                <div className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-[#625bd5] shadow-sm dark:bg-[#1f1f1d] dark:text-[#8d88e6]">
+                                                    <Check className="h-4 w-4" />
+                                                    Current plan
+                                                </div>
+                                            ) : (
                                                 <button
-                                                    onClick={() => handleUpgrade(p.priceId)}
+                                                    onClick={() => handleUpgrade(plan.priceId)}
                                                     disabled={isLoading}
-                                                    className="w-full mt-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl text-[11px] font-black uppercase tracking-widest hover:opacity-90 hover:scale-[1.02] transition-all shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    className="inline-flex w-full items-center justify-center rounded-xl bg-[#211b16] px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#362a21] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#f4f1e9] dark:text-[#211b16] dark:hover:bg-white"
                                                 >
-                                                    Switch to {p.name}
+                                                    {isLoading ? 'Opening checkout...' : `Switch to ${plan.name}`}
                                                 </button>
                                             )}
-                                            {isCurrentPlan && (
-                                                <div className="mt-5 flex items-center justify-center gap-2 py-2.5 text-primary-600 dark:text-primary-400 text-[11px] font-black uppercase tracking-widest">
-                                                    <Check size={14} strokeWidth={3} /> Current Plan
-                                                </div>
-                                            )}
                                         </div>
-                                    );
-                                })}
+                                    </article>
+                                ))}
                             </div>
                         </div>
 
-                        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-3xl p-6 border border-gray-200/50 dark:border-gray-800/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-                            <div className="flex items-center gap-3 mb-5">
-                                <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-xl">
-                                    <Database size={16} className="text-gray-600 dark:text-gray-400" />
+                        <div className="rounded-[24px] border border-[#e6dac8] bg-[#fffaf1] p-5 shadow-sm dark:border-[#37332d] dark:bg-[#262522]">
+                            <div className="mb-5 flex items-center gap-3">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-[#665a4a] shadow-sm dark:bg-[#1f1f1d] dark:text-[#aaa39a]">
+                                    <Database size={17} />
                                 </div>
-                                <h3 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight">Usage Invariants</h3>
+                                <h2 className="text-base font-bold text-[#211b16] dark:text-[#f4f1e9]">Plan rules</h2>
                             </div>
-                            <ul className="space-y-4">
-                                <li className="text-xs text-gray-500 dark:text-gray-400 flex gap-3 leading-relaxed">
-                                    <Check size={16} className="text-green-500 flex-shrink-0 mt-0.5" />
-                                    Credits reset on the 1st of every month automatically.
-                                </li>
-                                <li className="text-xs text-gray-500 dark:text-gray-400 flex gap-3 leading-relaxed">
-                                    <Check size={16} className="text-green-500 flex-shrink-0 mt-0.5" />
-                                    Enterprise seats contribute to a shared pool.
-                                </li>
+                            <ul className="space-y-3">
+                                {[
+                                    'Credits reset on the 1st of every month.',
+                                    'Enterprise seats contribute to a shared pool.',
+                                    'Canceled plans keep access through the billing period.',
+                                ].map((item) => (
+                                    <li key={item} className="flex items-start gap-2.5 text-sm font-medium leading-5 text-[#665a4a] dark:text-[#aaa39a]">
+                                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                                        <span>{item}</span>
+                                    </li>
+                                ))}
                             </ul>
                         </div>
-                    </div>
-                </motion.div>
+                    </aside>
+                </div>
             </main>
         </div>
     );

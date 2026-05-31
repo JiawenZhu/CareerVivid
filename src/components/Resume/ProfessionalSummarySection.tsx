@@ -18,16 +18,16 @@ interface ProfessionalSummarySectionProps {
 }
 
 const FormSection: React.FC<{ title: string; icon: React.ReactNode; children: React.ReactNode }> = ({ title, icon, children }) => (
-    <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800/50">
-        <div className="mb-4 flex items-center">
+    <div className="mb-5 rounded-xl border border-[#e8dfd3] bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
+        <div className="mb-4 flex items-center border-b border-[#f0e8dc] pb-3 dark:border-gray-800">
             {icon}
-            <h2 className="ml-3 text-xl font-bold text-gray-800 dark:text-gray-100">{title}</h2>
+            <h2 className="ml-3 text-lg font-black text-slate-900 dark:text-gray-100">{title}</h2>
         </div>
         {children}
     </div>
 );
 
-const microTextareaClass = 'w-full resize-none overflow-hidden rounded-md border border-gray-200 bg-white px-4 py-3 text-base leading-relaxed text-gray-800 shadow-none transition-all hover:border-primary-200 hover:shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/15 disabled:cursor-not-allowed disabled:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:disabled:bg-gray-900';
+const microTextareaClass = 'w-full resize-none overflow-hidden rounded-lg border border-[#ded6cb] bg-white px-4 py-3 text-sm leading-relaxed text-slate-800 shadow-sm transition-all hover:border-primary-200 hover:shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/15 disabled:cursor-not-allowed disabled:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:disabled:bg-gray-950';
 
 const ProfessionalSummarySection: React.FC<ProfessionalSummarySectionProps> = ({
     t,

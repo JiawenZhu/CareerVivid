@@ -1,42 +1,6 @@
 
-import React from 'react';
+import React, { ComponentType, LazyExoticComponent, Suspense } from 'react';
 import { ResumeData, TemplateId, DEFAULT_FORMATTING_SETTINGS } from '../types';
-import { SydneyTemplate } from './templates/SydneyTemplate';
-import { ModernTemplate } from './templates/ModernTemplate';
-import { CreativeTemplate } from './templates/CreativeTemplate';
-import { ProfessionalTemplate } from './templates/ProfessionalTemplate';
-import { ExecutiveTemplate } from './templates/ExecutiveTemplate';
-import { MinimalistTemplate } from './templates/MinimalistTemplate';
-import { ElegantTemplate } from './templates/ElegantTemplate';
-import { CorporateTemplate } from './templates/CorporateTemplate';
-import { TechnicalTemplate } from './templates/TechnicalTemplate';
-import { ArtisticTemplate } from './templates/ArtisticTemplate';
-import { VibrantTemplate } from './templates/VibrantTemplate';
-import { SlateTemplate } from './templates/SlateTemplate';
-import { AcademicTemplate } from './templates/AcademicTemplate';
-import { ApexTemplate } from './templates/ApexTemplate';
-import { BoldTemplate } from './templates/BoldTemplate';
-import { CascadeTemplate } from './templates/CascadeTemplate';
-import { ChicagoTemplate } from './templates/ChicagoTemplate';
-import { ClassicTemplate } from './templates/ClassicTemplate';
-import { CompactTemplate } from './templates/CompactTemplate';
-import { CrispTemplate } from './templates/CrispTemplate';
-import { DynamicTemplate } from './templates/DynamicTemplate';
-import { GeometricTemplate } from './templates/GeometricTemplate';
-import { HarvardTemplate } from './templates/HarvardTemplate';
-import { InfographicTemplate } from './templates/InfographicTemplate';
-import { MonochromeTemplate } from './templates/MonochromeTemplate';
-import { OrionTemplate } from './templates/OrionTemplate';
-import { PinnacleTemplate } from './templates/PinnacleTemplate';
-import { QuantumTemplate } from './templates/QuantumTemplate';
-import { SerifTemplate } from './templates/SerifTemplate';
-import { SimpleTemplate } from './templates/SimpleTemplate';
-import { SpaciousTemplate } from './templates/SpaciousTemplate';
-import { SwissTemplate } from './templates/SwissTemplate';
-import { TimelineTemplate } from './templates/TimelineTemplate';
-import { VertexTemplate } from './templates/VertexTemplate';
-import { WaveTemplate } from './templates/WaveTemplate';
-import { ZenithTemplate } from './templates/ZenithTemplate';
 
 
 interface ResumePreviewProps {
@@ -49,6 +13,60 @@ interface ResumePreviewProps {
   onFocus?: (fieldId: string) => void;
 }
 
+type ResumeTemplateComponent = ComponentType<any>;
+type TemplateLoader = () => Promise<{ default: ResumeTemplateComponent }>;
+
+const templateLoaders: Record<string, TemplateLoader> = {
+  Sydney: () => import('./templates/SydneyTemplate').then((m) => ({ default: m.SydneyTemplate })),
+  Modern: () => import('./templates/ModernTemplate').then((m) => ({ default: m.ModernTemplate })),
+  Creative: () => import('./templates/CreativeTemplate').then((m) => ({ default: m.CreativeTemplate })),
+  Professional: () => import('./templates/ProfessionalTemplate').then((m) => ({ default: m.ProfessionalTemplate })),
+  Executive: () => import('./templates/ExecutiveTemplate').then((m) => ({ default: m.ExecutiveTemplate })),
+  Minimalist: () => import('./templates/MinimalistTemplate').then((m) => ({ default: m.MinimalistTemplate })),
+  Elegant: () => import('./templates/ElegantTemplate').then((m) => ({ default: m.ElegantTemplate })),
+  Corporate: () => import('./templates/CorporateTemplate').then((m) => ({ default: m.CorporateTemplate })),
+  Technical: () => import('./templates/TechnicalTemplate').then((m) => ({ default: m.TechnicalTemplate })),
+  Artistic: () => import('./templates/ArtisticTemplate').then((m) => ({ default: m.ArtisticTemplate })),
+  Vibrant: () => import('./templates/VibrantTemplate').then((m) => ({ default: m.VibrantTemplate })),
+  Slate: () => import('./templates/SlateTemplate').then((m) => ({ default: m.SlateTemplate })),
+  Academic: () => import('./templates/AcademicTemplate').then((m) => ({ default: m.AcademicTemplate })),
+  Apex: () => import('./templates/ApexTemplate').then((m) => ({ default: m.ApexTemplate })),
+  Bold: () => import('./templates/BoldTemplate').then((m) => ({ default: m.BoldTemplate })),
+  Cascade: () => import('./templates/CascadeTemplate').then((m) => ({ default: m.CascadeTemplate })),
+  Chicago: () => import('./templates/ChicagoTemplate').then((m) => ({ default: m.ChicagoTemplate })),
+  Classic: () => import('./templates/ClassicTemplate').then((m) => ({ default: m.ClassicTemplate })),
+  Compact: () => import('./templates/CompactTemplate').then((m) => ({ default: m.CompactTemplate })),
+  Crisp: () => import('./templates/CrispTemplate').then((m) => ({ default: m.CrispTemplate })),
+  Dynamic: () => import('./templates/DynamicTemplate').then((m) => ({ default: m.DynamicTemplate })),
+  Geometric: () => import('./templates/GeometricTemplate').then((m) => ({ default: m.GeometricTemplate })),
+  Harvard: () => import('./templates/HarvardTemplate').then((m) => ({ default: m.HarvardTemplate })),
+  Infographic: () => import('./templates/InfographicTemplate').then((m) => ({ default: m.InfographicTemplate })),
+  Monochrome: () => import('./templates/MonochromeTemplate').then((m) => ({ default: m.MonochromeTemplate })),
+  Orion: () => import('./templates/OrionTemplate').then((m) => ({ default: m.OrionTemplate })),
+  Pinnacle: () => import('./templates/PinnacleTemplate').then((m) => ({ default: m.PinnacleTemplate })),
+  Quantum: () => import('./templates/QuantumTemplate').then((m) => ({ default: m.QuantumTemplate })),
+  Serif: () => import('./templates/SerifTemplate').then((m) => ({ default: m.SerifTemplate })),
+  Simple: () => import('./templates/SimpleTemplate').then((m) => ({ default: m.SimpleTemplate })),
+  Spacious: () => import('./templates/SpaciousTemplate').then((m) => ({ default: m.SpaciousTemplate })),
+  Swiss: () => import('./templates/SwissTemplate').then((m) => ({ default: m.SwissTemplate })),
+  Timeline: () => import('./templates/TimelineTemplate').then((m) => ({ default: m.TimelineTemplate })),
+  Vertex: () => import('./templates/VertexTemplate').then((m) => ({ default: m.VertexTemplate })),
+  Wave: () => import('./templates/WaveTemplate').then((m) => ({ default: m.WaveTemplate })),
+  Zenith: () => import('./templates/ZenithTemplate').then((m) => ({ default: m.ZenithTemplate })),
+};
+
+const lazyTemplateCache = new Map<string, LazyExoticComponent<ResumeTemplateComponent>>();
+
+const getLazyResumeTemplate = (template: TemplateId) => {
+  const safeTemplate = templateLoaders[template] ? template : 'Modern';
+  const cachedTemplate = lazyTemplateCache.get(safeTemplate);
+  if (cachedTemplate) return cachedTemplate;
+
+  const LazyTemplate = React.lazy(templateLoaders[safeTemplate]);
+  lazyTemplateCache.set(safeTemplate, LazyTemplate);
+  return LazyTemplate;
+};
+
 const escapeCssIdentifier = (value: string) => {
   if (typeof window !== 'undefined' && window.CSS?.escape) {
     return window.CSS.escape(value);
@@ -60,49 +78,8 @@ const escapeCssIdentifier = (value: string) => {
 // Wrapped in React.memo to prevent unnecessary re-renders when props haven't changed.
 // This is crucial for performance as the resume preview can be expensive to render.
 const ResumePreview: React.FC<ResumePreviewProps> = React.memo(({ resume, template, previewId: previewIdOverride, className, previewRef, onUpdate, onFocus }) => {
-  const renderTemplate = () => {
-    const props = { resume, themeColor: resume.themeColor, titleFont: resume.titleFont, bodyFont: resume.bodyFont, onUpdate, onFocus };
-    switch (template) {
-      case 'Sydney': return <SydneyTemplate {...props} />;
-      case 'Creative': return <CreativeTemplate {...props} />;
-      case 'Professional': return <ProfessionalTemplate {...props} />;
-      case 'Executive': return <ExecutiveTemplate {...props} />;
-      case 'Minimalist': return <MinimalistTemplate {...props} />;
-      case 'Elegant': return <ElegantTemplate {...props} />;
-      case 'Corporate': return <CorporateTemplate {...props} />;
-      case 'Technical': return <TechnicalTemplate {...props} />;
-      case 'Artistic': return <ArtisticTemplate {...props} />;
-      case 'Vibrant': return <VibrantTemplate {...props} />;
-      case 'Slate': return <SlateTemplate {...props} />;
-      case 'Academic': return <AcademicTemplate {...props} />;
-      case 'Apex': return <ApexTemplate {...props} />;
-      case 'Bold': return <BoldTemplate {...props} />;
-      case 'Cascade': return <CascadeTemplate {...props} />;
-      case 'Chicago': return <ChicagoTemplate {...props} />;
-      case 'Classic': return <ClassicTemplate {...props} />;
-      case 'Compact': return <CompactTemplate {...props} />;
-      case 'Crisp': return <CrispTemplate {...props} />;
-      case 'Dynamic': return <DynamicTemplate {...props} />;
-      case 'Geometric': return <GeometricTemplate {...props} />;
-      case 'Harvard': return <HarvardTemplate {...props} />;
-      case 'Infographic': return <InfographicTemplate {...props} />;
-      case 'Monochrome': return <MonochromeTemplate {...props} />;
-      case 'Orion': return <OrionTemplate {...props} />;
-      case 'Pinnacle': return <PinnacleTemplate {...props} />;
-      case 'Quantum': return <QuantumTemplate {...props} />;
-      case 'Serif': return <SerifTemplate {...props} />;
-      case 'Simple': return <SimpleTemplate {...props} />;
-      case 'Spacious': return <SpaciousTemplate {...props} />;
-      case 'Swiss': return <SwissTemplate {...props} />;
-      case 'Timeline': return <TimelineTemplate {...props} />;
-      case 'Vertex': return <VertexTemplate {...props} />;
-      case 'Wave': return <WaveTemplate {...props} />;
-      case 'Zenith': return <ZenithTemplate {...props} />;
-      case 'Modern':
-      default:
-        return <ModernTemplate {...props} />;
-    }
-  };
+  const TemplateComponent = getLazyResumeTemplate(template);
+  const templateProps = { resume, themeColor: resume.themeColor, titleFont: resume.titleFont, bodyFont: resume.bodyFont, onUpdate, onFocus };
 
   // Get formatting settings with defaults
   const fmt = {
@@ -125,6 +102,14 @@ const ResumePreview: React.FC<ResumePreviewProps> = React.memo(({ resume, templa
     ${previewSelector} .cv-format-surface {
       font-size: calc(16px * var(--body-scale, 1));
       line-height: var(--line-height, 1.4);
+      min-height: 297mm;
+      background: #ffffff;
+    }
+    ${previewSelector} .cv-format-surface > :first-child {
+      min-height: inherit;
+    }
+    ${previewSelector} .cv-format-surface > .flex {
+      align-items: stretch;
     }
     ${previewSelector} .cv-format-surface :where(div, p, span, a, li) {
       line-height: var(--line-height, 1.4) !important;
@@ -190,7 +175,9 @@ const ResumePreview: React.FC<ResumePreviewProps> = React.memo(({ resume, templa
         <style>{`#${previewId} { ${resume.customCss} }`}</style>
       )}
       <div className="cv-format-surface">
-        {renderTemplate()}
+        <Suspense fallback={<div className="min-h-[297mm] bg-white" aria-label="Loading resume template" />}>
+          <TemplateComponent {...templateProps} />
+        </Suspense>
       </div>
     </div>
   );

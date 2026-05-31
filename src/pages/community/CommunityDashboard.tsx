@@ -261,10 +261,18 @@ const CommunityDashboard: React.FC = () => {
     }, [inView, hasMore, isFetchingNextPage, fetchMorePosts, searchQuery]);
 
     return (
-        <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950/80 pt-8 pb-16 relative overflow-hidden">
+        <div className="min-h-screen bg-[#f7f1e7] text-[#211b16] pt-8 pb-16 relative overflow-hidden">
+            <div
+                className="fixed inset-0 pointer-events-none opacity-50 z-[-2]"
+                style={{
+                    backgroundImage:
+                        'linear-gradient(to right, rgba(139, 90, 22, 0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(139, 90, 22, 0.06) 1px, transparent 1px)',
+                    backgroundSize: '64px 64px',
+                }}
+            />
             {/* Ambient Base Glow */}
-            <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary-400/20 dark:bg-primary-600/10 blur-[120px] pointer-events-none z-[-1]" />
-            <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/20 dark:bg-blue-600/10 blur-[120px] pointer-events-none z-[-1]" />
+            <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-[#d7b27a]/30 blur-[120px] pointer-events-none z-[-1]" />
+            <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-[#c8ead6]/35 blur-[120px] pointer-events-none z-[-1]" />
             
             {/* Mobile Drawer Navigation */}
             <CommunityMobileDrawer
@@ -276,7 +284,7 @@ const CommunityDashboard: React.FC = () => {
                 tagsLoading={tagsLoading}
             />
 
-            <div className="max-w-7xl mx-auto px-0 md:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto px-0 md:px-6 lg:px-8 relative z-10">
 
                 <header className="mb-6 md:mb-8 flex flex-col lg:flex-row lg:items-center justify-between gap-4 lg:gap-8 w-full relative z-20 px-4 md:px-0">
                     <div className="shrink-0 flex flex-col">
@@ -293,7 +301,7 @@ const CommunityDashboard: React.FC = () => {
                             </button>
                         </div>
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mt-3 md:mt-2">
-                            <p className="text-base text-gray-500 dark:text-gray-400 max-w-lg">
+                            <p className="text-base font-semibold text-[#665a4a] max-w-lg">
                                 {t('nav.community_desc' as string, {
                                     members: statsLoading ? '...' : memberCount.toLocaleString(),
                                     defaultValue: 'Join {{members}}+ members'
@@ -303,12 +311,12 @@ const CommunityDashboard: React.FC = () => {
                                 href={REPO_URL}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="group relative flex items-center gap-2 px-3.5 py-1.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:border-primary-500 dark:hover:border-primary-400 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md overflow-hidden shrink-0"
+                                className="group relative flex items-center gap-2 px-3.5 py-1.5 bg-[#fffaf1] border border-[#e4d3bc] hover:border-[#bfa782] rounded-xl transition-all duration-300 shadow-sm hover:shadow-md overflow-hidden shrink-0"
                             >
                                 <div className="absolute inset-0 bg-gradient-to-r from-primary-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                                 <Star size={13} className="text-yellow-400 fill-yellow-400" />
-                                <span className="text-xs font-bold text-gray-700 dark:text-gray-300">Star on GitHub</span>
-                                <Github size={14} className="text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
+                                <span className="text-xs font-bold text-[#665a4a]">Star on GitHub</span>
+                                <Github size={14} className="text-[#a97935] group-hover:text-[#211b16] transition-colors" />
                             </a>
                         </div>
                     </div>
@@ -330,14 +338,14 @@ const CommunityDashboard: React.FC = () => {
                                 <>
                                     <button
                                         onClick={() => navigate('/dashboard')}
-                                        className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-medium transition-all duration-200 shadow-sm cursor-pointer text-sm"
+                                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-[#fffaf1] border border-[#e4d3bc] hover:border-[#bfa782] text-[#665a4a] rounded-xl font-bold transition-all duration-200 shadow-sm cursor-pointer text-sm"
                                     >
                                         <LayoutDashboard size={16} className="sm:w-[18px] sm:h-[18px]" />
                                         <span className="hidden sm:inline">{t('common.dashboard', 'Dashboard')}</span>
                                     </button>
                                     <button
                                         onClick={() => navigate('/community/new')}
-                                        className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all duration-200 shadow-md shadow-primary-500/20 cursor-pointer whitespace-nowrap text-sm"
+                                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl font-bold transition-all duration-200 shadow-md shadow-blue-600/15 cursor-pointer whitespace-nowrap text-sm"
                                     >
                                         <PenLine size={16} className="sm:w-[18px] sm:h-[18px]" />
                                         <span className="hidden xs:inline">{t('community.feed.write_article', 'Write')}</span>
@@ -347,13 +355,13 @@ const CommunityDashboard: React.FC = () => {
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={() => navigate('/signin?redirect=/community')}
-                                        className="px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+                                className="px-4 py-2 text-sm font-semibold text-[#665a4a] hover:bg-[#fffaf1] rounded-lg transition-colors cursor-pointer whitespace-nowrap"
                                     >
                                         {t('auth.login', 'Sign In')}
                                     </button>
                                     <button
                                         onClick={() => navigate('/signup?redirect=/community')}
-                                        className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all shadow-md shadow-primary-500/20 text-sm cursor-pointer whitespace-nowrap"
+                                className="px-4 py-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl font-bold transition-all shadow-md shadow-blue-600/15 text-sm cursor-pointer whitespace-nowrap"
                                     >
                                         {t('auth.signup', 'Sign Up')}
                                     </button>
@@ -377,8 +385,8 @@ const CommunityDashboard: React.FC = () => {
                             onClick={() => setTypeFilter(item.type as CommunityPostType | undefined)}
                             className={`shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold transition-all
                                 ${typeFilter === item.type
-                                    ? 'bg-primary-600 text-white shadow-md shadow-primary-500/20'
-                                    : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-800'}`}
+                                    ? 'bg-[#2563eb] text-white shadow-md shadow-blue-600/15'
+                                    : 'bg-[#fffaf1] text-[#665a4a] border border-[#e4d3bc]'}`}
                         >
                             {item.icon}
                             {item.label}
@@ -391,7 +399,7 @@ const CommunityDashboard: React.FC = () => {
                     {/* ── Left Column ─────────────────────────────────────── */}
                     <aside className="hidden md:flex flex-col gap-5 w-64 shrink-0 lg:sticky lg:top-24">
                         {/* Navigation */}
-                        <nav className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 shadow-sm overflow-hidden">
+                        <nav className="bg-[#fffaf1]/82 backdrop-blur-xl rounded-[24px] border border-[#e4d3bc] shadow-sm overflow-hidden">
                             <NavItem
                                 icon={<Home size={18} />}
                                 label={t('community.sidebar.home')}
@@ -427,8 +435,8 @@ const CommunityDashboard: React.FC = () => {
                         </nav>
 
                         {/* Showcases Filter */}
-                        <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 shadow-sm p-4">
-                            <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3 px-1">
+                        <div className="bg-[#fffaf1]/82 backdrop-blur-xl rounded-[24px] border border-[#e4d3bc] shadow-sm p-4">
+                            <h3 className="text-xs font-black text-[#a97935] uppercase tracking-widest mb-3 px-1">
                                 {t('community.sidebar.showcases')}
                             </h3>
                             <div className="space-y-1">
@@ -444,11 +452,11 @@ const CommunityDashboard: React.FC = () => {
                                         onClick={() => setTypeFilter(item.type)}
                                         className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer
                                             ${typeFilter === item.type
-                                                ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 shadow-sm'
-                                                : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-800/50 hover:shadow-sm'
+                                                ? 'bg-[#f0dfc6] text-[#9a651f] shadow-sm'
+                                                : 'text-[#665a4a] hover:bg-white/50 hover:shadow-sm'
                                             }`}
                                     >
-                                        <span className={typeFilter === item.type ? 'text-primary-500' : 'text-gray-400'}>{item.icon}</span>
+                                        <span className={typeFilter === item.type ? 'text-[#9a651f]' : 'text-[#a97935]'}>{item.icon}</span>
                                         {item.label}
                                     </button>
                                 ))}
@@ -456,8 +464,8 @@ const CommunityDashboard: React.FC = () => {
                         </div>
 
                         {/* Popular Tags */}
-                        <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] p-5 border border-white/50 dark:border-gray-800/50 shadow-sm">
-                            <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">
+                        <div className="bg-[#fffaf1]/82 backdrop-blur-xl rounded-[24px] p-5 border border-[#e4d3bc] shadow-sm">
+                            <h3 className="text-xs font-black text-[#a97935] uppercase tracking-widest mb-4">
                                 {t('community.sidebar.popular_tags')}
                             </h3>
                             {tagsLoading ? (
@@ -496,15 +504,15 @@ const CommunityDashboard: React.FC = () => {
 
                         {/* Active Tag / Sort Filter Banner */}
                         {(activeTag || sortMode === 'trending') && !loading && (
-                            <div className="mx-4 md:mx-0 mb-4 flex items-center gap-2 px-4 py-2.5 bg-primary-50 dark:bg-primary-950/40 border border-primary-200 dark:border-primary-800 rounded-xl">
-                                <span className="text-sm font-semibold text-primary-700 dark:text-primary-300 flex items-center gap-1.5 flex-1">
+                            <div className="mx-4 md:mx-0 mb-4 flex items-center gap-2 px-4 py-2.5 bg-[#fffaf1] border border-[#e4d3bc] rounded-xl">
+                                <span className="text-sm font-semibold text-[#9a651f] flex items-center gap-1.5 flex-1">
                                     {activeTag && <><Hash size={14} />Showing: <span className="font-bold">#{displayTag(activeTag)}</span></>}
                                     {sortMode === 'trending' && !activeTag && <><TrendingUp size={14} />Showing Trending (last 30 days)</>}
                                     {sortMode === 'trending' && activeTag && <span className="ml-1 text-xs opacity-70">· Trending</span>}
                                 </span>
                                 <button
                                     onClick={() => navigate('/community')}
-                                    className="flex items-center gap-1 text-xs font-bold text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-200 transition-colors cursor-pointer"
+                                    className="flex items-center gap-1 text-xs font-bold text-[#9a651f] hover:text-[#211b16] transition-colors cursor-pointer"
                                 >
                                     <X size={14} /> Clear
                                 </button>
@@ -539,7 +547,7 @@ const CommunityDashboard: React.FC = () => {
                                         </Suspense>
                                     </div>
                                 ) : (
-                                    <div className="mx-4 md:mx-0 text-center py-20 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 shadow-sm">
+                                    <div className="mx-4 md:mx-0 text-center py-20 bg-[#fffaf1]/82 backdrop-blur-xl rounded-[24px] border border-[#e4d3bc] shadow-sm">
                                         <div className="text-5xl mb-4" role="img" aria-label="sad">🔍</div>
                                         <p className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t('community.search_no_results', 'No results found')}</p>
                                         <p className="text-gray-500 mb-6 text-sm">
@@ -560,13 +568,13 @@ const CommunityDashboard: React.FC = () => {
 
                         {/* Default Firebase Feed (Newest / Type Filtered) */}
                         {!loading && !searchQuery && !activeTag && sortMode !== 'trending' && posts.length === 0 && (
-                            <div className="mx-4 md:mx-0 text-center py-20 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 shadow-sm">
+                            <div className="mx-4 md:mx-0 text-center py-20 bg-[#fffaf1]/82 backdrop-blur-xl rounded-[24px] border border-[#e4d3bc] shadow-sm">
                                 <div className="text-5xl mb-4" role="img" aria-label="seedling">🌱</div>
                                 <p className="text-xl font-bold text-gray-900 dark:text-white mb-2">{t('community.feed.empty_title')}</p>
                                 <p className="text-gray-500 mb-6 text-sm">{t('community.feed.empty_desc')}</p>
                                 <button
                                     onClick={() => navigate('/community/new')}
-                                    className="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all cursor-pointer"
+                                    className="px-6 py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl font-bold transition-all cursor-pointer"
                                 >
                                     {t('community.feed.publish_first')}
                                 </button>
@@ -603,7 +611,7 @@ const CommunityDashboard: React.FC = () => {
                     <aside className="hidden xl:flex flex-col gap-5 w-72 shrink-0 sticky top-24">
                         {currentUser ? (
                             /* Write CTA */
-                            <div className="bg-gradient-to-br from-primary-600 to-blue-600 rounded-[24px] p-6 text-white relative overflow-hidden shadow-xl shadow-primary-500/10 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                            <div className="bg-[#2563eb] rounded-[24px] p-6 text-white relative overflow-hidden shadow-xl shadow-blue-600/10 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
                                 <div className="absolute -top-6 -right-6 w-24 h-24 bg-white/10 rounded-full blur-xl" />
                                 <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-white/10 rounded-full blur-xl" />
                                 <div className="relative z-10">
@@ -622,16 +630,16 @@ const CommunityDashboard: React.FC = () => {
                             </div>
                         ) : (
                             /* Guest Signup CTA */
-                            <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] p-6 border border-white/50 dark:border-gray-800/50 shadow-sm relative overflow-hidden hover:shadow-lg transition-all duration-300">
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-500 to-blue-500" />
+                            <div className="bg-[#fffaf1]/82 backdrop-blur-xl rounded-[24px] p-6 border border-[#e4d3bc] shadow-sm relative overflow-hidden hover:shadow-lg transition-all duration-300">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-[#2563eb]" />
                                 <div className="relative z-10">
-                                    <h3 className="font-extrabold text-xl mb-2 text-gray-900 dark:text-white">{t('community.guestCta.join_community')}</h3>
-                                    <p className="whitespace-pre-line text-gray-500 dark:text-gray-400 text-sm mb-5 leading-relaxed">
+                                    <h3 className="font-extrabold text-xl mb-2 text-[#211b16]">{t('community.guestCta.join_community')}</h3>
+                                    <p className="whitespace-pre-line text-[#665a4a] text-sm mb-5 leading-relaxed">
                                         {t('community.guestCta.welcome_message')}
                                     </p>
                                     <button
                                         onClick={() => navigate('/signup?redirect=/community')}
-                                        className="w-full py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold text-sm transition-all shadow-md shadow-primary-500/20 flex items-center justify-center gap-2 cursor-pointer"
+                                        className="w-full py-2.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-xl font-bold text-sm transition-all shadow-md shadow-blue-600/15 flex items-center justify-center gap-2 cursor-pointer"
                                     >
                                         <UserPlus size={16} />
                                         {t('community.guestCta.sign_up_free')}
@@ -641,8 +649,8 @@ const CommunityDashboard: React.FC = () => {
                         )}
 
                         {/* Hiring Companies */}
-                        <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] p-5 border border-white/50 dark:border-gray-800/50 shadow-sm">
-                            <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <div className="bg-[#fffaf1]/82 backdrop-blur-xl rounded-[24px] p-5 border border-[#e4d3bc] shadow-sm">
+                            <h3 className="text-xs font-black text-[#a97935] uppercase tracking-widest mb-4 flex items-center gap-2">
                                 <Briefcase size={14} /> {t('community.companies.companies_hiring')}
                             </h3>
                             {companiesLoading ? (
@@ -661,7 +669,7 @@ const CommunityDashboard: React.FC = () => {
                                 <div className="space-y-4">
                                     {companies.map((company, i) => (
                                         <div key={company.id} className={`flex items-start gap-3 ${i < companies.length - 1 ? 'pb-4 border-b border-gray-100 dark:border-gray-800' : ''}`}>
-                                            <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-primary-100 to-blue-100 dark:from-primary-900/30 dark:to-blue-900/30 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold text-sm shrink-0">
+                                            <div className="w-9 h-9 rounded-lg bg-[#eef4ff] flex items-center justify-center text-[#2563eb] font-bold text-sm shrink-0">
                                                 {company.logoUrl
                                                     ? <img src={company.logoUrl} alt={company.name} className="w-full h-full object-cover rounded-lg" loading="lazy" />
                                                     : company.name.charAt(0)
@@ -679,7 +687,7 @@ const CommunityDashboard: React.FC = () => {
                                     ))}
                                     <button
                                         onClick={() => navigate('/job-market')}
-                                        className="w-full text-center text-sm text-primary-600 dark:text-primary-400 font-semibold hover:underline flex items-center justify-center gap-1 cursor-pointer pt-1"
+                                        className="w-full text-center text-sm text-[#2563eb] font-semibold hover:underline flex items-center justify-center gap-1 cursor-pointer pt-1"
                                     >
                                         {t('community.companies.view_all_jobs')} <ExternalLink size={13} />
                                     </button>
@@ -706,12 +714,12 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, active, onClick }) => (
         onClick={onClick}
         className={`w-full flex items-center gap-3 px-5 py-3.5 text-sm font-semibold transition-colors duration-150 cursor-pointer relative
             ${active
-                ? 'text-primary-700 dark:text-primary-300'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-white/40 dark:hover:bg-gray-800/40'
+                ? 'text-[#2563eb] bg-[#eef4ff]'
+                : 'text-[#665a4a] hover:bg-white/45'
             }`}
     >
-        {active && <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary-600 rounded-r-full shadow-[0_0_8px_rgba(var(--color-primary-500),0.6)]" />}
-        <span className={active ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400'}>{icon}</span>
+        {active && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#2563eb] rounded-r-full" />}
+        <span className={active ? 'text-[#2563eb]' : 'text-[#a97935]'}>{icon}</span>
         {label}
     </button>
 );

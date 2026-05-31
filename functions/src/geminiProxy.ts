@@ -1,9 +1,92 @@
 import { onRequest } from "firebase-functions/v2/https";
-import { getAIClient } from "./utils/ai";
+import {
+  DEFAULT_VERTEX_TEXT_MODEL,
+  getAIClient,
+  getVertexLocationForModel,
+  resolveVertexModelName,
+} from "./utils/ai";
 import { secureCorsHandler } from "./utils/corsUtils.js";
 
 const corsHandler = secureCorsHandler;
 const END_MARKER = "__END_GEMINI__";
+const DEFAULT_TEXT_MODEL = DEFAULT_VERTEX_TEXT_MODEL;
+
+type GeminiContent = {
+  role?: string;
+  parts?: Array<Record<string, unknown>>;
+  [key: string]: unknown;
+};
+
+const extractTextParts = (parts: Array<Record<string, unknown>> | undefined): string => {
+  if (!Array.isArray(parts)) return "";
+  return parts
+    .map((part) => (typeof part.text === "string" ? part.text : ""))
+    .filter(Boolean)
+    .join("\n");
+};
+
+const appendSystemInstruction = (
+  systemInstruction: unknown,
+  systemTexts: string[]
+): unknown => {
+  const extraSystemText = systemTexts.filter(Boolean).join("\n\n");
+  if (!extraSystemText) return systemInstruction;
+  if (!systemInstruction) return extraSystemText;
+  if (typeof systemInstruction === "string") {
+    return `${systemInstruction}\n\n${extraSystemText}`;
+  }
+  if (
+    typeof systemInstruction === "object" &&
+    systemInstruction !== null &&
+    Array.isArray((systemInstruction as GeminiContent).parts)
+  ) {
+    return {
+      ...(systemInstruction as GeminiContent),
+      parts: [
+        ...((systemInstruction as GeminiContent).parts ?? []),
+        { text: extraSystemText },
+      ],
+    };
+  }
+  return `${JSON.stringify(systemInstruction)}\n\n${extraSystemText}`;
+};
+
+const normalizeGeminiPayload = (
+  contents: unknown,
+  systemInstruction: unknown
+): { contents: unknown; systemInstruction: unknown } => {
+  const items = Array.isArray(contents) ? contents : [contents];
+  const systemTexts: string[] = [];
+  const normalizedContents = items
+    .map((item): GeminiContent | null => {
+      if (typeof item === "string") {
+        return { role: "user", parts: [{ text: item }] };
+      }
+
+      if (!item || typeof item !== "object") {
+        return { role: "user", parts: [{ text: String(item ?? "") }] };
+      }
+
+      const content = item as GeminiContent;
+      const role = content.role;
+      if (role === "system" || role === "developer") {
+        const text = extractTextParts(content.parts);
+        if (text) systemTexts.push(text);
+        return null;
+      }
+
+      return {
+        ...content,
+        role: role === "assistant" ? "model" : role === "model" ? "model" : "user",
+      };
+    })
+    .filter((item): item is GeminiContent => item !== null);
+
+  return {
+    contents: normalizedContents,
+    systemInstruction: appendSystemInstruction(systemInstruction, systemTexts),
+  };
+};
 
 export const streamGeminiResponse = onRequest(
   {
@@ -26,11 +109,15 @@ export const streamGeminiResponse = onRequest(
 
       const payload = req.body?.data ?? req.body ?? {};
       let {
-        modelName = "gemini-2.5-flash",
+        modelName = DEFAULT_TEXT_MODEL,
         contents,
         config,
         systemInstruction,
       } = payload;
+
+      modelName = resolveVertexModelName(
+        typeof modelName === "string" ? modelName : DEFAULT_TEXT_MODEL
+      );
 
       if (!systemInstruction && config?.systemInstruction) {
         systemInstruction = config.systemInstruction;
@@ -42,12 +129,17 @@ export const streamGeminiResponse = onRequest(
         return;
       }
 
+      const normalizedPayload = normalizeGeminiPayload(contents, systemInstruction);
+      contents = normalizedPayload.contents;
+      systemInstruction = normalizedPayload.systemInstruction;
+
       try {
         const isImageMode = config?.responseModalities?.includes("IMAGE") || modelName.startsWith("imagen") || modelName.includes("-image");
         const isImagenPredict = modelName.startsWith("imagen");
+        const aiLocation = getVertexLocationForModel(modelName);
 
         if (isImageMode && isImagenPredict) {
-          const ai = getAIClient();
+          const ai = getAIClient(undefined, aiLocation);
           const promptText = typeof contents === 'string' ? contents : JSON.stringify(contents);
           
           const response = await ai.models.generateImages({
@@ -83,7 +175,7 @@ export const streamGeminiResponse = onRequest(
           return;
         }
 
-        const ai = getAIClient();
+        const ai = getAIClient(undefined, aiLocation);
         const finalConfig = { ...config };
         if (systemInstruction) {
           finalConfig.systemInstruction = systemInstruction;

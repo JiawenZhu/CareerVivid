@@ -8,20 +8,25 @@ import PublicHeader from '../../components/PublicHeader';
 
 const CommunityGuidelinesPage: React.FC = () => {
     return (
-        <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950/80 pt-8 pb-16 relative overflow-hidden">
-            {/* Ambient Base Glow */}
-            <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary-400/20 dark:bg-primary-600/10 blur-[120px] pointer-events-none z-[-1]" />
-            <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/20 dark:bg-blue-600/10 blur-[120px] pointer-events-none z-[-1]" />
+        <div className="min-h-screen bg-[#f7f1e7] text-[#211b16] pt-8 pb-16 relative overflow-hidden">
+            <div
+                className="fixed inset-0 pointer-events-none opacity-50 z-[-1]"
+                style={{
+                    backgroundImage:
+                        'linear-gradient(to right, rgba(139, 90, 22, 0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(139, 90, 22, 0.06) 1px, transparent 1px)',
+                    backgroundSize: '64px 64px',
+                }}
+            />
 
-            <PublicHeader />
+            <PublicHeader variant="editorial" />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20 relative z-10">
                 {/* Page Header */}
                 <header className="mb-8 flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+                        <h1 className="text-4xl font-black text-[#211b16] tracking-tight">
                             Community Guidelines
                         </h1>
-                        <p className="text-base text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="text-base font-semibold text-[#665a4a] mt-2">
                             Rules and best practices for a healthy CareerVivid community.
                         </p>
                     </div>
@@ -32,7 +37,7 @@ const CommunityGuidelinesPage: React.FC = () => {
                     {/* ── Left Column ─────────────────────────────────────── */}
                     <aside className="hidden md:flex flex-col gap-5 w-64 shrink-0 lg:sticky lg:top-24">
                         {/* Navigation */}
-                        <nav className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 shadow-sm overflow-hidden">
+                        <nav className="bg-[#fffaf1]/82 backdrop-blur-xl rounded-[24px] border border-[#e4d3bc] shadow-sm overflow-hidden">
                             <NavItem
                                 icon={<Home size={18} />}
                                 label="Home"
@@ -63,9 +68,9 @@ const CommunityGuidelinesPage: React.FC = () => {
                     </aside>
 
                     {/* ── Center Column: Content ──────────────────────────────── */}
-                    <main className="flex-1 min-w-0 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] border border-white/50 dark:border-gray-800/50 shadow-sm p-8 sm:p-12">
+                    <main className="flex-1 min-w-0 bg-[#fffaf1]/88 backdrop-blur-xl rounded-[24px] border border-[#e4d3bc] shadow-sm p-8 sm:p-12">
 
-                        <div className="prose prose-lg dark:prose-invert max-w-none">
+                        <div className="prose prose-lg max-w-none prose-headings:text-[#211b16] prose-p:text-[#665a4a] prose-li:text-[#665a4a] prose-strong:text-[#211b16]">
                             <h2 className="flex items-center gap-2">
                                 <Shield className="text-primary-500" /> Core Principles
                             </h2>
@@ -120,10 +125,10 @@ const CommunityGuidelinesPage: React.FC = () => {
                                 in a permanent ban from the platform.
                             </p>
 
-                            <div className="bg-primary-50 dark:bg-primary-900/20 p-6 rounded-xl border border-primary-100 dark:border-primary-800 mt-8">
-                                <p className="m-0 text-primary-800 dark:text-primary-200 font-medium">
+                            <div className="bg-[#f7fff8] p-6 rounded-xl border border-[#bcdcc9] mt-8">
+                                <p className="m-0 text-[#137245] font-medium">
                                     Have questions about these guidelines or want to report a violation?
-                                    Reach out to us at <a href="mailto:support@careervivid.com" className="text-primary-600 dark:text-primary-400 font-bold hover:underline">support@careervivid.com</a>.
+                                    Reach out to us at <a href="mailto:support@careervivid.com" className="text-[#0f6a3b] font-bold hover:underline">support@careervivid.com</a>.
                                 </p>
                             </div>
                         </div>
@@ -147,12 +152,12 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, active, onClick }) => (
         onClick={onClick}
         className={`w-full flex items-center gap-3 px-5 py-3.5 text-sm font-semibold transition-colors duration-150 cursor-pointer relative
             ${active
-                ? 'text-primary-700 dark:text-primary-300'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-white/40 dark:hover:bg-gray-800/40'
+                ? 'text-[#2563eb] bg-[#eef4ff]'
+                : 'text-[#665a4a] hover:bg-white/45'
             }`}
     >
-        {active && <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary-600 rounded-r-full shadow-[0_0_8px_rgba(var(--color-primary-500),0.6)]" />}
-        <span className={active ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400'}>{icon}</span>
+        {active && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#2563eb] rounded-r-full" />}
+        <span className={active ? 'text-[#2563eb]' : 'text-[#a97935]'}>{icon}</span>
         {label}
     </button>
 );

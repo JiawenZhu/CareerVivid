@@ -151,7 +151,12 @@ const AICoverImageModal: React.FC<AICoverImageModalProps> = ({
                             {isLoading ? (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm z-10">
                                     <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mb-3" />
-                                    <p className="text-sm font-medium text-indigo-600 animate-pulse">Generating Image...</p>
+                                    <p className="text-sm font-medium text-indigo-600 animate-pulse">
+                                        {selectedModel === 'pro' ? 'Generating Pro image...' : 'Generating image...'}
+                                    </p>
+                                    {selectedModel === 'pro' && (
+                                        <p className="text-xs text-gray-500 mt-1">If Pro is unavailable, Fast Image runs automatically.</p>
+                                    )}
                                 </div>
                             ) : newPhoto ? (
                                 <img src={newPhoto} alt="Generated Cover" className="w-full h-full object-cover rounded-xl" />
@@ -198,7 +203,7 @@ const AICoverImageModal: React.FC<AICoverImageModalProps> = ({
                                 className={`flex-1 p-3 rounded-xl border-2 text-left transition-all ${selectedModel === 'standard' ? 'border-indigo-600 bg-indigo-50' : 'border-gray-100 bg-white hover:border-gray-300'}`}
                             >
                                 <div className="flex justify-between items-start mb-1">
-                                    <h4 className="font-bold text-gray-900 text-sm">Standard Quality</h4>
+                                    <h4 className="font-bold text-gray-900 text-sm">Fast Image</h4>
                                     <span className="text-xs font-semibold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">10 Credits</span>
                                 </div>
                                 <p className="text-xs text-gray-500">Fast, reliable cover images.</p>
@@ -210,11 +215,11 @@ const AICoverImageModal: React.FC<AICoverImageModalProps> = ({
                             >
                                 <div className="flex justify-between items-start mb-1">
                                     <h4 className="font-bold text-gray-900 text-sm flex items-center gap-1">
-                                        Nano Banana 2 <Sparkles size={12} className="text-yellow-500" />
+                                        Pro Image <Sparkles size={12} className="text-yellow-500" />
                                     </h4>
                                     <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">20 Credits</span>
                                 </div>
-                                <p className="text-xs text-gray-500">High-fidelity, complex scenes.</p>
+                                <p className="text-xs text-gray-500">High-fidelity scenes, with automatic Fast fallback.</p>
                             </button>
                         </div>
                     </div>

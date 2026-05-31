@@ -40,6 +40,17 @@ export { createCheckoutSession, stripeWebhook, cancelSubscription, applyDiscount
 // Export Admin functions
 export { grantAcademicPartnerRole } from "./admin";
 
+// Export Agency Partner module callables + Firestore triggers
+export {
+  addRecruiterNote,
+  deleteRecruiterNote,
+  revokeAgencyShare,
+  sendAgencyInvite,
+  resetDemoBranch,
+  onAgencyPrepSessionWritten,
+  sendBulkAgencyReminder,
+} from "./agencyPartner";
+
 // Export Triggers
 export * from './scheduled';
 export * from './email';
@@ -582,6 +593,7 @@ export const getPublicResume = functions.region('us-west1').runWith({ timeoutSec
         console.log("Resume found successfully, ownerIsPremium:", ownerIsPremium);
 
         // Send the data back with ownerIsPremium flag
+        res.set("Cache-Control", "public, max-age=30, s-maxage=120, stale-while-revalidate=300");
         return res.status(200).json({ ...data, id: doc.id, ownerIsPremium });
 
       } catch (error: any) {

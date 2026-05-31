@@ -1,5 +1,5 @@
 /**
- * CareerVivid Auto-Apply — Ashby ATS Adapter
+ * CareerVivid Job Application Assistant — Ashby ATS Adapter
  *
  * Ashby is a modern ATS used by high-growth startups: Stripe, Ramp, Notion,
  * Anduril, Brex, Rippling, Linear, Scale AI, Perplexity, and hundreds more.
@@ -20,10 +20,12 @@
 
 import type { ATSAdapter, FormField, FieldType } from '../../types/autofill.types';
 import {
+  fillFileInputReactSafe,
   fillInputReactSafe,
   fillSelectByValue,
   fillTextarea,
   clickRadioByLabel,
+  isDemographicField,
 } from '../fillUtils';
 
 export class AshbyAdapter implements ATSAdapter {
@@ -66,15 +68,15 @@ export class AshbyAdapter implements ATSAdapter {
   getFormFields(): FormField[] {
     const fields: FormField[] = [];
 
-    // Strategy A: Ashby wraps each question in a div with a data-field attribute
-    // or a recognizable class. Walk all labeled inputs in the form.
-    const form = this._findApplicationForm();
-    if (!form) return fields;
+    // Ashby sometimes renders application fields without a native <form>.
+    // Scan the application root directly so div-rendered forms still work.
+    const root = this._findApplicationRoot();
+    if (!root) return fields;
 
     // Collect all interactive elements (skip hidden + submit)
     const interactiveElements = Array.from(
-      form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
-        'input:not([type="hidden"]):not([type="submit"]):not([type="file"]),' +
+      root.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
+        'input:not([type="hidden"]):not([type="submit"]),' +
         'textarea,' +
         'select'
       )
@@ -91,7 +93,7 @@ export class AshbyAdapter implements ATSAdapter {
         continue;
       }
 
-      const label = this._resolveLabel(el, form);
+      const label = this._resolveLabel(el, root);
       if (!label) continue;
 
       const type = this._resolveType(el);
@@ -99,7 +101,7 @@ export class AshbyAdapter implements ATSAdapter {
     }
 
     // Strategy B: Handle radio groups separately (e.g., work authorization yes/no)
-    const radioGroups = this._discoverRadioGroups(form);
+    const radioGroups = this._discoverRadioGroups(root);
     for (const group of radioGroups) {
       if (!seenElements.has(group.container)) {
         seenElements.add(group.container);
@@ -112,7 +114,7 @@ export class AshbyAdapter implements ATSAdapter {
       }
     }
 
-    return fields;
+    return fields.filter(f => !isDemographicField(f.label));
   }
 
   // ─── Field Filling ─────────────────────────────────────────────────────────
@@ -139,30 +141,45 @@ export class AshbyAdapter implements ATSAdapter {
     }
   }
 
+  async fillFileField(field: FormField, file: File): Promise<void> {
+    if (field.element instanceof HTMLInputElement) {
+      await fillFileInputReactSafe(field.element, file);
+    }
+  }
+
   // ─── Private Helpers ───────────────────────────────────────────────────────
 
   /**
-   * Locate the Ashby application form element.
-   * Ashby uses a single <form> on the application page, sometimes inside a
-   * specific container div. We try the data attribute first, then fall back
-   * to the first <form> on the page.
+   * Locate the Ashby application root.
+   * Modern Ashby pages can render fields in div containers without a native
+   * <form>, so the root may be a marker div, main element, or document body.
    */
-  private _findApplicationForm(): HTMLFormElement | null {
-    // Most reliable: form inside the Ashby application container
-    const container =
-      document.querySelector('[data-ashby-application]') ||
-      document.querySelector('[data-name="application-form"]') ||
-      document.querySelector('[class*="ashby-application"]') ||
-      document.querySelector('form[data-testid="application-form"]') ||
-      document.body;
+  private _findApplicationRoot(): HTMLElement | null {
+    const explicitRoot =
+      document.querySelector<HTMLElement>('[data-ashby-application]') ||
+      document.querySelector<HTMLElement>('[data-name="application-form"]') ||
+      document.querySelector<HTMLElement>('form[data-testid="application-form"]');
 
-    if (container instanceof HTMLFormElement) return container;
+    if (explicitRoot) return explicitRoot;
 
-    const form = container?.querySelector<HTMLFormElement>('form');
-    if (form) return form;
+    const ashbyRoots = Array.from(
+      document.querySelectorAll<HTMLElement>('[class*="ashby-application"]')
+    );
+    const rootWithMostFields = ashbyRoots
+      .map((root) => ({
+        root,
+        fieldCount: root.querySelectorAll('input, textarea, select').length,
+      }))
+      .sort((a, b) => b.fieldCount - a.fieldCount)[0];
 
-    // Last resort: first form on the page
-    return document.querySelector<HTMLFormElement>('form');
+    const main = document.querySelector<HTMLElement>('main');
+    const mainFieldCount = main?.querySelectorAll('input, textarea, select').length || 0;
+
+    if (rootWithMostFields?.fieldCount && rootWithMostFields.fieldCount >= mainFieldCount) {
+      return rootWithMostFields.root;
+    }
+
+    return main || document.body || null;
   }
 
   /**
@@ -197,7 +214,7 @@ export class AshbyAdapter implements ATSAdapter {
     //     <label>First name *</label>
     //     <input ... />
     //   </div>
-    const questionWrapper = el.closest('[class*="question"], [class*="field"], [class*="form-group"]');
+    const questionWrapper = el.closest('[class*="ashby-application-form-question"], [class*="question"], [class*="field"], [class*="form-group"]');
     if (questionWrapper) {
       const labelEl = questionWrapper.querySelector<HTMLElement>('label, [class*="label"]');
       if (labelEl && labelEl !== el) {
@@ -206,8 +223,9 @@ export class AshbyAdapter implements ATSAdapter {
 
       // Also check for <p> or <span> that acts as a label above the input
       const textEl = questionWrapper.querySelector<HTMLElement>('p, span, div');
-      if (textEl && textEl !== el && (textEl.innerText || '').length < 100) {
-        return this._cleanLabel(textEl.innerText || textEl.textContent || '');
+      const text = this._shortText(textEl);
+      if (textEl && textEl !== el && text) {
+        return this._cleanLabel(text);
       }
     }
 
@@ -215,19 +233,28 @@ export class AshbyAdapter implements ATSAdapter {
     let ancestor = el.parentElement;
     let depth = 0;
     while (ancestor && depth < 4) {
-      const labelEl = ancestor.querySelector<HTMLElement>('label');
+      const labelEl = ancestor.querySelector<HTMLElement>('label, [class*="label"]');
       if (labelEl && !labelEl.contains(el)) {
-        return this._cleanLabel(labelEl.innerText || labelEl.textContent || '');
+        const text = this._shortText(labelEl);
+        if (text) return this._cleanLabel(text);
+      }
+
+      const ownText = this._directText(ancestor);
+      if (ownText) {
+        return this._cleanLabel(ownText);
       }
       ancestor = ancestor.parentElement;
       depth++;
     }
 
-    // Pattern 5: Fallback to ARIA / placeholder
-    return el.getAttribute('aria-label') ||
-           el.getAttribute('placeholder') ||
-           el.getAttribute('name') ||
-           '';
+    // Pattern 5: Fallback to ARIA / placeholder / normalized system ids
+    return this._cleanLabel(
+      el.getAttribute('aria-label') ||
+      el.getAttribute('placeholder') ||
+      this._systemFieldLabel(el) ||
+      el.getAttribute('name') ||
+      ''
+    );
   }
 
   /**
@@ -277,12 +304,47 @@ export class AshbyAdapter implements ATSAdapter {
       .trim();
   }
 
+  private _shortText(el: Element | null): string {
+    if (!(el instanceof HTMLElement)) return '';
+    const text = (el.innerText || el.textContent || '').replace(/\s+/g, ' ').trim();
+    return text.length > 0 && text.length <= 120 ? text : '';
+  }
+
+  private _directText(el: Element | null): string {
+    if (!(el instanceof HTMLElement)) return '';
+    const text = Array.from(el.childNodes)
+      .filter((node) => node.nodeType === Node.TEXT_NODE)
+      .map((node) => node.textContent || '')
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return text.length > 0 && text.length <= 120 ? text : '';
+  }
+
+  private _systemFieldLabel(el: HTMLElement): string {
+    if (!(el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement)) {
+      return '';
+    }
+
+    const raw = el.id || el.getAttribute('name') || '';
+    const systemFieldMatch = raw.match(/_systemfield_([a-z0-9_]+)/i);
+    const fieldName = systemFieldMatch?.[1] || raw;
+
+    if (!fieldName || /^[0-9a-f-]{20,}$/i.test(fieldName)) return '';
+
+    return fieldName
+      .replace(/^_+/, '')
+      .replace(/[_-]+/g, ' ')
+      .replace(/\b(cv)\b/gi, 'CV')
+      .trim();
+  }
+
   private _resolveType(el: HTMLElement): FieldType {
     if (el instanceof HTMLSelectElement) return 'select';
     if (el instanceof HTMLTextAreaElement) return 'textarea';
     if (el instanceof HTMLInputElement) {
       const t = el.type.toLowerCase() as FieldType;
-      if (['email', 'tel', 'url', 'date', 'text', 'number'].includes(t)) return t;
+      if (['email', 'tel', 'url', 'date', 'text', 'number', 'file'].includes(t)) return t;
     }
     return 'unknown';
   }

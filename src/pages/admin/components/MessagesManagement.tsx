@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { collection, query, orderBy, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../../firebase';
-import { Loader2, X } from 'lucide-react';
+import { Copy, Loader2, X } from 'lucide-react';
 import { ContactMessage } from '../../../types';
 import PaginationControls from './PaginationControls';
 
@@ -38,6 +38,16 @@ const MessagesManagement: React.FC = () => {
         await updateDoc(doc(db, 'contact_messages', msg.id), { status: newStatus });
     };
 
+    const priorityClass = (priority?: string) => {
+        switch (priority) {
+            case 'P0': return 'bg-red-100 text-red-800';
+            case 'P1': return 'bg-orange-100 text-orange-800';
+            case 'P2': return 'bg-yellow-100 text-yellow-800';
+            case 'P3': return 'bg-green-100 text-green-800';
+            default: return 'bg-gray-100 text-gray-700';
+        }
+    };
+
     if (loading) return <Loader2 className="animate-spin mx-auto" />;
 
     return (
@@ -56,6 +66,33 @@ const MessagesManagement: React.FC = () => {
                         <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg text-gray-700 dark:text-gray-300 whitespace-pre-wrap mb-6">
                             {selectedMessage.message}
                         </div>
+                        {selectedMessage.aiSupport && (
+                            <div className="mb-6 rounded-lg border border-indigo-200 bg-indigo-50 p-4 text-sm text-gray-800 dark:border-indigo-800 dark:bg-indigo-950/40 dark:text-gray-100">
+                                <div className="mb-2 flex flex-wrap items-center gap-2">
+                                    <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${priorityClass(selectedMessage.aiSupport.priority)}`}>
+                                        {selectedMessage.aiSupport.priority}
+                                    </span>
+                                    <span className="rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-indigo-700 dark:bg-indigo-900 dark:text-indigo-100">
+                                        {selectedMessage.aiSupport.category}
+                                    </span>
+                                    {selectedMessage.aiSupport.needsHumanReview && <span className="text-xs font-semibold text-orange-700 dark:text-orange-300">Needs review</span>}
+                                </div>
+                                <p className="mb-2"><strong>Summary:</strong> {selectedMessage.aiSupport.summary}</p>
+                                <p className="mb-3"><strong>Next action:</strong> {selectedMessage.aiSupport.nextAction}</p>
+                                <div className="rounded-md bg-white p-3 dark:bg-gray-900">
+                                    <div className="mb-2 flex items-center justify-between gap-3">
+                                        <span className="font-semibold">Gemini reply draft</span>
+                                        <button
+                                            onClick={() => navigator.clipboard?.writeText(selectedMessage.aiSupport?.replyDraft || '')}
+                                            className="inline-flex items-center gap-1 rounded-md border border-gray-200 px-2 py-1 text-xs font-semibold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+                                        >
+                                            <Copy size={12} /> Copy
+                                        </button>
+                                    </div>
+                                    <p className="whitespace-pre-wrap text-gray-700 dark:text-gray-300">{selectedMessage.aiSupport.replyDraft}</p>
+                                </div>
+                            </div>
+                        )}
                         <div className="flex justify-end">
                             <button onClick={() => { toggleStatus(selectedMessage); setSelectedMessage(null); }} className="px-4 py-2 bg-primary-600 text-white rounded-md font-medium text-sm">
                                 Mark as {selectedMessage.status === 'read' ? 'Unread' : 'Read'} & Close
@@ -72,6 +109,7 @@ const MessagesManagement: React.FC = () => {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">From</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AI Triage</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
@@ -91,6 +129,18 @@ const MessagesManagement: React.FC = () => {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 max-w-xs truncate">
                                     {msg.subject}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                    {msg.aiSupport ? (
+                                        <div className="flex items-center gap-2">
+                                            <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${priorityClass(msg.aiSupport.priority)}`}>
+                                                {msg.aiSupport.priority}
+                                            </span>
+                                            <span className="text-gray-600 dark:text-gray-300">{msg.aiSupport.category}</span>
+                                        </div>
+                                    ) : (
+                                        <span className="text-gray-400">Pending</span>
+                                    )}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {msg.timestamp?.toDate().toLocaleDateString()}

@@ -143,7 +143,7 @@ const LegalTrust: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileVi
                             )}
                         </div>
                     ))}
-                    {projects.length === 0 && (
+                    {(projects || []).length === 0 && (
                         <p className="col-span-3 text-center text-slate-500 italic">No case studies published at this time.</p>
                     )}
                 </div>

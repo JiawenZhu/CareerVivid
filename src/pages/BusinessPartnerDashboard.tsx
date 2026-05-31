@@ -1,25 +1,54 @@
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { navigate } from '../utils/navigation';
-import { Plus, Edit2, Trash2, Eye, BarChart3, Briefcase, Users, Calendar, DollarSign, MapPin, Clock, Star, X, Check, FileText, CheckCircle, XCircle, Wand2, ArrowRight, ChevronUp, ChevronDown, Mail, Code2 } from 'lucide-react';
-import { JobPosting, JobApplication, ResumeData, JobApplicationStatus, ResumeMatchAnalysis, DEFAULT_PIPELINE_STAGES, CompanyProfile } from '../types';
+import {
+    Activity,
+    ArrowUpRight,
+    BarChart3,
+    Briefcase,
+    Building2,
+    Calendar,
+    CheckCircle,
+    ChevronDown,
+    ChevronUp,
+    Code2,
+    Copy,
+    Edit2,
+    Eye,
+    FileText,
+    Link2,
+    ListChecks,
+    Loader2,
+    Mail,
+    Plus,
+    Search,
+    ShieldCheck,
+    Target,
+    Trash2,
+    Users,
+    Wand2,
+    X,
+    XCircle,
+} from 'lucide-react';
+import { JobPosting, JobApplication, ResumeData, JobApplicationStatus, DEFAULT_PIPELINE_STAGES, CompanyProfile } from '../types';
 import { getJobPostingsByHR, deleteJobPosting, publishJobPosting } from '../services/jobService';
 import { getApplicationsForJob, updateApplicationStatus, saveMatchAnalysis } from '../services/applicationService';
 import { analyzeResumeMatch } from '../services/geminiService';
-import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import Logo from '../components/Logo';
-import { Loader2 } from 'lucide-react';
 
 // Lazy load ResumePreview to avoid bloat
 const ResumePreview = React.lazy(() => import('../components/ResumePreview'));
 const CandidatePipeline = React.lazy(() => import('../components/hr/CandidatePipeline'));
 const EmbedWidgetGenerator = React.lazy(() => import('../components/hr/EmbedWidgetGenerator'));
 
+type DashboardTab = 'pipeline' | 'jobs' | 'applicants' | 'embed';
+
 const BusinessPartnerDashboard: React.FC = () => {
     const { currentUser, userProfile, logOut } = useAuth();
     const referralLink = `https://careervivid.app/signup?ref=${userProfile?.referralCode || 'ERROR_NO_CODE'}`;
-    const [activeTab, setActiveTab] = useState<'jobs' | 'pipeline' | 'applicants' | 'embed'>('jobs');
+    const [activeTab, setActiveTab] = useState<DashboardTab>('pipeline');
     const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null);
     const [jobs, setJobs] = useState<JobPosting[]>([]);
     const [applications, setApplications] = useState<JobApplication[]>([]);
@@ -27,6 +56,8 @@ const BusinessPartnerDashboard: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [applicantNames, setApplicantNames] = useState<Record<string, string>>({});
     const [applicantEmails, setApplicantEmails] = useState<Record<string, string>>({});
+    const [resumeSearchQuery, setResumeSearchQuery] = useState('');
+    const [copiedResumeId, setCopiedResumeId] = useState<string | null>(null);
 
     // Modals
     const [selectedResume, setSelectedResume] = useState<ResumeData | null>(null);
@@ -292,295 +323,400 @@ const BusinessPartnerDashboard: React.FC = () => {
 
     const getStatusBadge = (status: string) => {
         const colors = {
-            draft: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300',
-            published: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-            closed: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-            submitted: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-            reviewing: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-            shortlisted: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-            rejected: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-            accepted: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-            'to apply': 'bg-gray-100', // fallback
-            'interviewing': 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400'
+            draft: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+            published: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
+            closed: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+            new: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+            submitted: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+            screening: 'bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300',
+            reviewing: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
+            shortlisted: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
+            phone_screen: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300',
+            interview: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
+            interviewing: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
+            final_round: 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300',
+            offer: 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300',
+            hired: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+            rejected: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+            withdrawn: 'bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300',
+            accepted: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+            'to apply': 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
         };
 
         const key = status.toLowerCase() as keyof typeof colors;
+        const label = status.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
         return (
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[key] || colors.draft}`}>
-                {status.charAt(0).toUpperCase() + status.slice(1)}
+                {label}
             </span>
         );
     };
 
+    const jobById = useMemo(() => new Map(jobs.map(job => [job.id, job])), [jobs]);
+
+    const stageCounts = useMemo(() => {
+        const counts: Record<string, number> = {};
+        DEFAULT_PIPELINE_STAGES.forEach(stage => {
+            counts[stage.id] = 0;
+        });
+        applications.forEach(app => {
+            const mappedStatus = app.status === 'submitted' ? 'new' : app.status;
+            counts[mappedStatus] = (counts[mappedStatus] || 0) + 1;
+        });
+        return counts;
+    }, [applications]);
+
+    const applicationCountByJob = useMemo(() => (
+        applications.reduce<Record<string, number>>((counts, app) => {
+            counts[app.jobPostingId] = (counts[app.jobPostingId] || 0) + 1;
+            return counts;
+        }, {})
+    ), [applications]);
+
+    const activeJobs = useMemo(() => jobs.filter(job => job.status === 'published'), [jobs]);
+    const reviewQueue = useMemo(
+        () => applications.filter(app => ['new', 'submitted', 'screening'].includes(app.status)),
+        [applications]
+    );
+    const resumesIndexed = useMemo(
+        () => applications.filter(app => Boolean(app.resumeId)).length,
+        [applications]
+    );
+    const averageApplicationsPerJob = jobs.length > 0 ? Math.round(applications.length / jobs.length) : 0;
+    const averageMatchScore = useMemo(() => {
+        const scored = applications
+            .map(app => app.matchAnalysis?.matchPercentage)
+            .filter((score): score is number => typeof score === 'number');
+        if (scored.length === 0) return null;
+        return Math.round(scored.reduce((sum, score) => sum + score, 0) / scored.length);
+    }, [applications]);
+
+    const resumeLookupResults = useMemo(() => {
+        const query = resumeSearchQuery.trim().toLowerCase();
+        if (!query) return applications.slice(0, 3);
+
+        return applications.filter(app => {
+            const job = jobById.get(app.jobPostingId);
+            const candidateName = applicantNames[app.applicantUserId] || '';
+            const candidateEmail = applicantEmails[app.applicantUserId] || '';
+            return [
+                app.resumeId,
+                app.applicantUserId,
+                candidateName,
+                candidateEmail,
+                job?.jobTitle,
+                job?.companyName,
+            ].some(value => value?.toLowerCase().includes(query));
+        });
+    }, [applications, applicantEmails, applicantNames, jobById, resumeSearchQuery]);
+
+    const exactResumeMatch = useMemo(() => {
+        const query = resumeSearchQuery.trim().toLowerCase();
+        if (!query) return null;
+        return applications.find(app => app.resumeId?.toLowerCase() === query) || null;
+    }, [applications, resumeSearchQuery]);
+
+    const visibleApplicants = resumeSearchQuery.trim() ? resumeLookupResults : applications;
+
+    const handleCopyResumeId = async (resumeId: string) => {
+        try {
+            await navigator.clipboard.writeText(resumeId);
+            setCopiedResumeId(resumeId);
+            window.setTimeout(() => setCopiedResumeId(null), 1600);
+        } catch (error) {
+            console.error('Failed to copy resume ID:', error);
+        }
+    };
+
+    const tabs: Array<{ id: DashboardTab; label: string; icon: React.ElementType; helper: string }> = [
+        { id: 'pipeline', label: 'Pipeline', icon: Activity, helper: 'Move candidates by stage' },
+        { id: 'applicants', label: 'Applicants', icon: Users, helper: 'Review every submission' },
+        { id: 'jobs', label: 'Jobs', icon: Briefcase, helper: 'Create and publish roles' },
+        { id: 'embed', label: 'Embed', icon: Code2, helper: 'Add jobs to your site' },
+    ];
+
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
-                <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+            <div className="min-h-screen bg-[#f6f7fb] dark:bg-[#101214] flex items-center justify-center">
+                <div className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-5 py-4 text-sm font-medium text-gray-700 shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300">
+                    <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                    Loading partner pipeline...
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-            {/* Header */}
-            <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-10">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        <div className="flex items-center gap-3">
-                            <a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }} className="flex items-center gap-2">
-                                <Logo className="h-8 w-8" />
-                                <span className="text-xl font-bold text-gray-900 dark:text-white">CareerVivid</span>
-                            </a>
-                            <span className="text-gray-400">|</span>
-                            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Business Partner</h1>
+        <div className="min-h-screen bg-[#f6f7fb] text-gray-950 dark:bg-[#101214] dark:text-gray-50">
+            <header className="sticky top-0 z-20 border-b border-gray-200/80 bg-white/90 backdrop-blur dark:border-gray-800 dark:bg-[#121417]/90">
+                <div className="mx-auto flex h-16 max-w-[1500px] items-center justify-between px-4 sm:px-6 lg:px-8">
+                    <div className="flex min-w-0 items-center gap-3">
+                        <a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }} className="flex shrink-0 items-center gap-2">
+                            <Logo className="h-8 w-8" />
+                            <span className="text-lg font-black tracking-tight text-gray-950 dark:text-white">CareerVivid</span>
+                        </a>
+                        <span className="hidden h-5 w-px bg-gray-300 dark:bg-gray-700 sm:block" />
+                        <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">Business Partner Pipeline</p>
+                            <p className="hidden text-xs text-gray-500 dark:text-gray-400 sm:block">Jobs, applicants, and resume API lookup</p>
                         </div>
-                        <div className="flex items-center gap-4">
-                            <button
-                                onClick={() => navigate('/')}
-                                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                            >
-                                Dashboard
-                            </button>
-                            <button
-                                onClick={logOut}
-                                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                            >
-                                Sign Out
-                            </button>
-                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => navigate('/')}
+                            className="hidden rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-950 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white sm:inline-flex"
+                        >
+                            Dashboard
+                        </button>
+                        <button
+                            onClick={() => navigate('/business-partner/jobs/new')}
+                            className="inline-flex items-center gap-2 rounded-lg bg-gray-950 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+                        >
+                            <Plus size={16} />
+                            <span className="hidden sm:inline">New Job</span>
+                        </button>
+                        <button
+                            onClick={logOut}
+                            className="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-950 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
+                        >
+                            Sign Out
+                        </button>
                     </div>
                 </div>
             </header>
 
-            {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-800">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Total Jobs</p>
-                                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{jobs.length}</p>
-                            </div>
-                            <Briefcase className="w-10 h-10 text-purple-600" />
-                        </div>
-                    </div>
-                    <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-800">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Active Postings</p>
-                                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
-                                    {jobs.filter(j => j.status === 'published').length}
+            <main className="mx-auto flex max-w-[1500px] flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+                <section className="grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(360px,0.85fr)]">
+                    <div className="relative overflow-hidden rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-emerald-500 to-amber-500" />
+                        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                            <div className="max-w-2xl">
+                                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-blue-700 dark:border-blue-900/70 dark:bg-blue-950/40 dark:text-blue-300">
+                                    <Activity size={14} />
+                                    Live hiring operations
+                                </div>
+                                <h1 className="text-3xl font-black tracking-tight text-gray-950 dark:text-white sm:text-4xl">
+                                    Partner pipeline command center
+                                </h1>
+                                <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-300">
+                                    Manage roles, move candidates through the pipeline, and find any submitted resume by resume ID from one dashboard.
                                 </p>
                             </div>
-                            <BarChart3 className="w-10 h-10 text-green-600" />
-                        </div>
-                    </div>
-                    <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-800">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Total Applications</p>
-                                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{applications.length}</p>
+                            <div className="grid min-w-[260px] grid-cols-2 gap-3 rounded-2xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-950/40">
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-500">Review queue</p>
+                                    <p className="mt-1 text-2xl font-black text-gray-950 dark:text-white">{reviewQueue.length}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-500">Avg match</p>
+                                    <p className="mt-1 text-2xl font-black text-gray-950 dark:text-white">{averageMatchScore ?? '--'}{averageMatchScore !== null ? '%' : ''}</p>
+                                </div>
                             </div>
-                            <Users className="w-10 h-10 text-blue-600" />
+                        </div>
+                        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                            {DEFAULT_PIPELINE_STAGES.slice(0, 4).map(stage => (
+                                <button
+                                    key={stage.id}
+                                    onClick={() => setActiveTab('pipeline')}
+                                    className="flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-4 py-3 text-left transition hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-sm dark:border-gray-800 dark:bg-gray-950/50 dark:hover:border-gray-700"
+                                >
+                                    <span>
+                                        <span className="block text-sm font-bold text-gray-900 dark:text-gray-100">{stage.name}</span>
+                                        <span className="text-xs text-gray-500 dark:text-gray-400">Pipeline stage</span>
+                                    </span>
+                                    <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-black text-gray-900 dark:bg-gray-800 dark:text-white">
+                                        {stageCounts[stage.id] || 0}
+                                    </span>
+                                </button>
+                            ))}
                         </div>
                     </div>
-                    <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-800">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Avg Applications/Job</p>
-                                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
-                                    {jobs.length > 0 ? Math.round(applications.length / jobs.length) : 0}
-                                </p>
-                            </div>
-                            <BarChart3 className="w-10 h-10 text-orange-600" />
-                        </div>
-                    </div>
-                </div>
 
-                {/* Error Message */}
-                {error && (
-                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-8">
-                        <div className="flex items-center gap-3">
-                            <div className="text-red-700 dark:text-red-300 font-medium">Error loading data</div>
+                    <aside className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                        <div className="flex items-start justify-between gap-4">
+                            <div>
+                                <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
+                                    <Search size={20} />
+                                </div>
+                                <h2 className="text-lg font-black text-gray-950 dark:text-white">Resume API Lookup</h2>
+                                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Search by resume ID, candidate, email, or role.</p>
+                            </div>
+                            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/40 dark:text-emerald-300">
+                                {resumesIndexed} indexed
+                            </span>
                         </div>
-                        <p className="text-red-600 dark:text-red-400 text-sm mt-1">{error}</p>
+
+                        <div className="mt-5 flex gap-2 rounded-2xl border border-gray-200 bg-gray-50 p-2 dark:border-gray-800 dark:bg-gray-950/50">
+                            <Search className="mt-2.5 h-4 w-4 shrink-0 text-gray-400" />
+                            <input
+                                value={resumeSearchQuery}
+                                onChange={(event) => setResumeSearchQuery(event.target.value)}
+                                placeholder="Paste a resume ID..."
+                                className="min-w-0 flex-1 bg-transparent py-2 text-sm font-medium text-gray-950 outline-none placeholder:text-gray-400 dark:text-white"
+                            />
+                            <button
+                                onClick={() => exactResumeMatch && handleViewResume(exactResumeMatch)}
+                                disabled={!exactResumeMatch}
+                                className="rounded-xl bg-gray-950 px-3 py-2 text-xs font-bold text-white transition enabled:hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-white dark:text-gray-950 dark:enabled:hover:bg-gray-200"
+                            >
+                                Open
+                            </button>
+                        </div>
+
+                        <div className="mt-4 space-y-3">
+                            <div className="flex items-center justify-between text-xs font-bold uppercase tracking-[0.12em] text-gray-500">
+                                <span>{resumeSearchQuery.trim() ? 'Lookup results' : 'Recent resume IDs'}</span>
+                                {exactResumeMatch && <span className="text-emerald-600 dark:text-emerald-300">Exact match</span>}
+                            </div>
+                            {resumeLookupResults.length === 0 ? (
+                                <div className="rounded-2xl border border-dashed border-gray-300 p-5 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                                    No matching resume found for this partner account.
+                                </div>
+                            ) : (
+                                resumeLookupResults.map(app => {
+                                    const job = jobById.get(app.jobPostingId);
+                                    const candidateName = applicantNames[app.applicantUserId] || 'Unknown Candidate';
+                                    return (
+                                        <div key={app.id} className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-950/40">
+                                            <div className="flex items-start justify-between gap-3">
+                                                <div className="min-w-0">
+                                                    <p className="truncate text-sm font-bold text-gray-950 dark:text-white">{candidateName}</p>
+                                                    <p className="truncate text-xs text-gray-500 dark:text-gray-400">{job?.jobTitle || 'Unknown role'}</p>
+                                                </div>
+                                                {getStatusBadge(app.status)}
+                                            </div>
+                                            <div className="mt-3 flex items-center justify-between gap-2 rounded-xl bg-gray-50 px-3 py-2 dark:bg-gray-900">
+                                                <code className="min-w-0 truncate text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                                    {app.resumeId || 'No resume ID'}
+                                                </code>
+                                                <div className="flex shrink-0 items-center gap-1">
+                                                    {app.resumeId && (
+                                                        <button
+                                                            onClick={() => handleCopyResumeId(app.resumeId)}
+                                                            className="rounded-lg p-1.5 text-gray-500 transition hover:bg-white hover:text-gray-950 dark:hover:bg-gray-800 dark:hover:text-white"
+                                                            title="Copy resume ID"
+                                                        >
+                                                            {copiedResumeId === app.resumeId ? <CheckCircle size={14} /> : <Copy size={14} />}
+                                                        </button>
+                                                    )}
+                                                    <button
+                                                        onClick={() => handleViewResume(app)}
+                                                        className="rounded-lg p-1.5 text-blue-600 transition hover:bg-blue-50 dark:text-blue-300 dark:hover:bg-blue-950/40"
+                                                        title="Open resume"
+                                                    >
+                                                        <ArrowUpRight size={14} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            )}
+                        </div>
+                    </aside>
+                </section>
+
+                <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+                    {[
+                        { label: 'Total jobs', value: jobs.length, detail: `${activeJobs.length} published`, icon: Briefcase, tone: 'bg-[#f2efe9] text-[#725f45] ring-1 ring-[#e5dccf] dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700' },
+                        { label: 'Applications', value: applications.length, detail: `${reviewQueue.length} need review`, icon: Users, tone: 'bg-[#edf4ef] text-[#526b59] ring-1 ring-[#d8e7dd] dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700' },
+                        { label: 'Resume IDs', value: resumesIndexed, detail: 'Ready for lookup', icon: ShieldCheck, tone: 'bg-[#f1eef6] text-[#61556f] ring-1 ring-[#e0dced] dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700' },
+                        { label: 'Avg apps/job', value: averageApplicationsPerJob, detail: 'Across all roles', icon: BarChart3, tone: 'bg-[#f5eee6] text-[#745b3c] ring-1 ring-[#eadfce] dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700' },
+                        { label: 'API route', value: 'Plan', detail: '/api/resumes/{id} next', icon: Link2, tone: 'bg-[#f7eeee] text-[#765858] ring-1 ring-[#eadada] dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700' },
+                    ].map(stat => {
+                        const Icon = stat.icon;
+                        return (
+                            <div key={stat.label} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                                <div className="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p className="text-xs font-bold uppercase tracking-[0.12em] text-gray-500">{stat.label}</p>
+                                        <p className="mt-2 text-3xl font-black text-gray-950 dark:text-white">{stat.value}</p>
+                                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{stat.detail}</p>
+                                    </div>
+                                    <span className={`rounded-2xl p-3 ${stat.tone}`}>
+                                        <Icon size={20} />
+                                    </span>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </section>
+
+                {error && (
+                    <div className="rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-900/70 dark:bg-red-950/30">
+                        <div className="text-sm font-bold text-red-800 dark:text-red-200">Error loading data</div>
+                        <p className="mt-1 text-sm text-red-700 dark:text-red-300">{error}</p>
                         {error.includes('index') && (
-                            <p className="text-red-600 dark:text-red-400 text-sm mt-2 font-semibold">
+                            <p className="mt-2 text-sm font-semibold text-red-700 dark:text-red-300">
                                 Developer Action Required: Check the browser console for the index creation link.
                             </p>
                         )}
                     </div>
                 )}
 
-                {/* Tabs */}
-                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
-                    <div className="border-b border-gray-200 dark:border-gray-800">
-                        <nav className="flex gap-8 px-6">
-                            <button
-                                onClick={() => setActiveTab('jobs')}
-                                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'jobs'
-                                    ? 'border-purple-600 text-purple-600'
-                                    : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                                    }`}
-                            >
-                                Job Management
-                            </button>
-                            <button
-                                onClick={() => setActiveTab('pipeline')}
-                                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'pipeline'
-                                    ? 'border-purple-600 text-purple-600'
-                                    : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                                    }`}
-                            >
-                                Candidate Pipeline
-                            </button>
-                            <button
-                                onClick={() => setActiveTab('applicants')}
-                                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'applicants'
-                                    ? 'border-purple-600 text-purple-600'
-                                    : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                                    }`}
-                            >
-                                Applicant List
-                            </button>
-                            <button
-                                onClick={() => setActiveTab('embed')}
-                                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'embed'
-                                    ? 'border-purple-600 text-purple-600'
-                                    : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                                    }`}
-                            >
-                                <Code2 size={16} className="inline mr-1" />
-                                Embed Widget
-                            </button>
+                <section className="rounded-3xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                    <div className="border-b border-gray-200 p-3 dark:border-gray-800">
+                        <nav className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+                            {tabs.map(tab => {
+                                const Icon = tab.icon;
+                                const isActive = activeTab === tab.id;
+                                return (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id)}
+                                        className={`flex items-center gap-3 rounded-2xl border px-4 py-3 text-left transition ${isActive
+                                            ? 'border-gray-950 bg-gray-950 text-white shadow-sm dark:border-white dark:bg-white dark:text-gray-950'
+                                            : 'border-transparent text-gray-600 hover:border-gray-200 hover:bg-gray-50 hover:text-gray-950 dark:text-gray-300 dark:hover:border-gray-800 dark:hover:bg-gray-950 dark:hover:text-white'
+                                            }`}
+                                    >
+                                        <Icon size={18} />
+                                        <span className="min-w-0">
+                                            <span className="block text-sm font-black">{tab.label}</span>
+                                            <span className={`hidden truncate text-xs lg:block ${isActive ? 'text-white/70 dark:text-gray-600' : 'text-gray-500 dark:text-gray-400'}`}>
+                                                {tab.helper}
+                                            </span>
+                                        </span>
+                                    </button>
+                                );
+                            })}
                         </nav>
                     </div>
 
-                    <div className={activeTab === 'pipeline' ? 'p-2' : 'p-6'}>
-                        {activeTab === 'jobs' ? (
+                    <div className={activeTab === 'pipeline' ? 'p-4' : 'p-5 sm:p-6'}>
+                        {activeTab === 'pipeline' ? (
                             <div>
-                                {/* Create New Job Button */}
-                                <div className="mb-6">
+                                <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                                    <div>
+                                        <h2 className="text-xl font-black text-gray-950 dark:text-white">Candidate Pipeline</h2>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">Drag candidates, open resumes, and move stages from the command board.</p>
+                                    </div>
                                     <button
                                         onClick={() => navigate('/business-partner/jobs/new')}
-                                        className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                                        className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-900 transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:hover:bg-gray-800"
                                     >
-                                        <Plus size={20} />
-                                        Create New Job Posting
+                                        <Plus size={16} />
+                                        Add role
                                     </button>
                                 </div>
-
-                                {/* Jobs Table */}
-                                {jobs.length === 0 ? (
-                                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-                                        <Briefcase className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                                        <p>No job postings yet. Create your first job posting to get started!</p>
-                                    </div>
-                                ) : (
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full">
-                                            <thead className="border-b border-gray-200 dark:border-gray-800">
-                                                <tr className="text-left text-sm text-gray-600 dark:text-gray-400">
-                                                    <th className="pb-3 font-medium">Job Title</th>
-                                                    <th className="pb-3 font-medium">Status</th>
-                                                    <th className="pb-3 font-medium">Applications</th>
-                                                    <th className="pb-3 font-medium">Posted Date</th>
-                                                    <th className="pb-3 font-medium text-right">Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
-                                                {jobs.map((job) => (
-                                                    <tr key={job.id} className="text-sm">
-                                                        <td className="py-4">
-                                                            <div>
-                                                                <p className="font-medium text-gray-900 dark:text-white">{job.jobTitle}</p>
-                                                                <p className="text-gray-500 dark:text-gray-400 text-xs">{job.companyName}</p>
-                                                            </div>
-                                                        </td>
-                                                        <td className="py-4">{getStatusBadge(job.status)}</td>
-                                                        <td className="py-4 text-gray-900 dark:text-white">{job.applicationCount}</td>
-                                                        <td className="py-4 text-gray-600 dark:text-gray-400">
-                                                            {formatDate(job.createdAt)}
-                                                        </td>
-                                                        <td className="py-4">
-                                                            <div className="flex items-center justify-end gap-2">
-                                                                {job.status === 'draft' && (
-                                                                    <button
-                                                                        onClick={() => handlePublishJob(job.id)}
-                                                                        className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors"
-                                                                        title="Publish"
-                                                                    >
-                                                                        <Eye size={16} />
-                                                                    </button>
-                                                                )}
-                                                                <button
-                                                                    onClick={() => navigate(`/business-partner/jobs/${job.id}/edit`)}
-                                                                    className="p-2 text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
-                                                                    title="Edit"
-                                                                >
-                                                                    <Edit2 size={16} />
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleDeleteJob(job.id)}
-                                                                    className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-                                                                    title="Delete"
-                                                                >
-                                                                    <Trash2 size={16} />
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                )}
-                            </div>
-                        ) : activeTab === 'embed' ? (
-                            // Embed Widget Tab
-                            <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="animate-spin" /></div>}>
-                                <EmbedWidgetGenerator
-                                    companyProfile={companyProfile}
-                                    onSaveProfile={async (updates) => {
-                                        if (!currentUser) return;
-                                        try {
-                                            const profileRef = doc(db, 'companyProfiles', updates.slug || currentUser.uid);
-
-                                            // Structure the data correctly
-                                            const profileData: any = {
-                                                hrUserId: currentUser.uid,
-                                                companyName: jobs[0]?.companyName || 'My Company',
-                                                slug: updates.slug || jobs[0]?.companyName?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'company',
-                                            };
-
-                                            // Save branding data under 'branding' object
-                                            if (updates.theme || updates.primaryColor || updates.fontFamily) {
-                                                profileData.branding = {
-                                                    theme: updates.theme || 'creative',
-                                                    primaryColor: updates.primaryColor || '#7c3aed',
-                                                    fontFamily: updates.fontFamily || 'system-ui',
-                                                };
-                                            }
-
-                                            await setDoc(profileRef, profileData, { merge: true });
-
-                                            // Reload profile
-                                            await loadData();
-                                        } catch (error) {
-                                            console.error('Error saving profile:', error);
-                                            alert('Failed to save company profile. Please try again.');
-                                        }
-                                    }}
-                                />
-                            </Suspense>
-                        ) : activeTab === 'pipeline' ? (
-                            // Candidate Pipeline Tab
-                            <div>
                                 {applications.length === 0 ? (
-                                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-                                        <Users className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                                        <p>No applications yet. Applications will appear in your pipeline once candidates apply.</p>
+                                    <div className="grid gap-4 rounded-3xl border border-dashed border-gray-300 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-950/40 md:grid-cols-[1fr_1.2fr]">
+                                        <div>
+                                            <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
+                                                <ListChecks size={24} />
+                                            </div>
+                                            <h3 className="text-lg font-black text-gray-950 dark:text-white">No candidates in the pipeline yet</h3>
+                                            <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
+                                                Publish a partner job or embed your board so applications can flow into stages automatically.
+                                            </p>
+                                        </div>
+                                        <div className="grid gap-3 sm:grid-cols-3">
+                                            {['Create job', 'Publish listing', 'Review resume IDs'].map((step, index) => (
+                                                <div key={step} className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+                                                    <p className="text-xs font-black uppercase tracking-[0.12em] text-gray-400">Step {index + 1}</p>
+                                                    <p className="mt-2 text-sm font-bold text-gray-900 dark:text-white">{step}</p>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 ) : (
                                     <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="animate-spin" /></div>}>
@@ -595,78 +731,98 @@ const BusinessPartnerDashboard: React.FC = () => {
                                     </Suspense>
                                 )}
                             </div>
-                        ) : (
-                            // Applicant List Tab
+                        ) : activeTab === 'applicants' ? (
                             <div>
+                                <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                                    <div>
+                                        <h2 className="text-xl font-black text-gray-950 dark:text-white">Applicant Registry</h2>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">Every applicant row includes the submitted resume ID for API lookup.</p>
+                                    </div>
+                                    <div className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-xs font-bold text-gray-600 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300">
+                                        <Target size={14} />
+                                        Showing {visibleApplicants.length} of {applications.length}
+                                    </div>
+                                </div>
                                 {applications.length === 0 ? (
-                                    <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-                                        <Users className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                                    <div className="rounded-3xl border border-dashed border-gray-300 bg-gray-50 py-12 text-center text-gray-500 dark:border-gray-700 dark:bg-gray-950/40 dark:text-gray-400">
+                                        <Users className="mx-auto mb-4 h-14 w-14 opacity-50" />
                                         <p>No applications yet. Applications will appear here once candidates apply to your jobs.</p>
                                     </div>
                                 ) : (
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full">
-                                            <thead className="border-b border-gray-200 dark:border-gray-800">
-                                                <tr className="text-left text-sm text-gray-600 dark:text-gray-400">
-                                                    <th className="pb-3 font-medium">Applicant</th>
-                                                    <th className="pb-3 font-medium">Applied To</th>
-                                                    <th className="pb-3 font-medium">Date Applied</th>
-                                                    <th className="pb-3 font-medium">Status</th>
-                                                    <th className="pb-3 font-medium text-right">Actions</th>
+                                    <div className="overflow-x-auto rounded-2xl border border-gray-200 dark:border-gray-800">
+                                        <table className="w-full min-w-[900px]">
+                                            <thead className="bg-gray-50 text-left text-xs font-bold uppercase tracking-[0.12em] text-gray-500 dark:bg-gray-950/60 dark:text-gray-400">
+                                                <tr>
+                                                    <th className="px-4 py-3">Applicant</th>
+                                                    <th className="px-4 py-3">Resume ID</th>
+                                                    <th className="px-4 py-3">Applied To</th>
+                                                    <th className="px-4 py-3">Date</th>
+                                                    <th className="px-4 py-3">Status</th>
+                                                    <th className="px-4 py-3 text-right">Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
-                                                {applications.map((app) => {
-                                                    const job = jobs.find(j => j.id === app.jobPostingId);
+                                                {visibleApplicants.map((app) => {
+                                                    const job = jobById.get(app.jobPostingId);
                                                     return (
                                                         <tr key={app.id} className="text-sm">
-                                                            <td className="py-4">
-                                                                <div className="text-gray-900 dark:text-white font-medium">
+                                                            <td className="px-4 py-4">
+                                                                <div className="font-bold text-gray-950 dark:text-white">
                                                                     {applicantNames[app.applicantUserId] || 'Loading...'}
                                                                 </div>
-                                                                <div className="text-gray-500 text-xs truncate max-w-[150px]" title={app.applicantUserId}>
-                                                                    {app.applicantUserId}
+                                                                <div className="max-w-[220px] truncate text-xs text-gray-500 dark:text-gray-400" title={applicantEmails[app.applicantUserId] || app.applicantUserId}>
+                                                                    {applicantEmails[app.applicantUserId] || app.applicantUserId}
                                                                 </div>
                                                             </td>
-                                                            <td className="py-4 text-gray-600 dark:text-gray-400">
+                                                            <td className="px-4 py-4">
+                                                                <div className="flex max-w-[220px] items-center gap-2 rounded-xl bg-gray-50 px-3 py-2 dark:bg-gray-950">
+                                                                    <code className="truncate text-xs font-semibold text-gray-700 dark:text-gray-300">{app.resumeId || 'No resume ID'}</code>
+                                                                    {app.resumeId && (
+                                                                        <button onClick={() => handleCopyResumeId(app.resumeId)} className="shrink-0 text-gray-400 transition hover:text-gray-950 dark:hover:text-white" title="Copy resume ID">
+                                                                            {copiedResumeId === app.resumeId ? <CheckCircle size={14} /> : <Copy size={14} />}
+                                                                        </button>
+                                                                    )}
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-4 py-4 text-gray-600 dark:text-gray-300">
                                                                 {job?.jobTitle || 'Unknown Job'}
                                                             </td>
-                                                            <td className="py-4 text-gray-600 dark:text-gray-400">
+                                                            <td className="px-4 py-4 text-gray-600 dark:text-gray-400">
                                                                 {formatDate(app.appliedAt)}
                                                             </td>
-                                                            <td className="py-4">
+                                                            <td className="px-4 py-4">
                                                                 {updatingStatusId === app.id ? (
                                                                     <select
                                                                         value={app.status}
                                                                         onChange={(e) => handleUpdateStatus(app.id, e.target.value as JobApplicationStatus)}
                                                                         onBlur={() => setUpdatingStatusId(null)}
-                                                                        className="text-xs p-1 border rounded bg-white dark:bg-gray-800"
+                                                                        className="rounded-lg border border-gray-200 bg-white p-2 text-xs dark:border-gray-700 dark:bg-gray-900"
                                                                         autoFocus
                                                                     >
-                                                                        {['submitted', 'reviewing', 'shortlisted', 'interviewing', 'rejected', 'accepted'].map(s => (
-                                                                            <option key={s} value={s}>{s}</option>
+                                                                        {DEFAULT_PIPELINE_STAGES.map(stage => (
+                                                                            <option key={stage.id} value={stage.id}>{stage.name}</option>
                                                                         ))}
                                                                     </select>
                                                                 ) : (
-                                                                    <div onClick={() => setUpdatingStatusId(app.id)} className="cursor-pointer hover:opacity-80">
+                                                                    <button onClick={() => setUpdatingStatusId(app.id)} className="transition hover:opacity-80">
                                                                         {getStatusBadge(app.status)}
-                                                                    </div>
+                                                                    </button>
                                                                 )}
                                                             </td>
-                                                            <td className="py-4">
+                                                            <td className="px-4 py-4">
                                                                 <div className="flex items-center justify-end gap-2">
                                                                     <button
                                                                         onClick={() => handleViewResume(app)}
-                                                                        className="flex items-center gap-1 px-3 py-1 text-xs bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 rounded hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors"
+                                                                        className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-2 text-xs font-bold text-blue-700 transition hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-950"
                                                                     >
                                                                         <FileText size={14} />
-                                                                        View Resume
+                                                                        Resume
                                                                     </button>
                                                                     <button
                                                                         onClick={() => setUpdatingStatusId(app.id)}
-                                                                        className="px-3 py-1 text-xs bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                                                        className="rounded-lg bg-gray-100 px-3 py-2 text-xs font-bold text-gray-700 transition hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                                                                     >
-                                                                        Update Status
+                                                                        Status
                                                                     </button>
                                                                 </div>
                                                             </td>
@@ -678,9 +834,119 @@ const BusinessPartnerDashboard: React.FC = () => {
                                     </div>
                                 )}
                             </div>
+                        ) : activeTab === 'jobs' ? (
+                            <div>
+                                <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                                    <div>
+                                        <h2 className="text-xl font-black text-gray-950 dark:text-white">Job Management</h2>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">Create roles that feed the partner candidate pipeline.</p>
+                                    </div>
+                                    <button
+                                        onClick={() => navigate('/business-partner/jobs/new')}
+                                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-950 px-4 py-2 text-sm font-bold text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+                                    >
+                                        <Plus size={18} />
+                                        Create New Job Posting
+                                    </button>
+                                </div>
+                                {jobs.length === 0 ? (
+                                    <div className="rounded-3xl border border-dashed border-gray-300 bg-gray-50 py-12 text-center text-gray-500 dark:border-gray-700 dark:bg-gray-950/40 dark:text-gray-400">
+                                        <Briefcase className="mx-auto mb-4 h-14 w-14 opacity-50" />
+                                        <p>No job postings yet. Create your first partner role to start collecting applications.</p>
+                                    </div>
+                                ) : (
+                                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                                        {jobs.map((job) => (
+                                            <article key={job.id} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-gray-800 dark:bg-gray-950/40">
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div className="min-w-0">
+                                                        <p className="truncate text-base font-black text-gray-950 dark:text-white">{job.jobTitle}</p>
+                                                        <p className="mt-1 flex items-center gap-1 truncate text-sm text-gray-500 dark:text-gray-400">
+                                                            <Building2 size={14} />
+                                                            {job.companyName}
+                                                        </p>
+                                                    </div>
+                                                    {getStatusBadge(job.status)}
+                                                </div>
+                                                <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                                                    <div className="rounded-xl bg-gray-50 p-3 dark:bg-gray-900">
+                                                        <p className="text-xs font-bold uppercase tracking-[0.1em] text-gray-500">Applicants</p>
+                                                        <p className="mt-1 text-xl font-black text-gray-950 dark:text-white">{applicationCountByJob[job.id] ?? job.applicationCount ?? 0}</p>
+                                                    </div>
+                                                    <div className="rounded-xl bg-gray-50 p-3 dark:bg-gray-900">
+                                                        <p className="text-xs font-bold uppercase tracking-[0.1em] text-gray-500">Created</p>
+                                                        <p className="mt-1 text-sm font-bold text-gray-950 dark:text-white">{formatDate(job.createdAt)}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="mt-4 flex items-center justify-between gap-2 border-t border-gray-100 pt-4 dark:border-gray-800">
+                                                    {job.status === 'draft' ? (
+                                                        <button
+                                                            onClick={() => handlePublishJob(job.id)}
+                                                            className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300"
+                                                        >
+                                                            <Eye size={14} />
+                                                            Publish
+                                                        </button>
+                                                    ) : (
+                                                        <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">Live pipeline source</span>
+                                                    )}
+                                                    <div className="flex items-center gap-1">
+                                                        <button
+                                                            onClick={() => navigate(`/business-partner/jobs/${job.id}/edit`)}
+                                                            className="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-950 dark:hover:bg-gray-800 dark:hover:text-white"
+                                                            title="Edit"
+                                                        >
+                                                            <Edit2 size={16} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDeleteJob(job.id)}
+                                                            className="rounded-lg p-2 text-red-500 transition hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/30"
+                                                            title="Delete"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="animate-spin" /></div>}>
+                                <EmbedWidgetGenerator
+                                    companyProfile={companyProfile}
+                                    onSaveProfile={async (updates) => {
+                                        if (!currentUser) return;
+                                        try {
+                                            const profileRef = doc(db, 'companyProfiles', updates.slug || currentUser.uid);
+
+                                            const profileData: any = {
+                                                hrUserId: currentUser.uid,
+                                                companyName: jobs[0]?.companyName || 'My Company',
+                                                slug: updates.slug || jobs[0]?.companyName?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'company',
+                                            };
+
+                                            if (updates.theme || updates.primaryColor || updates.fontFamily) {
+                                                profileData.branding = {
+                                                    theme: updates.theme || 'creative',
+                                                    primaryColor: updates.primaryColor || '#7c3aed',
+                                                    fontFamily: updates.fontFamily || 'system-ui',
+                                                };
+                                            }
+
+                                            await setDoc(profileRef, profileData, { merge: true });
+                                            await loadData();
+                                        } catch (error) {
+                                            console.error('Error saving profile:', error);
+                                            alert('Failed to save company profile. Please try again.');
+                                        }
+                                    }}
+                                />
+                            </Suspense>
                         )}
                     </div>
-                </div>
+                </section>
             </main>
 
             {/* Resume Viewer Modal */}

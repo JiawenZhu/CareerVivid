@@ -42,7 +42,7 @@ async function deductCredits(userId: string, cost: number): Promise<void> {
         const data = userDoc.data()!;
         const aiUsage = data.aiUsage || {};
         const count: number = aiUsage.count || 0;
-        const limit: number = aiUsage.monthlyLimit || getDefaultLimit(data.plan);
+        const limit: number = getDefaultLimit(data);
         const isAdmin = data.role === "admin" || (data.roles || []).includes("admin");
 
         if (!isAdmin && count + cost > limit) {
@@ -53,15 +53,24 @@ async function deductCredits(userId: string, cost: number): Promise<void> {
         }
         tx.update(userRef, {
             "aiUsage.count": admin.firestore.FieldValue.increment(cost),
+            "aiUsage.monthlyLimit": limit,
         });
     });
 }
 
-function getDefaultLimit(plan?: string): number {
-    if (plan === "pro_monthly") return 300;
-    if (plan === "pro_sprint") return 100;
-    if (plan === "pro" || plan === "pro_max") return 666;
-    return 10;
+function getDefaultLimit(data: admin.firestore.DocumentData): number {
+    const plan = data.plan || "free";
+    let limit = 100;
+
+    if (plan === "pro" || plan === "premium" || plan === "pro_monthly" || plan === "pro_sprint") {
+        limit = 1000;
+    } else if (plan === "max" || plan === "pro_max") {
+        limit = 5000;
+    } else if (plan === "enterprise") {
+        limit = Math.max(1, Number(data.seats || 1)) * 1500;
+    }
+
+    return limit + Number(data.promotions?.tokenCredits || 0);
 }
 
 // ── Determine which questions need AI ─────────────────────────────────────────

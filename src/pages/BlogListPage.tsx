@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 import { BlogPost } from '../types';
 import { collection, query, getDocs, orderBy, limit } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Loader2, Calendar, ArrowRight, AlertCircle, Clock } from 'lucide-react';
+import { Loader2, Calendar, ArrowRight, AlertCircle, Clock, BookOpen, PenLine } from 'lucide-react';
 import { navigate } from '../utils/navigation';
 
 const BlogListPage: React.FC = () => {
@@ -17,8 +17,6 @@ const BlogListPage: React.FC = () => {
 
     useEffect(() => {
         const postsCol = collection(db, 'blog_posts');
-        // One-time fetch — blog posts don't need real-time updates.
-        // orderBy + limit on the server avoids over-reading.
         const q = query(postsCol, orderBy('publishedAt', 'desc'), limit(50));
 
         getDocs(q)
@@ -32,110 +30,144 @@ const BlogListPage: React.FC = () => {
                 setError(null);
             })
             .catch((err) => {
-                console.error("Error fetching posts:", err);
+                console.error('Error fetching posts:', err);
                 if (err.code === 'permission-denied') {
                     setError("Access denied. Please check Firestore Security Rules to allow public reads on 'blog_posts'.");
                 } else {
-                    setError("Unable to load blog posts. Please check your connection.");
+                    setError('Unable to load blog posts. Please check your connection.');
                 }
                 setLoading(false);
             });
     }, []);
 
-    // Ensure 'All' category is always present even if posts are empty, and use Set for unique values
     const categories = ['All', ...Array.from(new Set(posts.map(p => p.category || 'General')))];
     const filteredPosts = activeCategory === 'All' ? posts : posts.filter(p => (p.category || 'General') === activeCategory);
 
     return (
-        <div className="bg-white dark:bg-gray-950 min-h-screen flex flex-col font-sans">
-            <PublicHeader />
-            <main className="flex-grow pt-24 pb-16">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center max-w-3xl mx-auto mb-16">
-                        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-6">{t('blog.title')}</h1>
-                        <p className="text-xl text-gray-600 dark:text-gray-400">
-                            {t('blog.subtitle')}
+        <div className="min-h-screen bg-[#f7f1e7] text-[#211b16]">
+            <PublicHeader variant="editorial" />
+            <main className="relative overflow-hidden pt-28">
+                <div
+                    className="pointer-events-none absolute inset-0 opacity-55"
+                    style={{
+                        backgroundImage:
+                            'linear-gradient(to right, rgba(139, 90, 22, 0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(139, 90, 22, 0.06) 1px, transparent 1px)',
+                        backgroundSize: '64px 64px',
+                    }}
+                />
+
+                <section className="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:py-20">
+                    <div>
+                        <div className="inline-flex items-center gap-2 rounded-full border border-[#bcdcc9] bg-[#f7fff8] px-4 py-2 text-sm font-black text-[#137245]">
+                            <BookOpen size={16} /> CareerVivid Field Notes
+                        </div>
+                        <h1 className="mt-8 max-w-3xl text-5xl font-black leading-[0.98] tracking-tight text-[#211b16] sm:text-6xl">
+                            Practical notes for a clearer job search.
+                        </h1>
+                        <p className="mt-6 max-w-2xl text-lg font-semibold leading-8 text-[#665a4a]">
+                            The blog should feel like a trusted operating manual: direct, useful, and grounded in
+                            the actual work of resumes, interviews, applications, and career systems.
                         </p>
                     </div>
 
-                    {/* Category Filter */}
-                    <div className="flex flex-wrap justify-center gap-2 mb-12">
+                    <aside className="rounded-xl border border-[#e4d3bc] bg-[#fffaf1]/90 p-6 shadow-xl shadow-[#8b5a16]/8">
+                        <p className="text-xs font-black uppercase tracking-[0.18em] text-[#a97935]">Editorial Snapshot</p>
+                        <p className="mt-5 text-[15px] font-medium leading-8 text-[#665a4a]">
+                            Each article is part research note, part product guide. The goal is not to sound bigger
+                            than the product is; the goal is to help job seekers make one better decision at a time.
+                        </p>
+                        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                            {['Resume proof', 'Interview prep', 'Application workflow', 'Career systems'].map((item) => (
+                                <div key={item} className="rounded-lg border border-[#eadbc5] bg-white/60 px-4 py-3 text-sm font-black text-[#211b16]">
+                                    {item}
+                                </div>
+                            ))}
+                        </div>
+                    </aside>
+                </section>
+
+                <section className="relative border-y border-[#e4d3bc] bg-[#fffaf1]/70 py-5">
+                    <div className="mx-auto flex max-w-7xl gap-3 overflow-x-auto px-4 sm:px-6 lg:px-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                         {categories.map(cat => (
                             <button
                                 key={cat}
                                 onClick={() => setActiveCategory(cat)}
-                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${activeCategory === cat
-                                    ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900'
-                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                className={`shrink-0 rounded-xl border px-4 py-2.5 text-sm font-black transition-all ${activeCategory === cat
+                                    ? 'border-[#211b16] bg-[#211b16] text-white shadow-md shadow-[#8b5a16]/10'
+                                    : 'border-[#e4d3bc] bg-[#fffaf1] text-[#665a4a] hover:-translate-y-0.5 hover:border-[#bfa782] hover:text-[#211b16]'
                                     }`}
                             >
                                 {cat}
                             </button>
                         ))}
                     </div>
+                </section>
 
+                <section className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
                     {loading ? (
                         <div className="flex justify-center py-20">
-                            <Loader2 className="w-10 h-10 animate-spin text-primary-600" />
+                            <Loader2 className="h-10 w-10 animate-spin text-[#a97935]" />
                         </div>
                     ) : error ? (
-                        <div className="text-center py-20 flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
-                            <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-                            <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">Content Unavailable</p>
-                            <p className="text-sm mt-2 max-w-md text-red-500">{error}</p>
+                        <div className="mx-auto flex max-w-lg flex-col items-center justify-center rounded-xl border border-red-200 bg-red-50 px-6 py-14 text-center">
+                            <AlertCircle className="mb-4 h-12 w-12 text-red-500" />
+                            <p className="text-lg font-black text-[#211b16]">Content Unavailable</p>
+                            <p className="mt-2 text-sm font-semibold leading-6 text-red-600">{error}</p>
                         </div>
                     ) : filteredPosts.length === 0 ? (
-                        <div className="text-center py-20 text-gray-500 dark:text-gray-400">
+                        <div className="rounded-xl border border-[#e4d3bc] bg-[#fffaf1] py-20 text-center font-semibold text-[#665a4a]">
                             {t('blog.no_posts_found')}
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3">
                             {filteredPosts.map(post => (
                                 <article
                                     key={post.id}
                                     onClick={() => navigate(`/blog/${post.id}`)}
-                                    className="group bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer hover:-translate-y-1"
+                                    className="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-[#e4d3bc] bg-[#fffaf1] shadow-sm shadow-[#8b5a16]/5 transition-all duration-300 hover:-translate-y-1 hover:border-[#bfa782] hover:shadow-xl hover:shadow-[#8b5a16]/10"
                                 >
-                                    <div className="relative aspect-video overflow-hidden bg-gray-200 dark:bg-gray-800">
+                                    <div className="relative aspect-[16/10] overflow-hidden bg-[#eadbc5]">
                                         {post.coverImage ? (
                                             <img
                                                 src={post.coverImage}
                                                 alt={post.title}
-                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                                             />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-gray-400">{t('blog.no_image')}</div>
+                                            <div className="flex h-full w-full items-center justify-center text-[#a97935]">
+                                                <PenLine size={34} />
+                                            </div>
                                         )}
-                                        <div className="absolute top-4 left-4 bg-white/90 dark:bg-black/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-gray-900 dark:text-white">
+                                        <div className="absolute left-4 top-4 rounded-full border border-[#e4d3bc] bg-[#fffaf1]/95 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-[#9a651f] backdrop-blur">
                                             {post.category || 'General'}
                                         </div>
                                     </div>
-                                    <div className="p-6 flex flex-col flex-grow">
-                                        <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
-                                            <span className="flex items-center gap-1">
+                                    <div className="flex flex-grow flex-col p-6">
+                                        <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-bold text-[#7d6e5e]">
+                                            <span className="flex items-center gap-1.5">
                                                 <Calendar size={14} />
-                                                {t('blog.published')}: {post.publishedAt?.toDate
-                                                    ? post.publishedAt.toDate().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+                                                {post.publishedAt?.toDate
+                                                    ? post.publishedAt.toDate().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
                                                     : t('blog.recently')}
                                             </span>
                                             {post.readTime && (
-                                                <span className="flex items-center gap-1">
+                                                <span className="flex items-center gap-1.5">
                                                     <Clock size={14} />
                                                     {post.readTime} {t('blog.min_read')}
                                                 </span>
                                             )}
                                         </div>
-                                        <h2 className="text-xl font-bold mb-3 text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2">
+                                        <h2 className="mb-3 line-clamp-2 text-2xl font-black leading-tight tracking-tight text-[#211b16] transition-colors group-hover:text-[#9a651f]">
                                             {post.title || t('blog.untitled_post')}
                                         </h2>
-                                        <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3 flex-grow">
+                                        <p className="mb-5 line-clamp-3 flex-grow text-[15px] font-medium leading-7 text-[#665a4a]">
                                             {post.excerpt || (post as any).summary || t('blog.no_summary_available')}
                                         </p>
-                                        <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100 dark:border-gray-800">
-                                            <div className="text-xs font-medium text-gray-900 dark:text-white">
-                                                By {post.author || t('blog.team')}
+                                        <div className="mt-auto flex items-center justify-between border-t border-[#eadbc5] pt-4">
+                                            <div className="text-xs font-black uppercase tracking-[0.12em] text-[#a97935]">
+                                                {post.author || t('blog.team')}
                                             </div>
-                                            <div className="text-primary-600 dark:text-primary-400 text-sm font-semibold flex items-center gap-1">
+                                            <div className="flex items-center gap-1 text-sm font-black text-[#211b16]">
                                                 {t('blog.read_more')} <ArrowRight size={16} />
                                             </div>
                                         </div>
@@ -144,7 +176,7 @@ const BlogListPage: React.FC = () => {
                             ))}
                         </div>
                     )}
-                </div>
+                </section>
             </main>
             <Footer />
         </div>

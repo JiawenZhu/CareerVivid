@@ -26,6 +26,30 @@ const SidebarCardDesign: React.FC<SidebarCardDesignProps> = ({ portfolioData, on
                 <p className="text-xs text-gray-400">Choose a style for your NFC digital card.</p>
             </div>
 
+            <div className={`p-3 border rounded-lg ${editorTheme === 'dark' ? 'border-white/10 bg-white/5' : 'border-gray-200 bg-gray-50'}`}>
+                <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase">Card Orientation</label>
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => onUpdate({ businessCard: { ...portfolioData.businessCard, orientation: 'horizontal' } })}
+                        className={`flex-1 py-1.5 px-3 rounded text-xs font-medium transition-colors border ${portfolioData.businessCard?.orientation !== 'vertical'
+                            ? (editorTheme === 'dark' ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-300' : 'bg-indigo-50 border-indigo-200 text-indigo-700')
+                            : (editorTheme === 'dark' ? 'bg-transparent border-white/10 text-gray-400 hover:bg-white/5' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50')
+                            }`}
+                    >
+                        Horizontal
+                    </button>
+                    <button
+                        onClick={() => onUpdate({ businessCard: { ...portfolioData.businessCard, orientation: 'vertical' } })}
+                        className={`flex-1 py-1.5 px-3 rounded text-xs font-medium transition-colors border ${portfolioData.businessCard?.orientation === 'vertical'
+                            ? (editorTheme === 'dark' ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-300' : 'bg-indigo-50 border-indigo-200 text-indigo-700')
+                            : (editorTheme === 'dark' ? 'bg-transparent border-white/10 text-gray-400 hover:bg-white/5' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50')
+                            }`}
+                    >
+                        Vertical
+                    </button>
+                </div>
+            </div>
+
             {Object.entries(categories).map(([categoryName, templateIds]) => (
                 <div key={categoryName} className="space-y-3">
                     <h4 className={`text-xs font-semibold uppercase ${editorTheme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>

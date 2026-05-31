@@ -11,6 +11,7 @@ vi.mock('../fillUtils', () => ({
   fillInputReactSafe: vi.fn().mockResolvedValue(undefined),
   fillSelectByValue: vi.fn().mockResolvedValue(undefined),
   fillTextarea: vi.fn().mockResolvedValue(undefined),
+  isDemographicField: vi.fn().mockReturnValue(false),
 }));
 
 const adapter = new LeverAdapter();

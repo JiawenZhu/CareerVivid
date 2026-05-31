@@ -7,6 +7,7 @@ import { getAvatarSizeClasses, getAvatarShapeClasses, getAvatarWrapperAlignment 
 
 const SaaSModern: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileView }) => {
     const { hero, projects, timeline, about, techStack } = data;
+    const aboutPreview = about.length > 260 ? `${about.slice(0, 260).trim()}...` : about;
 
     // Admin Access Hook — target avatar if set, else headline
     const { longPressProps, AdminAccessModal } = usePortfolioAdminAccess({
@@ -27,12 +28,12 @@ const SaaSModern: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileVi
                 <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
                     <div
                         {...(onEdit ? { onClick: () => onEdit('hero.headline') } : longPressProps)}
-                        className="flex items-center gap-2 font-bold text-slate-900 cursor-pointer hover:bg-slate-100 rounded p-1 transition-colors"
+                        className="flex min-w-0 items-center gap-2 rounded p-1 font-bold text-slate-900 transition-colors hover:bg-slate-100"
                     >
-                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-white">
                             <Layers size={18} />
                         </div>
-                        {hero.headline}
+                        <span className="truncate">{hero.headline}</span>
                     </div>
                     <div className={`${responsiveClass('hidden', 'md:flex')} items-center gap-8 text-sm font-medium text-slate-500`}>
                         <a href="#features" className="hover:text-slate-900">Expertise</a>
@@ -71,7 +72,7 @@ const SaaSModern: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileVi
                     </div>
                     <h1
                         {...(onEdit ? { onClick: () => onEdit('hero.headline') } : longPressProps)}
-                        className={`${responsiveClass('text-5xl', 'md:text-6xl')} font-bold tracking-tight text-slate-900 mb-6 bg-gradient-to-br from-slate-900 to-slate-600 bg-clip-text text-transparent pb-2 cursor-pointer hover:opacity-70 transition-opacity`}
+                        className={`${responsiveClass('text-4xl', 'md:text-6xl')} mb-6 cursor-pointer pb-2 font-black leading-tight tracking-tight text-slate-950 transition-opacity hover:opacity-80`}
                         title="Click to edit headline"
                     >
                         {hero.headline}
@@ -135,16 +136,15 @@ const SaaSModern: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileVi
                         <div className="relative z-10 h-full flex flex-col justify-between">
                             <div className="p-3 bg-indigo-100 rounded-xl w-fit text-indigo-600 mb-4"><Zap /></div>
                             <div>
-                                <h3 className="text-2xl font-bold text-slate-900 mb-2">
-                                    <InlineEdit
-                                        value={about}
-                                        fieldId="about"
-                                        onFocus={onEdit}
-                                        className="inline"
-                                        multiline
-                                    />
-                                </h3>
-                                <p className="text-slate-500 line-clamp-3">Expertise in building scalable web applications using modern technologies like React, Node.js, and TypeScript.</p>
+                                <h3 className="mb-3 text-xl font-black text-slate-950">What I Build</h3>
+                                <p
+                                    onClick={() => onEdit?.('about')}
+                                    className="cursor-pointer text-lg font-semibold leading-8 text-slate-800 transition-colors hover:text-indigo-700"
+                                    title="Click to edit about me"
+                                >
+                                    {aboutPreview}
+                                </p>
+                                <p className="mt-4 text-sm leading-6 text-slate-500">Expertise in building scalable web applications using modern technologies like React, Node.js, and TypeScript.</p>
                             </div>
                         </div>
                     </div>

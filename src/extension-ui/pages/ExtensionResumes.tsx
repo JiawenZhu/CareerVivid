@@ -58,18 +58,18 @@ const ExtensionResumes: React.FC = () => {
     };
 
     return (
-        <div className="min-h-[360px] w-[380px] bg-gray-50 font-sans text-gray-900">
-            <div className="px-5 py-4 bg-white border-b border-gray-100">
-                <h2 className="text-sm font-bold text-gray-900">Select Resume for Autofill</h2>
+        <div className="min-h-[360px] w-[380px] bg-[#f8f8fb] font-sans text-gray-900">
+            <div className="px-5 py-4 bg-white border-b border-[#ececf4]">
+                <h2 className="text-sm font-semibold text-gray-900">Select active resume</h2>
                 <p className="text-xs text-gray-500 mt-0.5">
-                    The selected resume's data will be used to fill job applications.
+                    CareerVivid uses this resume for matching and application support.
                 </p>
             </div>
 
             <div className="p-4 space-y-2">
                 {isLoading && (
                     <div className="flex justify-center py-8">
-                        <Loader2 size={20} className="animate-spin text-indigo-500" />
+                        <Loader2 size={20} className="animate-spin text-[#625bd5]" />
                     </div>
                 )}
 
@@ -78,7 +78,7 @@ const ExtensionResumes: React.FC = () => {
                         <p className="text-sm text-gray-400">No resumes found.</p>
                         <button
                             onClick={() => window.open(getAppUrl('/newresume'), '_blank')}
-                            className="mt-3 text-sm font-semibold text-indigo-600 hover:underline"
+                            className="mt-3 text-sm font-semibold text-[#625bd5] hover:underline"
                         >
                             Create your first resume →
                         </button>
@@ -95,34 +95,34 @@ const ExtensionResumes: React.FC = () => {
                             key={resume.id}
                             onClick={() => handleSelectResume(resume.id!)}
                             disabled={isSyncing}
-                            className={`w-full flex items-center gap-3 p-3.5 rounded-xl border transition-all text-left ${
+                            className={`w-full flex items-center gap-3 p-3.5 rounded-2xl border transition-all text-left ${
                                 isSelected
-                                    ? 'border-indigo-300 bg-indigo-50 shadow-sm'
-                                    : 'border-gray-100 bg-white hover:border-indigo-200 hover:bg-gray-50'
+                                    ? 'border-[#c8c7f4] bg-[#f5f4ff] shadow-sm'
+                                    : 'border-[#ececf4] bg-white hover:border-[#d9d7fb] hover:bg-[#fbfbfd]'
                             }`}
                         >
-                            <div className={`h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                                isSelected ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-50 text-gray-400'
+                            <div className={`h-9 w-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                                isSelected ? 'bg-[#e9e8ff] text-[#625bd5]' : 'bg-[#f4f5f8] text-gray-400'
                             }`}>
                                 <FileText size={16} />
                             </div>
 
                             <div className="flex-1 min-w-0">
-                                <div className="text-sm font-bold text-gray-900 truncate">
+                                <div className="text-sm font-semibold text-gray-900 truncate">
                                     {resume.title || 'Untitled Resume'}
                                 </div>
                                 {isSelected && (
-                                    <div className="text-[10px] text-indigo-600 font-semibold mt-0.5">
-                                        ✓ Active for autofill
+                                    <div className="text-[10px] text-[#625bd5] font-semibold mt-0.5">
+                                        Active resume
                                     </div>
                                 )}
                             </div>
 
                             <div className="flex-shrink-0">
                                 {isSyncing ? (
-                                    <Loader2 size={16} className="animate-spin text-indigo-500" />
+                                    <Loader2 size={16} className="animate-spin text-[#625bd5]" />
                                 ) : isSelected ? (
-                                    <div className="h-5 w-5 rounded-full bg-indigo-600 flex items-center justify-center">
+                                    <div className="h-5 w-5 rounded-full bg-[#625bd5] flex items-center justify-center">
                                         <Check size={11} className="text-white" />
                                     </div>
                                 ) : (
@@ -137,7 +137,7 @@ const ExtensionResumes: React.FC = () => {
             {syncedId && (
                 <div className="px-5 py-3 bg-green-50 border-t border-green-100 text-center">
                     <p className="text-xs text-green-700 font-medium">
-                        ✓ Profile synced — ready to autofill applications
+                        Profile synced and ready
                     </p>
                 </div>
             )}

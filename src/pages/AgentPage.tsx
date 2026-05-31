@@ -41,10 +41,12 @@ export const AgentPage: React.FC = () => {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY || localStorage.getItem('gemini_api_key') || '';
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl h-[calc(100vh-100px)]">
+    <div className="cv-warm-page cv-warm-grid px-6 py-20">
+    <div className="container mx-auto h-[calc(100vh-100px)] max-w-4xl">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Web Agent</h1>
-        <p className="text-gray-600">
+        <div className="cv-warm-eyebrow mb-2">Developer preview</div>
+        <h1 className="cv-warm-heading mb-2 text-3xl">Web Agent</h1>
+        <p className="cv-warm-body">
           This autonomous agent runs entirely in your browser using the universal 
           <code>QueryEngine</code> abstraction. It has access to tools that can manipulate 
           the DOM or query local state.
@@ -52,13 +54,13 @@ export const AgentPage: React.FC = () => {
       </div>
 
       {!apiKey ? (
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+        <div className="cv-warm-card mb-6 border-l-4 border-l-[#a97935] p-4">
           <div className="flex">
             <div className="flex-shrink-0">
-              ⚠️
+              !
             </div>
             <div className="ml-3">
-              <p className="text-sm text-yellow-700">
+              <p className="text-sm font-semibold text-[#665a4a] dark:text-[#aaa39a]">
                 You need a Gemini API Key to use the agent. Set `localStorage.setItem('gemini_api_key', 'YOUR_KEY')` in your console and refresh.
               </p>
             </div>
@@ -73,6 +75,7 @@ export const AgentPage: React.FC = () => {
           />
         </div>
       )}
+    </div>
     </div>
   );
 };

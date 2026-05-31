@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Globe, Lock, Check, Share2, ExternalLink, Users, Loader2 } from 'lucide-react';
+import { X, Copy, Globe, Lock, Check, Share2, ExternalLink, Users, Loader2, Briefcase } from 'lucide-react';
 import { ResumeData, ShareConfig, SharePermission } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -72,6 +72,16 @@ const ShareResumeModal: React.FC<ShareResumeModalProps> = ({ isOpen, onClose, re
     onUpdate(resume.id, { shareConfig: newConfig });
   };
 
+  const handleReadyToggle = (readyForRecruiters: boolean) => {
+    const newConfig = {
+      ...config,
+      readyForRecruiters,
+      readyAt: readyForRecruiters ? new Date().toISOString() : null,
+    };
+    setConfig(newConfig);
+    onUpdate(resume.id, { shareConfig: newConfig });
+  };
+
   const copyToClipboard = () => {
     navigator.clipboard.writeText(shareUrl);
     setCopied(true);
@@ -119,7 +129,7 @@ const ShareResumeModal: React.FC<ShareResumeModalProps> = ({ isOpen, onClose, re
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fade-in">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-200 dark:border-gray-700">
+      <div className="max-h-[90vh] w-full max-w-md overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
 
         {/* Header */}
         <div className="p-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900/50">
@@ -138,7 +148,7 @@ const ShareResumeModal: React.FC<ShareResumeModalProps> = ({ isOpen, onClose, re
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="max-h-[calc(90vh-81px)] space-y-6 overflow-y-auto p-6">
 
           {/* Toggle Switch */}
           <div className="flex items-center justify-between">
@@ -153,7 +163,7 @@ const ShareResumeModal: React.FC<ShareResumeModalProps> = ({ isOpen, onClose, re
                   {config.enabled ? 'Public access is on' : 'Public access is off'}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {config.enabled ? 'Anyone with the link can view' : 'Only you can view this resume'}
+                  {config.enabled ? 'Anyone with the link can view your resume. Recruiters may contact you if your background matches an open role.' : 'Only you can view this resume'}
                 </p>
               </div>
             </div>
@@ -193,6 +203,43 @@ const ShareResumeModal: React.FC<ShareResumeModalProps> = ({ isOpen, onClose, re
                     )}
                   </button>
                 </div>
+              </div>
+
+              {/* Recruiter readiness signal */}
+              <div className={`rounded-lg border p-3 transition-colors ${config.readyForRecruiters
+                ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-800/70 dark:bg-emerald-950/30'
+                : 'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900/50'
+                }`}>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <div className={`mt-0.5 rounded-full p-1.5 ${config.readyForRecruiters
+                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300'
+                      : 'bg-white text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+                      }`}>
+                      <Briefcase size={16} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white">Ready for recruiter review</p>
+                      <p className="mt-0.5 text-xs leading-5 text-gray-500 dark:text-gray-400">
+                        {config.readyForRecruiters
+                          ? 'Recruiters can see this resume is ready and the candidate is open to interview conversations.'
+                          : 'Turn this on when the resume is polished and ready for recruiter outreach.'}
+                      </p>
+                    </div>
+                  </div>
+                  <label className="relative inline-flex flex-shrink-0 cursor-pointer items-center">
+                    <input
+                      type="checkbox"
+                      className="peer sr-only"
+                      checked={Boolean(config.readyForRecruiters)}
+                      onChange={(e) => handleReadyToggle(e.target.checked)}
+                    />
+                    <div className="h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-200 dark:bg-gray-700 dark:peer-focus:ring-emerald-900"></div>
+                  </label>
+                </div>
+                <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                  This only adds a readiness signal to the public resume. It does not give recruiters edit access.
+                </p>
               </div>
 
               {/* Permissions */}

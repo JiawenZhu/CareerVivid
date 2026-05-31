@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { navigate } from '../utils/navigation';
-import { ArrowLeft, Check, CreditCard, Calendar, X, CheckCircle, Sparkles, Home, FileText, Zap, Database, Shield } from 'lucide-react';
+import { ArrowLeft, Check, CreditCard, Calendar, CheckCircle, Sparkles, Home, FileText, Zap, Database, Shield, Users } from 'lucide-react';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebase';
 import { trackUsage } from '../services/trackingService';
@@ -10,7 +10,6 @@ import { FREE_PLAN_CREDIT_LIMIT, PRO_PLAN_CREDIT_LIMIT, PRO_MAX_PLAN_CREDIT_LIMI
 import ConfirmationModal from '../components/ConfirmationModal';
 import RetentionModal from '../components/RetentionModal';
 import CancellationFeedbackModal from '../components/CancellationFeedbackModal';
-import AIUsageProgressBar from '../components/AIUsageProgressBar';
 
 const SubscriptionPage: React.FC = () => {
     const { currentUser, userProfile } = useAuth();
@@ -19,20 +18,16 @@ const SubscriptionPage: React.FC = () => {
     const [error, setError] = useState('');
     const [showSuccess, setShowSuccess] = useState(false);
 
-    // Cancellation State Machine
     const [cancelStep, setCancelStep] = useState<'idle' | 'offer_10' | 'offer_20' | 'feedback' | 'confirm'>('idle');
     const [feedbackData, setFeedbackData] = useState<{ reason: string; feedback: string } | null>(null);
     const [infoModal, setInfoModal] = useState<{ isOpen: boolean; title: string; message: string; onConfirm?: () => void }>({ isOpen: false, title: '', message: '' });
 
-    // Check for success parameter in URL
-    // Check for success parameter in URL (hash or search query)
     useEffect(() => {
         const hash = window.location.hash;
         const search = window.location.search;
 
         if (hash.includes('success=true') || search.includes('success=true')) {
             setShowSuccess(true);
-            // Clean up URL after a moment
             setTimeout(() => {
                 const newUrl = window.location.pathname + window.location.hash.replace('?success=true', '').replace('&success=true', '');
                 window.history.replaceState(null, '', newUrl);
@@ -40,7 +35,6 @@ const SubscriptionPage: React.FC = () => {
         }
     }, []);
 
-    // Redirect if not logged in
     useEffect(() => {
         if (!currentUser) {
             navigate('/signin');
@@ -49,20 +43,16 @@ const SubscriptionPage: React.FC = () => {
 
     const expiresAt = userProfile?.expiresAt;
     const isExpired = expiresAt && expiresAt.toMillis() < Date.now();
-
-    // If plan is expired, force current plan to be free for UI display logic
     const currentPlan = isExpired ? 'free' : (userProfile?.plan || 'free');
-
-    const resumeLimit = userProfile?.resumeLimit || 1;
     const subscriptionStatus = userProfile?.stripeSubscriptionStatus;
+    const resumeLimit = userProfile?.resumeLimit || 1;
 
     const formatDate = (timestamp: any) => {
-        if (!timestamp) return 'N/A';
+        if (!timestamp) return 'No renewal date';
         const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
         return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     };
 
-    // View Mode State: 'career' (standard) or 'creator' (bio-links)
     const [viewMode, setViewMode] = useState<'career' | 'creator'>('career');
 
     useEffect(() => {
@@ -79,18 +69,8 @@ const SubscriptionPage: React.FC = () => {
             originalPrice: null,
             discount: null,
             period: '/month',
-            priceId: 'price_1Sr2UlRJNflGxv32C4XhlnUf', // Monthly
-            priceIdYearly: 'price_1Sr2UlRJNflGxv329NwShWqX', // Yearly - handling logic needs update if we want toggle
-            // For now, let's map it to the monthly one and assumes logic handles it or we show both. 
-            // The user request said: "Render only the Bio-Links pricing cards... and the All-in-One Bundle"
-            // The existing UI supports a toggle? No, the existing UI in SubscriptionPage shows cards. 
-            // Let's look at how `pricingPlans` is used. It renders cards. 
-            // The existing `monthly` plan has `priceId`. 
-            // I should likely add a toggle for monthly/yearly in SubscriptionPage or just show Monthly for now as primary.
-            // However, the requested IDs are: price_1Sr2UlRJNflGxv32C4XhlnUf (Monthly?), price_1Sr2UlRJNflGxv329NwShWqX (Yearly?).
-            // Let's stick to Monthly display for consistency with existing "Pro Monthly" card style, or add the toggle logic?
-            // Existing page has `billingCycle` state? No. 
-            // I will implement "Bio-Link Pro" (Monthly) and "All-Access" (Monthly).
+            priceId: 'price_1Sr2UlRJNflGxv32C4XhlnUf',
+            priceIdYearly: 'price_1Sr2UlRJNflGxv329NwShWqX',
             features: [
                 '50 AI Credits / month',
                 'Unlimited Bio-Link Portfolios',
@@ -99,11 +79,11 @@ const SubscriptionPage: React.FC = () => {
                 "Remove 'Careervivid' Branding",
                 'Custom Domain (Coming Soon)'
             ],
-            current: false, // We don't have a clean way to track "is bio link plan" current 
+            current: false,
             popular: true,
         },
         {
-            id: 'monthly', // All Access
+            id: 'monthly',
             name: 'All-Access Bundle',
             price: '$14.90',
             originalPrice: '$29.80',
@@ -111,10 +91,10 @@ const SubscriptionPage: React.FC = () => {
             period: '/month',
             priceId: 'price_1ScLOaRJNflGxv32BwQnSBs0',
             features: [
-                "Create & Edit up to 15 Resumes",
-                "Create up to 8 Portfolio Websites",
+                'Create & Edit up to 15 Resumes',
+                'Create up to 8 Portfolio Websites',
                 t('subscription.features.all_templates'),
-                `${ENTERPRISE_PLAN_CREDIT_LIMIT} AI Credits/Month`,
+                `${ENTERPRISE_PLAN_CREDIT_LIMIT.toLocaleString()} AI credits / month`,
                 t('subscription.features.ai_content'),
                 t('subscription.features.ai_photo'),
                 t('subscription.features.unlimited_downloads'),
@@ -131,11 +111,11 @@ const SubscriptionPage: React.FC = () => {
             period: 'forever',
             priceId: null,
             features: [
-                "Create & Edit 2 Resumes",
-                "Create 1 Portfolio Website",
+                'Create & Edit 2 Resumes',
+                'Create 1 Portfolio Website',
                 t('subscription.features.all_templates'),
                 t('subscription.features.ai_content'),
-                `100 AI Credits/Month`,
+                '100 AI credits / month',
                 t('subscription.features.image_exports')
             ],
             current: currentPlan === 'free' || !currentPlan,
@@ -143,19 +123,24 @@ const SubscriptionPage: React.FC = () => {
         {
             id: 'pro',
             name: 'Pro',
-            price: '$6',
-            originalPrice: '$12',
-            discount: '50% OFF',
+            price: '$9',
+            originalPrice: null,
+            discount: null,
             period: '/month',
             priceId: 'price_1TJoONRJNflGxv32zSqxC9bZ',
             features: [
-                "Create & Edit Unlimited Resumes",
-                "Create up to 8 Portfolio Websites",
+                'Create & Edit Unlimited Resumes',
+                'Unlimited resume and PDF downloads',
+                'Export high-quality PDFs',
+                'Professional resumes ready for any application',
+                'Multiple versions for different jobs',
+                'Create up to 8 Portfolio Websites',
                 t('subscription.features.all_templates'),
-                `${PRO_PLAN_CREDIT_LIMIT} AI Credits/Month`,
-                "CLI Access",
+                `${PRO_PLAN_CREDIT_LIMIT.toLocaleString()} AI credits / month`,
+                'CLI Access',
                 t('subscription.features.ai_content'),
-                t('subscription.features.ai_photo'),
+                'AI photo editing included',
+                'Professional headshots with AI enhancement',
                 t('subscription.features.unlimited_downloads')
             ],
             current: (currentPlan as any) === 'pro',
@@ -170,14 +155,14 @@ const SubscriptionPage: React.FC = () => {
             period: '/month',
             priceId: 'price_1TJoONRJNflGxv32wxPHw9FR',
             features: [
-                "Create & Edit Unlimited Resumes",
-                "Create up to 8 Portfolio Websites",
+                'Create & Edit Unlimited Resumes',
+                'Create up to 8 Portfolio Websites',
                 t('subscription.features.all_templates'),
-                `${PRO_MAX_PLAN_CREDIT_LIMIT} AI Credits/Month`,
-                "Advanced CLI features",
-                "High-capacity AI usage",
-                "Priority Support",
-                "Everything in Pro"
+                `${PRO_MAX_PLAN_CREDIT_LIMIT.toLocaleString()} AI credits / month`,
+                'Advanced CLI features',
+                'High-capacity AI usage',
+                'Priority Support',
+                'Everything in Pro'
             ],
             current: (currentPlan as any) === 'max' || (currentPlan as any) === 'pro_max',
             popular: false,
@@ -191,19 +176,54 @@ const SubscriptionPage: React.FC = () => {
             period: '/seat/month',
             priceId: 'price_1TJoQyRJNflGxv32FQ9TxIjq',
             features: [
-                "Pooled Team Credits",
-                "Team Workspaces",
+                'Pooled Team Credits',
+                'Team Workspaces',
                 t('subscription.features.all_templates'),
-                `${ENTERPRISE_PLAN_CREDIT_LIMIT} Credits per seat`,
-                "Centralized Billing",
-                "Custom Solutions",
-                "Admin Dashboard",
-                "SLA Support"
+                `${ENTERPRISE_PLAN_CREDIT_LIMIT.toLocaleString()} credits per seat`,
+                'Centralized Billing',
+                'Custom Solutions',
+                'Admin Dashboard',
+                'SLA Support'
             ],
             current: (currentPlan as any) === 'enterprise',
             popular: true,
         },
     ];
+
+    const currentPlanConfig = pricingPlans.find((plan: any) => plan.current);
+    const currentPlanName = currentPlanConfig?.name || t('subscription.plans.free');
+    const paidPlans = pricingPlans.filter((plan: any) => plan.id !== 'free');
+    const currentCreditLimit = currentPlan === 'pro'
+        ? PRO_PLAN_CREDIT_LIMIT
+        : currentPlan === 'max' || currentPlan === 'pro_max'
+            ? PRO_MAX_PLAN_CREDIT_LIMIT
+            : currentPlan === 'enterprise'
+                ? ENTERPRISE_PLAN_CREDIT_LIMIT
+                : FREE_PLAN_CREDIT_LIMIT;
+    const creditsUsed = userProfile?.aiUsage?.count || 0;
+    const creditsRemaining = Math.max(currentCreditLimit - creditsUsed, 0);
+    const creditsPercent = currentCreditLimit > 0 ? Math.min((creditsUsed / currentCreditLimit) * 100, 100) : 0;
+    const isPaidPlan = currentPlan !== 'free' && currentPlan !== '';
+    const currentPlanBillingLabel = isPaidPlan
+        ? currentPlan === 'enterprise'
+            ? 'Team subscription'
+            : 'Monthly subscription'
+        : 'Free workspace';
+    const statusLabel = subscriptionStatus
+        ? subscriptionStatus.replace(/_/g, ' ')
+        : isPaidPlan
+            ? 'Active'
+            : 'Free workspace';
+    const enterprisePriceId = pricingPlans.find((plan: any) => plan.id === 'enterprise')?.priceId || 'price_1TJoQyRJNflGxv32FQ9TxIjq';
+
+    const getPlanCredits = (planId: string) => {
+        if (planId === 'pro') return '1,000 credits';
+        if (planId === 'max' || planId === 'pro_max') return `${PRO_MAX_PLAN_CREDIT_LIMIT.toLocaleString()} credits`;
+        if (planId === 'enterprise') return `${ENTERPRISE_PLAN_CREDIT_LIMIT.toLocaleString()} credits / seat`;
+        if (planId === 'monthly') return `${ENTERPRISE_PLAN_CREDIT_LIMIT.toLocaleString()} credits`;
+        if (planId === 'bio_link_pro') return '50 credits';
+        return `${FREE_PLAN_CREDIT_LIMIT} credits`;
+    };
 
     const handleUpgrade = async (priceId: string | null) => {
         if (!priceId || !currentUser) return;
@@ -232,12 +252,11 @@ const SubscriptionPage: React.FC = () => {
     };
 
     const handleCancelClick = () => {
-        setFeedbackData(null); // Reset feedback
-        // Only show retention flow for Monthly subscriptions
+        setFeedbackData(null);
         if ((currentPlan as any) === 'pro' || (currentPlan as any) === 'max' || (currentPlan as any) === 'pro_max' || (currentPlan as any) === 'enterprise') {
             setCancelStep('offer_10');
         } else {
-            setCancelStep('feedback'); // Non-monthly go straight to feedback
+            setCancelStep('feedback');
         }
     };
 
@@ -252,8 +271,8 @@ const SubscriptionPage: React.FC = () => {
             if (result.data.status === 'fixed_state') {
                 setInfoModal({
                     isOpen: true,
-                    title: "Subscription Updated",
-                    message: "It looks like your subscription was already canceled or invalid. Your account has been updated.",
+                    title: 'Subscription Updated',
+                    message: 'It looks like your subscription was already canceled or invalid. Your account has been updated.',
                     onConfirm: () => window.location.reload()
                 });
                 return;
@@ -261,13 +280,13 @@ const SubscriptionPage: React.FC = () => {
 
             setInfoModal({
                 isOpen: true,
-                title: "Discount Applied",
+                title: 'Discount Applied',
                 message: `Success! Your ${discountType === 'RETENTION_10' ? '10%' : '20%'} discount has been applied.`,
                 onConfirm: () => window.location.reload()
             });
         } catch (error) {
             console.error(error);
-            setError("Failed to apply discount. Please try again later.");
+            setError('Failed to apply discount. Please try again later.');
             setIsLoading(false);
         }
     };
@@ -298,338 +317,352 @@ const SubscriptionPage: React.FC = () => {
         }
     };
 
-    return (
-        <div className="min-h-screen bg-[#F4F5F7] dark:bg-gray-950 text-gray-900 dark:text-white pb-20">
-            {/* Success Page */}
-            {showSuccess ? (
-                <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-                    {/* Animated Background Elements */}
-                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                        <div className="absolute top-20 left-10 w-72 h-72 bg-primary-200 dark:bg-primary-900/30 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-70 animate-blob"></div>
-                        <div className="absolute top-40 right-10 w-72 h-72 bg-blue-200 dark:bg-blue-900/30 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-                        <div className="absolute -bottom-8 left-1/2 w-72 h-72 bg-primary-300 dark:bg-primary-800/30 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-                    </div>
+    const renderModals = () => (
+        <>
+            <RetentionModal
+                isOpen={cancelStep === 'offer_10' || cancelStep === 'offer_20'}
+                step={cancelStep === 'offer_10' ? 'offer_10' : 'offer_20'}
+                onAccept={() => handleAcceptDiscount(cancelStep === 'offer_10' ? 'RETENTION_10' : 'RETENTION_20')}
+                onDecline={() => {
+                    if (cancelStep === 'offer_10') {
+                        setCancelStep('offer_20');
+                    } else {
+                        setCancelStep('feedback');
+                    }
+                }}
+                isLoading={isLoading}
+            />
 
-                    {/* Main Success Card */}
-                    <div className="relative max-w-2xl w-full">
-                        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 p-8 md:p-12 text-center relative overflow-hidden">
-                            {/* Decorative corner accents */}
-                            <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-primary-500/10 to-transparent rounded-bl-full"></div>
-                            <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-blue-500/10 to-transparent rounded-tr-full"></div>
+            <CancellationFeedbackModal
+                isOpen={cancelStep === 'feedback'}
+                onCancel={() => setCancelStep('idle')}
+                onConfirm={handleFeedbackSubmit}
+                isLoading={isLoading}
+            />
 
-                            {/* Animated Success Icon */}
-                            <div className="relative mb-6 inline-block">
-                                <div className="relative">
-                                    {/* Pulsing rings */}
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <div className="w-32 h-32 rounded-full bg-green-500/20 animate-ping"></div>
-                                    </div>
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <div className="w-28 h-28 rounded-full bg-green-500/30 animate-pulse"></div>
-                                    </div>
+            <ConfirmationModal
+                isOpen={infoModal.isOpen}
+                onCancel={() => setInfoModal(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={() => {
+                    infoModal.onConfirm?.();
+                    setInfoModal(prev => ({ ...prev, isOpen: false }));
+                }}
+                title={infoModal.title}
+                message={infoModal.message}
+                confirmText="OK"
+                cancelText=""
+                variant="default"
+            />
 
-                                    {/* Main icon */}
-                                    <div className="relative bg-gradient-to-br from-green-500 to-emerald-600 rounded-full p-6 shadow-lg animate-scale-in">
-                                        <CheckCircle className="w-16 h-16 text-white" strokeWidth={2.5} />
-                                    </div>
+            <ConfirmationModal
+                isOpen={cancelStep === 'confirm'}
+                onCancel={() => setCancelStep('idle')}
+                onConfirm={processCancellation}
+                title={t('subscription.cancel_title') || 'Cancel Subscription?'}
+                message={t('subscription.cancel_confirm') || 'Are you sure you want to cancel? You will retain access to Pro features until the end of your current billing period.'}
+                confirmText="Yes, Cancel Subscription"
+                cancelText="Keep My Plan"
+                variant="danger"
+            />
+        </>
+    );
 
-                                    {/* Sparkles */}
-                                    <Sparkles className="absolute -top-2 -right-2 w-8 h-8 text-yellow-400 animate-bounce" />
-                                    <Sparkles className="absolute -bottom-1 -left-1 w-6 h-6 text-blue-400 animate-bounce animation-delay-1000" />
-                                </div>
-                            </div>
-
-                            {/* Success Message */}
-                            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 animate-fade-in-up">
-                                Payment Successful! 🎉
-                            </h1>
-
-                            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-8 animate-fade-in-up animation-delay-200">
-                                Welcome to CareerVivid Pro! Your account has been upgraded.
-                            </p>
-
-                            {/* Features unlocked */}
-                            <div className="bg-gradient-to-br from-primary-50 to-blue-50 dark:from-primary-950/30 dark:to-blue-950/30 rounded-2xl p-6 mb-8 animate-fade-in-up animation-delay-400">
-                                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center justify-center gap-2">
-                                    <Sparkles className="w-5 h-5 text-primary-600" />
-                                    You now have access to:
-                                </h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-left">
-                                    {[
-                                        'Unlimited resume downloads',
-                                        'AI-powered content generation',
-                                        'Professional photo enhancement',
-                                        'All premium templates',
-                                        'Priority support',
-                                        'Advanced customization'
-                                    ].map((feature, idx) => (
-                                        <div key={idx} className="flex items-start gap-2 text-gray-700 dark:text-gray-300">
-                                            <Check className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
-                                            <span className="text-sm">{feature}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Call to Action Buttons */}
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-600">
-                                <button
-                                    onClick={() => window.location.href = '#/dashboard'}
-                                    className="group relative px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 overflow-hidden"
-                                >
-                                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                                    <Home className="w-5 h-5 relative z-10" />
-                                    <span className="relative z-10">Go to Dashboard</span>
-                                </button>
-
-                                <button
-                                    onClick={() => navigate('/newresume')}
-                                    className="px-8 py-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-700 rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
-                                >
-                                    <FileText className="w-5 h-5" />
-                                    <span>Create Resume</span>
-                                </button>
-                            </div>
-
-                            {/* Additional info */}
-                            <p className="mt-8 text-sm text-gray-500 dark:text-gray-500 animate-fade-in-up animation-delay-800">
-                                A confirmation email has been sent to your inbox.
-                            </p>
+    if (showSuccess) {
+        return (
+            <div className="min-h-screen bg-[#f7f1e7] px-4 py-10 text-[#211b16] dark:bg-[#1f1f1d] dark:text-[#f4f1e9]">
+                <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-3xl items-center">
+                    <div className="w-full rounded-2xl border border-[#e4d3bc] bg-[#fffaf1] p-6 text-center shadow-sm dark:border-[#37332d] dark:bg-[#262522] sm:p-8 md:p-10">
+                        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-300">
+                            <CheckCircle className="h-8 w-8" />
                         </div>
 
-                        {/* View Subscription Details Link */}
-                        <div className="text-center mt-6 animate-fade-in-up animation-delay-1000">
+                        <h1 className="text-3xl font-bold leading-tight text-[#211b16] dark:text-[#f4f1e9] sm:text-4xl">Payment successful</h1>
+                        <p className="mx-auto mt-3 max-w-xl text-sm font-medium leading-6 text-[#665a4a] dark:text-[#aaa39a]">
+                            Your CareerVivid workspace is upgraded. You can keep building resumes, tracking applications, and practicing interviews.
+                        </p>
+
+                        <div className="mt-6 grid gap-3 text-left sm:grid-cols-2">
+                            {[
+                                'Unlimited resume downloads',
+                                'AI-powered content generation',
+                                'Professional photo enhancement',
+                                'Premium templates',
+                                'Priority support',
+                                'Advanced customization'
+                            ].map((feature) => (
+                                <div key={feature} className="flex items-start gap-2 rounded-xl border border-[#e6dac8] bg-white px-3 py-3 text-sm font-semibold text-[#665a4a] dark:border-[#37332d] dark:bg-[#1f1f1d] dark:text-[#aaa39a]">
+                                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                                    <span>{feature}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
                             <button
-                                onClick={() => setShowSuccess(false)}
-                                className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium underline underline-offset-4 transition-colors"
+                                onClick={() => window.location.href = '#/dashboard'}
+                                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#625bd5] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#5851c8]"
                             >
-                                View subscription details
+                                <Home className="h-4 w-4" />
+                                Go to Dashboard
+                            </button>
+                            <button
+                                onClick={() => navigate('/newresume')}
+                                className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#e6dac8] bg-white px-5 py-3 text-sm font-semibold text-[#211b16] shadow-sm transition hover:border-[#d9c7ad] hover:bg-[#fffaf1] dark:border-[#37332d] dark:bg-[#302e2a] dark:text-[#f4f1e9] dark:hover:bg-[#37332d]"
+                            >
+                                <FileText className="h-4 w-4" />
+                                Create resume
                             </button>
                         </div>
+
+                        <button
+                            onClick={() => setShowSuccess(false)}
+                            className="mt-6 text-sm font-semibold text-[#625bd5] transition hover:text-[#5851c8] dark:text-[#8d88e6]"
+                        >
+                            View subscription details
+                        </button>
                     </div>
                 </div>
-            ) : (
-                <>
-                    {/* Top Header Bar */}
-                    <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 w-full mb-8">
-                        <div className="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                            <button
-                                onClick={() => navigate('/dashboard')}
-                                className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors font-bold text-[15px]"
-                            >
-                                <ArrowLeft className="w-[18px] h-[18px] stroke-[2.5]" />
-                                <span>Dashboard</span>
-                            </button>
-                        </div>
-                    </div>
+            </div>
+        );
+    }
 
-                    <div className="max-w-6xl mx-auto px-4">
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                            {/* Left Column (Main Info & Enterprise) */}
-                        <div className="lg:col-span-12 xl:col-span-8 flex flex-col gap-6">
-                            
-                            {/* Billing & Plan Box */}
-                            <div className="bg-white dark:bg-gray-900 rounded-[2rem] p-8 md:p-10 shadow-sm border border-gray-100 dark:border-gray-800">
-                                <div className="flex items-center gap-5 mb-10">
-                                    <div className="w-16 h-16 bg-[#6B4BF4] rounded-2xl flex items-center justify-center text-white shadow-md flex-shrink-0">
-                                        <CreditCard className="w-8 h-8" />
+    return (
+        <div className="min-h-screen bg-[#f7f1e7] pb-20 font-sans text-[#211b16] selection:bg-[#f3f2ff] dark:bg-[#1f1f1d] dark:text-[#f4f1e9] dark:selection:bg-[#37332d]">
+            <header className="sticky top-0 z-10 border-b border-[#e4d3bc]/70 bg-[#f7f1e7]/88 backdrop-blur-xl dark:border-[#37332d] dark:bg-[#1f1f1d]/88">
+                <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="group inline-flex items-center gap-2 rounded-xl border border-[#e4d3bc] bg-white/70 px-3 py-2 text-sm font-semibold text-[#665a4a] shadow-sm transition hover:border-[#d9c7ad] hover:bg-white hover:text-[#211b16] dark:border-[#37332d] dark:bg-[#262522] dark:text-[#aaa39a] dark:hover:text-[#f4f1e9]"
+                    >
+                        <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-0.5" />
+                        <span>Dashboard</span>
+                    </button>
+                </div>
+            </header>
+
+            <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+                {error && (
+                    <div className="mb-5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700 shadow-sm dark:border-rose-900/60 dark:bg-rose-950/30 dark:text-rose-300">
+                        {error}
+                    </div>
+                )}
+
+                <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_330px]">
+                    <section className="space-y-5">
+                        <section className="rounded-[28px] border border-[#e6dac8] bg-white p-5 shadow-[0_24px_70px_rgba(66,52,38,0.08)] dark:border-[#37332d] dark:bg-[#262522] sm:p-6 lg:p-7">
+                            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#f3f2ff] text-[#625bd5] shadow-sm dark:bg-[#302e2a] dark:text-[#8d88e6]">
+                                        <CreditCard size={24} />
                                     </div>
                                     <div>
-                                        <h1 className="text-[28px] font-extrabold text-gray-900 dark:text-white mb-1 tracking-tight">Billing & Plan</h1>
-                                        <p className="text-gray-500 dark:text-gray-400 font-medium leading-tight">Manage your subscription</p>
+                                        <h1 className="text-2xl font-bold leading-tight text-[#211b16] dark:text-[#f4f1e9] sm:text-3xl">
+                                            Billing &amp; Plan
+                                        </h1>
+                                        <p className="mt-1 text-sm font-medium leading-6 text-[#665a4a] dark:text-[#aaa39a]">
+                                            Manage your CareerVivid subscription.
+                                        </p>
                                     </div>
                                 </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {/* Active Plan Card */}
-                                    <div className="bg-gray-50/80 dark:bg-gray-800/50 rounded-2xl p-6 relative overflow-hidden border border-gray-100/80 dark:border-gray-700">
-                                        <Shield className="absolute -right-4 top-1 w-28 h-28 text-gray-200 dark:text-gray-700 opacity-30 stroke-[1.5] pointer-events-none" />
-                                        <h3 className="text-[11px] font-black tracking-widest text-[#9FA8B8] dark:text-gray-400 uppercase mb-3">ACTIVE PLAN</h3>
-                                        
-                                        <div className="text-[28px] font-extrabold text-[#6B4BF4] dark:text-indigo-400 mb-1 tracking-tight">
-                                            {pricingPlans.find((p: any) => p.current)?.name || t('subscription.plans.free')} 
-                                            {pricingPlans.find((p: any) => p.current)?.name?.includes('Legacy') || !pricingPlans.find((p: any) => p.current) ? '' : ' (Legacy)'} 
-                                        </div>
-                                        <p className="text-sm text-[#9FA8B8] dark:text-gray-400 font-semibold italic">Monthly Subscription</p>
-                                    </div>
-
-                                    {/* AI Credit Usage Card */}
-                                    <div className="bg-gray-50/80 dark:bg-gray-800/50 rounded-2xl p-6 relative border border-gray-100/80 dark:border-gray-700">
-                                        <div className="flex justify-between items-center mb-5">
-                                            <h3 className="text-[11px] font-black tracking-widest text-[#9FA8B8] dark:text-gray-400 uppercase">AI CREDIT USAGE</h3>
-                                            <div className="w-2 h-2 bg-[#2ECC71] rounded-full shadow-[0_0_8px_rgba(46,204,113,0.6)]"></div>
-                                        </div>
-                                        
-                                        <div className="flex items-center gap-2 mb-3">
-                                            <Sparkles className="w-4 h-4 text-[#4466FF]" />
-                                            <span className="font-bold text-sm text-gray-900 dark:text-white tracking-tight">CareerVivid AI Credits</span>
-                                        </div>
-                                        
-                                        {/* Using built in progress bar with a wrapper and passing exact config to match screenshot */}
-                                        <div className="mt-1">
-                                            <AIUsageProgressBar 
-                                                used={userProfile?.aiUsage?.count || 0}
-                                                limit={currentPlan === 'pro' ? PRO_PLAN_CREDIT_LIMIT : currentPlan === 'max' ? PRO_MAX_PLAN_CREDIT_LIMIT : currentPlan === 'enterprise' ? ENTERPRISE_PLAN_CREDIT_LIMIT : FREE_PLAN_CREDIT_LIMIT}
-                                                isPremium={currentPlan !== 'free'}
-                                                variant="compact"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
+                                <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[#e6dac8] bg-[#fffaf1] px-3 py-1.5 text-xs font-bold capitalize text-[#665a4a] shadow-sm dark:border-[#37332d] dark:bg-[#1f1f1d] dark:text-[#aaa39a]">
+                                    <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                                    {statusLabel}
+                                </span>
                             </div>
 
-                            {/* Upgrade to Enterprise Box */}
-                            <div className="bg-[#242131] rounded-[2rem] p-8 md:p-10 relative overflow-hidden flex flex-col justify-center items-start gap-6 border border-gray-800/50 shadow-[0_8px_30px_rgb(0,0,0,0.08)] mt-2">
-                                {/* Decor */}
-                                <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/5 filter blur-[100px] rounded-full pointer-events-none"></div>
-                                
-                                <div>
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="text-yellow-400 text-[28px]">⚡</div>
-                                        <h2 className="text-[28px] font-extrabold text-white tracking-tight">Upgrade to Enterprise</h2>
+                            <div className="mt-7 grid gap-4 lg:grid-cols-2">
+                                <article className="relative overflow-hidden rounded-2xl border border-[#e6dac8] bg-[#fffaf1] p-5 shadow-sm dark:border-[#37332d] dark:bg-[#1f1f1d]">
+                                    <Shield className="pointer-events-none absolute -right-6 top-5 h-28 w-28 text-[#e6dac8]/60 dark:text-[#37332d]/60" strokeWidth={1.1} />
+                                    <div className="relative">
+                                        <p className="text-[11px] font-bold text-[#7d6e5e] dark:text-[#aaa39a]">Active plan</p>
+                                        <h2 className="mt-6 text-3xl font-bold leading-none text-[#211b16] dark:text-[#f4f1e9] sm:text-4xl">
+                                            {currentPlanName}
+                                        </h2>
+                                        <p className="mt-3 text-sm font-semibold capitalize text-[#7d6e5e] dark:text-[#aaa39a]">
+                                            {currentPlanBillingLabel}
+                                        </p>
+
+                                        <div className="mt-5 flex flex-wrap gap-2 text-xs font-semibold text-[#665a4a] dark:text-[#aaa39a]">
+                                            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#e6dac8] bg-white px-2.5 py-1.5 shadow-sm dark:border-[#37332d] dark:bg-[#262522]">
+                                                <Calendar size={12} />
+                                                {formatDate(expiresAt)}
+                                            </span>
+                                            <span className="rounded-full border border-[#e6dac8] bg-white px-2.5 py-1.5 shadow-sm dark:border-[#37332d] dark:bg-[#262522]">
+                                                {resumeLimit === 999 ? 'Unlimited resumes' : `${resumeLimit} resume${resumeLimit === 1 ? '' : 's'}`}
+                                            </span>
+                                        </div>
+
+                                        {isPaidPlan && (
+                                            <button
+                                                onClick={handleCancelClick}
+                                                disabled={isLoading}
+                                                className="mt-5 text-xs font-bold text-[#7d6e5e] underline decoration-[#d9c7ad] underline-offset-4 transition hover:text-rose-700 disabled:opacity-60 dark:text-[#aaa39a] dark:decoration-[#575149] dark:hover:text-rose-300"
+                                            >
+                                                Cancel subscription
+                                            </button>
+                                        )}
                                     </div>
-                                    <p className="text-gray-300 max-w-[400px] text-[15px] font-medium leading-relaxed opacity-90">
-                                        Need more than <span className="text-white font-bold tracking-tight">10,000</span> credits? Pooled team balances, SSO, and Private Workspaces start at just $12 per seat.
+                                </article>
+
+                                <article className="rounded-2xl border border-[#e6dac8] bg-[#fffaf1] p-5 shadow-sm dark:border-[#37332d] dark:bg-[#1f1f1d]">
+                                    <div className="mb-7 flex items-center justify-between gap-3">
+                                        <p className="text-[11px] font-bold text-[#7d6e5e] dark:text-[#aaa39a]">AI credit usage</p>
+                                        <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_0_4px_rgba(52,211,153,0.16)]" />
+                                    </div>
+
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#eef0ff] text-[#625bd5] dark:bg-[#302e2a] dark:text-[#8d88e6]">
+                                            <Sparkles size={17} />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-lg font-bold leading-tight text-[#211b16] dark:text-[#f4f1e9]">
+                                                {currentPlanName} AI Credits
+                                            </h2>
+                                            <p className="mt-0.5 text-xs font-semibold text-[#7d6e5e] dark:text-[#aaa39a]">
+                                                {currentCreditLimit.toLocaleString()} credits per month
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-5 h-2.5 overflow-hidden rounded-full bg-[#e9e3d9] shadow-inner dark:bg-[#37332d]">
+                                        <div
+                                            className="h-full rounded-full bg-[#625bd5] transition-all duration-500 dark:bg-[#8d88e6]"
+                                            style={{ width: `${creditsPercent}%` }}
+                                        />
+                                    </div>
+
+                                    <div className="mt-3 flex items-center justify-between gap-3 text-xs font-bold text-[#3c4658] dark:text-[#f4f1e9]">
+                                        <span>{creditsUsed.toLocaleString()} / {currentCreditLimit.toLocaleString()} used</span>
+                                        <span className="text-[#665a4a] dark:text-[#aaa39a]">{creditsRemaining.toLocaleString()} left</span>
+                                    </div>
+                                </article>
+                            </div>
+                        </section>
+
+                        <section className="rounded-[28px] border border-[#211b16]/10 bg-[#211b16] p-5 text-[#f4f1e9] shadow-[0_24px_70px_rgba(66,52,38,0.16)] dark:border-[#37332d] dark:bg-[#262522] sm:p-6 lg:p-7">
+                            <div className="flex max-w-2xl flex-col gap-5">
+                                <div>
+                                    <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fff4cc] text-[#a97935] shadow-sm">
+                                        <Zap size={22} fill="currentColor" />
+                                    </div>
+                                    <h2 className="text-2xl font-bold leading-tight text-[#f4f1e9] sm:text-3xl">
+                                        Upgrade to Enterprise
+                                    </h2>
+                                    <p className="mt-3 text-sm font-medium leading-6 text-[#d7d0c6]">
+                                        Need shared team credits? Each seat adds <span className="font-bold text-white">1,500</span> pooled credits, SSO, and private workspaces.
                                     </p>
                                 </div>
 
-                                <button 
-                                    onClick={() => handleUpgrade('price_1TJoQyRJNflGxv32FQ9TxIjq')}
-                                    className="bg-white text-gray-900 hover:bg-gray-100 font-bold py-3.5 px-8 rounded-2xl transition-colors shadow-md text-sm tracking-tight mt-2"
-                                >
-                                    Explore Enterprise
-                                </button>
+                                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                                    <button
+                                        onClick={() => handleUpgrade(enterprisePriceId)}
+                                        disabled={isLoading || !enterprisePriceId}
+                                        className="inline-flex w-full items-center justify-center rounded-xl bg-[#fffaf1] px-5 py-3 text-sm font-bold text-[#211b16] shadow-sm transition hover:bg-white disabled:opacity-60 sm:w-auto"
+                                    >
+                                        Explore Enterprise
+                                    </button>
+                                    <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#d7d0c6]">
+                                        <Users size={15} />
+                                        Shared credits and team controls
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </section>
+
+                    <aside className="space-y-5 xl:sticky xl:top-24 xl:self-start">
+                        <div className="rounded-[24px] border border-[#e6dac8] bg-white p-5 shadow-sm dark:border-[#37332d] dark:bg-[#262522]">
+                            <div className="mb-5 flex items-center justify-between gap-3">
+                                <div>
+                                    <h2 className="text-base font-bold text-[#211b16] dark:text-[#f4f1e9]">Available tiers</h2>
+                                    <p className="mt-1 text-xs font-semibold text-[#7d6e5e] dark:text-[#aaa39a]">Pick the right monthly capacity.</p>
+                                </div>
+                                {viewMode === 'creator' && (
+                                    <span className="rounded-full bg-[#f3f2ff] px-2.5 py-1 text-[11px] font-bold text-[#625bd5] dark:bg-[#302e2a] dark:text-[#8d88e6]">
+                                        Creator
+                                    </span>
+                                )}
                             </div>
 
-                        </div>
-
-                        {/* Right Column (Tiers & Invariants) */}
-                        <div className="lg:col-span-12 xl:col-span-4 flex flex-col gap-6">
-                            
-                            {/* Available Tiers Box */}
-                            <div className="bg-white dark:bg-gray-900 rounded-[2rem] p-7 shadow-sm border border-gray-100 dark:border-gray-800">
-                                <h3 className="text-[11px] font-black tracking-widest text-[#9FA8B8] dark:text-gray-400 uppercase mb-5">AVAILABLE TIERS</h3>
-                                
-                                <div className="flex flex-col gap-4">
-                                    {pricingPlans.filter((p: any) => p.id !== 'free').map((plan: any) => {
-                                        const isPro = plan.id === 'pro';
-                                        
-                                        return (
-                                        <div 
-                                            key={plan.id}
-                                            className={`rounded-[1.25rem] p-5 transition-all ${
-                                                plan.current 
-                                                    ? 'border-[1.5px] border-blue-500 bg-blue-50/30 dark:bg-blue-900/10 shadow-[0_4px_20px_rgba(59,130,246,0.06)]' 
-                                                    : 'border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm'
-                                            }`}
-                                        >
-                                            <div className="flex justify-between items-center mb-4">
-                                                <h4 className="text-[22px] font-extrabold text-gray-900 dark:text-white tracking-tight">{plan.name}</h4>
-                                                <span className={`${plan.current ? 'text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/30 px-3 py-1 rounded-lg'} font-black text-lg tracking-tight`}>{plan.price}</span>
+                            <div className="space-y-3">
+                                {paidPlans.map((plan: any) => (
+                                    <article
+                                        key={plan.id}
+                                        className={`rounded-2xl border p-4 shadow-sm transition ${
+                                            plan.current
+                                                ? 'border-[#625bd5] bg-[#f5f4ff] ring-1 ring-[#625bd5]/30 dark:border-[#8d88e6] dark:bg-[#302e2a]'
+                                                : 'border-[#e6dac8] bg-[#fffaf1] hover:border-[#d9c7ad] dark:border-[#37332d] dark:bg-[#1f1f1d]'
+                                        }`}
+                                    >
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div>
+                                                <h3 className="text-sm font-bold text-[#211b16] dark:text-[#f4f1e9]">{plan.name}</h3>
+                                                <p className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-bold text-[#7d6e5e] dark:text-[#aaa39a]">
+                                                    <Zap size={12} />
+                                                    {getPlanCredits(plan.id)} / mo
+                                                </p>
                                             </div>
-                                            
-                                            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 font-bold text-[13px] mb-5 tracking-tight uppercase">
-                                                <Zap className="w-[14px] h-[14px] stroke-[2.5]" stroke={isPro ? "#4466FF" : "currentColor"} />
-                                                <span>{plan.id === 'max' ? '10,000' : plan.id === 'pro' ? '1,000' : '5,000'} CREDITS / MO</span>
+                                            <div className="text-right">
+                                                <div className="rounded-lg bg-white px-2 py-1 text-sm font-bold text-[#625bd5] shadow-sm dark:bg-[#262522] dark:text-[#8d88e6]">
+                                                    {plan.price}
+                                                </div>
+                                                <div className="mt-1 text-[10px] font-semibold text-[#7d6e5e] dark:text-[#aaa39a]">{plan.period}</div>
                                             </div>
+                                        </div>
 
+                                        {plan.discount && (
+                                            <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-bold text-amber-700 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300">
+                                                <span>{plan.discount}</span>
+                                                {plan.originalPrice && <span className="text-[#7d6e5e] line-through dark:text-[#aaa39a]">{plan.originalPrice}</span>}
+                                            </div>
+                                        )}
+
+                                        <div className="mt-4">
                                             {plan.current ? (
-                                                <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 font-bold text-sm tracking-tight w-full py-2.5">
-                                                    <Check className="w-[18px] h-[18px] stroke-[3]" />
-                                                    CURRENT PLAN
+                                                <div className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-[#625bd5] shadow-sm dark:bg-[#1f1f1d] dark:text-[#8d88e6]">
+                                                    <Check className="h-4 w-4" />
+                                                    Current plan
                                                 </div>
                                             ) : (
                                                 <button
                                                     onClick={() => plan.priceId && handleUpgrade(plan.priceId)}
                                                     disabled={isLoading || !plan.priceId}
-                                                    className={`w-full py-3 rounded-xl font-bold text-[13px] tracking-wide transition-all ${
-                                                        'bg-[#1a1c23] hover:bg-black text-white dark:bg-gray-800 dark:hover:bg-gray-700 shadow-sm'
-                                                    }`}
+                                                    className="inline-flex w-full items-center justify-center rounded-xl bg-[#211b16] px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#362a21] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#f4f1e9] dark:text-[#211b16] dark:hover:bg-white"
                                                 >
-                                                    SWITCH TO {plan.name.toUpperCase()}
+                                                    {isLoading ? 'Opening checkout...' : `Switch to ${plan.name}`}
                                                 </button>
                                             )}
                                         </div>
-                                    )})}
-                                </div>
+                                    </article>
+                                ))}
                             </div>
-
-                            {/* Usage Invariants Box */}
-                            <div className="bg-white dark:bg-gray-900 rounded-[2rem] p-7 shadow-sm border border-gray-100 dark:border-gray-800 mt-2">
-                                <div className="flex items-center gap-4 mb-6">
-                                    <div className="w-10 h-10 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-300 border border-gray-100 dark:border-gray-700">
-                                        <Database className="w-[18px] h-[18px] stroke-[2]" />
-                                    </div>
-                                    <h4 className="font-extrabold text-[15px] text-gray-900 dark:text-white tracking-tight">Usage Invariants</h4>
-                                </div>
-                                
-                                <ul className="space-y-4">
-                                    <li className="flex items-start gap-3">
-                                        <Check className="w-[18px] h-[18px] text-[#2ECC71] flex-shrink-0 mt-0.5 stroke-[3]" />
-                                        <span className="text-[13px] text-gray-500 dark:text-gray-400 font-semibold leading-relaxed">Credits reset on the 1st of every month automatically.</span>
-                                    </li>
-                                    <li className="flex items-start gap-3 mt-4">
-                                        <Check className="w-[18px] h-[18px] text-[#2ECC71] flex-shrink-0 mt-0.5 stroke-[3]" />
-                                        <span className="text-[13px] text-gray-500 dark:text-gray-400 font-semibold leading-relaxed">Enterprise seats contribute to a shared pool.</span>
-                                    </li>
-                                </ul>
-                            </div>
-
                         </div>
-                    </div>
+
+                        <div className="rounded-[24px] border border-[#e6dac8] bg-[#fffaf1] p-5 shadow-sm dark:border-[#37332d] dark:bg-[#262522]">
+                            <div className="mb-5 flex items-center gap-3">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-[#665a4a] shadow-sm dark:bg-[#1f1f1d] dark:text-[#aaa39a]">
+                                    <Database size={17} />
+                                </div>
+                                <h2 className="text-base font-bold text-[#211b16] dark:text-[#f4f1e9]">Plan rules</h2>
+                            </div>
+                            <ul className="space-y-3">
+                                {[
+                                    'Credits reset on the 1st of every month.',
+                                    'Enterprise seats contribute to a shared pool.',
+                                    'Canceled plans keep access through the billing period.',
+                                ].map((item) => (
+                                    <li key={item} className="flex items-start gap-2.5 text-sm font-medium leading-5 text-[#665a4a] dark:text-[#aaa39a]">
+                                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                                        <span>{item}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </aside>
                 </div>
+            </main>
 
-                {/* Retention Modal Flow */}
-                <RetentionModal
-                        isOpen={cancelStep === 'offer_10' || cancelStep === 'offer_20'}
-                        step={cancelStep === 'offer_10' ? 'offer_10' : 'offer_20'}
-                        onAccept={() => handleAcceptDiscount(cancelStep === 'offer_10' ? 'RETENTION_10' : 'RETENTION_20')}
-                        onDecline={() => {
-                            if (cancelStep === 'offer_10') {
-                                setCancelStep('offer_20');
-                            } else {
-                                setCancelStep('feedback'); // After retention decline, go to feedback
-                            }
-                        }}
-                        isLoading={isLoading}
-                    />
-
-                    {/* Feedback Modal */}
-                    <CancellationFeedbackModal
-                        isOpen={cancelStep === 'feedback'}
-                        onCancel={() => setCancelStep('idle')}
-                        onConfirm={handleFeedbackSubmit}
-                        isLoading={isLoading}
-                    />
-
-                    {/* Info / Alert Modal */}
-                    <ConfirmationModal
-                        isOpen={infoModal.isOpen}
-                        onCancel={() => setInfoModal(prev => ({ ...prev, isOpen: false }))}
-                        onConfirm={() => {
-                            infoModal.onConfirm?.();
-                            setInfoModal(prev => ({ ...prev, isOpen: false }));
-                        }}
-                        title={infoModal.title}
-                        message={infoModal.message}
-                        confirmText="OK"
-                        cancelText=""
-                        variant="default"
-                    />
-
-                    {/* Final Confirmation Modal */}
-                    <ConfirmationModal
-                        isOpen={cancelStep === 'confirm'}
-                        onCancel={() => setCancelStep('idle')}
-                        onConfirm={processCancellation}
-                        title={t('subscription.cancel_title') || "Cancel Subscription?"}
-                        message={t('subscription.cancel_confirm') || "Are you sure you want to cancel? You will retain access to Pro features until the end of your current billing period."}
-                        confirmText="Yes, Cancel Subscription"
-                        cancelText="Keep My Plan"
-                        variant="danger"
-                    />
-                </>
-            )}
+            {renderModals()}
         </div>
     );
 };

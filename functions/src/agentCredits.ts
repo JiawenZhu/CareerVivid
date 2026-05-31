@@ -10,6 +10,7 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { defineSecret } from "firebase-functions/params";
+import { resolveVertexModelName } from "./utils/ai";
 
 const novuSecretKey = defineSecret("NOVU_SECRET_KEY");
 
@@ -23,6 +24,7 @@ const db = admin.firestore();
 // Credit costs per model (CareerVivid-managed usage)
 // ─────────────────────────────────────────────────────────────────────────────
 const MODEL_CREDIT_COST: Record<string, number> = {
+  "gemini-3.1-flash-lite": 0.5,
   "gemini-2.5-flash-lite": 0.5,
   "gemini-2.5-flash": 1,
   "gemini-2.5-pro": 2,
@@ -34,8 +36,9 @@ const MODEL_CREDIT_COST: Record<string, number> = {
 // ─────────────────────────────────────────────────────────────────────────────
 // Monthly credit limits by plan
 // ─────────────────────────────────────────────────────────────────────────────
-function getMonthlyLimit(plan?: string): number {
-  if (plan === "max" || plan === "pro_max") return 10000;
+function getMonthlyLimit(plan?: string, seats = 1): number {
+  if (plan === "enterprise") return Math.max(1, seats) * 1500;
+  if (plan === "max" || plan === "pro_max") return 5000;
   if (plan === "pro_monthly" || plan === "pro") return 1000;
   if (plan === "pro_sprint") return 300;
   return 100; // free
@@ -52,7 +55,7 @@ export const agentDeductCredits = functions
       data: { model: string; calls?: number; apiKey: string },
       _context
     ) => {
-      const { model, calls = 1, apiKey } = data;
+      const { model: requestedModel, calls = 1, apiKey } = data;
 
       // ── 1. Validate inputs ──────────────────────────────────────────────
       if (!apiKey || typeof apiKey !== "string" || !apiKey.startsWith("cv_live_")) {
@@ -61,12 +64,13 @@ export const agentDeductCredits = functions
           "A valid CareerVivid API key (cv_live_...) is required."
         );
       }
-      if (!model || typeof model !== "string") {
+      if (!requestedModel || typeof requestedModel !== "string") {
         throw new functions.https.HttpsError(
           "invalid-argument",
           "model is required."
         );
       }
+      const model = resolveVertexModelName(requestedModel);
       if (calls < 1 || calls > 100) {
         throw new functions.https.HttpsError(
           "invalid-argument",
@@ -120,8 +124,7 @@ export const agentDeductCredits = functions
         // Reset count if new month
         let count: number =
           usageMonth === currentMonth ? aiUsage.count ?? 0 : 0;
-        let limit: number =
-          aiUsage.monthlyLimit ?? getMonthlyLimit(userData.plan);
+        let limit: number = getMonthlyLimit(userData.plan, userData.seats || 1);
         const tokenCredits = userData.promotions?.tokenCredits || 0;
         limit += tokenCredits;
 

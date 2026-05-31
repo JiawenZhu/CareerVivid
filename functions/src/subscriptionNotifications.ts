@@ -169,7 +169,7 @@ function getSubscriptionAmount(subscription: Stripe.Subscription): string {
  * Scenario A: Upcoming Payment Email
  * For active subscriptions that will auto-renew
  */
-import { generateNeoBrutalistEmail } from "./emailTemplates";
+import { generateCareerVividEmail } from "./emailTemplates";
 
 /**
  * Scenario A: Upcoming Payment Email
@@ -185,27 +185,29 @@ async function sendUpcomingPaymentEmail(
     const userEmail = userData.email;
     const APP_URL = "https://careervivid.app";
 
-    const emailHtml = generateNeoBrutalistEmail({
-        title: "Upcoming Renewal",
+    const emailHtml = generateCareerVividEmail({
+        title: "Your subscription renews soon",
         userName: userName,
+        eyebrow: "Billing notice",
+        preheader: `Your ${planName} subscription is scheduled to renew in 3 days.`,
         messageLines: [
-            `Just a friendly reminder that your <strong>${planName}</strong> subscription will automatically renew soon.`,
-            `No action is needed – your subscription will continue seamlessly.`,
+            `Your <strong>${planName}</strong> subscription is scheduled to renew soon.`,
+            `No action is needed if you want to keep your current access. You can review or change your subscription from your profile.`,
         ],
         boxContent: {
-            title: "Renewal Details",
+            title: "Renewal details",
             type: "info",
             lines: [
-                `<strong>Renewal Date:</strong> ${renewalDate}`,
+                `<strong>Renewal date:</strong> ${renewalDate}`,
                 `<strong>Amount:</strong> $${amount}`,
                 `<strong>Plan:</strong> ${planName}`
             ]
         },
         mainButton: {
-            text: "Manage Subscription",
+            text: "Manage subscription",
             url: `${APP_URL}/profile`
         },
-        footerText: "Thank you for being a valued member!"
+        footerText: "You are receiving this billing notice because you have an active CareerVivid subscription."
     });
 
     await db.collection("mail").add({
@@ -231,33 +233,35 @@ async function sendSubscriptionExpiringEmail(
     const userEmail = userData.email;
     const APP_URL = "https://careervivid.app";
 
-    const emailHtml = generateNeoBrutalistEmail({
-        title: "Access Ending Soon",
+    const emailHtml = generateCareerVividEmail({
+        title: "Your access ends soon",
         userName: userName,
+        eyebrow: "Subscription notice",
+        preheader: `Your ${planName} access is scheduled to end in 3 days.`,
         messageLines: [
-            `We noticed your <strong>${planName}</strong> subscription is set to expire soon.`,
-            `If you'd like to keep your premium access, you can resubscribe anytime before your access ends.`
+            `Your <strong>${planName}</strong> subscription is set to expire soon because renewal is turned off.`,
+            `If you want to keep premium access, you can resubscribe before the access end date.`
         ],
         boxContent: {
-            title: "Expiration Warning",
+            title: "Access details",
             type: "warning",
             lines: [
-                `<strong>Expiration Date:</strong> ${expirationDate}`,
+                `<strong>Expiration date:</strong> ${expirationDate}`,
                 `<strong>Plan:</strong> ${planName}`,
-                `After this date, you'll lose access to premium features including unlimited resumes, AI credits, and PDF downloads.`
+                `After this date, your account will move back to the free plan.`
             ]
         },
         mainButton: {
-            text: "Resubscribe Now",
+            text: "Resubscribe",
             url: `${APP_URL}/subscription`
         },
-        footerText: "We'd love to have you back!"
+        footerText: "You can keep using CareerVivid on the free plan if you choose not to renew."
     });
 
     await db.collection("mail").add({
         to: userEmail,
         message: {
-            subject: `⚠️ Your ${planName} access ends in 3 days`,
+            subject: `Your ${planName} access ends in 3 days`,
             html: emailHtml,
             text: `Hi ${userName},\n\nYour ${planName} access ends on ${expirationDate}.\n\nResubscribe to keep your premium features: ${APP_URL}/subscription\n\nThank you!\nThe CareerVivid Team`
         }
@@ -283,33 +287,35 @@ async function sendTrialEndingEmail(
     const userEmail = userData.email;
     const APP_URL = "https://careervivid.app";
 
-    const emailHtml = generateNeoBrutalistEmail({
-        title: "Trial Ending Soon",
+    const emailHtml = generateCareerVividEmail({
+        title: "Your free trial ends soon",
         userName: userName,
+        eyebrow: "Billing notice",
+        preheader: `Your free trial of ${planName} ends in 3 days.`,
         messageLines: [
-            `Your free trial of <strong>${planName}</strong> is ending soon. Here's what you need to know:`,
-            `If you're enjoying CareerVivid, no action is needed – your subscription will start automatically.`
+            `Your free trial of <strong>${planName}</strong> is ending soon.`,
+            `If you want to continue, no action is needed. If you do not want to be charged, manage your subscription before the trial end date.`
         ],
         boxContent: {
-            title: "Important Billing Notice",
-            type: "critical", // Needs vibrant yellow per compliance/user request for "yellow box"
+            title: "Important billing details",
+            type: "critical",
             lines: [
                 `<strong>Trial ends on:</strong> ${trialEndDate}`,
                 `<strong>Your card will be charged:</strong> $${amount}`,
-                `This charge will occur automatically unless you cancel before then.`
+                `This charge happens automatically unless you cancel before then.`
             ]
         },
         mainButton: {
-            text: "Manage Subscription",
+            text: "Manage subscription",
             url: `${APP_URL}/profile`
         },
-        footerText: `You're receiving this because you signed up for a free trial on CareerVivid.`
+        footerText: `You are receiving this because you started a CareerVivid free trial.`
     });
 
     await db.collection("mail").add({
         to: userEmail,
         message: {
-            subject: `🔔 Your free trial ends in 3 days – Action required`,
+            subject: `Your free trial ends in 3 days`,
             html: emailHtml,
             text: `Hi ${userName},\n\nIMPORTANT: Your free trial of ${planName} ends on ${trialEndDate}.\n\nYour card will be charged $${amount} automatically on ${trialEndDate} unless you cancel before then.\n\nTo cancel or manage your subscription: ${APP_URL}/profile\n\nThank you!\nThe CareerVivid Team`
         }

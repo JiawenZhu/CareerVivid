@@ -9,6 +9,8 @@ import {
   fillTextarea,
   fillSelectByValue,
   clickRadioByLabel,
+  fillFileInputReactSafe,
+  isDemographicField,
 } from '../fillUtils';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -184,3 +186,58 @@ describe('clickRadioByLabel', () => {
     document.body.removeChild(container);
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// fillFileInputReactSafe
+// ─────────────────────────────────────────────────────────────────────────────
+describe('fillFileInputReactSafe', () => {
+  it('sets the files property on a file input', async () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    const mockFile = new File(['dummy content'], 'resume.pdf', { type: 'application/pdf' });
+
+    await fillFileInputReactSafe(input, mockFile);
+
+    expect(input.files).not.toBeNull();
+    expect(input.files!.length).toBe(1);
+    expect(input.files![0].name).toBe('resume.pdf');
+  });
+
+  it('dispatches input and change events', async () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    const mockFile = new File(['dummy content'], 'resume.pdf', { type: 'application/pdf' });
+
+    const inputHandler = vi.fn();
+    const changeHandler = vi.fn();
+    input.addEventListener('input', inputHandler);
+    input.addEventListener('change', changeHandler);
+
+    await fillFileInputReactSafe(input, mockFile);
+
+    expect(inputHandler).toHaveBeenCalledOnce();
+    expect(changeHandler).toHaveBeenCalledOnce();
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// isDemographicField
+// ─────────────────────────────────────────────────────────────────────────────
+describe('isDemographicField', () => {
+  it('correctly identifies EEOC / demographic fields', () => {
+    expect(isDemographicField('Gender')).toBe(true);
+    expect(isDemographicField('Race')).toBe(true);
+    expect(isDemographicField('Ethnicity')).toBe(true);
+    expect(isDemographicField('Are you a protected veteran?')).toBe(true);
+    expect(isDemographicField('Disability Status')).toBe(true);
+    expect(isDemographicField('Voluntary Self-Identification of Disability')).toBe(true);
+  });
+
+  it('correctly ignores non-demographic fields', () => {
+    expect(isDemographicField('First Name')).toBe(false);
+    expect(isDemographicField('Email Address')).toBe(false);
+    expect(isDemographicField('Resume/CV')).toBe(false);
+    expect(isDemographicField('LinkedIn URL')).toBe(false);
+  });
+});
+

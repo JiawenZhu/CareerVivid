@@ -11,7 +11,7 @@ export const usePortfolios = () => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (!currentUser) {
+        if (!currentUser || !currentUser.uid) {
             setPortfolios([]);
             setIsLoading(false);
             return;
@@ -72,7 +72,7 @@ export const usePortfolios = () => {
     }, [portfolios]);
 
     const createPortfolio = useCallback(async (portfolioData: PortfolioData) => {
-        if (!currentUser) return;
+        if (!currentUser || !currentUser.uid) return;
         try {
             const { id, ...dataToSave } = portfolioData;
             const docRef = await addDoc(collection(db, 'users', currentUser.uid, 'portfolios'), {
@@ -91,7 +91,7 @@ export const usePortfolios = () => {
     }, [currentUser]);
 
     const updatePortfolio = useCallback(async (id: string, updatedData: Partial<PortfolioData>) => {
-        if (!currentUser) return;
+        if (!currentUser || !currentUser.uid) return;
         try {
             const cleanData = JSON.parse(JSON.stringify(updatedData));
             delete cleanData.id;
@@ -109,7 +109,7 @@ export const usePortfolios = () => {
     }, [currentUser]);
 
     const deletePortfolio = useCallback(async (id: string) => {
-        if (!currentUser) return;
+        if (!currentUser || !currentUser.uid) return;
         const portfolioRef = doc(db, 'users', currentUser.uid, 'portfolios', id);
         try {
             await deleteDoc(portfolioRef);
@@ -120,7 +120,7 @@ export const usePortfolios = () => {
     }, [currentUser]);
 
     const duplicatePortfolio = useCallback(async (id: string) => {
-        if (!currentUser) return;
+        if (!currentUser || !currentUser.uid) return;
         const originalPortfolio = getPortfolioById(id);
         if (originalPortfolio) {
             try {
@@ -140,7 +140,7 @@ export const usePortfolios = () => {
     }, [currentUser, getPortfolioById]);
 
     const deleteAllPortfolios = useCallback(async () => {
-        if (!currentUser) return;
+        if (!currentUser || !currentUser.uid) return;
         try {
             const portfoliosCol = collection(db, 'users', currentUser.uid, 'portfolios');
             const snapshot = await getDocs(portfoliosCol);

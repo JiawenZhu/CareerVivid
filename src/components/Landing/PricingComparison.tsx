@@ -76,26 +76,23 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
         show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 15 } },
     };
 
-    const CellValue: React.FC<{ val: boolean | string; accent?: string }> = ({ val, accent = 'text-gray-600 dark:text-gray-400' }) => {
+    const CellValue: React.FC<{ val: boolean | string; accent?: string }> = ({ val, accent = 'text-[#665a4a]' }) => {
         if (typeof val === 'string' && val === '') return null;
         if (typeof val === 'string') return <span className={`text-xs font-bold ${accent}`}>{val}</span>;
         if (val) return <Check className="mx-auto text-green-500" strokeWidth={3} size={18} />;
-        return <X className="mx-auto text-gray-300 dark:text-gray-600" size={18} />;
+        return <X className="mx-auto text-[#c7b89f]" size={18} />;
     };
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div className="text-center mb-20">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-sm font-bold mb-6">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 text-[#2563eb] text-sm font-bold mb-6 border border-[#dbe4f3] shadow-sm">
                     <Bot size={16} /> AI Credit Plans
                 </div>
-                <h2 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-white tracking-tight leading-tight mb-6">
-                    Power your career with{' '}
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600">
-                        AI Credits
-                    </span>
+                <h2 className="text-5xl md:text-6xl font-black text-[#211b16] tracking-tight leading-tight mb-6">
+                    Power your career with AI credits
                 </h2>
-                <p className="max-w-3xl mx-auto text-xl text-gray-600 dark:text-gray-400 font-medium">
+                <p className="max-w-3xl mx-auto text-xl text-[#665a4a] font-medium">
                     One universal credit system powers the entire platform — the CLI agent, resume tailoring,
                     job search, voice interviews, and more. Each AI action costs credits; manual work is always free.
                 </p>
@@ -112,30 +109,30 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                 {/* Free */}
                 <motion.div
                     variants={itemVariants}
-                    className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-8 shadow-sm flex flex-col group hover:shadow-md transition-shadow"
+                    className="bg-white/92 border border-[#e0d7ca] rounded-2xl p-8 shadow-sm flex flex-col group hover:shadow-md transition-shadow"
                 >
                     <div className="mb-6">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Free</h3>
-                        <p className="text-sm text-gray-500 font-medium">Try CareerVivid today.</p>
+                        <h3 className="text-2xl font-bold text-[#211b16] mb-1">Free</h3>
+                        <p className="text-sm text-[#665a4a] font-medium">Try CareerVivid today.</p>
                     </div>
                     <div className="mb-8">
                         <div className="flex items-baseline gap-1">
-                            <span className="text-5xl font-black text-gray-900 dark:text-white">$0</span>
+                            <span className="text-5xl font-black text-[#211b16]">$0</span>
                         </div>
-                        <div className="text-xs text-green-600 font-bold tracking-widest mt-3 uppercase bg-green-50 dark:bg-green-900/20 inline-flex items-center gap-1.5 px-3 py-1 rounded-full">
+                        <div className="text-xs text-[#137245] font-bold tracking-widest mt-3 uppercase bg-[#edf7ef] border border-[#cfe8d7] inline-flex items-center gap-1.5 px-3 py-1 rounded-full">
                             <Zap size={12} /> {FREE_PLAN_CREDIT_LIMIT} AI credits / mo
                         </div>
                     </div>
-                    <ul className="space-y-3.5 mb-8 flex-grow text-sm font-medium text-gray-600 dark:text-gray-400">
-                        <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-0.5" size={18} /><span>cv agent (Flash Lite & Flash)</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-0.5" size={18} /><span>Job search &amp; tracker</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-0.5" size={18} /><span>Gemini Gemini models (no API key needed)</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-0.5" size={18} /><span>BYO API key (OpenAI, Claude…)</span></li>
-                        <li className="flex items-start gap-3"><Terminal className="text-green-500 flex-shrink-0 mt-0.5" size={18} /><span>CLI Publish (always free)</span></li>
+                    <ul className="space-y-3.5 mb-8 flex-grow text-sm font-medium text-[#665a4a]">
+                        <li className="flex items-start gap-3"><Check className="text-[#1f8f55] flex-shrink-0 mt-0.5" size={18} /><span>cv agent (Flash Lite & Flash)</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-[#1f8f55] flex-shrink-0 mt-0.5" size={18} /><span>Job search &amp; tracker</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-[#1f8f55] flex-shrink-0 mt-0.5" size={18} /><span>Gemini models (no API key needed)</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-[#1f8f55] flex-shrink-0 mt-0.5" size={18} /><span>BYO API key (OpenAI, Claude…)</span></li>
+                        <li className="flex items-start gap-3"><Terminal className="text-[#1f8f55] flex-shrink-0 mt-0.5" size={18} /><span>CLI Publish (always free)</span></li>
                     </ul>
                     <button
                         onClick={() => navigate('/signup')}
-                        className="w-full py-4 rounded-xl font-bold border-2 border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white hover:border-gray-300 dark:hover:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all"
+                        className="w-full py-4 rounded-xl font-bold border border-[#d8c6ad] text-[#211b16] hover:border-[#bfa782] hover:bg-[#fffaf1] transition-all"
                     >
                         Get Started Free
                     </button>
@@ -144,33 +141,33 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                 {/* Pro */}
                 <motion.div
                     variants={itemVariants}
-                    className="bg-white dark:bg-gray-900 border-2 border-primary-500/30 rounded-3xl p-8 shadow-xl flex flex-col relative overflow-hidden group hover:border-primary-500/50 transition-colors"
+                    className="bg-white border border-[#bed0ee] rounded-2xl p-8 shadow-md flex flex-col relative overflow-hidden group hover:border-[#9fb7df] transition-colors"
                 >
-                    <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-primary-400 to-primary-600 hidden group-hover:block" />
+                    <div className="absolute top-0 inset-x-0 h-1 bg-[#2563eb]" />
                     <div className="mb-6">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Pro</h3>
-                        <p className="text-sm text-gray-500 font-medium">For active job seekers.</p>
+                        <h3 className="text-2xl font-bold text-[#211b16] mb-1">Pro</h3>
+                        <p className="text-sm text-[#665a4a] font-medium">For active job seekers.</p>
                     </div>
                     <div className="mb-8">
                         <div className="flex items-baseline gap-1">
-                            <span className="text-5xl font-black text-gray-900 dark:text-white">$9</span>
-                            <span className="text-gray-500 text-sm font-bold">/mo</span>
+                            <span className="text-5xl font-black text-[#211b16]">$9</span>
+                            <span className="text-[#665a4a] text-sm font-bold">/mo</span>
                         </div>
-                        <div className="text-xs text-primary-600 font-bold tracking-widest mt-3 uppercase bg-primary-50 dark:bg-primary-900/20 inline-flex items-center gap-1.5 px-3 py-1 rounded-full">
+                        <div className="text-xs text-[#2563eb] font-bold tracking-widest mt-3 uppercase bg-[#eef4ff] border border-[#dbe7ff] inline-flex items-center gap-1.5 px-3 py-1 rounded-full">
                             <Zap size={12} /> {PRO_PLAN_CREDIT_LIMIT.toLocaleString()} AI credits / mo
                         </div>
-                        <p className="text-xs text-gray-400 mt-2">≈ 1,000 Flash turns or 500 Pro turns</p>
+                        <p className="text-xs text-[#7d6e5e] mt-2">≈ 1,000 Flash turns or 500 Pro turns</p>
                     </div>
-                    <ul className="space-y-3.5 mb-8 flex-grow text-sm font-medium text-gray-600 dark:text-gray-400">
-                        <li className="flex items-start gap-3"><Check className="text-primary-500 flex-shrink-0 mt-0.5" size={18} /><span>Everything in Free</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-primary-500 flex-shrink-0 mt-0.5" size={18} /><span>cv agent --pro (Gemini Pro model)</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-primary-500 flex-shrink-0 mt-0.5" size={18} /><span>Unlisted posts &amp; custom domains</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-primary-500 flex-shrink-0 mt-0.5" size={18} /><span>Living Documentation Sync</span></li>
+                    <ul className="space-y-3.5 mb-8 flex-grow text-sm font-medium text-[#665a4a]">
+                        <li className="flex items-start gap-3"><Check className="text-[#2563eb] flex-shrink-0 mt-0.5" size={18} /><span>Everything in Free</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-[#2563eb] flex-shrink-0 mt-0.5" size={18} /><span>cv agent --pro (Gemini Pro model)</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-[#2563eb] flex-shrink-0 mt-0.5" size={18} /><span>Unlisted posts &amp; custom domains</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-[#2563eb] flex-shrink-0 mt-0.5" size={18} /><span>Living Documentation Sync</span></li>
                     </ul>
                     <button
                         onClick={handleUpgradeClick}
                         disabled={!!isLoading}
-                        className="w-full py-4 rounded-xl font-bold bg-primary-600 text-white hover:bg-primary-700 transition-colors shadow-lg shadow-primary-500/25 disabled:opacity-60"
+                        className="w-full py-4 rounded-xl font-bold bg-[#2563eb] text-white hover:bg-[#1d4ed8] transition-colors shadow-md shadow-blue-600/15 disabled:opacity-60"
                     >
                         Start Pro
                     </button>
@@ -179,36 +176,35 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                 {/* Max */}
                 <motion.div
                     variants={itemVariants}
-                    className="bg-white dark:bg-gray-900 border-2 border-purple-500 rounded-3xl p-8 shadow-2xl flex flex-col relative overflow-hidden group"
+                    className="bg-[#fbfcff] border border-[#c7d2e5] rounded-2xl p-8 shadow-md flex flex-col relative overflow-hidden group"
                 >
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-transparent pointer-events-none" />
-                    <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-500/20 blur-3xl rounded-full" />
-                    <div className="absolute -right-10 top-6 rotate-45 bg-purple-500 text-white text-[10px] font-black px-12 py-1 shadow-md">
+                    <div className="absolute inset-0 bg-[#eef4ff]/45 pointer-events-none" />
+                    <div className="absolute -right-10 top-6 rotate-45 bg-[#475569] text-white text-[10px] font-black px-12 py-1 shadow-sm">
                         POWER
                     </div>
                     <div className="mb-6 relative z-10">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Max</h3>
-                        <p className="text-sm text-gray-500 font-medium">For power users &amp; recruiters.</p>
+                        <h3 className="text-2xl font-bold text-[#211b16] mb-1">Max</h3>
+                        <p className="text-sm text-[#665a4a] font-medium">For power users &amp; recruiters.</p>
                     </div>
                     <div className="mb-8 relative z-10">
                         <div className="flex items-baseline gap-1">
-                            <span className="text-5xl font-black text-gray-900 dark:text-white">$29</span>
-                            <span className="text-gray-500 text-sm font-bold">/mo</span>
+                            <span className="text-5xl font-black text-[#211b16]">$29</span>
+                            <span className="text-[#665a4a] text-sm font-bold">/mo</span>
                         </div>
-                        <div className="text-xs text-purple-600 font-bold tracking-widest mt-3 uppercase bg-purple-50 dark:bg-purple-900/20 inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-purple-100 dark:border-purple-800/50">
+                        <div className="text-xs text-[#34507a] font-bold tracking-widest mt-3 uppercase bg-white inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#dbe4f3]">
                             <Zap size={12} /> {PRO_MAX_PLAN_CREDIT_LIMIT.toLocaleString()} AI credits / mo
                         </div>
-                        <p className="text-xs text-gray-400 mt-2">≈ 10,000 Flash turns or 5,000 Pro turns</p>
+                        <p className="text-xs text-[#7d6e5e] mt-2">≈ 5,000 Flash turns or 2,500 Pro turns</p>
                     </div>
-                    <ul className="space-y-3.5 mb-8 flex-grow text-sm font-medium text-gray-600 dark:text-gray-400 relative z-10">
-                        <li className="flex items-start gap-3"><Check className="text-purple-500 flex-shrink-0 mt-0.5" size={18} /><span>Everything in Pro</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-purple-500 flex-shrink-0 mt-0.5" size={18} /><span>Private posts &amp; advanced ReactFlow</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-purple-500 flex-shrink-0 mt-0.5" size={18} /><span>10× more AI turns than Pro</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-purple-500 flex-shrink-0 mt-0.5" size={18} /><span>Priority model access</span></li>
+                    <ul className="space-y-3.5 mb-8 flex-grow text-sm font-medium text-[#665a4a] relative z-10">
+                        <li className="flex items-start gap-3"><Check className="text-[#4f6f9f] flex-shrink-0 mt-0.5" size={18} /><span>Everything in Pro</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-[#4f6f9f] flex-shrink-0 mt-0.5" size={18} /><span>Private posts &amp; advanced ReactFlow</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-[#4f6f9f] flex-shrink-0 mt-0.5" size={18} /><span>5× more AI turns than Pro</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-[#4f6f9f] flex-shrink-0 mt-0.5" size={18} /><span>Priority model access</span></li>
                     </ul>
                     <button
                         onClick={handleUpgradeClick}
-                        className="w-full py-4 rounded-xl font-bold bg-purple-600 text-white hover:bg-purple-700 transition-colors shadow-xl shadow-purple-600/30 relative z-10"
+                        className="w-full py-4 rounded-xl font-bold bg-[#334155] text-white hover:bg-[#1f2937] transition-colors shadow-md shadow-slate-600/15 relative z-10"
                     >
                         Get Max
                     </button>
@@ -217,32 +213,31 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                 {/* Enterprise */}
                 <motion.div
                     variants={itemVariants}
-                    className="bg-gray-900 dark:bg-black text-white rounded-3xl p-8 shadow-2xl flex flex-col relative overflow-hidden border border-gray-800"
+                    className="bg-white/92 text-[#211b16] rounded-2xl p-8 shadow-sm flex flex-col relative overflow-hidden border border-[#e0d7ca]"
                 >
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-gray-800/50 blur-2xl rounded-full" />
                     <div className="mb-6 relative z-10">
                         <h3 className="text-2xl font-bold mb-1">Enterprise</h3>
-                        <p className="text-sm text-gray-400 font-medium">For hiring teams &amp; orgs.</p>
+                        <p className="text-sm text-[#665a4a] font-medium">For hiring teams &amp; orgs.</p>
                     </div>
                     <div className="mb-8 relative z-10">
                         <div className="flex items-baseline gap-1">
                             <span className="text-5xl font-black">$12</span>
-                            <span className="text-gray-400 text-sm font-bold">/seat</span>
+                            <span className="text-[#665a4a] text-sm font-bold">/seat</span>
                         </div>
-                        <div className="text-xs text-amber-400 font-bold tracking-widest mt-3 uppercase bg-amber-400/10 inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-amber-400/20">
+                        <div className="text-xs text-[#9a651f] font-bold tracking-widest mt-3 uppercase bg-[#fff7e8] inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#ead7b9]">
                             <Zap size={12} /> {ENTERPRISE_PLAN_CREDIT_LIMIT.toLocaleString()} pooled credits/seat
                         </div>
-                        <p className="text-xs text-gray-500 mt-2">Credits pool across all seats</p>
+                        <p className="text-xs text-[#7d6e5e] mt-2">Credits pool across all seats</p>
                     </div>
-                    <ul className="space-y-3.5 mb-8 flex-grow text-sm font-medium text-gray-300 relative z-10">
-                        <li className="flex items-start gap-3"><Check className="text-amber-400 flex-shrink-0 mt-0.5" size={18} /><span>Private Team Workspaces</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-amber-400 flex-shrink-0 mt-0.5" size={18} /><span>SSO &amp; SCIM provisioning</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-amber-400 flex-shrink-0 mt-0.5" size={18} /><span>Team RBAC &amp; audit logs</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-amber-400 flex-shrink-0 mt-0.5" size={18} /><span>Pooled credits across org</span></li>
+                    <ul className="space-y-3.5 mb-8 flex-grow text-sm font-medium text-[#665a4a] relative z-10">
+                        <li className="flex items-start gap-3"><Check className="text-[#9a651f] flex-shrink-0 mt-0.5" size={18} /><span>Private Team Workspaces</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-[#9a651f] flex-shrink-0 mt-0.5" size={18} /><span>SSO &amp; SCIM provisioning</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-[#9a651f] flex-shrink-0 mt-0.5" size={18} /><span>Team RBAC &amp; audit logs</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-[#9a651f] flex-shrink-0 mt-0.5" size={18} /><span>Pooled credits across org</span></li>
                     </ul>
                     <button
                         onClick={handleUpgradeClick}
-                        className="w-full py-4 rounded-xl font-bold bg-white text-gray-900 hover:bg-gray-100 transition-colors relative z-10"
+                        className="w-full py-4 rounded-xl font-bold bg-[#211b16] text-white hover:bg-[#3a2b20] transition-colors relative z-10"
                     >
                         Contact Sales
                     </button>
@@ -255,17 +250,17 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
-                className="mt-20 overflow-hidden bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-800 shadow-sm"
+                className="mt-20 overflow-hidden bg-white/92 rounded-2xl border border-[#e0d7ca] shadow-sm"
             >
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse min-w-[700px]">
                         <thead>
-                            <tr className="bg-gray-50 dark:bg-gray-800/80 text-xs font-black uppercase tracking-widest text-gray-500">
-                                <th className="p-5 border-b border-gray-200 dark:border-gray-800">Capabilities</th>
-                                <th className="p-5 border-b border-gray-200 dark:border-gray-800 text-center w-36">Free</th>
-                                <th className="p-5 border-b border-gray-200 dark:border-gray-800 text-center w-36 text-primary-600 dark:text-primary-400">Pro</th>
-                                <th className="p-5 border-b border-gray-200 dark:border-gray-800 text-center w-36 text-purple-600 dark:text-purple-400">Max</th>
-                                <th className="p-5 border-b border-gray-200 dark:border-gray-800 text-center w-36">Enterprise</th>
+                            <tr className="bg-[#f5f7fb] text-xs font-black uppercase tracking-widest text-[#64748b]">
+                                <th className="p-5 border-b border-[#e0d7ca]">Capabilities</th>
+                                <th className="p-5 border-b border-[#e0d7ca] text-center w-36">Free</th>
+                                <th className="p-5 border-b border-[#e0d7ca] text-center w-36 text-[#2563eb]">Pro</th>
+                                <th className="p-5 border-b border-[#e0d7ca] text-center w-36 text-[#475569]">Max</th>
+                                <th className="p-5 border-b border-[#e0d7ca] text-center w-36">Enterprise</th>
                             </tr>
                         </thead>
                         <tbody className="text-sm">
@@ -273,29 +268,29 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                                 // Category header row
                                 if (f.category) {
                                     return (
-                                        <tr key={i} className="bg-gray-50/80 dark:bg-gray-800/60">
-                                            <td colSpan={5} className="px-5 py-3 text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                                        <tr key={i} className="bg-[#fffaf1]">
+                                            <td colSpan={5} className="px-5 py-3 text-xs font-black uppercase tracking-widest text-[#a97935]">
                                                 {f.category}
                                             </td>
                                         </tr>
                                     );
                                 }
                                 return (
-                                    <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors group">
-                                        <td className="px-5 py-4 font-medium text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-gray-800/50 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                                    <tr key={i} className="hover:bg-[#f8fafc] transition-colors group">
+                                        <td className="px-5 py-4 font-medium text-[#665a4a] border-b border-[#efe3d1] group-hover:text-[#211b16] transition-colors">
                                             {f.name}
                                         </td>
-                                        <td className="px-5 py-4 text-center border-b border-gray-100 dark:border-gray-800/50">
+                                        <td className="px-5 py-4 text-center border-b border-[#efe3d1]">
                                             <CellValue val={f.free} />
                                         </td>
-                                        <td className="px-5 py-4 text-center border-b border-gray-100 dark:border-gray-800/50 bg-primary-50/20 dark:bg-primary-900/5">
-                                            <CellValue val={f.pro} accent="text-primary-600 dark:text-primary-400" />
+                                        <td className="px-5 py-4 text-center border-b border-[#efe3d1] bg-[#f5f8ff]">
+                                            <CellValue val={f.pro} accent="text-[#2563eb]" />
                                         </td>
-                                        <td className="px-5 py-4 text-center border-b border-gray-100 dark:border-gray-800/50 bg-purple-50/30 dark:bg-purple-900/10">
-                                            <CellValue val={f.max} accent="text-purple-600 dark:text-purple-400" />
+                                        <td className="px-5 py-4 text-center border-b border-[#efe3d1] bg-[#f8fafc]">
+                                            <CellValue val={f.max} accent="text-[#475569]" />
                                         </td>
-                                        <td className="px-5 py-4 text-center border-b border-gray-100 dark:border-gray-800/50">
-                                            <CellValue val={f.enterprise} accent="text-amber-600 dark:text-amber-400" />
+                                        <td className="px-5 py-4 text-center border-b border-[#efe3d1]">
+                                            <CellValue val={f.enterprise} accent="text-[#9a651f]" />
                                         </td>
                                     </tr>
                                 );
@@ -303,7 +298,7 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                         </tbody>
                     </table>
                 </div>
-                <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-800 text-center text-xs text-gray-500 font-medium">
+                <div className="px-6 py-4 bg-[#fffaf1] border-t border-[#e0d7ca] text-center text-xs text-[#665a4a] font-medium">
                     ✨ All manual content creation (writing, editing, publishing) is always free and unlimited.
                 </div>
             </motion.div>

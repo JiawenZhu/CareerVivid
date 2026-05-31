@@ -1,8 +1,9 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { Suspense, useMemo, useState, useEffect } from 'react';
 import { Smartphone, Monitor, RotateCcw, ZoomIn, ZoomOut } from 'lucide-react';
 import IntroOverlay from '../intro/IntroOverlay';
 import { PortfolioData } from '../../types/portfolio';
-import { TEMPLATES } from '../../templates';
+import { normalizePortfolioData } from '../../utils/normalizePortfolioData';
+import { getLazyPortfolioTemplate, resolvePortfolioTemplateKey } from '../../utils/lazyPortfolioTemplate';
 
 interface PortfolioPreviewProps {
     portfolioData: PortfolioData | null;
@@ -33,36 +34,32 @@ const PortfolioPreview: React.FC<PortfolioPreviewProps> = ({
         setCurrentDevice(initialActiveDevice);
     }, [initialActiveDevice]);
 
+    const safePortfolioData = useMemo(
+        () => portfolioData ? normalizePortfolioData(portfolioData) : null,
+        [portfolioData]
+    );
+
     // Memoize template to avoid unnecessary lookups
     const CurrentTemplate = useMemo(() => {
-        if (!portfolioData) return TEMPLATES.minimalist;
-
-        if (portfolioData.mode === 'linkinbio') {
-            const id = portfolioData.templateId as string;
-            if (['linktree_minimal', 'linktree_visual', 'linktree_corporate', 'linktree_bento'].includes(id)) {
-                return TEMPLATES[id as keyof typeof TEMPLATES];
-            }
-            return TEMPLATES.linktree_visual;
-        }
-
-        return TEMPLATES[portfolioData.templateId as keyof typeof TEMPLATES] || TEMPLATES.minimalist;
-    }, [portfolioData?.templateId, portfolioData?.mode]);
+        if (!safePortfolioData) return getLazyPortfolioTemplate('minimalist');
+        return getLazyPortfolioTemplate(resolvePortfolioTemplateKey(safePortfolioData));
+    }, [safePortfolioData]);
 
     const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.1, 1.5));
     const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.1, 0.5));
 
-    if (!portfolioData) return null;
+    if (!safePortfolioData) return null;
 
     return (
         <div className={`
-            flex-1 relative flex items-center justify-center p-8 overflow-hidden 
+            flex-1 min-w-0 min-h-0 relative flex items-center justify-center p-3 pt-20 sm:p-4 sm:pt-20 lg:p-6 overflow-hidden
             bg-[#f9fafb] dark:bg-[#0b0c10] bg-dot-pattern
             ${isMobile && viewMode === 'edit' ? 'hidden' : 'flex'}
         `}>
             {/* Toolbar */}
-            <div className="absolute top-4 right-4 flex items-center gap-2 z-30">
+            <div className="absolute inset-x-3 top-3 z-30 flex flex-wrap items-center justify-center gap-2 sm:inset-x-auto sm:right-4 sm:top-4 sm:justify-end">
                 {/* Zoom Controls */}
-                <div className="flex bg-white rounded-lg shadow-sm border border-gray-200 p-1 mr-2">
+                <div className="flex bg-white rounded-lg shadow-sm border border-gray-200 p-1 sm:mr-2">
                     <button
                         onClick={handleZoomOut}
                         className="p-2 text-gray-400 hover:text-gray-600 rounded-md transition-colors"
@@ -82,7 +79,7 @@ const PortfolioPreview: React.FC<PortfolioPreviewProps> = ({
                     </button>
                 </div>
 
-                {portfolioData.linkInBio?.introPage?.enabled && (
+                {safePortfolioData.linkInBio?.introPage?.enabled && (
                     <button
                         onClick={() => setShowIntro(true)}
                         className="p-2 bg-white rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 text-gray-600 tooltip-trigger"
@@ -124,7 +121,7 @@ const PortfolioPreview: React.FC<PortfolioPreviewProps> = ({
             <div
                 className={`
                     transition-all duration-300 shadow-2xl overflow-hidden relative
-                    ${currentDevice === 'mobile' ? 'w-[375px] h-[750px] rounded-[40px] border-[12px] border-gray-900' : 'w-full h-full rounded-xl border border-gray-200'}
+                    ${currentDevice === 'mobile' ? 'h-[min(750px,calc(100dvh-118px))] w-[min(375px,calc(100vw-28px))] rounded-[32px] border-[10px] border-gray-900 sm:rounded-[40px] sm:border-[12px]' : 'h-[min(100%,calc(100dvh-118px))] w-[min(1180px,calc(100vw-24px))] rounded-xl border border-gray-200'}
                 `}
                 style={{
                     transform: `scale(${zoom})`,
@@ -132,13 +129,13 @@ const PortfolioPreview: React.FC<PortfolioPreviewProps> = ({
                 }}
             >
                 {/* Intro Overlay Preview */}
-                {portfolioData.linkInBio?.introPage?.enabled && showIntro && (
+                {safePortfolioData.linkInBio?.introPage?.enabled && showIntro && (
                     <div className="absolute inset-0 z-[100] rounded-[inherit] overflow-hidden">
                         <IntroOverlay
-                            config={portfolioData.linkInBio.introPage}
+                            config={safePortfolioData.linkInBio.introPage}
                             onEnter={() => setShowIntro(false)}
                             position="absolute"
-                            portfolioId={portfolioData.id}
+                            portfolioId={safePortfolioData.id}
                             isPreview={true}
                         />
                     </div>
@@ -148,27 +145,29 @@ const PortfolioPreview: React.FC<PortfolioPreviewProps> = ({
                 <div className="w-full h-full overflow-y-auto bg-white custom-scrollbar relative">
                     {/* Component Rendering */}
                     {(() => {
-                        const theme = portfolioData.theme || { darkMode: false, primaryColor: '#000000' } as any;
+                        const theme = safePortfolioData.theme || { darkMode: false, primaryColor: '#000000' } as any;
                         const isDark = theme.darkMode;
                         const isExplicitlyLight = theme.backgroundColor?.toLowerCase() === '#ffffff' || theme.backgroundColor?.toLowerCase() === '#fff';
                         const wrapperBg = (isDark && isExplicitlyLight) ? '#0f1117' : (theme.backgroundColor || (isDark ? '#0f1117' : '#ffffff'));
 
                         return (
                             <div
-                                id={`portfolio-preview-${portfolioData.id || 'draft'}`}
+                                id={`portfolio-preview-${safePortfolioData.id || 'draft'}`}
                                 className="min-h-full transition-colors duration-500"
                                 style={{ backgroundColor: wrapperBg }}
                             >
                                 {/* Scoped custom CSS injection — AI Style tab writes here */}
                                 {theme.customCss && (
-                                    <style>{`#portfolio-preview-${portfolioData.id || 'draft'} { ${theme.customCss} }`}</style>
+                                    <style>{`#portfolio-preview-${safePortfolioData.id || 'draft'} { ${theme.customCss} }`}</style>
                                 )}
-                                <CurrentTemplate
-                                    data={portfolioData}
-                                    onEdit={onFocusField}
-                                    onUpdate={onUpdate}
-                                    isMobileView={currentDevice === 'mobile'}
-                                />
+                                <Suspense fallback={<div className="flex min-h-96 items-center justify-center text-sm text-gray-500">Loading preview...</div>}>
+                                    <CurrentTemplate
+                                        data={safePortfolioData}
+                                        onEdit={onFocusField}
+                                        onUpdate={onUpdate}
+                                        isMobileView={currentDevice === 'mobile'}
+                                    />
+                                </Suspense>
                             </div>
                         );
                     })()}

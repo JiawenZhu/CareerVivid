@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { Suspense, useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { navigate } from '../../../utils/navigation';
 import { db } from '../../../firebase';
@@ -21,15 +21,24 @@ import { useAICreditCheck } from '../../../hooks/useAICreditCheck';
 import PortfolioHeader from '../components/editor/PortfolioHeader';
 import PortfolioSidebar from '../components/editor/PortfolioSidebar';
 import PortfolioPreview from '../components/editor/PortfolioPreview';
-import AnalyticsDashboard from '../components/analytics/AnalyticsDashboard';
-import CommerceDashboard from '../../commerce/pages/CommerceDashboard';
 
 import SharePortfolioModal from '../../../components/SharePortfolioModal';
-import AIImageEditModal from '../../../components/AIImageEditModal';
-import QuickAuthModal from '../../../components/QuickAuthModal';
 import AlertModal from '../../../components/AlertModal';
-import StockPhotoModal from '../../../components/StockPhotoModal'; // New Import
-import AIPortfolioEditorModal from '../components/editor/AIPortfolioEditorModal';
+import { normalizeEditablePortfolioTemplateId } from '../utils/editablePortfolioTemplates';
+import { CARD_TEMPLATES } from '../constants/cardTemplates';
+
+const AnalyticsDashboard = React.lazy(() => import('../components/analytics/AnalyticsDashboard'));
+const CommerceDashboard = React.lazy(() => import('../../commerce/pages/CommerceDashboard'));
+const AIImageEditModal = React.lazy(() => import('../../../components/AIImageEditModal'));
+const QuickAuthModal = React.lazy(() => import('../../../components/QuickAuthModal'));
+const StockPhotoModal = React.lazy(() => import('../../../components/StockPhotoModal'));
+const AIPortfolioEditorModal = React.lazy(() => import('../components/editor/AIPortfolioEditorModal'));
+
+const PortfolioEditorLazyFallback = ({ theme }: { theme: 'light' | 'dark' | 'system' }) => (
+    <div className={`flex min-h-64 flex-1 items-center justify-center text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+        Loading workspace...
+    </div>
+);
 
 const PortfolioEditor: React.FC = () => {
     // Stock Photo State
@@ -68,7 +77,7 @@ const PortfolioEditor: React.FC = () => {
     const [username, setUsername] = useState<string | null>(getDataFromUrl().username);
     const [ownerUid, setOwnerUid] = useState<string | null>(null);
     const [activeDevice, setActiveDevice] = useState<'desktop' | 'mobile'>('desktop');
-    const [activeSection, setActiveSection] = useState<'hero' | 'timeline' | 'stack' | 'projects' | 'components' | 'design' | 'settings' | 'links' | 'commerce' | 'intro'>('hero');
+    const [activeSection, setActiveSection] = useState<'hero' | 'timeline' | 'education' | 'stack' | 'projects' | 'components' | 'design' | 'settings' | 'links' | 'commerce' | 'intro'>('hero');
     const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -96,6 +105,12 @@ const PortfolioEditor: React.FC = () => {
     const [isAIModalOpen, setIsAIModalOpen] = useState(false);
     const [authModalConfig, setAuthModalConfig] = useState({ title: 'Save Your Progress', subtitle: 'Sign in to save your portfolio to your dashboard.' });
     const [alertModal, setAlertModal] = useState({ isOpen: false, title: '', message: '' });
+
+    useEffect(() => {
+        if (portfolioData?.mode !== 'linkinbio' && activeView === 'commerce') {
+            setActiveView('editor');
+        }
+    }, [activeView, portfolioData?.mode]);
 
     // Helper: Save guest data to persist across login
     const saveGuestData = () => {
@@ -206,16 +221,23 @@ const PortfolioEditor: React.FC = () => {
     // Helper to hydrate data
     const hydratePortfolioData = (docSnap: any, ownerUid: string): PortfolioData => {
         const data = docSnap.data();
-        const templateId = data.templateId || 'minimalist';
+        const rawTemplateId = data.templateId || 'minimalist';
 
         // Infer mode from templateId if not explicitly set
         let mode = data.mode;
         // Check if it's a known legacy bio link template OR a theme ID
-        const isBioLinkTheme = ['linktree_minimal', 'linktree_visual', 'linktree_corporate', 'linktree_bento'].includes(templateId) || (LINKTREE_THEMES && templateId in LINKTREE_THEMES);
+        const isBioLinkTheme = ['linktree_minimal', 'linktree_visual', 'linktree_corporate', 'linktree_bento'].includes(rawTemplateId) || (LINKTREE_THEMES && rawTemplateId in LINKTREE_THEMES);
+        const isBusinessCardTemplate = rawTemplateId in CARD_TEMPLATES;
 
         if (!mode && isBioLinkTheme) {
             mode = 'linkinbio';
+        } else if (!mode && isBusinessCardTemplate) {
+            mode = 'business_card';
         }
+
+        const templateId = (mode || 'portfolio') === 'portfolio'
+            ? normalizeEditablePortfolioTemplateId(rawTemplateId)
+            : rawTemplateId;
 
         console.log('[Editor] Hydrating Data. Mode:', mode, 'Template:', templateId, 'Has LinkInBio:', !!data.linkInBio, 'Theme:', data.linkInBio?.themeId);
 
@@ -261,15 +283,19 @@ const PortfolioEditor: React.FC = () => {
         // GUEST MODE: Initialize with template if guest
         if (!currentUser || ownerUid === 'guest') {
             const urlParams = new URLSearchParams(window.location.search);
-            const templateId = urlParams.get('template') || 'minimalist';
+            const rawTemplateId = urlParams.get('template') || 'minimalist';
 
             // Determine if the requested template is a Bio Link theme
-            const isBioLink = ['linktree_minimal', 'linktree_visual', 'linktree_corporate', 'linktree_bento'].includes(templateId) || (LINKTREE_THEMES && templateId in LINKTREE_THEMES);
-            const mode = isBioLink ? 'linkinbio' : 'portfolio';
+            const isBioLink = ['linktree_minimal', 'linktree_visual', 'linktree_corporate', 'linktree_bento'].includes(rawTemplateId) || (LINKTREE_THEMES && rawTemplateId in LINKTREE_THEMES);
+            const isBusinessCard = rawTemplateId in CARD_TEMPLATES;
+            const mode = isBioLink ? 'linkinbio' : isBusinessCard ? 'business_card' : 'portfolio';
+            const templateId = mode === 'portfolio'
+                ? normalizeEditablePortfolioTemplateId(rawTemplateId)
+                : rawTemplateId;
 
             // If it's a specific Bio Link theme (e.g. 'neo_xmas'), we use that as the themeId
             // If it's a generic structure (e.g. 'linktree_visual'), we default to a standard theme
-            const effectiveThemeId = (LINKTREE_THEMES && templateId in LINKTREE_THEMES) ? templateId : 'sunset_surf';
+            const effectiveThemeId = (LINKTREE_THEMES && rawTemplateId in LINKTREE_THEMES) ? rawTemplateId : 'sunset_surf';
 
             // Construct initial data
             const initialData: PortfolioData = {
@@ -299,7 +325,8 @@ const PortfolioEditor: React.FC = () => {
                     }
                 } : undefined,
                 businessCard: {
-                    orientation: 'horizontal',
+                    orientation: mode === 'business_card' ? 'vertical' : 'horizontal',
+                    themeId: isBusinessCard ? templateId : undefined,
                     usePhotoBackground: false
                 },
                 hero: {
@@ -603,25 +630,67 @@ const PortfolioEditor: React.FC = () => {
         setIsAIImageModalOpen(false);
     };
 
+    const normalizeFieldId = (fieldId: string) => {
+        if (!portfolioData) return fieldId;
+
+        const [section, token, field] = fieldId.split('.');
+        const normalizeCollectionId = (collection: 'projects' | 'timeline' | 'education' | 'techStack' | 'socialLinks') => {
+            const items = (portfolioData as any)[collection] || [];
+            if (!token) return collection;
+            if (token === 'add') return fieldId;
+            if (/^\d+$/.test(token)) return fieldId;
+
+            const index = items.findIndex((item: any) => item?.id === token);
+            return index >= 0 && field ? `${collection}.${index}.${field}` : collection;
+        };
+
+        if (fieldId === 'contact' || fieldId === 'email') return 'contactEmail';
+        if (fieldId === 'attachedResumeId') return 'resume.selector';
+        if (fieldId === 'resume' || fieldId === 'downloadResume') return 'resume.selector';
+        if (fieldId.startsWith('hero.ctaPrimary') || fieldId.startsWith('hero.ctaSecondary')) return 'hero.buttons';
+        if (fieldId === 'hero.buttons') return 'hero.buttons';
+        if (section === 'projects') return normalizeCollectionId('projects');
+        if (section === 'timeline') return normalizeCollectionId('timeline');
+        if (section === 'education') return normalizeCollectionId('education');
+        if (section === 'techStack') return normalizeCollectionId('techStack');
+        if (section === 'socialLinks') return normalizeCollectionId('socialLinks');
+        if (section === 'links') return 'socialLinks';
+
+        return fieldId;
+    };
+
+    const sectionForFieldId = (fieldId: string): typeof activeSection => {
+        const section = fieldId.split('.')[0];
+        if (['hero', 'about', 'contactEmail', 'phone'].includes(section)) return 'hero';
+        if (section === 'timeline') return 'timeline';
+        if (section === 'education') return 'education';
+        if (section === 'techStack') return 'stack';
+        if (section === 'projects') return 'projects';
+        if (section === 'socialLinks' || section === 'links') return 'links';
+        if (section === 'resume') return 'settings';
+        if (section === 'sectionLabels') {
+            const labelType = fieldId.split('.')[1];
+            if (labelType === 'timeline') return 'timeline';
+            if (labelType === 'education') return 'education';
+            if (labelType === 'techStack') return 'stack';
+            if (labelType === 'projects') return 'projects';
+            return 'hero';
+        }
+        return 'hero';
+    };
+
+    const fallbackElementIdForSection = (section: typeof activeSection) => {
+        if (section === 'stack') return 'techStack';
+        if (section === 'settings') return 'resume.selector';
+        return section;
+    };
+
     // Click-to-Edit Logic shared between Preview and Editor
     const handleFocusField = (fieldId: string) => {
-        // 1. Determine section
-        const section = fieldId.split('.')[0];
+        const normalizedFieldId = normalizeFieldId(fieldId);
+        const targetSection = sectionForFieldId(normalizedFieldId);
 
-        // Map field to section
-        if (['hero', 'about'].includes(section)) setActiveSection('hero');
-        else if (section === 'timeline') setActiveSection('timeline');
-        else if (section === 'techStack') setActiveSection('stack');
-        else if (section === 'projects') setActiveSection('projects');
-        else if (section === 'resume') setActiveSection('settings');
-        else if (section === 'sectionLabels') {
-            const labelType = fieldId.split('.')[1];
-            if (labelType === 'about') setActiveSection('hero');
-            else if (labelType === 'timeline') setActiveSection('timeline');
-            else if (labelType === 'techStack') setActiveSection('stack');
-            else if (labelType === 'projects') setActiveSection('projects');
-            else if (labelType === 'contact') setActiveSection('hero');
-        }
+        setActiveSection(targetSection);
 
         // 2. Open sidebar on mobile
         if (isMobile) {
@@ -630,7 +699,8 @@ const PortfolioEditor: React.FC = () => {
 
         // 3. Scroll and focus
         setTimeout(() => {
-            const element = document.getElementById(fieldId);
+            const element = document.getElementById(normalizedFieldId)
+                || document.getElementById(fallbackElementIdForSection(targetSection));
             if (element) {
                 element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 element.focus();
@@ -643,6 +713,11 @@ const PortfolioEditor: React.FC = () => {
 
     // Handle View Change
     const handleViewChange = (newView: 'editor' | 'analytics' | 'commerce') => {
+        if (newView === 'commerce' && portfolioData?.mode !== 'linkinbio') {
+            setActiveView('editor');
+            return;
+        }
+
         // Prevent guests from accessing Analytics or Commerce
         if (newView === 'commerce' && (!currentUser || ownerUid === 'guest')) {
             saveGuestData();
@@ -674,13 +749,14 @@ const PortfolioEditor: React.FC = () => {
     if (!portfolioData) return <div className="h-screen bg-gray-950 flex items-center justify-center text-white">Loading Editor...</div>;
 
     return (
-        <div className={`h-screen w-screen flex flex-col overflow-hidden transition-colors ${theme === 'dark' ? 'bg-[#0f1117] text-gray-200' : 'bg-white text-gray-900'} `}>
+        <div className={`flex h-[100dvh] w-screen flex-col overflow-hidden transition-colors ${theme === 'dark' ? 'bg-[#0f1117] text-gray-200' : 'bg-white text-gray-900'} `}>
             <CreditLimitModal />
             <PortfolioHeader
                 title={portfolioData.title}
                 onTitleChange={(t) => handleUpdate({ title: t })}
                 editorTheme={theme === 'system' ? 'dark' : theme}
                 onToggleTheme={toggleTheme}
+                surfaceMode={portfolioData.mode || 'portfolio'}
                 activeDevice={activeDevice}
                 onBack={handleBack}
                 onDeviceChange={setActiveDevice}
@@ -703,7 +779,7 @@ const PortfolioEditor: React.FC = () => {
                 }}
             />
 
-            <div className="flex-1 flex overflow-hidden relative">
+            <div className="flex-1 min-h-0 flex overflow-hidden relative">
                 {(!isMobile || activeView === 'editor') && activeView === 'editor' && (
                     <PortfolioSidebar
                         portfolioData={portfolioData}
@@ -731,21 +807,25 @@ const PortfolioEditor: React.FC = () => {
                 )}
 
                 {activeView === 'analytics' ? (
-                    <AnalyticsDashboard
-                        portfolioId={portfolioData.id}
-                        ownerId={portfolioData.userId}
-                    />
+                    <Suspense fallback={<PortfolioEditorLazyFallback theme={theme} />}>
+                        <AnalyticsDashboard
+                            portfolioId={portfolioData.id}
+                            ownerId={portfolioData.userId}
+                        />
+                    </Suspense>
                 ) : activeView === 'commerce' ? (
-                    <CommerceDashboard
-                        isEmbedded={true}
-                        onProductsChange={(products) => {
-                            // Auto-enable storefront if user adds products but hasn't enabled it yet
-                            if (products.length > 0 && portfolioData?.linkInBio && !portfolioData.linkInBio.enableStore) {
-                                console.log('[Editor] Auto-enabling storefront as products were detected.');
-                                handleNestedUpdate('linkInBio', 'enableStore', true);
-                            }
-                        }}
-                    />
+                    <Suspense fallback={<PortfolioEditorLazyFallback theme={theme} />}>
+                        <CommerceDashboard
+                            isEmbedded={true}
+                            onProductsChange={(products) => {
+                                // Auto-enable storefront if user adds products but hasn't enabled it yet
+                                if (products.length > 0 && portfolioData?.linkInBio && !portfolioData.linkInBio.enableStore) {
+                                    console.log('[Editor] Auto-enabling storefront as products were detected.');
+                                    handleNestedUpdate('linkInBio', 'enableStore', true);
+                                }
+                            }}
+                        />
+                    </Suspense>
                 ) : (
                     <PortfolioPreview
                         portfolioData={portfolioData}
@@ -798,25 +878,29 @@ const PortfolioEditor: React.FC = () => {
                 portfolioData={portfolioData}
             />
 
-            {isAIImageModalOpen && (
-                <AIImageEditModal
-                    userId={currentUser?.uid || ''}
-                    onClose={() => setIsAIImageModalOpen(false)}
-                    currentPhoto={currentAIImageSrc || ''}
-                    onSave={handleSaveAIImage}
-                    onUseTemp={(tempUrl) => handleSaveAIImage(tempUrl)}
-                    onError={(title, msg) => alert(`${title}: ${msg} `)}
-                    promptOptions={aiPromptOptions}
-                />
-            )}
-            {/* Guest Conversion Modals */}
-            <QuickAuthModal
-                isOpen={showAuthModal}
-                onClose={() => setShowAuthModal(false)}
-                onSuccess={handleAuthSuccess}
-                title={authModalConfig.title}
-                subtitle={authModalConfig.subtitle}
-            />
+            <Suspense fallback={null}>
+                {isAIImageModalOpen && (
+                    <AIImageEditModal
+                        userId={currentUser?.uid || ''}
+                        onClose={() => setIsAIImageModalOpen(false)}
+                        currentPhoto={currentAIImageSrc || ''}
+                        onSave={handleSaveAIImage}
+                        onUseTemp={(tempUrl) => handleSaveAIImage(tempUrl)}
+                        onError={(title, message) => setAlertModal({ isOpen: true, title, message })}
+                        promptOptions={aiPromptOptions}
+                    />
+                )}
+                {/* Guest Conversion Modals */}
+                {showAuthModal && (
+                    <QuickAuthModal
+                        isOpen={showAuthModal}
+                        onClose={() => setShowAuthModal(false)}
+                        onSuccess={handleAuthSuccess}
+                        title={authModalConfig.title}
+                        subtitle={authModalConfig.subtitle}
+                    />
+                )}
+            </Suspense>
 
             <AlertModal
                 isOpen={alertModal.isOpen}
@@ -825,21 +909,27 @@ const PortfolioEditor: React.FC = () => {
                 message={alertModal.message}
             />
 
-            <StockPhotoModal
-                isOpen={isStockPhotoModalOpen}
-                onClose={() => setIsStockPhotoModalOpen(false)}
-                onSelect={(url) => handleSaveAIImage(url)}
-            />
+            <Suspense fallback={null}>
+                {isStockPhotoModalOpen && (
+                    <StockPhotoModal
+                        isOpen={isStockPhotoModalOpen}
+                        onClose={() => setIsStockPhotoModalOpen(false)}
+                        onSelect={(url) => handleSaveAIImage(url)}
+                    />
+                )}
 
-            {/* AI Portfolio Editor Modal */}
-            <AIPortfolioEditorModal
-                isOpen={isAIModalOpen}
-                onClose={() => setIsAIModalOpen(false)}
-                portfolioData={portfolioData}
-                onApply={handleUpdate}
-                editorTheme={theme === 'system' ? 'dark' : theme}
-                resumes={resumes}
-            />
+                {/* AI Portfolio Editor Modal */}
+                {isAIModalOpen && (
+                    <AIPortfolioEditorModal
+                        isOpen={isAIModalOpen}
+                        onClose={() => setIsAIModalOpen(false)}
+                        portfolioData={portfolioData}
+                        onApply={handleUpdate}
+                        editorTheme={theme === 'system' ? 'dark' : theme}
+                        resumes={resumes}
+                    />
+                )}
+            </Suspense>
         </div>
     );
 };

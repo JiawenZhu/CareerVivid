@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { CAREER_PATHS, Industry } from '../data/careers';
 import { ArrowRight, Mic, Loader2, ChevronLeft, Clock, SlidersHorizontal, Sparkles, Trash2, BarChart3 } from 'lucide-react';
 import { generateInterviewQuestions } from '../services/geminiService';
-import AIInterviewAgentModal from '../components/AIInterviewAgentModal';
 import { usePracticeHistory } from '../hooks/useJobHistory';
 import { Job, PracticeHistoryEntry, ResumeData } from '../types';
 import { useAuth } from '../contexts/AuthContext';
@@ -18,6 +17,9 @@ import AppLayout from '../components/Layout/AppLayout';
 
 // Lazy load modal
 const InterviewReportModal = React.lazy(() => import('../components/InterviewReportModal'));
+const loadAIInterviewAgentModal = () => import('../components/AIInterviewAgentModal');
+const AIInterviewAgentModal = React.lazy(loadAIInterviewAgentModal);
+const preloadAIInterviewAgentModal = () => loadAIInterviewAgentModal().catch(() => undefined);
 
 const formatResumeForContext = (resume: ResumeData): string => {
     let context = `Name: ${resume.personalDetails.firstName} ${resume.personalDetails.lastName}\n`;
@@ -253,6 +255,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
 
         setIsLoading(true);
         setError('');
+        void preloadAIInterviewAgentModal();
         try {
             // Generate interview questions
             const questions = await generateInterviewQuestions(currentUser.uid, buildQuestionGenerationPrompt(generationPrompt));
@@ -354,6 +357,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
             setIsLoading(true);
             setError('');
             try {
+                void preloadAIInterviewAgentModal();
                 /*
                 const functions = getFunctions(undefined, 'us-west1');
                 const getToken = httpsCallable(functions, 'getInterviewAuthToken');
@@ -668,21 +672,23 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                 onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
             />
 
-            {isInterviewModalOpen && interviewState && (
-                <AIInterviewAgentModal
-                    jobId={interviewState.jobId}
-                    interviewPrompt={interviewState.prompt}
-                    questions={interviewState.questions}
-                    isFirstTime={interviewState.isFirstTime}
-                    resumeContext={interviewState.resumeContext}
-                    jobTitle={interviewState.jobTitle}
-                    jobCompany={interviewState.jobCompany}
-                    onClose={() => {
-                        setIsInterviewModalOpen(false);
-                        setInterviewState(null);
-                    }}
-                />
-            )}
+            <Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"><Loader2 className="animate-spin text-white" /></div>}>
+                {isInterviewModalOpen && interviewState && (
+                    <AIInterviewAgentModal
+                        jobId={interviewState.jobId}
+                        interviewPrompt={interviewState.prompt}
+                        questions={interviewState.questions}
+                        isFirstTime={interviewState.isFirstTime}
+                        resumeContext={interviewState.resumeContext}
+                        jobTitle={interviewState.jobTitle}
+                        jobCompany={interviewState.jobCompany}
+                        onClose={() => {
+                            setIsInterviewModalOpen(false);
+                            setInterviewState(null);
+                        }}
+                    />
+                )}
+            </Suspense>
         </AppLayout>
     );
 };

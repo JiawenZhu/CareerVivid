@@ -1,5 +1,5 @@
 /**
- * CareerVivid Auto-Apply — Greenhouse ATS Adapter
+ * CareerVivid Job Application Assistant — Greenhouse ATS Adapter
  *
  * Greenhouse uses standard HTML forms with predictable structure:
  * - Labels are in <label> elements associated via `for` attribute or DOM proximity
@@ -15,7 +15,7 @@
  */
 
 import type { ATSAdapter, FormField, FieldType } from '../../types/autofill.types';
-import { fillInputReactSafe, fillSelectByValue, fillTextarea } from '../fillUtils';
+import { fillFileInputReactSafe, fillInputReactSafe, fillSelectByValue, fillTextarea, isDemographicField } from '../fillUtils';
 
 export class GreenhouseAdapter implements ATSAdapter {
   name = 'Greenhouse';
@@ -58,7 +58,7 @@ export class GreenhouseAdapter implements ATSAdapter {
       fields.push({ label, element: el, type, filled: false });
     }
 
-    return fields;
+    return fields.filter(f => !isDemographicField(f.label));
   }
 
   async fillField(field: FormField, value: string): Promise<void> {
@@ -73,6 +73,12 @@ export class GreenhouseAdapter implements ATSAdapter {
       await fillTextarea(el, value);
     } else if (el instanceof HTMLSelectElement) {
       await fillSelectByValue(el, value);
+    }
+  }
+
+  async fillFileField(field: FormField, file: File): Promise<void> {
+    if (field.element instanceof HTMLInputElement) {
+      await fillFileInputReactSafe(field.element, file);
     }
   }
 
@@ -130,7 +136,7 @@ export class GreenhouseAdapter implements ATSAdapter {
     if (el instanceof HTMLTextAreaElement) return 'textarea';
     if (el instanceof HTMLInputElement) {
       const typeAttr = el.type.toLowerCase();
-      if (['email', 'tel', 'url', 'date', 'text'].includes(typeAttr)) return typeAttr as FieldType;
+      if (['email', 'tel', 'url', 'date', 'text', 'file'].includes(typeAttr)) return typeAttr as FieldType;
     }
     return 'unknown';
   }

@@ -6,6 +6,26 @@ import { AI_CREDIT_COSTS } from '../config/creditCosts';
 
 // --- Configuration ---
 const PROXY_URL = import.meta.env.VITE_GEMINI_PROXY_URL || 'https://us-west1-jastalk-firebase.cloudfunctions.net/geminiProxy';
+export const DEFAULT_TEXT_MODEL = 'gemini-3.1-flash-lite';
+const IMAGE_MODEL_FALLBACK = 'gemini-2.5-flash-image';
+const IMAGE_MODEL_PRIMARY = 'gemini-3-pro-image-preview';
+
+const TEXT_MODEL_ALIASES: Record<string, string> = {
+    'gemini-3.1-flash-lite': DEFAULT_TEXT_MODEL,
+    'gemini-3.1-flash-lite-preview': DEFAULT_TEXT_MODEL,
+    'gemini-2.5-flash-lite-preview': DEFAULT_TEXT_MODEL,
+    'gemini-2.5-flash-lite-preview-09-2025': DEFAULT_TEXT_MODEL,
+    'gemini-2.5-flash-preview': 'gemini-2.5-flash',
+    'gemini-2.5-flash-preview-09-2025': 'gemini-2.5-flash',
+    'gemini-2.5-flash-preview-05-20': 'gemini-2.5-flash',
+    'gemini-3-flash-preview': 'gemini-2.5-flash',
+    'gemini-3.1-flash-preview': 'gemini-2.5-flash',
+    'gemini-2.5-pro-preview': 'gemini-2.5-pro',
+    'gemini-3.1-pro-preview': 'gemini-2.5-pro',
+};
+
+const normalizeTextModelName = (modelName?: string): string | undefined =>
+    modelName ? TEXT_MODEL_ALIASES[modelName] || modelName : modelName;
 
 // --- Proxy Helper ---
 export interface ProxyPayload {
@@ -14,6 +34,41 @@ export interface ProxyPayload {
     config?: any;
     systemInstruction?: any;
 }
+
+const extractSystemText = (parts?: { text?: string }[]) => {
+    if (!Array.isArray(parts)) return '';
+    return parts.map(part => part.text || '').filter(Boolean).join('\n');
+};
+
+const normalizeGeminiContents = (contents: any, systemInstruction?: any) => {
+    const rawContents = Array.isArray(contents) ? contents : [contents];
+    const systemTexts: string[] = [];
+
+    const normalizedContents = rawContents.map(item => {
+        if (typeof item === 'string') {
+            return { role: 'user', parts: [{ text: item }] };
+        }
+        if (!item || typeof item !== 'object') {
+            return { role: 'user', parts: [{ text: String(item ?? '') }] };
+        }
+        if (item.role === 'system' || item.role === 'developer') {
+            const text = extractSystemText(item.parts);
+            if (text) systemTexts.push(text);
+            return null;
+        }
+        return {
+            ...item,
+            role: item.role === 'assistant' ? 'model' : item.role === 'model' ? 'model' : 'user'
+        };
+    }).filter(Boolean);
+
+    const extraSystemText = systemTexts.join('\n\n');
+    const normalizedSystemInstruction = extraSystemText
+        ? [systemInstruction, extraSystemText].filter(Boolean).join('\n\n')
+        : systemInstruction;
+
+    return { normalizedContents, normalizedSystemInstruction };
+};
 
 // --- Concurrency & Retry Logic ---
 
@@ -90,13 +145,11 @@ const retryOperation = async <T>(operation: () => Promise<T>, retries = 3, delay
 export const callGeminiProxy = async (payload: ProxyPayload): Promise<{ text: string, response: any }> => {
     return requestQueue.add(() => retryOperation(async () => {
         try {
-            // Normalize 'contents' to be Content[] as required by Gemini API
-            let normalizedContents = payload.contents;
-            if (typeof normalizedContents === 'string') {
-                normalizedContents = [{ role: 'user', parts: [{ text: normalizedContents }] }];
-            } else if (normalizedContents && typeof normalizedContents === 'object' && !Array.isArray(normalizedContents) && (normalizedContents as any).parts) {
-                normalizedContents = [normalizedContents];
-            }
+            const normalizedModelName = normalizeTextModelName(payload.modelName);
+            const { normalizedContents, normalizedSystemInstruction } = normalizeGeminiContents(
+                payload.contents,
+                payload.systemInstruction
+            );
 
             const response = await fetch(PROXY_URL, {
                 method: 'POST',
@@ -104,7 +157,9 @@ export const callGeminiProxy = async (payload: ProxyPayload): Promise<{ text: st
                 body: JSON.stringify({
                     data: {
                         ...payload,
-                        contents: normalizedContents
+                        modelName: normalizedModelName,
+                        contents: normalizedContents,
+                        systemInstruction: normalizedSystemInstruction
                     }
                 })
             });
@@ -271,7 +326,7 @@ export const parseResume = async (userId: string, resumeText: string, language: 
             responseSchema: resumeSchema
         };
 
-        const result = await callGeminiProxy({ modelName: 'gemini-2.5-flash', contents, config });
+        const result = await callGeminiProxy({ modelName: DEFAULT_TEXT_MODEL, contents, config });
 
         const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
         await trackUsage(userId, 'resume_parse_text', { tokenUsage });
@@ -308,7 +363,7 @@ export const parseResumeFromFile = async (userId: string, fileData: string, mime
             responseSchema: resumeSchema
         };
 
-        const result = await callGeminiProxy({ modelName: 'gemini-2.5-flash', contents, config });
+        const result = await callGeminiProxy({ modelName: DEFAULT_TEXT_MODEL, contents, config });
 
         const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
         await trackUsage(userId, 'resume_parse_file', { tokenUsage });
@@ -379,7 +434,7 @@ Return a JSON object with:
         }
 
         const result = await callGeminiProxy({
-            modelName: 'gemini-2.5-flash',
+            modelName: DEFAULT_TEXT_MODEL,
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
@@ -398,8 +453,49 @@ Return a JSON object with:
     }
 };
 
+const extractInlineImage = (response: any): string | null => {
+    const candidates = response?.candidates;
+    if (!candidates?.[0]?.content?.parts) return null;
+
+    for (const part of candidates[0].content.parts) {
+        if (part.inlineData) {
+            const base64ImageBytes = part.inlineData.data;
+            const outputMimeType = part.inlineData.mimeType || 'image/png';
+            if (base64ImageBytes) {
+                return `data:${outputMimeType};base64,${base64ImageBytes}`;
+            }
+        }
+    }
+
+    return null;
+};
+
+const isImageModelFallbackError = (error: unknown): boolean => {
+    const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+    return [
+        '404',
+        'not found',
+        'model',
+        'quota',
+        'permission',
+        'access',
+        'location',
+        'region',
+        'unsupported',
+        'unavailable',
+        '500',
+        'did not return an image',
+        'no image'
+    ].some(term => message.includes(term));
+};
+
+const isNetworkOrCorsError = (error: unknown): boolean => {
+    const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+    return message.includes('failed to fetch') || message.includes('networkerror') || message.includes('cors');
+};
+
 export const editProfilePhoto = async (userId: string, base64Image: string, mimeType: string, prompt: string): Promise<string> => {
-    try {
+    const runImageEdit = async (modelName: string) => {
         const contents = {
             parts: [
                 { inlineData: { mimeType, data: base64Image } },
@@ -408,64 +504,103 @@ export const editProfilePhoto = async (userId: string, base64Image: string, mime
         };
 
         const result = await callGeminiProxy({
-            modelName: 'gemini-2.5-flash-image',
+            modelName,
             contents,
             config: { responseModalities: ["IMAGE", "TEXT"] }
         });
 
-        const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 1000;
-        await trackUsage(userId, 'image_generation', { tokenUsage });
-
-        // Extract image from response
-        const candidates = result.response?.candidates;
-        if (candidates && candidates[0]?.content?.parts) {
-            for (const part of candidates[0].content.parts) {
-                if (part.inlineData) {
-                    const base64ImageBytes = part.inlineData.data;
-                    const outputMimeType = part.inlineData.mimeType || 'image/png';
-                    return `data:${outputMimeType};base64,${base64ImageBytes}`;
-                }
-            }
+        const generatedImage = extractInlineImage(result.response);
+        if (!generatedImage) {
+            throw new Error("AI did not return an image.");
         }
-        throw new Error("AI did not return an image.");
+
+        return { generatedImage, response: result.response };
+    };
+
+    try {
+        let modelName = IMAGE_MODEL_PRIMARY;
+        let fallbackUsed = false;
+        let result: Awaited<ReturnType<typeof runImageEdit>>;
+
+        try {
+            result = await runImageEdit(modelName);
+        } catch (primaryError) {
+            if (!isImageModelFallbackError(primaryError)) {
+                throw primaryError;
+            }
+
+            console.warn(`Primary image edit model failed; retrying with ${IMAGE_MODEL_FALLBACK}.`, primaryError);
+            modelName = IMAGE_MODEL_FALLBACK;
+            fallbackUsed = true;
+            result = await runImageEdit(modelName);
+        }
+
+        const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 1000;
+        await trackUsage(userId, 'image_generation', { tokenUsage, modelName, fallbackUsed });
+
+        return result.generatedImage;
 
     } catch (error) {
         console.error("Error editing photo:", error);
         reportError(error as Error, { functionName: 'editProfilePhoto' });
-        throw new Error("Failed to edit photo with AI.");
+        if (isNetworkOrCorsError(error)) {
+            throw new Error("CareerVivid could not reach the AI image service from this origin. Try careervivid.app, or redeploy the Gemini proxy CORS update for local testing.");
+        }
+        throw new Error("AI image editing is temporarily unavailable. Try a smaller uploaded JPG/PNG, or try again in a few minutes.");
     }
 };
 
 export const generateImage = async (userId: string, prompt: string, modelType: 'standard' | 'pro' = 'standard'): Promise<string> => {
-    try {
-        const apiModel = modelType === 'pro' ? 'gemini-3.1-flash-image-preview' : 'gemini-2.5-flash-image';
-        const requiredCredits = modelType === 'pro' ? 20 : 10;
+    const generateWithModel = async (modelName: string) => {
+        const contents = {
+            parts: [
+                { text: prompt }
+            ]
+        };
 
         const result = await callGeminiProxy({
-            modelName: apiModel,
-            contents: prompt,
+            modelName,
+            contents,
             config: { responseModalities: ["IMAGE"] }
         });
 
-        const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 1000;
-        await trackUsage(userId, 'image_generation_prompt', { tokenUsage, deductCredits: requiredCredits });
-
-        const candidates = result.response?.candidates;
-        if (candidates && candidates[0]?.content?.parts) {
-            for (const part of candidates[0].content.parts) {
-                if (part.inlineData) {
-                    const base64ImageBytes = part.inlineData.data;
-                    const outputMimeType = part.inlineData.mimeType || 'image/png';
-                    return `data:${outputMimeType};base64,${base64ImageBytes}`;
-                }
-            }
+        const generatedImage = extractInlineImage(result.response);
+        if (!generatedImage) {
+            throw new Error("AI did not return an image.");
         }
-        throw new Error("AI did not return an image.");
+
+        return { generatedImage, response: result.response };
+    };
+
+    try {
+        const requestedModel = modelType === 'pro' ? IMAGE_MODEL_PRIMARY : IMAGE_MODEL_FALLBACK;
+        const requiredCredits = modelType === 'pro' ? 20 : 10;
+        let apiModel = requestedModel;
+        let fallbackUsed = false;
+        let result: Awaited<ReturnType<typeof generateWithModel>>;
+
+        try {
+            result = await generateWithModel(apiModel);
+        } catch (primaryError) {
+            if (apiModel !== IMAGE_MODEL_PRIMARY || !isImageModelFallbackError(primaryError)) {
+                throw primaryError;
+            }
+            console.warn(`Primary image generation model failed; retrying with ${IMAGE_MODEL_FALLBACK}.`, primaryError);
+            apiModel = IMAGE_MODEL_FALLBACK;
+            fallbackUsed = true;
+            result = await generateWithModel(apiModel);
+        }
+
+        const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 1000;
+        const billedCredits = fallbackUsed ? 10 : requiredCredits;
+        await trackUsage(userId, 'image_generation_prompt', { tokenUsage, deductCredits: billedCredits, modelName: apiModel, fallbackUsed });
+
+        return result.generatedImage;
 
     } catch (error) {
         console.error("Error generating image:", error);
         reportError(error as Error, { functionName: 'generateImage' });
-        throw new Error("Failed to generate image with AI.");
+        throw new Error("AI image generation is temporarily unavailable. Try a more specific prompt or try again in a few minutes.");
     }
 };
 
@@ -489,7 +624,7 @@ export const generateResumeFromPrompt = async (userId: string, prompt: string): 
             responseSchema: generationSchema
         };
 
-        const result = await callGeminiProxy({ modelName: 'gemini-2.5-flash', contents: fullPrompt, config });
+        const result = await callGeminiProxy({ modelName: DEFAULT_TEXT_MODEL, contents: fullPrompt, config });
 
         const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
         if (!userId.startsWith('guest_')) {
@@ -519,7 +654,7 @@ export const generalChat = async (userId: string, history: { role: 'user' | 'mod
 
     try {
         const result = await callGeminiProxy({
-            modelName: 'gemini-2.5-flash',
+            modelName: DEFAULT_TEXT_MODEL,
             contents: [...history, { role: 'user', parts: [{ text: newMessage }] }],
             systemInstruction
         });
@@ -539,7 +674,7 @@ export const generateInterviewQuestions = async (userId: string, prompt: string)
     try {
         const fullPrompt = `Based on the following description, generate a list of 5-7 insightful interview questions...`;
         const result = await callGeminiProxy({
-            modelName: 'gemini-2.5-flash',
+            modelName: DEFAULT_TEXT_MODEL,
             contents: fullPrompt,
             config: {
                 responseMimeType: "application/json",
@@ -562,7 +697,7 @@ export const generateDemoInterviewQuestions = async (prompt: string): Promise<st
     try {
         const fullPrompt = `Based on the following description, generate a list of 2-3 insightful interview questions for a short demo interview. The questions should be relevant to the role described. Return ONLY a valid JSON array of strings, with no other text or explanation. Description: "${prompt}"`;
         const result = await callGeminiProxy({
-            modelName: 'gemini-2.5-flash',
+            modelName: DEFAULT_TEXT_MODEL,
             contents: fullPrompt,
             config: {
                 responseMimeType: "application/json",
@@ -614,7 +749,7 @@ Your entire response MUST be a valid JSON object that conforms to the provided s
             },
         };
 
-        const result = await callGeminiProxy({ modelName: 'gemini-2.5-flash', contents: fullPrompt, config });
+        const result = await callGeminiProxy({ modelName: DEFAULT_TEXT_MODEL, contents: fullPrompt, config });
 
         const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
         const metadata: { tokenUsage: number, durationInSeconds?: number } = { tokenUsage };
@@ -651,6 +786,10 @@ const resumeMatchSchema = {
         summary: { type: "STRING", description: "A brief, 2-3 sentence summary of the resume's strengths and weaknesses against the job description." },
         verdict: { type: "STRING", description: "Overall AI text verdict summary (e.g. 'Great Fit! Your resume strongly aligns...')" },
         verdictCategory: { type: "STRING", description: "Overall verdict classification: 'Great', 'Good', 'Fair', or 'Missing'." },
+        strongMatches: { type: "ARRAY", description: "2-3 short proof points showing why this candidate is a strong match.", items: { type: "STRING" } },
+        experienceGaps: { type: "ARRAY", description: "1-3 practical gaps or weak evidence areas the candidate should address.", items: { type: "STRING" } },
+        suggestedResumeAngle: { type: "STRING", description: "One concise resume positioning angle for this role." },
+        recommendedAction: { type: "STRING", description: "One of: apply_now, tailor_first, network_first, skip_for_now." },
         qualifications: { 
             type: "OBJECT",
             properties: granularCategorySchema.properties,
@@ -684,6 +823,10 @@ const resumeMatchSchema = {
         "summary", 
         "verdict", 
         "verdictCategory", 
+        "strongMatches",
+        "experienceGaps",
+        "suggestedResumeAngle",
+        "recommendedAction",
         "qualifications", 
         "responsibilities", 
         "keywords", 
@@ -715,12 +858,15 @@ CRITICAL RULES FOR ULTRA-FAST RESPONSE:
 - Keep overall summary and verdict to 1-2 short sentences.
 - Limit 'details' lists under EACH category to exactly 2 key short points.
 - Limit totalKeywords, matchedKeywords, and missingKeywords arrays to at most 6-8 core tech skills. Do not list large lists.
+- Limit strongMatches to at most 3 proof points and experienceGaps to at most 3 practical gaps.
+- recommendedAction must be exactly one of: apply_now, tailor_first, network_first, skip_for_now.
+- suggestedResumeAngle must be one compact sentence a user can apply in resume tailoring.
 - Be highly concise and brief.
 
 Return JSON matching the schema.`;
 
         const result = await callGeminiProxy({
-            modelName: 'gemini-2.5-flash',
+            modelName: DEFAULT_TEXT_MODEL,
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
@@ -769,7 +915,7 @@ For 'jobPostURL', prioritize using the original browser metadata URL context pro
 For 'directApplicationURL', look for any ATS hosting portals (like greenhouse.io, ashbyhq.com, lever.co, workday.com, etc.) in the text.`;
 
         const result = await callGeminiProxy({
-            modelName: 'gemini-2.5-flash',
+            modelName: DEFAULT_TEXT_MODEL,
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
@@ -804,7 +950,7 @@ export const generateJobPrepNotes = async (userId: string, job: JobApplicationDa
     try {
         const prompt = `You are an expert career coach... [Job: ${job.jobTitle}]`;
         const result = await callGeminiProxy({
-            modelName: 'gemini-2.5-flash',
+            modelName: DEFAULT_TEXT_MODEL,
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
@@ -835,7 +981,7 @@ export const regenerateJobPrepSection = async (
         const prompt = `...Regenerate content for "${sectionName}"...`;
 
         const result = await callGeminiProxy({
-            modelName: 'gemini-2.5-flash',
+            modelName: DEFAULT_TEXT_MODEL,
             contents: prompt,
         });
 
@@ -903,7 +1049,7 @@ Generate 6-15 nodes for a meaningful diagram. Keep IDs strictly 20 alphanumeric 
         }
 
         const result = await callGeminiProxy({
-            modelName: 'gemini-3-flash-preview',
+            modelName: DEFAULT_TEXT_MODEL,
             contents: `Generate an Excalidraw diagram for: "${prompt.slice(0, 1000)}"`,
             systemInstruction,
         });

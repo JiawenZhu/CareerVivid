@@ -197,6 +197,39 @@ const buildPublicResumeResponse = (
   };
 };
 
+const isPublicShareEnabled = (data: admin.firestore.DocumentData): boolean =>
+  data?.shareConfig?.enabled === true;
+
+const fetchOwnerIsPremium = async (userId: string): Promise<boolean> => {
+  try {
+    const ownerDoc = await db.collection("users").doc(userId).get();
+    if (!ownerDoc.exists) return false;
+
+    const ownerData = ownerDoc.data();
+    const isSprintValid = ownerData?.plan === "pro_sprint" && ownerData?.expiresAt
+      ? ownerData.expiresAt.toMillis() > Date.now()
+      : false;
+    const isMonthlyActive = ownerData?.plan === "pro_monthly" &&
+      (ownerData?.stripeSubscriptionStatus === "active" || ownerData?.stripeSubscriptionStatus === "trialing");
+    const hasLegacyPremium = ownerData?.promotions?.isPremium === true;
+
+    return isSprintValid || isMonthlyActive || hasLegacyPremium;
+  } catch (error) {
+    console.error("[publicResumeApi] Failed to fetch owner premium status:", error);
+    return false;
+  }
+};
+
+const buildFullPublicResumeResponse = async (
+  userId: string,
+  resumeId: string,
+  data: admin.firestore.DocumentData,
+) => ({
+  ...data,
+  id: resumeId,
+  ownerIsPremium: await fetchOwnerIsPremium(userId),
+});
+
 const fetchResume = async (userId: string, resumeId?: string) => {
   if (resumeId) {
     const doc = await db.collection("users").doc(userId).collection("resumes").doc(resumeId).get();
@@ -246,6 +279,7 @@ export const publicResumeApi = functions
       const [firstPathSegment, secondPathSegment] = getPathSegments(req);
       const queryUserId = normalizeString(req.query.userId);
       const queryResumeId = normalizeString(req.query.resumeId);
+      const format = normalizeString(req.query.format);
       const userId = queryUserId || (secondPathSegment ? firstPathSegment : undefined);
       const resumeId = queryResumeId || secondPathSegment || firstPathSegment || DEFAULT_PUBLIC_RESUME_ID;
 
@@ -280,8 +314,17 @@ export const publicResumeApi = functions
           return;
         }
 
-        res.set("Cache-Control", "public, max-age=60, s-maxage=300");
-        res.status(200).json(buildPublicResumeResponse(result.userId, resumeDoc.id, data));
+        if (!isPublicShareEnabled(data)) {
+          res.status(403).json({ error: "Resume is private or no longer shared" });
+          return;
+        }
+
+        res.set("Cache-Control", "public, max-age=30, s-maxage=120, stale-while-revalidate=300");
+        res.status(200).json(
+          format === "full"
+            ? await buildFullPublicResumeResponse(result.userId, resumeDoc.id, data)
+            : buildPublicResumeResponse(result.userId, resumeDoc.id, data),
+        );
       } catch (error: any) {
         console.error("[publicResumeApi] Failed to fetch public resume:", error);
         res.status(500).json({ error: "Failed to fetch public resume" });

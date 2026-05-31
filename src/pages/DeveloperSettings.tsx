@@ -543,7 +543,7 @@ const DeveloperSettings: React.FC = () => {
                                         </div>
                                         <InteractiveCodeBlock copyText="cv agent">
                                             <span className="text-[#e2b93d]">cv agent</span><span className="text-gray-500">           # choose model interactively</span>{'\n'}
-                                            <span className="text-[#e2b93d]">cv agent</span><span className="text-gray-300"> --pro</span><span className="text-gray-500">    # gemini-3.1-pro with thinking mode</span>{'\n'}
+                                            <span className="text-[#e2b93d]">cv agent</span><span className="text-gray-300"> --pro</span><span className="text-gray-500">    # gemini-2.5-pro with thinking mode</span>{'\n'}
                                             <span className="text-[#e2b93d]">cv agent</span><span className="text-gray-300"> --coding</span><span className="text-gray-500">  # + file I/O, shell & search tools</span>
                                         </InteractiveCodeBlock>
                                         <div className="ml-7 grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -667,7 +667,7 @@ const DeveloperSettings: React.FC = () => {
                                                         ['--resume', 'Load resume tools (read & manage resumes)'],
                                                         ['--jobs', 'All job-hunting + resume tools (superset of --resume)'],
                                                         ['--coding', 'File I/O, shell execution, and search tools'],
-                                                        ['--pro', 'Use gemini-3.1-pro with thinking enabled (8 192 token budget)'],
+                                                        ['--pro', 'Use gemini-2.5-pro with thinking enabled (8 192 token budget)'],
                                                         ['--think <N>', 'Custom thinking token budget on any model'],
                                                         ['--verbose', 'Show thinking tokens in output (requires --think / --pro)'],
                                                         ['--project <id>', 'GCP project for Vertex AI / ADC auth (no API key needed)'],

@@ -12,7 +12,7 @@ export const useMyCommunityPosts = () => {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!currentUser) {
+        if (!currentUser || !currentUser.uid) {
             setPosts([]);
             setIsLoading(false);
             return;

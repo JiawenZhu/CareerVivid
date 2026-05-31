@@ -28,24 +28,24 @@ const ClientPortalPage: React.FC = () => {
 
     return (
         <PortalGuard>
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col font-sans transition-colors duration-300">
-                <PublicHeader variant="default" />
+            <div className="cv-warm-page cv-warm-grid flex flex-col font-sans transition-colors duration-300">
+                <PublicHeader variant="editorial" />
 
                 <main className="flex-grow pt-24 pb-20">
                     {loading ? (
                         <div className="flex justify-center items-center h-64">
-                            <Loader2 className="animate-spin text-emerald-600" size={32} />
+                            <Loader2 className="animate-spin text-[#9a651f] dark:text-[#caa26c]" size={32} />
                         </div>
                     ) : error ? (
-                        <div className="text-center text-red-500 py-20">
+                        <div className="py-20 text-center text-[#9a1c2e] dark:text-[#f2a6b3]">
                             <h3>Error Loading Project</h3>
                             <p>{error}</p>
                         </div>
                     ) : !projectData ? (
                         <div className="flex flex-col items-center justify-center py-20 text-center space-y-6">
                             <div className="space-y-2">
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white">No Active Projects</h3>
-                                <p className="text-gray-500 max-w-md mx-auto">
+                                <h3 className="text-xl font-bold text-[#211b16] dark:text-[#f4f1e9]">No Active Projects</h3>
+                                <p className="mx-auto max-w-md text-[#665a4a] dark:text-[#aaa39a]">
                                     {isAdmin
                                         ? "There are no client projects in the database yet. Initialize one to start managing tasks."
                                         : "No project has been assigned to your account yet. Please contact support."
@@ -84,7 +84,7 @@ const ClientPortalPage: React.FC = () => {
                                             alert("Failed to create project");
                                         }
                                     }}
-                                    className="px-6 py-3 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 transition-colors shadow-lg flex items-center gap-2"
+                                    className="flex items-center gap-2 rounded-lg bg-[#211b16] px-6 py-3 font-bold text-white shadow-lg transition-colors hover:bg-[#3a2b20] dark:bg-[#f4f1e9] dark:text-[#1f1f1d] dark:hover:bg-white"
                                 >
                                     <Shield size={18} />
                                     Initialize Demo Project

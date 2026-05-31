@@ -12,11 +12,16 @@ interface CoverLetterManagerModalProps {
     onClose: () => void;
     resume: ResumeData;
     theme?: string;
+    initialJob?: {
+        jobTitle?: string;
+        companyName?: string;
+        jobDescription?: string;
+    } | null;
 }
 
 type ViewMode = 'list' | 'create' | 'detail';
 
-const CoverLetterManagerModal: React.FC<CoverLetterManagerModalProps> = ({ isOpen, onClose, resume, theme }) => {
+const CoverLetterManagerModal: React.FC<CoverLetterManagerModalProps> = ({ isOpen, onClose, resume, theme, initialJob }) => {
     const { currentUser } = useAuth();
     const [viewMode, setViewMode] = useState<ViewMode>('list');
     const [coverLetters, setCoverLetters] = useState<CoverLetter[]>([]);
@@ -32,6 +37,16 @@ const CoverLetterManagerModal: React.FC<CoverLetterManagerModalProps> = ({ isOpe
 
     // Detail View State
     const [copied, setCopied] = useState(false);
+
+    useEffect(() => {
+        if (!isOpen || !initialJob) return;
+
+        setJobTitle(initialJob.jobTitle || '');
+        setCompanyName(initialJob.companyName || '');
+        setJobDescription(initialJob.jobDescription || '');
+        setSelectedLetter(null);
+        setViewMode('create');
+    }, [initialJob, isOpen]);
 
     // Fetch Cover Letters
     useEffect(() => {

@@ -21,7 +21,7 @@ async function setupStripe() {
       maxProduct = existingMax;
   } else {
       console.log('Creating new Pro Max product...');
-      maxProduct = await stripe.products.create({ name: 'Pro Max', description: '10,000 AI Credits / mo' });
+      maxProduct = await stripe.products.create({ name: 'Pro Max', description: '5,000 AI Credits / mo' });
   }
 
   // Create Prices

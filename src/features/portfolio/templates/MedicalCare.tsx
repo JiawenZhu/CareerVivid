@@ -88,7 +88,7 @@ const MedicalCare: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
             <section className="py-16 px-6 md:px-12 max-w-5xl mx-auto">
                 <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 md:p-12">
                     <h2 className="text-teal-600 font-bold uppercase tracking-widest text-sm mb-8 flex items-center gap-2">
-                        <GraduationCap size={18} /> Education & Formatting
+                        <GraduationCap size={18} /> Education & Credentials
                     </h2>
                     <div className={`grid ${responsiveClass('', 'md:grid-cols-2')} gap-8`}>
                         {(education || []).map((edu, idx) => (
@@ -176,7 +176,7 @@ const MedicalCare: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileV
             </section>
 
             {/* Research / Projects (If any) */}
-            {projects.length > 0 && (
+            {(projects || []).length > 0 && (
                 <section className="py-16 px-6 md:px-12 bg-slate-50 border-t border-slate-100">
                     <div className="max-w-5xl mx-auto">
                         <h2 className="text-2xl font-bold text-slate-900 mb-8">Publications & Research</h2>

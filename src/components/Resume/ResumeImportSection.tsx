@@ -26,24 +26,24 @@ const ResumeImportSection: React.FC<ResumeImportSectionProps> = ({
     isReadOnly
 }) => {
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300">
+        <div className="overflow-hidden rounded-xl border border-[#e8dfd3] bg-white shadow-sm transition-all duration-300 dark:border-gray-800 dark:bg-gray-900/70">
             <button
                 onClick={() => setIsImportExpanded(!isImportExpanded)}
-                className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/80 hover:bg-gray-100 dark:hover:bg-gray-700/80 transition-colors"
+                className="flex w-full items-center justify-between bg-[#fbf8f3] p-4 transition-colors hover:bg-[#f3eee6] dark:bg-gray-900/80 dark:hover:bg-gray-800/80"
                 type="button"
             >
                 <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-md transition-colors ${isImportExpanded ? 'bg-primary-100 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400' : 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
+                    <div className={`rounded-lg p-2 transition-colors ${isImportExpanded ? 'bg-primary-100 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400' : 'bg-white text-slate-500 dark:bg-gray-800 dark:text-gray-400'}`}>
                         <UploadCloud size={20} />
                     </div>
                     <div className="text-left">
-                        <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">{t('resume_form.import_resume')}</h3>
+                        <h3 className="text-sm font-black text-slate-900 dark:text-gray-100">{t('resume_form.import_resume')}</h3>
                         {importSuccess ? (
                             <p className="text-xs text-green-600 dark:text-green-400 font-bold flex items-center gap-1 animate-in fade-in duration-300">
                                 <CheckCircle size={12} /> {t('resume_form.import_success', 'Imported successfully!')}
                             </p>
                         ) : (
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{t('resume_form.autofill_desc')}</p>
+                            <p className="text-xs text-slate-500 dark:text-gray-400">{t('resume_form.autofill_desc')}</p>
                         )}
                     </div>
                 </div>

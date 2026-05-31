@@ -60,6 +60,8 @@ export interface ShareConfig {
   enabled: boolean;
   permission: SharePermission;
   shareId?: string; // Optional unique token if we want to obfuscate IDs later
+  readyForRecruiters?: boolean;
+  readyAt?: string | null;
 }
 
 export interface SectionTitles {
@@ -144,6 +146,27 @@ export interface EmailPreferences {
   topicSource: 'smart' | 'manual';
   manualTopic: string;
   lastSentAt?: any; // Firestore Timestamp
+  disabled?: boolean;
+  unsubscribed?: boolean;
+  disabledCategories?: string[];
+  disabledTracks?: string[];
+  categories?: Partial<Record<
+    | 'onboarding'
+    | 'activation'
+    | 'feature_spotlight'
+    | 'weekly_digest'
+    | 'lifecycle'
+    | 'milestone'
+    | 'transactional'
+    | 'billing'
+    | 'practice'
+    | 'marketing'
+    | 'advocacy'
+    | 'system',
+    boolean
+  >>;
+  tracks?: Record<string, boolean>;
+  lifecycleCategories?: Record<string, boolean>;
 }
 
 export type SidebarNodeType = 'system' | 'custom-folder' | 'custom-file' | 'resume' | 'portfolio' | 'whiteboard' | 'post' | 'sop' | 'project' | 'interview';
@@ -180,6 +203,7 @@ export interface UserProfile {
   // Plan and limits
   plan?: 'free' | 'pro' | 'max' | 'pro_max' | 'enterprise' | 'pro_monthly' | 'pro_sprint' | 'premium';
   resumeLimit?: number; // 1 (free), 9999 (unlimited for paid)
+  downloadCredits?: number; // One-time PDF export credits for free users
   expiresAt?: any; // Firestore Timestamp - for sprint plan
   promotions: {
     isPremium?: boolean;
@@ -195,8 +219,8 @@ export interface UserProfile {
   adminUid?: string;        // UID of the team admin
 
   // Partner Fields
-  role?: 'user' | 'admin' | 'academic_partner' | 'business_partner'; // Deprecated - kept for backward compatibility
-  roles?: ('admin' | 'academic_partner' | 'business_partner')[]; // New: Users can have multiple roles
+  role?: 'user' | 'admin' | 'academic_partner' | 'business_partner' | 'agency_partner'; // Deprecated - kept for backward compatibility
+  roles?: ('admin' | 'academic_partner' | 'business_partner' | 'agency_partner')[]; // New: Users can have multiple roles
   referralCode?: string; // For partners: their unique code OR for premium users: their personal referral code
   referredBy?: string; // For students: code they used
   referredByUid?: string; // UID of user who referred this user
@@ -211,7 +235,7 @@ export interface UserProfile {
   aiUsage?: {
     count: number;        // Current month's usage (aggregated sum)
     lastResetDate: any;   // Firestore Timestamp - when counter was last reset
-    monthlyLimit: number; // 100 (free), 1000 (pro), 10000 (max), or pooled limit
+    monthlyLimit: number; // 100 (free), 1000 (pro), 5000 (max), or pooled limit
   };
 }
 
@@ -221,6 +245,7 @@ export type TrackEventType =
   | 'interview_start' | 'interview_analysis'
   | 'resume_suggestion' | 'question_generation'
   | 'resume_parse_text' | 'resume_parse_file' | 'resume_generate_prompt'
+  | 'resume_created'
   | 'resume_download'
   | 'checkout_session_start'
   | 'job_prep_generation'
@@ -228,7 +253,8 @@ export type TrackEventType =
   | 'job_parse_description'
   | 'resume_match_analysis'
   | 'portfolio_generation'
-  | 'portfolio_refinement';
+  | 'portfolio_refinement'
+  | 'lifecycle_email_queued';
 
 
 // --- Interview Studio Types ---
@@ -276,9 +302,32 @@ export interface PracticeHistoryEntry {
 // --- Job Tracker Types ---
 export type ApplicationStatus = 'To Apply' | 'Applied' | 'Interviewing' | 'Offered' | 'Rejected';
 export type WorkModel = 'On-site' | 'Hybrid' | 'Remote';
+export type JobPriority = 'Low' | 'Medium' | 'High';
 
 export const APPLICATION_STATUSES: ApplicationStatus[] = ['To Apply', 'Applied', 'Interviewing', 'Offered', 'Rejected'];
 export const WORK_MODELS: WorkModel[] = ['On-site', 'Hybrid', 'Remote'];
+export const JOB_PRIORITIES: JobPriority[] = ['Low', 'Medium', 'High'];
+export const NO_NEXT_ACTION = 'No action';
+export const NEXT_ACTION_OPTIONS = [
+  NO_NEXT_ACTION,
+  'Review job fit',
+  'Tailor resume',
+  'Generate cover letter',
+  'Submit application',
+  'Mark as applied',
+  'Find recruiter/contact',
+  'Draft outreach message',
+  'Send LinkedIn message',
+  'Send email',
+  'Ask for referral',
+  'Follow up',
+  'Check application status',
+  'Prepare interview',
+  'Send thank-you note',
+  'Review offer',
+  'Negotiate offer',
+  'Archive or skip',
+] as const;
 
 // --- Career-Ops AI Types ---
 
@@ -360,6 +409,14 @@ export interface JobApplicationData {
   interviewStage?: string;
   dateApplied?: any; // Firestore Timestamp
   salaryRange?: string;
+  priority?: JobPriority;
+  nextAction?: string;
+  nextActionDueDate?: any;
+  contactName?: string;
+  contactUrl?: string;
+  contactChannel?: string;
+  resumeId?: string;
+  resumeTitle?: string;
 
   // Prep Notes
   prep_RoleOverview?: string;
@@ -401,6 +458,10 @@ export interface ResumeMatchAnalysis {
   summary: string;
   verdict?: string;         // Overall AI text summary
   verdictCategory?: string; // "Great", "Good", "Missing"
+  strongMatches?: string[]; // Specific proof points that make the job worth pursuing
+  experienceGaps?: string[]; // Practical gaps to address before applying or networking
+  suggestedResumeAngle?: string; // One concise positioning angle for tailoring
+  recommendedAction?: 'apply_now' | 'tailor_first' | 'network_first' | 'skip_for_now' | string;
   qualifications?: GranularMatchCategory;
   responsibilities?: GranularMatchCategory;
   keywords?: GranularMatchCategory;
@@ -427,8 +488,21 @@ export interface ContactMessage {
   email: string;
   subject: string;
   message: string;
-  status: 'unread' | 'read';
+  status: 'unread' | 'read' | 'forwarded' | 'error';
   timestamp: any; // Firestore Timestamp
+  aiSupport?: CustomerSupportTriage;
+  supportStatus?: 'needs_review' | 'triaged';
+}
+
+export interface CustomerSupportTriage {
+  category: string;
+  priority: 'P0' | 'P1' | 'P2' | 'P3';
+  sentiment: 'positive' | 'neutral' | 'negative';
+  summary: string;
+  nextAction: string;
+  replyDraft: string;
+  internalNotes: string;
+  needsHumanReview: boolean;
 }
 
 export interface FAQEntry {
@@ -586,6 +660,61 @@ export interface CompanyProfile {
   // Metadata
   createdAt: any; // Firestore Timestamp
   updatedAt: any;
+}
+
+// --- Agency Partner Pilot Types ---
+
+export type PartnerApplicationType = 'academic' | 'business' | 'agency' | 'student';
+export type AgencyPilotStatus = 'pending' | 'active' | 'paused' | 'converted';
+export type AgencyPrepSessionStatus = 'invited' | 'started' | 'resume_imported' | 'reviewed' | 'ready' | 'shared' | 'inactive';
+
+export interface AgencyBranchProfile {
+  id: string;
+  ownerUserId: string;
+  organization: string;
+  branchName: string;
+  slug: string;
+  contactName: string;
+  contactEmail: string;
+  website?: string;
+  primaryColor?: string;
+  pilotStatus: AgencyPilotStatus;
+  inviteLimit?: number;
+  createdAt: any;
+  updatedAt: any;
+}
+
+export interface AgencyReadinessReport {
+  resumeId: string;
+  latestScore: number;
+  scoreDelta: number;
+  summary: string;
+  generatedAt: any;
+}
+
+export interface AgencyPrepSession {
+  id: string;
+  agencyBranchId: string;
+  agencyOwnerUserId: string;
+  agencySlug: string;
+  candidateUserId: string;
+  candidateName: string;
+  candidateEmail: string;
+  resumeId?: string;
+  resumeTitle?: string;
+  resumeSharePath?: string;
+  status: AgencyPrepSessionStatus;
+  startingScore?: number;
+  latestScore?: number;
+  scoreDelta?: number;
+  consentToShare: boolean;
+  readinessReport?: AgencyReadinessReport;
+  createdAt: any;
+  updatedAt: any;
+  startedAt?: any;
+  sharedAt?: any;
+  positionTags?: string[];
+  overLimit?: boolean;
 }
 
 export interface StatusHistoryEntry {

@@ -6,17 +6,17 @@
  */
 
 import * as admin from "firebase-admin";
+import { resolveVertexModelName } from "./ai";
 
 const db = () => admin.firestore();
 
 // ─── Credit costs per model ───────────────────────────────────────────────────
 export const MODEL_CREDIT_COST: Record<string, number> = {
   // Gemini
-  "gemini-3.1-flash-lite-preview": 0.5,
+  "gemini-3.1-flash-lite": 0.5,
+  "gemini-2.5-flash-lite": 0.5,
   "gemini-2.5-flash": 1,
-  "gemini-3.1-flash-preview": 1,
-  "gemini-3.1-pro-preview": 2,
-  "gemini-2.5-pro-preview": 2,
+  "gemini-2.5-pro": 2,
   // Anthropic / Claude
   "claude-haiku-4-5": 0.5,
   "claude-3-5-haiku-20241022": 0.5,
@@ -30,8 +30,9 @@ export const MODEL_CREDIT_COST: Record<string, number> = {
   default: 1,
 };
 
-export function getMonthlyLimit(plan?: string): number {
-  if (plan === "max" || plan === "pro_max") return 10000;
+export function getMonthlyLimit(plan?: string, seats = 1): number {
+  if (plan === "enterprise") return Math.max(1, seats) * 1500;
+  if (plan === "max" || plan === "pro_max") return 5000;
   if (plan === "pro_monthly" || plan === "pro") return 1000;
   if (plan === "pro_sprint") return 300;
   return 100; // free tier
@@ -72,7 +73,8 @@ export async function resolveAndDeduct(
   const pathSegments = keyDoc.ref.path.split("/");
   const uid = pathSegments[1]; // users/{uid}/private/{docId}
 
-  const costPerCall = MODEL_CREDIT_COST[model] ?? MODEL_CREDIT_COST["default"];
+  const billingModel = resolveVertexModelName(model);
+  const costPerCall = MODEL_CREDIT_COST[billingModel] ?? MODEL_CREDIT_COST["default"];
   const userRef = firestore.collection("users").doc(uid);
 
   const result = await firestore.runTransaction(async (tx) => {
@@ -89,7 +91,7 @@ export async function resolveAndDeduct(
     const currentMonth = new Date().toISOString().slice(0, 7);
     const usageMonth: string = aiUsage.month || "";
     let count: number = usageMonth === currentMonth ? (aiUsage.count ?? 0) : 0;
-    let limit: number = aiUsage.monthlyLimit ?? getMonthlyLimit(userData.plan);
+    let limit: number = getMonthlyLimit(userData.plan, userData.seats || 1);
     const tokenCredits = userData.promotions?.tokenCredits || 0;
     limit += tokenCredits;
 

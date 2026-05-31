@@ -20,7 +20,11 @@ const AICreditLimitModal: React.FC<AICreditLimitModalProps> = ({
 
     const handleUpgrade = () => {
         onClose();
-        navigate('/subscription');
+        if (typeof chrome !== 'undefined' && chrome.tabs) {
+            window.open('https://careervivid.app/subscription', '_blank');
+        } else {
+            navigate('/subscription');
+        }
     };
 
     return (

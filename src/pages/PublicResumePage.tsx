@@ -1,25 +1,38 @@
 import React, { useEffect, useState, useRef, Suspense, useLayoutEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { Download, MessageSquare, PenTool, Loader2, AlertCircle, LayoutDashboard, User as UserIcon, LogOut, User, X, Send, Eye, ExternalLink, Copy } from 'lucide-react';
+import { Download, MessageSquare, Loader2, AlertCircle, LayoutDashboard, User as UserIcon, LogOut, User, Eye, ExternalLink, Copy, Briefcase } from 'lucide-react';
 import { ResumeData } from '../types';
 import ResumePreview from '../components/ResumePreview';
 import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
-import AdvancedAnnotationCanvas from '../components/AdvancedAnnotationCanvas';
-import { PdfPageEditor } from '../components/PdfPageEditor';
-import { AnnotationObject, getLatestAnnotation } from '../services/annotationService';
+import type { AnnotationObject } from '../services/annotationService';
 import { useAuth } from '../contexts/AuthContext';
 import Logo from '../components/Logo';
 import ThemeToggle from '../components/ThemeToggle';
 import { navigate } from '../utils/navigation';
-import { addComment, subscribeToComments, Comment } from '../services/commentService';
-import { subscribeToAnnotations } from '../services/annotationService';
+import type { Comment } from '../services/commentService';
 import Toast from '../components/Toast';
-import CommentsPanel from '../components/CommentsPanel';
-import { playNotificationSound } from '../utils/notificationSound';
 
 // Lazy load the Editor to keep initial bundle size small for viewers
 const Editor = React.lazy(() => import('./Editor'));
+const CommentsPanel = React.lazy(() => import('../components/CommentsPanel'));
+const PdfPageEditor = React.lazy(() => import('../components/PdfPageEditor').then((m) => ({ default: m.PdfPageEditor })));
+
+const PROJECT_ID = 'jastalk-firebase';
+
+const hasFullResumeShape = (value: unknown): value is ResumeData & { ownerIsPremium?: boolean } => {
+    const candidate = value as ResumeData | null;
+    return !!candidate?.personalDetails && Array.isArray(candidate.skills) && Array.isArray(candidate.employmentHistory);
+};
+
+const buildPublicResumeUrls = (userId: string, resumeId: string) => {
+    const encodedUserId = encodeURIComponent(userId);
+    const encodedResumeId = encodeURIComponent(resumeId);
+
+    return [
+        `/api/public/resume/${encodedUserId}/${encodedResumeId}?format=full`,
+        `https://us-west1-${PROJECT_ID}.cloudfunctions.net/getPublicResume?userId=${encodedUserId}&resumeId=${encodedResumeId}`,
+    ];
+};
 
 
 
@@ -160,30 +173,56 @@ const PublicResumePage: React.FC = () => {
             setRouteParams({ userId, resumeId });
 
             try {
-                const projectId = 'jastalk-firebase';
-                const url = `https://us-west1-${projectId}.cloudfunctions.net/getPublicResume?userId=${encodeURIComponent(userId)}&resumeId=${encodeURIComponent(resumeId)}`;
+                const urls = buildPublicResumeUrls(userId, resumeId);
+                let lastResponse: Response | null = null;
+                let lastPayload: unknown = null;
 
-                const response = await fetch(url);
+                for (const url of urls) {
+                    const response = await fetch(url, {
+                        headers: { Accept: 'application/json' },
+                        credentials: 'omit',
+                    });
+                    lastResponse = response;
 
-                if (response.ok) {
-                    const data = await response.json() as ResumeData & { ownerIsPremium?: boolean };
-                    setResume(data);
-                    setOwnerIsPremium(data.ownerIsPremium || false);
+                    if (!response.ok) {
+                        if ([403, 404].includes(response.status)) break;
+                        continue;
+                    }
+
+                    const contentType = response.headers.get('content-type') || '';
+                    if (!contentType.includes('application/json')) {
+                        continue;
+                    }
+
+                    const data = await response.json();
+                    lastPayload = data;
+
+                    if (hasFullResumeShape(data)) {
+                        setResume(data);
+                        setOwnerIsPremium(data.ownerIsPremium || false);
+                        setLoading(false);
+                        return;
+                    }
+                }
+
+                if (lastResponse?.ok && lastPayload && !hasFullResumeShape(lastPayload)) {
+                    console.warn("Public resume API returned a compact payload. Falling back to legacy endpoint did not provide a full resume.");
+                    setError("This shared resume could not be loaded in the public viewer. Please ask the owner to refresh the share link.");
                     setLoading(false);
-                } else if (response.status === 403) {
+                } else if (lastResponse?.status === 403) {
                     setError("This resume is private or no longer shared.");
                     setLoading(false);
-                } else if (response.status === 404) {
+                } else if (lastResponse?.status === 404) {
                     setError("Resume not found.");
                     setLoading(false);
-                } else if (response.status === 500 && retryCount < 1) {
+                } else if (lastResponse?.status === 500 && retryCount < 1) {
                     // Retry once for 500 errors (handling cold starts)
                     console.warn("Got 500 error, retrying...");
                     setTimeout(() => fetchResume(retryCount + 1), 1500);
                     // Don't set loading to false - let the retry handle it
                 } else {
-                    console.error(`Fetch error: ${response.status} ${response.statusText}`);
-                    setError(`Failed to load resume (Status: ${response.status}). The server might be waking up.`);
+                    console.error(`Fetch error: ${lastResponse?.status || 'unknown'} ${lastResponse?.statusText || ''}`);
+                    setError(`Failed to load resume (Status: ${lastResponse?.status || 'unknown'}). The server might be waking up.`);
                     setLoading(false);
                 }
             } catch (err: any) {
@@ -204,52 +243,66 @@ const PublicResumePage: React.FC = () => {
     useEffect(() => {
         if (!resume || !routeParams) return;
 
-        // Determine permission level
-        let permission: 'viewer' | 'commenter' | 'editor' = 'viewer';
-        if (currentUser && currentUser.uid === routeParams.userId) {
-            permission = 'editor';
-        } else if (resume.shareConfig?.permission === 'commenter') {
-            permission = 'commenter';
-        }
-        // Subscribe to comments
-        const unsubscribeComments = subscribeToComments(routeParams.userId, routeParams.resumeId, (newComments) => {
-            if (!isInitialLoadRef.current && newComments.length > comments.length) {
-                const latestComment = newComments[0];
-                const isOwner = currentUser && currentUser.uid === routeParams.userId;
-                if (isOwner && latestComment.userId !== currentUser.uid) {
-                    setToastMessage(`New feedback received from ${latestComment.author}`);
-                    playNotificationSound();
-                }
-            }
-            setComments(newComments);
-        });
+        const isOwner = currentUser && currentUser.uid === routeParams.userId;
+        const canUseFeedbackTools = isOwner || resume.shareConfig?.permission === 'commenter';
+        if (!canUseFeedbackTools) return;
 
-        // Subscribe to annotations
-        const unsubscribeAnnotations = subscribeToAnnotations(routeParams.userId, routeParams.resumeId, (annotation) => {
-            if (annotation) {
-                const hadAnnotationBefore = !!latestAnnotationUrl;
-                setLatestAnnotationUrl(annotation.imageUrl);
-                if (annotation.objects) {
-                    setLatestAnnotationObjects(annotation.objects);
-                }
+        let unsubscribeComments: (() => void) | undefined;
+        let unsubscribeAnnotations: (() => void) | undefined;
+        let isDisposed = false;
+        let knownCommentCount = comments.length;
+        let hadAnnotationBefore = !!latestAnnotationUrl;
 
-                const isOwner = currentUser && currentUser.uid === routeParams.userId;
-                if (isOwner && !isInitialLoadRef.current && !hadAnnotationBefore) {
-                    setToastMessage(`New annotation received from ${annotation.author || 'Reviewer'}`);
-                    playNotificationSound();
-                }
-            }
-        });
+        const startFeedbackSubscriptions = async () => {
+            const [{ subscribeToComments }, { subscribeToAnnotations }, { playNotificationSound }] = await Promise.all([
+                import('../services/commentService'),
+                import('../services/annotationService'),
+                import('../utils/notificationSound'),
+            ]);
 
-        setTimeout(() => {
+            if (isDisposed) return;
+
+            unsubscribeComments = subscribeToComments(routeParams.userId, routeParams.resumeId, (newComments) => {
+                if (!isInitialLoadRef.current && newComments.length > knownCommentCount) {
+                    const latestComment = newComments[0];
+                    if (isOwner && latestComment.userId !== currentUser?.uid) {
+                        setToastMessage(`New feedback received from ${latestComment.author}`);
+                        playNotificationSound();
+                    }
+                }
+                knownCommentCount = newComments.length;
+                setComments(newComments);
+            });
+
+            unsubscribeAnnotations = subscribeToAnnotations(routeParams.userId, routeParams.resumeId, (annotation) => {
+                if (annotation) {
+                    setLatestAnnotationUrl(annotation.imageUrl);
+                    if (annotation.objects) {
+                        setLatestAnnotationObjects(annotation.objects);
+                    }
+
+                    if (isOwner && !isInitialLoadRef.current && !hadAnnotationBefore) {
+                        setToastMessage(`New annotation received from ${annotation.author || 'Reviewer'}`);
+                        playNotificationSound();
+                    }
+                    hadAnnotationBefore = true;
+                }
+            });
+        };
+
+        void startFeedbackSubscriptions();
+
+        const initialLoadTimer = window.setTimeout(() => {
             isInitialLoadRef.current = false;
         }, 1000);
 
         return () => {
-            unsubscribeComments();
-            unsubscribeAnnotations();
+            isDisposed = true;
+            window.clearTimeout(initialLoadTimer);
+            unsubscribeComments?.();
+            unsubscribeAnnotations?.();
         };
-    }, [resume, routeParams, comments.length, latestAnnotationUrl, showComments, showAnnotations, currentUser]);
+    }, [resume, routeParams, currentUser]);
 
     useLayoutEffect(() => {
         const calculateScale = () => {
@@ -492,6 +545,7 @@ const PublicResumePage: React.FC = () => {
     }
 
     const permission = resume.shareConfig?.permission || 'viewer';
+    const isReadyForRecruiters = Boolean(resume.shareConfig?.readyForRecruiters);
 
     const viewerIsPremium = currentUser && (isPremium || isAdmin);
     const canDownload = ownerIsPremium || viewerIsPremium;
@@ -568,6 +622,19 @@ const PublicResumePage: React.FC = () => {
 
             {/* Content */}
             <main className="flex-grow p-4 sm:p-8 relative" ref={previewContainerRef}>
+                {isReadyForRecruiters && (
+                    <div className="mx-auto mb-4 flex max-w-5xl items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-900 shadow-sm dark:border-emerald-800/70 dark:bg-emerald-950/30 dark:text-emerald-100">
+                        <div className="mt-0.5 rounded-full bg-white/80 p-1.5 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300">
+                            <Briefcase size={16} />
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold">Ready for recruiter review</p>
+                            <p className="mt-0.5 text-sm leading-5 text-emerald-800/80 dark:text-emerald-100/75">
+                                This candidate marked the resume as recruiter-ready and is open to interview conversations when there is a strong role match.
+                            </p>
+                        </div>
+                    </div>
+                )}
                 <div className={`max-w-5xl mx-auto flex justify-center transition-all duration-300 ${showComments ? 'mr-[320px]' : ''}`}>
                     <div
                         className="bg-white shadow-xl max-w-[824px] print:shadow-none"
@@ -607,23 +674,27 @@ const PublicResumePage: React.FC = () => {
             </main>
 
             {/* Comment Sidebar for Commenter Role (Overlay/Fixed) */}
-            {permission === 'commenter' && (
-                <CommentsPanel
-                    isOpen={showComments}
-                    onClose={() => setShowComments(false)}
-                    resumeId={routeParams.resumeId}
-                    ownerId={routeParams.userId}
-                    currentUser={currentUser}
-                />
+            {permission === 'commenter' && showComments && (
+                <Suspense fallback={null}>
+                    <CommentsPanel
+                        isOpen={showComments}
+                        onClose={() => setShowComments(false)}
+                        resumeId={routeParams.resumeId}
+                        ownerId={routeParams.userId}
+                        currentUser={currentUser}
+                    />
+                </Suspense>
             )}
 
             {/* PDF Editor Modal */}
             {pdfToEdit && (
-                <PdfPageEditor
-                    initialBuffer={pdfToEdit.buffer}
-                    fileName={pdfToEdit.fileName}
-                    onClose={() => setPdfToEdit(null)}
-                />
+                <Suspense fallback={null}>
+                    <PdfPageEditor
+                        initialBuffer={pdfToEdit.buffer}
+                        fileName={pdfToEdit.fileName}
+                        onClose={() => setPdfToEdit(null)}
+                    />
+                </Suspense>
             )}
 
             {/* Global Footer */}

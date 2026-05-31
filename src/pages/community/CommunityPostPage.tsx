@@ -191,7 +191,7 @@ const PostContent: React.FC<{ post: any }> = ({ post }) => {
     }
 
     return (
-        <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-a:text-primary-600 prose-img:rounded-3xl prose-pre:bg-gray-900 prose-pre:rounded-2xl prose-pre:p-0 prose-pre:border-0">
+        <div className="prose prose-lg max-w-none prose-headings:font-black prose-headings:text-[#211b16] prose-p:text-[#5f5548] prose-a:text-[#9a651f] prose-strong:text-[#211b16] prose-img:rounded-3xl prose-pre:rounded-2xl prose-pre:border-0 dark:prose-invert dark:prose-headings:text-[#f4f1e9] dark:prose-p:text-[#aaa39a] dark:prose-a:text-[#caa26c] dark:prose-strong:text-[#f4f1e9]">
             <ReactMarkdown 
                 remarkPlugins={[remarkGfm, remarkBreaks]}
                 components={{
@@ -316,7 +316,7 @@ const CommunityPostPage: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50/50 dark:bg-gray-950/80 relative overflow-hidden">
+            <div className="cv-warm-page cv-warm-grid flex items-center justify-center relative overflow-hidden">
                 <Loader2 size={32} className="animate-spin text-primary-500 relative z-10" />
             </div>
         );
@@ -324,14 +324,14 @@ const CommunityPostPage: React.FC = () => {
 
     if (error || !post) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-gray-50/50 dark:bg-gray-950/80 relative overflow-hidden text-center px-4">
+            <div className="cv-warm-page cv-warm-grid flex flex-col items-center justify-center gap-4 relative overflow-hidden text-center px-4">
                 <div className="relative z-10 flex flex-col items-center justify-center gap-4">
                     <p className="text-5xl">😕</p>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Post Not Found</h1>
-                <p className="text-gray-500 max-w-sm">{error ?? 'This article may have been removed or the link is incorrect.'}</p>
+                <h1 className="cv-warm-heading text-2xl">Post Not Found</h1>
+                <p className="cv-warm-body max-w-sm">{error ?? 'This article may have been removed or the link is incorrect.'}</p>
                 <button
                     onClick={() => navigate('/community')}
-                    className="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-colors cursor-pointer mt-2"
+                    className="mt-2 cursor-pointer rounded-xl bg-[#211b16] px-6 py-2.5 font-bold text-white transition-colors hover:bg-[#3a2b20] dark:bg-[#f4f1e9] dark:text-[#1f1f1d]"
                 >
                     Back to Community
                 </button>
@@ -347,7 +347,7 @@ const CommunityPostPage: React.FC = () => {
     const shareUrl = `https://careervivid.app/community/post/${postId}`;
 
     return (
-        <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950/80 relative overflow-hidden">
+        <div className="cv-warm-page cv-warm-grid relative overflow-hidden">
             <div className="relative z-10">
                 <Helmet>
                 <title>{post.title} | CareerVivid Community</title>
@@ -369,11 +369,11 @@ const CommunityPostPage: React.FC = () => {
                 </script>
             </Helmet>
             {/* Top nav */}
-            <div className="sticky top-0 z-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800">
+            <div className="sticky top-0 z-20 border-b border-[#e4d3bc] bg-[#f7f1e7]/90 backdrop-blur-md dark:border-[#33312d] dark:bg-[#1f1f1d]/92">
                 <div className="max-w-4xl mx-auto px-4 h-14 flex items-center gap-3">
                     <button
                         onClick={() => navigate(window.history.state?.from || '/community')}
-                        className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
+                        className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-[#665a4a] transition-colors hover:text-[#211b16] dark:text-[#aaa39a] dark:hover:text-[#f4f1e9]"
                     >
                         <ArrowLeft size={18} /> Back
                     </button>
@@ -389,12 +389,12 @@ const CommunityPostPage: React.FC = () => {
                 )}
 
                 {/* Title */}
-                <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
+                <h1 className="cv-warm-heading mb-6 text-4xl leading-tight">
                     {post.title}
                 </h1>
 
                 {/* Author row */}
-                <div className="mb-8 pb-8 border-b border-gray-100 dark:border-gray-800">
+                <div className="mb-8 border-b border-[#e4d3bc] pb-8 dark:border-[#37332d]">
                     <UserProfileSnippet
                         userId={post.authorId}
                         fallbackName={post.authorName}
@@ -408,7 +408,7 @@ const CommunityPostPage: React.FC = () => {
                 {post.tags?.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-8">
                         {post.tags.map(tag => (
-                            <span key={tag} className="text-sm font-semibold text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer">
+                            <span key={tag} className="cursor-pointer text-sm font-semibold text-[#9a651f] transition-colors hover:text-[#211b16] dark:text-[#caa26c] dark:hover:text-[#f4f1e9]">
                                 #{tag}
                             </span>
                         ))}
@@ -421,15 +421,15 @@ const CommunityPostPage: React.FC = () => {
                 </div>
 
                 {/* Like / action buttons */}
-                <div className="flex items-center gap-3 pt-6 border-t border-gray-100 dark:border-gray-800 mb-12 flex-wrap">
+                <div className="mb-12 flex flex-wrap items-center gap-3 border-t border-[#e4d3bc] pt-6 dark:border-[#37332d]">
                     <button
                         onClick={handleLike}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all cursor-pointer shadow-sm ${isLiked ? 'bg-pink-50 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400 border border-pink-100 dark:border-pink-900/30' : 'bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl text-gray-600 dark:text-gray-400 border border-white/50 dark:border-gray-800/50 hover:bg-white/80 dark:hover:bg-gray-900/60'}`}
+                        className={`flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold shadow-sm transition-all ${isLiked ? 'border border-[#f3bfcd] bg-[#fff0f5] text-[#7f1d3b] dark:border-[#6f3246] dark:bg-[#351f28] dark:text-[#f2a6b3]' : 'border border-[#e4d3bc] bg-[#fffaf1]/70 text-[#665a4a] backdrop-blur-xl hover:bg-[#fffaf1] dark:border-[#37332d] dark:bg-[#262522]/80 dark:text-[#aaa39a] dark:hover:bg-[#302e2a]'}`}
                     >
                         <Heart size={18} className={isLiked ? 'fill-current' : ''} />
                         {likesCount} {likesCount === 1 ? 'Like' : 'Likes'}
                     </button>
-                    <a href="#comments" className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl text-gray-600 dark:text-gray-400 border border-white/50 dark:border-gray-800/50 hover:bg-white/80 dark:hover:bg-gray-900/60 transition-all cursor-pointer shadow-sm">
+                    <a href="#comments" className="flex cursor-pointer items-center gap-2 rounded-xl border border-[#e4d3bc] bg-[#fffaf1]/70 px-4 py-2 text-sm font-bold text-[#665a4a] shadow-sm backdrop-blur-xl transition-all hover:bg-[#fffaf1] dark:border-[#37332d] dark:bg-[#262522]/80 dark:text-[#aaa39a] dark:hover:bg-[#302e2a]">
                         <MessageSquare size={18} />
                         {post.metrics?.comments || 0} Comments
                     </a>

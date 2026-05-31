@@ -3,13 +3,14 @@ import { useParams } from 'react-router-dom';
 import { doc, getDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '../../../firebase';
 import { PortfolioData } from '../types/portfolio';
-import { Loader2, AlertCircle, Eye, Zap } from 'lucide-react';
-import { TEMPLATES } from '../templates';
+import { Loader2, AlertCircle, Zap } from 'lucide-react';
 import { useAnalytics } from '../hooks/useAnalytics';
 import IntroOverlay from '../components/intro/IntroOverlay';
 import PublicProfilePage from './PublicProfilePage';
 import { useAuth } from '../../../contexts/AuthContext';
 import SEOHelper from '../../../components/SEOHelper';
+import { normalizePortfolioData } from '../utils/normalizePortfolioData';
+import { getLazyPortfolioTemplate, resolvePortfolioTemplateKey } from '../utils/lazyPortfolioTemplate';
 
 // Simple types for the public page if not importing full types
 // but we have PortfolioData so we are good.
@@ -136,7 +137,7 @@ const PublicPortfolioPage: React.FC = () => {
                 orientation: orientationOverride as 'horizontal' | 'vertical'
             };
         }
-        return result;
+        return normalizePortfolioData(result);
     }, [portfolioData, themeOverride, orientationOverride]);
 
     // ── CONDITIONAL RENDERS (after all hooks) ────────────────────────────────
@@ -214,22 +215,17 @@ const PublicPortfolioPage: React.FC = () => {
     };
 
     // Render the Template
-    const TemplateComponent = (() => {
-        if (displayData?.mode === 'linkinbio') {
-            const id = displayData.templateId as string;
-            // If it is one of the structural keys, use it. Otherwise default to visual.
-            if (['linktree_minimal', 'linktree_visual', 'linktree_corporate', 'linktree_bento'].includes(id)) {
-                return TEMPLATES[id as keyof typeof TEMPLATES];
-            }
-            return TEMPLATES.linktree_visual;
-        }
-        return TEMPLATES[displayData?.templateId as keyof typeof TEMPLATES] || TEMPLATES.minimalist;
-    })();
+    const TemplateComponent = React.useMemo(
+        () => displayData
+            ? getLazyPortfolioTemplate(resolvePortfolioTemplateKey(displayData))
+            : getLazyPortfolioTemplate('minimalist'),
+        [displayData]
+    );
 
     // Determine background color for the wrapper to ensure full-page theme
     // This is crucial for Corporate template in Dark Mode to have a matching backdrop
     const defaultTheme = { darkMode: false, primaryColor: '#000000' } as PortfolioData['theme'];
-    const theme = portfolioData.theme || defaultTheme;
+    const theme = displayData?.theme || defaultTheme;
     const isDark = theme.darkMode;
     // Fix stale data issues similar to templates
     const isExplicitlyLight = theme.backgroundColor?.toLowerCase() === '#ffffff' || theme.backgroundColor?.toLowerCase() === '#fff';
@@ -256,7 +252,7 @@ const PublicPortfolioPage: React.FC = () => {
     };
 
     // Badge UTM link for referral tracking
-    const badgeHref = `https://careervivid.app/?utm_source=portfolio_badge&utm_medium=referral&utm_campaign=viral_badge&utm_content=${portfolioData.id}`;
+    const badgeHref = `https://careervivid.app/?utm_source=portfolio_badge&utm_medium=referral&utm_campaign=viral_badge&utm_content=${displayData?.id || portfolioData.id}`;
 
     return (
         <>
@@ -278,11 +274,11 @@ const PublicPortfolioPage: React.FC = () => {
                 onClick={handleGlobalClick}
             >
                 {/* Intro / Splash Screen - Hide in embed mode */}
-                {!isEmbed && portfolioData?.linkInBio?.introPage?.enabled && showIntro && (
+                {!isEmbed && displayData?.linkInBio?.introPage?.enabled && showIntro && (
                     <IntroOverlay
-                        config={portfolioData.linkInBio.introPage}
+                        config={displayData.linkInBio.introPage}
                         onEnter={() => setShowIntro(false)}
-                        portfolioId={portfolioData.id}
+                        portfolioId={displayData.id}
                     />
                 )}
 
@@ -299,18 +295,8 @@ const PublicPortfolioPage: React.FC = () => {
                     </div>
                 </Suspense>
 
-                {/* View Only Badge — top-left for non-owners */}
-                {!isEmbed && portfolioData.userId && (
-                    <div className="fixed top-4 left-4 z-50">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-500 dark:text-gray-400 text-xs font-semibold shadow-sm border border-gray-200 dark:border-gray-700">
-                            <Eye size={14} />
-                            View Only
-                        </span>
-                    </div>
-                )}
-
                 {/* Viral "Built with CareerVivid" Badge — upgraded with UTM tracking */}
-                {!isEmbed && !portfolioData.linkInBio?.settings?.removeBranding && (
+                {!isEmbed && !displayData?.linkInBio?.settings?.removeBranding && (
                     <div className="fixed bottom-4 right-4 z-50">
                         <a
                             href={badgeHref}

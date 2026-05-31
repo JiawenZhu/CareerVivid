@@ -28,7 +28,7 @@ const SLIDERS: SliderConfig[] = [
         costPerUse: AI_CREDIT_COSTS.CLI_AGENT_FLASH,
         max: 500,
         step: 10,
-        color: '#6366f1',
+        color: '#2563eb',
     },
     {
         id: 'agentLiteTurns',
@@ -38,7 +38,7 @@ const SLIDERS: SliderConfig[] = [
         costPerUse: AI_CREDIT_COSTS.CLI_AGENT_FLASH_LITE,
         max: 500,
         step: 10,
-        color: '#8b5cf6',
+        color: '#4f6f9f',
     },
     {
         id: 'agentProTurns',
@@ -48,7 +48,7 @@ const SLIDERS: SliderConfig[] = [
         costPerUse: AI_CREDIT_COSTS.CLI_AGENT_PRO,
         max: 200,
         step: 5,
-        color: '#a855f7',
+        color: '#475569',
     },
     {
         id: 'resumeTailors',
@@ -58,7 +58,7 @@ const SLIDERS: SliderConfig[] = [
         costPerUse: AI_CREDIT_COSTS.RESUME_TAILOR,
         max: 100,
         step: 1,
-        color: '#10b981',
+        color: '#137245',
     },
     {
         id: 'jobSearches',
@@ -68,7 +68,7 @@ const SLIDERS: SliderConfig[] = [
         costPerUse: AI_CREDIT_COSTS.JOB_SEARCH,
         max: 200,
         step: 5,
-        color: '#f59e0b',
+        color: '#a97935',
     },
     {
         id: 'interviews',
@@ -78,7 +78,7 @@ const SLIDERS: SliderConfig[] = [
         costPerUse: AI_CREDIT_COSTS.TECH_INTERVIEW_VOICE,
         max: 50,
         step: 1,
-        color: '#ef4444',
+        color: '#b64a5a',
     },
     {
         id: 'archGen',
@@ -88,7 +88,7 @@ const SLIDERS: SliderConfig[] = [
         costPerUse: AI_CREDIT_COSTS.ARCHITECTURE_AUTO_GEN,
         max: 50,
         step: 1,
-        color: '#0ea5e9',
+        color: '#2563eb',
     },
 ];
 
@@ -101,9 +101,9 @@ interface PlanConfig {
 }
 
 const PLANS: PlanConfig[] = [
-    { name: 'Free',       limit: FREE_PLAN_CREDIT_LIMIT,    color: '#6b7280', price: '$0/mo',    accent: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300' },
-    { name: 'Pro',        limit: PRO_PLAN_CREDIT_LIMIT,     color: '#6366f1', price: '$9/mo',    accent: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' },
-    { name: 'Max',        limit: PRO_MAX_PLAN_CREDIT_LIMIT, color: '#a855f7', price: '$29/mo',   accent: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300' },
+    { name: 'Free',       limit: FREE_PLAN_CREDIT_LIMIT,    color: '#6b7280', price: '$0/mo',    accent: 'bg-[#f8fafc] text-[#475569]' },
+    { name: 'Pro',        limit: PRO_PLAN_CREDIT_LIMIT,     color: '#2563eb', price: '$9/mo',    accent: 'bg-[#eef4ff] text-[#2563eb]' },
+    { name: 'Max',        limit: PRO_MAX_PLAN_CREDIT_LIMIT, color: '#475569', price: '$29/mo',   accent: 'bg-[#f1f5f9] text-[#334155]' },
 ];
 
 export const CreditCalculator: React.FC = () => {
@@ -128,17 +128,17 @@ export const CreditCalculator: React.FC = () => {
     }));
 
     return (
-        <section className="py-24 bg-gray-50 dark:bg-gray-950">
+        <section className="py-24 bg-[#f7f1e7]">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="text-center mb-16">
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-sm font-bold mb-6">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 text-[#2563eb] text-sm font-bold mb-6 border border-[#dbe4f3] shadow-sm">
                         <Zap size={15} /> Credit Calculator
                     </div>
-                    <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight mb-4">
+                    <h2 className="text-4xl md:text-5xl font-black text-[#211b16] tracking-tight mb-4">
                         Find Your Perfect Plan
                     </h2>
-                    <p className="max-w-2xl mx-auto text-lg text-gray-600 dark:text-gray-400 font-medium">
+                    <p className="max-w-2xl mx-auto text-lg text-[#665a4a] font-medium">
                         Drag the sliders to estimate how many credits you'll use each month.
                     </p>
                 </div>
@@ -147,31 +147,22 @@ export const CreditCalculator: React.FC = () => {
                     {/* Sliders */}
                     <div className="lg:col-span-3 space-y-6">
                         {SLIDERS.map((slider) => (
-                            <div key={slider.id} className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-800">
+                            <div key={slider.id} className="bg-white/92 rounded-2xl p-6 shadow-sm border border-[#e0d7ca]">
                                 <div className="flex justify-between items-start mb-3">
                                     <div className="flex items-center gap-2">
                                         <span style={{ color: slider.color }}>{slider.icon}</span>
-                                        <span className="font-bold text-gray-800 dark:text-gray-200 text-sm">{slider.label}</span>
+                                        <span className="font-bold text-[#211b16] text-sm">{slider.label}</span>
                                     </div>
                                     <div className="text-right">
-                                        <span className="text-2xl font-black text-gray-900 dark:text-white">{values[slider.id]}</span>
-                                        <span className="text-xs text-gray-400 ml-1">uses</span>
+                                        <span className="text-2xl font-black text-[#211b16]">{values[slider.id]}</span>
+                                        <span className="text-xs text-[#7d6e5e] ml-1">uses</span>
                                         <div className="text-xs font-bold" style={{ color: slider.color }}>
                                             = {(values[slider.id] * slider.costPerUse).toFixed(1)} cr
                                         </div>
                                     </div>
                                 </div>
-                                <p className="text-xs text-gray-500 mb-4">{slider.description}</p>
+                                <p className="text-xs text-[#665a4a] mb-4">{slider.description}</p>
                                 <div className="relative">
-                                    <div
-                                        className="h-2 rounded-full mb-0 absolute top-0 left-0"
-                                        style={{
-                                            width: `${(values[slider.id] / slider.max) * 100}%`,
-                                            background: slider.color,
-                                            transition: 'width 0.2s ease',
-                                            pointerEvents: 'none',
-                                        }}
-                                    />
                                     <input
                                         type="range"
                                         min={0}
@@ -181,9 +172,10 @@ export const CreditCalculator: React.FC = () => {
                                         onChange={(e) =>
                                             setValues((prev) => ({ ...prev, [slider.id]: Number(e.target.value) }))
                                         }
-                                        className="w-full h-2 rounded-full appearance-none outline-none cursor-pointer relative"
+                                        className="w-full h-2 rounded-full outline-none cursor-pointer"
                                         style={{
                                             background: `linear-gradient(to right, ${slider.color} 0%, ${slider.color} ${(values[slider.id] / slider.max) * 100}%, #e5e7eb ${(values[slider.id] / slider.max) * 100}%, #e5e7eb 100%)`,
+                                            accentColor: slider.color,
                                         }}
                                     />
                                 </div>
@@ -194,8 +186,8 @@ export const CreditCalculator: React.FC = () => {
                     {/* Summary Panel */}
                     <div className="lg:col-span-2 sticky top-6 space-y-5">
                         {/* Plan Selector */}
-                        <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-800">
-                            <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-3">Compare with plan</p>
+                        <div className="bg-white/92 rounded-2xl p-6 shadow-sm border border-[#e0d7ca]">
+                            <p className="text-xs font-black uppercase tracking-widest text-[#a97935] mb-3">Compare with plan</p>
                             <div className="flex gap-2 flex-wrap">
                                 {PLANS.map((p) => (
                                     <button
@@ -205,7 +197,7 @@ export const CreditCalculator: React.FC = () => {
                                         className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all border-2 ${
                                             selectedPlan.name === p.name
                                                 ? 'border-current shadow-sm scale-105'
-                                                : 'border-transparent text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'
+                                                : 'border-transparent text-[#665a4a] hover:bg-[#fffaf1]'
                                         } ${p.accent}`}
                                     >
                                         {p.name}
@@ -215,17 +207,17 @@ export const CreditCalculator: React.FC = () => {
                         </div>
 
                         {/* Credit Gauge */}
-                        <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-800">
-                            <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-1">Estimated monthly usage</p>
+                        <div className="bg-white/92 rounded-2xl p-6 shadow-sm border border-[#e0d7ca]">
+                            <p className="text-xs font-black uppercase tracking-widest text-[#a97935] mb-1">Estimated monthly usage</p>
                             <div className="flex justify-between items-end mb-3">
                                 <span className="text-4xl font-black" style={{ color: overLimit ? '#ef4444' : selectedPlan.color }}>
                                     {totalCredits.toFixed(1)}
                                 </span>
-                                <span className="text-sm text-gray-400 font-medium">of {selectedPlan.limit.toLocaleString()} credits</span>
+                                <span className="text-sm text-[#7d6e5e] font-medium">of {selectedPlan.limit.toLocaleString()} credits</span>
                             </div>
 
                             {/* Bar */}
-                            <div className="h-4 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden mb-3">
+                            <div className="h-4 bg-[#ece2d2] rounded-full overflow-hidden mb-3">
                                 <motion.div
                                     className="h-full rounded-full"
                                     style={{ background: overLimit ? '#ef4444' : selectedPlan.color }}
@@ -274,13 +266,13 @@ export const CreditCalculator: React.FC = () => {
 
                         {/* Breakdown */}
                         {breakdown.length > 0 && (
-                            <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-800">
-                                <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-4">Credit breakdown</p>
+                            <div className="bg-white/92 rounded-2xl p-6 shadow-sm border border-[#e0d7ca]">
+                                <p className="text-xs font-black uppercase tracking-widest text-[#a97935] mb-4">Credit breakdown</p>
                                 <div className="space-y-2.5">
                                     {breakdown.map((row) => (
                                         <div key={row.label} className="flex items-center gap-3">
                                             <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: row.color }} />
-                                            <span className="flex-grow text-xs text-gray-600 dark:text-gray-400 font-medium truncate">
+                                            <span className="flex-grow text-xs text-[#665a4a] font-medium truncate">
                                                 {row.label}
                                             </span>
                                             <span className="text-xs font-bold" style={{ color: row.color }}>
@@ -293,18 +285,18 @@ export const CreditCalculator: React.FC = () => {
                         )}
 
                         {/* CTA */}
-                        <div className="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-xl shadow-indigo-500/25">
+                        <div className="rounded-2xl border border-[#f3bfcd] bg-[#fff0f5] p-6 text-[#7f1d3b] shadow-lg shadow-rose-300/12">
                             <div className="flex items-center justify-between mb-3">
                                 <span className="font-black text-sm">Try CareerVivid free</span>
-                                <Zap size={18} className="text-yellow-300" />
+                                <Zap size={18} className="text-[#db4f79]" />
                             </div>
-                            <p className="text-indigo-200 text-xs font-medium mb-5 leading-relaxed">
+                            <p className="text-[#9f4661] text-xs font-medium mb-5 leading-relaxed">
                                 {FREE_PLAN_CREDIT_LIMIT} free AI credits every month — no credit card required.
                                 <br />Use the CLI agent, search jobs, and tailor resumes instantly.
                             </p>
                             <a
                                 href="/signup"
-                                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white text-indigo-700 font-black text-sm hover:bg-indigo-50 transition-colors"
+                                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#7f1d3b] text-white font-black text-sm hover:bg-[#9f2349] transition-colors shadow-sm shadow-rose-900/10"
                             >
                                 Get {FREE_PLAN_CREDIT_LIMIT} free credits <ChevronRight size={16} />
                             </a>

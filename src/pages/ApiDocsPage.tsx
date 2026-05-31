@@ -165,39 +165,47 @@ const ApiDocsPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950">
+        <div className="min-h-screen bg-[#f7f1e7] text-[#211b16] relative overflow-hidden">
+            <div
+                className="pointer-events-none fixed inset-0 opacity-45"
+                style={{
+                    backgroundImage:
+                        'linear-gradient(to right, rgba(139, 90, 22, 0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(139, 90, 22, 0.06) 1px, transparent 1px)',
+                    backgroundSize: '64px 64px',
+                }}
+            />
             {/* Top Header */}
-            <header className="sticky top-0 z-30 h-14 border-b border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-950/90 backdrop-blur-md flex items-center px-4 sm:px-6 gap-4">
+            <header className="sticky top-0 z-30 h-14 border-b border-[#e4d3bc] bg-[#f7f1e7]/92 backdrop-blur-md flex items-center px-4 sm:px-6 gap-4">
                 <button
                     onClick={() => navigate('/community')}
-                    className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
+                    className="flex items-center gap-2 text-sm font-black text-[#665a4a] hover:text-[#211b16] transition-colors cursor-pointer"
                 >
                     <ArrowLeft size={16} /> Community
                 </button>
-                <div className="w-px h-5 bg-gray-200 dark:bg-gray-700" />
+                <div className="w-px h-5 bg-[#d9c5aa]" />
                 <div className="flex items-center gap-2">
-                    <Code2 size={18} className="text-primary-600 dark:text-primary-400" />
-                    <span className="font-bold text-gray-900 dark:text-white">API Reference</span>
-                    <span className="text-xs font-semibold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/50 px-2 py-0.5 rounded-full">v1</span>
+                    <Code2 size={18} className="text-[#9a651f]" />
+                    <span className="font-black text-[#211b16]">API Reference</span>
+                    <span className="text-xs font-black text-[#9a651f] bg-[#fffaf1] border border-[#e4d3bc] px-2 py-0.5 rounded-full">v1</span>
                 </div>
                 <div className="ml-auto flex items-center gap-3">
                     <a
                         href="https://github.com/jastalk/careervivid"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hidden sm:flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
+                        className="hidden sm:flex items-center gap-1.5 text-sm font-bold text-[#665a4a] hover:text-[#211b16] transition-colors cursor-pointer"
                     >
                         <ExternalLink size={14} /> GitHub
                     </a>
                 </div>
             </header>
 
-            <div className="flex">
+            <div className="relative z-10 flex">
                 {/* ── Sticky Left Sidebar ─────────────────────────────────── */}
-                <aside className="hidden lg:flex flex-col w-64 xl:w-72 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto border-r border-gray-100 dark:border-gray-800/60 py-8 px-4">
+                <aside className="hidden lg:flex flex-col w-64 xl:w-72 shrink-0 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto border-r border-[#e4d3bc] bg-[#f7f1e7]/78 py-8 px-4">
                     {NAV_SECTIONS.map(section => (
                         <div key={section.label} className="mb-8">
-                            <div className="flex items-center gap-2 px-3 mb-3 text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                            <div className="flex items-center gap-2 px-3 mb-3 text-[11px] font-black text-[#a97935] uppercase tracking-widest">
                                 {section.icon} {section.label}
                             </div>
                             <div className="flex flex-col gap-0.5">
@@ -207,8 +215,8 @@ const ApiDocsPage: React.FC = () => {
                                         onClick={() => scrollTo(item.id)}
                                         className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] transition-all duration-200 text-left cursor-pointer
                                             ${activeSection === item.id
-                                                ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-400 font-medium'
-                                                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                                                ? 'bg-[#fffaf1] text-[#9a651f] font-black border border-[#e4d3bc]'
+                                                : 'text-[#665a4a] hover:text-[#211b16] hover:bg-[#fffaf1]/70'
                                             }`}
                                     >
                                         {item.method && (
@@ -221,7 +229,7 @@ const ApiDocsPage: React.FC = () => {
                                             </span>
                                         )}
                                         {item.label}
-                                        {activeSection === item.id && <ChevronRight size={14} className="ml-auto text-primary-500 opacity-70" />}
+                                        {activeSection === item.id && <ChevronRight size={14} className="ml-auto text-[#a97935] opacity-80" />}
                                     </button>
                                 ))}
                             </div>
@@ -231,7 +239,7 @@ const ApiDocsPage: React.FC = () => {
 
                 {/* ── Main Content + Right Code Column ───────────────────── */}
                 <div ref={mainRef} className="flex-1 min-w-0">
-                    <div className="max-w-[1100px] mx-auto">
+                    <div className="max-w-[1100px] mx-auto bg-[#fffaf1]/55 shadow-sm shadow-[#8b5a16]/5">
 
                         {/* ═══════════════════════════════════════════════════
                          INTRODUCTION
@@ -802,18 +810,18 @@ const DocSection: React.FC<{ left: React.ReactNode; right: React.ReactNode }> = 
 
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-0 group">
         {/* Left — description */}
-        <div className="px-6 sm:px-10 py-10 xl:py-12 xl:border-r border-gray-100 dark:border-gray-800/60 xl:pr-10">
+        <div className="px-6 sm:px-10 py-10 xl:py-12 xl:border-r border-[#e4d3bc] xl:pr-10">
             {left}
         </div>
         {/* Right — code blocks */}
-        <div className="px-6 sm:px-10 xl:pl-10 py-8 xl:py-12 bg-[#f8f9fa] dark:bg-[#0a0c10]">
+        <div className="px-6 sm:px-10 xl:pl-10 py-8 xl:py-12 bg-[#fffaf1]/85">
             {right}
         </div>
     </div>
 );
 
 const Divider: React.FC = () => (
-    <div className="border-t border-gray-100 dark:border-gray-800/60 xl:hidden" />
+    <div className="border-t border-[#e4d3bc] xl:hidden" />
 );
 
 export default ApiDocsPage;

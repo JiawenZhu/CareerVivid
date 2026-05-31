@@ -1,13 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import {
     Code2,
-    Palette,
     Briefcase,
     Sparkles,
-    LayoutTemplate,
-    ExternalLink,
-    Search,
     Plus,
     LayoutDashboard,
     ArrowRight,
@@ -21,16 +17,15 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { navigate } from '../../../utils/navigation';
 import { generatePortfolioFromPrompt } from '../services/portfolioGenerator';
 import { usePortfolios } from '../../../hooks/usePortfolios';
-import { TEMPLATES } from '../templates';
-import Logo from '../../../components/Logo';
-import PortfolioImport from '../../../components/PortfolioImport';
 import { useAICreditCheck } from '../../../hooks/useAICreditCheck';
 import ConfirmationModal from '../../../components/ConfirmationModal';
 import PortfolioCard from '../../../components/PortfolioCard';
-import SharePortfolioModal from '../../../components/SharePortfolioModal';
 import { useNavigation } from '../../../contexts/NavigationContext';
 import AppLayout from '../../../components/Layout/AppLayout';
 import { PortfolioData } from '../types/portfolio';
+
+const PortfolioImport = React.lazy(() => import('../../../components/PortfolioImport'));
+const SharePortfolioModal = React.lazy(() => import('../../../components/SharePortfolioModal'));
 
 // Define Category Interface
 interface PortfolioCategory {
@@ -76,25 +71,19 @@ const PORTFOLIO_CATEGORIES: PortfolioCategory[] = [
         id: 'tech',
         name: 'Technology',
         description: 'For software engineers, product managers, and data scientists.',
-        templates: ['dev_terminal', 'minimalist', 'saas_modern']
-    },
-    {
-        id: 'creative',
-        name: 'Creative & Design',
-        description: 'For UX/UI designers, artists, and photographers.',
-        templates: ['ux_folio', 'visual', 'creative_dark']
+        templates: ['dev_terminal', 'minimalist']
     },
     {
         id: 'professional',
         name: 'Business & Professional',
         description: 'For executives, lawyers, and consultants.',
-        templates: ['corporate', 'legal_trust', 'executive_brief']
+        templates: ['corporate', 'writer_editorial']
     },
     {
         id: 'specialist',
         name: 'Specialized Careers',
         description: 'For medical professionals, academics, and creators.',
-        templates: ['medical_care', 'academic_research', 'writer_editorial', 'bento_personal']
+        templates: ['writer_editorial', 'corporate']
     }
 ];
 
@@ -352,7 +341,7 @@ const PortfolioHub: React.FC = () => {
 
                     {/* Empty Canvas Option */}
                     <button
-                        onClick={() => handleCreate('blank', 'template')}
+                        onClick={() => handleCreate('minimalist', 'template')}
                         className="p-5 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 hover:border-indigo-500 hover:bg-white dark:hover:bg-gray-800 transition-all text-left flex items-center justify-between group"
                     >
                         <div>
@@ -397,6 +386,7 @@ const PortfolioHub: React.FC = () => {
                     onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
                 />
                 {shareModalPortfolio && (
+                    <Suspense fallback={null}>
                     <SharePortfolioModal
                         isOpen={!!shareModalPortfolio}
                         onClose={() => setShareModalPortfolio(null)}
@@ -404,17 +394,18 @@ const PortfolioHub: React.FC = () => {
                         portfolioTitle={shareModalPortfolio.hero?.headline || 'Portfolio'}
                         portfolioData={shareModalPortfolio}
                     />
+                    </Suspense>
                 )}
 
                 {/* Top Section: My Portfolios */}
                 <div className="w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 pt-8 pb-12 mb-12">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex justify-between items-center mb-8">
-                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                            <h1 className="flex items-center gap-3 text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">
                                 <Briefcase className="text-indigo-600" size={32} />
                                 My Portfolios
                             </h1>
-                            <div className="flex items-center gap-3">
+                            <div className="flex flex-wrap items-center gap-3">
                                 {portfolios.length > 0 && (
                                     <div className={navPosition === 'side' ? 'md:hidden' : ''}>
                                         <button
@@ -479,11 +470,11 @@ const PortfolioHub: React.FC = () => {
                             <div className="inline-flex items-center justify-center p-3 mb-6 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-500/30">
                                 <Sparkles className="w-8 h-8 text-white" />
                             </div>
-                            <h1 className="text-4xl sm:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
+                            <h1 className="mb-6 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-6xl">
                                 Build your dream portfolio <br className="hidden sm:block" />
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">in minutes.</span>
                             </h1>
-                            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                            <p className="mx-auto max-w-2xl text-base leading-relaxed text-gray-600 dark:text-gray-400 sm:text-lg">
                                 Describe your vision, upload a resume, or drop in your code files. <br className="hidden sm:block" />
                                 Our AI will generate a stunning, deployed portfolio websites for you instantly.
                             </p>
@@ -497,24 +488,26 @@ const PortfolioHub: React.FC = () => {
                                     Generate from Prompt or Code
                                 </h2>
                                 <div className="flex flex-col gap-4">
-                                    <PortfolioImport
-                                        value={prompt}
-                                        onChange={setPrompt}
-                                        onFileProcessed={handleFileProcessed}
-                                        placeholder="Describe your portfolio (e.g. 'Dark mode portfolio for a React Developer') or drop existing code files..."
-                                        className="bg-transparent"
-                                    >
-                                        <button
-                                            onClick={handlePromptSubmit}
-                                            className="bg-indigo-600 text-white p-3 rounded-xl shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-indigo-500/30 transition-all flex items-center justify-center disabled:bg-indigo-400 disabled:cursor-not-allowed group"
-                                            disabled={!prompt.trim()}
-                                            title={isFileImport ? "Parse & Build" : "Generate Portfolio"}
+                                    <Suspense fallback={<div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400">Loading builder...</div>}>
+                                        <PortfolioImport
+                                            value={prompt}
+                                            onChange={setPrompt}
+                                            onFileProcessed={handleFileProcessed}
+                                            placeholder="Describe your portfolio (e.g. 'Dark mode portfolio for a React Developer') or drop existing code files..."
+                                            className="bg-transparent"
                                         >
-                                            <ArrowRight size={20} className="group-hover:translate-x-0.5 transition-transform" />
-                                        </button>
-                                    </PortfolioImport>
+                                            <button
+                                                onClick={handlePromptSubmit}
+                                                className="bg-indigo-600 text-white p-3 rounded-xl shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-indigo-500/30 transition-all flex items-center justify-center disabled:bg-indigo-400 disabled:cursor-not-allowed group"
+                                                disabled={!prompt.trim()}
+                                                title={isFileImport ? "Parse & Build" : "Generate Portfolio"}
+                                            >
+                                                <ArrowRight size={20} className="group-hover:translate-x-0.5 transition-transform" />
+                                            </button>
+                                        </PortfolioImport>
+                                    </Suspense>
                                 </div>
-                                <div className="mt-4 flex items-center justify-center gap-6 text-xs text-gray-400 font-medium">
+                                <div className="mt-4 flex flex-wrap items-center justify-center gap-3 text-xs font-medium text-gray-400 sm:gap-6">
                                     <span className="flex items-center gap-1.5"><Code2 size={12} /> HTML/CSS/JS</span>
                                     <span className="flex items-center gap-1.5"><FileCode size={12} /> React/Vue</span>
                                     <span className="flex items-center gap-1.5"><UploadCloud size={12} /> Resumes (PDF/DOCX)</span>
