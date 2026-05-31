@@ -1,3 +1,7 @@
+import typography from '@tailwindcss/typography';
+import containerQueries from '@tailwindcss/container-queries';
+import forms from '@tailwindcss/forms';
+
 /** @type {import('tailwindcss').Config} */
 export default {
     darkMode: 'class',
@@ -78,8 +82,8 @@ export default {
         },
     },
     plugins: [
-        require('@tailwindcss/typography'),
-        require('@tailwindcss/container-queries'),
-        require('@tailwindcss/forms'),
+        typography,
+        containerQueries,
+        forms,
     ],
 };
