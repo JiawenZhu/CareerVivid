@@ -141,6 +141,13 @@ const PublicPortfolioPage: React.FC = () => {
         return normalizePortfolioData(result);
     }, [portfolioData, themeOverride, orientationOverride]);
 
+    const TemplateComponent = React.useMemo(
+        () => displayData
+            ? getLazyPortfolioTemplate(resolvePortfolioTemplateKey(displayData))
+            : getLazyPortfolioTemplate('minimalist'),
+        [displayData]
+    );
+
     // ── CONDITIONAL RENDERS (after all hooks) ────────────────────────────────
 
     if (isUserProfileRoute) {
@@ -218,14 +225,6 @@ const PublicPortfolioPage: React.FC = () => {
             ...(sameAsLinks.length > 0 ? { "sameAs": sameAsLinks } : {})
         }
     };
-
-    // Render the Template
-    const TemplateComponent = React.useMemo(
-        () => displayData
-            ? getLazyPortfolioTemplate(resolvePortfolioTemplateKey(displayData))
-            : getLazyPortfolioTemplate('minimalist'),
-        [displayData]
-    );
 
     // Determine background color for the wrapper to ensure full-page theme
     // This is crucial for Corporate template in Dark Mode to have a matching backdrop

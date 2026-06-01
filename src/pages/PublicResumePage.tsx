@@ -32,11 +32,11 @@ const hasFullResumeShape = (value: unknown): value is ResumeData & { ownerIsPrem
 const buildPublicResumeUrls = (userId: string, resumeId: string) => {
     const encodedUserId = encodeURIComponent(userId);
     const encodedResumeId = encodeURIComponent(resumeId);
+    const appApiUrl = `/api/public/resume/${encodedUserId}/${encodedResumeId}?format=full`;
+    const cloudFunctionUrl = `https://us-west1-${PROJECT_ID}.cloudfunctions.net/getPublicResume?userId=${encodedUserId}&resumeId=${encodedResumeId}`;
+    const isLocalDevHost = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
 
-    return [
-        `/api/public/resume/${encodedUserId}/${encodedResumeId}?format=full`,
-        `https://us-west1-${PROJECT_ID}.cloudfunctions.net/getPublicResume?userId=${encodedUserId}&resumeId=${encodedResumeId}`,
-    ];
+    return isLocalDevHost ? [cloudFunctionUrl, appApiUrl] : [appApiUrl, cloudFunctionUrl];
 };
 
 
@@ -183,15 +183,16 @@ const PublicResumePage: React.FC = () => {
                 let lastResponse: Response | null = null;
                 let lastPayload: unknown = null;
 
-                for (const url of urls) {
+                for (const [index, url] of urls.entries()) {
                     const response = await fetch(url, {
                         headers: { Accept: 'application/json' },
                         credentials: 'omit',
                     });
                     lastResponse = response;
+                    const isLastUrl = index === urls.length - 1;
 
                     if (!response.ok) {
-                        if ([403, 404].includes(response.status)) break;
+                        if (isLastUrl) break;
                         continue;
                     }
 

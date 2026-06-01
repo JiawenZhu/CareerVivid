@@ -70,7 +70,7 @@ Before handoff:
 | SHARE-002 | Recruiter readiness banner QA | Unassigned | Not Started |  |  |  | Candidate toggle controls public readiness context. |
 | AGENCY-001 | Agency dashboard demo polish | Unassigned | Not Started |  |  |  | Must follow agency guardrails. |
 | QA-001 | End-to-end demo script verification | Unassigned | Not Started |  |  |  | Save job -> analyze -> tailor -> outreach -> prep -> share. |
-| PERF-001 | Release QA + performance pass | Mac Mini worker | Done | `codex/mac-mini-performance-qa-001` in `/Users/jiawenzhu/Developer/careervivid-codex` | 2026-05-31 | 2026-05-31 | Reduced public shared resume/portfolio initial chunks with lazy loading, tightened interview agent cleanup on failed startup, and ran build/audit/focused tests. |
+| PERF-001 | Release QA + performance pass | Mac Mini worker | Needs Review | `codex/mac-mini-performance-qa-001` in `/Users/jiawenzhu/Developer/careervivid-codex` | 2026-05-31 | 2026-05-31 | LIVE-QA/PERF-001 final evidence in `/tmp/cv-live-qa-003/`: shared resume desktop/mobile, public portfolio desktop/mobile, and portfolio editor render nonblank after fallback/hooks fixes; interview studio redirected to sign-in in the reachable Chrome/CDP session, so authenticated studio QA remains limited. |
 
 ## Implementation Backlog
 
@@ -149,6 +149,7 @@ Before handoff:
 | Date | Task ID | Blocker | Owner | Needed Decision |
 |---|---|---|---|---|
 | 2026-05-31 | PERF-001 | `npm audit --audit-level=moderate` reports 5 moderate vulnerabilities in nested `careervivid`/`mermaid` and `firebase-functions`/`qs`; fixing all would require dependency churn outside this low-risk pass. | Dependency owner | Decide whether to allow a focused dependency/security upgrade branch. |
+| 2026-05-31 | LIVE-QA/PERF-001 | Authenticated Chrome extension/in-app browser automation was unavailable from Codex; Chrome CDP was reachable, but the local interview-studio route redirected to sign-in, preventing full authenticated studio/media cleanup QA. | Lead Codex / Mac Mini browser owner | Re-run interview studio from the known logged-in browser surface or provide an attachable authenticated browser session before release merge. |
 
 ## Decision Log
 
@@ -159,6 +160,7 @@ Before handoff:
 | 2026-05-31 | First priority is extension + pipeline + shared resume | Covers acquisition, retention, and agency revenue leverage | PM |
 | 2026-05-31 | Next PERF-001 action: run live browser timing QA with seeded shared-resume, interview-studio, and portfolio links before deploy | Code/build checks passed, but this pass did not have real route data for measured desktop/mobile timing | Mac Mini worker |
 | 2026-05-31 | Lead review requested early shared-resume preview preloading; completed before final review | Starts the preview chunk download after shared route params validate, before the public resume fetch loop | Mac Mini worker |
+| 2026-05-31 | Audit findings should move to Security Agent, not block this performance branch PR/prep | Current findings are dependency-only and unchanged in scope by the performance work: nested `careervivid` -> `mermaid` advisories and `firebase-functions`/`qs`; direct main merge remains blocked while audit is nonzero. | Mac Mini worker |
 
 ## QA Matrix
 
@@ -168,10 +170,10 @@ Before handoff:
 | Job tracker cards | Tests passed | Tests passed | Yes | Existing next-action card/detail behavior and actionable match UI verified by focused tests/build. |
 | Chrome extension popup | Extension build passed | N/A | Extension auth | CTA copy, stage transit, Mark as Applied, and selected resume transit path verified by code/build; live extension QA still useful. |
 | Networking copilot | Pending | N/A | Extension auth | Planned; not implemented. |
-| Shared resume | Code QA and build passed | Code QA and build passed | No | Public resume preview now lazy-loads after resume data resolves; no live browser route data was available in this session. |
+| Shared resume | Live CDP QA passed after fallback fix | Live CDP QA passed after fallback fix | No | `/shared/n95XpkySLMhwcHcpKTOpFAqrOPi2/6X6YCuKXKKvb55rIF8AY` rendered actual resume content; local dev tries the cloud function first to avoid local `/api` 404 noise while production keeps `/api` first. Evidence: `/tmp/cv-live-qa-003/qa-report-final.md`. |
 | Resume editor | Code QA and build passed | Code QA and build passed | Yes | Reviewed preview controls and responsive dock/rail behavior; no safe code change needed beyond preserving existing responsive controls. |
-| Interview studio | Focused tests and build passed | Focused tests and build passed | Yes | Agent modal chunk is preloaded on start; failed startup now calls cleanup to stop audio resources/close contexts. |
-| Portfolio public/editor | Code QA and build passed | Code QA and build passed | Mixed | Public portfolio profile/intro modules now lazy-load; editor responsiveness reviewed with existing lazy modals/views preserved. |
+| Interview studio | Focused tests/build passed; live auth QA limited | Focused tests/build passed; live auth QA limited | Yes | `/interview-studio/refactoring-a-monolith-into-microservices-scheduled-practice-z2nlvg` redirected to sign-in in reachable Chrome/CDP session; no real interview/microphone flow started. |
+| Portfolio public/editor | Live CDP QA passed after hooks fix | Live public route QA passed; editor desktop passed | Mixed | `/portfolio/JiawenEvanZhu/hcvcJXT92g70vQ5Ipbez` and `/portfolio/JiawenEvanZhu/edit/hcvcJXT92g70vQ5Ipbez` rendered nonblank with no page errors after moving lazy-template hook before conditional returns. |
 | Lifecycle email links | Pending | Mobile Gmail preview recommended | No for CTA page if public, yes for dashboard | No hash fragments for app routes. |
 | Agency prep portal | Pending | Pending | Candidate auth | Consent model must remain intact. |
 
@@ -194,3 +196,8 @@ Before handoff:
 | 2026-05-31 | PERF-001 audit summary | `npm audit --audit-level=moderate` | Failed with 5 moderate vulnerabilities: nested `careervivid`/`mermaid` and `firebase-functions`/`qs` |
 | 2026-05-31 | Interview studio/modal cleanup regression check | `npm run test -- src/pages/InterviewStudio.test.tsx src/components/AIInterviewAgentModal.test.tsx --run` | Passed: 2 files, 4 tests |
 | 2026-05-31 | PERF-001 final build | `npm run build` | Passed; existing large chunk warning remains |
+| 2026-05-31 | LIVE-QA/PERF-001 first browser pass | Chrome CDP route QA; evidence `/tmp/cv-live-qa-003/qa-report.md` | Found blockers: shared resume stayed on `Resume not found` due local `/api` 404 short-circuit; public portfolio blanked with React hooks-order crash; portfolio editor rendered; interview studio redirected to sign-in. |
+| 2026-05-31 | LIVE-QA/PERF-001 rerun after fixes | Chrome CDP route QA; evidence `/tmp/cv-live-qa-003/qa-report-rerun.md` | Passed shared resume desktop/mobile, public portfolio desktop/mobile, and portfolio editor; interview studio still redirected to sign-in because authenticated browser control was not available. |
+| 2026-05-31 | LIVE-QA/PERF-001 final browser pass | Chrome CDP route QA; evidence `/tmp/cv-live-qa-003/qa-report-final.md` | Passed shared resume desktop/mobile, public portfolio desktop/mobile, and portfolio editor with no console/page errors; interview studio remained sign-in redirected in the reachable session. |
+| 2026-05-31 | LIVE-QA/PERF-001 focused regression tests | `npm run test -- src/pages/InterviewStudio.test.tsx src/components/AIInterviewAgentModal.test.tsx --run` | Passed: 2 files, 4 tests |
+| 2026-05-31 | LIVE-QA/PERF-001 final build | `npm run build` | Passed; existing large chunk warning remains |
