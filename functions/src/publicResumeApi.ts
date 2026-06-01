@@ -75,6 +75,10 @@ interface PublicResumeResponse {
   education: PublicResumeEducation[];
 }
 
+const isPubliclySharedResume = (data: admin.firestore.DocumentData | undefined): boolean => {
+  return Boolean(data?.shareConfig?.enabled);
+};
+
 const normalizeString = (value: unknown): string | null => {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
@@ -277,6 +281,11 @@ export const publicResumeApi = functions
         const data = resumeDoc.data();
         if (!data) {
           res.status(404).json({ error: "Resume not found" });
+          return;
+        }
+
+        if (!isPubliclySharedResume(data)) {
+          res.status(403).json({ error: "Resume is not shared publicly." });
           return;
         }
 
