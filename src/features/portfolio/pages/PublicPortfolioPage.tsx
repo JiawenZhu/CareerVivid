@@ -5,12 +5,13 @@ import { db } from '../../../firebase';
 import { PortfolioData } from '../types/portfolio';
 import { Loader2, AlertCircle, Zap } from 'lucide-react';
 import { useAnalytics } from '../hooks/useAnalytics';
-import IntroOverlay from '../components/intro/IntroOverlay';
-import PublicProfilePage from './PublicProfilePage';
 import { useAuth } from '../../../contexts/AuthContext';
 import SEOHelper from '../../../components/SEOHelper';
 import { normalizePortfolioData } from '../utils/normalizePortfolioData';
 import { getLazyPortfolioTemplate, resolvePortfolioTemplateKey } from '../utils/lazyPortfolioTemplate';
+
+const IntroOverlay = React.lazy(() => import('../components/intro/IntroOverlay'));
+const PublicProfilePage = React.lazy(() => import('./PublicProfilePage'));
 
 // Simple types for the public page if not importing full types
 // but we have PortfolioData so we are good.
@@ -143,7 +144,11 @@ const PublicPortfolioPage: React.FC = () => {
     // ── CONDITIONAL RENDERS (after all hooks) ────────────────────────────────
 
     if (isUserProfileRoute) {
-        return <PublicProfilePage />;
+        return (
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900"><Loader2 className="w-10 h-10 text-indigo-600 animate-spin" /></div>}>
+                <PublicProfilePage />
+            </Suspense>
+        );
     }
 
     if (loading) {
@@ -275,11 +280,13 @@ const PublicPortfolioPage: React.FC = () => {
             >
                 {/* Intro / Splash Screen - Hide in embed mode */}
                 {!isEmbed && displayData?.linkInBio?.introPage?.enabled && showIntro && (
-                    <IntroOverlay
-                        config={displayData.linkInBio.introPage}
-                        onEnter={() => setShowIntro(false)}
-                        portfolioId={displayData.id}
-                    />
+                    <Suspense fallback={null}>
+                        <IntroOverlay
+                            config={displayData.linkInBio.introPage}
+                            onEnter={() => setShowIntro(false)}
+                            portfolioId={displayData.id}
+                        />
+                    </Suspense>
                 )}
 
                 <Suspense fallback={<div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin" /></div>}>

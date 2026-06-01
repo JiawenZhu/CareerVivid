@@ -608,6 +608,7 @@ ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
       });
     } catch (err: any) {
       console.error(err);
+      cleanup();
       const errorMessage = err.name === 'NotAllowedError'
         ? 'Microphone permission was denied. Please allow microphone access to start.'
         : 'Could not start the interview. Please check your microphone.';

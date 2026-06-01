@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef, Suspense, useLayoutEffect } from 'react';
 import { Download, MessageSquare, Loader2, AlertCircle, LayoutDashboard, User as UserIcon, LogOut, User, Eye, ExternalLink, Copy, Briefcase } from 'lucide-react';
 import { ResumeData } from '../types';
-import ResumePreview from '../components/ResumePreview';
 import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
 import type { AnnotationObject } from '../services/annotationService';
@@ -16,6 +15,7 @@ import Toast from '../components/Toast';
 const Editor = React.lazy(() => import('./Editor'));
 const CommentsPanel = React.lazy(() => import('../components/CommentsPanel'));
 const PdfPageEditor = React.lazy(() => import('../components/PdfPageEditor').then((m) => ({ default: m.PdfPageEditor })));
+const ResumePreview = React.lazy(() => import('../components/ResumePreview'));
 
 const PROJECT_ID = 'jastalk-firebase';
 
@@ -198,6 +198,7 @@ const PublicResumePage: React.FC = () => {
                     lastPayload = data;
 
                     if (hasFullResumeShape(data)) {
+                        void import('../components/ResumePreview');
                         setResume(data);
                         setOwnerIsPremium(data.ownerIsPremium || false);
                         setLoading(false);
@@ -646,7 +647,9 @@ const PublicResumePage: React.FC = () => {
                         }}
                     >
                         <div ref={previewRef} className="bg-white">
-                            <ResumePreview resume={resume} template={resume.templateId} />
+                            <Suspense fallback={<div className="flex min-h-[720px] w-[824px] max-w-full items-center justify-center bg-white text-sm text-gray-500">Loading resume preview...</div>}>
+                                <ResumePreview resume={resume} template={resume.templateId} />
+                            </Suspense>
 
                             {/* Anti-screenshot blur overlay */}
                             <div
