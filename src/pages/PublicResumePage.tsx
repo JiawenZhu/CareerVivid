@@ -15,7 +15,12 @@ import Toast from '../components/Toast';
 const Editor = React.lazy(() => import('./Editor'));
 const CommentsPanel = React.lazy(() => import('../components/CommentsPanel'));
 const PdfPageEditor = React.lazy(() => import('../components/PdfPageEditor').then((m) => ({ default: m.PdfPageEditor })));
-const ResumePreview = React.lazy(() => import('../components/ResumePreview'));
+let resumePreviewPreload: Promise<typeof import('../components/ResumePreview')> | null = null;
+const preloadResumePreview = () => {
+    resumePreviewPreload ||= import('../components/ResumePreview');
+    return resumePreviewPreload;
+};
+const ResumePreview = React.lazy(preloadResumePreview);
 
 const PROJECT_ID = 'jastalk-firebase';
 
@@ -171,6 +176,7 @@ const PublicResumePage: React.FC = () => {
             const userId = parts[sharedIndex + 1];
             const resumeId = parts[sharedIndex + 2];
             setRouteParams({ userId, resumeId });
+            void preloadResumePreview();
 
             try {
                 const urls = buildPublicResumeUrls(userId, resumeId);
@@ -198,7 +204,6 @@ const PublicResumePage: React.FC = () => {
                     lastPayload = data;
 
                     if (hasFullResumeShape(data)) {
-                        void import('../components/ResumePreview');
                         setResume(data);
                         setOwnerIsPremium(data.ownerIsPremium || false);
                         setLoading(false);

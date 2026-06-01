@@ -158,6 +158,7 @@ Before handoff:
 | 2026-05-31 | Agency work remains a recruiter trust/distribution path, not a full ATS | Keeps pilot scope sellable and prevents core product sprawl | PM |
 | 2026-05-31 | First priority is extension + pipeline + shared resume | Covers acquisition, retention, and agency revenue leverage | PM |
 | 2026-05-31 | Next PERF-001 action: run live browser timing QA with seeded shared-resume, interview-studio, and portfolio links before deploy | Code/build checks passed, but this pass did not have real route data for measured desktop/mobile timing | Mac Mini worker |
+| 2026-05-31 | Lead review requested early shared-resume preview preloading; completed before final review | Starts the preview chunk download after shared route params validate, before the public resume fetch loop | Mac Mini worker |
 
 ## QA Matrix
 
