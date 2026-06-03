@@ -68,7 +68,7 @@ const PortfolioEditor: React.FC = () => {
     const [username, setUsername] = useState<string | null>(getDataFromUrl().username);
     const [ownerUid, setOwnerUid] = useState<string | null>(null);
     const [activeDevice, setActiveDevice] = useState<'desktop' | 'mobile'>('desktop');
-    const [activeSection, setActiveSection] = useState<'hero' | 'timeline' | 'stack' | 'projects' | 'components' | 'design' | 'settings' | 'links' | 'commerce' | 'intro'>('hero');
+    const [activeSection, setActiveSection] = useState<'hero' | 'timeline' | 'education' | 'stack' | 'projects' | 'components' | 'design' | 'settings' | 'links' | 'commerce' | 'intro'>('hero');
     const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -96,6 +96,12 @@ const PortfolioEditor: React.FC = () => {
     const [isAIModalOpen, setIsAIModalOpen] = useState(false);
     const [authModalConfig, setAuthModalConfig] = useState({ title: 'Save Your Progress', subtitle: 'Sign in to save your portfolio to your dashboard.' });
     const [alertModal, setAlertModal] = useState({ isOpen: false, title: '', message: '' });
+
+    useEffect(() => {
+        if (portfolioData?.mode !== 'linkinbio' && activeView === 'commerce') {
+            setActiveView('editor');
+        }
+    }, [activeView, portfolioData?.mode]);
 
     // Helper: Save guest data to persist across login
     const saveGuestData = () => {
@@ -603,25 +609,67 @@ const PortfolioEditor: React.FC = () => {
         setIsAIImageModalOpen(false);
     };
 
+    const normalizeFieldId = (fieldId: string) => {
+        if (!portfolioData) return fieldId;
+
+        const [section, token, field] = fieldId.split('.');
+        const normalizeCollectionId = (collection: 'projects' | 'timeline' | 'education' | 'techStack' | 'socialLinks') => {
+            const items = (portfolioData as any)[collection] || [];
+            if (!token) return collection;
+            if (token === 'add') return fieldId;
+            if (/^\d+$/.test(token)) return fieldId;
+
+            const index = items.findIndex((item: any) => item?.id === token);
+            return index >= 0 && field ? `${collection}.${index}.${field}` : collection;
+        };
+
+        if (fieldId === 'contact' || fieldId === 'email') return 'contactEmail';
+        if (fieldId === 'attachedResumeId') return 'resume.selector';
+        if (fieldId === 'resume' || fieldId === 'downloadResume') return 'resume.selector';
+        if (fieldId.startsWith('hero.ctaPrimary') || fieldId.startsWith('hero.ctaSecondary')) return 'hero.buttons';
+        if (fieldId === 'hero.buttons') return 'hero.buttons';
+        if (section === 'projects') return normalizeCollectionId('projects');
+        if (section === 'timeline') return normalizeCollectionId('timeline');
+        if (section === 'education') return normalizeCollectionId('education');
+        if (section === 'techStack') return normalizeCollectionId('techStack');
+        if (section === 'socialLinks') return normalizeCollectionId('socialLinks');
+        if (section === 'links') return 'socialLinks';
+
+        return fieldId;
+    };
+
+    const sectionForFieldId = (fieldId: string): typeof activeSection => {
+        const section = fieldId.split('.')[0];
+        if (['hero', 'about', 'contactEmail', 'phone'].includes(section)) return 'hero';
+        if (section === 'timeline') return 'timeline';
+        if (section === 'education') return 'education';
+        if (section === 'techStack') return 'stack';
+        if (section === 'projects') return 'projects';
+        if (section === 'socialLinks' || section === 'links') return 'links';
+        if (section === 'resume') return 'settings';
+        if (section === 'sectionLabels') {
+            const labelType = fieldId.split('.')[1];
+            if (labelType === 'timeline') return 'timeline';
+            if (labelType === 'education') return 'education';
+            if (labelType === 'techStack') return 'stack';
+            if (labelType === 'projects') return 'projects';
+            return 'hero';
+        }
+        return 'hero';
+    };
+
+    const fallbackElementIdForSection = (section: typeof activeSection) => {
+        if (section === 'stack') return 'techStack';
+        if (section === 'settings') return 'resume.selector';
+        return section;
+    };
+
     // Click-to-Edit Logic shared between Preview and Editor
     const handleFocusField = (fieldId: string) => {
-        // 1. Determine section
-        const section = fieldId.split('.')[0];
+        const normalizedFieldId = normalizeFieldId(fieldId);
+        const targetSection = sectionForFieldId(normalizedFieldId);
 
-        // Map field to section
-        if (['hero', 'about'].includes(section)) setActiveSection('hero');
-        else if (section === 'timeline') setActiveSection('timeline');
-        else if (section === 'techStack') setActiveSection('stack');
-        else if (section === 'projects') setActiveSection('projects');
-        else if (section === 'resume') setActiveSection('settings');
-        else if (section === 'sectionLabels') {
-            const labelType = fieldId.split('.')[1];
-            if (labelType === 'about') setActiveSection('hero');
-            else if (labelType === 'timeline') setActiveSection('timeline');
-            else if (labelType === 'techStack') setActiveSection('stack');
-            else if (labelType === 'projects') setActiveSection('projects');
-            else if (labelType === 'contact') setActiveSection('hero');
-        }
+        setActiveSection(targetSection);
 
         // 2. Open sidebar on mobile
         if (isMobile) {
@@ -630,7 +678,8 @@ const PortfolioEditor: React.FC = () => {
 
         // 3. Scroll and focus
         setTimeout(() => {
-            const element = document.getElementById(fieldId);
+            const element = document.getElementById(normalizedFieldId)
+                || document.getElementById(fallbackElementIdForSection(targetSection));
             if (element) {
                 element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 element.focus();
@@ -643,6 +692,11 @@ const PortfolioEditor: React.FC = () => {
 
     // Handle View Change
     const handleViewChange = (newView: 'editor' | 'analytics' | 'commerce') => {
+        if (newView === 'commerce' && portfolioData?.mode !== 'linkinbio') {
+            setActiveView('editor');
+            return;
+        }
+
         // Prevent guests from accessing Analytics or Commerce
         if (newView === 'commerce' && (!currentUser || ownerUid === 'guest')) {
             saveGuestData();
@@ -681,6 +735,7 @@ const PortfolioEditor: React.FC = () => {
                 onTitleChange={(t) => handleUpdate({ title: t })}
                 editorTheme={theme === 'system' ? 'dark' : theme}
                 onToggleTheme={toggleTheme}
+                surfaceMode={portfolioData.mode || 'portfolio'}
                 activeDevice={activeDevice}
                 onBack={handleBack}
                 onDeviceChange={setActiveDevice}

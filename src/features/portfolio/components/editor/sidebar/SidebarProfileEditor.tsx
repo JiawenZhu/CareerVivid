@@ -1,7 +1,7 @@
 import React from 'react';
-import { User, Upload, Loader2, Brush, Trash2, Type, AlignLeft, MousePointer, Link as LinkIcon, FileText, Phone, Mail } from 'lucide-react';
+import { User, Upload, Loader2, Brush, Trash2, Type, AlignLeft, MousePointer, Link as LinkIcon, FileText, Phone, Mail, Plus } from 'lucide-react';
 import AppearanceControls from '../AppearanceControls';
-import { PortfolioData } from '../../../types/portfolio';
+import { PortfolioButton, PortfolioData } from '../../../types/portfolio';
 
 interface SidebarProfileEditorProps {
     portfolioData: PortfolioData;
@@ -28,8 +28,82 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
     isLinkInBio,
     onStockPhotoTrigger
 }) => {
+    const isBusinessCard = portfolioData.mode === 'business_card';
+    const isPortfolio = !isLinkInBio && !isBusinessCard;
+
+    const getVisibleHeroButtons = (): PortfolioButton[] => {
+        if (Array.isArray(portfolioData.hero.buttons)) {
+            return portfolioData.hero.buttons;
+        }
+
+        const legacyButtons: PortfolioButton[] = [];
+        if (portfolioData.hero.ctaPrimaryLabel || portfolioData.hero.ctaPrimaryUrl) {
+            legacyButtons.push({
+                id: 'primary',
+                label: portfolioData.hero.ctaPrimaryLabel || 'View Work',
+                url: portfolioData.hero.ctaPrimaryUrl || '#projects',
+                variant: 'primary',
+                type: 'link',
+            });
+        }
+        if (portfolioData.hero.ctaSecondaryLabel || portfolioData.hero.ctaSecondaryUrl) {
+            legacyButtons.push({
+                id: 'secondary',
+                label: portfolioData.hero.ctaSecondaryLabel || 'Contact Me',
+                url: portfolioData.hero.ctaSecondaryUrl || `mailto:${portfolioData.contactEmail || ''}`,
+                variant: 'outline',
+                type: 'link',
+            });
+        }
+        return legacyButtons;
+    };
+
+    const heroButtons = getVisibleHeroButtons();
+
+    const persistHeroButtons = (buttons: PortfolioButton[]) => {
+        const [primary, secondary] = buttons;
+        onUpdate({
+            hero: {
+                ...portfolioData.hero,
+                buttons,
+                ctaPrimaryLabel: primary?.label || '',
+                ctaPrimaryUrl: primary?.url || '',
+                ctaSecondaryLabel: secondary?.label || '',
+                ctaSecondaryUrl: secondary?.url || '',
+            },
+        });
+    };
+
+    const updateHeroButton = (index: number, updates: Partial<PortfolioButton>) => {
+        const nextButtons = heroButtons.map((button, idx) => (
+            idx === index ? { ...button, ...updates } : button
+        ));
+        persistHeroButtons(nextButtons);
+    };
+
+    const addHeroButton = (kind: 'contact' | 'link') => {
+        const emailHref = `mailto:${portfolioData.contactEmail || 'you@example.com'}`;
+        const newButton: PortfolioButton = {
+            id: `${kind}-${Date.now()}`,
+            label: kind === 'contact' ? 'Contact Me' : 'New Button',
+            url: kind === 'contact' ? emailHref : '#projects',
+            variant: heroButtons.length === 0 ? 'primary' : 'outline',
+            type: 'link',
+        };
+        persistHeroButtons([...heroButtons, newButton]);
+    };
+
+    const removeHeroButton = (index: number) => {
+        persistHeroButtons(heroButtons.filter((_, idx) => idx !== index));
+    };
+
+    const hasContactButton = heroButtons.some(button => {
+        const value = `${button.label || ''} ${button.url || ''}`.toLowerCase();
+        return value.includes('contact') || value.includes('mailto:');
+    });
+
     return (
-        <div className="space-y-4 animate-fade-in">
+        <div id="hero" className="space-y-4 animate-fade-in">
             {/* Avatar Section */}
             <div className={`p-4 rounded-lg border ${themeClasses.cardBg}`}>
                 <label className="block text-xs font-semibold text-gray-500 mb-3 uppercase">Profile Photo / Avatar</label>
@@ -191,8 +265,8 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                 />
             </div>
 
-            {/* Sub-headline & CTA - Hidden for NFC Cards */}
-            {!portfolioData.templateId?.startsWith('card_') && (
+            {/* Portfolio hero actions. Link-in-bio uses the Links tab; cards use contact links. */}
+            {isPortfolio && (
                 <>
                     <div>
                         <label className="text-[10px] uppercase font-semibold text-gray-400 mb-1 flex items-center gap-1.5">
@@ -206,31 +280,104 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                             onChange={(e) => onNestedUpdate('hero', 'subheadline', e.target.value)}
                         />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="text-[10px] uppercase font-semibold text-gray-400 mb-1 flex items-center gap-1.5">
-                                <MousePointer size={12} /> CTA Text
-                            </label>
-                            <input
-                                id="hero.ctaPrimaryLabel"
-                                type="text"
-                                className={`w-full rounded-lg px-4 py-2.5 text-sm outline-none transition-colors ${themeClasses.inputBg} h-10`}
-                                value={portfolioData.hero.ctaPrimaryLabel}
-                                onChange={(e) => onNestedUpdate('hero', 'ctaPrimaryLabel', e.target.value)}
-                            />
+                    <div className={`rounded-lg border p-4 outline-none ${themeClasses.cardBg}`} id="hero.buttons" tabIndex={-1}>
+                        <div className="mb-3 flex items-start justify-between gap-3">
+                            <div>
+                                <label className="text-[10px] uppercase font-semibold text-gray-400 flex items-center gap-1.5">
+                                    <MousePointer size={12} /> Hero Buttons
+                                </label>
+                                <p className="mt-1 text-[11px] leading-4 text-gray-400">
+                                    Add or remove the buttons shown under your headline.
+                                </p>
+                            </div>
+                            <div className="flex shrink-0 gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => addHeroButton('contact')}
+                                    disabled={hasContactButton}
+                                    className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-[11px] font-semibold transition-colors ${hasContactButton
+                                            ? 'cursor-not-allowed bg-gray-100 text-gray-400 dark:bg-white/5'
+                                            : 'bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200'
+                                        }`}
+                                >
+                                    <Mail size={12} /> Add Contact
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => addHeroButton('link')}
+                                    className="inline-flex items-center gap-1 rounded-md bg-indigo-500/10 px-2.5 py-1.5 text-[11px] font-semibold text-indigo-500 transition-colors hover:bg-indigo-500/20"
+                                >
+                                    <Plus size={12} /> Add Link
+                                </button>
+                            </div>
                         </div>
-                        <div>
-                            <label className="text-[10px] uppercase font-semibold text-gray-400 mb-1 flex items-center gap-1.5">
-                                <LinkIcon size={12} /> CTA URL
-                            </label>
-                            <input
-                                id="hero.ctaPrimaryUrl"
-                                type="text"
-                                className={`w-full rounded-lg px-4 py-2.5 text-sm outline-none transition-colors ${themeClasses.inputBg} h-10`}
-                                value={portfolioData.hero.ctaPrimaryUrl}
-                                onChange={(e) => onNestedUpdate('hero', 'ctaPrimaryUrl', e.target.value)}
-                            />
-                        </div>
+
+                        {heroButtons.length === 0 ? (
+                            <div className="rounded-lg border border-dashed border-gray-200 p-4 text-center text-xs leading-5 text-gray-400 dark:border-white/10">
+                                No hero buttons are shown. Add Contact for email or Add Link for projects, resume, calendar, or any URL.
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {heroButtons.map((button, index) => (
+                                    <div key={button.id || index} className={`rounded-lg border p-3 ${editorTheme === 'dark' ? 'border-white/10 bg-black/20' : 'border-gray-200 bg-white'}`}>
+                                        <div className="mb-2 flex items-center justify-between gap-2">
+                                            <span className="text-xs font-semibold text-gray-500">Button {index + 1}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeHeroButton(index)}
+                                                className="inline-flex h-7 w-7 items-center justify-center rounded-md text-red-500 transition-colors hover:bg-red-500/10"
+                                                title="Remove button"
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
+                                        </div>
+                                        <div className="grid grid-cols-1 gap-3">
+                                            <div>
+                                                <label className="text-[10px] uppercase font-semibold text-gray-400 mb-1 flex items-center gap-1.5">
+                                                    <Type size={12} /> Label
+                                                </label>
+                                                <input
+                                                    id={`hero.buttons.${index}.label`}
+                                                    type="text"
+                                                    className={`w-full rounded-lg px-3 py-2 text-sm outline-none transition-colors ${themeClasses.inputBg} h-10`}
+                                                    value={button.label || ''}
+                                                    onChange={(e) => updateHeroButton(index, { label: e.target.value })}
+                                                    placeholder="Contact Me"
+                                                    maxLength={48}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] uppercase font-semibold text-gray-400 mb-1 flex items-center gap-1.5">
+                                                    <LinkIcon size={12} /> Link
+                                                </label>
+                                                <input
+                                                    id={`hero.buttons.${index}.url`}
+                                                    type="text"
+                                                    className={`w-full rounded-lg px-3 py-2 text-sm outline-none transition-colors ${themeClasses.inputBg} h-10`}
+                                                    value={button.url || ''}
+                                                    onChange={(e) => updateHeroButton(index, { url: e.target.value, type: 'link' })}
+                                                    placeholder={`#projects or mailto:${portfolioData.contactEmail || 'you@example.com'}`}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] uppercase font-semibold text-gray-400 mb-1 block">Style</label>
+                                                <select
+                                                    id={`hero.buttons.${index}.variant`}
+                                                    value={button.variant || 'outline'}
+                                                    onChange={(e) => updateHeroButton(index, { variant: e.target.value as PortfolioButton['variant'] })}
+                                                    className={`w-full rounded-lg px-3 py-2 text-sm outline-none transition-colors border ${themeClasses.inputBg} h-10`}
+                                                >
+                                                    <option value="primary">Primary</option>
+                                                    <option value="secondary">Secondary</option>
+                                                    <option value="outline">Outline</option>
+                                                    <option value="ghost">Ghost</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </>
             )}

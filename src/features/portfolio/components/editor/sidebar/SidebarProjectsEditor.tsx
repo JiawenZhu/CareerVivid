@@ -33,7 +33,7 @@ const SidebarProjectsEditor: React.FC<SidebarProjectsEditorProps> = ({
     };
 
     return (
-        <div className="space-y-4">
+        <div id="projects" className="space-y-4">
             {portfolioData.projects.map((proj, idx) => (
                 <div key={proj.id} className={`p-4 rounded-lg border relative group/card ${themeClasses.cardBg}`}>
                     <div className="absolute top-4 right-4 z-10 opacity-0 group-hover/card:opacity-100 transition-opacity">

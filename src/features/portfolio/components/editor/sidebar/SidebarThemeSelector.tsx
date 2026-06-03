@@ -17,9 +17,7 @@ const SidebarThemeSelector: React.FC<SidebarThemeSelectorProps> = ({
     onUpdate,
     currentSelection,
     editorTheme,
-    themeClasses,
-    isPremium,
-    onUpgradeTrigger
+    themeClasses
 }) => {
 
     const handleTemplateChange = (value: string) => {
@@ -43,11 +41,6 @@ const SidebarThemeSelector: React.FC<SidebarThemeSelectorProps> = ({
                 }
             });
         } else {
-            // GATING: Check for Media Kit
-            if (value === 'media_kit' && !isPremium) {
-                if (onUpgradeTrigger) onUpgradeTrigger();
-                return;
-            }
             onUpdate({ templateId: value as any });
         }
     };
@@ -82,29 +75,13 @@ const SidebarThemeSelector: React.FC<SidebarThemeSelectorProps> = ({
                     <>
                         <optgroup label="Core">
                             <option value="minimalist">Minimalist (Tech)</option>
-                            <option value="visual">Visual (Creative)</option>
                             <option value="corporate">Corporate (Pro)</option>
                         </optgroup>
                         <optgroup label="Technology">
                             <option value="dev_terminal">Dev Terminal</option>
-                            <option value="saas_modern">SaaS / Linear Style</option>
-                        </optgroup>
-                        <optgroup label="Creative">
-                            <option value="ux_folio">UX Folio</option>
-                            <option value="creative_dark">Cinematic Dark</option>
-                            <option value="bento_personal">Bento Grid (Personal)</option>
                         </optgroup>
                         <optgroup label="Professional">
-                            <option value="legal_trust">Legal Trust</option>
-                            <option value="executive_brief">Executive Brief</option>
                             <option value="writer_editorial">Editorial / Writer</option>
-                            <option value="academic_research">Academic / Research</option>
-                        </optgroup>
-                        <optgroup label="Healthcare">
-                            <option value="medical_care">Medical Care</option>
-                        </optgroup>
-                        <optgroup label="Social & Media">
-                            <option value="media_kit">💎 Media Kit (Pro)</option>
                         </optgroup>
                     </>
                 )}
