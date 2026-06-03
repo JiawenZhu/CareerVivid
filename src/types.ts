@@ -193,6 +193,7 @@ export interface UserProfile {
   uid: string;
   email: string;
   displayName?: string; // Added for admin display
+  displayNameSource?: 'email' | 'manual' | 'google';
   createdAt: any; // Firestore timestamp
   status: 'active' | 'suspended';
   // Stripe-related fields

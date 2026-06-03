@@ -111,6 +111,7 @@ import { SUPPORTED_LANGUAGES } from './constants';
 
 // Navigation utility
 import { navigate, getPathFromUrl } from './utils/navigation';
+import { getSafeRelativeRedirect } from './utils/security';
 
 
 const LoadingFallback = () => (
@@ -121,7 +122,7 @@ const LoadingFallback = () => (
 
 const AuthRedirect = ({ target }: { target: string }) => {
   useEffect(() => {
-    navigate(target);
+    navigate(getSafeRelativeRedirect(target));
   }, [target]);
   return <LoadingFallback />;
 };
@@ -401,20 +402,16 @@ const AppContent: React.FC = () => {
     } else if (path === '/signin' || path.startsWith('/signin?')) {
       const params = new URLSearchParams(window.location.search);
       const cliPort = params.get('cli_port');
-      const redirect = params.get('redirect');
-      const redirectTarget = redirect ? decodeURIComponent(redirect) : null;
-
-      if (redirectTarget?.startsWith('/extension-welcome')) {
-        content = <AuthRedirect target={redirectTarget} />;
-      } else if (currentUser && !cliPort) {
-        content = <AuthRedirect target={redirectTarget || '/dashboard'} />;
+      if (currentUser && !cliPort) {
+        const redirect = params.get('redirect');
+        content = <AuthRedirect target={getSafeRelativeRedirect(redirect)} />;
       } else {
         content = <SignInPage />;
       }
     } else if (path === '/signup') {
       const params = new URLSearchParams(window.location.search);
       const redirect = params.get('redirect');
-      content = currentUser ? <AuthRedirect target={redirect ? decodeURIComponent(redirect) : '/dashboard'} /> : <SignUpPage />;
+      content = currentUser ? <AuthRedirect target={getSafeRelativeRedirect(redirect)} /> : <SignUpPage />;
     } else if (path === '/auth') {
       if (currentUser) {
         content = <AuthRedirect target="/dashboard" />;

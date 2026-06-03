@@ -41,6 +41,10 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == userId;
     }
 
+    function canReadUserRoot(userId) {
+      return isUserOwner(userId) || isAdmin();
+    }
+
     function protectedUserFields() {
       return [
         'downloadCredits',
@@ -116,7 +120,8 @@ service cloud.firestore {
     // 👤 CORE USER DATA (Recursive - Covers EVERYTHING)
     // ---------------------------------------------------------
     match /users/{userId} {
-      allow read: if true;
+      allow get: if canReadUserRoot(userId);
+      allow list: if isAdmin();
       allow create: if isAdmin() || (isUserOwner(userId) && hasSafeUserCreateEntitlements(userId));
       allow update: if isAdmin() || (isUserOwner(userId) && !touchesProtectedUserFields());
       allow delete: if isAdmin();
