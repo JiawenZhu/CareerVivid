@@ -5,6 +5,14 @@ import { defineSecret } from "firebase-functions/params";
 import { getAIClient } from "./utils/ai.js";
 import { runPassiveDeepResearchTask } from "./deepResearch";
 import { purgeExpiredJobsCTS } from "./talentSolution";
+import { generateCareerVividEmail } from "./emailTemplates";
+import {
+    CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER,
+    canonicalInterviewStudioUrl,
+    canonicalCareerVividUrl,
+    getEmailFrequencySuppressionReason,
+    getEmailPreferenceSuppressionReason,
+} from "./emailPolicy";
 
 if (!admin.apps.length) {
     admin.initializeApp();
@@ -16,18 +24,6 @@ const createJobId = (title: string, company: string): string => {
     const sanitizedTitle = title.trim().toLowerCase().replace(/[^a-z0-9\s-]/g, '');
     const sanitizedCompany = company.trim().toLowerCase().replace(/[^a-z0-9\s-]/g, '');
     return `${sanitizedTitle}-${sanitizedCompany}`.replace(/[\s/]/g, '-').slice(0, 100);
-}
-
-function getFrequencyDays(freq: string): number {
-    switch (freq) {
-        case 'daily': return 1;
-        case 'every_3_days': return 3;
-        case 'every_5_days': return 5;
-        case 'every_week': return 7;
-        case 'every_10_days': return 10;
-        case 'every_14_days': return 14;
-        default: return 7;
-    }
 }
 
 async function generateSmartTopic(baseRole: string): Promise<string> {
@@ -78,30 +74,48 @@ export const sendPracticeEmails = onSchedule({
     const now = admin.firestore.Timestamp.now();
 
     try {
-        const usersSnapshot = await db.collection('users').where('emailPreferences.enabled', '==', true).get();
+        const [legacyPracticeSnapshot, categoryPracticeSnapshot] = await Promise.all([
+            db.collection('users').where('emailPreferences.enabled', '==', true).get(),
+            db.collection('users').where('emailPreferences.categories.practice', '==', true).get(),
+        ]);
 
-        for (const userDoc of usersSnapshot.docs) {
+        const userDocs = new Map<string, admin.firestore.QueryDocumentSnapshot>();
+        legacyPracticeSnapshot.docs.forEach(doc => userDocs.set(doc.id, doc));
+        categoryPracticeSnapshot.docs.forEach(doc => userDocs.set(doc.id, doc));
+
+        const frequencyBuckets = new Map<string, number>();
+        let suppressed = 0;
+        let queued = 0;
+
+        for (const userDoc of userDocs.values()) {
             const userData = userDoc.data();
-            const prefs = userData.emailPreferences;
+            const prefs = userData.emailPreferences as Record<string, unknown> | undefined;
 
-            if (!prefs || !prefs.enabled) continue;
+            const preferenceSuppression = getEmailPreferenceSuppressionReason(userData, "practice", "scheduled_practice");
+            if (preferenceSuppression) {
+                suppressed += 1;
+                console.log(`[sendPracticeEmails] Skipping ${userDoc.id}: ${preferenceSuppression}`);
+                continue;
+            }
 
-            // Check Frequency
-            const lastSent = prefs.lastSentAt?.toDate() || new Date(0);
-            const frequencyDays = getFrequencyDays(prefs.frequency);
-            const nextDate = new Date(lastSent);
-            nextDate.setDate(nextDate.getDate() + frequencyDays);
+            const frequency = String(prefs?.frequency || "every_week");
+            frequencyBuckets.set(frequency, (frequencyBuckets.get(frequency) || 0) + 1);
 
-            // If strictly greater than now (future), skip. 
-            // If now >= nextDate, it's due.
-            if (now.toDate() < nextDate) continue;
+            const frequencySuppression = getEmailFrequencySuppressionReason(prefs, now.toMillis());
+            if (frequencySuppression) {
+                suppressed += 1;
+                console.log(`[sendPracticeEmails] Skipping ${userDoc.id}: ${frequencySuppression}`);
+                continue;
+            }
 
             console.log(`Processing scheduled interview for user ${userDoc.id}`);
 
             try {
                 let topic = "General Interview";
-                if (prefs.topicSource === 'manual' && prefs.manualTopic) {
-                    topic = prefs.manualTopic;
+                const topicSource = String(prefs?.topicSource || "");
+                const manualTopic = typeof prefs?.manualTopic === "string" ? prefs.manualTopic.trim() : "";
+                if (topicSource === 'manual' && manualTopic) {
+                    topic = manualTopic;
                 } else {
                     const jobTitle = userData.personalDetails?.jobTitle || "Software Engineer";
                     topic = await generateSmartTopic(jobTitle);
@@ -133,40 +147,74 @@ export const sendPracticeEmails = onSchedule({
                 });
 
                 // Send Email
-                const emailLink = `https://careervivid.web.app/#/interview-studio/${jobId}`;
+                const emailLink = canonicalInterviewStudioUrl(jobId, "scheduled_practice_email");
+                const userName =
+                    userData.displayName ||
+                    userData.personalDetails?.firstName ||
+                    String(userData.email || "").split("@")[0] ||
+                    "there";
+                const emailHtml = generateCareerVividEmail({
+                    title: `Practice session: ${topic}`,
+                    userName,
+                    eyebrow: "Scheduled practice",
+                    preheader: "Your next CareerVivid mock interview is ready.",
+                    messageLines: [
+                        "Your scheduled practice session is ready in CareerVivid.",
+                        "Open the interview studio to work through the questions, then review the feedback and next-step recommendations in your workspace."
+                    ],
+                    boxContent: {
+                        title: topic,
+                        type: "info",
+                        lines: [
+                            `${questions.length} questions prepared`,
+                            "AI interviewer ready",
+                            "Practice history saved to your workspace"
+                        ]
+                    },
+                    mainButton: {
+                        text: "Start interview",
+                        url: emailLink
+                    },
+                    secondaryButton: {
+                        text: "Manage email settings",
+                        url: canonicalCareerVividUrl("/profile", { source: "scheduled_practice_email" })
+                    },
+                    footerText: CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER
+                });
 
                 await db.collection('mail').add({
                     to: userData.email,
                     message: {
                         subject: `Practice Time: ${topic}`,
-                        html: `
-                            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                                <h2 style="color: #4F46E5;">Hi ${userData.personalDetails?.firstName || 'there'},</h2>
-                                <p>It's time for your scheduled practice session!</p>
-                                <div style="background-color: #F3F4F6; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                                    <h3 style="margin: 0; color: #1F2937;">${topic}</h3>
-                                    <p style="margin: 5px 0 0; color: #6B7280;">${questions.length} Questions • AI Interviewer Ready</p>
-                                </div>
-                                <p style="text-align: center; margin: 30px 0;">
-                                    <a href="${emailLink}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Start Interview Now</a>
-                                </p>
-                                <p style="font-size: 12px; color: #9CA3AF; text-align: center;">
-                                    Or copy this link: <a href="${emailLink}">${emailLink}</a>
-                                </p>
-                            </div>
-                        `
-                    }
+                        html: emailHtml,
+                        text: `Your scheduled practice session is ready: ${topic}. Start here: ${emailLink}`
+                    },
+                    notification: {
+                        category: "practice",
+                        userId: userDoc.id,
+                        preferencesChecked: true,
+                        frequencyChecked: true
+                    },
+                    lifecycle: {
+                        key: "scheduled_practice_interview",
+                        goal: "practice_interview_started",
+                        reason: "scheduled_practice_email"
+                    },
+                    createdAt: admin.firestore.FieldValue.serverTimestamp()
                 });
 
                 // Update Last Sent
                 await userDoc.ref.update({
                     'emailPreferences.lastSentAt': now
                 });
+                queued += 1;
 
             } catch (error) {
                 console.error(`Error processing individual user ${userDoc.id}:`, error);
             }
         }
+
+        console.log(`[sendPracticeEmails] queued=${queued}, suppressed=${suppressed}, buckets=${JSON.stringify(Object.fromEntries(frequencyBuckets))}`);
     } catch (error) {
         console.error("Error in sendPracticeEmails job:", error);
     }

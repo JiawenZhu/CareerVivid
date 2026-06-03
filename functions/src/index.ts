@@ -55,9 +55,11 @@ export { sendTestEmails } from "./sendTestEmails";
 export {
   sendLifecycleActivationEmails,
   onLifecycleUsageLogCreated,
+  onFirstJobSavedLifecycle,
   onResumeCreatedLifecycle,
   onEmailPreferencesUpdated,
   sendEmailPreferenceUpdateNotifications,
+  sendResumePerformanceMilestoneEmails,
   sendLifecycleDemoEmails,
 } from "./lifecycleEmails";
 export { sendTransactionalAuthEmail } from "./transactionalEmails";
