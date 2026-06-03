@@ -305,6 +305,8 @@ const EditorPreview: React.FC<EditorPreviewProps> = ({
                 >
                     <div
                         className="absolute left-0 top-0 origin-top-left transition-transform duration-300"
+                        data-resume-export-root="true"
+                        data-resume-id={resume.id || 'default'}
                         style={{
                             width: A4_WIDTH_PX,
                             height: pageStackHeight,

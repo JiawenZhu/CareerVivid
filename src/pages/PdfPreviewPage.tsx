@@ -46,6 +46,24 @@ const decodePayloadFromHash = (): PdfPayload | null => {
   }
 };
 
+const waitForNextFrame = () =>
+  new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
+const waitForResumeTemplateHydration = async (sheet: HTMLElement, timeoutMs = 10000) => {
+  const startedAt = performance.now();
+
+  while (sheet.querySelector('[aria-label="Loading resume template"]')) {
+    if (performance.now() - startedAt > timeoutMs) {
+      console.warn('Timed out waiting for resume template hydration before PDF render');
+      break;
+    }
+
+    await waitForNextFrame();
+  }
+
+  await waitForNextFrame();
+};
+
 const PdfPreviewPage: React.FC = () => {
   const [payload, setPayload] = useState<PdfPayload | null>(() => decodePayloadFromHash());
   const [error, setError] = useState<string | null>(null);
@@ -128,18 +146,20 @@ const PdfPreviewPage: React.FC = () => {
         console.warn('Font loading timeout or error', e);
       }
 
+      await waitForNextFrame();
+      const sheet = measureRef.current;
+      if (!sheet || cancelled) return;
+
+      await waitForResumeTemplateHydration(sheet);
+      if (cancelled) return;
+
+      applyPaginationSpacing(sheet);
+      const placements = collectSpacerPlacements(sheet);
+
       requestAnimationFrame(() => {
-        const sheet = measureRef.current;
-        if (!sheet || cancelled) return;
-
-        applyPaginationSpacing(sheet);
-        const placements = collectSpacerPlacements(sheet);
-
-        requestAnimationFrame(() => {
-          if (cancelled) return;
-          setSpacerPlacements(placements);
-          setContentHeight(sheet.scrollHeight || A4_HEIGHT_PX);
-        });
+        if (cancelled) return;
+        setSpacerPlacements(placements);
+        setContentHeight(sheet.scrollHeight || A4_HEIGHT_PX);
       });
     };
 
