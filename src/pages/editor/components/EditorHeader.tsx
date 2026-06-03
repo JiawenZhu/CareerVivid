@@ -312,7 +312,7 @@ const EditorHeader: React.FC<EditorHeaderProps> = ({
                                 }
                             }}
                             disabled={isExporting}
-                            className="flex items-center gap-2 rounded-full bg-primary-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="flex items-center gap-2 rounded-full border border-[#c7d2fe] bg-[#EEF2FF] px-4 py-2 text-sm font-bold text-[#211b4d] shadow-sm transition-colors hover:bg-[#e0e7ff] hover:text-[#18083d] disabled:cursor-not-allowed disabled:bg-[#f5f7ff] disabled:text-slate-400 dark:border-primary-800 dark:bg-primary-600 dark:text-white dark:hover:bg-primary-500 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
                         >
                             {isExporting ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
                             <span>Download PDF</span>
