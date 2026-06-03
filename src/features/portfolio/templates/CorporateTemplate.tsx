@@ -29,13 +29,9 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
     const isExplicitlyDarkText = theme.textColor?.toLowerCase() === '#000000' || theme.textColor?.toLowerCase() === '#0f172a';
     const textColor = (isDark && isExplicitlyDarkText) ? '#f8fafc' : (theme.textColor || (isDark ? '#f8fafc' : '#0f172a'));
 
-    const sidebarBg = isDark ? '#1e293b' : '#0f172a'; // Slate-800 : Slate-900
-    const sidebarText = '#ffffff';
+    const sidebarBg = isDark ? '#111827' : '#0f172a'; // Gray-900 : Slate-900
+    const sidebarText = '#f8fafc';
     const accentColor = primaryColor;
-    const inlineEditProps = {
-        onFocus: onEdit,
-        showEditHighlight: false
-    };
 
     // TikTok Integration
     const tiktokLink = data.socialLinks?.find(l => l.url.includes('tiktok.com') || l.platform === 'tiktok');
@@ -71,16 +67,18 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                         <InlineEdit
                             value={hero.headline}
                             fieldId="hero.headline"
-                            {...inlineEditProps}
-                            className="text-3xl font-bold mb-2 block"
+                            onFocus={onEdit}
+                            className="mb-3 block text-2xl font-black leading-tight text-white [overflow-wrap:anywhere]"
                             tagName="h1"
+                            style={{ color: sidebarText }}
                         />
                         <InlineEdit
                             value={hero.subheadline}
                             fieldId="hero.subheadline"
-                            {...inlineEditProps}
-                            className="opacity-80 font-medium block"
+                            onFocus={onEdit}
+                            className="block text-sm font-semibold leading-6 text-slate-200"
                             tagName="p"
+                            style={{ color: '#dbeafe' }}
                         />
                         {/* Sidebar Actions (Theme Toggle for example) */}
                         <div className="mt-4 flex gap-2">
@@ -100,13 +98,37 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                     <div className="space-y-6 mb-12">
                         <div className="flex items-center gap-3 opacity-80">
                             <Mail size={18} />
-                            <a href={`mailto:${data.contactEmail}`} className="hover:text-white truncate transition-colors">{data.contactEmail}</a>
+                            <a
+                                href={`mailto:${data.contactEmail}`}
+                                onClick={(event) => {
+                                    if (onEdit) {
+                                        event.preventDefault();
+                                        onEdit('contactEmail');
+                                    }
+                                }}
+                                className="hover:text-white truncate transition-colors"
+                            >
+                                {data.contactEmail}
+                            </a>
                         </div>
                         <div className="flex gap-4">
-                            {(data.socialLinks || []).map(link => (
+                            {(data.socialLinks || []).map((link, idx) => (
                                 <div key={link.id} className="flex items-center gap-3 opacity-80 hover:opacity-100 transition-opacity">
                                     <Globe size={18} />
-                                    <a href={link.url} target="_blank" rel="noreferrer" className="truncate">{link.label || 'Website'}</a>
+                                    <a
+                                        href={link.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        onClick={(event) => {
+                                            if (onEdit) {
+                                                event.preventDefault();
+                                                onEdit(`socialLinks.${idx}.label`);
+                                            }
+                                        }}
+                                        className="truncate"
+                                    >
+                                        {link.label || 'Website'}
+                                    </a>
                                 </div>
                             ))}
                         </div>
@@ -116,13 +138,17 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                         <InlineEdit
                             value={data.sectionLabels?.techStack || 'Skills'}
                             fieldId="sectionLabels.techStack"
-                            {...inlineEditProps}
-                            className="text-xs font-bold uppercase tracking-widest opacity-50 mb-4 border-b border-white/20 pb-2 block"
+                            onFocus={onEdit}
+                            className="mb-4 block border-b border-white/20 pb-2 text-xs font-bold uppercase tracking-widest text-slate-300"
                             tagName="h2"
                         />
                         <div className="flex flex-wrap gap-2">
-                            {(techStack || []).map(skill => (
-                                <span key={skill.id} className="bg-white/10 px-2 py-1 rounded text-sm text-white/90 border border-white/5">
+                            {(techStack || []).map((skill, idx) => (
+                                <span
+                                    key={skill.id}
+                                    onClick={() => onEdit?.(`techStack.${idx}.name`)}
+                                    className="rounded border border-white/10 bg-white/10 px-2.5 py-1.5 text-sm font-medium text-slate-100 cursor-pointer hover:bg-white/20"
+                                >
                                     {skill.name}
                                 </span>
                             ))}
@@ -130,16 +156,40 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                     </div>
 
                     <div className="mb-12">
-                        <h2 className="text-xs font-bold uppercase tracking-widest opacity-50 mb-4 border-b border-white/20 pb-2">Education</h2>
+                        <h2
+                            onClick={() => onEdit?.('education')}
+                            className="mb-4 border-b border-white/20 pb-2 text-xs font-bold uppercase tracking-widest text-slate-300 cursor-pointer hover:text-white"
+                        >
+                            Education
+                        </h2>
                         <div className="space-y-8">
-                            {(education || []).map(edu => (
+                            {(education || []).map((edu, idx) => (
                                 <div key={edu.id}>
-                                    <div className="font-bold">{edu.school}</div>
-                                    <div className="opacity-80 text-sm">{edu.degree}</div>
-                                    <div className="opacity-60 text-xs mt-1">{edu.endDate}</div>
+                                    <div
+                                        onClick={() => onEdit?.(`education.${idx}.school`)}
+                                        className="font-bold cursor-pointer hover:text-white"
+                                    >
+                                        {edu.school}
+                                    </div>
+                                    <div
+                                        onClick={() => onEdit?.(`education.${idx}.degree`)}
+                                        className="opacity-80 text-sm cursor-pointer hover:text-white"
+                                    >
+                                        {edu.degree}
+                                    </div>
+                                    <div
+                                        onClick={() => onEdit?.(`education.${idx}.endDate`)}
+                                        className="opacity-60 text-xs mt-1 cursor-pointer hover:text-white"
+                                    >
+                                        {edu.endDate}
+                                    </div>
                                 </div>
                             ))}
-                            {(!education || education.length === 0) && <p className="opacity-40 italic text-sm">No education listed</p>}
+                            {(!education || education.length === 0) && (
+                                <p onClick={() => onEdit?.('education.add')} className="opacity-40 italic text-sm cursor-pointer hover:opacity-80">
+                                    No education listed
+                                </p>
+                            )}
                         </div>
                     </div>
                 </aside>
@@ -150,26 +200,26 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                         <InlineEdit
                             value={data.sectionLabels?.about || 'Professional Summary'}
                             fieldId="sectionLabels.about"
-                            {...inlineEditProps}
+                            onFocus={onEdit}
                             className="text-2xl font-bold mb-6 pb-2 border-b block"
                             style={{ borderColor: `${textColor}20` }} // 20 hex = 12% opacity
                             tagName="h2"
                         />
-                        <InlineEdit
-                            value={about}
-                            fieldId="about"
-                            {...inlineEditProps}
-                            className="leading-relaxed text-base block opacity-90"
-                            tagName="p"
-                            multiline
-                        />
+                        <p
+                            onClick={() => onEdit?.('about')}
+                            className="cursor-pointer rounded-lg text-base leading-8 transition-colors hover:bg-slate-50 hover:text-slate-950 dark:hover:bg-white/5"
+                            style={{ color: isDark ? '#e2e8f0' : '#334155' }}
+                            title="Click to edit about me"
+                        >
+                            {about}
+                        </p>
                     </section>
 
                     <section className="mb-12">
                         <InlineEdit
                             value={data.sectionLabels?.timeline || 'Work Experience'}
                             fieldId="sectionLabels.timeline"
-                            {...inlineEditProps}
+                            onFocus={onEdit}
                             className="text-2xl font-bold mb-8 pb-2 border-b block"
                             style={{ borderColor: `${textColor}20` }}
                             tagName="h2"
@@ -185,7 +235,7 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                                         <InlineEdit
                                             value={job.jobTitle}
                                             fieldId={`timeline.${idx}.jobTitle`}
-                                            {...inlineEditProps}
+                                            onFocus={onEdit}
                                             className="text-xl font-bold block"
                                             tagName="h3"
                                         />
@@ -193,29 +243,33 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                                             className="text-sm font-medium px-2 py-1 rounded"
                                             style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', color: isDark ? 'white' : 'inherit' }}
                                         >
-                                            <InlineEdit value={job.startDate} fieldId={`timeline.${idx}.startDate`} {...inlineEditProps} />
+                                            <InlineEdit value={job.startDate} fieldId={`timeline.${idx}.startDate`} onFocus={onEdit} />
                                             <span className="mx-1">-</span>
-                                            <InlineEdit value={job.endDate} fieldId={`timeline.${idx}.endDate`} {...inlineEditProps} />
+                                            <InlineEdit value={job.endDate} fieldId={`timeline.${idx}.endDate`} onFocus={onEdit} />
                                         </span>
                                     </div>
                                     <div className="text-lg font-medium mb-2 opacity-80" style={{ color: accentColor }}>
                                         <InlineEdit
                                             value={job.employer}
                                             fieldId={`timeline.${idx}.employer`}
-                                            {...inlineEditProps}
+                                            onFocus={onEdit}
                                         />
                                     </div>
-                                    <p className="whitespace-pre-wrap opacity-80">
-                                        <InlineEdit
-                                            value={job.description}
-                                            fieldId={`timeline.${idx}.description`}
-                                            {...inlineEditProps}
-                                            multiline
-                                        />
+                                    <p
+                                        onClick={() => onEdit?.(`timeline.${idx}.description`)}
+                                        className="cursor-pointer whitespace-pre-wrap rounded-md text-[15px] leading-7 opacity-90 transition-colors hover:bg-slate-50 hover:text-slate-950 dark:hover:bg-white/5"
+                                        style={{ color: isDark ? '#d1d5db' : '#475569' }}
+                                        title="Click to edit role description"
+                                    >
+                                        {job.description}
                                     </p>
                                 </div>
                             ))}
-                            {(!timeline || timeline.length === 0) && <p className="opacity-40 italic">No experience listed.</p>}
+                            {(!timeline || timeline.length === 0) && (
+                                <p onClick={() => onEdit?.('timeline.add')} className="opacity-40 italic cursor-pointer hover:opacity-80">
+                                    No experience listed.
+                                </p>
+                            )}
                         </div>
                     </section>
 
@@ -224,7 +278,7 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                         <InlineEdit
                             value={data.sectionLabels?.projects || 'Key Projects'}
                             fieldId="sectionLabels.projects"
-                            {...inlineEditProps}
+                            onFocus={onEdit}
                             className="text-2xl font-bold mb-8 pb-2 border-b block"
                             style={{ borderColor: `${textColor}20` }}
                             tagName="h2"
@@ -240,8 +294,38 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                                             {proj.title}
                                         </h3>
                                         <div className="flex gap-2">
-                                            {proj.demoUrl && <a href={proj.demoUrl} target="_blank" rel="noreferrer" className="opacity-60 hover:opacity-100 hover:text-blue-500"><Globe size={16} /></a>}
-                                            {proj.repoUrl && <a href={proj.repoUrl} target="_blank" rel="noreferrer" className="opacity-60 hover:opacity-100"><Download size={16} /></a>}
+                                            {proj.demoUrl && (
+                                                <a
+                                                    href={proj.demoUrl}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    onClick={(event) => {
+                                                        if (onEdit) {
+                                                            event.preventDefault();
+                                                            onEdit(`projects.${idx}.demoUrl`);
+                                                        }
+                                                    }}
+                                                    className="opacity-60 hover:opacity-100 hover:text-blue-500"
+                                                >
+                                                    <Globe size={16} />
+                                                </a>
+                                            )}
+                                            {proj.repoUrl && (
+                                                <a
+                                                    href={proj.repoUrl}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    onClick={(event) => {
+                                                        if (onEdit) {
+                                                            event.preventDefault();
+                                                            onEdit(`projects.${idx}.repoUrl`);
+                                                        }
+                                                    }}
+                                                    className="opacity-60 hover:opacity-100"
+                                                >
+                                                    <Download size={16} />
+                                                </a>
+                                            )}
                                         </div>
                                     </div>
                                     <p
@@ -252,7 +336,11 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                                     </p>
                                 </div>
                             ))}
-                            {(!data.projects || data.projects.length === 0) && <p className="opacity-40 italic">No projects listed.</p>}
+                            {(!data.projects || data.projects.length === 0) && (
+                                <p onClick={() => onEdit?.('projects.add')} className="opacity-40 italic cursor-pointer hover:opacity-80">
+                                    No projects listed.
+                                </p>
+                            )}
                         </div>
                     </section>
                 </main>

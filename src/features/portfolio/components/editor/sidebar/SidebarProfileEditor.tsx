@@ -30,7 +30,33 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
 }) => {
     const isBusinessCard = portfolioData.mode === 'business_card';
     const isPortfolio = !isLinkInBio && !isBusinessCard;
-    const compactAvatarActionClass = 'flex min-w-0 flex-col items-center justify-center gap-1 rounded-lg border border-transparent px-1.5 py-2 text-center text-[10px] font-medium leading-tight transition-colors';
+    const headlineLabel = isBusinessCard ? 'Name' : isLinkInBio ? 'Display Name' : 'Headline';
+    const aboutLabel = isBusinessCard ? 'Card Tagline' : isLinkInBio ? 'Bio' : 'About Me Label & Bio';
+    const aboutPlaceholder = isBusinessCard
+        ? 'Add a short role, company, or tagline...'
+        : isLinkInBio
+            ? 'Write a short bio for your link page...'
+            : 'Write a short bio...';
+    const aboutValue = portfolioData.about || (isLinkInBio ? portfolioData.linkInBio?.bio || portfolioData.hero.subheadline : '');
+    const aboutMaxLength = isBusinessCard ? 120 : isLinkInBio ? 160 : 130;
+
+    const updateHeadline = (headline: string) => {
+        onUpdate({
+            hero: { ...portfolioData.hero, headline },
+            ...(isLinkInBio && portfolioData.linkInBio
+                ? { linkInBio: { ...portfolioData.linkInBio, displayName: headline } }
+                : {})
+        });
+    };
+
+    const updateAbout = (about: string) => {
+        onUpdate({
+            about,
+            ...(isLinkInBio && portfolioData.linkInBio
+                ? { linkInBio: { ...portfolioData.linkInBio, bio: about } }
+                : {})
+        });
+    };
 
     const getVisibleHeroButtons = (): PortfolioButton[] => {
         if (Array.isArray(portfolioData.hero.buttons)) {
@@ -107,10 +133,12 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
         <div id="hero" className="space-y-4 animate-fade-in">
             {/* Avatar Section */}
             <div className={`p-4 rounded-lg border ${themeClasses.cardBg}`}>
-                <label className="block text-xs font-semibold text-gray-500 mb-3 uppercase">Profile Photo / Avatar</label>
-                <div className="flex flex-col gap-3">
-                    <div className="flex items-center gap-3">
-                        <div className={`w-14 h-14 rounded-full overflow-hidden shrink-0 border-2 ${editorTheme === 'dark' ? 'bg-white/10 border-white/10' : 'bg-gray-200 border-gray-200'} shadow-sm`}>
+                <label className="block text-xs font-semibold text-gray-500 mb-3 uppercase">
+                    {isBusinessCard ? 'Card Photo / Avatar' : 'Profile Photo / Avatar'}
+                </label>
+                <div className="flex flex-col gap-4">
+                    <div className="flex items-start gap-3">
+                        <div className={`w-16 h-16 rounded-full overflow-hidden shrink-0 border-2 ${editorTheme === 'dark' ? 'bg-white/10 border-white/10' : 'bg-gray-200 border-gray-200'} shadow-sm`}>
                             {portfolioData.hero.avatarUrl ? (
                                 <img src={portfolioData.hero.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                             ) : (
@@ -120,17 +148,13 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                             )}
                         </div>
 
-                        <p className="text-[10px] leading-4 text-gray-400">
-                            Recommended: Square JPG/PNG, max 2MB
-                        </p>
-                    </div>
-
-                    <div className={`grid gap-2 ${portfolioData.hero.avatarUrl ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                        <div className="grid grid-cols-2 gap-2 flex-1 min-w-0">
                             {/* Upload Button */}
                             <button
+                                id="hero.avatarUrl"
                                 onClick={() => onImageUploadTrigger('hero.avatarUrl')}
                                 disabled={isImageUploading}
-                                className={`${compactAvatarActionClass}
+                                className={`flex min-h-[52px] flex-col items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-[11px] font-medium transition-colors
                                     ${isImageUploading
                                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                         : `hover:bg-indigo-50/50 hover:border-indigo-200/50 hover:text-indigo-500 ${themeClasses.cardBg} ${themeClasses.textMuted} border-transparent`
@@ -144,16 +168,16 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                             {/* Library Button */}
                             <button
                                 onClick={() => onStockPhotoTrigger?.('hero.avatarUrl')}
-                                className={`${compactAvatarActionClass} bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20`}
+                                className="flex min-h-[52px] flex-col items-center justify-center gap-1.5 rounded-lg border border-transparent bg-indigo-500/10 px-2 py-2 text-[11px] font-medium text-indigo-500 transition-colors hover:bg-indigo-500/20"
                             >
-                                <span className="text-lg">📷</span>
+                                <span className="text-base">📷</span>
                                 Library
                             </button>
 
                             {/* AI Button - Always Visible */}
                             <button
                                 onClick={() => onAIImageEdit('hero.avatarUrl', portfolioData.hero.avatarUrl || '', 'avatar')}
-                                className={`${compactAvatarActionClass} bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20`}
+                                className="flex min-h-[52px] flex-col items-center justify-center gap-1.5 rounded-lg border border-transparent bg-indigo-500/10 px-2 py-2 text-[11px] font-medium text-indigo-500 transition-colors hover:bg-indigo-500/20"
                             >
                                 <Brush size={16} />
                                 {portfolioData.hero.avatarUrl ? 'Edit AI' : 'Create AI'}
@@ -164,18 +188,20 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                                     {/* Remove Button */}
                                     <button
                                         onClick={() => onNestedUpdate('hero', 'avatarUrl', '')}
-                                        className={`${compactAvatarActionClass} bg-red-500/5 text-red-500 hover:bg-red-500/10`}
+                                        className="flex min-h-[52px] flex-col items-center justify-center gap-1.5 rounded-lg border border-transparent bg-red-500/5 px-2 py-2 text-[11px] font-medium text-red-500 transition-colors hover:bg-red-500/10"
                                     >
                                         <Trash2 size={16} />
                                         Remove
                                     </button>
                                 </>
                             )}
+                        </div>
                     </div>
+                    <p className="text-[10px] text-gray-400">Recommended: Square JPG/PNG, max 2MB</p>
                 </div>
 
                 {/* Avatar Styling Controls */}
-                {portfolioData.hero.avatarUrl && (
+                {portfolioData.hero.avatarUrl && !isBusinessCard && (
                     <div className="mt-4 px-1 border-t border-gray-100 dark:border-white/5 pt-4 space-y-4">
                         {/* Size Control */}
                         <div>
@@ -253,10 +279,10 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
             <div>
                 <div className="flex justify-between items-center mb-1">
                     <label className="text-[10px] uppercase font-semibold text-gray-400 flex items-center gap-1.5">
-                        <Type size={12} /> Headline
+                        <Type size={12} /> {headlineLabel}
                     </label>
                     <span className="text-[10px] text-gray-400">
-                        {portfolioData.hero.headline.length} / 40 characters
+                        {portfolioData.hero.headline.length} / {isBusinessCard ? 60 : 40} characters
                     </span>
                 </div>
                 <input
@@ -264,12 +290,12 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                     type="text"
                     className={`w-full rounded-lg px-4 py-2.5 text-sm outline-none transition-colors ${themeClasses.inputBg} h-10`}
                     value={portfolioData.hero.headline}
-                    onChange={(e) => onNestedUpdate('hero', 'headline', e.target.value)}
-                    maxLength={40}
+                    onChange={(e) => updateHeadline(e.target.value)}
+                    maxLength={isBusinessCard ? 60 : 40}
                 />
             </div>
 
-            {/* Portfolio hero actions. Link-in-bio uses the Links tab; cards use contact links. */}
+            {/* Portfolio hero actions stay portfolio-only. Bio links use the Links tab; cards use contact links. */}
             {isPortfolio && (
                 <>
                     <div>
@@ -285,7 +311,7 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                         />
                     </div>
                     <div className={`rounded-lg border p-4 outline-none ${themeClasses.cardBg}`} id="hero.buttons" tabIndex={-1}>
-                        <div className="mb-3 space-y-3">
+                        <div className="mb-3 flex items-start justify-between gap-3">
                             <div>
                                 <label className="text-[10px] uppercase font-semibold text-gray-400 flex items-center gap-1.5">
                                     <MousePointer size={12} /> Hero Buttons
@@ -294,12 +320,12 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                                     Add or remove the buttons shown under your headline.
                                 </p>
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="flex shrink-0 gap-2">
                                 <button
                                     type="button"
                                     onClick={() => addHeroButton('contact')}
                                     disabled={hasContactButton}
-                                    className={`inline-flex min-w-0 items-center justify-center gap-1 rounded-md px-2 py-1.5 text-[11px] font-semibold transition-colors ${hasContactButton
+                                    className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-[11px] font-semibold transition-colors ${hasContactButton
                                             ? 'cursor-not-allowed bg-gray-100 text-gray-400 dark:bg-white/5'
                                             : 'bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200'
                                         }`}
@@ -309,7 +335,7 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                                 <button
                                     type="button"
                                     onClick={() => addHeroButton('link')}
-                                    className="inline-flex min-w-0 items-center justify-center gap-1 rounded-md bg-indigo-500/10 px-2 py-1.5 text-[11px] font-semibold text-indigo-500 transition-colors hover:bg-indigo-500/20"
+                                    className="inline-flex items-center gap-1 rounded-md bg-indigo-500/10 px-2.5 py-1.5 text-[11px] font-semibold text-indigo-500 transition-colors hover:bg-indigo-500/20"
                                 >
                                     <Plus size={12} /> Add Link
                                 </button>
@@ -386,66 +412,71 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                 </>
             )}
 
-            {/* Contact Information */}
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label className="text-[10px] uppercase font-semibold text-gray-400 mb-1 flex items-center gap-1.5">
-                        <Phone size={12} /> Phone Number
-                    </label>
-                    <input
-                        id="phone"
-                        type="text"
-                        className={`w-full rounded-lg px-4 py-2.5 text-sm outline-none transition-colors ${themeClasses.inputBg} h-10`}
-                        value={portfolioData.phone || ''}
-                        onChange={(e) => onUpdate({ phone: e.target.value })}
-                        placeholder="+1 (555) 000-0000"
-                    />
+            {(isPortfolio || isBusinessCard) && (
+                <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                    <div>
+                        <label className="text-[10px] uppercase font-semibold text-gray-400 mb-1 flex items-center gap-1.5">
+                            <Phone size={12} /> Phone Number
+                        </label>
+                        <input
+                            id="phone"
+                            type="text"
+                            className={`w-full rounded-lg px-4 py-2.5 text-sm outline-none transition-colors ${themeClasses.inputBg} h-10`}
+                            value={portfolioData.phone || ''}
+                            onChange={(e) => onUpdate({ phone: e.target.value })}
+                            placeholder="+1 (555) 000-0000"
+                        />
+                    </div>
+                    <div>
+                        <label className="text-[10px] uppercase font-semibold text-gray-400 mb-1 flex items-center gap-1.5">
+                            <Mail size={12} /> Email Address
+                        </label>
+                        <input
+                            id="contactEmail"
+                            type="email"
+                            className={`w-full rounded-lg px-4 py-2.5 text-sm outline-none transition-colors ${themeClasses.inputBg} h-10`}
+                            value={portfolioData.contactEmail || ''}
+                            onChange={(e) => onUpdate({ contactEmail: e.target.value })}
+                            placeholder="you@example.com"
+                        />
+                    </div>
                 </div>
-                <div>
-                    <label className="text-[10px] uppercase font-semibold text-gray-400 mb-1 flex items-center gap-1.5">
-                        <Mail size={12} /> Email Address
-                    </label>
-                    <input
-                        id="contactEmail"
-                        type="email"
-                        className={`w-full rounded-lg px-4 py-2.5 text-sm outline-none transition-colors ${themeClasses.inputBg} h-10`}
-                        value={portfolioData.contactEmail || ''}
-                        onChange={(e) => onUpdate({ contactEmail: e.target.value })}
-                        placeholder="you@example.com"
-                    />
-                </div>
-            </div>
+            )}
 
             {/* About Section */}
             <div>
                 <div className="flex justify-between items-center mb-1">
                     <label className="text-[10px] uppercase font-semibold text-gray-400 flex items-center gap-1.5">
-                        <FileText size={12} /> About Me Label & Bio
+                        <FileText size={12} /> {aboutLabel}
                     </label>
                     <span className="text-[10px] text-gray-400">
-                        Label: {(portfolioData.sectionLabels?.about || 'About Me').length}/30 &bull; Bio: {portfolioData.about?.length || 0}/130
+                        {isPortfolio
+                            ? `Label: ${(portfolioData.sectionLabels?.about || 'About Me').length}/30 | Bio: ${portfolioData.about?.length || 0}/${aboutMaxLength}`
+                            : `${aboutValue.length}/${aboutMaxLength}`}
                     </span>
                 </div>
 
-                <input
-                    id="sectionLabels.about"
-                    type="text"
-                    className={`w-full rounded-lg px-4 py-2.5 text-sm outline-none transition-colors mb-2 ${themeClasses.inputBg} h-10`}
-                    value={portfolioData.sectionLabels?.about || 'About Me'}
-                    onChange={(e) => onUpdate({
-                        sectionLabels: { ...portfolioData.sectionLabels, about: e.target.value }
-                    })}
-                    maxLength={30}
-                    placeholder="Section Label (e.g. About Me)"
-                />
+                {isPortfolio && (
+                    <input
+                        id="sectionLabels.about"
+                        type="text"
+                        className={`w-full rounded-lg px-4 py-2.5 text-sm outline-none transition-colors mb-2 ${themeClasses.inputBg} h-10`}
+                        value={portfolioData.sectionLabels?.about || 'About Me'}
+                        onChange={(e) => onUpdate({
+                            sectionLabels: { ...portfolioData.sectionLabels, about: e.target.value }
+                        })}
+                        maxLength={30}
+                        placeholder="Section Label (e.g. About Me)"
+                    />
+                )}
                 <textarea
                     id="about"
-                    rows={6}
+                    rows={isBusinessCard ? 3 : 6}
                     className={`w-full rounded-lg px-4 py-2 text-sm outline-none transition-colors resize-none ${themeClasses.inputBg}`}
-                    value={portfolioData.about}
-                    onChange={(e) => onUpdate({ about: e.target.value })}
-                    maxLength={130}
-                    placeholder="Write a short bio..."
+                    value={aboutValue}
+                    onChange={(e) => updateAbout(e.target.value)}
+                    maxLength={aboutMaxLength}
+                    placeholder={aboutPlaceholder}
                 />
             </div>
 

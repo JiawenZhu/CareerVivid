@@ -291,7 +291,7 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
         <div id="portfolio-editor-sidebar" className={`
             border-r flex-col shrink-0 z-10 transition-all duration-300
             ${editorTheme === 'dark' ? 'bg-[#0f1117] border-white/5' : 'bg-white border-gray-200'}
-            ${isMobile ? 'w-full absolute inset-0 z-20' : 'w-[256px] relative'}
+            ${isMobile ? 'w-full absolute inset-0 z-20' : 'w-[320px] xl:w-[340px] relative'}
             ${isMobile && viewMode === 'preview' ? 'hidden' : 'flex'}
         `}>
             {/* Mobile Header */}
