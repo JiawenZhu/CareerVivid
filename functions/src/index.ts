@@ -65,7 +65,7 @@ export { resolveSignedInWorkspace } from "./authAccountLinking";
 export { requestAccountDeletion, purgeSoftDeletedUsers } from "./accountDeletion";
 export { generateCoverLetter } from "./coverLetter";
 export { tailorResume } from "./tailorResume";
-export { exportToGoogleDocs } from "./googleDocs";
+export { exportToGoogleDocs, exportCoverLetterToGoogleDocs } from "./googleDocs";
 export * from "./stitchCommerce";
 export * from "./tts";
 export * from "./deepResearch";

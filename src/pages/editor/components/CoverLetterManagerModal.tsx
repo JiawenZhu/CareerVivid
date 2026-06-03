@@ -327,7 +327,7 @@ const CoverLetterManagerModal: React.FC<CoverLetterManagerModalProps> = ({ isOpe
 
         try {
             const accessToken = await getCachedGoogleAccessToken();
-            const exportFn = httpsCallable(functions, 'exportToGoogleDocs');
+            const exportFn = httpsCallable(functions, 'exportCoverLetterToGoogleDocs');
             const response = await exportFn({
                 accessToken,
                 documentData: {

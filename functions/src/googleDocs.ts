@@ -11,184 +11,192 @@ type ExportDocumentData = {
     fileName?: string;
 };
 
+type GoogleDocsExportInput = {
+    resumeData?: ResumeData;
+    documentData?: ExportDocumentData;
+    accessToken: string;
+};
+
 export const exportToGoogleDocs = functions
     .region("us-west1")
     .runWith({ timeoutSeconds: 60, memory: "512MB" })
     .https.onCall(async (data, context) => {
-        // 1. Auth Check
         if (!context.auth) {
             throw new functions.https.HttpsError("unauthenticated", "User must be logged in.");
         }
 
-        const { resumeData, documentData, accessToken } = data as {
-            resumeData?: ResumeData;
-            documentData?: ExportDocumentData;
-            accessToken: string;
-        };
+        return exportGoogleDocsDocument(data as GoogleDocsExportInput);
+    });
 
-        if (!accessToken) {
-            throw new functions.https.HttpsError("invalid-argument", "Missing Google Access Token.");
-        }
-        if (!resumeData && !documentData) {
-            throw new functions.https.HttpsError("invalid-argument", "Missing export document data.");
+export const exportCoverLetterToGoogleDocs = functions
+    .region("us-west1")
+    .runWith({ timeoutSeconds: 60, memory: "512MB" })
+    .https.onCall(async (data, context) => {
+        if (!context.auth) {
+            throw new functions.https.HttpsError("unauthenticated", "User must be logged in.");
         }
 
-        try {
-            const auth = new google.auth.OAuth2();
-            auth.setCredentials({ access_token: accessToken });
+        const input = data as GoogleDocsExportInput;
+        if (input.resumeData) {
+            throw new functions.https.HttpsError("invalid-argument", "Cover letter export must not include resumeData.");
+        }
+        if (input.documentData?.kind !== "cover-letter") {
+            throw new functions.https.HttpsError("invalid-argument", "Cover letter export requires documentData.kind='cover-letter'.");
+        }
 
-            const drive = google.drive({ version: "v3", auth });
-            const docs = google.docs({ version: "v1", auth });
+        return exportGoogleDocsDocument(input);
+    });
 
-            const folderName = documentData?.folderName || "CareerVivid Resumes";
+async function exportGoogleDocsDocument({ resumeData, documentData, accessToken }: GoogleDocsExportInput) {
+    if (!accessToken) {
+        throw new functions.https.HttpsError("invalid-argument", "Missing Google Access Token.");
+    }
+    if (!resumeData && !documentData) {
+        throw new functions.https.HttpsError("invalid-argument", "Missing export document data.");
+    }
 
-            // 2. Folder Logic (Find or Create target folder)
-            let folderId: string;
-            const folderSearch = await drive.files.list({
-                q: `mimeType='application/vnd.google-apps.folder' and name='${escapeDriveQuery(folderName)}' and trashed=false`,
-                fields: "files(id)",
-                spaces: "drive",
+    try {
+        const auth = new google.auth.OAuth2();
+        auth.setCredentials({ access_token: accessToken });
+
+        const drive = google.drive({ version: "v3", auth });
+        const docs = google.docs({ version: "v1", auth });
+
+        const folderName = documentData?.folderName || "CareerVivid Resumes";
+
+        // Folder Logic (Find or Create target folder)
+        let folderId: string;
+        const folderSearch = await drive.files.list({
+            q: `mimeType='application/vnd.google-apps.folder' and name='${escapeDriveQuery(folderName)}' and trashed=false`,
+            fields: "files(id)",
+            spaces: "drive",
+        });
+
+        if (folderSearch.data.files && folderSearch.data.files.length > 0) {
+            folderId = folderSearch.data.files[0].id!;
+        } else {
+            const folderMetadata = {
+                name: folderName,
+                mimeType: "application/vnd.google-apps.folder",
+            };
+            const folder = await drive.files.create({
+                requestBody: folderMetadata,
+                fields: "id",
             });
+            folderId = folder.data.id!;
+        }
 
-            if (folderSearch.data.files && folderSearch.data.files.length > 0) {
-                folderId = folderSearch.data.files[0].id!;
-            } else {
-                const folderMetadata = {
-                    name: folderName,
-                    mimeType: "application/vnd.google-apps.folder",
-                };
-                const folder = await drive.files.create({
-                    requestBody: folderMetadata,
-                    fields: "id",
-                });
-                folderId = folder.data.id!;
-            }
+        const documentName = documentData?.fileName ||
+            (resumeData ? `Resume - ${resumeData.personalDetails.firstName} ${resumeData.personalDetails.lastName}` : documentData?.title) ||
+            "CareerVivid Document";
 
-            const documentName = documentData?.fileName ||
-                (resumeData ? `Resume - ${resumeData.personalDetails.firstName} ${resumeData.personalDetails.lastName}` : documentData?.title) ||
-                "CareerVivid Document";
+        const createResponse = await drive.files.create({
+            requestBody: {
+                name: documentName,
+                mimeType: "application/vnd.google-apps.document",
+                parents: [folderId],
+            },
+            fields: "id, webViewLink",
+        });
 
-            // 3. Create Doc
-            const createResponse = await drive.files.create({
-                requestBody: {
-                    name: documentName,
-                    mimeType: "application/vnd.google-apps.document",
-                    parents: [folderId],
+        const docId = createResponse.data.id!;
+        const webViewLink = createResponse.data.webViewLink;
+
+        const requests: any[] = [];
+        let currentIndex = 1;
+
+        const insertText = (text: string, style?: string) => {
+            if (!text) return;
+            const end = currentIndex + text.length;
+            requests.push({
+                insertText: {
+                    text: text + "\n",
+                    location: { index: currentIndex },
                 },
-                fields: "id, webViewLink",
             });
-
-            const docId = createResponse.data.id!;
-            const webViewLink = createResponse.data.webViewLink;
-
-            // 4. Map Content to Requests
-            const requests: any[] = [];
-            let currentIndex = 1;
-
-            const insertText = (text: string, style?: string) => {
-                if (!text) return;
-                const end = currentIndex + text.length;
+            if (style) {
                 requests.push({
-                    insertText: {
-                        text: text + "\n",
-                        location: { index: currentIndex },
+                    updateParagraphStyle: {
+                        range: { startIndex: currentIndex, endIndex: end },
+                        paragraphStyle: { namedStyleType: style },
+                        fields: "namedStyleType",
                     },
                 });
-                if (style) {
-                    requests.push({
-                        updateParagraphStyle: {
-                            range: { startIndex: currentIndex, endIndex: end },
-                            paragraphStyle: { namedStyleType: style },
-                            fields: "namedStyleType",
-                        },
-                    });
-                }
-                currentIndex += text.length + 1;
-            };
-
-            if (documentData) {
-                insertGenericDocument(documentData, insertText);
-                if (requests.length > 0) {
-                    await docs.documents.batchUpdate({
-                        documentId: docId,
-                        requestBody: { requests },
-                    });
-                }
-                return { success: true, docUrl: webViewLink };
             }
+            currentIndex += text.length + 1;
+        };
 
-            if (!resumeData) {
-                throw new functions.https.HttpsError("invalid-argument", "Missing resume data.");
-            }
-
-            // Title (Name)
-            insertText(`${resumeData.personalDetails.firstName} ${resumeData.personalDetails.lastName}`, "TITLE");
-
-            // Contact Info (Subtitle style for now)
-            const contact = [
-                resumeData.personalDetails.email,
-                resumeData.personalDetails.phone,
-                resumeData.personalDetails.city
-            ].filter(Boolean).join(" | ");
-            insertText(contact, "SUBTITLE");
-
-            // Summary
-            if (resumeData.professionalSummary) {
-                insertText("Professional Summary", "HEADING_1");
-                insertText(resumeData.professionalSummary, "NORMAL_TEXT");
-            }
-
-            // Experience
-            if (resumeData.employmentHistory && resumeData.employmentHistory.length > 0) {
-                insertText("Experience", "HEADING_1");
-                for (const job of resumeData.employmentHistory) {
-                    // Job Title & Company (Using HEADING_2 to act as subheader)
-                    insertText(`${job.jobTitle} at ${job.employer}`, "HEADING_2");
-
-                    const dates = `${job.startDate} - ${job.endDate}`;
-                    insertText(dates, "NORMAL_TEXT"); // TODO: Make italic in future iteration
-
-                    // Description (Simple text for now, could be bullet points)
-                    // We assume description is HTML or text. If HTML, we strip it simply here.
-                    const desc = stripHtml(job.description);
-                    insertText(desc, "NORMAL_TEXT");
-                }
-            }
-
-            // Education
-            if (resumeData.education && resumeData.education.length > 0) {
-                insertText("Education", "HEADING_1");
-                for (const edu of resumeData.education) {
-                    insertText(`${edu.degree} - ${edu.school}`, "HEADING_2");
-                    insertText(`${edu.startDate} - ${edu.endDate}`, "NORMAL_TEXT");
-                    if (edu.description) {
-                        insertText(stripHtml(edu.description), "NORMAL_TEXT");
-                    }
-                }
-            }
-
-            // Skills
-            if (resumeData.skills && resumeData.skills.length > 0) {
-                insertText("Skills", "HEADING_1");
-                const skillText = resumeData.skills.map(s => s.name).join(", ");
-                insertText(skillText, "NORMAL_TEXT");
-            }
-
-            // 5. Execute Batch Update
+        if (documentData) {
+            insertGenericDocument(documentData, insertText);
             if (requests.length > 0) {
                 await docs.documents.batchUpdate({
                     documentId: docId,
                     requestBody: { requests },
                 });
             }
-
             return { success: true, docUrl: webViewLink };
-
-        } catch (error: any) {
-            console.error("Google Docs Export Error:", error);
-            throw new functions.https.HttpsError("internal", error.message || "Failed to export document");
         }
-    });
+
+        if (!resumeData) {
+            throw new functions.https.HttpsError("invalid-argument", "Missing resume data.");
+        }
+
+        insertText(`${resumeData.personalDetails.firstName} ${resumeData.personalDetails.lastName}`, "TITLE");
+
+        const contact = [
+            resumeData.personalDetails.email,
+            resumeData.personalDetails.phone,
+            resumeData.personalDetails.city
+        ].filter(Boolean).join(" | ");
+        insertText(contact, "SUBTITLE");
+
+        if (resumeData.professionalSummary) {
+            insertText("Professional Summary", "HEADING_1");
+            insertText(resumeData.professionalSummary, "NORMAL_TEXT");
+        }
+
+        if (resumeData.employmentHistory && resumeData.employmentHistory.length > 0) {
+            insertText("Experience", "HEADING_1");
+            for (const job of resumeData.employmentHistory) {
+                insertText(`${job.jobTitle} at ${job.employer}`, "HEADING_2");
+                insertText(`${job.startDate} - ${job.endDate}`, "NORMAL_TEXT");
+                insertText(stripHtml(job.description), "NORMAL_TEXT");
+            }
+        }
+
+        if (resumeData.education && resumeData.education.length > 0) {
+            insertText("Education", "HEADING_1");
+            for (const edu of resumeData.education) {
+                insertText(`${edu.degree} - ${edu.school}`, "HEADING_2");
+                insertText(`${edu.startDate} - ${edu.endDate}`, "NORMAL_TEXT");
+                if (edu.description) {
+                    insertText(stripHtml(edu.description), "NORMAL_TEXT");
+                }
+            }
+        }
+
+        if (resumeData.skills && resumeData.skills.length > 0) {
+            insertText("Skills", "HEADING_1");
+            const skillText = resumeData.skills.map(s => s.name).join(", ");
+            insertText(skillText, "NORMAL_TEXT");
+        }
+
+        if (requests.length > 0) {
+            await docs.documents.batchUpdate({
+                documentId: docId,
+                requestBody: { requests },
+            });
+        }
+
+        return { success: true, docUrl: webViewLink };
+    } catch (error: any) {
+        console.error("Google Docs Export Error:", error);
+        if (error instanceof functions.https.HttpsError) {
+            throw error;
+        }
+        throw new functions.https.HttpsError("internal", error.message || "Failed to export document");
+    }
+}
 
 // Helper to strip simple HTML tags (since editor might output HTML)
 function stripHtml(html: string): string {
