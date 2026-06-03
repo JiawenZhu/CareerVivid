@@ -299,6 +299,31 @@ export const useEditor = ({
         setIsExporting(true);
         const formatName = optionId;
         setExportProgress(t('editor.generating', { format: formatName }));
+        const safeFileName = resume.title.replace(/[^a-zA-Z0-9]/g, '_');
+
+        const exportVisiblePreview = async (format: 'pdf' | 'png') => {
+            const elementToCapture = document.querySelector('.origin-top') as HTMLElement;
+            if (!elementToCapture) throw new Error("Preview element not found");
+            const html2canvas = (await import('html2canvas')).default;
+            const canvas = await html2canvas(elementToCapture, { scale: 3, useCORS: true });
+
+            if (format === 'pdf') {
+                const { jsPDF } = await import('jspdf');
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const imgProps = pdf.getImageProperties(imgData);
+                const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+                pdf.save(`${resume.title}.pdf`);
+            } else {
+                const dataUrl = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = `${resume.title}.png`;
+                link.href = dataUrl;
+                link.click();
+            }
+        };
 
         try {
             const canUseDownloadCredit = !isShared && downloadCredits > 0;
@@ -313,39 +338,37 @@ export const useEditor = ({
                 const projectId = 'jastalk-firebase';
                 const functionUrl = `https://us-west1-${projectId}.cloudfunctions.net/generateResumePdfHttp`;
                 const response = await fetch(functionUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ resumeData: resume, templateId: resume.templateId }) });
-                if (!response.ok) throw new Error(`Backend generation failed.`);
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `${resume.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
-                document.body.appendChild(link); link.click(); document.body.removeChild(link);
-                if (canUseDownloadCredit) {
-                    setVerifiedDownloadCredits((current) => Math.max(0, current - 1));
+                try {
+                    if (!response.ok) {
+                        const errorText = await response.text().catch(() => '');
+                        const error = new Error(`Backend generation failed with ${response.status}: ${errorText}`) as Error & { usePreviewFallback?: boolean };
+                        error.usePreviewFallback = response.status >= 500;
+                        throw error;
+                    }
+                    const blob = await response.blob();
+                    if (blob.size < 4096) {
+                        const error = new Error(`Backend returned an unexpectedly small PDF (${blob.size} bytes).`) as Error & { usePreviewFallback?: boolean };
+                        error.usePreviewFallback = true;
+                        throw error;
+                    }
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `${safeFileName}.pdf`;
+                    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+                    if (canUseDownloadCredit) {
+                        setVerifiedDownloadCredits((current) => Math.max(0, current - 1));
+                    }
+                } catch (backendError: any) {
+                    if (!backendError?.usePreviewFallback) {
+                        throw backendError;
+                    }
+                    console.warn('Backend PDF generation failed; falling back to visible preview export.', backendError);
+                    await exportVisiblePreview('pdf');
                 }
                 if (!isGuestMode && !isShared) setIsFeedbackModalOpen(true);
             } else {
-                const elementToCapture = document.querySelector('.origin-top') as HTMLElement;
-                if (!elementToCapture) throw new Error("Preview element not found");
-                const html2canvas = (await import('html2canvas')).default;
-                const canvas = await html2canvas(elementToCapture, { scale: 3, useCORS: true });
-
-                if (optionId === 'pdf') {
-                    const { jsPDF } = await import('jspdf');
-                    const imgData = canvas.toDataURL('image/png');
-                    const pdf = new jsPDF('p', 'mm', 'a4');
-                    const pdfWidth = pdf.internal.pageSize.getWidth();
-                    const imgProps = pdf.getImageProperties(imgData);
-                    const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
-                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
-                    pdf.save(`${resume.title}.pdf`);
-                } else {
-                    const dataUrl = canvas.toDataURL('image/png');
-                    const link = document.createElement('a');
-                    link.download = `${resume.title}.png`;
-                    link.href = dataUrl;
-                    link.click();
-                }
+                await exportVisiblePreview(optionId === 'pdf' ? 'pdf' : 'png');
             }
 
             if (currentUser) {

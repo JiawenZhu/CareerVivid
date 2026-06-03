@@ -129,7 +129,13 @@ const PDF_PREVIEW_ROUTE =
   process.env.CAREERVIVID_PDF_ROUTE ||
   "/pdf-preview";
 
-const PDF_PREVIEW_URL = `${APP_BASE_URL}${PDF_PREVIEW_ROUTE}`;
+const buildAppRouteUrl = (baseUrl: string, route: string) => {
+  const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+  const normalizedRoute = route.startsWith("/") ? route.slice(1) : route;
+  return new URL(normalizedRoute, normalizedBase).toString();
+};
+
+const PDF_PREVIEW_URL = buildAppRouteUrl(APP_BASE_URL, PDF_PREVIEW_ROUTE);
 
 const waitForPdfStatus = (page: Page, expected: "ready" | "rendered") => {
   return page.waitForFunction(
@@ -169,35 +175,66 @@ const generatePdfBuffer = async (resumeData: ResumeData, templateId: string) => 
     ignoreHTTPSErrors: true,
   });
 
-  const page = await browser.newPage();
-  await page.goto(PDF_PREVIEW_URL, { waitUntil: "networkidle0" });
-  await page.emulateMediaType("print");
-  await waitForPdfStatus(page, "ready");
-  await injectPreviewPayload(page, { resumeData, templateId });
-  await waitForPdfStatus(page, "rendered");
+  try {
+    const page = await browser.newPage();
+    await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 1 });
+    await page.goto(PDF_PREVIEW_URL, { waitUntil: "networkidle0" });
+    await page.emulateMediaType("print");
+    await waitForPdfStatus(page, "ready");
+    await injectPreviewPayload(page, { resumeData, templateId });
+    await waitForPdfStatus(page, "rendered");
 
-  // Wait for all images to load explicitly
-  await page.evaluate(async () => {
-    await Promise.all(Array.from(document.images).map(img => {
-      if (img.complete) return;
-      return new Promise(resolve => {
-        img.onload = resolve;
-        img.onerror = resolve;
-      });
-    }));
-  });
+    // Wait for all images to load explicitly
+    await page.evaluate(async () => {
+      await Promise.all(Array.from(document.images).map(img => {
+        if (img.complete) return;
+        return new Promise(resolve => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      }));
+    });
 
-  await new Promise((resolve) => setTimeout(resolve, 200));
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
-  const pdfBuffer = await page.pdf({
-    format: "A4",
-    printBackground: true,
-    preferCSSPageSize: true,
-    margin: { top: "0", right: "0", bottom: "0", left: "0" },
-  });
+    const renderState = await page.evaluate(() => {
+      const pages = Array.from(document.querySelectorAll<HTMLElement>("[data-pdf-page]"));
+      const text = pages
+        .map((pageNode) => pageNode.innerText || pageNode.textContent || "")
+        .join("\n")
+        .replace(/\s+/g, " ")
+        .trim();
 
-  await browser.close();
-  return pdfBuffer;
+      return {
+        href: window.location.href,
+        status: (globalThis as { __PDF_STATUS__?: string }).__PDF_STATUS__,
+        pageCount: pages.length,
+        textLength: text.length,
+        bodyLength: document.body?.innerHTML?.length || 0,
+      };
+    });
+
+    if (renderState.pageCount === 0 || renderState.textLength < 20) {
+      throw new Error(
+        `PDF preview rendered blank before export: ${JSON.stringify(renderState)}`
+      );
+    }
+
+    const pdfBuffer = await page.pdf({
+      format: "A4",
+      printBackground: true,
+      preferCSSPageSize: true,
+      margin: { top: "0", right: "0", bottom: "0", left: "0" },
+    });
+
+    if (pdfBuffer.length < 4096) {
+      throw new Error(`PDF renderer returned an unexpectedly small file (${pdfBuffer.length} bytes).`);
+    }
+
+    return pdfBuffer;
+  } finally {
+    await browser.close();
+  }
 };
 
 export const generateResumePdfHttp = functions
