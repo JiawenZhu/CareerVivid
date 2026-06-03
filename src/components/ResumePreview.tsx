@@ -99,54 +99,11 @@ const ResumePreview: React.FC<ResumePreviewProps> = React.memo(({ resume, templa
   const previewId = previewIdOverride || `resume-preview-${resume.id || 'default'}`;
   const previewSelector = `#${escapeCssIdentifier(previewId)}`;
   const formattingCss = `
-    ${previewSelector} {
-      color-scheme: light;
-      background-color: #ffffff !important;
-      color: #111827;
-    }
     ${previewSelector} .cv-format-surface {
       font-size: calc(16px * var(--body-scale, 1));
       line-height: var(--line-height, 1.4);
       min-height: 297mm;
-      background: #ffffff !important;
-      color: #111827;
-    }
-    html.dark ${previewSelector},
-    html.dark ${previewSelector} .cv-format-surface,
-    html.dark ${previewSelector} [class*="bg-white"] {
-      background-color: #ffffff !important;
-    }
-    html.dark ${previewSelector} [class*="bg-gray-50"] {
-      background-color: #f9fafb !important;
-    }
-    html.dark ${previewSelector} [class*="bg-gray-100"] {
-      background-color: #f3f4f6 !important;
-    }
-    html.dark ${previewSelector} [class*="bg-gray-200"] {
-      background-color: #e5e7eb !important;
-    }
-    html.dark ${previewSelector} [class*="bg-gray-300"] {
-      background-color: #d1d5db !important;
-    }
-    html.dark ${previewSelector} [class*="text-gray-950"],
-    html.dark ${previewSelector} [class*="text-gray-900"],
-    html.dark ${previewSelector} [class*="text-gray-800"] {
-      color: #111827 !important;
-    }
-    html.dark ${previewSelector} [class*="text-gray-700"] {
-      color: #374151 !important;
-    }
-    html.dark ${previewSelector} [class*="text-gray-600"] {
-      color: #4b5563 !important;
-    }
-    html.dark ${previewSelector} [class*="text-gray-500"] {
-      color: #6b7280 !important;
-    }
-    html.dark ${previewSelector} [class*="border-gray-200"] {
-      border-color: #e5e7eb !important;
-    }
-    html.dark ${previewSelector} [class*="border-gray-300"] {
-      border-color: #d1d5db !important;
+      background: #ffffff;
     }
     ${previewSelector} .cv-format-surface > :first-child {
       min-height: inherit;
