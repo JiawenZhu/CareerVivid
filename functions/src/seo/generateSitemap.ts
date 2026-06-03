@@ -3,6 +3,16 @@ import { algoliasearch } from "algoliasearch";
 
 const BASE_URL = "https://careervivid.app";
 const INDEX_NAME = "community_posts";
+const STATIC_LASTMOD = "2026-06-01";
+const INCLUDE_DYNAMIC_SITEMAP_URLS = process.env.INCLUDE_DYNAMIC_SITEMAP_URLS === "true";
+const DYNAMIC_SITEMAP_URL_LIMIT = Number.parseInt(process.env.DYNAMIC_SITEMAP_URL_LIMIT || "25", 10);
+
+type SitemapRoute = {
+    loc: string;
+    changefreq: string;
+    priority: string;
+    lastmod?: string;
+};
 
 const xmlEsc = (s: string) =>
     (s || "")
@@ -18,27 +28,52 @@ const toIsoDate = (ts: number | string | undefined): string => {
     return isNaN(d.getTime()) ? new Date().toISOString().split("T")[0] : d.toISOString().split("T")[0];
 };
 
-const hitToUrl = (hit: any): string | null => {
-    const id: string = hit.objectID;
-    const type: string = hit.type || "article";
-    switch (type) {
-        case "article": return `${BASE_URL}/community/post/${id}`;
-        case "resume": return hit.authorId ? `${BASE_URL}/shared/${hit.authorId}/${id}` : null;
-        case "portfolio": return hit.authorId ? `${BASE_URL}/portfolio/${hit.authorId}` : null;
-        case "whiteboard": return `${BASE_URL}/whiteboard/${id}`;
-        default: return `${BASE_URL}/community/post/${id}`;
-    }
+const toPlainText = (value: unknown): string => {
+    if (!value) return "";
+    if (typeof value === "string") return value.replace(/\s+/g, " ").trim();
+    return JSON.stringify(value).replace(/\s+/g, " ").trim();
 };
 
-const STATIC_ROUTES = [
-    { loc: BASE_URL, changefreq: "daily", priority: "1.0" },
-    { loc: `${BASE_URL}/community`, changefreq: "hourly", priority: "0.9" },
-    { loc: `${BASE_URL}/pricing`, changefreq: "weekly", priority: "0.8" },
-    { loc: `${BASE_URL}/blog`, changefreq: "daily", priority: "0.8" },
-    { loc: `${BASE_URL}/job-market`, changefreq: "daily", priority: "0.7" },
-    { loc: `${BASE_URL}/contact`, changefreq: "monthly", priority: "0.6" },
-    { loc: `${BASE_URL}/product`, changefreq: "monthly", priority: "0.6" },
-    { loc: `${BASE_URL}/community/guidelines`, changefreq: "monthly", priority: "0.5" },
+const isPublicIndexableHit = (hit: any): boolean => {
+    const type = String(hit.type || "article").toLowerCase();
+    const status = String(hit.status || "").toLowerCase();
+    const visibility = String(hit.visibility || "").toLowerCase();
+
+    if (type !== "article") return false;
+    if (hit.isPublic === false || hit.noindex === true || hit.seoIndexable === false) return false;
+    if (visibility === "private" || visibility === "draft") return false;
+    if (["draft", "private", "deleted", "archived", "soft_deleted"].includes(status)) return false;
+
+    const title = toPlainText(hit.title);
+    const content = toPlainText(hit.content || hit.summary || hit.description || hit.excerpt);
+    return title.length >= 12 && content.length >= 300;
+};
+
+const hitToUrl = (hit: any): string | null => {
+    const id: string = hit.objectID;
+    if (!id || !isPublicIndexableHit(hit)) return null;
+    return `${BASE_URL}/community/post/${id}`;
+};
+
+const STATIC_ROUTES: SitemapRoute[] = [
+    { loc: BASE_URL, changefreq: "daily", priority: "1.0", lastmod: STATIC_LASTMOD },
+    { loc: `${BASE_URL}/community`, changefreq: "weekly", priority: "0.8", lastmod: STATIC_LASTMOD },
+    { loc: `${BASE_URL}/pricing`, changefreq: "weekly", priority: "0.8", lastmod: STATIC_LASTMOD },
+    { loc: `${BASE_URL}/blog`, changefreq: "weekly", priority: "0.7", lastmod: STATIC_LASTMOD },
+    { loc: `${BASE_URL}/extension-welcome`, changefreq: "weekly", priority: "0.8", lastmod: STATIC_LASTMOD },
+    { loc: `${BASE_URL}/partners`, changefreq: "weekly", priority: "0.8", lastmod: STATIC_LASTMOD },
+    { loc: `${BASE_URL}/partners/agency`, changefreq: "weekly", priority: "0.8", lastmod: STATIC_LASTMOD },
+    { loc: `${BASE_URL}/partners/business`, changefreq: "weekly", priority: "0.7", lastmod: STATIC_LASTMOD },
+    { loc: `${BASE_URL}/partners/academic`, changefreq: "weekly", priority: "0.7", lastmod: STATIC_LASTMOD },
+    { loc: `${BASE_URL}/partners/hiring`, changefreq: "weekly", priority: "0.7", lastmod: STATIC_LASTMOD },
+    { loc: `${BASE_URL}/partners/students`, changefreq: "weekly", priority: "0.7", lastmod: STATIC_LASTMOD },
+    { loc: `${BASE_URL}/partners/apply`, changefreq: "weekly", priority: "0.6", lastmod: STATIC_LASTMOD },
+    { loc: `${BASE_URL}/topic/ai-job-search-workspace`, changefreq: "weekly", priority: "0.8", lastmod: STATIC_LASTMOD },
+    { loc: `${BASE_URL}/topic/chrome-extension-job-autofill`, changefreq: "weekly", priority: "0.8", lastmod: STATIC_LASTMOD },
+    { loc: `${BASE_URL}/topic/ai-resume-builder-job-tracker`, changefreq: "weekly", priority: "0.8", lastmod: STATIC_LASTMOD },
+    { loc: `${BASE_URL}/contact`, changefreq: "monthly", priority: "0.6", lastmod: STATIC_LASTMOD },
+    { loc: `${BASE_URL}/product`, changefreq: "monthly", priority: "0.6", lastmod: STATIC_LASTMOD },
+    { loc: `${BASE_URL}/community/guidelines`, changefreq: "monthly", priority: "0.5", lastmod: STATIC_LASTMOD },
 ];
 
 // Add localized versions for each static route (excluding root which handles 'en' by default)
@@ -57,7 +92,7 @@ const LOCALIZED_STATIC_ROUTES = SUPPORTED_LANGUAGE_CODES.flatMap(code => {
     });
 });
 
-const ALL_STATIC_ROUTES = [...STATIC_ROUTES, ...LOCALIZED_STATIC_ROUTES];
+const ALL_STATIC_ROUTES: SitemapRoute[] = [...STATIC_ROUTES, ...LOCALIZED_STATIC_ROUTES];
 
 export const generateSitemap = onRequest(
     {
@@ -79,21 +114,31 @@ export const generateSitemap = onRequest(
                 urlEntries.push(`
   <url>
     <loc>${xmlEsc(route.loc)}</loc>
+    ${route.lastmod ? `<lastmod>${route.lastmod}</lastmod>` : ""}
     <changefreq>${route.changefreq}</changefreq>
     <priority>${route.priority}</priority>
   </url>`);
             }
 
-            // 2. Dynamic routes via browseObjects (requires write/admin key)
-            if (appId && writeKey) {
+            // 2. Optional dynamic routes.
+            //
+            // Search Console showed "Discovered - currently not indexed" for
+            // generated community URLs submitted through /sitemap.xml. Keep the
+            // primary sitemap focused on stable, high-value public routes unless
+            // we explicitly opt back into a small curated dynamic set.
+            if (INCLUDE_DYNAMIC_SITEMAP_URLS && appId && writeKey) {
                 const client = algoliasearch(appId, writeKey);
                 const seenUrls = new Set<string>();
+                const dynamicLimit = Number.isFinite(DYNAMIC_SITEMAP_URL_LIMIT)
+                    ? Math.max(DYNAMIC_SITEMAP_URL_LIMIT, 0)
+                    : 25;
 
                 await client.browseObjects({
                     indexName: INDEX_NAME,
                     aggregator: (response: any) => {
                         const hits: any[] = response.hits || [];
                         for (const hit of hits) {
+                            if (seenUrls.size >= dynamicLimit) break;
                             const url = hitToUrl(hit);
                             if (!url || seenUrls.has(url)) continue;
                             seenUrls.add(url);
@@ -110,9 +155,11 @@ export const generateSitemap = onRequest(
                     },
                 });
 
-                console.log(`[generateSitemap] ${seenUrls.size} dynamic + ${STATIC_ROUTES.length} static URLs.`);
+                console.log(`[generateSitemap] ${seenUrls.size} curated dynamic + ${ALL_STATIC_ROUTES.length} static URLs.`);
+            } else if (INCLUDE_DYNAMIC_SITEMAP_URLS) {
+                console.warn("[generateSitemap] Missing Algolia credentials — serving static-only sitemap.");
             } else {
-                console.warn("[generateSitemap] Missing ALGOLIA_WRITE_KEY — serving static-only sitemap.");
+                console.log("[generateSitemap] Dynamic sitemap URLs disabled — serving static-only sitemap for Search Console quality.");
             }
 
             // 3. Build XML

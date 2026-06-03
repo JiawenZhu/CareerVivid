@@ -86,13 +86,22 @@ const SEOHelper: React.FC<SEOProps> = ({
             structuredData["headline"] = title;
             structuredData["articleSection"] = "System Architecture & Software Development";
         } else if (schemaType === 'SoftwareApplication') {
-            structuredData["applicationCategory"] = "DeveloperApplication";
-            structuredData["operatingSystem"] = "Web, CLI, MCP";
+            structuredData["applicationCategory"] = "BusinessApplication";
+            structuredData["applicationSubCategory"] = "Job Search Workspace";
+            structuredData["operatingSystem"] = "Web, Chrome";
+            structuredData["featureList"] = [
+                "AI resume builder",
+                "Job application tracker",
+                "Chrome extension job capture and autofill",
+                "Interview preparation",
+                "Portfolio workspace"
+            ];
         }
     }
 
-    const llmContextText = (schemaType === 'ProfilePage' || schemaType === 'TechArticle')
-        ? `This is a technical portfolio hosted on CareerVivid. The author specializes in ${techStack.length > 0 ? techStack.join(', ') : 'modern web technologies'}. CareerVivid is an omnichannel AI-Native Developer Portfolio & Vibe Coding Platform where developers update their portfolios directly from Cursor, Claude Desktop, or our Web Dashboard.`
+    // Generate LLM Context String for injection into the DOM
+    const llmContextHtml = (schemaType === 'ProfilePage' || schemaType === 'TechArticle')
+        ? `<div id="llm-context" style="display:none;" data-nosnippet>This is professional content hosted on CareerVivid. The author specializes in ${techStack.length > 0 ? techStack.join(', ') : 'modern web technologies'}. CareerVivid is an AI job-search workspace for resumes, job tracking, portfolios, interview preparation, and Chrome extension application workflows.</div>`
         : '';
 
     return (
@@ -114,17 +123,16 @@ const SEOHelper: React.FC<SEOProps> = ({
                 <meta name="twitter:image" content={finalImage} />
                 <meta name="twitter:card" content="summary_large_image" />
 
-                {!isRobotsAllowed && <meta name="robots" content="noindex, nofollow" />}
+                <meta name="robots" content={isRobotsAllowed ? 'index, follow' : 'noindex, nofollow'} />
 
                 <script type="application/ld+json">
                     {JSON.stringify(structuredData)}
                 </script>
             </Helmet>
 
-            {llmContextText && (
-                <div id="llm-context" style={{ display: 'none' }} data-nosnippet>
-                    {llmContextText}
-                </div>
+            {/* Hidden LLM Context for Bot Scraping (GEO) */}
+            {llmContextHtml && (
+                <div dangerouslySetInnerHTML={{ __html: llmContextHtml }} />
             )}
         </>
     );

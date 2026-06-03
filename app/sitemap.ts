@@ -4,7 +4,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const baseUrl = 'https://careervivid.app';
 
     // Define static routes (empty string '' corresponds to the root '/')
-    const staticRoutes = ['', '/pricing', '/demo', '/blog', '/contact'];
+    const staticRoutes = [
+        '',
+        '/pricing',
+        '/demo',
+        '/blog',
+        '/contact',
+        '/partners',
+        '/partners/academic',
+        '/partners/business',
+        '/partners/agency',
+        '/partners/hiring',
+        '/partners/students',
+        '/partners/apply',
+    ];
 
     return staticRoutes.map((route) => ({
         url: `${baseUrl}${route}`,

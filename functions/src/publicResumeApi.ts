@@ -75,10 +75,6 @@ interface PublicResumeResponse {
   education: PublicResumeEducation[];
 }
 
-const isPubliclySharedResume = (data: admin.firestore.DocumentData | undefined): boolean => {
-  return Boolean(data?.shareConfig?.enabled);
-};
-
 const normalizeString = (value: unknown): string | null => {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
@@ -201,6 +197,67 @@ const buildPublicResumeResponse = (
   };
 };
 
+const isPublicShareEnabled = (data: admin.firestore.DocumentData): boolean =>
+  data?.shareConfig?.enabled === true;
+
+const truncateString = (value: string | null, maxLength: number): string | null => {
+  if (!value) return null;
+  return value.length > maxLength ? value.slice(0, maxLength) : value;
+};
+
+const logSharedResumeView = (
+  userId: string,
+  resumeId: string,
+  req: functions.Request,
+  format: string | null,
+) => {
+  const source = normalizeString(req.query.source) || "public_resume_api";
+
+  void db.collection("usage_logs").add({
+    userId,
+    eventType: "shared_resume_viewed",
+    resumeId,
+    source,
+    format: format || "compact",
+    path: truncateString(req.originalUrl || req.path || null, 300),
+    userAgent: truncateString(normalizeString(req.get("user-agent")), 200),
+    referrer: truncateString(normalizeString(req.get("referer")), 300),
+    timestamp: admin.firestore.FieldValue.serverTimestamp(),
+  }).catch((error) => {
+    console.error("[publicResumeApi] Failed to log shared resume view:", error);
+  });
+};
+
+const fetchOwnerIsPremium = async (userId: string): Promise<boolean> => {
+  try {
+    const ownerDoc = await db.collection("users").doc(userId).get();
+    if (!ownerDoc.exists) return false;
+
+    const ownerData = ownerDoc.data();
+    const isSprintValid = ownerData?.plan === "pro_sprint" && ownerData?.expiresAt
+      ? ownerData.expiresAt.toMillis() > Date.now()
+      : false;
+    const isMonthlyActive = ownerData?.plan === "pro_monthly" &&
+      (ownerData?.stripeSubscriptionStatus === "active" || ownerData?.stripeSubscriptionStatus === "trialing");
+    const hasLegacyPremium = ownerData?.promotions?.isPremium === true;
+
+    return isSprintValid || isMonthlyActive || hasLegacyPremium;
+  } catch (error) {
+    console.error("[publicResumeApi] Failed to fetch owner premium status:", error);
+    return false;
+  }
+};
+
+const buildFullPublicResumeResponse = async (
+  userId: string,
+  resumeId: string,
+  data: admin.firestore.DocumentData,
+) => ({
+  ...data,
+  id: resumeId,
+  ownerIsPremium: await fetchOwnerIsPremium(userId),
+});
+
 const fetchResume = async (userId: string, resumeId?: string) => {
   if (resumeId) {
     const doc = await db.collection("users").doc(userId).collection("resumes").doc(resumeId).get();
@@ -250,6 +307,7 @@ export const publicResumeApi = functions
       const [firstPathSegment, secondPathSegment] = getPathSegments(req);
       const queryUserId = normalizeString(req.query.userId);
       const queryResumeId = normalizeString(req.query.resumeId);
+      const format = normalizeString(req.query.format);
       const userId = queryUserId || (secondPathSegment ? firstPathSegment : undefined);
       const resumeId = queryResumeId || secondPathSegment || firstPathSegment || DEFAULT_PUBLIC_RESUME_ID;
 
@@ -284,13 +342,19 @@ export const publicResumeApi = functions
           return;
         }
 
-        if (!isPubliclySharedResume(data)) {
-          res.status(403).json({ error: "Resume is not shared publicly." });
+        if (!isPublicShareEnabled(data)) {
+          res.status(403).json({ error: "Resume is private or no longer shared" });
           return;
         }
 
-        res.set("Cache-Control", "public, max-age=60, s-maxage=300");
-        res.status(200).json(buildPublicResumeResponse(result.userId, resumeDoc.id, data));
+        logSharedResumeView(result.userId, resumeDoc.id, req, format);
+
+        res.set("Cache-Control", "public, max-age=30, s-maxage=120, stale-while-revalidate=300");
+        res.status(200).json(
+          format === "full"
+            ? await buildFullPublicResumeResponse(result.userId, resumeDoc.id, data)
+            : buildPublicResumeResponse(result.userId, resumeDoc.id, data),
+        );
       } catch (error: any) {
         console.error("[publicResumeApi] Failed to fetch public resume:", error);
         res.status(500).json({ error: "Failed to fetch public resume" });

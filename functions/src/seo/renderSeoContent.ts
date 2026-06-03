@@ -34,10 +34,10 @@ const stripMarkdown = (md: string): string => (md || "")
     .trim();
 
 const buildHtml = ({
-    title, description, canonicalUrl, imageUrl, structuredData, bodyContent, siteSuffix
+    title, description, canonicalUrl, imageUrl, structuredData, bodyContent, siteSuffix, robots = "index, follow"
 }: {
     title: string; description: string; canonicalUrl: string; imageUrl: string;
-    structuredData: object; bodyContent: string; siteSuffix: string;
+    structuredData: object; bodyContent: string; siteSuffix: string; robots?: string;
 }) => `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,6 +45,7 @@ const buildHtml = ({
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${esc(title)} | ${esc(siteSuffix)}</title>
   <meta name="description" content="${esc(description)}" />
+  <meta name="robots" content="${esc(robots)}" />
   <link rel="canonical" href="${canonicalUrl}" />
   <link rel="icon" href="${LOGO_URL}" />
 
@@ -86,6 +87,14 @@ async function handleArticle(postId: string): Promise<string> {
     const snap = await db.collection("community_posts").doc(postId).get();
     if (!snap.exists) throw new Error("not_found");
     const post = snap.data() as any;
+    const status = String(post.status || "").toLowerCase();
+    if (
+        post.isPublic === false ||
+        post.noindex === true ||
+        ["draft", "private", "deleted", "archived", "soft_deleted"].includes(status)
+    ) {
+        throw new Error("not_found");
+    }
 
     const title = post.title || "CareerVivid Article";
     const rawContent = stripMarkdown(post.content || "");
@@ -267,13 +276,21 @@ async function handleCommunityFeed(): Promise<string> {
                     indexName: "community_posts",
                     query: "",
                     hitsPerPage: 20,
-                    attributesToRetrieve: ["objectID", "title", "authorName", "content", "type"],
+                    attributesToRetrieve: ["objectID", "title", "authorName", "content", "type", "isPublic", "status", "visibility"],
                 }]
             });
             const firstResult = (result.results[0] as any);
             const hits: any[] = firstResult?.hits ?? [];
             articles = hits
-                .filter((h: any) => !h.type || h.type === "article")
+                .filter((h: any) => {
+                    const status = String(h.status || "").toLowerCase();
+                    const visibility = String(h.visibility || "").toLowerCase();
+                    return (!h.type || h.type === "article") &&
+                        h.isPublic !== false &&
+                        visibility !== "private" &&
+                        visibility !== "draft" &&
+                        !["draft", "private", "deleted", "archived", "soft_deleted"].includes(status);
+                })
                 .map((h: any) => ({
                     id: h.objectID,
                     title: (h.title || "Untitled Article").trim(),

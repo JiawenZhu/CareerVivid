@@ -50,13 +50,11 @@ export default async function sitemap({
 
     const sitemapEntries: MetadataRoute.Sitemap = snapshot.docs.map((doc) => {
         const post = doc.data();
-        const slug = post.slug || doc.id;
-
         const lastModified = post.updatedAt
             ? post.updatedAt.toDate()
             : (post.createdAt ? post.createdAt.toDate() : new Date());
 
-        const route = `/community/${slug}`;
+        const route = `/community/post/${doc.id}`;
 
         return {
             url: `${BASE_URL}${route}`,
