@@ -69,7 +69,7 @@ const EditableHeader: React.FC<EditableHeaderProps> = ({ title: initialTitle, on
                 onBlur={handleSave}
                 onKeyDown={handleKeyDown}
                 autoFocus
-                className="text-xl font-bold text-gray-800 dark:text-gray-100 bg-transparent border-b-2 border-primary-500 focus:outline-none font-sans"
+                className="w-full min-w-0 text-lg sm:text-xl font-bold leading-tight text-gray-800 dark:text-gray-100 bg-transparent border-b-2 border-primary-500 focus:outline-none font-sans"
             />
         );
     }
@@ -79,7 +79,7 @@ const EditableHeader: React.FC<EditableHeaderProps> = ({ title: initialTitle, on
     return (
         <h2
             onClick={handleClick}
-            className={`text-xl font-bold text-gray-800 dark:text-gray-100 font-sans select-none
+            className={`min-w-0 text-lg sm:text-xl font-bold leading-tight text-gray-800 dark:text-gray-100 font-sans select-none
                 ${isEditable ? 'cursor-text' : ''}
                 ${isClickable ? 'cursor-pointer hover:text-primary-600 dark:hover:text-primary-400 transition-colors' : ''}
             `}

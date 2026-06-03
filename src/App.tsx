@@ -103,16 +103,14 @@ const MyPostsPage = React.lazy(() => import('./pages/community/MyPostsPage'));
 const ApiDocsPage = React.lazy(() => import('./pages/ApiDocsPage'));
 const DeveloperSettings = React.lazy(() => import('./pages/DeveloperSettings'));
 const BillingDashboard = React.lazy(() => import('./pages/BillingDashboard'));
+const DndWorkspaceProvider = React.lazy(() => import('./components/DndWorkspaceProvider'));
 
 import { SUPPORTED_LANGUAGES } from './constants';
-import { DndProvider } from 'react-dnd';
-import { MultiBackend, getBackendOptions } from '@minoru/react-dnd-treeview';
 // import i18n from './i18n'; // Used in navigation.ts
 
 
 // Navigation utility
 import { navigate, getPathFromUrl } from './utils/navigation';
-import { getSafeRelativeRedirect } from './utils/security';
 
 
 const LoadingFallback = () => (
@@ -123,7 +121,7 @@ const LoadingFallback = () => (
 
 const AuthRedirect = ({ target }: { target: string }) => {
   useEffect(() => {
-    navigate(getSafeRelativeRedirect(target));
+    navigate(target);
   }, [target]);
   return <LoadingFallback />;
 };
@@ -403,16 +401,20 @@ const AppContent: React.FC = () => {
     } else if (path === '/signin' || path.startsWith('/signin?')) {
       const params = new URLSearchParams(window.location.search);
       const cliPort = params.get('cli_port');
-      if (currentUser && !cliPort) {
-        const redirect = params.get('redirect');
-        content = <AuthRedirect target={getSafeRelativeRedirect(redirect)} />;
+      const redirect = params.get('redirect');
+      const redirectTarget = redirect ? decodeURIComponent(redirect) : null;
+
+      if (redirectTarget?.startsWith('/extension-welcome')) {
+        content = <AuthRedirect target={redirectTarget} />;
+      } else if (currentUser && !cliPort) {
+        content = <AuthRedirect target={redirectTarget || '/dashboard'} />;
       } else {
         content = <SignInPage />;
       }
     } else if (path === '/signup') {
       const params = new URLSearchParams(window.location.search);
       const redirect = params.get('redirect');
-      content = currentUser ? <AuthRedirect target={getSafeRelativeRedirect(redirect)} /> : <SignUpPage />;
+      content = currentUser ? <AuthRedirect target={redirect ? decodeURIComponent(redirect) : '/dashboard'} /> : <SignUpPage />;
     } else if (path === '/auth') {
       if (currentUser) {
         content = <AuthRedirect target="/dashboard" />;
@@ -535,7 +537,9 @@ const AppContent: React.FC = () => {
     else if (path.startsWith('/folder/')) {
       content = (
         <ProtectedRoute>
-          <FolderView />
+          <DndWorkspaceProvider>
+            <FolderView />
+          </DndWorkspaceProvider>
         </ProtectedRoute>
       );
     }
@@ -544,7 +548,9 @@ const AppContent: React.FC = () => {
     else if (path === '/hub' || path === '/folder/create-build-hub') {
       content = (
         <ProtectedRoute>
-          <FolderView />
+          <DndWorkspaceProvider>
+            <FolderView />
+          </DndWorkspaceProvider>
         </ProtectedRoute>
       );
     }
@@ -788,11 +794,11 @@ const App: React.FC = () => {
   }
 
   return (
-    <DndProvider backend={MultiBackend} options={getBackendOptions()}>
+    <>
       <AppContent />
       <CreditCelebration />
       <PWABadge />
-    </DndProvider>
+    </>
   );
 };
 

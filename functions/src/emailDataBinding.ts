@@ -2,14 +2,19 @@ import * as admin from "firebase-admin";
 import {
   CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER,
   EmailNotificationCategory,
+  canonicalCareerVividUrl,
   canonicalDashboardUrl,
+  canonicalInterviewStudioUrl,
   canonicalProfileUrl,
   canonicalResumeEditUrl,
   canonicalSignupUrl,
+  getEmailFrequencySuppressionReason,
   getEmailPreferenceSuppressionReason,
+  isRequiredEmailCategory,
 } from "./emailPolicy";
 import {
   CareerVividEmailActivity,
+  CareerVividEmailFeature,
   CareerVividEmailModule,
   CareerVividEmailStat,
   generateCareerVividModuleEmail,
@@ -25,6 +30,13 @@ export type HydratedLifecycleEmailKey =
   | "onboarding_welcome"
   | "feature_ai_editor"
   | "weekly_status_digest"
+  | "first_resume_completed_tailor_job"
+  | "review_completed_score_suggestions"
+  | "first_job_saved_application_packet"
+  | "interview_practice_reminder"
+  | "shared_resume_recruiter_engagement"
+  | "advocacy_value_request"
+  | "resume_performance_milestone"
   | "notification_settings_updated";
 
 type HydratedLifecycleDefinition = {
@@ -50,6 +62,7 @@ export type HydratedEmailContext = {
     interviews: number;
     aiPrepModules: number;
   };
+  recentJobs: admin.firestore.DocumentData[];
   deadlineActivities: CareerVividEmailActivity[];
   interviewActivities: CareerVividEmailActivity[];
   urls: {
@@ -58,6 +71,8 @@ export type HydratedEmailContext = {
     profile: string;
     resumeEditor: string;
     jobTracker: string;
+    coverLetter: string;
+    interviewStudio: string;
   };
 };
 
@@ -84,12 +99,58 @@ const HYDRATED_DEFINITIONS: Record<HydratedLifecycleEmailKey, HydratedLifecycleD
     category: "weekly_digest",
     goal: "weekly_digest_reengagement",
   },
+  first_resume_completed_tailor_job: {
+    key: "first_resume_completed_tailor_job",
+    category: "activation",
+    goal: "first_resume_tailor_started",
+  },
+  review_completed_score_suggestions: {
+    key: "review_completed_score_suggestions",
+    category: "milestone",
+    goal: "review_suggestions_opened",
+  },
+  first_job_saved_application_packet: {
+    key: "first_job_saved_application_packet",
+    category: "activation",
+    goal: "saved_job_application_packet_started",
+  },
+  interview_practice_reminder: {
+    key: "interview_practice_reminder",
+    category: "practice",
+    goal: "interview_practice_returned",
+  },
+  shared_resume_recruiter_engagement: {
+    key: "shared_resume_recruiter_engagement",
+    category: "milestone",
+    goal: "shared_resume_recruiter_engagement_opened",
+  },
+  advocacy_value_request: {
+    key: "advocacy_value_request",
+    category: "advocacy",
+    goal: "advocacy_feedback_started",
+  },
+  resume_performance_milestone: {
+    key: "resume_performance_milestone",
+    category: "milestone",
+    goal: "resume_performance_review_opened",
+  },
   notification_settings_updated: {
     key: "notification_settings_updated",
     category: "system",
     goal: "notification_settings_confirmed",
   },
 };
+
+const ONE_TIME_HYDRATED_KEYS = new Set<HydratedLifecycleEmailKey>([
+  "onboarding_welcome",
+  "feature_ai_editor",
+  "first_resume_completed_tailor_job",
+  "review_completed_score_suggestions",
+  "first_job_saved_application_packet",
+  "interview_practice_reminder",
+  "shared_resume_recruiter_engagement",
+  "advocacy_value_request",
+]);
 
 const timestampToMillis = (value: unknown): number => {
   if (!value) return 0;
@@ -334,6 +395,36 @@ const buildInterviewActivities = (jobs: admin.firestore.DocumentData[]): CareerV
   }));
 };
 
+const getJobUpdatedAt = (job: admin.firestore.DocumentData): number =>
+  timestampToMillis(job.updatedAt) || timestampToMillis(job.createdAt);
+
+const selectMostRecentJob = (jobs: admin.firestore.DocumentData[]): admin.firestore.DocumentData | null =>
+  jobs
+    .slice()
+    .sort((a, b) => getJobUpdatedAt(b) - getJobUpdatedAt(a))[0] || null;
+
+const getJobLabel = (job?: admin.firestore.DocumentData | null): string => {
+  if (!job) return "your saved role";
+  const title = cleanText(job.jobTitle || job.title || job.position);
+  const company = cleanText(job.companyName || job.company || job.employer);
+  if (title && company) return `${title} at ${company}`;
+  return title || company || "your saved role";
+};
+
+const getJobId = (job?: admin.firestore.DocumentData | null): string | undefined => {
+  const value = cleanText(job?.id || job?.jobId || job?.sourceJobId);
+  return value || undefined;
+};
+
+const getLatestSharedResumeUrl = (context: HydratedEmailContext): string | undefined => {
+  if (!context.activeResumeId) return undefined;
+  const shareConfig = context.activeResume?.shareConfig as Record<string, unknown> | undefined;
+  if (shareConfig?.enabled !== true) return undefined;
+  return canonicalCareerVividUrl(`/shared/${encodeURIComponent(context.userId)}/${encodeURIComponent(context.activeResumeId)}`, {
+    source: "shared_resume_lifecycle",
+  });
+};
+
 export async function findUserIdByEmail(email: string): Promise<string | null> {
   const snap = await db.collection("users").where("email", "==", email).limit(1).get();
   return snap.empty ? null : snap.docs[0].id;
@@ -367,6 +458,7 @@ export async function hydrateEmailContext(userId: string, toOverride?: string): 
     professionalTitle: getProfessionalTitle(userData, activeResume?.data),
     targetLocations,
     metrics: getMetricRows(jobs, practiceCount),
+    recentJobs: jobs,
     deadlineActivities: buildDeadlineActivities(jobs),
     interviewActivities: buildInterviewActivities(jobs),
     urls: {
@@ -375,6 +467,8 @@ export async function hydrateEmailContext(userId: string, toOverride?: string): 
       profile: canonicalProfileUrl("lifecycle_email"),
       resumeEditor: canonicalResumeEditUrl(activeResume?.id, "lifecycle_email_editor"),
       jobTracker: canonicalDashboardUrl("lifecycle_email_job_tracker"),
+      coverLetter: canonicalDashboardUrl("lifecycle_email_cover_letter"),
+      interviewStudio: canonicalCareerVividUrl("/interview-studio", { source: "lifecycle_email_interview" }),
     },
   };
 }
@@ -385,6 +479,163 @@ const statsFromContext = (context: HydratedEmailContext): CareerVividEmailStat[]
   { value: String(context.metrics.interviews), label: "Interviews", helper: "In pipeline" },
   { value: String(context.metrics.aiPrepModules), label: "AI prep", helper: "Available" },
 ];
+
+export type ResumePerformanceSnapshot = {
+  score: number;
+  label: string;
+  tone: "success" | "warning" | "critical";
+  source: "stored" | "calculated";
+  resumeTitle: string;
+  suggestions: CareerVividEmailFeature[];
+  stats: CareerVividEmailStat[];
+};
+
+const parseResumeScore = (resume?: admin.firestore.DocumentData): number | null => {
+  const candidates = [
+    resume?.resumeScore,
+    resume?.score,
+    resume?.overallScore,
+    resume?.latestScore,
+    resume?.scoreBreakdown?.overallScore,
+    resume?.review?.overallScore,
+    resume?.aiReview?.overallScore,
+    resume?.analysis?.overallScore,
+  ];
+
+  for (const candidate of candidates) {
+    const value = Number(candidate);
+    if (Number.isFinite(value) && value >= 0) return Math.max(0, Math.min(100, Math.round(value)));
+  }
+
+  return null;
+};
+
+const splitResumeBullets = (description: unknown): string[] =>
+  cleanText(description)
+    .split(/\n+/)
+    .map((line) => line.replace(/^[-*•+\s]+/, "").trim())
+    .filter((line) => line.length >= 10);
+
+const calculateResumeScoreFromContent = (resume: admin.firestore.DocumentData): number => {
+  const personal = resume.personalDetails || {};
+  const skills = Array.isArray(resume.skills) ? resume.skills : [];
+  const jobs = Array.isArray(resume.employmentHistory) ? resume.employmentHistory : [];
+  const education = Array.isArray(resume.education) ? resume.education : [];
+  const bullets = jobs.flatMap((job: admin.firestore.DocumentData) => splitResumeBullets(job.description));
+  const summary = cleanText(resume.professionalSummary);
+  const allText = [
+    summary,
+    ...skills.map((skill: admin.firestore.DocumentData) => cleanText(skill.name)),
+    ...jobs.flatMap((job: admin.firestore.DocumentData) => [cleanText(job.jobTitle), cleanText(job.employer), cleanText(job.description)]),
+  ].join(" ");
+
+  const completionChecks = [
+    cleanText(personal.firstName),
+    cleanText(personal.lastName),
+    cleanText(personal.email),
+    cleanText(personal.phone),
+    cleanText(personal.city) || cleanText(personal.country) || cleanText(personal.address),
+    cleanText(personal.jobTitle),
+    summary.length >= 80,
+    skills.length >= 4,
+    jobs.length >= 1,
+    education.length >= 1,
+  ];
+  const completionScore = completionChecks.filter(Boolean).length / completionChecks.length;
+
+  const quantifiedBullets = bullets.filter((bullet) => /\d|%|\$|x\b|users?|clients?|hours?|days?|weeks?|months?/i.test(bullet)).length;
+  const actionVerbBullets = bullets.filter((bullet) =>
+    /^(led|built|created|delivered|developed|implemented|managed|optimized|designed|improved|reduced|increased|launched|resolved|engineered|coordinated|automated)\b/i.test(bullet)
+  ).length;
+  const qualityChecks = [
+    bullets.length >= Math.min(Math.max(jobs.length * 2, 3), 12),
+    quantifiedBullets >= Math.min(Math.max(jobs.length, 2), 6),
+    actionVerbBullets >= Math.min(Math.max(jobs.length, 2), 6),
+    skills.length >= 6,
+    allText.length >= 1200,
+  ];
+  const qualityScore = qualityChecks.filter(Boolean).length / qualityChecks.length;
+
+  const lengthChecks = [
+    summary.length >= 120 && summary.length <= 700,
+    bullets.length >= 4 && bullets.length <= 24,
+    jobs.every((job: admin.firestore.DocumentData) => {
+      const jobBullets = splitResumeBullets(job.description);
+      return jobBullets.length === 0 || (jobBullets.length >= 2 && jobBullets.length <= 6);
+    }),
+  ];
+  const lengthScore = lengthChecks.filter(Boolean).length / lengthChecks.length;
+
+  return Math.round((completionScore * 45) + (qualityScore * 40) + (lengthScore * 15));
+};
+
+const getResumeScoreLabel = (score: number): string => {
+  if (score >= 90) return "Recruiter-ready";
+  if (score >= 80) return "Strong";
+  if (score >= 70) return "Close";
+  if (score >= 60) return "Needs focused edits";
+  return "Needs setup";
+};
+
+const getResumeScoreTone = (score: number): ResumePerformanceSnapshot["tone"] => {
+  if (score >= 80) return "success";
+  if (score >= 60) return "warning";
+  return "critical";
+};
+
+const buildResumeScoreSuggestions = (score: number): CareerVividEmailFeature[] => {
+  if (score >= 90) {
+    return [
+      { label: "Maintain", title: "Keep the resume current", body: "Before the next application, check that your latest project, role, or measurable result is reflected." },
+      { label: "Target", title: "Tailor only the role-specific details", body: "Use the editor to align keywords and examples with the job you are about to submit." },
+      { label: "Share", title: "Use a polished viewer link", body: "When the resume is ready, share a viewer-only public link with recruiters or agency partners." },
+    ];
+  }
+
+  if (score >= 75) {
+    return [
+      { label: "Impact", title: "Add measurable outcomes to the strongest bullets", body: "Prioritize numbers, scope, speed, quality, users, clients, or business results where you can be accurate." },
+      { label: "Skills", title: "Match skills to the target role", body: "Keep the skills list compact and aligned with the roles you are actively pursuing." },
+      { label: "Review", title: "Run a focused editor pass", body: "Open the resume editor and tighten one summary line plus two work-history bullets." },
+    ];
+  }
+
+  if (score >= 60) {
+    return [
+      { label: "Sections", title: "Fill any missing core sections", body: "Confirm contact details, job title, summary, skills, work history, and education are complete." },
+      { label: "Bullets", title: "Break dense paragraphs into proof points", body: "Use two to four focused bullets per recent role so the resume is easier to scan." },
+      { label: "Summary", title: "Clarify the target role", body: "Use the first summary line to state the role you want and the experience you bring." },
+    ];
+  }
+
+  return [
+    { label: "Baseline", title: "Complete the resume foundation", body: "Add contact details, target role, professional summary, work history, education, and at least four skills." },
+    { label: "Proof", title: "Add recent work examples", body: "For each recent role, add concrete responsibilities and one measurable outcome when possible." },
+    { label: "Next", title: "Use the editor as the checklist", body: "Open the workspace editor and work through the highest-impact missing sections first." },
+  ];
+};
+
+export function getResumePerformanceSnapshot(context: HydratedEmailContext): ResumePerformanceSnapshot | null {
+  if (!context.activeResume) return null;
+
+  const storedScore = parseResumeScore(context.activeResume);
+  const score = storedScore ?? calculateResumeScoreFromContent(context.activeResume);
+  const resumeTitle = cleanText(context.activeResume.title) || "Active resume";
+
+  return {
+    score,
+    label: getResumeScoreLabel(score),
+    tone: getResumeScoreTone(score),
+    source: storedScore === null ? "calculated" : "stored",
+    resumeTitle,
+    suggestions: buildResumeScoreSuggestions(score),
+    stats: [
+      { value: `${score}`, label: "Resume score", helper: getResumeScoreLabel(score) },
+      { value: context.activeResumeId ? "Yes" : "No", label: "Resume selected", helper: resumeTitle },
+      { value: score >= 85 ? "Ready" : "Improve", label: "Next step", helper: score >= 85 ? "Tailor for a role" : "Open editor" },
+    ],
+  };
+}
 
 const getEmailPreferenceCategories = (context: HydratedEmailContext): Record<string, unknown> => {
   const preferences = (context.userData.emailPreferences || {}) as Record<string, unknown>;
@@ -602,6 +853,390 @@ function buildWeeklyDigestEmail(context: HydratedEmailContext) {
   };
 }
 
+function buildFirstResumeCompletedEmail(context: HydratedEmailContext) {
+  const job = selectMostRecentJob(context.recentJobs);
+  const jobLabel = getJobLabel(job);
+  const modules: CareerVividEmailModule[] = [
+    {
+      type: "hero",
+      eyebrow: "First resume ready",
+      title: "Turn your resume into one targeted application",
+      subtitle: `${context.activeResume?.title || "Your active resume"} is ready to use as a baseline. The next useful step is matching it to ${job ? jobLabel : "a role you care about"}.`,
+      variant: "milestone",
+      visual: {
+        kind: "mockup",
+        background: "warm",
+        mockup: {
+          badge: "Resume baseline",
+          title: context.activeResume?.title || "Active resume",
+          subtitle: context.professionalTitle,
+          metrics: [
+            { value: "1", label: "Base resume", helper: "Created" },
+            { value: String(context.metrics.savedJobs), label: "Saved jobs", helper: "Available" },
+            { value: context.activeResumeId ? "Ready" : "Open", label: "Next step", helper: "Tailor" },
+          ],
+          rows: [
+            { label: "Match", title: "Compare against one role", meta: job ? jobLabel : "Save a role or paste a job description.", status: "warning" },
+            { label: "Edit", title: "Keep only targeted changes", meta: "Use the editor to align proof, skills, and keywords.", status: "neutral" },
+            { label: "Apply", title: "Create the application packet", meta: "Resume, cover letter, and interview prep stay connected.", status: "success" },
+          ],
+        },
+      },
+    },
+    {
+      type: "body",
+      paragraphs: [
+        "You have the part most job seekers keep rebuilding: a reusable resume baseline.",
+        "Now use it against one real role. CareerVivid can show what already fits, what proof is missing, and which edits are worth making before you apply.",
+      ],
+    },
+    {
+      type: "featureList",
+      title: "Application packet checklist",
+      items: [
+        { label: "Match", title: "Run one fit review", body: "Use a saved job or paste a description to compare the role against your active resume." },
+        { label: "Tailor", title: "Make focused edits", body: "Keep broad resume content intact and adjust only the pieces that matter for the role." },
+        { label: "Prep", title: "Generate next materials", body: "Use the same job context for a cover letter or interview prep." },
+      ],
+    },
+    {
+      type: "cta",
+      primary: { text: "Open resume workspace", url: context.urls.resumeEditor },
+      secondary: { text: "Open job tracker", url: context.urls.jobTracker },
+      helper: "Success metric: job match or tailoring started within 24 hours.",
+    },
+  ];
+
+  return {
+    subject: "Your first resume is ready. Match it to one role.",
+    preheader: "Use your active resume as a baseline and start one targeted application packet.",
+    html: generateCareerVividModuleEmail({
+      title: "Your first resume is ready",
+      preheader: "Use your active resume as a baseline and start one targeted application packet.",
+      userName: context.displayName,
+      modules,
+      footerText: CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER,
+    }),
+    text: `Hi ${context.firstName}, your first CareerVivid resume is ready. Open the workspace and match it to one real role: ${context.urls.resumeEditor}. ${CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER}`,
+  };
+}
+
+function buildReviewCompletedEmail(context: HydratedEmailContext) {
+  const snapshot = getResumePerformanceSnapshot(context);
+  const score = snapshot?.score ?? 0;
+  const suggestions = snapshot?.suggestions || buildResumeScoreSuggestions(score);
+
+  const modules: CareerVividEmailModule[] = [
+    {
+      type: "status",
+      title: `Review complete: ${score}/100`,
+      body: score >= 85
+        ? "Your resume is strong enough for a role-specific pass. Use the suggestions to target one job without over-editing."
+        : "Your review found a focused next step. Start with the first suggestion rather than rewriting the full resume.",
+      status: snapshot?.tone || "warning",
+      rows: [
+        { value: `${score}`, label: "Resume score", helper: snapshot?.label || "Current score" },
+        { value: String(suggestions.length), label: "Suggestions", helper: "Prioritized" },
+        { value: context.activeResumeId ? "Ready" : "Open", label: "Editor", helper: "Active route" },
+      ],
+    },
+    {
+      type: "featureList",
+      title: "Next score suggestions",
+      items: suggestions.slice(0, 3),
+    },
+    {
+      type: "cta",
+      primary: { text: "Open score suggestions", url: context.urls.resumeEditor },
+      secondary: { text: "Open dashboard", url: context.urls.dashboard },
+      helper: "Success metric: editor opened or suggestion applied after review.",
+    },
+  ];
+
+  return {
+    subject: `Your resume review is ready: ${score}/100`,
+    preheader: "Open your score suggestions and make the next focused resume edit.",
+    html: generateCareerVividModuleEmail({
+      title: "Your resume review is ready",
+      preheader: "Open your score suggestions and make the next focused resume edit.",
+      userName: context.displayName,
+      modules,
+      footerText: CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER,
+    }),
+    text: [
+      `Hi ${context.firstName}, your resume review is ready: ${score}/100.`,
+      ...suggestions.slice(0, 3).map((item) => `- ${item.title}: ${item.body}`),
+      `Open score suggestions: ${context.urls.resumeEditor}`,
+      CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER,
+    ].join("\n"),
+  };
+}
+
+function buildFirstJobSavedEmail(context: HydratedEmailContext) {
+  const job = selectMostRecentJob(context.recentJobs);
+  const jobLabel = getJobLabel(job);
+  const modules: CareerVividEmailModule[] = [
+    {
+      type: "hero",
+      eyebrow: "First job saved",
+      title: "Turn this saved job into an application packet",
+      subtitle: `${jobLabel} is now in your workspace. Use the saved role with your active resume instead of starting from scratch.`,
+      variant: "feature",
+      visual: {
+        kind: "mockup",
+        background: "plain",
+        mockup: {
+          badge: "Job tracker",
+          title: jobLabel,
+          subtitle: cleanText(job?.location) || "Saved role",
+          rows: [
+            { label: "Resume", title: context.activeResume?.title || "Active resume", meta: "Use this as the baseline.", status: "success" },
+            { label: "Cover", title: "Draft a role-specific cover letter", meta: "Use the job and resume together.", status: "warning" },
+            { label: "Prep", title: "Prepare interview stories", meta: "Save notes while the role is fresh.", status: "neutral" },
+          ],
+        },
+      },
+    },
+    {
+      type: "featureList",
+      title: "Use the job while it is fresh",
+      items: [
+        { label: "Fit", title: "Check resume fit", body: "Compare the saved role against your active resume before applying." },
+        { label: "Letter", title: "Generate an editable cover letter", body: "Start with a draft tied to the role, then adjust the final voice yourself." },
+        { label: "Next", title: "Set a next action", body: "Track whether you need to tailor, apply, follow up, or prepare for interview." },
+      ],
+    },
+    {
+      type: "cta",
+      primary: { text: "Open saved job", url: context.urls.jobTracker },
+      secondary: { text: "Open resume editor", url: context.urls.resumeEditor },
+      helper: "Success metric: cover letter, match analysis, or next action created for this saved job.",
+    },
+  ];
+
+  return {
+    subject: `Saved: ${jobLabel}. Build the application packet next.`,
+    preheader: "Use your saved job with your active resume for fit, cover letter, and prep.",
+    html: generateCareerVividModuleEmail({
+      title: "Your first saved job is ready",
+      preheader: "Use your saved job with your active resume for fit, cover letter, and prep.",
+      userName: context.displayName,
+      modules,
+      footerText: CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER,
+    }),
+    text: `Hi ${context.firstName}, ${jobLabel} is saved in CareerVivid. Open your job tracker to build the application packet: ${context.urls.jobTracker}. ${CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER}`,
+  };
+}
+
+function buildInterviewPracticeReminderEmail(context: HydratedEmailContext) {
+  const job = selectMostRecentJob(context.recentJobs);
+  const jobId = getJobId(job);
+  const interviewUrl = jobId ? canonicalInterviewStudioUrl(jobId, "lifecycle_interview_reminder") : context.urls.interviewStudio;
+  const jobLabel = getJobLabel(job);
+
+  const modules: CareerVividEmailModule[] = [
+    {
+      type: "body",
+      paragraphs: [
+        `You have interview prep activity in CareerVivid. A useful next pass is one focused practice for ${jobLabel}.`,
+        "Keep it short: rehearse the strongest story, review the report, and update the job tracker with your next follow-up.",
+      ],
+    },
+    {
+      type: "activityList",
+      title: "Practice focus",
+      subtitle: "Based on your saved roles and interview-stage activity.",
+      activities: context.interviewActivities.length
+        ? context.interviewActivities
+        : [{ label: "Prep", title: jobLabel, meta: "Run one focused mock interview and review the report.", status: "warning" }],
+    },
+    {
+      type: "cta",
+      primary: { text: "Open interview studio", url: interviewUrl },
+      secondary: { text: "Open job tracker", url: context.urls.jobTracker },
+      helper: "Success metric: interview practice started or report opened.",
+    },
+  ];
+
+  return {
+    subject: "Practice one interview before the next follow-up",
+    preheader: "Open Interview Studio with your saved role context and keep the prep focused.",
+    html: generateCareerVividModuleEmail({
+      title: "Your interview prep is ready",
+      preheader: "Open Interview Studio with your saved role context and keep the prep focused.",
+      userName: context.displayName,
+      modules,
+      footerText: CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER,
+    }),
+    text: `Hi ${context.firstName}, open Interview Studio for one focused practice: ${interviewUrl}. ${CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER}`,
+  };
+}
+
+function buildSharedResumeRecruiterEmail(context: HydratedEmailContext) {
+  const sharedUrl = getLatestSharedResumeUrl(context) || context.urls.resumeEditor;
+  const modules: CareerVividEmailModule[] = [
+    {
+      type: "hero",
+      eyebrow: "Shared resume activity",
+      title: "Someone opened your shared resume",
+      subtitle: "Your public resume link is working. Use this moment to check readiness, confirm the version is current, and prepare a follow-up.",
+      variant: "milestone",
+      visual: {
+        kind: "mockup",
+        background: "warm",
+        mockup: {
+          badge: "Recruiter view",
+          title: context.activeResume?.title || "Shared resume",
+          subtitle: context.professionalTitle,
+          rows: [
+            { label: "Review", title: "Confirm the shared version is current", meta: "Small stale details can reduce recruiter trust.", status: "warning" },
+            { label: "Follow up", title: "Prepare one concise message", meta: "Use the role or agency context if you have it.", status: "neutral" },
+            { label: "Control", title: "Sharing stays under your control", meta: "Disable or update access from the resume workspace.", status: "success" },
+          ],
+        },
+      },
+    },
+    {
+      type: "cta",
+      primary: { text: "Open shared resume", url: sharedUrl },
+      secondary: { text: "Open resume editor", url: context.urls.resumeEditor },
+      helper: "Success metric: shared resume reopened, updated, or follow-up action created.",
+    },
+  ];
+
+  return {
+    subject: "Your shared resume was opened",
+    preheader: "Check the shared version and prepare a recruiter follow-up while the context is fresh.",
+    html: generateCareerVividModuleEmail({
+      title: "Your shared resume was opened",
+      preheader: "Check the shared version and prepare a recruiter follow-up while the context is fresh.",
+      userName: context.displayName,
+      modules,
+      footerText: CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER,
+    }),
+    text: `Hi ${context.firstName}, your shared resume was opened. Review the shared version here: ${sharedUrl}. ${CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER}`,
+  };
+}
+
+function buildAdvocacyValueRequestEmail(context: HydratedEmailContext) {
+  const modules: CareerVividEmailModule[] = [
+    {
+      type: "letter",
+      paragraphs: [
+        `You have used CareerVivid for real job-search work: ${context.metrics.savedJobs} saved jobs, ${context.metrics.activeApplications} active applications, and ${context.metrics.aiPrepModules} prep actions in your workspace.`,
+        "If CareerVivid helped you move one step faster, I would appreciate a short review or a note about what should improve next. Practical feedback helps us make the product more useful for active job seekers and agency partners.",
+        "No urgency. Only send feedback if the product has already given you clear value.",
+      ],
+      signatureName: "Jiawen Zhu",
+      signatureRole: "CareerVivid",
+    },
+    {
+      type: "cta",
+      primary: { text: "Send feedback", url: canonicalProfileUrl("lifecycle_advocacy") },
+      secondary: { text: "Open dashboard", url: context.urls.dashboard },
+      helper: "Success metric: feedback submitted, review clicked, or reply received.",
+    },
+  ];
+
+  return {
+    subject: "Has CareerVivid helped your job search?",
+    preheader: "A short review or product note helps us improve the workspace for active job seekers.",
+    html: generateCareerVividModuleEmail({
+      title: "A quick CareerVivid feedback request",
+      preheader: "A short review or product note helps us improve the workspace for active job seekers.",
+      userName: context.displayName,
+      modules,
+      footerText: CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER,
+    }),
+    text: `Hi ${context.firstName}, if CareerVivid has helped your job search, send feedback or adjust your settings here: ${canonicalProfileUrl("lifecycle_advocacy")}. ${CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER}`,
+  };
+}
+
+function buildResumePerformanceEmail(context: HydratedEmailContext) {
+  const snapshot = getResumePerformanceSnapshot(context);
+  const score = snapshot?.score ?? 0;
+  const scoreLabel = snapshot?.label || "Resume score";
+  const resumeTitle = snapshot?.resumeTitle || context.activeResume?.title || "Active resume";
+  const suggestions = snapshot?.suggestions || buildResumeScoreSuggestions(score);
+
+  const modules: CareerVividEmailModule[] = [
+    {
+      type: "hero",
+      eyebrow: "Resume performance",
+      title: score >= 85 ? "Your resume is in strong shape" : "Your resume has a clear next edit",
+      subtitle: `${resumeTitle} is currently scoring ${score}/100. Use the editor to keep the next improvement focused and tied to your real resume data.`,
+      variant: "milestone",
+      visual: {
+        kind: "mockup",
+        background: "warm",
+        mockup: {
+          badge: scoreLabel,
+          title: resumeTitle,
+          subtitle: `${context.professionalTitle} workspace`,
+          metrics: snapshot?.stats || [
+            { value: `${score}`, label: "Resume score", helper: scoreLabel },
+            { value: context.metrics.savedJobs.toString(), label: "Saved jobs", helper: "In workspace" },
+            { value: context.metrics.aiPrepModules.toString(), label: "AI prep", helper: "Available" },
+          ],
+          rows: suggestions.slice(0, 3).map((suggestion, index) => ({
+            label: suggestion.label || (index === 0 ? "Focus" : "Next"),
+            title: suggestion.title,
+            meta: suggestion.body,
+            status: index === 0 ? snapshot?.tone || "warning" : "neutral",
+          })),
+          footer: snapshot?.source === "stored"
+            ? "Score source: saved resume score from your workspace."
+            : "Score source: calculated from your active resume content.",
+        },
+      },
+    },
+    {
+      type: "body",
+      paragraphs: [
+        `Hi ${context.firstName}, your active resume score is ${score}/100.`,
+        score >= 85
+          ? "That is a strong baseline. The highest-value next step is a targeted pass for the exact role you want to apply to."
+          : "There is enough progress to make the next pass specific. Focus on the suggestions below instead of rewriting the whole resume.",
+      ],
+    },
+    {
+      type: "featureList",
+      title: "Recommended next edits",
+      items: suggestions,
+    },
+    {
+      type: "cta",
+      primary: { text: "Open resume editor", url: context.urls.resumeEditor },
+      secondary: { text: "Open dashboard", url: context.urls.dashboard },
+      helper: "This email is based on the current score for your active CareerVivid resume.",
+    },
+  ];
+
+  return {
+    subject: score >= 85
+      ? `Your resume score is ${score}/100 - ready for a targeted pass`
+      : `Your resume score is ${score}/100 - focus on the next edit`,
+    preheader: "Open the active resume editor for score-based suggestions tied to your current resume.",
+    html: generateCareerVividModuleEmail({
+      title: "Your CareerVivid resume performance update",
+      preheader: "Open the active resume editor for score-based suggestions tied to your current resume.",
+      userName: context.displayName,
+      modules,
+      footerText: CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER,
+    }),
+    text: [
+      `Hi ${context.firstName},`,
+      "",
+      `Your active resume score is ${score}/100 for ${resumeTitle}.`,
+      ...suggestions.map((suggestion) => `- ${suggestion.title}: ${suggestion.body}`),
+      "",
+      `Open resume editor: ${context.urls.resumeEditor}`,
+      "",
+      CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER,
+    ].join("\n"),
+  };
+}
+
 function buildNotificationSettingsEmail(context: HydratedEmailContext) {
   const activeTracks = getActivePreferenceTrackLabels(context);
   const activeTrackText = activeTracks.length ? activeTracks.join(", ") : "All optional lifecycle tracks are paused";
@@ -682,6 +1317,13 @@ function buildNotificationSettingsEmail(context: HydratedEmailContext) {
 export function renderHydratedLifecycleEmail(key: HydratedLifecycleEmailKey, context: HydratedEmailContext) {
   if (key === "onboarding_welcome") return buildOnboardingEmail(context);
   if (key === "feature_ai_editor") return buildFeatureEditorEmail(context);
+  if (key === "first_resume_completed_tailor_job") return buildFirstResumeCompletedEmail(context);
+  if (key === "review_completed_score_suggestions") return buildReviewCompletedEmail(context);
+  if (key === "first_job_saved_application_packet") return buildFirstJobSavedEmail(context);
+  if (key === "interview_practice_reminder") return buildInterviewPracticeReminderEmail(context);
+  if (key === "shared_resume_recruiter_engagement") return buildSharedResumeRecruiterEmail(context);
+  if (key === "advocacy_value_request") return buildAdvocacyValueRequestEmail(context);
+  if (key === "resume_performance_milestone") return buildResumePerformanceEmail(context);
   if (key === "notification_settings_updated") return buildNotificationSettingsEmail(context);
   return buildWeeklyDigestEmail(context);
 }
@@ -702,12 +1344,33 @@ export async function queueHydratedLifecycleEmail(
     if (suppressionReason) {
       return { queued: false, reason: suppressionReason };
     }
+
+    if (
+      ONE_TIME_HYDRATED_KEYS.has(key) &&
+      timestampToMillis(context.userData.lifecycleEmails?.sent?.[key]?.sentAt) > 0
+    ) {
+      return { queued: false, reason: "already_sent" };
+    }
+
+    if (!isRequiredEmailCategory(definition.category)) {
+      const frequencySuppressionReason = getEmailFrequencySuppressionReason(
+        context.userData.emailPreferences as Record<string, unknown> | undefined
+      );
+      if (frequencySuppressionReason) {
+        return { queued: false, reason: frequencySuppressionReason };
+      }
+    }
   }
 
   const rendered = renderHydratedLifecycleEmail(key, context);
+  const resumePerformance = key === "resume_performance_milestone"
+    ? getResumePerformanceSnapshot(context)
+    : null;
   const mailRef = db.collection("mail").doc();
   const usageRef = db.collection("usage_logs").doc();
+  const userRef = db.collection("users").doc(userId);
   const serverTimestamp = admin.firestore.FieldValue.serverTimestamp();
+  const isRequired = isRequiredEmailCategory(definition.category);
 
   await db.runTransaction(async (transaction) => {
     transaction.set(mailRef, {
@@ -722,6 +1385,7 @@ export async function queueHydratedLifecycleEmail(
         category: definition.category,
         userId,
         preferencesChecked: !options.force,
+        frequencyChecked: !options.force && !isRequired,
         force: options.force === true,
         preferenceRoute: canonicalProfileUrl("email_footer"),
       },
@@ -736,6 +1400,7 @@ export async function queueHydratedLifecycleEmail(
           professionalTitle: context.professionalTitle,
           targetLocations: context.targetLocations,
           metrics: context.metrics,
+          resumePerformance,
         },
       },
       createdAt: serverTimestamp,
@@ -751,6 +1416,33 @@ export async function queueHydratedLifecycleEmail(
       source: options.force ? "demo" : "lifecycle",
       reason: options.reason || "hydrated_lifecycle_trigger",
     });
+
+    const userUpdate: Record<string, unknown> = {
+      lifecycleEmails: {
+        sent: {
+          [key]: {
+            sentAt: serverTimestamp,
+            subject: rendered.subject,
+            goal: definition.goal,
+            reason: options.reason || "hydrated_lifecycle_trigger",
+            score: resumePerformance?.score ?? null,
+          },
+        },
+        updatedAt: serverTimestamp,
+      },
+    };
+
+    if (!isRequired) {
+      userUpdate.lifecycleEmails = {
+        ...(userUpdate.lifecycleEmails as Record<string, unknown>),
+        lastEmailAt: serverTimestamp,
+      };
+      userUpdate.emailPreferences = {
+        lastSentAt: serverTimestamp,
+      };
+    }
+
+    transaction.set(userRef, userUpdate, { merge: true });
   });
 
   return {

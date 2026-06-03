@@ -1,0 +1,636 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { GoogleGenAI, Modality, Session, LiveServerMessage } from '@google/genai';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { analyzeInterviewTranscript } from '../../services/geminiService';
+import { useAuth } from '../../contexts/AuthContext';
+import { usePracticeHistory } from '../../hooks/useJobHistory';
+import { GenAIBlob, InterviewAnalysis, InterviewStatus, PracticeHistoryEntry, TranscriptEntry } from '../../types';
+
+const analysisLoadingMessages = [
+  'Reviewing your full transcript...',
+  'Analyzing vocal tone and confidence...',
+  'Assessing clarity and articulation...',
+  'Evaluating the relevance of your answers...',
+  'Identifying your key strengths...',
+  'Compiling constructive feedback...',
+  'Putting the final touches on your report...',
+];
+
+const GENERIC_COMPANY_LABELS = new Set([
+  'job',
+  'jobs',
+  'custom practice',
+  'unknown',
+  'unknown company',
+  'n/a',
+  'na',
+  'none',
+  'general',
+]);
+
+const INACTIVITY_TIMEOUT_MS = 20000;
+
+type AgentPrewarmStatus = 'idle' | 'preparing' | 'ready' | 'error';
+
+const encode = (bytes: Uint8Array) => {
+  let binary = '';
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+};
+
+const decode = (base64: string) => {
+  const binaryString = atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes;
+};
+
+const decodeAudioData = async (
+  data: Uint8Array,
+  ctx: AudioContext,
+  sampleRate: number,
+  numChannels: number,
+): Promise<AudioBuffer> => {
+  const dataInt16 = new Int16Array(data.buffer);
+  const frameCount = dataInt16.length / numChannels;
+  const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
+
+  for (let channel = 0; channel < numChannels; channel++) {
+    const channelData = buffer.getChannelData(channel);
+    for (let i = 0; i < frameCount; i++) {
+      channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
+    }
+  }
+  return buffer;
+};
+
+const downsampleBuffer = (buffer: Float32Array, inputSampleRate: number, outputSampleRate: number): Float32Array => {
+  if (inputSampleRate === outputSampleRate) return buffer;
+  if (inputSampleRate < outputSampleRate) return buffer;
+  const sampleRateRatio = inputSampleRate / outputSampleRate;
+  const newLength = Math.round(buffer.length / sampleRateRatio);
+  const result = new Float32Array(newLength);
+  for (let i = 0; i < newLength; i++) {
+    const start = Math.floor(i * sampleRateRatio);
+    const end = Math.floor((i + 1) * sampleRateRatio);
+    let sum = 0;
+    let count = 0;
+    for (let j = start; j < end && j < buffer.length; j++) {
+      sum += buffer[j];
+      count++;
+    }
+    result[i] = count > 0 ? sum / count : 0;
+  }
+  return result;
+};
+
+const cleanInterviewLabel = (value?: string) =>
+  (value || '').replace(/\s*<[^>]+>\s*$/g, '').trim();
+
+const getSpecificCompanyName = (value?: string) => {
+  const cleaned = cleanInterviewLabel(value);
+  if (!cleaned || GENERIC_COMPANY_LABELS.has(cleaned.toLowerCase())) return '';
+  return cleaned;
+};
+
+const safelyStopAudioSource = (source: AudioBufferSourceNode) => {
+  try {
+    source.stop();
+  } catch {
+    // Source nodes throw if they have already stopped.
+  }
+};
+
+export interface UseAIInterviewAgentSessionParams {
+  jobId: string;
+  interviewPrompt: string;
+  questions: string[];
+  isFirstTime: boolean;
+  resumeContext: string;
+  jobTitle: string;
+  jobCompany: string;
+  onClose: () => void;
+  isGuestMode?: boolean;
+}
+
+export const useAIInterviewAgentSession = ({
+  jobId,
+  interviewPrompt,
+  questions,
+  isFirstTime,
+  resumeContext,
+  jobTitle,
+  jobCompany,
+  onClose,
+  isGuestMode = false,
+}: UseAIInterviewAgentSessionParams) => {
+  const { currentUser } = useAuth();
+  const { addAnalysisToJob } = usePracticeHistory();
+  const [status, setStatus] = useState<InterviewStatus>('idle');
+  const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
+  const [analysisResult, setAnalysisResult] = useState<InterviewAnalysis | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [showGreetingPrompt, setShowGreetingPrompt] = useState(false);
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  const [prewarmStatus, setPrewarmStatus] = useState<AgentPrewarmStatus>('idle');
+
+  const inactivityTimerRef = useRef<number | null>(null);
+  const sessionPromiseRef = useRef<Promise<Session> | null>(null);
+  const prewarmPromiseRef = useRef<Promise<void> | null>(null);
+  const inputAudioContextRef = useRef<AudioContext | null>(null);
+  const outputAudioContextRef = useRef<AudioContext | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const scriptProcessorRef = useRef<ScriptProcessorNode | null>(null);
+  const mediaStreamSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  const nextStartTimeRef = useRef<number>(0);
+  const audioSourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set());
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  const isMountedRef = useRef(true);
+  const isCleaningUpRef = useRef(false);
+  const isSpeakingRef = useRef(false);
+  const actualSessionIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let interval: number;
+    if (status === 'analyzing') {
+      setLoadingMessageIndex(0);
+      interval = window.setInterval(() => {
+        setLoadingMessageIndex(prevIndex => {
+          if (prevIndex >= analysisLoadingMessages.length - 1) return prevIndex;
+          return prevIndex + 1;
+        });
+      }, 1800);
+    }
+    return () => clearInterval(interval);
+  }, [status]);
+
+  const cleanup = useCallback(() => {
+    if (inactivityTimerRef.current) {
+      clearTimeout(inactivityTimerRef.current);
+      inactivityTimerRef.current = null;
+    }
+
+    if (isCleaningUpRef.current) return;
+    isCleaningUpRef.current = true;
+    isSpeakingRef.current = false;
+
+    mediaStreamRef.current?.getTracks().forEach(track => track.stop());
+    mediaStreamRef.current = null;
+    scriptProcessorRef.current?.disconnect();
+    scriptProcessorRef.current = null;
+    mediaStreamSourceRef.current?.disconnect();
+    mediaStreamSourceRef.current = null;
+    if (inputAudioContextRef.current?.state !== 'closed') inputAudioContextRef.current?.close().catch(console.error);
+    inputAudioContextRef.current = null;
+    if (outputAudioContextRef.current?.state !== 'closed') outputAudioContextRef.current?.close().catch(console.error);
+    outputAudioContextRef.current = null;
+    audioSourcesRef.current.forEach(safelyStopAudioSource);
+    audioSourcesRef.current.clear();
+
+    sessionPromiseRef.current?.then(session => session.close()).catch(console.error);
+    sessionPromiseRef.current = null;
+  }, []);
+
+  useEffect(() => {
+    return () => cleanup();
+  }, [cleanup]);
+
+  useEffect(() => {
+    const handlePageExit = () => cleanup();
+
+    window.addEventListener('pagehide', handlePageExit);
+    window.addEventListener('beforeunload', handlePageExit);
+    return () => {
+      window.removeEventListener('pagehide', handlePageExit);
+      window.removeEventListener('beforeunload', handlePageExit);
+    };
+  }, [cleanup]);
+
+  const endInterview = useCallback(() => {
+    if (status === 'ended' || status === 'error' || isCleaningUpRef.current) return;
+    setStatus('ended');
+    cleanup();
+  }, [status, cleanup]);
+
+  const handleGetFeedback = useCallback(async () => {
+    const conversationTurns = transcript.filter(t => t.isFinal).length;
+    if (conversationTurns < 2) {
+      setError('Not enough conversation to analyze. Please try the interview again.');
+      setStatus('ended');
+      return;
+    }
+
+    setStatus('analyzing');
+    setError(null);
+    let success = false;
+    try {
+      const firstEntry = transcript.find(t => t.timestamp);
+      const lastEntry = [...transcript].reverse().find(t => t.timestamp);
+      let durationInSeconds = 0;
+      if (firstEntry?.timestamp && lastEntry?.timestamp) {
+        durationInSeconds = (lastEntry.timestamp - firstEntry.timestamp) / 1000;
+      }
+
+      const analysisData = await analyzeInterviewTranscript(currentUser?.uid || 'guest', transcript, interviewPrompt, durationInSeconds);
+
+      if (!isGuestMode && currentUser && actualSessionIdRef.current) {
+        try {
+          const functions = getFunctions(undefined, 'us-west1');
+          const billSession = httpsCallable(functions, 'billInterviewSession');
+          await billSession({
+            sessionId: actualSessionIdRef.current,
+            transcript: transcript.map(t => ({
+              speaker: t.speaker,
+              text: t.text,
+              isFinal: t.isFinal ?? true,
+              timestamp: t.timestamp ?? null,
+            })),
+            feedbackReport: {
+              overallScore: analysisData.overallScore ?? 0,
+              communicationScore: analysisData.communicationScore ?? 0,
+              confidenceScore: analysisData.confidenceScore ?? 0,
+              relevanceScore: analysisData.relevanceScore ?? 0,
+              strengths: analysisData.strengths || '',
+              areasForImprovement: analysisData.areasForImprovement || '',
+            },
+          });
+        } catch (billErr) {
+          console.error('Billing failed, but continuing with feedback generation:', billErr);
+        }
+      }
+
+      if (isGuestMode) {
+        const guestAnalysis: InterviewAnalysis = {
+          ...analysisData,
+          transcript,
+          id: `guest_analysis_${Date.now()}`,
+          timestamp: Date.now(),
+        };
+        const guestPracticeEntry: PracticeHistoryEntry = {
+          id: 'guest',
+          job: {
+            id: 'guest_job',
+            title: jobTitle,
+            company: jobCompany,
+            description: interviewPrompt,
+            location: '',
+            url: '',
+          },
+          questions,
+          timestamp: Date.now(),
+          interviewHistory: [guestAnalysis],
+        };
+        localStorage.setItem('guestInterview', JSON.stringify(guestPracticeEntry));
+        setAnalysisResult(guestAnalysis);
+      } else if (currentUser) {
+        const fullAnalysis = await addAnalysisToJob(jobId, { ...analysisData, transcript });
+        setAnalysisResult(fullAnalysis);
+      } else {
+        throw new Error('Cannot save feedback without being logged in.');
+      }
+      success = true;
+    } catch (e: any) {
+      setError(e.message || 'Failed to get interview feedback.');
+    } finally {
+      if (!success) {
+        setStatus('ended');
+      }
+    }
+  }, [currentUser, transcript, interviewPrompt, isGuestMode, jobTitle, jobCompany, questions, addAnalysisToJob, jobId]);
+
+  const handleInactivity = useCallback(() => {
+    if (status === 'speaking' || audioSourcesRef.current.size > 0) {
+      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+      inactivityTimerRef.current = window.setTimeout(handleInactivity, INACTIVITY_TIMEOUT_MS);
+      return;
+    }
+
+    if (status !== 'ended' && status !== 'analyzing' && status !== 'error') {
+      endInterview();
+      handleGetFeedback();
+    }
+  }, [status, endInterview, handleGetFeedback]);
+
+  const resetInactivityTimer = useCallback(() => {
+    if (inactivityTimerRef.current) {
+      clearTimeout(inactivityTimerRef.current);
+    }
+    inactivityTimerRef.current = window.setTimeout(handleInactivity, INACTIVITY_TIMEOUT_MS);
+  }, [handleInactivity]);
+
+  const handleClose = useCallback(() => {
+    cleanup();
+    onClose();
+  }, [cleanup, onClose]);
+
+  const prewarmInterviewAgent = useCallback(() => {
+    if (status !== 'idle' || prewarmStatus === 'ready' || prewarmStatus === 'error') {
+      return prewarmPromiseRef.current || Promise.resolve();
+    }
+
+    if (prewarmPromiseRef.current) {
+      return prewarmPromiseRef.current;
+    }
+
+    if (isGuestMode || !currentUser) {
+      setPrewarmStatus('ready');
+      return Promise.resolve();
+    }
+
+    setPrewarmStatus('preparing');
+    const functions = getFunctions(undefined, 'us-west1');
+    const getVertexToken = httpsCallable(functions, 'getInterviewVertexToken');
+
+    prewarmPromiseRef.current = getVertexToken({ role: jobTitle, prewarm: true })
+      .then(() => {
+        if (isMountedRef.current) {
+          setPrewarmStatus('ready');
+        }
+      })
+      .catch((err) => {
+        console.warn('[AI Interview] Agent prewarm failed; start will retry the live setup.', err);
+        if (isMountedRef.current) {
+          setPrewarmStatus('error');
+        }
+        prewarmPromiseRef.current = null;
+      });
+
+    return prewarmPromiseRef.current;
+  }, [currentUser, isGuestMode, jobTitle, prewarmStatus, status]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') handleClose();
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleClose]);
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    if (typeof chatEndRef.current?.scrollIntoView === 'function') {
+      chatEndRef.current.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+    }
+    if (transcript.length > 0 && showGreetingPrompt) setShowGreetingPrompt(false);
+
+    if (status === 'listening' || status === 'speaking') {
+      resetInactivityTimer();
+    } else if (inactivityTimerRef.current) {
+      clearTimeout(inactivityTimerRef.current);
+    }
+  }, [transcript, showGreetingPrompt, status, resetInactivityTimer]);
+
+  const startInterview = async () => {
+    isCleaningUpRef.current = false;
+    setShowGreetingPrompt(true);
+    setError(null);
+    setTranscript([]);
+    setAnalysisResult(null);
+    setStatus('connecting');
+
+    try {
+      void prewarmPromiseRef.current?.catch(() => undefined);
+
+      inputAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
+      outputAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
+      nextStartTimeRef.current = 0;
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStreamRef.current = stream;
+
+      const cleanJobTitle = cleanInterviewLabel(jobTitle) || 'the target role';
+      const companyLabel = cleanInterviewLabel(jobCompany);
+      const specificCompanyName = getSpecificCompanyName(jobCompany);
+      const companyContext = specificCompanyName
+        ? `You are conducting an interview for the position of "${cleanJobTitle}" at "${specificCompanyName}".`
+        : `You are conducting an interview for the position of "${cleanJobTitle}". The company is not specified; "${companyLabel || 'unknown'}" is a category or placeholder, not a company name.`;
+
+      let systemInstruction = `You are Vivid, an expert AI interviewer. If the candidate asks your name, you MUST say "My name is Vivid." Do not say Gemini or any other name. ${companyContext} Your task is to conduct a short, focused interview. ${isFirstTime ? 'Begin with the exact sentence: "Hello, I\'m Vivid, your AI interviewer." Do not introduce yourself as "with Jobs", "with Custom Practice", or with any category/source label. Then give a polished introduction summarizing the company background if a specific company is available, the role overview and key responsibilities, and any relevant industry or mission context gleaned from the job description. After the introduction, politely ask: "Do you have any questions before we begin the interview?" Wait for a brief acknowledgement before proceeding.' : 'Start by greeting the candidate briefly. Do not introduce yourself as "with Jobs", "with Custom Practice", or with any category/source label. Then ask the first question from the list without waiting for the candidate to speak first.'} Proceed through the list of questions. You may ask one or two relevant follow-up questions if the candidate’s response invites it.
+
+After the final question and the candidate’s answer, provide a brief wrap-up before ending:
+
+Give a concise 2-3 sentence summary of the candidate’s overall performance.
+Provide 2-3 short, personalized tips for improvement.
+Then say: "You can view a full feedback report by clicking Get Feedback.".
+Finally, append the exact text token <END_INTERVIEW> to your text output only (do not speak this token).
+
+**Important policy:**
+
+If the candidate asks about the company, team, or culture and you are not certain, do not fabricate details.
+Be transparent about uncertainty and suggest asking the recruiter or checking official sources (e.g., the company website).
+Maintain a polite and professional tone while emphasizing honesty.
+
+Here are the questions:
+${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
+`;
+      if (resumeContext) {
+        systemInstruction += `\n\nFor additional context, here is the candidate's resume. Use this to ask more targeted questions relating their experience to the job description.\n\n--- RESUME ---\n${resumeContext}`;
+      }
+
+      let ai: GoogleGenAI;
+      let modelName = 'gemini-2.5-flash-native-audio-preview-09-2025';
+      actualSessionIdRef.current = null;
+
+      if (!isGuestMode && currentUser) {
+        const functions = getFunctions(undefined, 'us-west1');
+        const getVertexToken = httpsCallable(functions, 'getInterviewVertexToken');
+        const tokenResult = await getVertexToken({ role: jobTitle });
+        const { accessToken, project, location, sessionId } = tokenResult.data as {
+          accessToken: string;
+          project: string;
+          location: string;
+          sessionId: string;
+        };
+
+        actualSessionIdRef.current = sessionId;
+        ai = new GoogleGenAI({
+          vertexai: true,
+          apiKey: accessToken,
+          httpOptions: {
+            baseUrl: `${location === 'global' ? 'https://aiplatform.googleapis.com' : `https://${location}-aiplatform.googleapis.com`}/ws/google.cloud.aiplatform.v1beta1.LlmBidiService/BidiGenerateContent?access_token=${accessToken}`,
+          },
+        });
+
+        if ((ai as any).apiClient?.clientOptions) {
+          (ai as any).apiClient.clientOptions.apiKey = undefined;
+        }
+
+        modelName = `projects/${project}/locations/${location}/publishers/google/models/gemini-live-2.5-flash-native-audio`;
+      } else {
+        const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || (window as any)?.ENV?.VITE_GOOGLE_API_KEY;
+        if (!apiKey) {
+          throw new Error('Google API key is missing. Please configure VITE_GOOGLE_API_KEY.');
+        }
+        ai = new GoogleGenAI({ apiKey });
+      }
+
+      sessionPromiseRef.current = ai.live.connect({
+        model: modelName,
+        config: {
+          responseModalities: [Modality.AUDIO],
+          inputAudioTranscription: {},
+          outputAudioTranscription: {},
+          systemInstruction,
+        },
+        callbacks: {
+          onopen: async () => {
+            console.log('[AI Interview] WebSocket connection opened successfully.');
+            setStatus('listening');
+            if (!inputAudioContextRef.current || !mediaStreamRef.current) return;
+
+            try {
+              if (inputAudioContextRef.current.state === 'suspended') {
+                await inputAudioContextRef.current.resume();
+              }
+              if (outputAudioContextRef.current?.state === 'suspended') {
+                await outputAudioContextRef.current.resume();
+              }
+            } catch (e) {
+              console.error('[AI Interview] Error resuming audio contexts:', e);
+            }
+
+            const source = inputAudioContextRef.current.createMediaStreamSource(mediaStreamRef.current);
+            mediaStreamSourceRef.current = source;
+            const scriptProcessor = inputAudioContextRef.current.createScriptProcessor(4096, 1, 1);
+            scriptProcessorRef.current = scriptProcessor;
+
+            let audioChunkCount = 0;
+            scriptProcessor.onaudioprocess = (audioProcessingEvent) => {
+              if (isCleaningUpRef.current || isSpeakingRef.current) return;
+              const inputData = audioProcessingEvent.inputBuffer.getChannelData(0);
+              const inputSampleRate = inputAudioContextRef.current?.sampleRate || 48000;
+              const downsampled = downsampleBuffer(inputData, inputSampleRate, 16000);
+
+              if (audioChunkCount++ % 100 === 0) {
+                console.log(`[AI Interview] Captured & resampled audio chunk #${audioChunkCount}. Original rate: ${inputSampleRate}Hz. Size: ${downsampled.length} samples.`);
+              }
+
+              const buffer = new Int16Array(downsampled.length);
+              for (let i = 0; i < downsampled.length; i++) {
+                const s = Math.max(-1, Math.min(1, downsampled[i]));
+                buffer[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+              }
+
+              const pcmBlob: GenAIBlob = {
+                data: encode(new Uint8Array(buffer.buffer)),
+                mimeType: 'audio/pcm;rate=16000',
+              };
+
+              sessionPromiseRef.current?.then((session) => {
+                session.sendRealtimeInput({ media: pcmBlob });
+              });
+            };
+            source.connect(scriptProcessor);
+            scriptProcessor.connect(inputAudioContextRef.current.destination);
+          },
+          onmessage: async (message: LiveServerMessage) => {
+            console.log('[AI Interview] Received WebSocket message from server:', message);
+            resetInactivityTimer();
+
+            const processTranscription = (transcription: { text?: string } | undefined, speaker: 'user' | 'ai') => {
+              const endToken = '<END_INTERVIEW>';
+              let text = transcription?.text;
+              if (text) {
+                if (text.includes(endToken)) {
+                  endInterview();
+                  text = text.replace(endToken, '');
+                }
+                if (!text) return;
+
+                setTranscript(prev => {
+                  const last = prev[prev.length - 1];
+                  if (last?.speaker === speaker && !last.isFinal) {
+                    const newTranscript = [...prev];
+                    newTranscript[newTranscript.length - 1] = { ...last, text: last.text + text };
+                    return newTranscript;
+                  }
+                  return [...prev, { speaker, text: text!, isFinal: false, timestamp: Date.now() }];
+                });
+              }
+            };
+
+            processTranscription(message.serverContent?.inputTranscription, 'user');
+            processTranscription(message.serverContent?.outputTranscription, 'ai');
+
+            const base64Audio = message.serverContent?.modelTurn?.parts[0]?.inlineData?.data;
+            if (base64Audio && outputAudioContextRef.current) {
+              setStatus('speaking');
+              isSpeakingRef.current = true;
+              const ctx = outputAudioContextRef.current;
+              nextStartTimeRef.current = Math.max(nextStartTimeRef.current, ctx.currentTime);
+              const audioBuffer = await decodeAudioData(decode(base64Audio), ctx, 24000, 1);
+              const source = ctx.createBufferSource();
+              source.buffer = audioBuffer;
+              source.connect(ctx.destination);
+              source.addEventListener('ended', () => {
+                audioSourcesRef.current.delete(source);
+                if (audioSourcesRef.current.size === 0 && status !== 'ended') {
+                  isSpeakingRef.current = false;
+                  setStatus('listening');
+                }
+              });
+              source.start(nextStartTimeRef.current);
+              nextStartTimeRef.current += audioBuffer.duration;
+              audioSourcesRef.current.add(source);
+            }
+
+            if (message.serverContent?.turnComplete) {
+              setTranscript(prev => prev.map(t => ({ ...t, isFinal: true })));
+            }
+          },
+          onclose: (event?: any) => {
+            console.log('[AI Interview] WebSocket connection closed by server. Event:', event);
+            setStatus('ended');
+            cleanup();
+          },
+          onerror: (e: Event) => {
+            console.error('[AI Interview] WebSocket connection error:', e);
+            setError('A connection error occurred during the interview.');
+            setStatus('error');
+            cleanup();
+          },
+        },
+      });
+    } catch (err: any) {
+      console.error(err);
+      cleanup();
+      const errorMessage = err.name === 'NotAllowedError'
+        ? 'Microphone permission was denied. Please allow microphone access to start.'
+        : 'Could not start the interview. Please check your microphone.';
+      setError(errorMessage);
+      setStatus('error');
+    }
+  };
+
+  return {
+    status,
+    isPreparingAgent: prewarmStatus === 'preparing',
+    isAgentPrepared: prewarmStatus === 'ready',
+    transcript,
+    analysisResult,
+    error,
+    showGreetingPrompt,
+    loadingMessage: analysisLoadingMessages[loadingMessageIndex],
+    chatEndRef,
+    handleClose,
+    prewarmInterviewAgent,
+    startInterview,
+    endInterview,
+    handleGetFeedback,
+  };
+};

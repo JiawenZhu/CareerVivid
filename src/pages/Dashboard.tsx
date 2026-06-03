@@ -1,5 +1,5 @@
 import React, { Suspense, useRef, useEffect } from 'react';
-import { PlusCircle, FileText, Mic, Briefcase, LayoutDashboard, Loader2, Globe, User as UserIcon, ChevronDown, FolderPlus, PenTool, LayoutGrid, List, PanelLeft, Github, Users, MessageSquare, ClipboardList } from 'lucide-react';
+import { PlusCircle, FileText, Mic, Briefcase, LayoutDashboard, Loader2, Globe, User as UserIcon, ChevronDown, FolderPlus, PenTool, LayoutGrid, List, PanelLeft, Github, Users, MessageSquare, ClipboardList, ArrowRight, Sparkles, type LucideIcon } from 'lucide-react';
 
 // Hooks & Logic
 import { useDashboard } from '../hooks/useDashboard';
@@ -28,12 +28,210 @@ import {
 
 import DashboardPreviewSection from '../components/Dashboard/DashboardPreviewSection';
 import DashboardPostCard from '../components/Dashboard/DashboardPostCard';
-import DesktopCapabilityBanner from '../components/Dashboard/DesktopCapabilityBanner';
+import { MobilePostCard } from '../components/Dashboard/DashboardMobileCards';
 import ReorderDashboardModal from '../components/Dashboard/ReorderDashboardModal';
 import JobDetailModal from '../components/JobTracker/JobDetailModal';
 
 // Lazy load modal
 const InterviewReportModal = React.lazy(() => import('../components/InterviewReportModal'));
+
+const mobileWorkflowActions = [
+    { label: 'Resume', icon: FileText, path: '/newresume', className: 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-950/30 dark:text-blue-200 dark:border-blue-900/50' },
+    { label: 'Portfolio', icon: Globe, path: '/portfolio', className: 'bg-pink-50 text-pink-700 border-pink-100 dark:bg-pink-950/30 dark:text-pink-200 dark:border-pink-900/50' },
+    { label: 'Interview', icon: Mic, path: '/interview-studio', className: 'bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-950/30 dark:text-purple-200 dark:border-purple-900/50' },
+    { label: 'Jobs', icon: Briefcase, path: '/job-tracker', className: 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-200 dark:border-emerald-900/50' },
+    { label: 'Community', icon: MessageSquare, path: '/community', className: 'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-950/30 dark:text-amber-200 dark:border-amber-900/50' },
+    { label: 'Whiteboard', icon: PenTool, path: '/whiteboard', className: 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-900/60 dark:text-slate-200 dark:border-slate-800' },
+];
+
+const MobileWorkflowLauncher: React.FC = () => (
+    <nav className="md:hidden mb-6" aria-label="Dashboard workflows">
+        <div className="grid grid-cols-3 gap-2">
+            {mobileWorkflowActions.map(({ label, icon: Icon, path, className }) => (
+                <button
+                    key={path}
+                    type="button"
+                    onClick={() => navigate(path)}
+                    className={`min-h-[76px] rounded-2xl border px-2.5 py-3 text-center shadow-sm transition active:scale-[0.98] ${className}`}
+                >
+                    <Icon size={19} className="mx-auto mb-2" />
+                    <span className="block text-[11px] font-bold leading-tight">{label}</span>
+                </button>
+            ))}
+        </div>
+    </nav>
+);
+
+interface DesktopWorkspaceCommandCenterProps {
+    title: string;
+    resumeCount: number;
+    interviewCount: number;
+    portfolioCount: number;
+    jobCount: number;
+    communityPostCount: number;
+    whiteboardCount: number;
+    viewMode: 'row' | 'grid';
+    onToggleView: () => void;
+    onOrganizeSections: () => void;
+}
+
+const DesktopWorkspaceCommandCenter: React.FC<DesktopWorkspaceCommandCenterProps> = ({
+    title,
+    resumeCount,
+    interviewCount,
+    portfolioCount,
+    jobCount,
+    communityPostCount,
+    whiteboardCount,
+    viewMode,
+    onToggleView,
+    onOrganizeSections,
+}) => {
+    const primaryActions: Array<{
+        label: string;
+        description: string;
+        icon: LucideIcon;
+        path: string;
+        className: string;
+    }> = [
+        {
+            label: 'Build Resume',
+            description: `${resumeCount} saved`,
+            icon: FileText,
+            path: '/newresume',
+            className: 'border-blue-100 bg-blue-50/70 text-blue-700 hover:border-blue-200 hover:bg-blue-100/80 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-200',
+        },
+        {
+            label: 'Find Jobs',
+            description: 'Search and track roles',
+            icon: Briefcase,
+            path: '/job-market',
+            className: 'border-emerald-100 bg-emerald-50/70 text-emerald-700 hover:border-emerald-200 hover:bg-emerald-100/80 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-200',
+        },
+        {
+            label: 'Practice Interview',
+            description: `${interviewCount} sessions`,
+            icon: Mic,
+            path: '/interview-studio',
+            className: 'border-violet-100 bg-violet-50/70 text-violet-700 hover:border-violet-200 hover:bg-violet-100/80 dark:border-violet-900/40 dark:bg-violet-950/30 dark:text-violet-200',
+        },
+    ];
+
+    const workspaceStats: Array<{
+        label: string;
+        value: number;
+        icon: LucideIcon;
+        path: string;
+    }> = [
+        { label: 'Resumes', value: resumeCount, icon: FileText, path: '/newresume' },
+        { label: 'Pipeline', value: jobCount, icon: Briefcase, path: '/job-tracker' },
+        { label: 'Interviews', value: interviewCount, icon: Mic, path: '/interview-studio' },
+        { label: 'Portfolios', value: portfolioCount, icon: Globe, path: '/portfolio' },
+        { label: 'Community', value: communityPostCount, icon: MessageSquare, path: '/my-posts' },
+        { label: 'Whiteboards', value: whiteboardCount, icon: PenTool, path: '/whiteboard' },
+    ];
+
+    return (
+        <section className="hidden md:block mb-8">
+            <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(360px,0.55fr)]">
+                <div className="rounded-[1.35rem] border border-stone-200/80 bg-white/85 p-5 shadow-sm dark:border-slate-800/80 dark:bg-slate-950/55">
+                    <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="max-w-2xl">
+                            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-stone-500 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-400">
+                                <Sparkles size={13} />
+                                Workspace
+                            </div>
+                            <h1 className="text-3xl font-extrabold tracking-tight text-gray-950 dark:text-white lg:text-4xl">
+                                {title}
+                            </h1>
+                            <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+                                Start from the action you need, then use the sections below for detailed editing and review.
+                            </p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={onToggleView}
+                                className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-700"
+                                title={viewMode === 'row' ? 'Switch to Grid View' : 'Switch to Row View'}
+                            >
+                                {viewMode === 'row' ? <LayoutGrid size={16} /> : <List size={16} />}
+                                {viewMode === 'row' ? 'Grid View' : 'Row View'}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={onOrganizeSections}
+                                className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-700"
+                            >
+                                <LayoutDashboard size={16} />
+                                Organize
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="mt-6 grid gap-3 lg:grid-cols-3">
+                        {primaryActions.map(({ label, description, icon: Icon, path, className }) => (
+                            <button
+                                key={path}
+                                type="button"
+                                onClick={() => navigate(path)}
+                                className={`group flex min-h-[92px] items-center justify-between rounded-2xl border px-4 py-3 text-left shadow-sm transition ${className}`}
+                            >
+                                <span className="flex items-center gap-3">
+                                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/80 shadow-sm dark:bg-slate-950/40">
+                                        <Icon size={20} />
+                                    </span>
+                                    <span>
+                                        <span className="block text-sm font-bold">{label}</span>
+                                        <span className="mt-1 block text-xs font-medium opacity-75">{description}</span>
+                                    </span>
+                                </span>
+                                <ArrowRight size={17} className="opacity-45 transition group-hover:translate-x-0.5 group-hover:opacity-80" />
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="rounded-[1.35rem] border border-stone-200/80 bg-white/85 p-5 shadow-sm dark:border-slate-800/80 dark:bg-slate-950/55">
+                    <div className="flex items-start justify-between gap-4">
+                        <div>
+                            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-stone-500 dark:text-slate-400">
+                                Workspace Snapshot
+                            </p>
+                            <h2 className="mt-1 text-lg font-extrabold text-gray-950 dark:text-white">
+                                Your active career assets
+                            </h2>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => navigate('/subscription')}
+                            className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 transition hover:bg-blue-100 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-200"
+                        >
+                            Credits
+                        </button>
+                    </div>
+                    <div className="mt-5 grid grid-cols-2 gap-2.5">
+                        {workspaceStats.map(({ label, value, icon: Icon, path }) => (
+                            <button
+                                key={label}
+                                type="button"
+                                onClick={() => navigate(path)}
+                                className="group rounded-2xl border border-stone-200 bg-stone-50/70 p-3 text-left transition hover:border-stone-300 hover:bg-white dark:border-slate-800 dark:bg-slate-900/70 dark:hover:border-slate-700 dark:hover:bg-slate-900"
+                            >
+                                <span className="flex items-center justify-between gap-2">
+                                    <Icon size={15} className="text-slate-500 dark:text-slate-400" />
+                                    <ArrowRight size={13} className="text-slate-400 opacity-0 transition group-hover:opacity-100" />
+                                </span>
+                                <span className="mt-3 block text-2xl font-extrabold tracking-tight text-gray-950 dark:text-white">{value}</span>
+                                <span className="mt-0.5 block text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+};
 
 const Dashboard: React.FC = () => {
     const {
@@ -144,14 +342,16 @@ const Dashboard: React.FC = () => {
                 <header className={`bg-white/80 dark:bg-[#0a0c10]/80 backdrop-blur-md border-b border-gray-200/60 dark:border-gray-800/60 shadow-sm sticky top-0 z-20 ${navPosition === 'side' ? 'md:hidden' : ''}`}>
                     <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center h-16 sm:h-20">
-                            <div className="flex items-center gap-4">
+                            <div className="flex min-w-0 items-center gap-3">
                                 <a href="/dashboard" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }} className="flex items-center gap-2">
                                     <Logo className="h-8 w-8" />
                                     <span className="text-xl font-bold text-gray-900 dark:text-white hidden sm:inline">CareerVivid</span>
                                 </a>
+                                <span className="hidden max-w-[240px] truncate rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-xs font-semibold text-slate-600 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-300 md:inline-flex">
+                                    {currentUser?.email || 'Workspace'}
+                                </span>
                             </div>
-                            <div className="flex items-center gap-2 md:gap-4">
-                                <span className="text-sm font-medium text-gray-600 dark:text-gray-300 hidden lg:block">{currentUser?.email}</span>
+                            <div className="flex items-center gap-2 md:gap-3">
                                 {aiUsage && (
                                     <div className="hidden xl:block w-48">
                                         <AIUsageProgressBar used={aiUsage.count} limit={aiUsage.limit} isPremium={isPremium} onUpgradeClick={() => navigate('/subscription')} variant="minimal" />
@@ -162,15 +362,12 @@ const Dashboard: React.FC = () => {
                                 <button onClick={toggleNavPosition} className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors hidden md:block" title="Toggle Sidebar">
                                     <PanelLeft size={20} />
                                 </button>
-                                <button onClick={() => navigate('/community')} className="flex items-center gap-2 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 font-semibold py-2 px-3 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-900/80 transition-colors cursor-pointer">
+                                <button onClick={() => navigate('/community')} className="flex items-center gap-2 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 font-semibold py-2 px-3 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-900/80 transition-colors cursor-pointer md:hidden">
                                     <Users size={20} /> <span className="hidden md:inline">{t('nav.community', 'Community')}</span>
                                 </button>
-                                <button onClick={() => navigate('/interview-studio')} className="items-center gap-2 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300 font-semibold py-2 px-3 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-900/80 transition-colors hidden md:flex">
-                                    <Mic size={20} /> <span className="hidden md:inline">{t('nav.interview_studio')}</span>
-                                </button>
                                 <div className="relative hidden md:block" ref={newMenuRef}>
-                                    <button onClick={() => setIsNewMenuOpen(!isNewMenuOpen)} className="flex items-center gap-2 bg-primary-600 text-white font-semibold py-2 px-3 rounded-lg shadow-soft hover:bg-primary-700 transition-colors">
-                                        <PlusCircle size={20} /> <span className="hidden md:inline">{t('dashboard.create_new')}</span> <ChevronDown size={20} />
+                                    <button onClick={() => setIsNewMenuOpen(!isNewMenuOpen)} className="flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-bold text-white shadow-soft transition hover:bg-primary-700">
+                                        <PlusCircle size={18} /> <span>{t('dashboard.create_new')}</span> <ChevronDown size={18} />
                                     </button>
                                     {isNewMenuOpen && (
                                         <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-20 border dark:border-gray-700">
@@ -230,6 +427,7 @@ const Dashboard: React.FC = () => {
                                                 {isPremium && <button onClick={() => navigate('/referrals')} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Referrals</button>}
                                                 {(userProfile?.roles?.includes('academic_partner') || userProfile?.role === 'academic_partner') && <button onClick={() => navigate('/academic-partner')} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.academic_partner')}</button>}
                                                 {(userProfile?.roles?.includes('business_partner') || userProfile?.role === 'business_partner') && <button onClick={() => navigate('/business-partner/dashboard')} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Business Partner</button>}
+                                                {(userProfile?.roles?.includes('agency_partner') || userProfile?.role === 'agency_partner') && <button onClick={() => navigate('/agency-partner/dashboard')} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Agency Partner</button>}
                                                 {isAdmin && <button onClick={() => navigate('/admin')} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.admin')}</button>}
                                                 <button onClick={logOut} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.sign_out')}</button>
                                             </div>
@@ -247,26 +445,36 @@ const Dashboard: React.FC = () => {
                 </header>
 
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <div className="mb-8">
+                    <div className="mb-8 md:hidden">
                         <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-all">{dashboardTitle}</h1>
                     </div>
 
-                    {!isDesktop && <DesktopCapabilityBanner />}
+                    {navPosition === 'side' ? (
+                        <div className="mb-8 hidden md:block">
+                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-all">{dashboardTitle}</h1>
+                        </div>
+                    ) : (
+                        <DesktopWorkspaceCommandCenter
+                            title={dashboardTitle}
+                            resumeCount={resumes.length}
+                            interviewCount={practiceHistory.length}
+                            portfolioCount={portfolios.length}
+                            jobCount={jobApplications.length}
+                            communityPostCount={myCommunityPosts.length}
+                            whiteboardCount={whiteboards.length}
+                            viewMode={viewMode}
+                            onToggleView={() => setViewMode(viewMode === 'row' ? 'grid' : 'row')}
+                            onOrganizeSections={() => setIsReorderModalOpen(true)}
+                        />
+                    )}
 
-                    <div className="block md:hidden w-full mb-4">
-                        <a onClick={(e) => { e.preventDefault(); navigate('/my-posts'); }} className="block bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-5 shadow-lg shadow-blue-500/30 text-white relative overflow-hidden active:scale-95 transition-transform cursor-pointer group">
-                            <MessageSquare className="absolute -bottom-4 -right-4 w-32 h-32 text-white/10 transform -rotate-12 group-hover:scale-110 transition-transform duration-500 pointer-events-none" />
-                            <div className="flex items-center gap-3 relative z-10">
-                                <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm"><MessageSquare size={20} className="text-white" /></div>
-                                <span className="font-medium text-blue-100">My Posts</span>
-                            </div>
-                            <div className="text-4xl font-bold mt-4 relative z-10">{myCommunityPosts?.length || 0}</div>
-                        </a>
+                    <MobileWorkflowLauncher />
+
+                    <div className={navPosition === 'side' ? undefined : 'md:hidden'}>
+                        <WorkspaceSummaryCards />
                     </div>
 
-                    {isDesktop && <WorkspaceSummaryCards />}
-
-                    <div className="flex justify-end mt-6 mb-2 pr-1">
+                    <div className={`justify-end mt-6 mb-2 pr-1 ${navPosition === 'side' ? 'hidden md:flex' : 'flex md:hidden'}`}>
                         <button onClick={() => setViewMode(viewMode === 'row' ? 'grid' : 'row')} className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors text-gray-500 dark:text-gray-400 flex items-center gap-2 text-sm font-medium" title={viewMode === 'row' ? 'Switch to Grid View' : 'Switch to Row View'}>
                             {viewMode === 'row' ? (<><LayoutGrid size={18} /> <span className="hidden sm:inline">Grid View</span></>) : (<><List size={18} /> <span className="hidden sm:inline">Row View</span></>)}
                         </button>
@@ -282,11 +490,11 @@ const Dashboard: React.FC = () => {
 
                         switch (sectionId) {
                             case 'interviewStudio':
-                                return isDesktop && <InterviewStudioSection key={sectionId} {...commonProps} setSelectedJobForReport={setSelectedJobForReport} />;
+                                return <InterviewStudioSection key={sectionId} {...commonProps} setSelectedJobForReport={setSelectedJobForReport} />;
                             case 'resumes':
-                                return isDesktop && <ResumesSection key={sectionId} {...commonProps} setShareModalResume={setShareModalResume} />;
+                                return <ResumesSection key={sectionId} {...commonProps} setShareModalResume={setShareModalResume} />;
                             case 'whiteboards':
-                                return isDesktop && <WhiteboardsSection key={sectionId} {...commonProps} setShareModalWhiteboard={setShareModalWhiteboard} />;
+                                return <WhiteboardsSection key={sectionId} {...commonProps} setShareModalWhiteboard={setShareModalWhiteboard} />;
                             case 'communityPosts':
                                 return (
                                     <DashboardPreviewSection
@@ -298,13 +506,14 @@ const Dashboard: React.FC = () => {
                                         onViewAll={() => navigate('/community')}
                                         onTitleChange={(name) => handleSectionNameChange('communityPosts', name)}
                                         emptyMessage="You haven't written any community posts yet. Share your experience!"
+                                        mobileRenderItem={(post) => <MobilePostCard key={post.id} post={post} onDelete={deleteCommunityPost} />}
                                         renderItem={(post) => <DashboardPostCard key={post.id} post={post} onDelete={deleteCommunityPost} onDragStart={() => { }} />}
                                     />
                                 );
                             case 'portfolios':
-                                return isDesktop && <PortfoliosSection key={sectionId} {...commonProps} setShareModalPortfolio={setShareModalPortfolio} handleDuplicatePortfolio={handleDuplicatePortfolio} />;
+                                return <PortfoliosSection key={sectionId} {...commonProps} setShareModalPortfolio={setShareModalPortfolio} handleDuplicatePortfolio={handleDuplicatePortfolio} />;
                             case 'jobTracker':
-                                return isDesktop && <JobTrackerSection key={sectionId} {...commonProps} setSelectedJobApplication={setSelectedJobApplication} />;
+                                return <JobTrackerSection key={sectionId} {...commonProps} setSelectedJobApplication={setSelectedJobApplication} />;
                             default:
                                 return null;
                         }
