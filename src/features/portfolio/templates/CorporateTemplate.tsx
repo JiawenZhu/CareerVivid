@@ -32,6 +32,10 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
     const sidebarBg = isDark ? '#1e293b' : '#0f172a'; // Slate-800 : Slate-900
     const sidebarText = '#ffffff';
     const accentColor = primaryColor;
+    const inlineEditProps = {
+        onFocus: onEdit,
+        showEditHighlight: false
+    };
 
     // TikTok Integration
     const tiktokLink = data.socialLinks?.find(l => l.url.includes('tiktok.com') || l.platform === 'tiktok');
@@ -67,14 +71,14 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                         <InlineEdit
                             value={hero.headline}
                             fieldId="hero.headline"
-                            onFocus={onEdit}
+                            {...inlineEditProps}
                             className="text-3xl font-bold mb-2 block"
                             tagName="h1"
                         />
                         <InlineEdit
                             value={hero.subheadline}
                             fieldId="hero.subheadline"
-                            onFocus={onEdit}
+                            {...inlineEditProps}
                             className="opacity-80 font-medium block"
                             tagName="p"
                         />
@@ -112,7 +116,7 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                         <InlineEdit
                             value={data.sectionLabels?.techStack || 'Skills'}
                             fieldId="sectionLabels.techStack"
-                            onFocus={onEdit}
+                            {...inlineEditProps}
                             className="text-xs font-bold uppercase tracking-widest opacity-50 mb-4 border-b border-white/20 pb-2 block"
                             tagName="h2"
                         />
@@ -146,7 +150,7 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                         <InlineEdit
                             value={data.sectionLabels?.about || 'Professional Summary'}
                             fieldId="sectionLabels.about"
-                            onFocus={onEdit}
+                            {...inlineEditProps}
                             className="text-2xl font-bold mb-6 pb-2 border-b block"
                             style={{ borderColor: `${textColor}20` }} // 20 hex = 12% opacity
                             tagName="h2"
@@ -154,7 +158,7 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                         <InlineEdit
                             value={about}
                             fieldId="about"
-                            onFocus={onEdit}
+                            {...inlineEditProps}
                             className="leading-relaxed text-base block opacity-90"
                             tagName="p"
                             multiline
@@ -165,7 +169,7 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                         <InlineEdit
                             value={data.sectionLabels?.timeline || 'Work Experience'}
                             fieldId="sectionLabels.timeline"
-                            onFocus={onEdit}
+                            {...inlineEditProps}
                             className="text-2xl font-bold mb-8 pb-2 border-b block"
                             style={{ borderColor: `${textColor}20` }}
                             tagName="h2"
@@ -181,7 +185,7 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                                         <InlineEdit
                                             value={job.jobTitle}
                                             fieldId={`timeline.${idx}.jobTitle`}
-                                            onFocus={onEdit}
+                                            {...inlineEditProps}
                                             className="text-xl font-bold block"
                                             tagName="h3"
                                         />
@@ -189,23 +193,23 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                                             className="text-sm font-medium px-2 py-1 rounded"
                                             style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', color: isDark ? 'white' : 'inherit' }}
                                         >
-                                            <InlineEdit value={job.startDate} fieldId={`timeline.${idx}.startDate`} onFocus={onEdit} />
+                                            <InlineEdit value={job.startDate} fieldId={`timeline.${idx}.startDate`} {...inlineEditProps} />
                                             <span className="mx-1">-</span>
-                                            <InlineEdit value={job.endDate} fieldId={`timeline.${idx}.endDate`} onFocus={onEdit} />
+                                            <InlineEdit value={job.endDate} fieldId={`timeline.${idx}.endDate`} {...inlineEditProps} />
                                         </span>
                                     </div>
                                     <div className="text-lg font-medium mb-2 opacity-80" style={{ color: accentColor }}>
                                         <InlineEdit
                                             value={job.employer}
                                             fieldId={`timeline.${idx}.employer`}
-                                            onFocus={onEdit}
+                                            {...inlineEditProps}
                                         />
                                     </div>
                                     <p className="whitespace-pre-wrap opacity-80">
                                         <InlineEdit
                                             value={job.description}
                                             fieldId={`timeline.${idx}.description`}
-                                            onFocus={onEdit}
+                                            {...inlineEditProps}
                                             multiline
                                         />
                                     </p>
@@ -220,7 +224,7 @@ const CorporateTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onU
                         <InlineEdit
                             value={data.sectionLabels?.projects || 'Key Projects'}
                             fieldId="sectionLabels.projects"
-                            onFocus={onEdit}
+                            {...inlineEditProps}
                             className="text-2xl font-bold mb-8 pb-2 border-b block"
                             style={{ borderColor: `${textColor}20` }}
                             tagName="h2"

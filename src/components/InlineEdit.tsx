@@ -18,6 +18,7 @@ interface InlineEditProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onFoc
   target?: string;
   rel?: string;
   isReadOnly?: boolean;
+  showEditHighlight?: boolean;
 }
 
 const InlineEdit: React.FC<InlineEditProps> = ({
@@ -31,6 +32,7 @@ const InlineEdit: React.FC<InlineEditProps> = ({
   multiline,
   isLink,
   isReadOnly = false,
+  showEditHighlight = true,
   ...props
 }) => {
   const displayValue = safeReviewText(value);
@@ -42,6 +44,7 @@ const InlineEdit: React.FC<InlineEditProps> = ({
     /^employmentHistory\[\d+\]\.description$/.test(fieldId || '')
   );
   const canFocusEditorField = Boolean(!isReadOnlyMode && onFocus && fieldId);
+  const canShowEditHighlight = canFocusEditorField && showEditHighlight;
   const textChunks = shouldChunkValue ? splitResumeTextChunks(displayValue, { splitSentences: isProfessionalSummary }) : [];
   const getChunkTargetFieldId = (chunkIndex: number) => fieldId ? getCanvasChunkFieldId(fieldId, chunkIndex) : undefined;
 
@@ -87,10 +90,10 @@ const InlineEdit: React.FC<InlineEditProps> = ({
   const shouldRenderChunks = shouldChunkValue && textChunks.length > 0;
   const shouldStackChunks = shouldRenderChunks && (displayValue.includes('\n') || textChunks.some((chunk) => chunk.hadBullet));
   const shouldUseParentChunkHover = isProfessionalSummary && shouldRenderChunks && !shouldStackChunks;
-  const baseInteractiveClass = canFocusEditorField && !isLink && !shouldRenderChunks
+  const baseInteractiveClass = canShowEditHighlight && !isLink && !shouldRenderChunks
     ? 'cursor-pointer hover:bg-primary-500/10 hover:ring-2 hover:ring-primary-400/50 hover:ring-offset-1 rounded px-0.5 -mx-0.5'
     : '';
-  const chunkedSummaryInteractiveClass = canFocusEditorField && shouldUseParentChunkHover
+  const chunkedSummaryInteractiveClass = canShowEditHighlight && shouldUseParentChunkHover
     ? 'cursor-pointer hover:bg-primary-500/10 hover:ring-2 hover:ring-primary-400/50 hover:ring-offset-1 rounded px-1 -mx-1'
     : '';
 
@@ -211,9 +214,10 @@ const InlineEdit: React.FC<InlineEditProps> = ({
               } : undefined}
             className={`
               ${shouldStackChunks ? 'block' : 'inline'}
-              ${canFocusEditorField ? 'rounded px-1 -mx-1 cursor-pointer transition-all duration-250 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1' : ''}
-              ${canFocusEditorField && chunkHovered ? 'bg-primary-500/20 ring-2 ring-primary-500/80 ring-offset-1 scale-[1.01]' : ''}
-              ${canFocusEditorField && !chunkHovered && !shouldUseParentChunkHover ? 'hover:bg-primary-500/10 hover:ring-2 hover:ring-primary-400/60 hover:ring-offset-1' : ''}
+              ${canFocusEditorField ? 'rounded px-1 -mx-1 cursor-pointer transition-all duration-250 focus-visible:outline-none' : ''}
+              ${canShowEditHighlight ? 'focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1' : ''}
+              ${canShowEditHighlight && chunkHovered ? 'bg-primary-500/20 ring-2 ring-primary-500/80 ring-offset-1 scale-[1.01]' : ''}
+              ${canShowEditHighlight && !chunkHovered && !shouldUseParentChunkHover ? 'hover:bg-primary-500/10 hover:ring-2 hover:ring-primary-400/60 hover:ring-offset-1' : ''}
             `}
             title={canFocusEditorField && !shouldUseParentChunkHover ? 'Click to edit this item' : undefined}
           >
@@ -241,7 +245,7 @@ const InlineEdit: React.FC<InlineEditProps> = ({
       data-field-id={isReadOnlyMode ? undefined : fieldId}
       className={`
         relative group/edit transition-all duration-250
-        ${canFocusEditorField && isHovered ? 'bg-primary-500/20 ring-2 ring-primary-500/80 ring-offset-1 scale-[1.01] rounded px-0.5 -mx-0.5' : `${baseInteractiveClass} ${chunkedSummaryInteractiveClass}`}
+        ${canShowEditHighlight && isHovered ? 'bg-primary-500/20 ring-2 ring-primary-500/80 ring-offset-1 scale-[1.01] rounded px-0.5 -mx-0.5' : `${baseInteractiveClass} ${chunkedSummaryInteractiveClass}`}
         ${className || ''}
       `}
       style={style}

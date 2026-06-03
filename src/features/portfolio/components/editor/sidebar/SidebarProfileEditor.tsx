@@ -30,6 +30,7 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
 }) => {
     const isBusinessCard = portfolioData.mode === 'business_card';
     const isPortfolio = !isLinkInBio && !isBusinessCard;
+    const compactAvatarActionClass = 'flex min-w-0 flex-col items-center justify-center gap-1 rounded-lg border border-transparent px-1.5 py-2 text-center text-[10px] font-medium leading-tight transition-colors';
 
     const getVisibleHeroButtons = (): PortfolioButton[] => {
         if (Array.isArray(portfolioData.hero.buttons)) {
@@ -107,9 +108,9 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
             {/* Avatar Section */}
             <div className={`p-4 rounded-lg border ${themeClasses.cardBg}`}>
                 <label className="block text-xs font-semibold text-gray-500 mb-3 uppercase">Profile Photo / Avatar</label>
-                <div className="flex flex-col gap-4">
-                    <div className="flex items-center gap-4">
-                        <div className={`w-16 h-16 rounded-full overflow-hidden shrink-0 border-2 ${editorTheme === 'dark' ? 'bg-white/10 border-white/10' : 'bg-gray-200 border-gray-200'} shadow-sm`}>
+                <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-3">
+                        <div className={`w-14 h-14 rounded-full overflow-hidden shrink-0 border-2 ${editorTheme === 'dark' ? 'bg-white/10 border-white/10' : 'bg-gray-200 border-gray-200'} shadow-sm`}>
                             {portfolioData.hero.avatarUrl ? (
                                 <img src={portfolioData.hero.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                             ) : (
@@ -119,12 +120,17 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                             )}
                         </div>
 
-                        <div className="flex items-center gap-2 flex-1">
+                        <p className="text-[10px] leading-4 text-gray-400">
+                            Recommended: Square JPG/PNG, max 2MB
+                        </p>
+                    </div>
+
+                    <div className={`grid gap-2 ${portfolioData.hero.avatarUrl ? 'grid-cols-2' : 'grid-cols-3'}`}>
                             {/* Upload Button */}
                             <button
                                 onClick={() => onImageUploadTrigger('hero.avatarUrl')}
                                 disabled={isImageUploading}
-                                className={`flex-1 flex flex-col items-center justify-center gap-1.5 py-3 rounded-lg border text-[10px] sm:text-xs font-medium transition-colors
+                                className={`${compactAvatarActionClass}
                                     ${isImageUploading
                                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                         : `hover:bg-indigo-50/50 hover:border-indigo-200/50 hover:text-indigo-500 ${themeClasses.cardBg} ${themeClasses.textMuted} border-transparent`
@@ -138,7 +144,7 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                             {/* Library Button */}
                             <button
                                 onClick={() => onStockPhotoTrigger?.('hero.avatarUrl')}
-                                className="flex-1 flex flex-col items-center justify-center gap-1.5 py-3 rounded-lg border border-transparent bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 text-[10px] sm:text-xs font-medium transition-colors"
+                                className={`${compactAvatarActionClass} bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20`}
                             >
                                 <span className="text-lg">📷</span>
                                 Library
@@ -147,7 +153,7 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                             {/* AI Button - Always Visible */}
                             <button
                                 onClick={() => onAIImageEdit('hero.avatarUrl', portfolioData.hero.avatarUrl || '', 'avatar')}
-                                className="flex-1 flex flex-col items-center justify-center gap-1.5 py-3 rounded-lg border border-transparent bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 text-[10px] sm:text-xs font-medium transition-colors"
+                                className={`${compactAvatarActionClass} bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20`}
                             >
                                 <Brush size={16} />
                                 {portfolioData.hero.avatarUrl ? 'Edit AI' : 'Create AI'}
@@ -158,16 +164,14 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                                     {/* Remove Button */}
                                     <button
                                         onClick={() => onNestedUpdate('hero', 'avatarUrl', '')}
-                                        className="flex-1 flex flex-col items-center justify-center gap-1.5 py-3 rounded-lg border border-transparent bg-red-500/5 text-red-500 hover:bg-red-500/10 text-[10px] sm:text-xs font-medium transition-colors"
+                                        className={`${compactAvatarActionClass} bg-red-500/5 text-red-500 hover:bg-red-500/10`}
                                     >
                                         <Trash2 size={16} />
                                         Remove
                                     </button>
                                 </>
                             )}
-                        </div>
                     </div>
-                    <p className="text-[10px] text-gray-400 text-center sm:text-left">Recommended: Square JPG/PNG, max 2MB</p>
                 </div>
 
                 {/* Avatar Styling Controls */}
@@ -281,7 +285,7 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                         />
                     </div>
                     <div className={`rounded-lg border p-4 outline-none ${themeClasses.cardBg}`} id="hero.buttons" tabIndex={-1}>
-                        <div className="mb-3 flex items-start justify-between gap-3">
+                        <div className="mb-3 space-y-3">
                             <div>
                                 <label className="text-[10px] uppercase font-semibold text-gray-400 flex items-center gap-1.5">
                                     <MousePointer size={12} /> Hero Buttons
@@ -290,12 +294,12 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                                     Add or remove the buttons shown under your headline.
                                 </p>
                             </div>
-                            <div className="flex shrink-0 gap-2">
+                            <div className="grid grid-cols-2 gap-2">
                                 <button
                                     type="button"
                                     onClick={() => addHeroButton('contact')}
                                     disabled={hasContactButton}
-                                    className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 text-[11px] font-semibold transition-colors ${hasContactButton
+                                    className={`inline-flex min-w-0 items-center justify-center gap-1 rounded-md px-2 py-1.5 text-[11px] font-semibold transition-colors ${hasContactButton
                                             ? 'cursor-not-allowed bg-gray-100 text-gray-400 dark:bg-white/5'
                                             : 'bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200'
                                         }`}
@@ -305,7 +309,7 @@ const SidebarProfileEditor: React.FC<SidebarProfileEditorProps> = ({
                                 <button
                                     type="button"
                                     onClick={() => addHeroButton('link')}
-                                    className="inline-flex items-center gap-1 rounded-md bg-indigo-500/10 px-2.5 py-1.5 text-[11px] font-semibold text-indigo-500 transition-colors hover:bg-indigo-500/20"
+                                    className="inline-flex min-w-0 items-center justify-center gap-1 rounded-md bg-indigo-500/10 px-2 py-1.5 text-[11px] font-semibold text-indigo-500 transition-colors hover:bg-indigo-500/20"
                                 >
                                     <Plus size={12} /> Add Link
                                 </button>

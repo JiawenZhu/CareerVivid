@@ -612,6 +612,9 @@ const PortfolioEditor: React.FC = () => {
     const normalizeFieldId = (fieldId: string) => {
         if (!portfolioData) return fieldId;
 
+        const baseFieldId = fieldId.replace(/#chunk-\d+$/, '');
+        if (baseFieldId !== fieldId) return normalizeFieldId(baseFieldId);
+
         const [section, token, field] = fieldId.split('.');
         const normalizeCollectionId = (collection: 'projects' | 'timeline' | 'education' | 'techStack' | 'socialLinks') => {
             const items = (portfolioData as any)[collection] || [];
@@ -664,6 +667,12 @@ const PortfolioEditor: React.FC = () => {
         return section;
     };
 
+    const findSidebarElementById = (id: string) => {
+        const sidebarRoot = document.getElementById('portfolio-editor-sidebar');
+        if (!sidebarRoot) return null;
+        return sidebarRoot.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
+    };
+
     // Click-to-Edit Logic shared between Preview and Editor
     const handleFocusField = (fieldId: string) => {
         const normalizedFieldId = normalizeFieldId(fieldId);
@@ -678,8 +687,8 @@ const PortfolioEditor: React.FC = () => {
 
         // 3. Scroll and focus
         setTimeout(() => {
-            const element = document.getElementById(normalizedFieldId)
-                || document.getElementById(fallbackElementIdForSection(targetSection));
+            const element = findSidebarElementById(normalizedFieldId)
+                || findSidebarElementById(fallbackElementIdForSection(targetSection));
             if (element) {
                 element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 element.focus();
