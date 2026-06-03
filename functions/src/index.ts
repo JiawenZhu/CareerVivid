@@ -43,12 +43,14 @@ export { grantAcademicPartnerRole } from "./admin";
 // Export Agency Partner module callables + Firestore triggers
 export {
   addRecruiterNote,
+  updateRecruiterNote,
   deleteRecruiterNote,
   revokeAgencyShare,
   sendAgencyInvite,
   resetDemoBranch,
   onAgencyPrepSessionWritten,
   sendBulkAgencyReminder,
+  sendAgencyPrepReminders,
 } from "./agencyPartner";
 
 // Export Triggers
@@ -66,6 +68,7 @@ export { sendTestEmails } from "./sendTestEmails";
 export {
   sendLifecycleActivationEmails,
   onLifecycleUsageLogCreated,
+  onFirstJobSavedLifecycle,
   onResumeCreatedLifecycle,
   onEmailPreferencesUpdated,
   sendEmailPreferenceUpdateNotifications,

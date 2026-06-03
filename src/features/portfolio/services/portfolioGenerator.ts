@@ -1,5 +1,4 @@
 import { PortfolioData } from '../types/portfolio';
-import { normalizeEditablePortfolioTemplateId } from '../utils/editablePortfolioTemplates';
 import { GoogleGenAI } from "@google/genai";
 import { trackUsage } from '../../../services/trackingService';
 import { generateSafeUUID } from '../../../constants';
@@ -29,7 +28,7 @@ CRITICAL RULES:
 
 EXACT JSON SCHEMA - DO NOT DEVIATE:
 {
-  "templateId": "minimalist" | "corporate" | "dev_terminal" | "writer_editorial",
+  "templateId": "minimalist" | "visual" | "corporate",
   "title": string,
   "hero": {
     "headline": string,
@@ -80,9 +79,8 @@ EXACT JSON SCHEMA - DO NOT DEVIATE:
 
 EXAMPLES:
 - For "minimalist" template: primaryColor="#2563eb", darkMode=false
+- For "visual" template: primaryColor="#8b5cf6", darkMode=true  
 - For "corporate" template: primaryColor="#0f172a", darkMode=false
-- For "dev_terminal" template: primaryColor="#10b981", darkMode=true
-- For "writer_editorial" template: primaryColor="#d97706", darkMode=false
 `;
 
 export const generatePortfolioFromPrompt = async (prompt: string, userId: string): Promise<PortfolioData> => {
@@ -142,7 +140,6 @@ export const generatePortfolioFromPrompt = async (prompt: string, userId: string
             socialLinks: [],
             ...aiData
         };
-        portfolioData.templateId = normalizeEditablePortfolioTemplateId(portfolioData.templateId as string);
 
         // Check if this is a link-in-bio template and add default linkInBio data
         const isLinkInBio = aiData.templateId?.startsWith('linktree_');
@@ -180,7 +177,7 @@ function generateFallbackPortfolio(prompt: string, userId: string): PortfolioDat
 
     let templateId: PortfolioData['templateId'] = 'minimalist';
     if (lowerPrompt.includes('designer') || lowerPrompt.includes('creative')) {
-        templateId = 'writer_editorial';
+        templateId = 'visual';
     } else if (lowerPrompt.includes('manager') || lowerPrompt.includes('executive')) {
         templateId = 'corporate';
     }
@@ -243,3 +240,4 @@ function generateFallbackPortfolio(prompt: string, userId: string): PortfolioDat
 
     return baseData;
 }
+

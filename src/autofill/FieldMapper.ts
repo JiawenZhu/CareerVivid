@@ -1,5 +1,5 @@
 /**
- * CareerVivid Job Application Assistant — Field Mapper
+ * CareerVivid Auto-Apply — Field Mapper
  *
  * Maps form field labels (as discovered by ATS adapters) to user profile data.
  * Uses a normalized label matching strategy: labels are lowercased and

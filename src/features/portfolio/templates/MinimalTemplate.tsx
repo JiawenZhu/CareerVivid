@@ -52,12 +52,7 @@ const MinimalTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
                         title="Click to edit avatar"
                     />
                 )}
-                <p
-                    onClick={() => onEdit?.('hero.headline')}
-                    className="text-sm opacity-60 mb-4 cursor-pointer hover:opacity-100"
-                >
-                    Hello, I am
-                </p>
+                <p className="text-sm opacity-60 mb-4">Hello, I am</p>
                 <h1
                     {...(onEdit ? { onClick: () => onEdit('hero.headline') } : (hero.avatarUrl ? {} : longPressProps))}
                     className={`${responsiveClass('text-5xl', 'md:text-6xl')} font-bold tracking-tighter mb-4 cursor-pointer hover:underline decoration-2 underline-offset-4`}
@@ -99,7 +94,7 @@ const MinimalTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
 
                             {btn.type === 'action' && btn.action === 'theme_toggle' ? (
                                 <button
-                                    onClick={() => onEdit ? onEdit(`hero.buttons.${idx}.label`) : onUpdate?.({ theme: { ...theme, darkMode: !theme.darkMode } })}
+                                    onClick={() => onUpdate?.({ theme: { ...theme, darkMode: !theme.darkMode } })}
                                     style={btn.style}
                                     className={`
                                         px-4 py-2 font-bold transition-all duration-200 flex items-center gap-2
@@ -117,12 +112,6 @@ const MinimalTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
                                     href={btn.url}
                                     target="_blank"
                                     rel="noreferrer"
-                                    onClick={(event) => {
-                                        if (onEdit) {
-                                            event.preventDefault();
-                                            onEdit(`hero.buttons.${idx}.label`);
-                                        }
-                                    }}
                                     style={btn.style}
                                     className={`
                                         px-4 py-2 font-bold transition-all duration-200 block
@@ -154,18 +143,7 @@ const MinimalTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
                     )}
 
                     {attachedResumeId && (
-                        <a
-                            href={`#/resume/${attachedResumeId}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            onClick={(event) => {
-                                if (onEdit) {
-                                    event.preventDefault();
-                                    onEdit('resume.selector');
-                                }
-                            }}
-                            className="flex items-center gap-2 text-gray-500 hover:text-black transition-colors text-sm font-bold border-b-2 border-transparent hover:border-gray-300 pb-0.5"
-                        >
+                        <a href={`#/resume/${attachedResumeId}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-gray-500 hover:text-black transition-colors text-sm font-bold border-b-2 border-transparent hover:border-gray-300 pb-0.5">
                             <FileText size={16} /> Download CV
                         </a>
                     )}
@@ -269,14 +247,7 @@ const MinimalTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
                             </div>
                         </div>
                     ))}
-                    {(projects || []).length === 0 && (
-                        <p
-                            onClick={() => onEdit?.('projects.add')}
-                            className="text-gray-400 italic cursor-pointer hover:text-gray-600"
-                        >
-                            No projects added yet.
-                        </p>
-                    )}
+                    {projects.length === 0 && <p className="text-gray-400 italic">No projects added yet.</p>}
                 </div>
             </section>
 
@@ -326,24 +297,8 @@ const MinimalTemplate: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpd
             </section>
 
             <footer className="pt-20 border-t border-gray-100 text-sm text-gray-400 flex justify-between">
-                <span
-                    onClick={() => onEdit?.('hero.headline')}
-                    className={onEdit ? 'cursor-pointer hover:text-black' : undefined}
-                >
-                    © {new Date().getFullYear()} {hero.headline}
-                </span>
-                <a
-                    href={`mailto:${data.contactEmail}`}
-                    onClick={(event) => {
-                        if (onEdit) {
-                            event.preventDefault();
-                            onEdit('contactEmail');
-                        }
-                    }}
-                    className="hover:text-black"
-                >
-                    Get in touch
-                </a>
+                <span>© {new Date().getFullYear()} {hero.headline}</span>
+                <a href={`mailto:${data.contactEmail}`} className="hover:text-black">Get in touch</a>
             </footer>
             <AdminAccessModal />
         </div>

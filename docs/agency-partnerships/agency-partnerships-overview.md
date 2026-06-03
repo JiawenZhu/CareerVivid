@@ -285,25 +285,25 @@ Cloud Functions and Firestore rules were not redeployed for the latest share/rea
 ### Product
 
 - Invite seat usage and branch limits are not enforced yet.
-- No candidate invite email flow yet.
+- Candidate invite email flow is implemented in the agency backend module and queues invite mail through the shared email pipeline.
 - No agency-facing CSV export yet.
 - No webhook or ATS sync yet.
 - No agency billing or signed-contract workflow yet.
 - No branch-level co-branding editor for logo/color beyond stored fields.
-- No recruiter notes or internal candidate tags.
+- Recruiter notes are implemented in the agency backend module. Internal candidate tags still need product/UI confirmation before paid rollout.
 - No candidate reactivation or archived-candidate workflow.
 
 ### Privacy And Governance
 
 - Need clearer audit history for candidate consent changes.
-- Need a revoke-sharing flow from agency prep context.
+- Revoke-sharing backend support exists for agency prep sessions. The candidate-facing UI still needs QA before paid rollout.
 - Need agency terms/privacy language for pilot participants.
 - Need a stricter full-resume access model if agencies should not see public resume links outside the consent window.
 
 ### Metrics
 
 - Need explicit time-saved estimate per prepared candidate.
-- Need conversion metrics from invited to started, started to ready, ready to shared, shared to placed.
+- Need branch-level conversion reporting from invited to started, started to ready, ready to shared, shared to placed.
 - Need branch-level pilot ROI summary.
 
 ### Sales Operations

@@ -545,7 +545,7 @@ const JobMarketPage: React.FC = () => {
 
             // Construct redirect URL to external Interview Microservice
             const baseUrl = 'https://careervivid-371634100960.us-west1.run.app';
-            const targetUrl = `${baseUrl}/interview-studio/${newJobId}?token=${token}`;
+            const targetUrl = `${baseUrl}/#/interview-studio/${newJobId}?token=${token}`;
 
             // Open in new tab
             window.open(targetUrl, '_blank');

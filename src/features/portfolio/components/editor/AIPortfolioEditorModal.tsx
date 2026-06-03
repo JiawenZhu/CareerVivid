@@ -6,9 +6,6 @@ import { functions } from '@/firebase';
 import { PortfolioData } from '../../types/portfolio';
 import PortfolioPreview from './PortfolioPreview';
 import { ResumeData } from '@/types';
-import AIPortfolioGenerateTab from './AIPortfolioGenerateTab';
-import AIPortfolioModalHeader from './AIPortfolioModalHeader';
-import { QUICK_PROMPTS, QUICK_STYLE_PROMPTS, SECTION_LABELS } from './AIPortfolioEditorModal.constants';
 
 interface AIPortfolioEditorModalProps {
     isOpen: boolean;
@@ -21,6 +18,38 @@ interface AIPortfolioEditorModalProps {
 
 type Step = 'INPUT' | 'PREVIEW';
 type ActiveTab = 'edit' | 'generate' | 'style';
+
+const QUICK_PROMPTS = [
+    { label: 'Rewrite About', icon: '✍️', prompt: 'Rewrite my About section to sound more confident, senior, and impactful. Keep it under 80 words.' },
+    { label: 'Punch up Hero', icon: '⚡', prompt: 'Make my hero headline and subheadline more punchy, memorable, and keyword-rich for recruiters.' },
+    { label: 'Add a Project', icon: '🚀', prompt: 'Add a placeholder project called "New Project" with a description, URL, and tech stack I can fill in.' },
+    { label: 'Add a Skill', icon: '🛠️', prompt: 'Add React, TypeScript, and Node.js to my tech stack if they are not already there.' },
+    { label: 'Clean Timeline', icon: '🗓️', prompt: 'Tighten the descriptions in my work experience — make each bullet point shorter, stronger, and result-focused.' },
+    { label: 'Remove Oldest Job', icon: '🗑️', prompt: 'Remove the oldest entry from my work experience timeline.' },
+];
+
+const QUICK_STYLE_PROMPTS = [
+    { icon: '🎨', label: 'Gradient Headings', prompt: 'Make all section headings a purple-to-indigo gradient text' },
+    { icon: '✨', label: 'Fade-in Sections', prompt: 'Add a subtle fade-in animation to each section as it enters the viewport' },
+    { icon: '📐', label: 'Left Accent Border', prompt: 'Add a thin colored left border accent to each section heading' },
+    { icon: '🔵', label: 'Rounded Buttons', prompt: 'Make all buttons and CTA elements fully rounded pill shapes' },
+    { icon: '🌗', label: 'Card Shadows', prompt: 'Add soft drop shadows to all card and project elements' },
+    { icon: '🔤', label: 'Tighter Typography', prompt: 'Reduce letter-spacing on headings to -0.5px for a premium editorial look' },
+    { icon: '💫', label: 'Hover Effects', prompt: 'Add smooth hover scale effects to all project cards and links' },
+    { icon: '🗑️', label: 'Reset Styles', prompt: 'Remove all custom CSS and return to the default template styling' },
+];
+
+const SECTION_LABELS: Record<string, string> = {
+    hero: '🎯 Hero',
+    about: '👤 About',
+    timeline: '🗓️ Experience',
+    education: '🎓 Education',
+    techStack: '🛠️ Tech Stack',
+    projects: '🚀 Projects',
+    socialLinks: '🔗 Social Links',
+    contactEmail: '📧 Contact',
+    sectionLabels: '🏷️ Labels',
+};
 
 const AIPortfolioEditorModal: React.FC<AIPortfolioEditorModalProps> = ({
     isOpen,
@@ -191,13 +220,47 @@ const AIPortfolioEditorModal: React.FC<AIPortfolioEditorModalProps> = ({
                 h-[90vh] overflow-hidden transition-all duration-300
                 ${isDark ? 'bg-[#0f1117] text-gray-200 border border-white/10' : 'bg-white text-gray-900'}
             `}>
-                <AIPortfolioModalHeader
-                    activeTab={activeTab}
-                    step={step}
-                    isDark={isDark}
-                    onClose={onClose}
-                    onTabChange={(tab) => { setActiveTab(tab); setErrorMessage(''); }}
-                />
+                {/* ── Header ── */}
+                <header className={`flex-shrink-0 flex items-center justify-between px-6 py-4 border-b ${isDark ? 'border-white/10 bg-[#0f1117]' : 'border-gray-100 bg-white'}`}>
+                    <div className="flex items-center gap-3 flex-wrap">
+                        <div className="bg-indigo-100 dark:bg-indigo-900/40 p-2 rounded-xl">
+                            <Sparkles className="text-indigo-600 dark:text-indigo-400 fill-indigo-600/20" size={22} />
+                        </div>
+                        <div>
+                            <h2 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>AI Portfolio Editor</h2>
+                            <p className={`text-xs flex items-center gap-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                                Powered by Gemini 2.5 Flash <Zap size={10} className="text-yellow-400 fill-yellow-400" />
+                            </p>
+                        </div>
+
+                        {/* Tab Switcher — INPUT step only */}
+                        {step === 'INPUT' && (
+                            <div className={`ml-4 flex rounded-xl p-1 ${isDark ? 'bg-white/5' : 'bg-gray-100'}`}>
+                                {([
+                                    { id: 'edit', label: '✏️ Edit', title: 'Edit Portfolio' },
+                                    { id: 'generate', label: '📄 From Resume', title: 'Generate from Resume' },
+                                    { id: 'style', label: '🎨 AI Style', title: 'CSS & Animation' },
+                                ] as { id: ActiveTab; label: string; title: string }[]).map((tab) => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => { setActiveTab(tab.id); setErrorMessage(''); }}
+                                        title={tab.title}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+                                            activeTab === tab.id
+                                                ? isDark ? 'bg-indigo-600 text-white' : 'bg-white text-indigo-600 shadow-sm'
+                                                : isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+                                        }`}
+                                    >
+                                        {tab.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    <button onClick={onClose} className={`p-2 rounded-full transition-colors ${isDark ? 'hover:bg-white/10 text-gray-400' : 'hover:bg-gray-100 text-gray-500'}`}>
+                        <X size={20} />
+                    </button>
+                </header>
 
                 {/* ── Body ── */}
                 <div className="flex-1 overflow-hidden flex relative">
@@ -248,17 +311,79 @@ const AIPortfolioEditorModal: React.FC<AIPortfolioEditorModalProps> = ({
 
                             {/* ════════ TAB: GENERATE FROM RESUME ════════ */}
                             {activeTab === 'generate' && (
-                                <AIPortfolioGenerateTab
-                                    resumes={resumes}
-                                    selectedResumeId={selectedResumeId}
-                                    isDark={isDark}
-                                    isProcessing={isProcessing}
-                                    processMessage={processMessage}
-                                    errorMessage={errorMessage}
-                                    sectionLabels={Object.values(SECTION_LABELS)}
-                                    onSelectResume={setSelectedResumeId}
-                                    onGenerate={handleGenerateFromResume}
-                                />
+                                <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 h-full">
+                                    <div className="text-center">
+                                        <h3 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-800'}`}>Generate Portfolio from Resume</h3>
+                                        <p className={`text-sm mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                            Pick a resume — Gemini 2.5 Flash will populate your entire portfolio automatically.
+                                        </p>
+                                    </div>
+                                    {resumes.length === 0 ? (
+                                        <div className={`flex flex-col items-center justify-center gap-3 py-12 rounded-2xl border-2 border-dashed ${isDark ? 'border-white/10 text-gray-500' : 'border-gray-200 text-gray-400'}`}>
+                                            <FileText size={40} className="opacity-30" />
+                                            <p className="text-sm font-medium">No resumes found</p>
+                                            <p className="text-xs">Create a resume first, then come back here.</p>
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <label className={`block text-xs font-semibold uppercase tracking-wider mb-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>Select Resume</label>
+                                            <div className="relative">
+                                                <select value={selectedResumeId} onChange={(e) => setSelectedResumeId(e.target.value)}
+                                                    className={`w-full px-4 py-3 pr-10 text-sm rounded-xl border-2 appearance-none cursor-pointer focus:outline-none focus:border-indigo-500 transition-all ${isDark ? 'bg-white/5 border-white/10 text-gray-200' : 'bg-gray-50 border-gray-200 text-gray-800'}`}>
+                                                    <option value="">— Choose a resume —</option>
+                                                    {resumes.map((r) => (
+                                                        <option key={r.id} value={r.id}>
+                                                            {r.title || 'Untitled Resume'}{r.personalDetails?.firstName ? ` (${r.personalDetails.firstName} ${r.personalDetails.lastName || ''})`.trim() : ''}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <ChevronDown size={16} className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
+                                            </div>
+                                        </div>
+                                    )}
+                                    {selectedResumeId && (() => {
+                                        const r = resumes.find((x) => x.id === selectedResumeId);
+                                        if (!r) return null;
+                                        return (
+                                            <div className={`rounded-xl border p-4 ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-gray-100 shadow-sm'}`}>
+                                                <div className="flex items-center gap-3 mb-3">
+                                                    <div className="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-lg">
+                                                        {(r.personalDetails?.firstName || r.title || 'R')[0].toUpperCase()}
+                                                    </div>
+                                                    <div>
+                                                        <p className={`font-semibold text-sm ${isDark ? 'text-white' : 'text-gray-900'}`}>{r.title || 'Untitled Resume'}</p>
+                                                        <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{r.personalDetails?.jobTitle || 'Resume'}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {r.employmentHistory?.slice(0, 3).map((e) => (
+                                                        <span key={e.id} className={`text-xs px-2 py-1 rounded-full ${isDark ? 'bg-white/10 text-gray-300' : 'bg-gray-100 text-gray-600'}`}>
+                                                            {e.jobTitle} @ {e.employer}
+                                                        </span>
+                                                    ))}
+                                                    {r.skills && <span className={`text-xs px-2 py-1 rounded-full ${isDark ? 'bg-indigo-900/30 text-indigo-400' : 'bg-indigo-50 text-indigo-600'}`}>{r.skills.length} skills</span>}
+                                                </div>
+                                            </div>
+                                        );
+                                    })()}
+                                    <div className={`rounded-xl p-4 border ${isDark ? 'bg-white/5 border-white/10' : 'bg-emerald-50 border-emerald-100'}`}>
+                                        <p className={`text-xs font-semibold uppercase tracking-wider mb-2 ${isDark ? 'text-gray-400' : 'text-emerald-700'}`}>✨ What gets populated</p>
+                                        <div className="grid grid-cols-2 gap-1.5">
+                                            {Object.values(SECTION_LABELS).map((label) => (
+                                                <span key={label} className={`text-xs ${isDark ? 'text-gray-400' : 'text-emerald-700'}`}>{label}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    {errorMessage && <div className="text-red-500 text-sm text-center bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">{errorMessage}</div>}
+                                    <div className={`flex items-start gap-2 text-xs rounded-xl px-4 py-3 ${isDark ? 'bg-white/5 text-gray-400' : 'bg-indigo-50 text-indigo-600'}`}>
+                                        <Lightbulb size={14} className="mt-0.5 shrink-0" />
+                                        <span>Your existing portfolio theme and template are preserved. Only content sections are regenerated from the resume.</span>
+                                    </div>
+                                    <button onClick={handleGenerateFromResume} disabled={!selectedResumeId || isProcessing}
+                                        className={`w-full h-12 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all shadow-lg ${(!selectedResumeId || isProcessing) ? 'bg-indigo-300 cursor-not-allowed text-white' : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/30 hover:-translate-y-0.5'}`}>
+                                        {isProcessing ? <><Loader2 size={18} className="animate-spin" /> {processMessage}</> : <><Sparkles size={18} /> Generate Portfolio <ChevronRight size={16} /></>}
+                                    </button>
+                                </div>
                             )}
 
                             {/* ════════ TAB: AI STYLE / CSS ════════ */}

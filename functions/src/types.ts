@@ -58,8 +58,6 @@ export interface ShareConfig {
   enabled: boolean;
   permission: SharePermission;
   shareId?: string;
-  readyForRecruiters?: boolean;
-  readyAt?: string | null;
 }
 
 export interface ResumeData {

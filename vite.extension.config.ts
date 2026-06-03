@@ -1,16 +1,16 @@
 import path from 'path';
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
 // Vite config specifically for Chrome Extension build
-export default defineConfig(() => {
+export default defineConfig(({ mode }) => {
+    const env = loadEnv(mode, '.', '');
+
     return {
         plugins: [react()],
-        publicDir: false,
         define: {
-            'import.meta.env.VITE_EXTENSION_BUILD': JSON.stringify('true'),
-            'process.env.API_KEY': JSON.stringify(''),
-            'process.env.GEMINI_API_KEY': JSON.stringify('')
+            'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+            'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
         },
         resolve: {
             alias: {

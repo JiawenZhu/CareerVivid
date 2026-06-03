@@ -1,7 +1,8 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import * as fabric from 'fabric';
+import Draggable from 'react-draggable';
+import { Pen, Square, Circle, Type, Undo, Trash, Save, Loader2, Eraser, Redo, GripVertical, Minus, ArrowRight } from 'lucide-react';
 import { uploadAnnotation, AnnotationObject } from '../services/annotationService';
-import AdvancedAnnotationToolbar from './AdvancedAnnotationToolbar';
 
 interface AdvancedAnnotationCanvasProps {
     resumeId: string;
@@ -15,8 +16,8 @@ interface AdvancedAnnotationCanvasProps {
     isReadOnly?: boolean;
 }
 
-export type Tool = 'pen' | 'rectangle' | 'circle' | 'line' | 'arrow' | 'text' | 'eraser' | 'select';
-export type LineStyle = 'solid' | 'dashed' | 'dotted';
+type Tool = 'pen' | 'rectangle' | 'circle' | 'line' | 'arrow' | 'text' | 'eraser' | 'select';
+type LineStyle = 'solid' | 'dashed' | 'dotted';
 
 const AdvancedAnnotationCanvas: React.FC<AdvancedAnnotationCanvasProps> = ({
     resumeId, ownerId, currentUser, width, height, onSave, initialObjects, initialImage, isReadOnly = false
@@ -465,21 +466,92 @@ const AdvancedAnnotationCanvas: React.FC<AdvancedAnnotationCanvasProps> = ({
 
     return (
         <div className="absolute inset-0 z-20 pointer-events-auto overflow-hidden">
-            <AdvancedAnnotationToolbar
-                activeTool={activeTool}
-                strokeColor={strokeColor}
-                lineStyle={lineStyle}
-                historyLength={history.length}
-                redoLength={redoStack.length}
-                isSaving={isSaving}
-                onToolChange={setActiveTool}
-                onStrokeColorChange={setStrokeColor}
-                onLineStyleChange={setLineStyle}
-                onUndo={handleUndo}
-                onRedo={handleRedo}
-                onClear={handleClear}
-                onSave={handleSave}
-            />
+            {/* @ts-ignore */}
+            <Draggable handle=".drag-handle" bounds="parent" defaultPosition={{ x: 0, y: 0 }}>
+                <div className="absolute top-4 left-4 z-30 bg-white dark:bg-gray-800 rounded-lg shadow-xl border dark:border-gray-700 p-2 flex items-center gap-2 cursor-auto">
+                    {/* Drag Handle */}
+                    <div className="drag-handle cursor-move text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 px-1">
+                        <GripVertical size={20} />
+                    </div>
+
+                    <div className="border-l dark:border-gray-600 h-8 mx-1" />
+
+                    <button onClick={() => setActiveTool('pen')}
+                        className={`p-2 rounded-md ${activeTool === 'pen' ? 'bg-red-100 text-red-600' : 'text-gray-600 hover:bg-gray-100'}`}
+                        title="Pen">
+                        <Pen size={18} />
+                    </button>
+                    <button onClick={() => setActiveTool('rectangle')}
+                        className={`p-2 rounded-md ${activeTool === 'rectangle' ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-100'}`}
+                        title="Rectangle">
+                        <Square size={18} />
+                    </button>
+                    <button onClick={() => setActiveTool('circle')}
+                        className={`p-2 rounded-md ${activeTool === 'circle' ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-100'}`}
+                        title="Circle">
+                        <Circle size={18} />
+                    </button>
+                    <button onClick={() => setActiveTool('line')}
+                        className={`p-2 rounded-md ${activeTool === 'line' ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-100'}`}
+                        title="Line">
+                        <Minus size={18} />
+                    </button>
+                    <button onClick={() => setActiveTool('arrow')}
+                        className={`p-2 rounded-md ${activeTool === 'arrow' ? 'bg-purple-100 text-purple-600' : 'text-gray-600 hover:bg-gray-100'}`}
+                        title="Arrow">
+                        <ArrowRight size={18} />
+                    </button>
+                    <button onClick={() => setActiveTool('text')}
+                        className={`p-2 rounded-md ${activeTool === 'text' ? 'bg-green-100 text-green-600' : 'text-gray-600 hover:bg-gray-100'}`}
+                        title="Text">
+                        <Type size={18} />
+                    </button>
+                    <button onClick={() => setActiveTool('eraser')}
+                        className={`p-2 rounded-md ${activeTool === 'eraser' ? 'bg-gray-200 text-gray-800' : 'text-gray-600 hover:bg-gray-100'}`}
+                        title="Eraser (Click to delete)">
+                        <Eraser size={18} />
+                    </button>
+
+                    <div className="border-l dark:border-gray-600 h-8 mx-1" />
+
+                    <input type="color" value={strokeColor} onChange={(e) => setStrokeColor(e.target.value)}
+                        className="w-8 h-8 rounded cursor-pointer" />
+
+                    <select
+                        value={lineStyle}
+                        onChange={(e) => setLineStyle(e.target.value as LineStyle)}
+                        className="h-8 rounded border-gray-300 text-xs"
+                        title="Line Style"
+                    >
+                        <option value="solid">Solid</option>
+                        <option value="dashed">Dashed</option>
+                        <option value="dotted">Dotted</option>
+                    </select>
+
+                    <div className="border-l dark:border-gray-600 h-8 mx-1" />
+
+                    <button onClick={handleUndo} disabled={history.length === 0}
+                        className="p-2 rounded-md text-gray-600 hover:bg-gray-100 disabled:opacity-30"
+                        title="Undo (Cmd+Z)">
+                        <Undo size={18} />
+                    </button>
+                    <button onClick={handleRedo} disabled={redoStack.length === 0}
+                        className="p-2 rounded-md text-gray-600 hover:bg-gray-100 disabled:opacity-30"
+                        title="Redo (Cmd+Shift+Z)">
+                        <Redo size={18} />
+                    </button>
+                    <button onClick={handleClear} className="p-2 rounded-md text-gray-600 hover:bg-gray-100"
+                        title="Clear All">
+                        <Trash size={18} />
+                    </button>
+                    <button onClick={handleSave} disabled={isSaving}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                        title="Save (Cmd+S)">
+                        {isSaving ? <><Loader2 size={18} className="animate-spin" /><span>Saving...</span></>
+                            : <><Save size={18} /><span>Save</span></>}
+                    </button>
+                </div>
+            </Draggable>
             <canvas ref={canvasRef} className="absolute inset-0" />
         </div>
     );

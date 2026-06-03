@@ -1,35 +1,124 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { CaptureUpdateAction, Excalidraw, restoreElements } from '@excalidraw/excalidraw';
+import { Excalidraw, exportToSvg } from '@excalidraw/excalidraw';
 import '@excalidraw/excalidraw/index.css';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Loader2 } from 'lucide-react';
+import { ChevronLeft, Save, Loader2, Sparkles, Eye, ExternalLink } from 'lucide-react';
 import { navigate } from '../utils/navigation';
 import { useWhiteboards } from '../hooks/useWhiteboards';
-import { WhiteboardData } from '../types';
+import { WhiteboardData, ExcalidrawFileData } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { generateExcalidrawDiagram } from '../services/geminiService';
 import GenerateDiagramModal from '../components/Whiteboard/GenerateDiagramModal';
 import BoardOnboarding from '../components/Whiteboard/BoardOnboarding';
-import WhiteboardTopBar from './whiteboard/WhiteboardTopBar';
-import WhiteboardGenerationControls from './whiteboard/WhiteboardGenerationControls';
-import {
-    SAVE_DELAY_MS,
-    buildComponentRevealStages,
-    buildExcalidrawPayload,
-    fromFirestoreJson,
-    generateThumbnailSvg,
-    loadUserPrefs,
-    saveUserPrefs,
-    serializeElements,
-    sleep,
-    toFirestoreJson,
-} from './whiteboard/whiteboardEditorUtils';
+
+const SAVE_DELAY_MS = 2000;
+const PREFS_STORAGE_KEY = 'excalidraw-user-prefs';
+
+const PERSISTED_PREF_KEYS = [
+    'currentItemStrokeColor',
+    'currentItemBackgroundColor',
+    'currentItemFillStyle',
+    'currentItemStrokeWidth',
+    'currentItemStrokeStyle',
+    'currentItemRoughness',
+    'currentItemOpacity',
+    'currentItemFontFamily',
+    'currentItemFontSize',
+    'currentItemTextAlign',
+    'currentItemRoundness',
+    'currentItemStartArrowhead',
+    'currentItemEndArrowhead',
+] as const;
 
 interface WhiteboardEditorProps {
     id?: string;
     isReadOnly?: boolean; // <-- New prop for view-only mode
 }
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+const serializeElements = (elements: readonly any[]): any[] => {
+    try {
+        // Filter deleted AND serialize (strips readonly/class instances)
+        return JSON.parse(JSON.stringify(elements.filter((el: any) => !el.isDeleted)));
+    } catch {
+        return [];
+    }
+};
+
+const buildExcalidrawPayload = (
+    elements: readonly any[],
+    appState: Record<string, any>
+): ExcalidrawFileData => ({
+    type: 'excalidraw',
+    version: 2,
+    source: window.location.origin,
+    elements: serializeElements(elements),
+    appState: {
+        gridSize: appState.gridSize ?? 20,
+        gridStep: appState.gridStep ?? 5,
+        gridModeEnabled: appState.gridModeEnabled ?? false,
+        viewBackgroundColor: appState.viewBackgroundColor ?? '#ffffff',
+    },
+    files: {},
+});
+
+/**
+ * Firestore does NOT support nested arrays (e.g. arrow `points: [[0,0],[x,y]]`).
+ * We serialize the entire excalidrawData payload to a JSON string and store it
+ * as `excalidrawJson` — a plain string field — to bypass this constraint.
+ */
+const toFirestoreJson = (payload: ExcalidrawFileData): string => {
+    return JSON.stringify(payload);
+};
+
+const fromFirestoreJson = (json: string | undefined): ExcalidrawFileData | null => {
+    if (!json) return null;
+    try {
+        return JSON.parse(json) as ExcalidrawFileData;
+    } catch {
+        return null;
+    }
+};
+
+const generateThumbnailSvg = async (elements: readonly any[], appState: any): Promise<string> => {
+    try {
+        const filtered = elements.filter((el: any) => !el.isDeleted);
+        if (filtered.length === 0) return '';
+        const svg = await exportToSvg({
+            elements: filtered as any,
+            appState: { ...appState, exportWithDarkMode: false, exportBackground: true },
+        });
+        const str = new XMLSerializer()
+            .serializeToString(svg)
+            .replace(/<!--[\s\S]*?-->/g, '')
+            .replace(/\s{2,}/g, ' ')
+            .trim();
+        return str.length > 500_000 ? '' : str;
+    } catch {
+        return '';
+    }
+};
+
+const loadUserPrefs = (): Record<string, any> => {
+    try {
+        const raw = localStorage.getItem(PREFS_STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+    } catch {
+        return {};
+    }
+};
+
+const saveUserPrefs = (appState: Record<string, any>) => {
+    try {
+        const prefs: Record<string, any> = {};
+        for (const key of PERSISTED_PREF_KEYS) {
+            if (appState[key] !== undefined) prefs[key] = appState[key];
+        }
+        localStorage.setItem(PREFS_STORAGE_KEY, JSON.stringify(prefs));
+    } catch { /* noop */ }
+};
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -43,7 +132,6 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id, isReadOnly = fa
     const [title, setTitle] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [isDiagramModalOpen, setIsDiagramModalOpen] = useState(false);
-    const [generationStage, setGenerationStage] = useState<{ current: number; total: number; label: string } | null>(null);
 
     // Ownership-derived read-only state
     const [derivedReadOnly, setDerivedReadOnly] = useState(isReadOnly);
@@ -142,70 +230,27 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id, isReadOnly = fa
         if (!currentUser) throw new Error("Must be logged in to generate diagrams.");
         if (derivedReadOnly) throw new Error("Cannot generate diagrams in read-only mode.");
         try {
-            setGenerationStage({ current: 0, total: 3, label: 'Planning diagram structure' });
             const diagramData = await generateExcalidrawDiagram(currentUser.uid, prompt);
             const newElements = diagramData.elements || [];
 
             if (excalidrawAPIRef.current && newElements.length > 0) {
                 const currentElements = excalidrawAPIRef.current.getSceneElements();
-                const restoredElements = restoreElements(
-                    serializeElements(newElements),
-                    currentElements,
-                    { refreshDimensions: true, repairBindings: true }
-                );
-                const stages = buildComponentRevealStages(restoredElements);
-                const revealedElements: any[] = [];
+                const newCombined = [...currentElements, ...newElements];
 
-                for (let index = 0; index < stages.length; index += 1) {
-                    revealedElements.push(...stages[index]);
-                    const stagedScene = [...currentElements, ...revealedElements];
+                excalidrawAPIRef.current.updateScene({ elements: newCombined });
 
-                    setGenerationStage({
-                        current: index + 1,
-                        total: stages.length,
-                        label: index < stages.length - 1 ? 'Adding one component at a time' : 'Finishing connections',
-                    });
-                    latestElementsRef.current = stagedScene;
-                    excalidrawAPIRef.current.updateScene({
-                        elements: stagedScene,
-                        captureUpdate: CaptureUpdateAction.NEVER,
-                    });
-
-                    if (index === 0) {
-                        setTimeout(() => {
-                            excalidrawAPIRef.current?.scrollToContent(stages[index], { fitToViewport: true });
-                        }, 80);
-                    }
-
-                    await sleep(index < 2 ? 520 : 380);
-                }
-
-                const newCombined = [...currentElements, ...restoredElements];
-                latestElementsRef.current = newCombined;
-                excalidrawAPIRef.current.updateScene({
-                    elements: newCombined,
-                    captureUpdate: CaptureUpdateAction.IMMEDIATELY,
-                });
-                requestAnimationFrame(() => {
-                    excalidrawAPIRef.current?.scrollToContent(restoredElements, { fitToViewport: true });
-                });
+                // Small delay to ensure render finishes before zooming to content
+                setTimeout(() => {
+                    excalidrawAPIRef.current?.scrollToContent(newElements, { fitToViewport: true });
+                }, 100);
 
                 // Explicitly save so the diagram persists to Firestore immediately.
                 const appState = excalidrawAPIRef.current.getAppState?.() ?? latestAppStateRef.current;
                 await performSave(newCombined, appState);
-                const excalidrawPayload = buildExcalidrawPayload(newCombined, appState);
-                setWhiteboard(prev => prev ? {
-                    ...prev,
-                    excalidrawData: excalidrawPayload,
-                    excalidrawJson: toFirestoreJson(excalidrawPayload),
-                    updatedAt: Date.now(),
-                } as any : prev);
             }
         } catch (err) {
             console.error("AI Diagram Generation error:", err);
             throw err;
-        } finally {
-            setGenerationStage(null);
         }
     };
 
@@ -335,13 +380,88 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id, isReadOnly = fa
     // ─── Editor ──────────────────────────────────────────────────────────────
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100%' }}>
-            <WhiteboardTopBar
-                title={title}
-                isSaving={isSaving}
-                derivedReadOnly={derivedReadOnly}
-                onTitleChange={setTitle}
-                onTitleBlur={handleTitleBlur}
-            />
+            {/* Top Bar */}
+            <header style={{
+                height: '56px', minHeight: '56px', display: 'flex', alignItems: 'center',
+                justifyContent: 'space-between', padding: '0 16px',
+                borderBottom: '1px solid #e5e7eb', backgroundColor: '#fff', zIndex: 50,
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <button
+                        onClick={() => navigate(derivedReadOnly ? '/community' : '/dashboard')}
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: '4px', padding: '8px',
+                            borderRadius: '8px', border: 'none', backgroundColor: 'transparent',
+                            cursor: 'pointer', color: '#6b7280', fontSize: '14px', fontWeight: 500,
+                        }}
+                    >
+                        <ChevronLeft size={20} />
+                        <span>{derivedReadOnly ? 'Back' : 'Dashboard'}</span>
+                    </button>
+                    <div style={{ width: '1px', height: '24px', backgroundColor: '#e5e7eb' }} />
+
+                    {derivedReadOnly ? (
+                        /* Read-only: static title, no editing */
+                        <span style={{ fontWeight: 700, fontSize: '18px', color: '#111827' }}>
+                            {title || 'Untitled Whiteboard'}
+                        </span>
+                    ) : (
+                        /* Owner: editable title */
+                        <input
+                            type="text"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            onBlur={handleTitleBlur}
+                            onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+                            style={{
+                                fontWeight: 700, fontSize: '18px', backgroundColor: 'transparent',
+                                border: 'none', outline: 'none', color: '#111827', width: '300px',
+                            }}
+                            placeholder="Untitled Whiteboard"
+                        />
+                    )}
+
+                    {/* View Only Badge */}
+                    {derivedReadOnly && (
+                        <span style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '4px',
+                            padding: '4px 10px', borderRadius: '9999px',
+                            backgroundColor: '#f3f4f6', color: '#6b7280',
+                            fontSize: '12px', fontWeight: 600,
+                        }}>
+                            <Eye size={14} />
+                            View Only
+                        </span>
+                    )}
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    {derivedReadOnly ? (
+                        /* CTA for viewers */
+                        <a
+                            href="/whiteboard"
+                            onClick={(e) => { e.preventDefault(); navigate('/whiteboard'); }}
+                            style={{
+                                display: 'flex', alignItems: 'center', gap: '6px',
+                                padding: '6px 14px', borderRadius: '8px',
+                                backgroundColor: '#4f46e5', color: '#ffffff',
+                                fontSize: '13px', fontWeight: 600, textDecoration: 'none',
+                            }}
+                        >
+                            Create your own on CareerVivid
+                            <ExternalLink size={14} />
+                        </a>
+                    ) : (
+                        /* Save status for owners */
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#9ca3af', fontSize: '13px' }}>
+                            {isSaving
+                                ? <><Loader2 size={14} className="animate-spin" /> Saving...</>
+                                : <><Save size={14} /> Saved</>
+                            }
+                        </span>
+                    )}
+                </div>
+            </header>
 
             {/* Excalidraw Canvas */}
             <div className="flex-1 relative excalidraw-container-wrapper">
@@ -352,11 +472,16 @@ const WhiteboardEditor: React.FC<WhiteboardEditorProps> = ({ id, isReadOnly = fa
                     viewModeEnabled={derivedReadOnly}
                 />
 
-                <WhiteboardGenerationControls
-                    derivedReadOnly={derivedReadOnly}
-                    generationStage={generationStage}
-                    onOpenModal={() => setIsDiagramModalOpen(true)}
-                />
+                {/* AI Generate Button — ONLY for owners */}
+                {!derivedReadOnly && (
+                    <button
+                        onClick={() => setIsDiagramModalOpen(true)}
+                        className="absolute top-3 right-[100px] sm:right-28 z-[9999] flex items-center justify-center bg-gradient-to-r from-primary-500 to-indigo-500 hover:from-primary-600 hover:to-indigo-600 text-white w-10 h-10 rounded-full md:w-auto md:h-auto md:px-4 md:py-2 md:rounded-xl font-medium shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5 active:scale-95 text-sm pointer-events-auto"
+                    >
+                        <Sparkles size={16} />
+                        <span className="hidden md:inline ml-2">AI Generate</span>
+                    </button>
+                )}
             </div>
 
             {!derivedReadOnly && (

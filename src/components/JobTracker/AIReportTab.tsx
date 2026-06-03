@@ -14,7 +14,6 @@ import {
   generateDeepResearch,
 } from "../../services/careerOpsService";
 import type { JobApplicationData, AIJobEvaluation } from "../../types";
-import AIReportActionCard from "./AIReportActionCard";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Sub-components
@@ -461,34 +460,170 @@ export default function AIReportTab({ job }: AIReportTabProps) {
         </div>
       )}
 
-      <AIReportActionCard
-        title="💼 LinkedIn Outreach"
-        subtitle="≤300 char personalised connection request"
-        buttonId="ai-linkedin-outreach-btn"
-        buttonColor="#0077b5"
-        loading={linkedInLoading}
-        content={linkedInMsg}
-        emptyLabel="Generate — 1 credit"
-        copyLabel="Copy"
-        onGenerate={handleLinkedIn}
-        onCopy={() => navigator.clipboard.writeText(linkedInMsg)}
-      />
-
-      <AIReportActionCard
-        title="🔍 Deep Research"
-        subtitle={`Perplexity.ai research prompt for ${job.companyName}`}
-        buttonId="ai-deep-research-btn"
-        buttonColor="#7c3aed"
-        loading={researchLoading}
-        content={researchPrompt}
-        emptyLabel="Generate — 1 credit"
-        copyLabel="Copy & Open Perplexity"
-        onGenerate={handleResearch}
-        onCopy={() => {
-          navigator.clipboard.writeText(researchPrompt);
-          window.open("https://www.perplexity.ai/", "_blank");
+      {/* LinkedIn Outreach */}
+      <div
+        style={{
+          background: "#0f172a",
+          border: "1px solid #1e293b",
+          borderRadius: "10px",
+          padding: "16px",
+          marginBottom: "12px",
         }}
-      />
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: linkedInMsg ? "10px" : 0,
+          }}
+        >
+          <div>
+            <div style={{ color: "#e2e8f0", fontWeight: 600, fontSize: "14px" }}>
+              💼 LinkedIn Outreach
+            </div>
+            <div style={{ color: "#64748b", fontSize: "12px" }}>
+              ≤300 char personalised connection request
+            </div>
+          </div>
+          <button
+            id="ai-linkedin-outreach-btn"
+            onClick={handleLinkedIn}
+            disabled={linkedInLoading}
+            style={{
+              background: linkedInLoading ? "#334155" : "#0077b5",
+              color: "#fff",
+              border: "none",
+              borderRadius: "6px",
+              padding: "7px 14px",
+              fontSize: "12px",
+              fontWeight: 600,
+              cursor: linkedInLoading ? "not-allowed" : "pointer",
+              flexShrink: 0,
+            }}
+          >
+            {linkedInLoading ? "…" : linkedInMsg ? "Regenerate" : "Generate — 1 credit"}
+          </button>
+        </div>
+        {linkedInMsg && (
+          <div
+            style={{
+              background: "#16213e",
+              borderRadius: "8px",
+              padding: "12px",
+              color: "#cbd5e1",
+              fontSize: "13px",
+              lineHeight: "1.6",
+              position: "relative",
+            }}
+          >
+            {linkedInMsg}
+            <button
+              onClick={() => navigator.clipboard.writeText(linkedInMsg)}
+              style={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                background: "#1e3a5f",
+                color: "#93c5fd",
+                border: "none",
+                borderRadius: "4px",
+                padding: "3px 8px",
+                fontSize: "11px",
+                cursor: "pointer",
+              }}
+            >
+              Copy
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Deep Research Prompt */}
+      <div
+        style={{
+          background: "#0f172a",
+          border: "1px solid #1e293b",
+          borderRadius: "10px",
+          padding: "16px",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: researchPrompt ? "10px" : 0,
+          }}
+        >
+          <div>
+            <div style={{ color: "#e2e8f0", fontWeight: 600, fontSize: "14px" }}>
+              🔍 Deep Research
+            </div>
+            <div style={{ color: "#64748b", fontSize: "12px" }}>
+              Perplexity.ai research prompt for {job.companyName}
+            </div>
+          </div>
+          <button
+            id="ai-deep-research-btn"
+            onClick={handleResearch}
+            disabled={researchLoading}
+            style={{
+              background: researchLoading ? "#334155" : "#7c3aed",
+              color: "#fff",
+              border: "none",
+              borderRadius: "6px",
+              padding: "7px 14px",
+              fontSize: "12px",
+              fontWeight: 600,
+              cursor: researchLoading ? "not-allowed" : "pointer",
+              flexShrink: 0,
+            }}
+          >
+            {researchLoading
+              ? "…"
+              : researchPrompt
+              ? "Regenerate"
+              : "Generate — 1 credit"}
+          </button>
+        </div>
+        {researchPrompt && (
+          <div
+            style={{
+              background: "#16213e",
+              borderRadius: "8px",
+              padding: "12px",
+              color: "#cbd5e1",
+              fontSize: "12px",
+              lineHeight: "1.6",
+              position: "relative",
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            {researchPrompt}
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(researchPrompt);
+                window.open("https://www.perplexity.ai/", "_blank");
+              }}
+              style={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                background: "#1e3a5f",
+                color: "#93c5fd",
+                border: "none",
+                borderRadius: "4px",
+                padding: "3px 8px",
+                fontSize: "11px",
+                cursor: "pointer",
+              }}
+            >
+              Copy & Open Perplexity
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

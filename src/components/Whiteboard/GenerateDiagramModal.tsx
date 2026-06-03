@@ -14,15 +14,14 @@ const GenerateDiagramModal: React.FC<GenerateDiagramModalProps> = ({ isOpen, onC
 
     const handleGenerate = async () => {
         if (!prompt.trim()) return;
-        const submittedPrompt = prompt.trim();
         setIsGenerating(true);
         setError(null);
-        setPrompt('');
-        onClose();
         try {
-            await onGenerate(submittedPrompt);
+            await onGenerate(prompt);
+            setPrompt(''); // Clear prompt on success
+            onClose();     // Close after generation
         } catch (err: any) {
-            window.alert(err.message || 'Failed to generate diagram. Please try again.');
+            setError(err.message || 'Failed to generate diagram. Please try again.');
         } finally {
             setIsGenerating(false);
         }

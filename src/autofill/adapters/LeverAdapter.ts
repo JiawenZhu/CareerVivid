@@ -1,5 +1,5 @@
 /**
- * CareerVivid Job Application Assistant — Lever ATS Adapter
+ * CareerVivid Auto-Apply — Lever ATS Adapter
  *
  * Lever has one of the simpler, most predictable form structures of all major ATS:
  * - Application page URL: jobs.lever.co/[company]/[jobId]/apply
@@ -11,7 +11,7 @@
  */
 
 import type { ATSAdapter, FormField, FieldType } from '../../types/autofill.types';
-import { fillFileInputReactSafe, fillInputReactSafe, fillSelectByValue, fillTextarea, isDemographicField } from '../fillUtils';
+import { fillInputReactSafe, fillSelectByValue, fillTextarea } from '../fillUtils';
 
 export class LeverAdapter implements ATSAdapter {
   name = 'Lever';
@@ -64,7 +64,7 @@ export class LeverAdapter implements ATSAdapter {
       }
     }
 
-    return fields.filter(f => !isDemographicField(f.label));
+    return fields;
   }
 
   async fillField(field: FormField, value: string): Promise<void> {
@@ -77,12 +77,6 @@ export class LeverAdapter implements ATSAdapter {
       await fillTextarea(el, value);
     } else if (el instanceof HTMLSelectElement) {
       await fillSelectByValue(el, value);
-    }
-  }
-
-  async fillFileField(field: FormField, file: File): Promise<void> {
-    if (field.element instanceof HTMLInputElement) {
-      await fillFileInputReactSafe(field.element, file);
     }
   }
 

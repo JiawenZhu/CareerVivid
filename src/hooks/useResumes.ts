@@ -8,7 +8,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase';
 import { collection, query, onSnapshot, doc, updateDoc, deleteDoc, addDoc, serverTimestamp, orderBy, getDocs, writeBatch, getDoc } from 'firebase/firestore';
 import { navigate } from '../utils/navigation';
-import { trackUsage } from '../services/trackingService';
 
 function parseFirestoreRestValue(val: any): any {
     if (!val) return null;
@@ -131,9 +130,7 @@ export const useResumes = (userIdOverride?: string | null) => {
                 setResumes(resumesFromDb);
                 setIsLoading(false);
             }, (error) => {
-                if (import.meta.env.DEV) {
-                    console.debug("Error fetching resumes:", error);
-                }
+                console.error("Error fetching resumes:", error);
                 setIsLoading(false);
             });
         }
@@ -172,12 +169,10 @@ export const useResumes = (userIdOverride?: string | null) => {
                         });
                         setResumes(resumesFromDb);
                     } else {
-                        if (import.meta.env.DEV) {
-                            if (res?.error === 'invalid_auth_token' || res?.error === 'Mock or invalid token') {
-                                console.debug("Invalid extension auth token; waiting for real CareerVivid sign-in");
-                            } else {
-                                console.debug("Could not fetch resumes via background REST:", res?.error || err?.message);
-                            }
+                        if (res?.error === 'invalid_auth_token' || res?.error === 'Mock or invalid token') {
+                            console.log("Invalid extension auth token; waiting for real CareerVivid sign-in");
+                        } else {
+                            console.log("Could not fetch resumes via background REST (expected in dev bypass mode):", res?.error || err?.message);
                         }
                         setResumes([]);
                     }
@@ -187,9 +182,7 @@ export const useResumes = (userIdOverride?: string | null) => {
             }
 
             if (!idToken || idToken === 'mock-dev-id-token') {
-                if (import.meta.env.DEV) {
-                    console.debug("Invalid extension auth token; waiting for real CareerVivid sign-in");
-                }
+                console.log("Invalid extension auth token; waiting for real CareerVivid sign-in");
                 setResumes([]);
                 setIsLoading(false);
                 return;
@@ -241,9 +234,7 @@ export const useResumes = (userIdOverride?: string | null) => {
                 setResumes(resumesFromDb);
                 setIsLoading(false);
             } catch (error) {
-                if (import.meta.env.DEV) {
-                    console.debug("Error fetching resumes via REST:", error);
-                }
+                console.error("Error fetching resumes via REST:", error);
                 setIsLoading(false);
             }
         }
@@ -261,14 +252,6 @@ export const useResumes = (userIdOverride?: string | null) => {
     const addResume = useCallback(() => {
         navigate('/newresume');
     }, []);
-
-    const trackResumeCreated = useCallback((resumeId: string, source: string) => {
-        if (!activeUid) return;
-        trackUsage(activeUid, 'resume_created', {
-            resumeId,
-            source,
-        }).catch(() => {});
-    }, [activeUid]);
 
     const addBlankResume = useCallback(async () => {
         if (!activeUid) return;
@@ -319,7 +302,6 @@ export const useResumes = (userIdOverride?: string | null) => {
                 section: 'resumes',
                 updatedAt: serverTimestamp(),
             });
-            trackResumeCreated(docRef.id, 'blank_resume');
             navigate(`/edit/${docRef.id}`);
         } catch (error: any) {
             if (error.message === 'RESUME_LIMIT_REACHED') {
@@ -328,7 +310,7 @@ export const useResumes = (userIdOverride?: string | null) => {
                 console.error("Error adding blank resume:", error);
             }
         }
-    }, [activeUid, currentUser, resumes.length, trackResumeCreated]);
+    }, [activeUid, currentUser, resumes.length]);
 
     const addAIGeneratedResume = useCallback(async (aiData: Partial<ResumeData>, title: string) => {
         if (!activeUid) return;
@@ -371,7 +353,6 @@ export const useResumes = (userIdOverride?: string | null) => {
                 ...newResume,
                 updatedAt: serverTimestamp(),
             });
-            trackResumeCreated(docRef.id, 'ai_generated_resume');
             navigate(`/edit/${docRef.id}`);
         } catch (error: any) {
             if (error.message === 'RESUME_LIMIT_REACHED') {
@@ -380,7 +361,7 @@ export const useResumes = (userIdOverride?: string | null) => {
                 console.error("Error adding AI resume:", error);
             }
         }
-    }, [activeUid, resumes.length, trackResumeCreated]);
+    }, [activeUid, resumes.length]);
 
     const saveAIGeneratedResume = useCallback(async (resumeData: ResumeData) => {
         if (!activeUid) return;
@@ -400,11 +381,10 @@ export const useResumes = (userIdOverride?: string | null) => {
             }
 
             const { id, ...dataToSave } = resumeData;
-            const docRef = await addDoc(collection(db, 'users', activeUid, 'resumes'), {
+            await addDoc(collection(db, 'users', activeUid, 'resumes'), {
                 ...dataToSave,
                 updatedAt: serverTimestamp(),
             });
-            trackResumeCreated(docRef.id, 'saved_ai_resume');
         } catch (error: any) {
             if (error.message === 'RESUME_LIMIT_REACHED') {
                 alert('You have reached your resume storage limit. Please upgrade your plan to create more resumes.');
@@ -412,7 +392,7 @@ export const useResumes = (userIdOverride?: string | null) => {
                 console.error("Error saving AI resume:", error);
             }
         }
-    }, [activeUid, resumes.length, trackResumeCreated]);
+    }, [activeUid, resumes.length]);
 
     const updateResume = useCallback(async (id: string, updatedData: Partial<ResumeData>) => {
         if (!activeUid) return;
@@ -492,7 +472,6 @@ export const useResumes = (userIdOverride?: string | null) => {
                     title: `${originalResume.title} (Copy)`,
                     updatedAt: serverTimestamp()
                 });
-                trackResumeCreated(docRef.id, 'duplicate_resume');
                 navigate(`/edit/${docRef.id}`);
             } catch (error: any) {
                 if (error.message === 'RESUME_LIMIT_REACHED') {
@@ -502,7 +481,7 @@ export const useResumes = (userIdOverride?: string | null) => {
                 }
             }
         }
-    }, [activeUid, getResumeById, resumes.length, trackResumeCreated]);
+    }, [activeUid, getResumeById, resumes.length]);
 
     const deleteAllResumes = useCallback(async () => {
         if (!activeUid) return;

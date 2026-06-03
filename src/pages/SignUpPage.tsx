@@ -12,6 +12,8 @@ import Logo from '../components/Logo';
 import { navigate } from '../utils/navigation';
 import { queueTransactionalAuthEmail } from '../services/transactionalEmailService';
 import { resolveSignedInWorkspace } from '../services/authAccountLinkingService';
+import { getSafeRelativeRedirect } from '../utils/security';
+import { getEmailDisplayName } from '../utils/userDisplayName';
 
 const SignUpPage: React.FC = () => {
     const { t } = useTranslation();
@@ -103,6 +105,8 @@ const SignUpPage: React.FC = () => {
             await setDoc(doc(db, 'users', cred.user.uid), {
                 uid: cred.user.uid,
                 email: cred.user.email,
+                displayName: getEmailDisplayName(cred.user.email),
+                displayNameSource: 'email',
                 authProvider: 'password',
                 emailVerified: cred.user.emailVerified,
                 createdAt: serverTimestamp(),
@@ -117,7 +121,7 @@ const SignUpPage: React.FC = () => {
             const redirectParams = new URLSearchParams(window.location.search);
             const redirectUrl = redirectParams.get('redirect');
             if (redirectUrl) {
-                window.location.href = decodeURIComponent(redirectUrl);
+                navigate(getSafeRelativeRedirect(redirectUrl));
             }
         } catch (err: any) {
             handleAuthError(err);
@@ -145,7 +149,8 @@ const SignUpPage: React.FC = () => {
                 await setDoc(userDocRef, {
                     uid: user.uid,
                     email: user.email,
-                    displayName: user.displayName,
+                    displayName: getEmailDisplayName(user.email) || user.displayName,
+                    displayNameSource: getEmailDisplayName(user.email) ? 'email' : 'google',
                     photoURL: user.photoURL,
                     authProvider: 'google',
                     emailVerified: user.emailVerified,
@@ -171,7 +176,7 @@ const SignUpPage: React.FC = () => {
             const redirectParams = new URLSearchParams(window.location.search);
             const redirectUrl = redirectParams.get('redirect');
             if (redirectUrl) {
-                window.location.href = decodeURIComponent(redirectUrl);
+                navigate(getSafeRelativeRedirect(redirectUrl));
             }
         } catch (err: any) {
             handleAuthError(err);

@@ -1,5 +1,5 @@
 /**
- * CareerVivid Job Application Assistant — AutoFill Engine
+ * CareerVivid Auto-Apply — AutoFill Engine
  *
  * Orchestrates the complete auto-fill workflow:
  *   1. Detect which ATS adapter applies to the current page
@@ -81,7 +81,7 @@ export function getATSContext(): ATSContext {
  * @param profile  The user's normalized AutoFillProfile
  * @returns        An AutoFillResult summarizing what was filled/skipped
  */
-export async function runAutofill(profile: AutoFillProfile, resumeFile?: File): Promise<AutoFillResult> {
+export async function runAutofill(profile: AutoFillProfile): Promise<AutoFillResult> {
   const adapter = detectAdapter();
 
   if (!adapter) {
@@ -95,7 +95,7 @@ export async function runAutofill(profile: AutoFillProfile, resumeFile?: File): 
   // Discover all form fields on the page
   const fields = adapter.getFormFields();
 
-  // We filter out 'unknown' and 'file' fields. We still detect the resume (in the adapters), but we don't auto-fill it for the user.
+  // Skip file-type fields (resume uploads) — user handles these manually
   const fillableFields = fields.filter((f) => f.type !== 'file' && f.type !== 'unknown');
 
   // Fill each field
@@ -120,7 +120,7 @@ export async function runAutofill(profile: AutoFillProfile, resumeFile?: File): 
   }
 
   const filledCount = filledFields.length;
-  const skippedCount = Math.max(0, fillableFields.length - filledCount - errorCount);
+  const skippedCount = fillableFields.length - filledCount - errorCount;
 
   return {
     platform: adapter.name,

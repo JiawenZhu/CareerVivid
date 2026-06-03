@@ -1,11 +1,9 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { JobApplicationData, ApplicationStatus, APPLICATION_STATUSES } from '../../types';
-import { AlertCircle, Briefcase, CheckCircle2, Clock3, Send, Trophy, XCircle } from 'lucide-react';
 
 interface StatusOverviewProps {
   applications: JobApplicationData[];
-  variant?: 'full' | 'compact';
 }
 
 const STATUS_COLORS: Record<ApplicationStatus, string> = {
@@ -70,30 +68,7 @@ const DonutChart: React.FC<{ data: { name: ApplicationStatus, value: number }[] 
 };
 
 
-const toDate = (value: any): Date | null => {
-  if (!value) return null;
-  if (value.toDate && typeof value.toDate === 'function') return value.toDate();
-  if (typeof value === 'object' && typeof value.seconds === 'number') return new Date(value.seconds * 1000);
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date;
-};
-
-const MetricCard: React.FC<{
-  label: string;
-  value: number;
-  icon: React.ReactNode;
-  accent: string;
-}> = ({ label, value, icon, accent }) => (
-  <div className="min-h-[92px] rounded-lg border border-gray-200 bg-white px-4 py-3.5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:min-h-[104px] sm:px-5 sm:py-4">
-    <div className="flex items-center justify-between gap-3">
-      <span className="min-w-0 truncate text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400 sm:text-sm sm:normal-case sm:tracking-normal">{label}</span>
-      <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md sm:h-9 sm:w-9 ${accent}`}>{icon}</span>
-    </div>
-    <p className="mt-2 text-3xl font-bold leading-none text-gray-950 dark:text-gray-50 sm:text-4xl">{value}</p>
-  </div>
-);
-
-const StatusOverview: React.FC<StatusOverviewProps> = ({ applications, variant = 'full' }) => {
+const StatusOverview: React.FC<StatusOverviewProps> = ({ applications }) => {
   const { t } = useTranslation();
 
   const statusCounts = useMemo(() => {
@@ -111,73 +86,6 @@ const StatusOverview: React.FC<StatusOverviewProps> = ({ applications, variant =
     });
     return APPLICATION_STATUSES.map(status => ({ name: status, value: counts[status] }));
   }, [applications]);
-
-  const compactMetrics = useMemo(() => {
-    const today = new Date();
-    today.setHours(23, 59, 59, 999);
-    const active = applications.filter(app => !['Offered', 'Rejected'].includes(app.applicationStatus)).length;
-    const interviewing = applications.filter(app => app.applicationStatus === 'Interviewing').length;
-    const offered = applications.filter(app => app.applicationStatus === 'Offered').length;
-    const rejected = applications.filter(app => app.applicationStatus === 'Rejected').length;
-    const overdue = applications.filter(app => {
-      if (['Offered', 'Rejected'].includes(app.applicationStatus)) return false;
-      const dueDate = toDate(app.nextActionDueDate);
-      return dueDate ? dueDate < today : false;
-    }).length;
-
-    return [
-      {
-        label: 'Total',
-        value: applications.length,
-        icon: <Briefcase size={14} />,
-        accent: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300',
-      },
-      {
-        label: 'Active',
-        value: active,
-        icon: <Send size={14} />,
-        accent: 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-300',
-      },
-      {
-        label: 'Interviewing',
-        value: interviewing,
-        icon: <Clock3 size={14} />,
-        accent: 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-300',
-      },
-      {
-        label: 'Offers',
-        value: offered,
-        icon: <Trophy size={14} />,
-        accent: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-300',
-      },
-      {
-        label: 'Rejected',
-        value: rejected,
-        icon: <XCircle size={14} />,
-        accent: 'bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-300',
-      },
-      {
-        label: 'Overdue',
-        value: overdue,
-        icon: overdue > 0 ? <AlertCircle size={14} /> : <CheckCircle2 size={14} />,
-        accent: overdue > 0
-          ? 'bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-300'
-          : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-300',
-      },
-    ];
-  }, [applications]);
-
-  if (variant === 'compact') {
-    return (
-      <section className="rounded-lg border border-gray-200 bg-gray-50/80 p-3 dark:border-gray-800 dark:bg-gray-950/30 sm:p-4" aria-label="Pipeline summary">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          {compactMetrics.map(metric => (
-            <MetricCard key={metric.label} {...metric} />
-          ))}
-        </div>
-      </section>
-    );
-  }
 
   return (
     <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-6 rounded-[24px] shadow-lg border border-white/50 dark:border-gray-800/50">

@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Star, Loader2, CheckCircle, X, MessageSquare } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Star, Loader2, CheckCircle, X } from 'lucide-react';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
@@ -23,6 +23,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, onSubmit
 
   useEffect(() => {
     if (isOpen) {
+      // Reset state when modal opens
       setRating(0);
       setComment('');
       setIsLoading(false);
@@ -30,11 +31,6 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, onSubmit
       setError('');
     }
   }, [isOpen]);
-
-  const handleCancel = useCallback(() => {
-    if (onCancel) onCancel();
-    onClose();
-  }, [onCancel, onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -45,7 +41,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, onSubmit
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, handleCancel]);
+  }, [isOpen, onCancel, onClose]);
 
   const handleSendFeedback = async () => {
     if (rating === 0) {
@@ -66,7 +62,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, onSubmit
         rating,
         comment,
         createdAt: serverTimestamp(),
-        status: 'New',
+        status: 'New', // Default status for new feedback
         source,
       };
 
@@ -90,37 +86,17 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, onSubmit
     }
   };
 
+  const handleCancel = () => {
+    if (onCancel) onCancel();
+    onClose();
+  };
+
   if (!isOpen) return null;
 
-  const copyBySource = {
-    resume_export: {
-      label: 'Resume export',
-      title: 'Rate your export',
-      description: 'Tell us how the export experience worked for you.',
-      placeholder: 'What should we improve about exporting resumes? (optional)',
-    },
-    interview: {
-      label: 'Interview report',
-      title: 'Rate this report',
-      description: 'Was this coaching report useful for your interview practice?',
-      placeholder: 'Share what was helpful or what was missing. (optional)',
-    },
-    editor: {
-      label: 'Editor',
-      title: 'Rate your editor experience',
-      description: 'Your feedback helps us improve the workspace.',
-      placeholder: 'Tell us more about your experience. (optional)',
-    },
-  }[source];
-
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4">
-      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-2xl dark:border-gray-700 dark:bg-gray-900">
-        <button
-          onClick={handleCancel}
-          className="absolute right-3 top-3 rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-white"
-          aria-label="Close feedback modal"
-        >
+    <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md shadow-xl relative">
+        <button onClick={handleCancel} className="absolute top-3 right-3 p-1 rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
           <X size={20} />
         </button>
 
@@ -132,28 +108,15 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, onSubmit
           </div>
         ) : (
           <>
-            <div className="mb-5 flex items-start gap-3 pr-8">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-300">
-                <MessageSquare size={20} />
-              </div>
-              <div>
-                <p className="mb-1 text-xs font-bold uppercase tracking-wide text-primary-600 dark:text-primary-400">{copyBySource.label}</p>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">{copyBySource.title}</h3>
-                <p className="mt-1 text-sm leading-5 text-gray-500 dark:text-gray-400">{copyBySource.description}</p>
-              </div>
-            </div>
+            <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-white">How was your experience?</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Your feedback is valuable to us.</p>
 
-            <div className="mb-5 flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800/70">
+            <div className="flex justify-center items-center gap-2 mb-4">
               {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  onClick={() => setRating(star)}
-                  className="rounded-md p-1 transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  aria-label={`Rate ${star} out of 5`}
-                >
+                <button key={star} onClick={() => setRating(star)} className="focus:outline-none">
                   <Star
-                    size={34}
-                    className={`transition-colors ${star <= rating ? 'fill-amber-400 text-amber-400' : 'text-gray-300 dark:text-gray-600'
+                    size={36}
+                    className={`transition-colors ${star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300 dark:text-gray-600'
                       }`}
                   />
                 </button>
@@ -163,21 +126,21 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, onSubmit
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder={copyBySource.placeholder}
+              placeholder="Tell us more about your experience (optional)..."
               rows={4}
-              className="w-full resize-none rounded-lg border border-gray-300 bg-white p-3 text-sm text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+              className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 focus:outline-none"
             />
 
             {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
 
             <div className="flex justify-end gap-3 mt-6">
-              <button onClick={handleCancel} disabled={isLoading} className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
+              <button onClick={handleCancel} disabled={isLoading} className="px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 font-semibold text-sm">
                 Cancel
               </button>
               <button
                 onClick={handleSendFeedback}
                 disabled={isLoading}
-                className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:opacity-50"
+                className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300 font-semibold py-2 px-4 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-900/80 transition-colors flex items-center gap-2 disabled:opacity-50"
               >
                 {isLoading && <Loader2 size={16} className="animate-spin" />}
                 {isLoading ? 'Sending...' : 'Send Feedback'}

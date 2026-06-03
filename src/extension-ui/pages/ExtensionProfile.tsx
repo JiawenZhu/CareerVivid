@@ -34,17 +34,15 @@ const ExtensionProfile: React.FC = () => {
     };
 
     return (
-        <div className="p-5 flex flex-col items-center justify-center h-[500px] text-center bg-[#f8f8fb] text-gray-500">
-            <div className="h-14 w-14 rounded-2xl bg-[#eef0ff] text-[#625bd5] flex items-center justify-center border border-[#e4e7ff] mb-4">
-                <User size={24} />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-950">Profile</h3>
-            <p className="text-sm mt-2 max-w-[240px]">Manage your account and extension session.</p>
+        <div className="p-4 flex flex-col items-center justify-center h-[500px] text-center text-gray-500">
+            <User size={48} className="mb-4 text-gray-300" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-200">Profile</h3>
+            <p className="text-sm mt-2">Manage your account settings.</p>
             <button
                 onClick={handleSignOut}
-                className="mt-6 px-4 py-2 bg-white text-rose-600 rounded-xl border border-rose-100 text-sm font-semibold hover:bg-rose-50 transition-colors shadow-sm"
+                className="mt-6 px-4 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-medium hover:bg-red-100 dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-950/40"
             >
-                Sign out
+                Sign Out
             </button>
         </div>
     );

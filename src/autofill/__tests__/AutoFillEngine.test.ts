@@ -20,11 +20,6 @@ function setUrl(url: string) {
   vi.stubGlobal('window', {
     ...window,
     location: { ...window.location, href: url, pathname: new URL(url).pathname },
-    HTMLInputElement: window.HTMLInputElement,
-    HTMLTextAreaElement: window.HTMLTextAreaElement,
-    HTMLSelectElement: window.HTMLSelectElement,
-    KeyboardEvent: window.KeyboardEvent,
-    Event: window.Event,
   });
 }
 
@@ -49,36 +44,6 @@ function injectGreenhouseForm() {
         <input id="phone" type="tel" />
       </div>
     </form>
-  `;
-}
-
-/** Build an Ashby application page matching current jobs.ashbyhq.com pages without a native form. */
-function injectModernAshbyApplication() {
-  document.body.innerHTML = `
-    <main class="ashby-application-container">
-      <div class="ashby-application-form-question">
-        <div>Name *</div>
-        <input id="_systemfield_name" name="_systemfield_name" type="text" placeholder="Type here..." />
-      </div>
-      <div class="ashby-application-form-question">
-        <div>Email *</div>
-        <input id="_systemfield_email" name="_systemfield_email" type="email" placeholder="hello@example.com..." />
-      </div>
-      <div class="ashby-application-form-question">
-        <div>Resume *</div>
-        <button>Upload File</button>
-        <input id="_systemfield_resume" type="file" />
-      </div>
-      <div class="ashby-application-form-question">
-        <div>Phone Number *</div>
-        <input id="20f8883c-d278-427c-9465-dc614f612e1f" name="20f8883c-d278-427c-9465-dc614f612e1f" type="tel" placeholder="1-415-555-1234..." />
-      </div>
-      <div class="ashby-application-form-question">
-        <div>Additional Information</div>
-        <p>Please share anything else you want us to know.</p>
-        <textarea id="f189fed2-624b-41a1-a76f-0c67a2611d1a" placeholder="Type here..."></textarea>
-      </div>
-    </main>
   `;
 }
 
@@ -230,37 +195,5 @@ describe('runAutofill', () => {
     const result = await runAutofill(PROFILE);
     expect(() => new Date(result.timestamp)).not.toThrow();
     expect(new Date(result.timestamp).getTime()).toBeGreaterThan(0);
-  });
-
-  it('fills mapped fields on modern form-less Ashby application pages', async () => {
-    setUrl('https://jobs.ashbyhq.com/openai/5d66a54f-ad89-4155-ac37-9dcd7d52db34/application');
-    injectModernAshbyApplication();
-
-    const result = await runAutofill(PROFILE);
-    const filledLabels = result.fields
-      .filter((field) => field.filled)
-      .map((field) => field.label);
-
-    expect(result.platform).toBe('Ashby');
-    expect(filledLabels).toEqual(expect.arrayContaining(['Name', 'Email', 'Phone Number']));
-    expect(result.filledCount).toBeGreaterThanOrEqual(3);
-  });
-
-  it('ignores file fields during autofill', async () => {
-    setUrl('https://boards.greenhouse.io/acme/jobs/12345');
-    document.body.innerHTML = `
-      <form id="application_form">
-        <div>
-          <label for="resume">Resume / CV *</label>
-          <input id="resume" type="file" />
-        </div>
-      </form>
-    `;
-    const mockFile = new File(['dummy content'], 'resume.pdf', { type: 'application/pdf' });
-    const result = await runAutofill(PROFILE, mockFile);
-
-    expect(result.platform).toBe('Greenhouse');
-    expect(result.filledCount).toBe(0);
-    expect(result.fields).toHaveLength(0);
   });
 });

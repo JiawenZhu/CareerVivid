@@ -40,19 +40,19 @@ const CreativeDark: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobile
                         transform: `translateY(${scrolled * 0.5}px)`
                     }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/55 to-black z-0" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/20 to-black z-0" />
 
-                <div className="relative z-10 max-w-5xl px-6 text-center">
+                <div className="relative z-10 text-center px-4 mix-blend-difference">
                     <h1
                         {...(onEdit ? { onClick: () => onEdit('hero.headline') } : longPressProps)}
-                        className={`${responsiveClass('text-4xl', 'md:text-6xl')} mb-6 cursor-pointer break-words font-black uppercase leading-[0.95] tracking-tight text-white drop-shadow-2xl transition-colors hover:text-neutral-200`}
+                        className={`${responsiveClass('text-5xl', 'md:text-7xl')} font-black tracking-tighter uppercase mb-4 leading-none break-words cursor-pointer hover:text-neutral-500 transition-colors`}
                         title="Click to edit headline"
                     >
                         {hero.headline}
                     </h1>
                     <p
                         onClick={() => onEdit?.('hero.subheadline')}
-                        className="mx-auto mb-12 max-w-4xl cursor-pointer text-base font-semibold uppercase leading-8 tracking-[0.18em] text-neutral-100 drop-shadow-lg transition-all hover:text-white md:text-xl"
+                        className="text-xl md:text-2xl font-light tracking-widest uppercase opacity-80 mb-12 cursor-pointer hover:text-white hover:opacity-100 transition-all"
                         title="Click to edit subheadline"
                     >
                         {hero.subheadline}
@@ -69,10 +69,10 @@ const CreativeDark: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobile
                 <div className="max-w-4xl mx-auto">
                     <p
                         onClick={() => onEdit?.('about')}
-                        className="cursor-pointer text-xl font-bold leading-relaxed text-neutral-200 transition-colors hover:text-white md:text-3xl"
+                        className="text-2xl md:text-4xl font-bold leading-tight text-neutral-300 cursor-pointer hover:text-white transition-colors"
                         title="Click to edit about me"
                     >
-                        {about}
+                        "{about}"
                     </p>
                 </div>
             </section>

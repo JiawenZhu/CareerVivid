@@ -23,7 +23,7 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { secureCorsHandler } from "./utils/corsUtils.js";
-import { getAIClient, getVertexLocationForModel, resolveVertexModelName } from "./utils/ai";
+import { getAIClient } from "./utils/ai";
 import { Content } from "@google/genai";
 
 if (!admin.apps.length) {
@@ -37,7 +37,6 @@ const corsHandler = secureCorsHandler;
 // Credit costs per model (must match agentCredits.ts)
 // ─────────────────────────────────────────────────────────────────────────────
 const MODEL_CREDIT_COST: Record<string, number> = {
-  "gemini-3.1-flash-lite": 0.5,
   "gemini-2.5-flash-lite": 0.5,
   "gemini-2.5-flash": 1,
   "gemini-2.5-pro": 2,
@@ -45,9 +44,8 @@ const MODEL_CREDIT_COST: Record<string, number> = {
   default: 1,
 };
 
-function getMonthlyLimit(plan?: string, seats = 1): number {
-  if (plan === "enterprise") return Math.max(1, seats) * 1500;
-  if (plan === "max" || plan === "pro_max") return 5000;
+function getMonthlyLimit(plan?: string): number {
+  if (plan === "max" || plan === "pro_max") return 10000;
   if (plan === "pro_monthly" || plan === "pro") return 1000;
   if (plan === "pro_sprint") return 300;
   return 100; // free
@@ -102,7 +100,7 @@ async function resolveAndDeduct(
     const currentMonth = new Date().toISOString().slice(0, 7); // "2026-04"
     const usageMonth: string = aiUsage.month || "";
     let count: number = usageMonth === currentMonth ? (aiUsage.count ?? 0) : 0;
-    let limit: number = getMonthlyLimit(userData.plan, userData.seats || 1);
+    let limit: number = aiUsage.monthlyLimit ?? getMonthlyLimit(userData.plan);
     const tokenCredits = userData.promotions?.tokenCredits || 0;
     limit += tokenCredits;
 
@@ -158,7 +156,7 @@ export const agentProxy = functions
 
       const {
         apiKey,
-        model: requestedModel,
+        model,
         contents,
         tools: toolDeclarations,
         systemInstruction,
@@ -171,7 +169,7 @@ export const agentProxy = functions
         res.status(401).json({ error: "A valid CareerVivid API key is required." });
         return;
       }
-      if (!requestedModel || typeof requestedModel !== "string") {
+      if (!model || typeof model !== "string") {
         res.status(400).json({ error: "model is required." });
         return;
       }
@@ -179,8 +177,6 @@ export const agentProxy = functions
         res.status(400).json({ error: "contents (conversation history) is required." });
         return;
       }
-
-      const model = resolveVertexModelName(requestedModel);
 
       // ── Check + deduct credits ──────────────────────────────────────────
       const creditResult = await resolveAndDeduct(apiKey, model);
@@ -199,7 +195,7 @@ export const agentProxy = functions
 
       // ── Call Gemini ─────────────────────────────────────────────────────
       try {
-        const ai = getAIClient(undefined, getVertexLocationForModel(model));
+        const ai = getAIClient();
 
         const config: Record<string, any> = {};
         if (systemInstruction) config.systemInstruction = systemInstruction;

@@ -64,6 +64,7 @@ const PendingInvitesList: React.FC<PendingInvitesListProps> = ({ invites, sessio
                 <th className="px-2 py-2">Candidate</th>
                 <th className="px-2 py-2">Sent</th>
                 <th className="px-2 py-2">Sent by</th>
+                <th className="px-2 py-2">Email</th>
                 <th className="px-2 py-2">Status</th>
               </tr>
             </thead>
@@ -76,6 +77,9 @@ const PendingInvitesList: React.FC<PendingInvitesListProps> = ({ invites, sessio
                   </td>
                   <td className="px-2 py-2.5 text-[12px] text-[#6b6358] dark:text-[#aaa39a]">{formatTimestamp(invite.createdAt)}</td>
                   <td className="px-2 py-2.5 text-[12px] text-[#6b6358] dark:text-[#aaa39a]">{invite.sentByName || '—'}</td>
+                  <td className="px-2 py-2.5 text-[12px] text-[#6b6358] dark:text-[#aaa39a]">
+                    {invite.deliveryState || (invite.deliveryNote ? invite.deliveryNote : 'queued')}
+                  </td>
                   <td className="px-2 py-2.5">
                     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold ${STATUS_TINT[liveStatus] || STATUS_TINT.sent}`}>
                       {liveStatus}

@@ -1,292 +1,189 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
-import { generateCareerVividEmail } from "./emailTemplates";
+import { generateNeoBrutalistEmail } from "./emailTemplates";
 
 export const sendTestEmails = functions.region('us-west1').https.onRequest(async (req, res) => {
     const targetEmail = "zhujiawen519@gmail.com";
     const userName = "Jiawen Zhu";
     const APP_URL = "https://careervivid.app";
+    const user = { displayName: userName, email: targetEmail };
 
     try {
         const mailCollection = admin.firestore().collection("mail");
         const emails = [];
 
-        const welcomeHtml = generateCareerVividEmail({
-            title: "Start your job search workspace",
-            userName,
-            eyebrow: "Welcome to CareerVivid",
-            preheader: "Create your base resume, save one role, and tailor your application materials.",
+        // 1. Welcome Email
+        const welcomeHtml = generateNeoBrutalistEmail({
+            title: "Welcome to CareerVivid",
+            userName: userName,
             messageLines: [
-                "Your workspace is ready. The fastest path is to create one base resume, save one target job, then tailor your materials against that role.",
-                "CareerVivid keeps the job search pieces together: resumes, job tracking, AI review, interview prep, and application support."
+                "We're thrilled to have you on board! Get ready to supercharge your career journey.",
+                "With CareerVivid, you can create stunning resumes, track your job applications, and prepare for interviews with AI."
             ],
             boxContent: {
-                title: "Your first 10 minutes",
+                title: "Get Started",
                 type: "success",
                 lines: [
-                    "<strong>Build or import a base resume.</strong>",
-                    "<strong>Save one role you want to pursue.</strong>",
-                    "<strong>Tailor and review your resume before applying.</strong>"
+                    "<strong>Complete your profile</strong> to get personalized recommendations.",
+                    "<strong>Upload your resume</strong> to kickstart the AI analysis.",
+                    "Explore our premium templates to stand out."
                 ]
             },
             mainButton: {
-                text: "Build first resume",
-                url: `${APP_URL}/newresume?scrollTo=create-section`
-            },
-            secondaryButton: {
-                text: "Open dashboard",
+                text: "Go to Dashboard",
                 url: `${APP_URL}/dashboard`
-            }
+            },
+            footerText: "Let's build your future together!"
         });
         emails.push({
             to: targetEmail,
-            message: {
-                subject: "[TEST] Welcome to CareerVivid - build your first resume",
-                html: welcomeHtml,
-                text: "Welcome to CareerVivid. Start by building or importing a base resume, saving one target role, and tailoring your materials before applying."
-            }
+            message: { subject: "[TEST] Welcome to CareerVivid! 🚀", html: welcomeHtml }
         });
 
-        const firstResumeHtml = generateCareerVividEmail({
-            title: "Tailor your resume to one role",
-            userName,
-            eyebrow: "First resume completed",
-            preheader: "Your base resume is ready. The next step is matching it to a target job.",
+        // 2. Upcoming Payment
+        const upcomingHtml = generateNeoBrutalistEmail({
+            title: "Upcoming Renewal",
+            userName: userName,
             messageLines: [
-                "You have a base resume in CareerVivid. That gives you a reusable starting point for every application.",
-                "The next high-value step is to attach one job description and tune the resume for the exact role, skills, and responsibilities the employer is asking for."
+                `Just a friendly reminder that your <strong>Pro Monthly</strong> subscription will automatically renew soon.`,
+                `No action is needed – your subscription will continue seamlessly.`,
             ],
             boxContent: {
-                title: "What tailoring helps with",
+                title: "Renewal Details",
                 type: "info",
                 lines: [
-                    "<strong>Keyword fit:</strong> see which role-specific skills are already covered.",
-                    "<strong>Responsibility focus:</strong> clarify bullets that should map more directly to the job.",
-                    "<strong>Application confidence:</strong> review what changed before you send it."
+                    `<strong>Renewal Date:</strong> Feb 15, 2026`,
+                    `<strong>Amount:</strong> $29.00`,
+                    `<strong>Plan:</strong> Pro Monthly`
                 ]
             },
             mainButton: {
-                text: "Tailor to a job",
-                url: `${APP_URL}/job-tracker?source=email_first_resume`
-            },
-            secondaryButton: {
-                text: "Open resume builder",
-                url: `${APP_URL}/newresume`
-            }
-        });
-        emails.push({
-            to: targetEmail,
-            message: {
-                subject: "[TEST] Your resume is ready for a target job",
-                html: firstResumeHtml,
-                text: "Your base resume is ready. Save a target job, then tailor your resume against the role before applying."
-            }
-        });
-
-        const reviewCompleteHtml = generateCareerVividEmail({
-            title: "Your resume review is ready",
-            userName,
-            eyebrow: "Review completed",
-            preheader: "Open your score and suggestions while the role is still fresh.",
-            messageLines: [
-                "CareerVivid finished reviewing your resume. The review is most useful while the role, resume version, and next application step are still fresh.",
-                "Open the review to check the score, read the suggestions, and decide which edits are worth making before you apply."
-            ],
-            boxContent: {
-                title: "Review summary",
-                type: "success",
-                lines: [
-                    "<strong>Resume:</strong> Software Engineer Resume - Mid Level",
-                    "<strong>Next step:</strong> apply the highest-impact suggestions first.",
-                    "<strong>Tip:</strong> keep one clean base resume and create tailored versions for specific roles."
-                ]
-            },
-            mainButton: {
-                text: "View review",
-                url: `${APP_URL}/resume-review?source=email_review_ready`
-            }
-        });
-        emails.push({
-            to: targetEmail,
-            message: {
-                subject: "[TEST] Your CareerVivid resume review is ready",
-                html: reviewCompleteHtml,
-                text: "Your CareerVivid resume review is ready. Open it to check the score and suggestions before applying."
-            }
-        });
-
-        const jobsSavedHtml = generateCareerVividEmail({
-            title: "Turn saved jobs into application packets",
-            userName,
-            eyebrow: "Jobs saved",
-            preheader: "Use your saved roles to create tailored materials and prepare the next application.",
-            messageLines: [
-                "You have saved jobs in CareerVivid. That is the point where the workspace becomes more useful than a list of links.",
-                "For each role, you can prepare a tailored resume, draft a cover letter, keep notes, and move the application through your tracker."
-            ],
-            boxContent: {
-                title: "Recommended next action",
-                type: "info",
-                lines: [
-                    "<strong>Pick one saved job.</strong>",
-                    "<strong>Generate a first cover letter draft.</strong>",
-                    "<strong>Edit it so it sounds like you before sending.</strong>"
-                ]
-            },
-            mainButton: {
-                text: "Prepare an application",
-                url: `${APP_URL}/job-tracker?source=email_jobs_saved`
-            },
-            secondaryButton: {
-                text: "Open resume builder",
-                url: `${APP_URL}/newresume`
-            }
-        });
-        emails.push({
-            to: targetEmail,
-            message: {
-                subject: "[TEST] Prepare your next saved job in CareerVivid",
-                html: jobsSavedHtml,
-                text: "You have saved jobs in CareerVivid. Pick one role and prepare a tailored resume, cover letter, and application notes."
-            }
-        });
-
-        const feedbackHtml = generateCareerVividEmail({
-            title: "Could you share what worked?",
-            userName,
-            eyebrow: "A quick note from CareerVivid",
-            preheader: "If CareerVivid helped with your job search, a short note helps us improve.",
-            messageLines: [
-                "You have used CareerVivid to organize parts of your job search. If it has helped, a short note about what worked would be useful for the product team.",
-                "We read feedback directly. One or two sentences about the resume builder, job tracker, extension workflow, or application prep is enough."
-            ],
-            boxContent: {
-                title: "Good feedback answers",
-                type: "info",
-                lines: [
-                    "<strong>What saved you time?</strong>",
-                    "<strong>What felt confusing?</strong>",
-                    "<strong>What should CareerVivid improve before you recommend it?</strong>"
-                ]
-            },
-            mainButton: {
-                text: "Share feedback",
-                url: `mailto:support@careervivid.app?subject=${encodeURIComponent("CareerVivid feedback")}`
-            },
-            footerText: "This note is sent after meaningful product activity, not immediately after signup."
-        });
-        emails.push({
-            to: targetEmail,
-            message: {
-                subject: "[TEST] Could you share what worked in CareerVivid?",
-                html: feedbackHtml,
-                text: "If CareerVivid has helped with your job search, a short note about what worked or what felt confusing would help the product team."
-            }
-        });
-
-        const renewalHtml = generateCareerVividEmail({
-            title: "Your subscription renews soon",
-            userName,
-            eyebrow: "Billing notice",
-            preheader: "Your Pro Monthly subscription is scheduled to renew in 3 days.",
-            messageLines: [
-                "Your <strong>Pro Monthly</strong> subscription is scheduled to renew soon.",
-                "No action is needed if you want to keep your current access. You can review or change your subscription from your profile."
-            ],
-            boxContent: {
-                title: "Renewal details",
-                type: "info",
-                lines: [
-                    "<strong>Renewal date:</strong> Feb 15, 2026",
-                    "<strong>Amount:</strong> $29.00",
-                    "<strong>Plan:</strong> Pro Monthly"
-                ]
-            },
-            mainButton: {
-                text: "Manage subscription",
+                text: "Manage Subscription",
                 url: `${APP_URL}/profile`
             },
-            footerText: "You are receiving this billing notice because you have an active CareerVivid subscription."
+            footerText: "Thank you for being a valued member!"
         });
         emails.push({
             to: targetEmail,
-            message: {
-                subject: "[TEST] Your Pro Monthly subscription renews in 3 days",
-                html: renewalHtml,
-                text: "Your Pro Monthly subscription renews on Feb 15, 2026 for $29.00. Manage your subscription from your CareerVivid profile."
-            }
+            message: { subject: "[TEST] Your Pro Monthly subscription renews in 3 days", html: upcomingHtml }
         });
 
-        const trialHtml = generateCareerVividEmail({
-            title: "Your free trial ends soon",
-            userName,
-            eyebrow: "Billing notice",
-            preheader: "Your free trial ends in 3 days. Review the date and amount before billing begins.",
+        // 3. Subscription Expiring
+        const expiringHtml = generateNeoBrutalistEmail({
+            title: "Access Ending Soon",
+            userName: userName,
             messageLines: [
-                "Your free trial of <strong>Pro Monthly</strong> ends soon.",
-                "If you want to continue, no action is needed. If you do not want to be charged, manage your subscription before the trial end date."
+                `We noticed your <strong>Pro Monthly</strong> subscription is set to expire soon.`,
+                `If you'd like to keep your premium access, you can resubscribe anytime before your access ends.`
             ],
             boxContent: {
-                title: "Important billing details",
-                type: "critical",
+                title: "Expiration Warning",
+                type: "warning",
                 lines: [
-                    "<strong>Trial ends on:</strong> Feb 18, 2026",
-                    "<strong>Your card will be charged:</strong> $29.00",
-                    "This charge happens automatically unless you cancel before then."
+                    `<strong>Expiration Date:</strong> Feb 20, 2026`,
+                    `<strong>Plan:</strong> Pro Monthly`,
+                    `After this date, you'll lose access to premium features including unlimited resumes, AI credits, and PDF downloads.`
                 ]
             },
             mainButton: {
-                text: "Manage subscription",
+                text: "Resubscribe Now",
+                url: `${APP_URL}/subscription`
+            },
+            footerText: "We'd love to have you back!"
+        });
+        emails.push({
+            to: targetEmail,
+            message: { subject: "[TEST] ⚠️ Your Pro Monthly access ends in 3 days", html: expiringHtml }
+        });
+
+        // 4. Trial Ending
+        const trialHtml = generateNeoBrutalistEmail({
+            title: "Trial Ending Soon",
+            userName: userName,
+            messageLines: [
+                `Your free trial of <strong>Pro Monthly</strong> is ending soon. Here's what you need to know:`,
+                `If you're enjoying CareerVivid, no action is needed – your subscription will start automatically.`
+            ],
+            boxContent: {
+                title: "Important Billing Notice",
+                type: "critical",
+                lines: [
+                    `<strong>Trial ends on:</strong> Feb 18, 2026`,
+                    `<strong>Your card will be charged:</strong> $29.00`,
+                    `This charge will occur automatically unless you cancel before then.`
+                ]
+            },
+            mainButton: {
+                text: "Manage Subscription",
                 url: `${APP_URL}/profile`
             },
-            footerText: "You are receiving this because you started a CareerVivid free trial."
+            footerText: `You're receiving this because you signed up for a free trial on CareerVivid.`
         });
         emails.push({
             to: targetEmail,
-            message: {
-                subject: "[TEST] Your free trial ends in 3 days",
-                html: trialHtml,
-                text: "Your Pro Monthly free trial ends on Feb 18, 2026. Your card will be charged $29.00 unless you cancel before then."
-            }
+            message: { subject: "[TEST] 🔔 Your free trial ends in 3 days – Action required", html: trialHtml }
         });
 
-        const paymentFailedHtml = generateCareerVividEmail({
-            title: "Payment needs attention",
-            userName,
-            eyebrow: "Billing issue",
-            preheader: "We could not process your recent CareerVivid payment.",
+        // 5. Payment Failed
+        const failedHtml = generateNeoBrutalistEmail({
+            title: "Payment Failed",
+            userName: userName,
             messageLines: [
-                "We could not process the payment for your recent invoice.",
-                "<strong>Your premium access is paused until the payment method is updated.</strong>"
+                "We were unable to process your payment for the following invoice.",
+                "<strong>⚠️ Your premium access has been temporarily paused.</strong>"
             ],
             boxContent: {
-                title: "Invoice details",
+                title: "Action Required",
                 type: "critical",
                 lines: [
-                    "<strong>Invoice number:</strong> INV-12345-TEST",
-                    "<strong>Amount due:</strong> $29.00",
-                    "<strong>Status:</strong> Payment failed"
+                    `<strong>Invoice Number:</strong> INV-12345-TEST`,
+                    `<strong>Amount Due:</strong> $29.00`,
+                    `<strong>Status:</strong> Payment Failed`
                 ]
             },
             mainButton: {
-                text: "Update payment method",
+                text: "Update Payment Method",
                 url: `${APP_URL}/billing/update`
             },
             secondaryButton: {
-                text: "View plans",
+                text: "Resubscribe",
                 url: `${APP_URL}/subscription`
             },
-            footerText: "Contact support@careervivid.app if you believe this notice is incorrect."
+            footerText: "Please update your payment method to restore access."
         });
         emails.push({
             to: targetEmail,
-            message: {
-                subject: "[TEST] Payment failed - update your payment method",
-                html: paymentFailedHtml,
-                text: "We could not process your recent CareerVivid payment. Update your payment method to restore premium access."
-            }
+            message: { subject: "[TEST] Payment Failed - Action Required", html: failedHtml }
         });
 
+        // 6. Subscription Canceled
+        const canceledHtml = generateNeoBrutalistEmail({
+            title: "Subscription Canceled",
+            userName: userName,
+            messageLines: [
+                "We're sorry to see you go. Your subscription cancellation has been confirmed."
+            ],
+            boxContent: {
+                title: "Access Details",
+                type: "warning",
+                lines: [
+                    "<strong>Your premium access will remain active until:</strong>",
+                    `<span style="font-size: 18px; font-weight: bold;">Feb 28, 2026</span>`,
+                    "After this date, your account will revert to the free plan."
+                ]
+            },
+            mainButton: {
+                text: "Resubscribe Now",
+                url: `${APP_URL}/subscription`
+            },
+            footerText: "We'd love to have you back!"
+        });
+        emails.push({
+            to: targetEmail,
+            message: { subject: "[TEST] Your subscription has been canceled", html: canceledHtml }
+        });
+
+        // Batch write or simple loop
         const batch = admin.firestore().batch();
         emails.forEach(email => {
             const docRef = mailCollection.doc();
@@ -294,7 +191,7 @@ export const sendTestEmails = functions.region('us-west1').https.onRequest(async
         });
         await batch.commit();
 
-        res.status(200).send(`Sent ${emails.length} redesigned test emails to ${targetEmail}`);
+        res.status(200).send(`Sent ${emails.length} test emails to ${targetEmail}`);
     } catch (error: any) {
         console.error("Error sending test emails:", error);
         res.status(500).send("Error: " + error.message);

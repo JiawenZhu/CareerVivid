@@ -2,7 +2,6 @@ import React from 'react';
 import { Trash2 } from 'lucide-react';
 import MonthYearPicker from '../../../../../components/MonthYearPicker';
 import { PortfolioData } from '../../../types/portfolio';
-import SidebarExpandableTextarea from './SidebarExpandableTextarea';
 
 interface SidebarTimelineEditorProps {
     portfolioData: PortfolioData;
@@ -32,7 +31,7 @@ const SidebarTimelineEditor: React.FC<SidebarTimelineEditorProps> = ({
     };
 
     return (
-        <div id="timeline" className="space-y-4">
+        <div className="space-y-4">
             {portfolioData.timeline.map((job, idx) => (
                 <div key={job.id} className={`p-4 rounded-lg border relative group/card ${themeClasses.cardBg}`}>
                     <div className="absolute top-4 right-4 z-10 opacity-0 group-hover/card:opacity-100 transition-opacity">
@@ -94,11 +93,10 @@ const SidebarTimelineEditor: React.FC<SidebarTimelineEditorProps> = ({
                             }}
                         />
                     </div>
-                    <SidebarExpandableTextarea
+                    <textarea
                         id={`timeline.${idx}.description`}
-                        editorTheme={editorTheme}
-                        compactRows={2}
-                        expandedRows={10}
+                        className={`bg-transparent text-sm w-full outline-none resize-none p-2 rounded ${editorTheme === 'dark' ? 'text-gray-500 bg-black/10' : 'text-gray-600 bg-gray-100'}`}
+                        rows={2}
                         value={job.description}
                         onChange={(e) => {
                             const newTimeline = [...portfolioData.timeline];
@@ -109,7 +107,6 @@ const SidebarTimelineEditor: React.FC<SidebarTimelineEditorProps> = ({
                 </div>
             ))}
             <button
-                id="timeline.add"
                 onClick={handleAddTimeline}
                 className="w-full py-2 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 rounded-lg text-sm font-medium transition-colors"
             >

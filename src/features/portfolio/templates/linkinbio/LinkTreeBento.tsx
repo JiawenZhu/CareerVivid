@@ -253,9 +253,9 @@ const LinkTreeBento: React.FC<PortfolioTemplateProps> = ({ data, onEdit, onUpdat
                 <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-xl border border-gray-100 dark:border-gray-800 animate-in fade-in duration-700 delay-200">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                         {/* Social Links */}
-                        {linkInBio.showSocial && (data.socialLinks || []).length > 0 && (
+                        {linkInBio.showSocial && data.socialLinks.length > 0 && (
                             <div className="flex items-center gap-3 flex-wrap justify-center md:justify-start">
-                                {(data.socialLinks || []).slice(0, 6).map(social => {
+                                {data.socialLinks.slice(0, 6).map(social => {
                                     const getSocialIcon = (label?: string) => {
                                         const lower = (label || '').toLowerCase();
                                         if (lower.includes('github')) return <Icons.Github size={20} />;

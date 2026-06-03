@@ -7,7 +7,7 @@ import ExtensionHome from '../pages/ExtensionHome';
 
 const ExtensionLayout: React.FC = () => {
     const { currentUser, loading: authLoading } = useAuth();
-    const { theme, resolvedTheme } = useTheme();
+    const { theme } = useTheme();
     const [cookieAuth, setCookieAuth] = useState<boolean | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -85,19 +85,13 @@ const ExtensionLayout: React.FC = () => {
     // Determine if user is authenticated (Firebase Auth OR cookie-based)
     const isAuthenticated = currentUser || cookieAuth === true;
     const stillLoading = (authLoading && cookieAuth === null) || isLoading;
-    const rootThemeClasses = new Set(['cv-extension-root', `cv-theme-${theme}`]);
-    if (resolvedTheme === 'dark') {
-        rootThemeClasses.add('dark');
-        rootThemeClasses.add('cv-theme-dark');
-    }
-    const rootThemeClass = Array.from(rootThemeClasses).join(' ');
 
     // Loading state
     if (stillLoading) {
         return (
-            <div className={`${rootThemeClass} min-h-[520px] h-screen w-full bg-[#f8f8fb] flex items-center justify-center`}>
+            <div className="min-h-[520px] h-screen w-full bg-[#f7f8fb] flex items-center justify-center">
                 <div className="flex flex-col items-center gap-3">
-                    <div className="h-8 w-8 border-2 border-[#625bd5] border-t-transparent rounded-full animate-spin"></div>
+                    <div className="h-8 w-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-xs text-gray-400">Loading...</p>
                 </div>
             </div>
@@ -107,7 +101,7 @@ const ExtensionLayout: React.FC = () => {
     // If not authenticated, show Login screen
     if (!isAuthenticated) {
         return (
-            <div className={`${rootThemeClass} min-h-[520px] h-screen w-full`}>
+            <div className={`min-h-[520px] h-screen w-full ${theme === 'dark' ? 'dark' : ''}`}>
                 <div className="bg-white min-h-[520px] h-full text-gray-900">
                     <ExtensionLogin />
                 </div>
@@ -117,8 +111,8 @@ const ExtensionLayout: React.FC = () => {
 
     // Authenticated View: Show Home Dashboard
     return (
-        <div className={`${rootThemeClass} min-h-[520px] h-screen w-full`}>
-            <div className="bg-[#f8f8fb] min-h-[520px] h-full text-gray-900">
+        <div className={`min-h-[520px] h-screen w-full ${theme === 'dark' ? 'dark' : ''}`}>
+            <div className="bg-[#f7f8fb] min-h-[520px] h-full text-gray-900">
                 <ExtensionHome />
             </div>
         </div>

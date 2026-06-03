@@ -3,18 +3,11 @@ import { Briefcase } from 'lucide-react';
 import { getAppUrl } from '../../utils/extensionUtils';
 
 const ExtensionTracker: React.FC = () => (
-    <div className="p-5 flex flex-col items-center justify-center h-[500px] text-center bg-[#f8f8fb] text-gray-500">
-        <div className="h-14 w-14 rounded-2xl bg-[#eef0ff] text-[#625bd5] flex items-center justify-center border border-[#e4e7ff] mb-4">
-            <Briefcase size={24} />
-        </div>
-        <h3 className="text-lg font-semibold text-gray-950">Career pipeline</h3>
-        <p className="text-sm mt-2 max-w-[240px]">Track saved roles, status, next steps, and interview prep.</p>
-        <button
-            onClick={() => window.open(getAppUrl('/job-tracker'), '_blank')}
-            className="mt-5 px-4 py-2 rounded-xl bg-white text-[#625bd5] border border-[#ececf4] font-semibold text-sm shadow-sm hover:border-[#d9d7fb] hover:bg-[#fbfbfd] transition-colors"
-        >
-            Open pipeline
-        </button>
+    <div className="p-4 flex flex-col items-center justify-center h-[500px] text-center text-gray-500">
+        <Briefcase size={48} className="mb-4 text-gray-300" />
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-200">Career Pipeline</h3>
+        <p className="text-sm mt-2">Track your applications and interview status.</p>
+        <button onClick={() => window.open(getAppUrl('/job-tracker'), '_blank')} className="mt-4 text-primary-600 font-medium">Open Web Tracker</button>
     </div>
 );
 

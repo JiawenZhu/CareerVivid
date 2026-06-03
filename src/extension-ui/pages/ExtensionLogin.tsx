@@ -32,7 +32,7 @@ const ExtensionLogin: React.FC = () => {
     };
 
     return (
-        <div className={`min-h-[520px] w-[380px] flex flex-col ${isDarkMode ? 'bg-gray-900' : 'bg-[#f8f8fb]'}`}>
+        <div className={`min-h-[520px] w-[380px] flex flex-col ${isDarkMode ? 'bg-gray-900' : 'bg-gradient-to-b from-gray-50 to-white'}`}>
             {/* Hero Section */}
             <div className="flex-1 flex flex-col items-center justify-center px-8 py-10">
                 {/* Dynamic Logo */}
@@ -49,7 +49,7 @@ const ExtensionLogin: React.FC = () => {
                 </div>
 
                 <p className={`text-sm text-center mb-8 max-w-[260px] leading-relaxed ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    Track job opportunities, tailor resumes, and prepare for interviews from one workspace.
+                    Your AI-powered career copilot. Create resumes, practice interviews, and land your dream job.
                 </p>
 
                 {/* Feature Pills - Updated Routes */}
@@ -57,32 +57,32 @@ const ExtensionLogin: React.FC = () => {
                     <button
                         onClick={() => openWebPage('/newresume')}
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border shadow-sm text-xs font-medium transition-all ${isDarkMode
-                            ? 'bg-gray-800 border-gray-700 text-gray-300 hover:border-[#7b75df] hover:shadow-md'
-                            : 'bg-white border-[#ececf4] text-gray-600 hover:border-[#d9d7fb] hover:shadow-md'
+                            ? 'bg-gray-800 border-gray-700 text-gray-300 hover:border-primary-500 hover:shadow-md'
+                            : 'bg-white border-gray-100 text-gray-600 hover:border-primary-200 hover:shadow-md'
                             }`}
                     >
-                        <FileText size={12} className="text-[#625bd5]" />
-                        AI resumes
+                        <FileText size={12} className="text-primary-500" />
+                        AI Resumes
                     </button>
                     <button
                         onClick={() => openWebPage('/interview-studio')}
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border shadow-sm text-xs font-medium transition-all ${isDarkMode
-                            ? 'bg-gray-800 border-gray-700 text-gray-300 hover:border-[#d95b92] hover:shadow-md'
-                            : 'bg-white border-[#ececf4] text-gray-600 hover:border-[#f4d6e7] hover:shadow-md'
+                            ? 'bg-gray-800 border-gray-700 text-gray-300 hover:border-pink-500 hover:shadow-md'
+                            : 'bg-white border-gray-100 text-gray-600 hover:border-pink-200 hover:shadow-md'
                             }`}
                     >
-                        <Mic size={12} className="text-[#d95b92]" />
-                        Mock interviews
+                        <Mic size={12} className="text-pink-500" />
+                        Mock Interviews
                     </button>
                     <button
                         onClick={() => openWebPage('/job-tracker')}
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border shadow-sm text-xs font-medium transition-all ${isDarkMode
-                            ? 'bg-gray-800 border-gray-700 text-gray-300 hover:border-[#7b75df] hover:shadow-md'
-                            : 'bg-white border-[#ececf4] text-gray-600 hover:border-[#d9d7fb] hover:shadow-md'
+                            ? 'bg-gray-800 border-gray-700 text-gray-300 hover:border-purple-500 hover:shadow-md'
+                            : 'bg-white border-gray-100 text-gray-600 hover:border-purple-200 hover:shadow-md'
                             }`}
                     >
-                        <BarChart3 size={12} className="text-[#625bd5]" />
-                        Career pipeline
+                        <BarChart3 size={12} className="text-purple-500" />
+                        Career Pipeline
                     </button>
                 </div>
 
@@ -92,20 +92,20 @@ const ExtensionLogin: React.FC = () => {
                         onClick={() => openAuthPage('signin')}
                         className={`w-full py-3 px-4 font-semibold rounded-xl shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] text-sm ${isDarkMode
                             ? 'bg-white text-gray-900 hover:bg-gray-100'
-                            : 'bg-[#625bd5] text-white hover:bg-[#5851c8] shadow-[0_12px_24px_rgba(98,91,213,0.18)]'
+                            : 'bg-gray-900 text-white hover:bg-black shadow-gray-200'
                             }`}
                     >
-                        Sign in
+                        Sign In
                     </button>
 
                     <button
                         onClick={() => openAuthPage('signup')}
                         className={`w-full py-3 px-4 font-semibold rounded-xl border transition-all text-sm ${isDarkMode
                             ? 'bg-gray-800 text-gray-200 border-gray-700 hover:bg-gray-700'
-                            : 'bg-white text-gray-700 border-[#ececf4] hover:bg-[#f8f8fb] hover:border-[#d9d7fb]'
+                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
                             }`}
                     >
-                        Create free account
+                        Create Free Account
                     </button>
                 </div>
             </div>

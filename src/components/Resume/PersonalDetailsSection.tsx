@@ -20,19 +20,19 @@ interface PersonalDetailsSectionProps {
 }
 
 const FormSection: React.FC<{ title: string; icon: React.ReactNode; children: React.ReactNode }> = ({ title, icon, children }) => (
-    <div className="mb-5 rounded-xl border border-[#e8dfd3] bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
-        <div className="mb-4 flex items-center border-b border-[#f0e8dc] pb-3 dark:border-gray-800">
+    <div className="mb-8 p-6 bg-white dark:bg-gray-800/50 dark:border dark:border-gray-700 rounded-lg shadow-md">
+        <div className="flex items-center mb-4">
             {icon}
-            <h2 className="ml-3 text-lg font-black text-slate-900 dark:text-gray-100">{title}</h2>
+            <h2 className="text-2xl font-bold ml-3 text-gray-800 dark:text-gray-100">{title}</h2>
         </div>
         {children}
     </div>
 );
 
 const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement> & { label: string }> = ({ label, id, ...props }) => (
-    <div className="mb-3" id={id ? `container-${id}` : undefined}>
-        <label htmlFor={id} className="mb-1 block text-xs font-bold text-slate-500 dark:text-gray-400">{label}</label>
-        <input id={id} {...props} className="w-full rounded-lg border border-[#ded6cb] bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-colors duration-200 focus:border-primary-400 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800" />
+    <div className="mb-4" id={id ? `container-${id}` : undefined}>
+        <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
+        <input id={id} {...props} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 transition-colors duration-200" />
     </div>
 );
 
@@ -107,34 +107,6 @@ const PersonalDetailsSection: React.FC<PersonalDetailsSectionProps> = ({
                             <button onClick={handleRemovePhoto} disabled={isReadOnly} className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed">
                                 <Trash2 size={16} /> {t('resume_form.remove')}
                             </button>
-                        </div>
-                    )}
-                    {!displayPhoto && !isPhotoUploading && (
-                        <div className="mt-3">
-                            {isPremium ? (
-                                <button
-                                    type="button"
-                                    onClick={() => setIsImageEditModalOpen(true)}
-                                    disabled={isReadOnly}
-                                    className="inline-flex items-center gap-2 rounded-lg border border-primary-200 bg-primary-50 px-3 py-2 text-sm font-bold text-primary-700 transition-colors hover:bg-primary-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-primary-900 dark:bg-primary-950/30 dark:text-primary-300"
-                                >
-                                    <Brush size={16} /> Create AI photo
-                                </button>
-                            ) : (
-                                <div className="group relative inline-flex">
-                                    <button
-                                        type="button"
-                                        disabled
-                                        className="inline-flex cursor-not-allowed items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-bold text-gray-400 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-500"
-                                    >
-                                        <Brush size={16} /> Create AI photo
-                                    </button>
-                                    <div className="absolute bottom-full mb-2 hidden w-48 rounded-md bg-gray-800 p-2 text-center text-xs text-white group-hover:block">
-                                        <Zap size={16} className="mx-auto mb-1 text-yellow-400" />
-                                        {t('resume_form.premium_feature')} <a href="/pricing" className="font-bold underline">{t('resume_form.upgrade_unlock')}</a>
-                                    </div>
-                                </div>
-                            )}
                         </div>
                     )}
                 </div>

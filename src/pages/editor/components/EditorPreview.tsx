@@ -3,11 +3,8 @@ import { ResumeData } from '../../../types';
 import ResumePreview from '../../../components/ResumePreview';
 import AdvancedAnnotationCanvas from '../../../components/AdvancedAnnotationCanvas';
 import { AnnotationObject } from '../../../services/annotationService';
-import { Minus, Plus, Eye, Sparkles, Sliders } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAIReview } from '../../../contexts/AIReviewContext';
-import { calculateResumeScore } from '../../../utils/resumeScoreUtils';
-import { addSelectedSkillSuggestionsToResume } from '../../../utils/aiReviewDataGuards';
 
 import {
     A4_HEIGHT_PX,
@@ -20,18 +17,10 @@ import {
 } from '../../../utils/paginationUtils';
 
 const PAGE_GAP_PX = 40;
-const EDGE_CONTROL_WIDTH_PX = 84;
-const EDGE_CONTROL_GAP_PX = 12;
-const EDGE_CONTROL_LEFT_OFFSET_PX = EDGE_CONTROL_WIDTH_PX + EDGE_CONTROL_GAP_PX;
-const TOP_CONTROL_DOCK_HEIGHT_PX = 58;
-const PREVIEW_VERTICAL_PADDING_PX = 18;
-const PREVIEW_LEFT_PADDING_PX = 18;
-const PREVIEW_RIGHT_PADDING_PX = 18;
-const PREVIEW_RIGHT_RAIL_PX = EDGE_CONTROL_LEFT_OFFSET_PX;
-const EDGE_CONTROL_COLLAPSE_THRESHOLD_PX = 6;
-const MAX_AUTO_FIT_ZOOM = 0.9;
+const PREVIEW_EDGE_PADDING_PX = 28;
+const PREVIEW_RIGHT_RAIL_PX = 96;
+const PAGE_LABEL_GAP_PX = 10;
 const MIN_ZOOM = 0.55;
-const MOBILE_MIN_ZOOM = 0.32;
 const MAX_ZOOM = 1.6;
 const ZOOM_STEP = 0.1;
 
@@ -48,8 +37,6 @@ interface EditorPreviewProps {
     onFocusField: (fieldId: string) => void;
     onDoubleClick: () => void;
     isAnyDropdownOpen?: boolean;
-    isRightPanelOpen?: boolean;
-    setIsRightPanelOpen?: (open: boolean) => void;
 }
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
@@ -57,62 +44,31 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
 const EditorPreview: React.FC<EditorPreviewProps> = ({
     resume, viewMode, scale, currentUserUid,
     showAnnotationOverlay, annotationUrl, annotationObjects, isPreviewBlurred,
-    onResumeChange, onFocusField, onDoubleClick, isAnyDropdownOpen = false,
-    isRightPanelOpen = false, setIsRightPanelOpen
+    onResumeChange, onFocusField, onDoubleClick, isAnyDropdownOpen = false
 }) => {
     const editorPreviewContainerRef = useRef<HTMLDivElement>(null);
-    const edgeControlsRef = useRef<HTMLDivElement>(null);
     const previewRef = useRef<HTMLDivElement>(null);
     const blurOverlayRef = useRef<HTMLDivElement>(null);
     const [contentHeight, setContentHeight] = useState<number>(0);
     const [fitScale, setFitScale] = useState(scale);
     const [zoomOffset, setZoomOffset] = useState(0);
-    const [isCompactPreview, setIsCompactPreview] = useState(false);
-
-    // AI Review Context safely
-    let review: any = null;
-    try {
-        review = useAIReview();
-    } catch (e) {}
-
-    // Calculate score dynamically in preview
-    const scoreData = useMemo(() => calculateResumeScore(resume), [resume]);
-    const score = scoreData.overallScore;
-
-    const scoreClass = useMemo(() => {
-        if (score >= 80) return 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-450 dark:border-emerald-900/50';
-        if (score >= 60) return 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/20 dark:text-amber-450 dark:border-amber-900/50';
-        return 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/20 dark:text-rose-450 dark:border-rose-900/50';
-    }, [score]);
-
-    // Copy and augment resume to natively support suggested additions rendering inside templates
-    const augmentedResume = useMemo(() => {
-        if (!review?.isReviewMode || !resume) return resume;
-        return addSelectedSkillSuggestionsToResume(resume, review.suggestions, review.selectedSuggestionIds);
-    }, [resume, review?.isReviewMode, review?.selectedSuggestionIds, review?.suggestions]);
 
     // Detect overflow
     const hasOverflow = useMemo(() => contentHeight > A4_HEIGHT_PX, [contentHeight]);
     const pageCount = useMemo(() => Math.ceil(contentHeight / A4_HEIGHT_PX) || 1, [contentHeight]);
-    const minZoom = isCompactPreview ? MOBILE_MIN_ZOOM : MIN_ZOOM;
-    const effectiveScale = useMemo(() => clamp(fitScale + zoomOffset, minZoom, MAX_ZOOM), [fitScale, minZoom, zoomOffset]);
+    const effectiveScale = useMemo(() => clamp(fitScale + zoomOffset, MIN_ZOOM, MAX_ZOOM), [fitScale, zoomOffset]);
     const pageStackHeight = useMemo(
         () => (pageCount * A4_HEIGHT_PX) + (Math.max(0, pageCount - 1) * PAGE_GAP_PX),
         [pageCount]
     );
     const scaledPageWidth = A4_WIDTH_PX * effectiveScale;
     const scaledStackHeight = pageStackHeight * effectiveScale;
-    const useControlRail = !isCompactPreview && !isRightPanelOpen;
-    const useTopControlDock = !isCompactPreview && isRightPanelOpen;
-    const previewFrameWidth = scaledPageWidth + (useControlRail ? PREVIEW_RIGHT_RAIL_PX : 0);
-    const previewFrameHeight = scaledStackHeight + (useTopControlDock ? TOP_CONTROL_DOCK_HEIGHT_PX : 0);
-    const pageTopOffset = useTopControlDock ? TOP_CONTROL_DOCK_HEIGHT_PX : 0;
     const zoomPercent = Math.round(effectiveScale * 100);
     const isFitZoom = Math.abs(zoomOffset) < 0.005;
     const isActualSize = Math.abs(effectiveScale - 1) < 0.005;
 
     const setZoomScale = (nextScale: number) => {
-        setZoomOffset(clamp(nextScale - fitScale, minZoom - fitScale, MAX_ZOOM - fitScale));
+        setZoomOffset(clamp(nextScale - fitScale, MIN_ZOOM - fitScale, MAX_ZOOM - fitScale));
     };
 
     const adjustZoom = (direction: -1 | 1) => {
@@ -124,11 +80,8 @@ const EditorPreview: React.FC<EditorPreviewProps> = ({
             const container = editorPreviewContainerRef.current;
             if (!container) return;
 
-            const compactPreview = container.clientWidth < 640;
-            const rightRailWidth = !compactPreview && !isRightPanelOpen ? PREVIEW_RIGHT_RAIL_PX : 0;
-            const availableWidth = container.clientWidth - rightRailWidth - PREVIEW_LEFT_PADDING_PX - PREVIEW_RIGHT_PADDING_PX;
-            const nextFitScale = clamp(availableWidth / A4_WIDTH_PX, compactPreview ? MOBILE_MIN_ZOOM : MIN_ZOOM, MAX_AUTO_FIT_ZOOM);
-            setIsCompactPreview(compactPreview);
+            const availableWidth = container.clientWidth - PREVIEW_RIGHT_RAIL_PX - (PREVIEW_EDGE_PADDING_PX * 2);
+            const nextFitScale = clamp(availableWidth / A4_WIDTH_PX, MIN_ZOOM, 1.25);
             setFitScale(nextFitScale);
         };
 
@@ -145,31 +98,7 @@ const EditorPreview: React.FC<EditorPreviewProps> = ({
             window.removeEventListener('resize', calculateFitScale);
             clearTimeout(timeout);
         };
-    }, [isRightPanelOpen, viewMode]);
-
-    useLayoutEffect(() => {
-        setZoomOffset(0);
-    }, [isRightPanelOpen]);
-
-    useLayoutEffect(() => {
-        if (!isRightPanelOpen || !setIsRightPanelOpen || zoomOffset <= 0.005) return;
-
-        const frame = requestAnimationFrame(() => {
-            const container = editorPreviewContainerRef.current;
-            const controls = edgeControlsRef.current;
-            if (!container || !controls) return;
-
-            const containerRect = container.getBoundingClientRect();
-            const controlsRect = controls.getBoundingClientRect();
-            const isTouchingScrollEdge = controlsRect.right >= containerRect.right - EDGE_CONTROL_COLLAPSE_THRESHOLD_PX;
-
-            if (isTouchingScrollEdge) {
-                setIsRightPanelOpen(false);
-            }
-        });
-
-        return () => cancelAnimationFrame(frame);
-    }, [effectiveScale, isRightPanelOpen, setIsRightPanelOpen, viewMode, zoomOffset]);
+    }, [viewMode]);
 
     useLayoutEffect(() => {
         const frame = requestAnimationFrame(() => {
@@ -225,57 +154,36 @@ const EditorPreview: React.FC<EditorPreviewProps> = ({
         <div
             ref={editorPreviewContainerRef}
             className={`
-                flex-1 h-full relative bg-[#f6f2ec] [background-image:radial-gradient(rgba(102,88,66,0.14)_1px,transparent_1px)] [background-size:18px_18px] dark:bg-gray-950 dark:[background-image:radial-gradient(rgba(148,163,184,0.12)_1px,transparent_1px)]
+                flex-1 h-full bg-gray-100 dark:bg-gray-900/50 relative
                 ${viewMode === 'preview' ? 'block' : 'hidden md:block'}
-                overflow-auto custom-scrollbar flex flex-col overscroll-contain
+                overflow-auto custom-scrollbar
             `}
         >
-            {/* Sticky Preview Header Tabs */}
-            <div className="sticky top-0 z-20 flex shrink-0 select-none flex-wrap items-center justify-between gap-2 border-b border-[#e5dccf] bg-white/90 px-3 py-2 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-900/95 sm:px-6 sm:py-2.5">
-                <div className="flex min-w-0 flex-1 gap-1 rounded-full border border-[#e4dbcf] bg-[#fbf8f3] p-1 dark:border-gray-800 dark:bg-gray-950 sm:flex-none">
-                    <button
-                        onClick={() => review?.setIsReviewMode(true)}
-                        className={`flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-bold transition-all duration-200 sm:flex-none sm:px-4 ${review?.isReviewMode ? 'bg-[#22143f] text-white shadow-md' : 'text-slate-500 hover:bg-white hover:text-slate-800 dark:hover:bg-gray-850 dark:hover:text-gray-300'}`}
+            {/* Overflow Warning Banner */}
+            <AnimatePresence>
+                {hasOverflow && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className={`relative z-10 bg-amber-50/95 border-b border-amber-200 px-4 py-2 flex items-center justify-center gap-2 shadow-sm backdrop-blur transition-opacity duration-200 ${isAnyDropdownOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
                     >
-                        <Sparkles size={12} className={review?.isReviewMode ? 'animate-pulse' : ''} />
-                        <span className="truncate sm:hidden">Edits</span>
-                        <span className="hidden sm:inline">Suggested Edits</span>
-                    </button>
-                    <button
-                        onClick={() => review?.setIsReviewMode(false)}
-                        className={`flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-bold transition-all duration-200 sm:flex-none sm:px-4 ${!review?.isReviewMode ? 'bg-[#22143f] text-white shadow-md' : 'text-slate-500 hover:bg-white hover:text-slate-800 dark:hover:bg-gray-850 dark:hover:text-gray-300'}`}
-                    >
-                        <Eye size={12} />
-                        <span className="truncate sm:hidden">Preview</span>
-                        <span className="hidden sm:inline">PDF Preview</span>
-                    </button>
-                </div>
-
-                <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-                    <div className={`rounded-full border bg-white px-2.5 py-1 text-xs font-bold transition-colors sm:px-3 ${scoreClass}`}>
-                        <span className="sm:hidden">Score {score}</span>
-                        <span className="hidden sm:inline">Resume Score {score}</span>
-                    </div>
-                    {setIsRightPanelOpen && (
-                        <button
-                            onClick={() => setIsRightPanelOpen(!isRightPanelOpen)}
-                            className={`p-1.5 rounded-lg text-gray-400 hover:bg-gray-250 dark:hover:bg-gray-800 hover:text-gray-600 dark:hover:text-gray-200 transition-all ${isRightPanelOpen ? 'bg-gray-150 dark:bg-gray-700/50 text-indigo-600' : ''}`}
-                            title={isRightPanelOpen ? "Collapse Right Panel" : "Expand Score & Match"}
-                        >
-                            <Sliders size={14} className={isRightPanelOpen ? 'scale-105' : ''} />
-                        </button>
-                    )}
-                </div>
-            </div>
-
-
+                        <svg className="w-4 h-4 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <p className="text-xs font-semibold text-amber-800">
+                            Preview shows <span className="font-bold">{pageCount} PDF pages</span>. Gray page breaks mark where the exported PDF will split.
+                        </p>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             <div
                 className="absolute left-[-9999px] top-0 w-[210mm] opacity-0 pointer-events-none"
                 aria-hidden="true"
             >
                 <ResumePreview
-                    resume={augmentedResume}
+                    resume={resume}
                     template={resume.templateId}
                     previewId={`resume-preview-${resume.id || 'default'}-measure`}
                     previewRef={previewRef}
@@ -285,20 +193,20 @@ const EditorPreview: React.FC<EditorPreviewProps> = ({
             </div>
 
             <div
-                className="min-h-full w-full flex justify-center items-start relative flex-grow"
+                className="min-h-full w-full flex justify-center items-start relative"
                 style={{
-                    paddingTop: PREVIEW_VERTICAL_PADDING_PX,
-                    paddingBottom: PREVIEW_VERTICAL_PADDING_PX,
-                    paddingLeft: PREVIEW_LEFT_PADDING_PX,
-                    paddingRight: PREVIEW_RIGHT_PADDING_PX
+                    paddingTop: PREVIEW_EDGE_PADDING_PX,
+                    paddingBottom: PREVIEW_EDGE_PADDING_PX,
+                    paddingLeft: PREVIEW_EDGE_PADDING_PX,
+                    paddingRight: PREVIEW_EDGE_PADDING_PX
                 }}
             >
                 <div
                     className="relative transition-[width,height] duration-300"
                     style={{
-                        width: previewFrameWidth,
-                        minWidth: previewFrameWidth,
-                        height: previewFrameHeight
+                        width: scaledPageWidth + PREVIEW_RIGHT_RAIL_PX,
+                        minWidth: scaledPageWidth + PREVIEW_RIGHT_RAIL_PX,
+                        height: scaledStackHeight
                     }}
                     onDoubleClick={onDoubleClick}
                     title="Double-click to enter full-screen preview"
@@ -308,7 +216,7 @@ const EditorPreview: React.FC<EditorPreviewProps> = ({
                         style={{
                             width: A4_WIDTH_PX,
                             height: pageStackHeight,
-                            transform: `translateY(${pageTopOffset}px) scale(${effectiveScale})`
+                            transform: `scale(${effectiveScale})`
                         }}
                     >
                         {Array.from({ length: pageCount }, (_, pageIndex) => (
@@ -324,7 +232,7 @@ const EditorPreview: React.FC<EditorPreviewProps> = ({
                                         style={{ transform: `translateY(-${pageIndex * A4_HEIGHT_PX}px)` }}
                                     >
                                         <ResumePreview
-                                            resume={augmentedResume}
+                                            resume={resume}
                                             template={resume.templateId}
                                             previewId={`resume-preview-${resume.id || 'default'}-page-${pageIndex + 1}`}
                                             className="shadow-none"
@@ -338,13 +246,10 @@ const EditorPreview: React.FC<EditorPreviewProps> = ({
                     </div>
 
                     <div
-                        ref={edgeControlsRef}
-                        className={`z-20 flex gap-2 ${isCompactPreview ? 'sticky bottom-3 left-1/2 w-max -translate-x-1/2 flex-row rounded-xl bg-white/85 p-1 shadow-lg ring-1 ring-slate-200 backdrop-blur dark:bg-gray-900/85 dark:ring-gray-700' : 'absolute w-[84px] flex-col'}`}
-                        style={isCompactPreview ? undefined : {
-                            left: useControlRail
-                                ? scaledPageWidth + EDGE_CONTROL_GAP_PX
-                                : Math.max(12, (scaledPageWidth / 2) - (EDGE_CONTROL_WIDTH_PX / 2)),
-                            top: useTopControlDock ? 8 : 10
+                        className="absolute z-20 flex w-[84px] flex-col gap-2"
+                        style={{
+                            left: scaledPageWidth + PAGE_LABEL_GAP_PX,
+                            top: 10
                         }}
                     >
                         <div className="flex overflow-hidden rounded-lg bg-[#2b164f] text-white shadow-xl ring-1 ring-black/10">
@@ -352,7 +257,7 @@ const EditorPreview: React.FC<EditorPreviewProps> = ({
                                 type="button"
                                 onClick={() => adjustZoom(-1)}
                                 className="flex h-9 flex-1 items-center justify-center border-r border-white/10 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
-                                disabled={effectiveScale <= minZoom}
+                                disabled={effectiveScale <= MIN_ZOOM}
                                 aria-label="Zoom out"
                                 title="Zoom out"
                             >
@@ -394,10 +299,10 @@ const EditorPreview: React.FC<EditorPreviewProps> = ({
                     {Array.from({ length: pageCount }, (_, pageIndex) => (
                         <div
                             key={`page-label-${pageIndex}`}
-                            className={`absolute hidden w-[84px] items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-slate-500 shadow-sm ${useControlRail ? 'xl:flex' : ''}`}
+                            className="absolute hidden xl:flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-slate-500 shadow-sm"
                             style={{
-                                left: scaledPageWidth + EDGE_CONTROL_GAP_PX,
-                                top: pageTopOffset + (pageIndex * (A4_HEIGHT_PX + PAGE_GAP_PX) * effectiveScale) + 82
+                                left: scaledPageWidth + PAGE_LABEL_GAP_PX,
+                                top: (pageIndex * (A4_HEIGHT_PX + PAGE_GAP_PX) * effectiveScale) + 82
                             }}
                         >
                                 <span className="h-2 w-2 rounded-full bg-indigo-500" />

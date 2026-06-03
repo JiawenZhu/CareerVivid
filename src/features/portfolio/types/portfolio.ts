@@ -119,13 +119,19 @@ export interface PortfolioData {
     id: string;
     userId: string;
     title: string; // Internal title
-    templateId: 'minimalist' | 'corporate'
-    | 'dev_terminal' | 'writer_editorial'
+    templateId: 'minimalist' | 'visual' | 'corporate'
+    | 'dev_terminal' | 'saas_modern'
+    | 'ux_folio' | 'creative_dark'
+    | 'legal_trust' | 'writer_editorial'
+    | 'medical_care' | 'academic_research'
+    | 'bento_personal' | 'executive_brief'
+    | 'bento_personal' | 'executive_brief'
     | 'linktree_minimal' | 'linktree_visual' | 'linktree_corporate' | 'linktree_bento'
     // Card Templates
     | 'card_minimal' | 'card_photo' | 'card_modern'
     | 'brutalist_yellow' | 'brutalist_pink' | 'brutalist_blue' | 'brutalist_bw' | 'brutalist_orange'
-    | 'pro_executive' | 'pro_clean' | 'creative_gradient' | 'card_creative_dark' | 'nature_calm' | 'tech_future' | 'abstract_art';
+    | 'pro_executive' | 'pro_clean' | 'creative_gradient' | 'card_creative_dark' | 'nature_calm' | 'tech_future' | 'abstract_art'
+    | 'media_kit'; // New Media Kit Template
     section?: string; // For folder organization in dashboard
 
     // Mode: portfolio (default), linkinbio, or business_card (NEW)

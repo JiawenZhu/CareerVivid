@@ -1,14 +1,11 @@
 import React from 'react';
 import { PortfolioTemplateProps } from '../types/portfolio';
-import { MapPin, Github, Twitter, Mail, ArrowUpRight, Camera } from 'lucide-react';
+import { Instagram, MapPin, Music, Github, Twitter, Mail, ArrowUpRight, Coffee, Laptop, Camera } from 'lucide-react';
 
 import { usePortfolioAdminAccess } from '../hooks/usePortfolioAdminAccess';
 
 const BentoPersonal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileView }) => {
     const { hero, projects, about } = data;
-    const primarySocial = data.socialLinks?.find(link => link.url && link.url !== '#');
-    const featuredProject = projects?.[0];
-    const displayLocation = data.location || 'Remote';
 
     // Admin Access Hook
     const { longPressProps, AdminAccessModal } = usePortfolioAdminAccess({ data, onEdit });
@@ -32,7 +29,7 @@ const BentoPersonal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobil
                             <img src={hero.avatarUrl} alt="Me" className="w-full h-full object-cover" />
                         ) : (
                             <div className="w-full h-full bg-rose-200 flex items-center justify-center text-rose-500 font-bold text-2xl">
-                                {(hero.headline || 'Y').charAt(0)}
+                                {hero.headline.charAt(0)}
                             </div>
                         )}
                     </div>
@@ -57,31 +54,26 @@ const BentoPersonal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobil
                 {/* Map Tile */}
                 <div className={`bg-emerald-500 rounded-3xl p-6 col-span-1 ${responsiveClass('', 'md:col-span-1 md:row-span-1')} shadow-sm text-white flex flex-col items-center justify-center text-center hover:scale-[1.02] transition-transform`}>
                     <MapPin size={32} className="mb-2" />
-                    <span className="font-bold text-lg">{displayLocation}</span>
+                    <span className="font-bold text-lg">San Francisco, CA</span>
                     <span className="text-emerald-100 text-sm">Based in</span>
                 </div>
 
                 {/* Socials Tile */}
-                <a
-                    href={primarySocial?.url || '#'}
-                    target={primarySocial?.url && primarySocial.url !== '#' ? '_blank' : undefined}
-                    rel={primarySocial?.url && primarySocial.url !== '#' ? 'noopener noreferrer' : undefined}
-                    className={`bg-black rounded-3xl p-6 col-span-1 ${responsiveClass('', 'md:col-span-1 md:row-span-1')} shadow-sm text-white flex flex-col justify-between hover:bg-neutral-900 transition-colors`}
-                >
+                <div className={`bg-black rounded-3xl p-6 col-span-1 ${responsiveClass('', 'md:col-span-1 md:row-span-1')} shadow-sm text-white flex flex-col justify-between hover:bg-neutral-900 transition-colors`}>
                     <div className="flex justify-between items-start">
                         <Twitter className="w-8 h-8" />
                         <ArrowUpRight className="opacity-50" />
                     </div>
-                    <div className="font-bold">{primarySocial?.label || 'Social'}</div>
-                </a>
+                    <div className="font-bold">@handle</div>
+                </div>
 
-                {/* Featured project pulse */}
+                {/* Spotify / Music Tile (Placeholder) */}
                 <div className={`bg-rose-500 rounded-3xl p-6 col-span-1 ${responsiveClass('', 'md:col-span-1 md:row-span-1')} shadow-sm text-white flex flex-col justify-between overflow-hidden relative group`}>
                     <div className="absolute right-[-20px] top-[-20px] w-32 h-32 bg-rose-400 rounded-full blur-2xl opacity-50"></div>
-                    <ArrowUpRight className="relative z-10 w-8 h-8" />
+                    <Music className="relative z-10 w-8 h-8 animate-pulse" />
                     <div className="relative z-10">
-                        <div className="text-rose-100 text-xs font-bold uppercase tracking-wider">Featured</div>
-                        <div className="font-bold text-lg leading-tight mt-1">{featuredProject?.title || 'Add featured work'}</div>
+                        <div className="text-rose-100 text-xs font-bold uppercase tracking-wider">On Repeat</div>
+                        <div className="font-bold text-lg leading-tight mt-1">Lo-Fi Coding Beats</div>
                     </div>
                 </div>
 
@@ -91,7 +83,7 @@ const BentoPersonal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobil
                     <div className="flex flex-wrap gap-2">
                         {(data.techStack || []).map(skill => (
                             <span key={skill.id} className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-600 hover:bg-rose-50 hover:text-rose-500 transition-colors" title={skill.name}>
-                                <span className="text-xs font-bold">{(skill.name || 'Skill').slice(0, 2)}</span>
+                                <span className="text-xs font-bold">{skill.name.slice(0, 2)}</span>
                             </span>
                         ))}
                         <span className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-200">
@@ -136,15 +128,6 @@ const BentoPersonal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobil
                                 </div>
                             </div>
                         ))}
-                        {(projects || []).length === 0 && (
-                            <button
-                                type="button"
-                                onClick={() => onEdit?.('projects')}
-                                className="col-span-2 flex aspect-[2/1] items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 text-sm font-bold text-gray-400 transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500"
-                            >
-                                Add your first project
-                            </button>
-                        )}
                     </div>
                 </div>
 
@@ -156,13 +139,7 @@ const BentoPersonal: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobil
 
                 {/* Photo Tile */}
                 <div className={`bg-amber-200 rounded-3xl col-span-1 ${responsiveClass('', 'md:col-span-1 md:row-span-1')} shadow-sm overflow-hidden relative group`}>
-                    {hero.avatarUrl ? (
-                        <img src={hero.avatarUrl} alt="Profile detail" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                    ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-amber-100 text-amber-700">
-                            <Camera className="h-10 w-10" />
-                        </div>
-                    )}
+                    <img src="https://images.unsplash.com/photo-1510915228340-29c85a43dcfe?auto=format&fit=crop&q=80&w=500" alt="Mood" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
                         <Camera className="text-white opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0" />
                     </div>

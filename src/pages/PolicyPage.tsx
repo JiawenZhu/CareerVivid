@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
 import { ChevronDown, Shield, FileText, CreditCard, Link as LinkIcon } from 'lucide-react';
@@ -11,6 +12,7 @@ interface PolicySection {
 }
 
 const PolicyPage: React.FC = () => {
+    const { t } = useTranslation();
     const [openIndex, setOpenIndex] = useState<string | null>(null);
 
     const toggleItem = (id: string) => {
@@ -26,8 +28,8 @@ const PolicyPage: React.FC = () => {
                 if (element) {
                     element.scrollIntoView({ behavior: 'smooth' });
                     // Provide visual feedback
-                    element.classList.add('ring-4', 'ring-[#2563eb]/20');
-                    setTimeout(() => element.classList.remove('ring-4', 'ring-[#2563eb]/20'), 2000);
+                    element.classList.add('ring-4', 'ring-indigo-200', 'dark:ring-indigo-900');
+                    setTimeout(() => element.classList.remove('ring-4', 'ring-indigo-200', 'dark:ring-indigo-900'), 2000);
                 }
             }, 500); // Small delay to ensure render
         }
@@ -165,22 +167,14 @@ const PolicyPage: React.FC = () => {
     ];
 
     return (
-        <div className="min-h-screen flex flex-col bg-[#f7f1e7] font-sans text-[#211b16]">
-            <PublicHeader variant="editorial" />
-            <main className="relative flex-grow overflow-hidden pt-28 pb-20">
-                <div
-                    className="pointer-events-none absolute inset-0 opacity-55"
-                    style={{
-                        backgroundImage:
-                            'linear-gradient(to right, rgba(139, 90, 22, 0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(139, 90, 22, 0.06) 1px, transparent 1px)',
-                        backgroundSize: '64px 64px',
-                    }}
-                />
-                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white dark:bg-gray-950 min-h-screen flex flex-col font-sans text-gray-900 dark:text-white">
+            <PublicHeader />
+            <main className="flex-grow pt-24 pb-20">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Hero Section */}
                     <div className="text-center max-w-3xl mx-auto mb-16">
-                        <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-6 text-[#211b16]">Legal & Policies</h1>
-                        <p className="text-xl font-medium text-[#665a4a]">
+                        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-6">Legal & Policies</h1>
+                        <p className="text-xl text-gray-600 dark:text-gray-400">
                             Our commitment to transparency, privacy, and your rights
                         </p>
 
@@ -190,13 +184,13 @@ const PolicyPage: React.FC = () => {
                                 <a
                                     key={section.slug}
                                     href={`#${section.slug}`}
-                                    className="relative rounded-full border border-[#e4d3bc] bg-[#fffaf1] px-6 py-2 text-sm font-bold text-[#665a4a] shadow-sm transition-colors hover:border-[#a97935] hover:text-[#211b16]"
+                                    className="relative px-6 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-gray-600 dark:text-gray-300 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-colors shadow-sm text-sm font-medium"
                                 >
                                     {section.title}
                                     {section.slug === 'bio-link' && (
                                         <span className="absolute -top-2 -right-2 flex h-4 w-4">
-                                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#2563eb] opacity-60"></span>
-                                            <span className="relative inline-flex h-4 w-4 items-center justify-center rounded-full border-2 border-[#fffaf1] bg-[#2563eb] text-[8px] font-bold text-white">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-4 w-4 bg-indigo-500 text-[8px] text-white font-bold items-center justify-center border-2 border-white dark:border-gray-800">
                                             </span>
                                         </span>
                                     )}
@@ -208,13 +202,13 @@ const PolicyPage: React.FC = () => {
                     {/* Policy Sections */}
                     <div className="space-y-12">
                         {policySections.map((section, sectionIdx) => (
-                            <div key={sectionIdx} id={section.slug} className="scroll-mt-28 rounded-xl border border-[#e4d3bc] bg-[#fffaf1] p-8 shadow-sm shadow-[#8b5a16]/5 md:p-12">
+                            <div key={sectionIdx} id={section.slug} className="bg-gray-50 dark:bg-gray-900/50 rounded-3xl p-8 md:p-12 scroll-mt-28">
                                 {/* Section Header */}
                                 <div className="flex items-center gap-4 mb-8">
-                                    <div className="rounded-xl bg-[#eef4ff] p-3 text-[#2563eb]">
+                                    <div className="bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 p-3 rounded-xl">
                                         {section.icon}
                                     </div>
-                                    <h2 className="text-3xl font-black text-[#211b16]">
+                                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
                                         {section.title}
                                     </h2>
                                 </div>
@@ -228,17 +222,17 @@ const PolicyPage: React.FC = () => {
                                         return (
                                             <div
                                                 key={itemId}
-                                                className="overflow-hidden rounded-xl border border-[#e4d3bc] bg-[#fffaf1] transition-all duration-200 hover:border-[#a97935] hover:shadow-md hover:shadow-[#8b5a16]/8"
+                                                className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-200 hover:shadow-md"
                                             >
                                                 <button
                                                     onClick={() => toggleItem(itemId)}
                                                     className="w-full flex items-center justify-between p-6 text-left focus:outline-none group"
                                                 >
-                                                    <span className="pr-8 text-lg font-bold text-[#211b16] transition-colors group-hover:text-[#a97935]">
+                                                    <span className="text-lg font-semibold text-gray-900 dark:text-white pr-8 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                                                         {item.question}
                                                     </span>
                                                     <ChevronDown
-                                                        className={`flex-shrink-0 text-[#a97935] transition-transform duration-300 ${isOpen ? 'transform rotate-180' : ''
+                                                        className={`flex-shrink-0 text-gray-500 transition-transform duration-300 ${isOpen ? 'transform rotate-180' : ''
                                                             }`}
                                                         size={20}
                                                     />
@@ -247,7 +241,7 @@ const PolicyPage: React.FC = () => {
                                                     className={`transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                                                         }`}
                                                 >
-                                                    <div className="mt-2 border-t border-[#eadbc5] p-6 pt-0 leading-relaxed text-[#665a4a]">
+                                                    <div className="p-6 pt-0 text-gray-600 dark:text-gray-300 leading-relaxed border-t border-gray-100 dark:border-gray-700/50 mt-2">
                                                         {item.answer}
                                                     </div>
                                                 </div>
@@ -260,23 +254,23 @@ const PolicyPage: React.FC = () => {
                     </div>
 
                     {/* Contact Section */}
-                    <div className="mt-16 rounded-xl border border-[#e4d3bc] bg-[#fffaf1] p-8 text-center shadow-sm shadow-[#8b5a16]/5">
-                        <h3 className="text-2xl font-black text-[#211b16] mb-4">
+                    <div className="mt-16 text-center bg-primary-50 dark:bg-primary-900/20 rounded-2xl p-8 border border-primary-100 dark:border-primary-800">
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
                             Have Questions?
                         </h3>
-                        <p className="text-[#665a4a] mb-6">
+                        <p className="text-gray-600 dark:text-gray-400 mb-6">
                             If you have any questions about our policies or need clarification, we're here to help.
                         </p>
                         <a
                             href="/contact"
-                            className="inline-block rounded-xl bg-[#2563eb] px-8 py-3 font-bold text-white shadow-lg shadow-[#2563eb]/15 transition-all hover:-translate-y-0.5 hover:bg-[#1d4ed8] hover:shadow-xl"
+                            className="inline-block px-8 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl"
                         >
                             Contact Support
                         </a>
                     </div>
 
                     {/* Last Updated */}
-                    <div className="mt-12 text-center text-sm font-medium text-[#7d6e5e]">
+                    <div className="mt-12 text-center text-sm text-gray-500 dark:text-gray-400">
                         Last updated: December 16, 2025
                     </div>
                 </div>

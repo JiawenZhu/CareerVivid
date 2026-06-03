@@ -22,19 +22,26 @@ export type {
 export type AgencyPrepEventType =
   | 'invited'
   | 'started'
+  | 'resume_imported'
   | 'resume_selected'
+  | 'mock_interview_completed'
   | 'ai_review_run'
   | 'score_lifted'
   | 'marked_ready'
   | 'consent_granted'
   | 'consent_revoked'
+  | 'notes_updated'
   | 'report_viewed_by_agency'
   | 'recruiter_note_added'
-  | 'reminded';
+  | 'reminded'
+  | 'quota_exceeded';
 
 export interface AgencyPrepEvent {
   id: string;
   type: AgencyPrepEventType;
+  /** Compatibility field written by newer server events. */
+  eventType?: AgencyPrepEventType;
+  description?: string;
   /** Free-form structured payload, e.g. { fromScore, toScore } for score_lifted. */
   payload?: Record<string, unknown>;
   /** uid of the actor when known (candidate, recruiter, or system). */
@@ -53,9 +60,13 @@ export interface AgencyPrepEvent {
 export interface RecruiterNote {
   id: string;
   body: string;
+  noteText?: string;
   authorUserId: string;
+  recruiterId?: string;
   authorName: string;
+  recruiterName?: string;
   createdAt: any; // Firestore Timestamp
+  updatedAt?: any; // Firestore Timestamp
 }
 
 /**
@@ -75,6 +86,14 @@ export interface AgencyInvite {
   sentByUserId: string;
   sentByName?: string;
   status: AgencyInviteStatus;
+  agencyBranchId?: string;
+  branchName?: string;
+  branchSlug?: string;
+  inviteToken?: string;
+  preparePath?: string;
+  queuedMailId?: string | null;
+  deliveryState?: 'CREATED' | 'QUEUED' | 'SUPPRESSED' | 'SUCCESS' | 'ERROR';
+  deliveryNote?: string;
   /** Convenience link to the matching prep session once the candidate signs in. */
   matchedSessionId?: string;
   createdAt: any; // Firestore Timestamp

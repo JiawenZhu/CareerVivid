@@ -17,14 +17,6 @@ const isIndeed = window.location.hostname === 'indeed.com' || window.location.ho
 
 let extensionContextInvalidated = false;
 let isUserAuthenticated = false;
-let careerVividAuthSyncStarted = false;
-
-function claimContentScriptBoot(): boolean {
-  const win = window as Window & { __careerVividContentScriptBooted__?: boolean };
-  if (win.__careerVividContentScriptBooted__) return false;
-  win.__careerVividContentScriptBooted__ = true;
-  return true;
-}
 
 type CareerVividAuthPayload = {
   token: string;
@@ -61,9 +53,7 @@ function sendRuntimeMessage<T = any>(
       return false;
     }
 
-    if (import.meta.env.DEV) {
-      console.debug('[CareerVivid Extension] Runtime message skipped:', err);
-    }
+    console.debug('[CareerVivid Extension] Runtime message skipped:', err);
     return false;
   }
 }
@@ -378,56 +368,12 @@ function injectStyles(): void {
 
 // ── Job Data Extraction ───────────────────────────────────────────────────────
 
-function formatCompanySlug(slug: string): string {
-  const cleaned = slug.trim().replace(/[-_]+/g, ' ');
-  if (!cleaned) return '';
-
-  const knownNames: Record<string, string> = {
-    openai: 'OpenAI',
-    anthropic: 'Anthropic',
-  };
-
-  const normalized = cleaned.replace(/\s+/g, '').toLowerCase();
-  if (knownNames[normalized]) return knownNames[normalized];
-
-  return cleaned
-    .split(/\s+/)
-    .map(part => part ? part.charAt(0).toUpperCase() + part.slice(1) : '')
-    .join(' ');
-}
-
-function getCompanyFromATSUrl(): string {
-  try {
-    const { hostname, pathname } = window.location;
-    const pathParts = pathname.split('/').filter(Boolean);
-
-    if (/ashbyhq\.com$/i.test(hostname) && pathParts[0]) {
-      return formatCompanySlug(pathParts[0]);
-    }
-
-    if (/jobs\.lever\.co$/i.test(hostname) && pathParts[0]) {
-      return formatCompanySlug(pathParts[0]);
-    }
-
-    const greenhouseMatch = hostname.match(/^([^.]+)\.greenhouse\.io$/i);
-    if (greenhouseMatch?.[1]) {
-      return formatCompanySlug(greenhouseMatch[1]);
-    }
-  } catch (e) {}
-
-  return '';
-}
-
 function getCompanyFromPage(): string {
-  // 1. ATS URLs often carry the company slug, e.g. jobs.ashbyhq.com/openai/...
-  const atsCompany = getCompanyFromATSUrl();
-  if (atsCompany) return atsCompany;
-
-  // 2. Try og:site_name metadata
+  // 1. Try og:site_name metadata
   const siteName = document.querySelector('meta[property="og:site_name"]')?.getAttribute('content');
   if (siteName) return siteName.trim();
 
-  // 3. Try common company name selectors on ATS pages
+  // 2. Try common company name selectors on ATS pages
   const selectors = ['.company-name', '[class*="companyName"]', '.company', '.brand', '.logo-text'];
   for (const selector of selectors) {
     const el = document.querySelector(selector);
@@ -437,7 +383,7 @@ function getCompanyFromPage(): string {
     }
   }
 
-  // 4. Fallback to capitalized domain name
+  // 3. Fallback to capitalized domain name
   try {
     const hostname = window.location.hostname.replace(/^www\./i, '');
     const firstPart = hostname.split('.')[0];
@@ -449,154 +395,7 @@ function getCompanyFromPage(): string {
   return document.title || 'Unknown Company';
 }
 
-function getTextAfterHeading(labels: string[]): string {
-  const normalizedLabels = labels.map(label => label.toLowerCase());
-  const headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, strong, b, dt'));
-
-  for (const heading of headings) {
-    const headingText = heading.textContent?.trim().replace(/[:*]+$/g, '').toLowerCase();
-    if (!headingText || !normalizedLabels.includes(headingText)) continue;
-
-    let next = heading.nextElementSibling;
-    while (next) {
-      const text = next.textContent?.trim();
-      if (text) return text;
-      next = next.nextElementSibling;
-    }
-  }
-
-  return '';
-}
-
-function extractLocation(): string {
-  const labelledLocation = getTextAfterHeading(['Location', 'Office', 'Workplace']);
-  if (labelledLocation && labelledLocation.length < 120) return labelledLocation;
-
-  const locationSelectors = [
-    '[class*="location"]',
-    '[data-testid*="location"]',
-    '[aria-label*="location" i]',
-  ];
-
-  for (const selector of locationSelectors) {
-    const el = document.querySelector(selector);
-    const text = el?.textContent?.trim();
-    if (text && text.length < 120) return text;
-  }
-
-  return '';
-}
-
-function extractSalary(): string {
-  // LinkedIn
-  const liInsights = document.querySelectorAll(
-    '.job-details-jobs-unified-top-card__job-insight span, .compensation-and-workplace-type span, .job-details-preferences-and-skills__pill'
-  );
-  for (const el of Array.from(liInsights)) {
-    const text = el.textContent?.trim() || '';
-    if (text.includes('$') || text.toLowerCase().includes('/yr') || text.toLowerCase().includes('/hr')) {
-      return text;
-    }
-  }
-
-  // Indeed
-  const indeedSnippets = document.querySelectorAll('[data-testid="attribute_snippet_testid"], [data-testid="jobsearch-SalaryEstimate"]');
-  for (const el of Array.from(indeedSnippets)) {
-    const text = el.textContent?.trim() || '';
-    if (text.includes('$')) return text;
-  }
-
-  // Generic: regex over visible text near the top of the page
-  const SALARY_RE = /\$[\d,]+(?:K)?(?:\s*[-–]\s*\$[\d,]+(?:K)?)?(?:\s*(?:per|\/)\s*(?:year|yr|hour|hr|month|mo))?/i;
-  const candidates = document.querySelectorAll('h1, h2, h3, [class*="salary"], [class*="compensation"], [class*="pay"]');
-  for (const el of Array.from(candidates)) {
-    const text = el.textContent || '';
-    const m = text.match(SALARY_RE);
-    if (m) return m[0].trim();
-  }
-
-  return '';
-}
-
-function getElementText(element: Element | null): string {
-  if (!element) return '';
-
-  const rawText = element instanceof HTMLElement
-    ? element.innerText
-    : element.textContent || '';
-
-  return rawText
-    .replace(/[ \t]+\n/g, '\n')
-    .replace(/\n[ \t]+/g, '\n')
-    .replace(/[ \t]{2,}/g, ' ')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
-}
-
-function isLikelyCsodJobPage(): boolean {
-  const hostname = window.location.hostname.toLowerCase();
-  const pathname = window.location.pathname.toLowerCase();
-
-  return (hostname.endsWith('.csod.com') || hostname.includes('cornerstoneondemand.com')) &&
-    pathname.includes('/careersite/') &&
-    pathname.includes('/requisition/');
-}
-
-function extractDescriptionFromVisiblePage(title?: string): string {
-  const selectors = [
-    '[data-testid*="job-description"]',
-    '[data-automation-id*="jobDescription"]',
-    '[class*="job-description"]',
-    '[class*="jobDescription"]',
-    '[class*="posting-description"]',
-    '[class*="requisition"]',
-    '[class*="description"]',
-    'main',
-    '[role="main"]',
-  ];
-
-  for (const selector of selectors) {
-    const text = getElementText(document.querySelector(selector));
-    if (text.length > 200) return text.slice(0, 12000);
-  }
-
-  const bodyText = getElementText(document.body);
-  if (!bodyText || bodyText.length < 200) return '';
-
-  if (isLikelyCsodJobPage()) {
-    const startMarkers = [
-      'Job Summary',
-      'Duties & Responsibilities',
-      'Specialty Factors',
-      'Preferred Qualifications',
-      'Knowledge, Skills and Abilities',
-    ];
-    const endMarkers = [
-      'Looking for more',
-      'Illinois Human Resources',
-      'Requisition ID',
-    ];
-    const startCandidates = startMarkers
-      .map(marker => bodyText.indexOf(marker))
-      .filter(index => index >= 0);
-    const start = startCandidates.length > 0
-      ? Math.min(...startCandidates)
-      : title
-        ? bodyText.indexOf(title)
-        : 0;
-    const safeStart = start >= 0 ? start : 0;
-    const endCandidates = endMarkers
-      .map(marker => bodyText.indexOf(marker, safeStart + 1))
-      .filter(index => index > safeStart);
-    const end = endCandidates.length > 0 ? Math.min(...endCandidates) : bodyText.length;
-
-    return bodyText.slice(safeStart, end).trim().slice(0, 12000);
-  }
-
-  return bodyText.slice(0, 12000);
-}
-
-function extractJobData(): { title: string; company: string; location: string; description: string; url: string; salary?: string } | null {
+function extractJobData(): { title: string; company: string; location: string; description: string; url: string } | null {
   try {
     if (isCareerVividWebApp()) return null;
 
@@ -608,29 +407,21 @@ function extractJobData(): { title: string; company: string; location: string; d
       const location = document.querySelector('.job-details-jobs-unified-top-card__primary-description-container')?.textContent?.trim() ||
         document.querySelector('.jobs-unified-top-card__primary-description-container')?.textContent?.trim();
       const description = document.querySelector('#job-details')?.textContent?.trim() || '';
-      const salary = extractSalary();
-      if (title && company) return { title, company, location: location || '', description, url: window.location.href, salary: salary || undefined };
+      if (title && company) return { title, company, location: location || '', description, url: window.location.href };
     } else if (isIndeed) {
       const title = document.querySelector('[data-testid="jobsearch-JobInfoHeader-title"]')?.textContent?.trim();
       const company = document.querySelector('[data-testid="inlineHeader-companyName"]')?.textContent?.trim();
       const location = document.querySelector('[data-testid="inlineHeader-companyLocation"]')?.textContent?.trim();
       const description = document.querySelector('#jobDescriptionText')?.textContent?.trim() || '';
-      const salary = extractSalary();
-      if (title && company) return { title, company, location: location || '', description, url: window.location.href, salary: salary || undefined };
+      if (title && company) return { title, company, location: location || '', description, url: window.location.href };
     } else {
       // Generic ATS extraction using Open Graph tags / page title
       let title = document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
         document.querySelector('h1')?.textContent?.trim() || '';
-      const metaDescription = document.querySelector('meta[name="description"]')?.getAttribute('content')?.trim() || '';
-      const salary = extractSalary();
+      const description = document.querySelector('meta[name="description"]')?.getAttribute('content') ||
+        document.querySelector('[class*="description"]')?.textContent?.trim() || '';
+      
       const company = getCompanyFromPage();
-      const location = extractLocation();
-      const visibleDescription = extractDescriptionFromVisiblePage(title);
-      const description = isLikelyCsodJobPage() && visibleDescription
-        ? visibleDescription
-        : metaDescription.length > 200
-        ? metaDescription
-        : visibleDescription;
 
       // Clean up title (remove trailing company name, e.g. "Software Engineer - OpenAI" -> "Software Engineer")
       if (title && company) {
@@ -643,67 +434,12 @@ function extractJobData(): { title: string; company: string; location: string; d
         }
       }
 
-      if (title) return { title, company, location, description, url: window.location.href, salary: salary || undefined };
+      if (title) return { title, company, location: '', description, url: window.location.href };
     }
   } catch (e) {
-    if (import.meta.env.DEV) {
-      console.debug('[CareerVivid] Job extraction error:', e);
-    }
+    console.error('[CareerVivid] Job extraction error:', e);
   }
   return null;
-}
-
-let lastBroadcastedJobContextSignature = '';
-let jobContextBroadcastTimer: number | null = null;
-let jobContextObserver: MutationObserver | null = null;
-
-function getJobContextSignature(
-  job: ReturnType<typeof extractJobData>,
-  context: ReturnType<typeof getATSContext>
-): string {
-  return JSON.stringify({
-    url: window.location.href,
-    title: job?.title || '',
-    company: job?.company || '',
-    descriptionLength: job?.description?.length || 0,
-    salary: job?.salary || '',
-    platform: context.platform || '',
-    isApplicationPage: !!context.isApplicationPage,
-  });
-}
-
-function broadcastJobContextIfChanged(force = false): void {
-  try {
-    const job = extractJobData();
-    const context = getATSContext();
-    const signature = getJobContextSignature(job, context);
-
-    if (!force && signature === lastBroadcastedJobContextSignature) return;
-
-    lastBroadcastedJobContextSignature = signature;
-    sendRuntimeMessage({
-      type: 'JOB_CONTEXT_CHANGED',
-      job,
-      context,
-      url: window.location.href,
-      title: document.title,
-    });
-  } catch (e) {
-    if (import.meta.env.DEV) {
-      console.debug('[CareerVivid] Job context broadcast skipped:', e);
-    }
-  }
-}
-
-function scheduleJobContextBroadcast(delay = 350): void {
-  if (jobContextBroadcastTimer) {
-    window.clearTimeout(jobContextBroadcastTimer);
-  }
-
-  jobContextBroadcastTimer = window.setTimeout(() => {
-    jobContextBroadcastTimer = null;
-    broadcastJobContextIfChanged();
-  }, delay);
 }
 
 // ── Toast Notifications ───────────────────────────────────────────────────────
@@ -765,7 +501,7 @@ function shouldShowFAB(): boolean {
   const lowercaseUrl = window.location.href.toLowerCase();
 
   // Do not show on main CareerVivid web application itself to prevent recursion
-  if (lowercaseUrl.includes('careervivid.app')) {
+  if (lowercaseUrl.includes('careervivid.app') && !lowercaseUrl.includes('localhost') && !lowercaseUrl.includes('127.0.0.1')) {
     return false;
   }
 
@@ -1214,25 +950,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     // Background forwards the user's profile; we run the fill engine
     case 'FILL_FORM': {
       const profile: AutoFillProfile = message.profile;
-
-      let resumeFile: File | undefined;
-      if (message.base64Pdf && message.fileName) {
-        try {
-          const raw = atob(message.base64Pdf);
-          const array = new Uint8Array(new ArrayBuffer(raw.length));
-          for (let i = 0; i < raw.length; i++) {
-            array[i] = raw.charCodeAt(i);
-          }
-          const blob = new Blob([array], { type: 'application/pdf' });
-          resumeFile = new File([blob], message.fileName, { type: 'application/pdf' });
-        } catch (fileErr) {
-          if (import.meta.env.DEV) {
-            console.debug('[CareerVivid] Failed to decode and reconstitute resume PDF:', fileErr);
-          }
-        }
-      }
-
-      runAutofill(profile, resumeFile).then((result: AutoFillResult) => {
+      runAutofill(profile).then((result: AutoFillResult) => {
         // Update FAB to show success (compat)
         if (fabEl) {
           fabEl.classList.remove('cv-fab-loading');
@@ -1259,14 +977,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         }
 
         // Show a toast summary
-        const parts = [`✅ ${result.filledCount} fields filled`];
-        if (result.resumeUpload) {
-          if (result.resumeUpload.status === 'success') {
-            parts.push(`📄 Resume uploaded!`);
-          } else if (result.resumeUpload.status === 'failed') {
-            parts.push(`❌ Resume upload failed`);
-          }
-        }
+        const parts = [`✅ ${result.filledCount} filled`];
         if (result.skippedCount > 0) parts.push(`⚠️ ${result.skippedCount} skipped`);
         if (result.errorCount > 0) parts.push(`❌ ${result.errorCount} errors`);
         showToast(parts.join('  ·  '));
@@ -1394,8 +1105,9 @@ function startCareerVividAuthSync(): void {
   const isCareerVividSite =
     isCareerVividWebApp();
 
-  if (!isCareerVividSite || careerVividAuthSyncStarted) return;
-  careerVividAuthSyncStarted = true;
+  if (!isCareerVividSite) return;
+
+  console.log('[CareerVivid Extension] Main site detected. Starting IndexedDB auth sync.');
 
   let lastToken = '';
   let missedChecks = 0;
@@ -1434,9 +1146,7 @@ function startCareerVividAuthSync(): void {
         clearAuth();
       }
     }).catch((e) => {
-      if (import.meta.env.DEV) {
-        console.debug('[CareerVivid Extension] Error reading Firebase IndexedDB auth:', e);
-      }
+      console.debug('[CareerVivid Extension] Error reading Firebase IndexedDB auth:', e);
     });
   };
 
@@ -1542,6 +1252,7 @@ function checkAuthStatus(callback?: () => void): void {
   const timeout = setTimeout(() => {
     if (!resolved) {
       resolved = true;
+      console.warn('[CareerVivid] Auth check timed out after 500ms. Defaulting to unauthenticated state.');
       isUserAuthenticated = false;
       callback?.();
     }
@@ -1587,9 +1298,7 @@ function throttledInject(): void {
         // injectFAB();
       }
     } catch (e) {
-      if (import.meta.env.DEV) {
-        console.debug('[CareerVivid] Injection error during render pass:', e);
-      }
+      console.error('[CareerVivid] Injection error during render pass:', e);
     } finally {
       rafPending = false;
     }
@@ -1627,16 +1336,12 @@ function startInjectionWindow(): void {
       subtree: true
     });
   } catch (e) {
-    if (import.meta.env.DEV) {
-      console.debug('[CareerVivid] Failed to start MutationObserver:', e);
-    }
+    console.warn('[CareerVivid] Failed to start MutationObserver:', e);
   }
 
   injectionTimeout = window.setTimeout(() => {
     stopInjectionWindow();
-    if (import.meta.env.DEV) {
-      console.debug('[CareerVivid] DOM scanning window ended (5-second timeout reached).');
-    }
+    console.debug('[CareerVivid] DOM scanning window ended (5-second timeout reached).');
   }, 5000);
 }
 
@@ -1655,11 +1360,8 @@ function setupSpaNavigationListener(): void {
   const handleUrlChange = () => {
     if (window.location.href !== lastKnownUrl) {
       lastKnownUrl = window.location.href;
-      if (import.meta.env.DEV) {
-        console.debug('[CareerVivid] SPA URL transition detected. Re-triggering injection safety window.');
-      }
+      console.debug('[CareerVivid] SPA URL transition detected. Re-triggering injection safety window.');
       startInjectionWindow();
-      scheduleJobContextBroadcast(500);
     }
   };
 
@@ -1675,45 +1377,6 @@ function setupSpaNavigationListener(): void {
     }
     handleUrlChange();
   }, 1000);
-}
-
-function setupJobContextBroadcasting(): void {
-  scheduleJobContextBroadcast(800);
-
-  if (jobContextObserver) return;
-
-  jobContextObserver = new MutationObserver((mutations) => {
-    const hasExternalChanges = mutations.some(mutation => {
-      const target = mutation.target;
-      if (!(target instanceof HTMLElement)) return mutation.type === 'characterData';
-      if (
-        target.id === 'cv-floating-root' || target.closest('#cv-floating-root') ||
-        target.id === 'cv-sidebar-panel' || target.closest('#cv-sidebar-panel') ||
-        target.id === 'cv-toast' || target.closest('#cv-toast')
-      ) {
-        return false;
-      }
-      return mutation.addedNodes.length > 0 ||
-        mutation.removedNodes.length > 0 ||
-        mutation.type === 'characterData';
-    });
-
-    if (hasExternalChanges) {
-      scheduleJobContextBroadcast();
-    }
-  });
-
-  try {
-    jobContextObserver.observe(document.body || document.documentElement, {
-      childList: true,
-      subtree: true,
-      characterData: true,
-    });
-  } catch (e) {
-    if (import.meta.env.DEV) {
-      console.debug('[CareerVivid] Job context observer skipped:', e);
-    }
-  }
 }
 
 async function silentPrefetch(): Promise<void> {
@@ -1768,9 +1431,7 @@ async function silentPrefetch(): Promise<void> {
     }
   } catch (e) {
     // Prefetch is best-effort — never surface errors to the user
-    if (import.meta.env.DEV) {
-      console.debug('[CareerVivid] prefetch skipped:', e);
-    }
+    console.debug('[CareerVivid] prefetch skipped:', e);
   }
 }
 
@@ -1779,42 +1440,32 @@ async function silentPrefetch(): Promise<void> {
  */
 async function safeInit(): Promise<void> {
   try {
-    if (!claimContentScriptBoot()) return;
-
-    if (isCareerVividWebApp()) {
-      startCareerVividAuthSync();
-      return;
-    }
-
     injectStyles();
 
     checkAuthStatus(async () => {
       try {
         startInjectionWindow();
         setupSpaNavigationListener();
-        setupJobContextBroadcasting();
+
+        if (isCareerVividWebApp()) {
+          startCareerVividAuthSync();
+        }
 
         const context = getATSContext();
         if (context.isApplicationPage) {
           setTimeout(() => {
             silentPrefetch().catch(e => {
-              if (import.meta.env.DEV) {
-                console.debug('[CareerVivid] Safe prefetch skipped:', e);
-              }
+              console.debug('[CareerVivid] Safe prefetch skipped:', e);
             });
           }, 1500);
         }
       } catch (innerError) {
-        if (import.meta.env.DEV) {
-          console.debug('[CareerVivid] Safe initialization callback failed:', innerError);
-        }
+        console.error('[CareerVivid] Safe initialization callback failed:', innerError);
       }
     });
 
   } catch (outerError) {
-    if (import.meta.env.DEV) {
-      console.debug('[CareerVivid] Unhandled content script boot error:', outerError);
-    }
+    console.error('[CareerVivid] Unhandled content script boot error:', outerError);
   }
 }
 

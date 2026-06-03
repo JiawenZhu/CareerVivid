@@ -1,16 +1,14 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { useJobTracker } from '../hooks/useJobTracker';
 import { useResumes } from '../hooks/useResumes'; // Import useResumes
-import { ApplicationStatus, APPLICATION_STATUSES, JobApplicationData, JobPriority } from '../types';
+import { JobApplicationData } from '../types';
 import StatusOverview from '../components/JobTracker/StatusOverview';
 import KanbanBoard from '../components/JobTracker/KanbanBoard';
 import StrategyMap from '../components/JobTracker/StrategyMap';
 import JobDetailModal from '../components/JobTracker/JobDetailModal';
-import AddJobModal, { type InitialJobData } from '../components/JobTracker/AddJobUrlModal';
-import TodayJobSearchPlan from '../components/JobTracker/TodayJobSearchPlan';
-import PipelineControls from '../components/JobTracker/PipelineControls';
+import AddJobModal from '../components/JobTracker/AddJobUrlModal';
 import { ArrowLeft, PlusCircle } from 'lucide-react';
 import { navigate } from '../utils/navigation';
 import AppLayout from '../components/Layout/AppLayout';
@@ -30,15 +28,9 @@ const JobTrackerPage: React.FC = () => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [highlightForNewJob, setHighlightForNewJob] = useState(false);
     const [viewMode, setViewMode] = useState<'kanban' | 'strategy'>('kanban');
-    const [searchQuery, setSearchQuery] = useState('');
-    const [statusFilter, setStatusFilter] = useState<ApplicationStatus | 'All'>('All');
-    const [priorityFilter, setPriorityFilter] = useState<JobPriority | 'All'>('All');
-    const [sortMode, setSortMode] = useState<'updated' | 'due' | 'priority'>('updated');
-    const handledDeepLinkRef = useRef('');
 
     const [initialJobDescription, setInitialJobDescription] = useState('');
     const [initialJobPostUrl, setInitialJobPostUrl] = useState('');
-    const [initialJobData, setInitialJobData] = useState<InitialJobData | undefined>(undefined);
     const [autoSubmit, setAutoSubmit] = useState(false);
 
     // Auto-clear transit data from session storage after the modal is successfully opened/stabilized
@@ -60,25 +52,7 @@ const JobTrackerPage: React.FC = () => {
             const scrapeId = params.get('scrapeId') || '';
             const fallbackDescription = params.get('fallbackDescription') || '';
             const url = params.get('url') || '';
-            const title = params.get('title') || '';
-            const company = params.get('company') || '';
-            const location = params.get('location') || '';
-            const salary = params.get('salary') || '';
-            const stage = params.get('stage') || '';
-            const resumeId = params.get('resumeId') || '';
-            const resumeTitle = params.get('resumeTitle') || '';
-            sessionStorage.setItem('transit_job_tracker', JSON.stringify({
-                scrapeId,
-                fallbackDescription,
-                url,
-                title,
-                company,
-                location,
-                salary,
-                stage,
-                resumeId,
-                resumeTitle,
-            }));
+            sessionStorage.setItem('transit_job_tracker', JSON.stringify({ scrapeId, fallbackDescription, url }));
 
             // Cleanse URL immediately to keep query parameters clean and avoid double-triggering
             const newUrl = window.location.pathname;
@@ -92,7 +66,7 @@ const JobTrackerPage: React.FC = () => {
 
             try {
                 const transitData = JSON.parse(transitStr);
-                const { scrapeId, fallbackDescription, url, title, company, location, salary, stage, resumeId: fallbackResumeId, resumeTitle: fallbackResumeTitle } = transitData;
+                const { scrapeId, fallbackDescription, url } = transitData;
 
                 // If cached parsed data already exists in sessionStorage, use it directly (resolves StrictMode double-fetch/early-delete)
                 const cachedDataStr = sessionStorage.getItem('transit_job_tracker_data');
@@ -100,7 +74,6 @@ const JobTrackerPage: React.FC = () => {
                     const cachedData = JSON.parse(cachedDataStr);
                     setInitialJobDescription(cachedData.description || '');
                     setInitialJobPostUrl(cachedData.url || '');
-                    setInitialJobData(cachedData.initialJobData);
                     setAutoSubmit(true);
                     setIsAddModalOpen(true);
                     return;
@@ -116,41 +89,15 @@ const JobTrackerPage: React.FC = () => {
                                 const data = docSnap.data();
                                 const jd = data.description || '';
                                 const jobUrl = data.url || data.jobPostURL || '';
-                                const resumeId = data.resumeId || '';
-                                const resumeTitle = data.resumeTitle || '';
-                                let matchAnalyses: InitialJobData['matchAnalyses'] | undefined;
-
-                                if (resumeId && data.matchAnalysisJson) {
-                                    try {
-                                        matchAnalyses = { [resumeId]: JSON.parse(data.matchAnalysisJson) };
-                                    } catch (parseError) {
-                                        console.warn('Unable to parse extension match analysis transit payload:', parseError);
-                                    }
-                                }
-
-                                const structuredJob: InitialJobData = {
-                                    jobTitle: data.title || '',
-                                    companyName: data.company || '',
-                                    location: data.location || '',
-                                    salaryRange: data.salary || '',
-                                    jobPostURL: jobUrl,
-                                    applicationURL: jobUrl,
-                                    jobDescription: jd,
-                                    stage: data.stage || '',
-                                    resumeId,
-                                    resumeTitle,
-                                    matchAnalyses,
-                                };
 
                                 // Cache the fetched results in sessionStorage first
                                 sessionStorage.setItem(
                                     'transit_job_tracker_data',
-                                    JSON.stringify({ description: jd, url: jobUrl, initialJobData: structuredJob })
+                                    JSON.stringify({ description: jd, url: jobUrl })
                                 );
 
                                 setInitialJobDescription(jd);
                                 setInitialJobPostUrl(jobUrl);
-                                setInitialJobData(structuredJob);
                                 setAutoSubmit(true);
                                 setIsAddModalOpen(true);
 
@@ -163,39 +110,9 @@ const JobTrackerPage: React.FC = () => {
                     }
                     // Wait for currentUser?.uid if not loaded yet
                 } else if (fallbackDescription) {
-                    const structuredJob: InitialJobData = {
-                        jobTitle: title || '',
-                        companyName: company || '',
-                        location: location || '',
-                        salaryRange: salary || '',
-                        jobPostURL: url || '',
-                        applicationURL: url || '',
-                        jobDescription: fallbackDescription || '',
-                        stage: stage || '',
-                        resumeId: fallbackResumeId || '',
-                        resumeTitle: fallbackResumeTitle || '',
-                    };
                     setInitialJobDescription(fallbackDescription);
                     setInitialJobPostUrl(url || '');
-                    setInitialJobData(structuredJob);
                     setAutoSubmit(true);
-                    setIsAddModalOpen(true);
-                } else if (title || company || location || salary) {
-                    const structuredJob: InitialJobData = {
-                        jobTitle: title || '',
-                        companyName: company || '',
-                        location: location || '',
-                        salaryRange: salary || '',
-                        jobPostURL: url || '',
-                        applicationURL: url || '',
-                        stage: stage || '',
-                        resumeId: fallbackResumeId || '',
-                        resumeTitle: fallbackResumeTitle || '',
-                    };
-                    setInitialJobDescription('');
-                    setInitialJobPostUrl(url || '');
-                    setInitialJobData(structuredJob);
-                    setAutoSubmit(false);
                     setIsAddModalOpen(true);
                 }
             } catch (e) {
@@ -217,30 +134,6 @@ const JobTrackerPage: React.FC = () => {
         setSelectedJob(null);
         setHighlightForNewJob(false);
     };
-
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const jobId = params.get('job');
-        const queryText = params.get('q');
-        const signature = `${jobId || ''}:${queryText || ''}:${jobApplications.length}`;
-
-        if (!jobId && !queryText) return;
-        if (handledDeepLinkRef.current === signature) return;
-
-        if (queryText) {
-            setSearchQuery(queryText);
-        }
-
-        if (jobId && jobApplications.length) {
-            const matchedJob = jobApplications.find(job => job.id === jobId);
-            if (matchedJob) {
-                setSelectedJob(matchedJob);
-                setHighlightForNewJob(false);
-            }
-        }
-
-        handledDeepLinkRef.current = signature;
-    }, [jobApplications]);
 
     const handleJobAdded = async (jobData: Omit<JobApplicationData, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => {
         setIsAddModalOpen(false);
@@ -266,47 +159,6 @@ const JobTrackerPage: React.FC = () => {
             // Optionally, show an alert to the user here.
         }
     };
-
-    const toTime = (value: any): number => {
-        if (!value) return Number.MAX_SAFE_INTEGER;
-        if (value.toDate && typeof value.toDate === 'function') return value.toDate().getTime();
-        if (typeof value === 'object' && typeof value.seconds === 'number') return value.seconds * 1000;
-        const date = new Date(value);
-        return Number.isNaN(date.getTime()) ? Number.MAX_SAFE_INTEGER : date.getTime();
-    };
-
-    const focusedStatus = statusFilter === 'All' ? null : statusFilter;
-
-    const statusCounts = useMemo(() => {
-        return APPLICATION_STATUSES.reduce((counts, status) => {
-            counts[status] = jobApplications.filter(job => job.applicationStatus === status).length;
-            return counts;
-        }, {} as Record<ApplicationStatus, number>);
-    }, [jobApplications]);
-
-    const filteredApplications = jobApplications
-        .filter(job => {
-            const query = searchQuery.trim().toLowerCase();
-            if (!query) return true;
-            return [
-                job.jobTitle,
-                job.companyName,
-                job.location,
-                job.interviewStage,
-                job.nextAction,
-                job.contactName,
-            ].some(value => (value || '').toLowerCase().includes(query));
-        })
-        .filter(job => statusFilter === 'All' || job.applicationStatus === statusFilter)
-        .filter(job => priorityFilter === 'All' || (job.priority || 'Medium') === priorityFilter)
-        .sort((a, b) => {
-            if (sortMode === 'due') return toTime(a.nextActionDueDate) - toTime(b.nextActionDueDate);
-            if (sortMode === 'priority') {
-                const score: Record<JobPriority, number> = { High: 0, Medium: 1, Low: 2 };
-                return score[a.priority || 'Medium'] - score[b.priority || 'Medium'] || toTime(a.nextActionDueDate) - toTime(b.nextActionDueDate);
-            }
-            return toTime(b.updatedAt) - toTime(a.updatedAt);
-        });
 
     return (
         <AppLayout>
@@ -339,43 +191,47 @@ const JobTrackerPage: React.FC = () => {
                     </div>
                 </header>
 
-                <main className="py-6">
-                    <div className="max-w-full mx-auto px-3 sm:px-5 lg:px-6">
+                <main className="py-10">
+                    <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
                         {isLoading ? (
                             <p className="text-center text-gray-500 dark:text-gray-400">{t('job_tracker.loading')}</p>
                         ) : (
                             <>
-                                <StatusOverview applications={jobApplications} variant="compact" />
+                                <StatusOverview applications={jobApplications} />
 
-                                <TodayJobSearchPlan applications={jobApplications} onJobSelect={handleCardClick} />
-
-                                <PipelineControls
-                                    searchQuery={searchQuery}
-                                    setSearchQuery={setSearchQuery}
-                                    priorityFilter={priorityFilter}
-                                    setPriorityFilter={setPriorityFilter}
-                                    sortMode={sortMode}
-                                    setSortMode={setSortMode}
-                                    viewMode={viewMode}
-                                    setViewMode={setViewMode}
-                                    statusFilter={statusFilter}
-                                    setStatusFilter={setStatusFilter}
-                                    statusCounts={statusCounts}
-                                    filteredCount={filteredApplications.length}
-                                    totalCount={jobApplications.length}
-                                />
+                                <div className="mt-8 mb-6 flex justify-end">
+                                    <div className="bg-white dark:bg-gray-800 p-1 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 inline-flex">
+                                        <button
+                                            onClick={() => setViewMode('kanban')}
+                                            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === 'kanban'
+                                                ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400'
+                                                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                                                }`}
+                                        >
+                                            Kanban Board
+                                        </button>
+                                        <button
+                                            onClick={() => setViewMode('strategy')}
+                                            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === 'strategy'
+                                                ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400'
+                                                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                                                }`}
+                                        >
+                                            Strategy Map
+                                        </button>
+                                    </div>
+                                </div>
 
                                 <div className="mt-4">
                                     {viewMode === 'kanban' ? (
                                         <KanbanBoard
-                                            applications={filteredApplications}
+                                            applications={jobApplications}
                                             onCardClick={handleCardClick}
                                             onUpdateApplication={updateJobApplication}
-                                            focusedStatus={focusedStatus}
                                         />
                                     ) : (
                                         <StrategyMap
-                                            applications={filteredApplications}
+                                            applications={jobApplications}
                                             resumes={resumes} // Pass resumes
                                             onCardClick={handleCardClick}
                                             onUpdateJob={updateJobApplication} // Pass update function
@@ -393,19 +249,16 @@ const JobTrackerPage: React.FC = () => {
                             setIsAddModalOpen(false);
                             setInitialJobDescription('');
                             setInitialJobPostUrl('');
-                            setInitialJobData(undefined);
                             setAutoSubmit(false);
                         }}
                         onJobAdded={(jobData) => {
                             handleJobAdded(jobData);
                             setInitialJobDescription('');
                             setInitialJobPostUrl('');
-                            setInitialJobData(undefined);
                             setAutoSubmit(false);
                         }}
                         initialJobDescription={initialJobDescription}
                         initialJobPostUrl={initialJobPostUrl}
-                        initialJobData={initialJobData}
                         autoSubmit={autoSubmit}
                     />
                 )}

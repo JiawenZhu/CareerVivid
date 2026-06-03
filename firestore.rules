@@ -439,6 +439,14 @@ service cloud.firestore {
       }
     }
 
+    match /agencyInvites/{inviteId} {
+      allow read: if isAdmin() ||
+        (request.auth != null &&
+         exists(/databases/$(database)/documents/agencyBranches/$(resource.data.agencyBranchId)) &&
+         get(/databases/$(database)/documents/agencyBranches/$(resource.data.agencyBranchId)).data.ownerUserId == request.auth.uid);
+      allow write: if false;
+    }
+
     match /agencyPrepSessions/{sessionId} {
       // Candidates can create their own prep session for an existing branch.
       allow create: if request.auth != null &&
@@ -460,6 +468,7 @@ service cloud.firestore {
           'startingScore',
           'latestScore',
           'scoreDelta',
+          'positionTags',
           'consentToShare',
           'readinessReport',
           'createdAt',
@@ -493,6 +502,15 @@ service cloud.firestore {
           'updatedAt',
           'startedAt',
           'sharedAt'
+        ]);
+
+      // Branch owners can maintain recruiter-side tags without editing the
+      // candidate-owned resume/share state.
+      allow update: if request.auth != null &&
+        (isAdmin() || resource.data.agencyOwnerUserId == request.auth.uid) &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'positionTags',
+          'updatedAt'
         ]);
 
       allow delete: if isAdmin();

@@ -12,7 +12,7 @@ async function setupEnterprise() {
       enterpriseProduct = existingEnterprise;
   } else {
       console.log('Creating new Enterprise product...');
-      enterpriseProduct = await stripe.products.create({ name: 'Enterprise', description: '1,500 pooled AI Credits / seat / mo' });
+      enterpriseProduct = await stripe.products.create({ name: 'Enterprise', description: '5,000 pooled AI Credits / seat / mo' });
   }
 
   console.log("\nCreating new $12.00 per seat recurring price...");

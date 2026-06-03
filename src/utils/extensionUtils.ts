@@ -16,7 +16,8 @@ export const isCareerVividAppUrl = (url?: string | null): boolean => {
         const parsed = new URL(url);
         return parsed.hostname === 'careervivid.app' ||
             parsed.hostname.endsWith('.careervivid.app') ||
-            (import.meta.env.DEV && (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1'));
+            parsed.hostname === 'localhost' ||
+            parsed.hostname === '127.0.0.1';
     } catch {
         return false;
     }

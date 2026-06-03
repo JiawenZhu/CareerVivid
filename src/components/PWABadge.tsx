@@ -8,8 +8,12 @@ export default function PWABadge() {
         needRefresh: [needRefresh, setNeedRefresh],
         updateServiceWorker,
     } = useRegisterSW({
-        onRegistered() {},
-        onRegisterError() {},
+        onRegistered(r) {
+            console.log('SW Registered:', r);
+        },
+        onRegisterError(error) {
+            console.log('SW registration error', error);
+        },
     });
 
     const [isAnimating, setIsAnimating] = useState(false);

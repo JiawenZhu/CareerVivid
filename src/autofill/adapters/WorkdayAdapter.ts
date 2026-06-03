@@ -1,5 +1,5 @@
 /**
- * CareerVivid Job Application Assistant — Workday ATS Adapter
+ * CareerVivid Auto-Apply — Workday ATS Adapter
  *
  * Workday powers ~35% of Fortune 500 job applications: Google, Salesforce,
  * Cisco, Adobe, JPMorgan, Target, Nike, Deloitte, Accenture, and thousands more.
@@ -34,7 +34,6 @@ import {
   fillSelectByValue,
   fillTextarea,
   clickRadioByLabel,
-  isDemographicField,
 } from '../fillUtils';
 
 export class WorkdayAdapter implements ATSAdapter {
@@ -85,7 +84,7 @@ export class WorkdayAdapter implements ATSAdapter {
         const field = this._extractFieldFromWrapper(wrapper);
         if (field) fields.push(field);
       }
-      return fields.filter(f => !isDemographicField(f.label));
+      return fields;
     }
 
     // Strategy B: Workday sometimes uses a different structure on embedded career sites.
@@ -113,7 +112,7 @@ export class WorkdayAdapter implements ATSAdapter {
     const radioGroups = this._discoverRadioGroups(form);
     fields.push(...radioGroups);
 
-    return fields.filter(f => !isDemographicField(f.label));
+    return fields;
   }
 
   // ─── Field Filling ─────────────────────────────────────────────────────────

@@ -5,29 +5,28 @@
  * Plan overview:
  *  - Free:       100 AI credits / month  (Gemini models only)
  *  - Pro:      1,000 AI credits / month
- *  - Max:      5,000 AI credits / month
- *  - Enterprise: 1,500 AI credits / seat / month (pooled)
+ *  - Max:     10,000 AI credits / month
+ *  - Enterprise: 5,000 AI credits / seat / month (pooled)
  */
 
 // --- Tier Limits (Monthly) ---
 export const FREE_PLAN_CREDIT_LIMIT = 100;        // Free tier: 100 credits/mo
 export const PRO_PLAN_CREDIT_LIMIT = 1000;        // Pro: $9/mo → 1,000 credits
-export const PRO_MAX_PLAN_CREDIT_LIMIT = 5000;    // Max: $29/mo → 5,000 credits
-export const ENTERPRISE_PLAN_CREDIT_LIMIT = 1500; // Enterprise: $12/seat (pooled)
+export const PRO_MAX_PLAN_CREDIT_LIMIT = 10000;   // Max: $29/mo → 10,000 credits
+export const ENTERPRISE_PLAN_CREDIT_LIMIT = 5000; // Enterprise: $12/seat (pooled)
 
 // --- CLI Agent costs (per AI round-trip) ---
 export const CLI_AGENT_COSTS = {
-    'gemini-3.1-flash-lite': 0.5,         // Default — best value
-    'gemini-2.5-flash-lite': 0.5,         // Legacy fast model
-    'gemini-2.5-flash': 1,                // Balanced
-    'gemini-2.5-pro': 2,                  // Deep reasoning
+    'gemini-3.1-flash-lite-preview': 0.5, // Fastest — best value
+    'gemini-2.5-flash': 1,                // Default — balanced
+    'gemini-3.1-pro-preview': 2,          // Deep reasoning
 } as const;
 
 export const AI_CREDIT_COSTS = {
     // --- CLI Agent (per turn) ---
-    CLI_AGENT_FLASH_LITE: 0.5,   // gemini-3.1-flash-lite
+    CLI_AGENT_FLASH_LITE: 0.5,   // gemini-3.1-flash-lite-preview
     CLI_AGENT_FLASH: 1,          // gemini-2.5-flash
-    CLI_AGENT_PRO: 2,            // gemini-2.5-pro
+    CLI_AGENT_PRO: 2,            // gemini-3.1-pro-preview
 
     // --- Job Tools ---
     JOB_SEARCH: 1,               // Search & score jobs against resume

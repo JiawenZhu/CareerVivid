@@ -19,7 +19,7 @@ export const usePracticeHistory = () => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (!currentUser || !currentUser.uid) {
+        if (!currentUser) {
             setPracticeHistory([]);
             setIsLoading(false);
             return;
@@ -52,8 +52,8 @@ export const usePracticeHistory = () => {
     }, [currentUser]);
 
     const addJob = useCallback(async (jobData: Omit<Job, 'id'>, questions: string[]): Promise<string> => {
-        if (!currentUser || !currentUser.uid) throw new Error("User not logged in");
-
+        if (!currentUser) throw new Error("User not logged in");
+        
         const id = createJobId(jobData);
         const jobWithId = { ...jobData, id };
         const historyRef = doc(db, 'users', currentUser.uid, 'practiceHistory', id);
@@ -77,12 +77,12 @@ export const usePracticeHistory = () => {
                 section: 'interviews',
             });
         }
-
+        
         return id;
     }, [currentUser]);
 
     const addAnalysisToJob = useCallback(async (jobId: string, analysisData: Omit<InterviewAnalysis, 'id' | 'timestamp'>): Promise<InterviewAnalysis> => {
-        if (!currentUser || !currentUser.uid) throw new Error("User not logged in");
+        if (!currentUser) throw new Error("User not logged in");
         const historyRef = doc(db, 'users', currentUser.uid, 'practiceHistory', jobId);
 
         const newAnalysis: InterviewAnalysis = {
@@ -99,8 +99,8 @@ export const usePracticeHistory = () => {
     }, [currentUser]);
 
     const addCompletedPractice = useCallback(async (practiceData: PracticeHistoryEntry) => {
-        if (!currentUser || !currentUser.uid) throw new Error("User not logged in");
-
+        if (!currentUser) throw new Error("User not logged in");
+        
         const { id, ...dataToSave } = practiceData;
         const newId = createJobId(dataToSave.job);
         const historyRef = doc(db, 'users', currentUser.uid, 'practiceHistory', newId);
@@ -110,12 +110,12 @@ export const usePracticeHistory = () => {
             timestamp: serverTimestamp(),
             section: 'interviews',
         }, { merge: true }); // Merge to avoid overwriting existing data if practicing again for the same role
-
+        
         return newId;
     }, [currentUser]);
-
+    
     const updatePracticeHistory = useCallback(async (jobId: string, updatedData: Partial<PracticeHistoryEntry>) => {
-        if (!currentUser || !currentUser.uid) return;
+        if (!currentUser) return;
         try {
             const cleanData = JSON.parse(JSON.stringify(updatedData));
             delete cleanData.id;
@@ -132,7 +132,7 @@ export const usePracticeHistory = () => {
     }, [currentUser]);
 
     const deletePracticeHistory = useCallback(async (jobId: string) => {
-        if (!currentUser || !currentUser.uid) throw new Error("User not logged in");
+        if (!currentUser) throw new Error("User not logged in");
         try {
             const historyRef = doc(db, 'users', currentUser.uid, 'practiceHistory', jobId);
             await deleteDoc(historyRef);
@@ -142,7 +142,7 @@ export const usePracticeHistory = () => {
     }, [currentUser]);
 
     const deleteAllPracticeHistory = useCallback(async () => {
-        if (!currentUser || !currentUser.uid) return;
+        if (!currentUser) return;
         try {
             const historyCol = collection(db, 'users', currentUser.uid, 'practiceHistory');
             const snapshot = await getDocs(historyCol);

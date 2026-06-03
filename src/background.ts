@@ -5,22 +5,11 @@
 
 import type { AutoFillProfile } from './types/autofill.types';
 
-const makeStorageKey = (namespace: string, parts: Array<string | null | undefined>) => {
-    const input = parts.filter(Boolean).join('|');
-    let hash = 0x811c9dc5;
-
-    for (let index = 0; index < input.length; index += 1) {
-        hash ^= input.charCodeAt(index);
-        hash = Math.imul(hash, 0x01000193);
-    }
-
-    return `${namespace}_${(hash >>> 0).toString(36)}`;
-};
-
 // ── Installation Handler ──────────────────────────────────────────────────────
 
 chrome.runtime.onInstalled.addListener((details) => {
     if (details.reason === 'install') {
+        console.log('CareerVivid Extension installed');
         chrome.tabs.create({ url: 'https://careervivid.app/extension-welcome' });
     }
 
@@ -49,17 +38,13 @@ function openNativeSidePanel(tabId?: number): Promise<void> {
 
 if ((chrome as any).sidePanel?.setPanelBehavior) {
     (chrome as any).sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch((error: unknown) => {
-        if (import.meta.env.DEV) {
-            console.debug('[CareerVivid] Side panel behavior setup skipped:', error);
-        }
+        console.debug('[CareerVivid] Side panel behavior setup skipped:', error);
     });
 }
 
 chrome.action.onClicked.addListener((tab) => {
     openNativeSidePanel(tab.id).catch((error: unknown) => {
-        if (import.meta.env.DEV) {
-            console.debug('[CareerVivid] Toolbar side panel open failed:', error);
-        }
+        console.debug('[CareerVivid] Toolbar side panel open failed:', error);
     });
 });
 
@@ -68,18 +53,15 @@ chrome.action.onClicked.addListener((tab) => {
 const AUTH_DOMAINS = [
     'https://careervivid.app',
     'https://www.careervivid.app',
-    ...(import.meta.env.DEV ? [
-        'http://localhost:5173',
-        'http://localhost:3000',
-        'http://localhost:3001',
-        'http://127.0.0.1:3000',
-        'http://127.0.0.1:3001',
-        'http://127.0.0.1:5173'
-    ] : [])
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://127.0.0.1:5173'
 ] as const;
 
 const AUTH_REFRESH_ALARM = 'careervivid-refresh-auth-token';
-const EXTENSION_RESUME_MATCH_ENDPOINT = 'https://us-west1-jastalk-firebase.cloudfunctions.net/analyzeExtensionResumeMatch';
 
 type ExtensionAuthPayload = {
     token: string;
@@ -95,14 +77,9 @@ type ExtensionAuthPayload = {
 const CAREERVIVID_TAB_HOSTS = new Set([
     'careervivid.app',
     'www.careervivid.app',
-    ...(import.meta.env.DEV ? ['localhost', '127.0.0.1'] : [])
+    'localhost',
+    '127.0.0.1'
 ]);
-
-function isLocalDevCareerVividHost(hostname: string, port?: string): boolean {
-    return import.meta.env.DEV &&
-        (hostname === 'localhost' || hostname === '127.0.0.1') &&
-        (!port || ['3000', '3001', '5173'].includes(port));
-}
 
 function parseJwt(token: string): any {
     try {
@@ -147,9 +124,7 @@ async function refreshFirebaseToken(refreshToken: string, apiKey: string): Promi
 
         if (!response.ok) {
             const errText = await response.text();
-            if (import.meta.env.DEV) {
-                console.debug('[CareerVivid] Token refresh failed:', response.status, errText);
-            }
+            console.error('[CareerVivid] Token refresh failed:', response.status, errText);
             return null;
         }
 
@@ -161,9 +136,7 @@ async function refreshFirebaseToken(refreshToken: string, apiKey: string): Promi
 
         return { idToken, refreshToken: newRefreshToken, expirationTime };
     } catch (e) {
-        if (import.meta.env.DEV) {
-            console.debug('[CareerVivid] Error during token refresh fetch:', e);
-        }
+        console.error('[CareerVivid] Error during token refresh fetch:', e);
         return null;
     }
 }
@@ -215,6 +188,7 @@ function ensureFreshToken(callback: (token: string | null) => void): void {
 
         // If expired but we have a refresh token and API key, refresh it!
         if (refreshToken && apiKey) {
+            console.log('[CareerVivid] ID token expired or expiring soon, attempting auto-refresh...');
             refreshFirebaseToken(refreshToken, apiKey).then((newData) => {
                 if (newData) {
                     chrome.storage.local.set({
@@ -226,19 +200,16 @@ function ensureFreshToken(callback: (token: string | null) => void): void {
                         authSyncSource: 'background_refresh'
                     }, () => {
                         scheduleTokenRefreshAlarm(newData.expirationTime);
+                        console.log('[CareerVivid] Token auto-refreshed successfully');
                         callback(newData.idToken);
                     });
                 } else {
-                    if (import.meta.env.DEV) {
-                        console.debug('[CareerVivid] Auto-refresh failed, using existing token as fallback');
-                    }
+                    console.warn('[CareerVivid] Auto-refresh failed, using existing token as fallback');
                     callback(idToken);
                 }
             });
         } else {
-            if (import.meta.env.DEV) {
-                console.debug('[CareerVivid] Cannot refresh token: missing refreshToken or apiKey. Using existing token.');
-            }
+            console.warn('[CareerVivid] Cannot refresh token: missing refreshToken or apiKey. Using existing token.');
             callback(idToken);
         }
     });
@@ -250,36 +221,6 @@ function getFreshTokenPromise(): Promise<string | null> {
             resolve(token);
         });
     });
-}
-
-async function postCallableFunction<T>(
-    endpoint: string,
-    idToken: string,
-    data: Record<string, unknown>
-): Promise<T> {
-    const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${idToken}`,
-        },
-        body: JSON.stringify({ data }),
-    });
-
-    const rawText = await response.text();
-    let parsed: any = {};
-    try {
-        parsed = rawText ? JSON.parse(rawText) : {};
-    } catch (_) {
-        parsed = { error: { message: rawText || `HTTP ${response.status}` } };
-    }
-
-    if (!response.ok) {
-        const errorMessage = parsed?.error?.message || parsed?.message || `Request failed with status ${response.status}`;
-        throw new Error(errorMessage);
-    }
-
-    return (parsed?.result || parsed) as T;
 }
 
 function parseFirestoreRestValue(val: any): any {
@@ -574,8 +515,11 @@ function isCareerVividTabUrl(url: string | undefined): boolean {
     if (!url) return false;
     try {
         const parsed = new URL(url);
-        return CAREERVIVID_TAB_HOSTS.has(parsed.hostname) ||
-            isLocalDevCareerVividHost(parsed.hostname, parsed.port);
+        if (!CAREERVIVID_TAB_HOSTS.has(parsed.hostname)) return false;
+        if ((parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') && !['3000', '3001', '5173'].includes(parsed.port)) {
+            return false;
+        }
+        return true;
     } catch (_) {
         return false;
     }
@@ -749,8 +693,8 @@ function isAllowedExternalSender(url: string | undefined): boolean {
         if (parsed.hostname === 'careervivid.app' || parsed.hostname.endsWith('.careervivid.app')) {
             return parsed.protocol === 'https:';
         }
-        if (isLocalDevCareerVividHost(parsed.hostname, parsed.port)) {
-            return parsed.protocol === 'http:';
+        if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+            return parsed.protocol === 'http:' && ['3000', '3001', '5173'].includes(parsed.port);
         }
         return false;
     } catch (_) {
@@ -761,22 +705,15 @@ function isAllowedExternalSender(url: string | undefined): boolean {
 
 function checkAuthToken(): void {
     hydrateAuthState().catch((err) => {
-        if (import.meta.env.DEV) {
-            console.debug('[CareerVivid] Auth hydration failed:', err);
-        }
+        console.debug('[CareerVivid] Auth hydration failed:', err);
     });
 }
 
 chrome.cookies.onChanged.addListener((changeInfo) => {
     const domain = changeInfo.cookie.domain;
-    if (
-        domain.includes('careervivid.app') ||
-        (import.meta.env.DEV && (domain.includes('localhost') || domain.includes('127.0.0.1')))
-    ) {
+    if (domain.includes('careervivid.app') || domain.includes('localhost') || domain.includes('127.0.0.1')) {
         hydrateAuthState({ allowClear: changeInfo.removed }).catch((err) => {
-            if (import.meta.env.DEV) {
-                console.debug('[CareerVivid] Cookie auth hydration failed:', err);
-            }
+            console.debug('[CareerVivid] Cookie auth hydration failed:', err);
         });
     }
 });
@@ -785,9 +722,7 @@ checkAuthToken();
 
 chrome.runtime.onStartup?.addListener(() => {
     hydrateAuthState().catch((err) => {
-        if (import.meta.env.DEV) {
-            console.debug('[CareerVivid] Startup auth hydration failed:', err);
-        }
+        console.debug('[CareerVivid] Startup auth hydration failed:', err);
     });
 });
 
@@ -797,9 +732,7 @@ chrome.alarms?.onAlarm.addListener((alarm) => {
     ensureFreshToken((token) => {
         if (!token) {
             hydrateAuthState().catch((err) => {
-                if (import.meta.env.DEV) {
-                    console.debug('[CareerVivid] Alarm auth hydration failed:', err);
-                }
+                console.debug('[CareerVivid] Alarm auth hydration failed:', err);
             });
         }
     });
@@ -809,9 +742,7 @@ chrome.tabs.onUpdated.addListener((_tabId, changeInfo, tab) => {
     if (changeInfo.status === 'complete' && isCareerVividTabUrl(tab.url)) {
         setTimeout(() => {
             hydrateAuthState().catch((err) => {
-                if (import.meta.env.DEV) {
-                    console.debug('[CareerVivid] Tab auth hydration failed:', err);
-                }
+                console.debug('[CareerVivid] Tab auth hydration failed:', err);
             });
         }, 500);
     }
@@ -851,9 +782,7 @@ async function syncProfileFromFirebase(userId: string, resumeId: string): Promis
                 const rawUser = await userResp.json();
                 userData = parseFirestoreRestDoc(rawUser);
             } else {
-                if (import.meta.env.DEV) {
-                    console.debug('[CareerVivid] Failed to fetch user profile via REST, using empty object');
-                }
+                console.warn('[CareerVivid] Failed to fetch user profile via REST, using empty object');
                 userData = {};
             }
         } else {
@@ -871,13 +800,9 @@ async function syncProfileFromFirebase(userId: string, resumeId: string): Promis
             selectedResumeId: resumeId,
         });
 
-        if (import.meta.env.DEV) {
-            console.debug('[CareerVivid] Profile synced');
-        }
+        console.log('[CareerVivid] Profile synced:', profile.firstName, profile.lastName);
     } catch (err) {
-        if (import.meta.env.DEV) {
-            console.debug('[CareerVivid] Profile sync failed:', err);
-        }
+        console.error('[CareerVivid] Profile sync failed:', err);
         throw err;
     }
 }
@@ -1025,76 +950,6 @@ function normalizeResumeToProfile(
     };
 }
 
-async function getOrFetchResumePdf(userId: string, resumeId: string, idToken: string): Promise<{ base64Pdf: string; fileName: string }> {
-    // 1. Fetch resume document to get updatedAt and templateId
-    const resumeUrl = `https://firestore.googleapis.com/v1/projects/jastalk-firebase/databases/(default)/documents/users/${userId}/resumes/${resumeId}`;
-    const resumeResp = await fetch(resumeUrl, { headers: { 'Authorization': `Bearer ${idToken}` } });
-    if (!resumeResp.ok) {
-        throw new Error(`Failed to fetch resume details: ${resumeResp.statusText}`);
-    }
-    const rawResume = await resumeResp.json();
-    const resumeData = parseFirestoreRestDoc(rawResume);
-
-    const title = resumeData.title || 'Resume';
-    const fileName = `${title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
-    const updatedAt = resumeData.updatedAt || '';
-    const templateId = resumeData.templateId || '';
-
-    // 2. Check storage cache
-    const cacheKey = `resume_pdf_${resumeId}`;
-    const cacheResult = await chrome.storage.local.get([cacheKey]);
-    const cached = cacheResult[cacheKey];
-
-    if (cached && cached.updatedAt === updatedAt && cached.templateId === templateId && cached.base64Pdf) {
-        return { base64Pdf: cached.base64Pdf, fileName };
-    }
-
-    // 3. Cache is missing or stale -> fetch fresh PDF from Cloud Function
-    const functionUrl = `https://us-west1-jastalk-firebase.cloudfunctions.net/generateResumePdfHttp`;
-
-    const response = await fetch(functionUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${idToken}`
-        },
-        body: JSON.stringify({
-            userId,
-            resumeId,
-            resumeData,
-            templateId
-        })
-    });
-
-    if (!response.ok) {
-        throw new Error(`Cloud Function PDF generation failed with status: ${response.status}`);
-    }
-
-    const pdfBlob = await response.blob();
-    const arrayBuffer = await pdfBlob.arrayBuffer();
-
-    // Convert ArrayBuffer to base64 safely
-    const bytes = new Uint8Array(arrayBuffer);
-    let binary = '';
-    const len = bytes.byteLength;
-    for (let i = 0; i < len; i++) {
-        binary += String.fromCharCode(bytes[i]);
-    }
-    const base64Pdf = btoa(binary);
-
-    // 4. Save to chrome.storage.local
-    await chrome.storage.local.set({
-        [cacheKey]: {
-            base64Pdf,
-            updatedAt,
-            templateId,
-            timestamp: new Date().toISOString()
-        }
-    });
-
-    return { base64Pdf, fileName };
-}
-
 // ── Message Router ────────────────────────────────────────────────────────────
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -1160,53 +1015,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         // Popup triggers auto-fill on the current tab (structured fields only — fast path)
         case 'AUTOFILL_APPLICATION':
-            (async () => {
-                try {
-                    const profile = await ensureAutofillProfile();
-                    const stored = await chrome.storage.local.get(['uid', 'selectedResumeId']);
-                    const userId = stored.uid;
-                    const resumeId = stored.selectedResumeId || profile.sourceResumeId;
-
-                    let base64Pdf: string | undefined;
-                    let fileName: string | undefined;
-
-                    if (userId && resumeId) {
-                        const idToken = await getFreshTokenPromise();
-                        if (idToken && idToken !== 'mock-dev-id-token') {
-                            try {
-                                const pdfData = await getOrFetchResumePdf(userId, resumeId, idToken);
-                                base64Pdf = pdfData.base64Pdf;
-                                fileName = pdfData.fileName;
-                            } catch (pdfErr: any) {
-                                if (import.meta.env.DEV) {
-                                    console.debug('[CareerVivid] Failed to fetch resume PDF for auto-upload:', pdfErr);
-                                }
-                                // Don't block form filling if PDF generation fails, just log it.
-                            }
-                        } else {
-                            if (import.meta.env.DEV) {
-                                console.debug('[CareerVivid] Missing auth token or in dev mode, skipping PDF fetch.');
-                            }
-                        }
+            ensureAutofillProfile().then((profile) => {
+                chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                    if (tabs[0]?.id) {
+                        chrome.tabs.sendMessage(tabs[0].id, {
+                            type: 'FILL_FORM',
+                            profile,
+                        });
+                        sendResponse({ success: true });
+                    } else {
+                        sendResponse({ success: false, error: 'No active tab found.' });
                     }
-
-                    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                        if (tabs[0]?.id) {
-                            chrome.tabs.sendMessage(tabs[0].id, {
-                                type: 'FILL_FORM',
-                                profile,
-                                base64Pdf,
-                                fileName
-                            });
-                            sendResponse({ success: true });
-                        } else {
-                            sendResponse({ success: false, error: 'No active tab found.' });
-                        }
-                    });
-                } catch (err: any) {
-                    sendResponse({ success: false, error: err.message || 'No profile synced. Please select a resume first.' });
-                }
-            })();
+                });
+            }).catch((err: any) => {
+                sendResponse({ success: false, error: err.message || 'No profile synced. Please select a resume first.' });
+            });
             return true;
 
         // Create a temporary scrape transit document in Firestore REST via background to bypass CORS origin checks in popup
@@ -1223,14 +1046,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                         fields: {
                             title: { stringValue: job.title || '' },
                             company: { stringValue: job.company || '' },
-                            location: { stringValue: job.location || '' },
                             description: { stringValue: job.description || '' },
                             url: { stringValue: job.url || '' },
-                            salary: { stringValue: job.salary || '' },
-                            stage: { stringValue: job.stage || 'wishlist' },
-                            resumeId: { stringValue: job.resumeId || '' },
-                            resumeTitle: { stringValue: job.resumeTitle || '' },
-                            matchAnalysisJson: { stringValue: job.matchAnalysisJson || '' },
                             createdAt: { timestampValue: new Date().toISOString() }
                         }
                     };
@@ -1275,37 +1092,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             });
             return true;
 
-        case 'ANALYZE_RESUME_MATCH': {
-            const { resumeText, jobDescription, pageUrl, jobTitle, companyName, resumeId } = message;
-
-            getFreshTokenPromise().then(async (idToken) => {
-                if (!idToken || idToken === 'mock-dev-id-token') {
-                    sendResponse({ success: false, error: 'Please sign in to CareerVivid before running AI match analysis.' });
-                    return;
-                }
-
-                try {
-                    const result = await postCallableFunction<{
-                        analysis: unknown;
-                        credits?: { count: number; limit: number; remaining: number; charged: number };
-                    }>(EXTENSION_RESUME_MATCH_ENDPOINT, idToken, {
-                        resumeText: String(resumeText || ''),
-                        jobDescription: String(jobDescription || ''),
-                        pageUrl: String(pageUrl || ''),
-                        jobTitle: String(jobTitle || ''),
-                        companyName: String(companyName || ''),
-                        resumeId: String(resumeId || ''),
-                    });
-
-                    sendResponse({ success: true, analysis: result.analysis, credits: result.credits });
-                } catch (err: any) {
-                    sendResponse({ success: false, error: err?.message || 'AI match analysis failed.' });
-                }
-            });
-
-            return true;
-        }
-
         // ── NEW: AI-powered answer generation for open-ended questions ─────────────
         // Flow: content script extracts questions → popup calls this → Cloud Function → answers
         case 'GENERATE_AI_ANSWERS': {
@@ -1348,9 +1134,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
                     sendResponse({ success: true, answers: result.answers, aiCount: result.aiCount });
                 } catch (err: any) {
-                    if (import.meta.env.DEV) {
-                        console.debug('[CareerVivid] GENERATE_AI_ANSWERS failed:', err);
-                    }
+                    console.error('[CareerVivid] GENERATE_AI_ANSWERS failed:', err);
                     sendResponse({ success: false, error: err.message || 'Network error' });
                 }
             });
@@ -1365,7 +1149,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             const { pageUrl, questions, companyName, jobTitle, jobDescription } = message;
 
             // Check if we already have a fresh cache for this URL
-            const cacheKey = makeStorageKey('prefetch', [pageUrl]);
+            const cacheKey = `prefetch_${btoa(pageUrl).slice(0, 40)}`;
             chrome.storage.local.get([cacheKey, 'tokenExpirationTime', 'firebaseRefreshToken'], async (stored: any) => {
                 const cached = stored[cacheKey];
                 const now = Date.now();
@@ -1373,9 +1157,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
                 // Serve from cache if still fresh
                 if (cached && (now - cached.cachedAt) < TTL) {
-                    if (import.meta.env.DEV) {
-                        console.debug('[CareerVivid] Prefetch hit:', pageUrl);
-                    }
+                    console.debug('[CareerVivid] Prefetch hit:', pageUrl);
                     return;
                 }
 
@@ -1419,15 +1201,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                             // Also store the latest prefetch key so popup can look it up
                             latestPrefetchKey: cacheKey,
                         });
-                        if (import.meta.env.DEV) {
-                            console.debug('[CareerVivid] Prefetch cached:', jobTitle, 'at', companyName);
-                        }
+                        console.debug('[CareerVivid] Prefetch cached:', jobTitle, 'at', companyName);
                     }
                 } catch (err) {
                     // Fire-and-forget — never throw to content script
-                    if (import.meta.env.DEV) {
-                        console.debug('[CareerVivid] Prefetch failed silently:', err);
-                    }
+                    console.debug('[CareerVivid] Prefetch failed silently:', err);
                 }
             });
         });
@@ -1441,16 +1219,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         case 'PREFETCH_COVER_LETTER': {
             const { pageUrl, companyName, jobTitle, jobDescription } = message;
 
-            const cacheKey = makeStorageKey('coverletter', [pageUrl]);
+            const cacheKey = `coverletter_${btoa(pageUrl).slice(0, 40)}`;
             chrome.storage.local.get([cacheKey, 'selectedResumeId'], async (stored: any) => {
                 const cached = stored[cacheKey];
                 const now = Date.now();
                 const TTL = 30 * 60 * 1000; // 30 minutes
 
                 if (cached && (now - cached.cachedAt) < TTL) {
-                    if (import.meta.env.DEV) {
-                        console.debug('[CareerVivid] Cover Letter prefetch hit:', pageUrl);
-                    }
+                    console.debug('[CareerVivid] Cover Letter prefetch hit:', pageUrl);
                     return;
                 }
 
@@ -1497,14 +1273,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                                 pageUrl,
                             },
                         });
-                        if (import.meta.env.DEV) {
-                            console.debug('[CareerVivid] Cover Letter prefetched & cached');
-                        }
+                        console.debug('[CareerVivid] Cover Letter prefetched & cached');
                     }
                 } catch (err) {
-                    if (import.meta.env.DEV) {
-                        console.debug('[CareerVivid] Cover Letter prefetch failed silently:', err);
-                    }
+                    console.debug('[CareerVivid] Cover Letter prefetch failed silently:', err);
                 }
             });
         });
@@ -1569,7 +1341,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     const result = json.result || json;
 
                     if (result?.coverLetter?.content) {
-                        const cacheKey = makeStorageKey('coverletter', [pageUrl]);
+                        const cacheKey = `coverletter_${btoa(pageUrl).slice(0, 40)}`;
                         await chrome.storage.local.set({
                             [cacheKey]: {
                                 content: result.coverLetter.content,
@@ -1584,9 +1356,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                         sendResponse({ success: false, error: 'Invalid response format from service.' });
                     }
                 } catch (err: any) {
-                    if (import.meta.env.DEV) {
-                        console.debug('[CareerVivid] GENERATE_COVER_LETTER failed:', err);
-                    }
+                    console.error('[CareerVivid] GENERATE_COVER_LETTER failed:', err);
                     sendResponse({ success: false, error: err.message || 'Network error' });
                 }
             });
@@ -1613,9 +1383,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 if (!alreadyLogged) {
                     const entry = {
                         ...autoJob,
-                        status: 'Applied',
-                        stage: autoJob.stage || 'applied',
-                        salary: autoJob.salary || '',
+                        status: 'To Apply',
                         filledCount,
                         savedAt: new Date().toISOString(),
                         autoLogged: true,
@@ -1713,46 +1481,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             return true;
         }
 
-        // Update a tracked job's status by URL (or create if not yet saved)
-        case 'UPDATE_JOB_STATUS': {
-            const { url: statusUrl, title: statusTitle, company: statusCompany, status: newStatus, stage: newStage } = message;
-            chrome.storage.local.get(['trackedJobs'], async (stored: any) => {
-                const jobs: any[] = stored.trackedJobs || [];
-                const idx = jobs.findIndex(
-                    (j: any) => j.url === statusUrl || (j.title === statusTitle && j.company === statusCompany)
-                );
-                if (idx !== -1) {
-                    if (newStatus) jobs[idx].status = newStatus;
-                    if (newStage) jobs[idx].stage = newStage;
-                    jobs[idx].updatedAt = new Date().toISOString();
-                } else {
-                    jobs.unshift({
-                        url: statusUrl,
-                        title: statusTitle,
-                        company: statusCompany,
-                        status: newStatus || 'Applied',
-                        stage: newStage || 'applied',
-                        savedAt: new Date().toISOString(),
-                        autoLogged: true,
-                    });
-                }
-                chrome.storage.local.set({ trackedJobs: jobs }, () => {
-                    sendResponse({ success: true });
-                });
-                // Best-effort Cloud Function sync
-                getFreshTokenPromise().then((freshToken) => {
-                    if (freshToken && freshToken !== 'mock-dev-id-token') {
-                        fetch('https://us-west1-jastalk-firebase.cloudfunctions.net/cliJobsHunt', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${freshToken}` },
-                            body: JSON.stringify({ job: jobs[idx !== -1 ? idx : 0] }),
-                        }).catch(() => { /* best-effort */ });
-                    }
-                });
-            });
-            return true;
-        }
-
         // Open popup for resume selection
         case 'OPEN_RESUME_PICKER': {
             const tabId = sender.tab?.id;
@@ -1800,9 +1528,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // ── Direct Web-to-Extension Auth Sync (Speechify-Style) ───────────────────────
 chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
-    if (import.meta.env.DEV) {
-        console.debug('[CareerVivid] Received external message:', message?.type, 'from:', sender?.url);
-    }
+    console.log('[CareerVivid] Received external message:', message?.type, 'from:', sender?.url);
     if (!message) return false;
 
     if (!isAllowedExternalSender(sender?.url)) {

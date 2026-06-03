@@ -1,15 +1,24 @@
 // General Templates
 import MinimalTemplate from './MinimalTemplate';
-import CorporateTemplate from './CorporateTemplate';
+import VisualTemplate from './VisualTemplate'; import CorporateTemplate from './CorporateTemplate';
+import MediaKitTemplate from './mediakit/MediaKitTemplate';
 // Technology Templates
 import DevTerminal from './general/Gen_Dev_Terminal';
+import SaaSModern from './SaaSModern';
 
 // Creative Templates
+import UXFolio from './creative/Creative_UX';
+import CreativeDark from './CreativeDark';
 
 // Professional Templates
+import LegalTrust from './professional/Prof_Legal';
 import WriterEditorial from './WriterEditorial';
+import ExecutiveBrief from './ExecutiveBrief';
 
 // Specialist Templates
+import MedicalCare from './MedicalCare';
+import AcademicResearch from './AcademicResearch';
+import BentoPersonal from './BentoPersonal';
 
 // Link-in-Bio Templates (NEW)
 import LinkTreeMinimal from './linkinbio/LinkTreeMinimal';
@@ -25,13 +34,29 @@ import CardModern from './nfc/CardModern';
 export const TEMPLATES = {
     // General
     minimalist: MinimalTemplate,
+    visual: VisualTemplate,
     corporate: CorporateTemplate,
 
     // Technology
     dev_terminal: DevTerminal,
+    saas_modern: SaaSModern,
+
+    // Media Kit
+    media_kit: MediaKitTemplate,
+
+    // Creative
+    ux_folio: UXFolio,
+    creative_dark: CreativeDark,
 
     // Professional
+    legal_trust: LegalTrust,
     writer_editorial: WriterEditorial,
+    executive_brief: ExecutiveBrief,
+
+    // Specialist
+    medical_care: MedicalCare,
+    academic_research: AcademicResearch,
+    bento_personal: BentoPersonal,
 
     // Link-in-Bio (NEW)
     linktree_minimal: LinkTreeMinimal,

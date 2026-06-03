@@ -17,20 +17,16 @@
  * Streaming: supported (SSE, OpenAI chunk format)
  *
  * Supported models:
- *   gemini-3.1-flash-lite (default)
- *   gemini-2.5-flash-lite
- *   gemini-2.5-flash
- *   gemini-2.5-pro
+ *   gemini-2.5-flash (default)
+ *   gemini-3.1-flash-preview
+ *   gemini-3.1-flash-lite-preview
+ *   gemini-3.1-pro-preview
+ *   gemini-2.5-pro-preview
  */
 
 import { onRequest } from "firebase-functions/v2/https";
 import { GoogleGenAI } from "@google/genai";
-import {
-  DEFAULT_VERTEX_TEXT_MODEL,
-  getAIClient,
-  getVertexLocationForModel,
-  resolveVertexModelName,
-} from "./utils/ai";
+import { getAIClient } from "./utils/ai";
 import * as admin from "firebase-admin";
 import { secureCorsHandler } from "./utils/corsUtils.js";
 import { randomUUID } from "crypto";
@@ -42,13 +38,12 @@ const corsHandler = secureCorsHandler;
 
 // ── Supported Gemini models ───────────────────────────────────────────────────
 const SUPPORTED_MODELS = new Set([
-  "gemini-3.1-flash-lite",
-  "gemini-2.5-flash-lite",
   "gemini-2.5-flash",
-  "gemini-2.5-pro",
+  "gemini-2.5-pro-preview",
+  "gemini-3.1-pro-preview",
 ]);
 
-const DEFAULT_MODEL = DEFAULT_VERTEX_TEXT_MODEL;
+const DEFAULT_MODEL = "gemini-2.5-flash";
 
 // ── OpenAI-compatible types ───────────────────────────────────────────────────
 interface OpenAIMessage {
@@ -83,7 +78,7 @@ async function callGemini(
   maxTokens: number | undefined,
   apiKey: string | undefined
 ): Promise<string> {
-  const ai = apiKey ? new GoogleGenAI({ apiKey }) : getAIClient(undefined, getVertexLocationForModel(model));
+  const ai = apiKey ? new GoogleGenAI({ apiKey }) : getAIClient();
   const { systemMsg, contents } = buildGeminiContents(messages);
 
   const config: any = {};
@@ -110,7 +105,7 @@ async function callGeminiStream(
   res: any,
   id: string
 ): Promise<void> {
-  const ai = apiKey ? new GoogleGenAI({ apiKey }) : getAIClient(undefined, getVertexLocationForModel(model));
+  const ai = apiKey ? new GoogleGenAI({ apiKey }) : getAIClient();
   const { systemMsg, contents } = buildGeminiContents(messages);
 
   const config: any = {};
@@ -186,7 +181,7 @@ async function readCredits(apiKey: string): Promise<{ creditsUsed: number; credi
   const currentMonth = new Date().toISOString().slice(0, 7);
   const count = aiUsage.month === currentMonth ? (aiUsage.count ?? 0) : 0;
   const tokenCredits = data.promotions?.tokenCredits || 0;
-  const limit = getMonthlyLimit(data.plan, data.seats || 1) + tokenCredits;
+  const limit = (aiUsage.monthlyLimit ?? getMonthlyLimit(data.plan)) + tokenCredits;
   return { creditsUsed: count, creditsRemaining: Math.max(0, limit - count), monthlyLimit: limit };
 }
 
@@ -240,8 +235,7 @@ export const llmGateway = onRequest(
       }
 
       const requestedModel = body.model ?? DEFAULT_MODEL;
-      const resolvedModel = resolveVertexModelName(requestedModel);
-      const model = SUPPORTED_MODELS.has(resolvedModel) ? resolvedModel : DEFAULT_MODEL;
+      const model = SUPPORTED_MODELS.has(requestedModel) ? requestedModel : DEFAULT_MODEL;
       const isStreaming = body.stream === true;
 
       // ── Auth: determine which key mode ──────────────────────────────────────

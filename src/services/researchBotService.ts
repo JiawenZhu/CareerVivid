@@ -1,6 +1,6 @@
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { callGeminiProxy, DEFAULT_TEXT_MODEL, ProxyPayload, generateImage } from './geminiService';
+import { callGeminiProxy, ProxyPayload, generateImage } from './geminiService';
 import { uploadImage, dataURLtoBlob } from './storageService';
 
 const ADMIN_BOT_AUTHOR_ID = 'bot-admin-research'; // Placeholder distinct author ID
@@ -21,7 +21,7 @@ Schedule context: ${frequency}.
 Return ONLY a valid JSON array of objects with a single "title" key. DO NOT wrap JSON in markdown block ticks (\`\`\`). Example: [{"title": "Title 1"}]`;
 
     const payload: ProxyPayload = {
-        modelName: DEFAULT_TEXT_MODEL,
+        modelName: 'gemini-3-flash-preview',
         contents: prompt
     };
 
@@ -102,7 +102,7 @@ ${articleContent.substring(0, 3000)} // Truncate if too long to save context
 Provide ONLY the exact text of the LinkedIn post. Do NOT wrap it in quotation marks or markdown blocks.`;
 
     const payload: ProxyPayload = {
-        modelName: DEFAULT_TEXT_MODEL,
+        modelName: 'gemini-2.5-flash',
         contents: prompt
     };
 
@@ -166,7 +166,7 @@ export const generateAndPublishArticle = async (adminUserId: string, topic: stri
 }`;
 
         const proxyPayload: ProxyPayload = {
-            modelName: DEFAULT_TEXT_MODEL,
+            modelName: 'gemini-3-flash-preview',
             contents: instructions
         };
 

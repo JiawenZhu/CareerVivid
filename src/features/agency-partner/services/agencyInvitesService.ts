@@ -43,6 +43,8 @@ export interface SendAgencyInviteInput {
 
 export interface SendAgencyInviteResult {
   inviteId: string;
+  inviteToken?: string;
+  mailId?: string | null;
   queued: boolean;
   reason: string;
 }

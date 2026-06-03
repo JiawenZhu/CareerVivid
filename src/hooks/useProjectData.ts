@@ -41,7 +41,7 @@ export const useProjectData = () => {
     useEffect(() => {
         const db = getFirestore();
 
-        if (!currentUser || !currentUser.uid) {
+        if (!currentUser) {
             setLoading(false);
             return;
         }

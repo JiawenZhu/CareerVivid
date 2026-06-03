@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Loader2, RefreshCw, Workflow } from 'lucide-react';
+import { Loader2, RefreshCw, Trash2, Workflow } from 'lucide-react';
 import type { AgencyBranchProfile } from '../types';
-import { resetDemoBranch } from '../services/agencyDemoService';
+import { resetDemoBranch, type ResetDemoBranchMode } from '../services/agencyDemoService';
 
 interface AdminDemoControlsProps {
   branches: AgencyBranchProfile[];
@@ -12,22 +12,29 @@ interface AdminDemoControlsProps {
 const DEMO_BRANCH_ID = 'demo-champaign-agency-2026';
 
 const AdminDemoControls: React.FC<AdminDemoControlsProps> = ({ branches, selectedBranchId, onSelectBranch }) => {
-  const [isResetting, setIsResetting] = useState(false);
+  const [activeAction, setActiveAction] = useState<ResetDemoBranchMode | null>(null);
   const [feedback, setFeedback] = useState<{ tone: 'ok' | 'err'; message: string } | null>(null);
 
-  const handleReset = async () => {
-    if (!window.confirm('Reset the demo branch? All demo sessions, notes, events, and invites will be wiped and re-seeded.')) return;
-    setIsResetting(true);
+  const handleReset = async (mode: ResetDemoBranchMode) => {
+    const confirmText = mode === 'delete_only'
+      ? 'Delete the entire demo dataset? This removes the demo branch, sessions, invites, demo users, and demo resumes. Use Recreate demo data to restore it later.'
+      : 'Recreate the demo dataset? This wipes the demo branch, sessions, invites, demo users, and demo resumes, then restores the full demo branch with shared resumes.';
+    if (!window.confirm(confirmText)) return;
+    setActiveAction(mode);
     setFeedback(null);
     try {
-      const result = await resetDemoBranch();
-      setFeedback({ tone: 'ok', message: `Reseeded ${result.candidates} demo candidates.` });
-      onSelectBranch(DEMO_BRANCH_ID);
+      const result = await resetDemoBranch(mode);
+      if (mode === 'delete_only') {
+        setFeedback({ tone: 'ok', message: 'Deleted the demo dataset.' });
+      } else {
+        setFeedback({ tone: 'ok', message: `Recreated ${result.candidates} demo candidates and shared resumes.` });
+        onSelectBranch(DEMO_BRANCH_ID);
+      }
     } catch (err: any) {
       console.error('Failed to reset demo branch:', err);
-      setFeedback({ tone: 'err', message: err?.message || 'Could not reset demo branch.' });
+      setFeedback({ tone: 'err', message: err?.message || 'Could not update demo branch.' });
     } finally {
-      setIsResetting(false);
+      setActiveAction(null);
     }
   };
 
@@ -54,12 +61,20 @@ const AdminDemoControls: React.FC<AdminDemoControlsProps> = ({ branches, selecte
       </div>
       <div className="flex flex-col items-stretch gap-2 md:items-end">
         <button
-          onClick={handleReset}
-          disabled={isResetting}
+          onClick={() => handleReset('reseed')}
+          disabled={Boolean(activeAction)}
           className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#caa26c] bg-[#fdf5e8] px-3 py-2 text-xs font-bold text-[#8b5a16] transition hover:bg-[#fbe7c8] disabled:cursor-not-allowed disabled:bg-[#f1ece2] dark:border-[#5a4a36] dark:bg-[#3a2f26] dark:text-[#caa26c] dark:hover:bg-[#4a3d30]"
         >
-          {isResetting ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
-          {isResetting ? 'Resetting…' : 'Reset demo branch'}
+          {activeAction === 'reseed' ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
+          {activeAction === 'reseed' ? 'Recreating…' : 'Recreate demo data'}
+        </button>
+        <button
+          onClick={() => handleReset('delete_only')}
+          disabled={Boolean(activeAction)}
+          className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:bg-[#f1ece2] dark:border-rose-900/50 dark:bg-[#1f1f1d] dark:text-rose-300 dark:hover:bg-rose-950/20"
+        >
+          {activeAction === 'delete_only' ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
+          {activeAction === 'delete_only' ? 'Deleting…' : 'Delete demo data'}
         </button>
         {feedback ? (
           <p

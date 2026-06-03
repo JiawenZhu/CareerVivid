@@ -6,13 +6,10 @@ import {
   canonicalProfileUrl,
   canonicalResumeEditUrl,
   canonicalSignupUrl,
-  getEmailFrequencySuppressionReason,
   getEmailPreferenceSuppressionReason,
-  isRequiredEmailCategory,
 } from "./emailPolicy";
 import {
   CareerVividEmailActivity,
-  CareerVividEmailFeature,
   CareerVividEmailModule,
   CareerVividEmailStat,
   generateCareerVividModuleEmail,
@@ -28,7 +25,6 @@ export type HydratedLifecycleEmailKey =
   | "onboarding_welcome"
   | "feature_ai_editor"
   | "weekly_status_digest"
-  | "resume_performance_milestone"
   | "notification_settings_updated";
 
 type HydratedLifecycleDefinition = {
@@ -87,11 +83,6 @@ const HYDRATED_DEFINITIONS: Record<HydratedLifecycleEmailKey, HydratedLifecycleD
     key: "weekly_status_digest",
     category: "weekly_digest",
     goal: "weekly_digest_reengagement",
-  },
-  resume_performance_milestone: {
-    key: "resume_performance_milestone",
-    category: "milestone",
-    goal: "resume_performance_review_opened",
   },
   notification_settings_updated: {
     key: "notification_settings_updated",
@@ -395,163 +386,6 @@ const statsFromContext = (context: HydratedEmailContext): CareerVividEmailStat[]
   { value: String(context.metrics.aiPrepModules), label: "AI prep", helper: "Available" },
 ];
 
-export type ResumePerformanceSnapshot = {
-  score: number;
-  label: string;
-  tone: "success" | "warning" | "critical";
-  source: "stored" | "calculated";
-  resumeTitle: string;
-  suggestions: CareerVividEmailFeature[];
-  stats: CareerVividEmailStat[];
-};
-
-const parseResumeScore = (resume?: admin.firestore.DocumentData): number | null => {
-  const candidates = [
-    resume?.resumeScore,
-    resume?.score,
-    resume?.overallScore,
-    resume?.latestScore,
-    resume?.scoreBreakdown?.overallScore,
-    resume?.review?.overallScore,
-    resume?.aiReview?.overallScore,
-    resume?.analysis?.overallScore,
-  ];
-
-  for (const candidate of candidates) {
-    const value = Number(candidate);
-    if (Number.isFinite(value) && value >= 0) return Math.max(0, Math.min(100, Math.round(value)));
-  }
-
-  return null;
-};
-
-const splitResumeBullets = (description: unknown): string[] =>
-  cleanText(description)
-    .split(/\n+/)
-    .map((line) => line.replace(/^[-*•+\s]+/, "").trim())
-    .filter((line) => line.length >= 10);
-
-const calculateResumeScoreFromContent = (resume: admin.firestore.DocumentData): number => {
-  const personal = resume.personalDetails || {};
-  const skills = Array.isArray(resume.skills) ? resume.skills : [];
-  const jobs = Array.isArray(resume.employmentHistory) ? resume.employmentHistory : [];
-  const education = Array.isArray(resume.education) ? resume.education : [];
-  const bullets = jobs.flatMap((job: admin.firestore.DocumentData) => splitResumeBullets(job.description));
-  const summary = cleanText(resume.professionalSummary);
-  const allText = [
-    summary,
-    ...skills.map((skill: admin.firestore.DocumentData) => cleanText(skill.name)),
-    ...jobs.flatMap((job: admin.firestore.DocumentData) => [cleanText(job.jobTitle), cleanText(job.employer), cleanText(job.description)]),
-  ].join(" ");
-
-  const completionChecks = [
-    cleanText(personal.firstName),
-    cleanText(personal.lastName),
-    cleanText(personal.email),
-    cleanText(personal.phone),
-    cleanText(personal.city) || cleanText(personal.country) || cleanText(personal.address),
-    cleanText(personal.jobTitle),
-    summary.length >= 80,
-    skills.length >= 4,
-    jobs.length >= 1,
-    education.length >= 1,
-  ];
-  const completionScore = completionChecks.filter(Boolean).length / completionChecks.length;
-
-  const quantifiedBullets = bullets.filter((bullet) => /\d|%|\$|x\b|users?|clients?|hours?|days?|weeks?|months?/i.test(bullet)).length;
-  const actionVerbBullets = bullets.filter((bullet) =>
-    /^(led|built|created|delivered|developed|implemented|managed|optimized|designed|improved|reduced|increased|launched|resolved|engineered|coordinated|automated)\b/i.test(bullet)
-  ).length;
-  const qualityChecks = [
-    bullets.length >= Math.min(Math.max(jobs.length * 2, 3), 12),
-    quantifiedBullets >= Math.min(Math.max(jobs.length, 2), 6),
-    actionVerbBullets >= Math.min(Math.max(jobs.length, 2), 6),
-    skills.length >= 6,
-    allText.length >= 1200,
-  ];
-  const qualityScore = qualityChecks.filter(Boolean).length / qualityChecks.length;
-
-  const lengthChecks = [
-    summary.length >= 120 && summary.length <= 700,
-    bullets.length >= 4 && bullets.length <= 24,
-    jobs.every((job: admin.firestore.DocumentData) => {
-      const jobBullets = splitResumeBullets(job.description);
-      return jobBullets.length === 0 || (jobBullets.length >= 2 && jobBullets.length <= 6);
-    }),
-  ];
-  const lengthScore = lengthChecks.filter(Boolean).length / lengthChecks.length;
-
-  return Math.round((completionScore * 45) + (qualityScore * 40) + (lengthScore * 15));
-};
-
-const getResumeScoreLabel = (score: number): string => {
-  if (score >= 90) return "Recruiter-ready";
-  if (score >= 80) return "Strong";
-  if (score >= 70) return "Close";
-  if (score >= 60) return "Needs focused edits";
-  return "Needs setup";
-};
-
-const getResumeScoreTone = (score: number): ResumePerformanceSnapshot["tone"] => {
-  if (score >= 80) return "success";
-  if (score >= 60) return "warning";
-  return "critical";
-};
-
-const buildResumeScoreSuggestions = (score: number): CareerVividEmailFeature[] => {
-  if (score >= 90) {
-    return [
-      { label: "Maintain", title: "Keep the resume current", body: "Before the next application, check that your latest project, role, or measurable result is reflected." },
-      { label: "Target", title: "Tailor only the role-specific details", body: "Use the editor to align keywords and examples with the job you are about to submit." },
-      { label: "Share", title: "Use a polished viewer link", body: "When the resume is ready, share a viewer-only public link with recruiters or agency partners." },
-    ];
-  }
-
-  if (score >= 75) {
-    return [
-      { label: "Impact", title: "Add measurable outcomes to the strongest bullets", body: "Prioritize numbers, scope, speed, quality, users, clients, or business results where you can be accurate." },
-      { label: "Skills", title: "Match skills to the target role", body: "Keep the skills list compact and aligned with the roles you are actively pursuing." },
-      { label: "Review", title: "Run a focused editor pass", body: "Open the resume editor and tighten one summary line plus two work-history bullets." },
-    ];
-  }
-
-  if (score >= 60) {
-    return [
-      { label: "Sections", title: "Fill any missing core sections", body: "Confirm contact details, job title, summary, skills, work history, and education are complete." },
-      { label: "Bullets", title: "Break dense paragraphs into proof points", body: "Use two to four focused bullets per recent role so the resume is easier to scan." },
-      { label: "Summary", title: "Clarify the target role", body: "Use the first summary line to state the role you want and the experience you bring." },
-    ];
-  }
-
-  return [
-    { label: "Baseline", title: "Complete the resume foundation", body: "Add contact details, target role, professional summary, work history, education, and at least four skills." },
-    { label: "Proof", title: "Add recent work examples", body: "For each recent role, add concrete responsibilities and one measurable outcome when possible." },
-    { label: "Next", title: "Use the editor as the checklist", body: "Open the workspace editor and work through the highest-impact missing sections first." },
-  ];
-};
-
-export function getResumePerformanceSnapshot(context: HydratedEmailContext): ResumePerformanceSnapshot | null {
-  if (!context.activeResume) return null;
-
-  const storedScore = parseResumeScore(context.activeResume);
-  const score = storedScore ?? calculateResumeScoreFromContent(context.activeResume);
-  const resumeTitle = cleanText(context.activeResume.title) || "Active resume";
-
-  return {
-    score,
-    label: getResumeScoreLabel(score),
-    tone: getResumeScoreTone(score),
-    source: storedScore === null ? "calculated" : "stored",
-    resumeTitle,
-    suggestions: buildResumeScoreSuggestions(score),
-    stats: [
-      { value: `${score}`, label: "Resume score", helper: getResumeScoreLabel(score) },
-      { value: context.activeResumeId ? "Yes" : "No", label: "Resume selected", helper: resumeTitle },
-      { value: score >= 85 ? "Ready" : "Improve", label: "Next step", helper: score >= 85 ? "Tailor for a role" : "Open editor" },
-    ],
-  };
-}
-
 const getEmailPreferenceCategories = (context: HydratedEmailContext): Record<string, unknown> => {
   const preferences = (context.userData.emailPreferences || {}) as Record<string, unknown>;
   return (preferences.categories || {}) as Record<string, unknown>;
@@ -768,91 +602,6 @@ function buildWeeklyDigestEmail(context: HydratedEmailContext) {
   };
 }
 
-function buildResumePerformanceEmail(context: HydratedEmailContext) {
-  const snapshot = getResumePerformanceSnapshot(context);
-  const score = snapshot?.score ?? 0;
-  const scoreLabel = snapshot?.label || "Resume score";
-  const resumeTitle = snapshot?.resumeTitle || context.activeResume?.title || "Active resume";
-  const suggestions = snapshot?.suggestions || buildResumeScoreSuggestions(score);
-
-  const modules: CareerVividEmailModule[] = [
-    {
-      type: "hero",
-      eyebrow: "Resume performance",
-      title: score >= 85 ? "Your resume is in strong shape" : "Your resume has a clear next edit",
-      subtitle: `${resumeTitle} is currently scoring ${score}/100. Use the editor to keep the next improvement focused and tied to your real resume data.`,
-      variant: "milestone",
-      visual: {
-        kind: "mockup",
-        background: "warm",
-        mockup: {
-          badge: scoreLabel,
-          title: resumeTitle,
-          subtitle: `${context.professionalTitle} workspace`,
-          metrics: snapshot?.stats || [
-            { value: `${score}`, label: "Resume score", helper: scoreLabel },
-            { value: context.metrics.savedJobs.toString(), label: "Saved jobs", helper: "In workspace" },
-            { value: context.metrics.aiPrepModules.toString(), label: "AI prep", helper: "Available" },
-          ],
-          rows: suggestions.slice(0, 3).map((suggestion, index) => ({
-            label: suggestion.label || (index === 0 ? "Focus" : "Next"),
-            title: suggestion.title,
-            meta: suggestion.body,
-            status: index === 0 ? snapshot?.tone || "warning" : "neutral",
-          })),
-          footer: snapshot?.source === "stored"
-            ? "Score source: saved resume score from your workspace."
-            : "Score source: calculated from your active resume content.",
-        },
-      },
-    },
-    {
-      type: "body",
-      paragraphs: [
-        `Hi ${context.firstName}, your active resume score is ${score}/100.`,
-        score >= 85
-          ? "That is a strong baseline. The highest-value next step is a targeted pass for the exact role you want to apply to."
-          : "There is enough progress to make the next pass specific. Focus on the suggestions below instead of rewriting the whole resume.",
-      ],
-    },
-    {
-      type: "featureList",
-      title: "Recommended next edits",
-      items: suggestions,
-    },
-    {
-      type: "cta",
-      primary: { text: "Open resume editor", url: context.urls.resumeEditor },
-      secondary: { text: "Open dashboard", url: context.urls.dashboard },
-      helper: "This email is based on the current score for your active CareerVivid resume.",
-    },
-  ];
-
-  return {
-    subject: score >= 85
-      ? `Your resume score is ${score}/100 - ready for a targeted pass`
-      : `Your resume score is ${score}/100 - focus on the next edit`,
-    preheader: "Open the active resume editor for score-based suggestions tied to your current resume.",
-    html: generateCareerVividModuleEmail({
-      title: "Your CareerVivid resume performance update",
-      preheader: "Open the active resume editor for score-based suggestions tied to your current resume.",
-      userName: context.displayName,
-      modules,
-      footerText: CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER,
-    }),
-    text: [
-      `Hi ${context.firstName},`,
-      "",
-      `Your active resume score is ${score}/100 for ${resumeTitle}.`,
-      ...suggestions.map((suggestion) => `- ${suggestion.title}: ${suggestion.body}`),
-      "",
-      `Open resume editor: ${context.urls.resumeEditor}`,
-      "",
-      CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER,
-    ].join("\n"),
-  };
-}
-
 function buildNotificationSettingsEmail(context: HydratedEmailContext) {
   const activeTracks = getActivePreferenceTrackLabels(context);
   const activeTrackText = activeTracks.length ? activeTracks.join(", ") : "All optional lifecycle tracks are paused";
@@ -933,7 +682,6 @@ function buildNotificationSettingsEmail(context: HydratedEmailContext) {
 export function renderHydratedLifecycleEmail(key: HydratedLifecycleEmailKey, context: HydratedEmailContext) {
   if (key === "onboarding_welcome") return buildOnboardingEmail(context);
   if (key === "feature_ai_editor") return buildFeatureEditorEmail(context);
-  if (key === "resume_performance_milestone") return buildResumePerformanceEmail(context);
   if (key === "notification_settings_updated") return buildNotificationSettingsEmail(context);
   return buildWeeklyDigestEmail(context);
 }
@@ -954,26 +702,12 @@ export async function queueHydratedLifecycleEmail(
     if (suppressionReason) {
       return { queued: false, reason: suppressionReason };
     }
-
-    if (!isRequiredEmailCategory(definition.category)) {
-      const frequencySuppressionReason = getEmailFrequencySuppressionReason(
-        context.userData.emailPreferences as Record<string, unknown> | undefined
-      );
-      if (frequencySuppressionReason) {
-        return { queued: false, reason: frequencySuppressionReason };
-      }
-    }
   }
 
   const rendered = renderHydratedLifecycleEmail(key, context);
-  const resumePerformance = key === "resume_performance_milestone"
-    ? getResumePerformanceSnapshot(context)
-    : null;
   const mailRef = db.collection("mail").doc();
   const usageRef = db.collection("usage_logs").doc();
-  const userRef = db.collection("users").doc(userId);
   const serverTimestamp = admin.firestore.FieldValue.serverTimestamp();
-  const isRequired = isRequiredEmailCategory(definition.category);
 
   await db.runTransaction(async (transaction) => {
     transaction.set(mailRef, {
@@ -988,7 +722,6 @@ export async function queueHydratedLifecycleEmail(
         category: definition.category,
         userId,
         preferencesChecked: !options.force,
-        frequencyChecked: !options.force && !isRequired,
         force: options.force === true,
         preferenceRoute: canonicalProfileUrl("email_footer"),
       },
@@ -1003,7 +736,6 @@ export async function queueHydratedLifecycleEmail(
           professionalTitle: context.professionalTitle,
           targetLocations: context.targetLocations,
           metrics: context.metrics,
-          resumePerformance,
         },
       },
       createdAt: serverTimestamp,
@@ -1019,33 +751,6 @@ export async function queueHydratedLifecycleEmail(
       source: options.force ? "demo" : "lifecycle",
       reason: options.reason || "hydrated_lifecycle_trigger",
     });
-
-    const userUpdate: Record<string, unknown> = {
-      lifecycleEmails: {
-        sent: {
-          [key]: {
-            sentAt: serverTimestamp,
-            subject: rendered.subject,
-            goal: definition.goal,
-            reason: options.reason || "hydrated_lifecycle_trigger",
-            score: resumePerformance?.score ?? null,
-          },
-        },
-        updatedAt: serverTimestamp,
-      },
-    };
-
-    if (!isRequired) {
-      userUpdate.lifecycleEmails = {
-        ...(userUpdate.lifecycleEmails as Record<string, unknown>),
-        lastEmailAt: serverTimestamp,
-      };
-      userUpdate.emailPreferences = {
-        lastSentAt: serverTimestamp,
-      };
-    }
-
-    transaction.set(userRef, userUpdate, { merge: true });
   });
 
   return {

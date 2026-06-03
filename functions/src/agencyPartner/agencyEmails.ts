@@ -34,7 +34,7 @@ interface QueueAgencyEmailOptions {
  * lifecycleEmails. Returns { queued, reason } so callers can report status to
  * the recruiter or candidate-facing UI.
  */
-async function queueAgencyEmail(opts: QueueAgencyEmailOptions): Promise<{ queued: boolean; reason: string }> {
+async function queueAgencyEmail(opts: QueueAgencyEmailOptions): Promise<{ queued: boolean; reason: string; mailId?: string }> {
   if (!opts.demo) {
     const suppression = await getAgencyEmailSuppressionReason(opts.to, opts.category);
     if (suppression) {
@@ -43,8 +43,9 @@ async function queueAgencyEmail(opts: QueueAgencyEmailOptions): Promise<{ queued
   }
 
   const subject = opts.demo ? `[DEMO] ${opts.subject}` : opts.subject;
+  const mailRef = db.collection("mail").doc();
 
-  await db.collection("mail").add({
+  await mailRef.set({
     to: opts.to,
     message: {
       subject,
@@ -60,10 +61,23 @@ async function queueAgencyEmail(opts: QueueAgencyEmailOptions): Promise<{ queued
       reason: opts.demo ? "agency_demo_send" : "agency_lifecycle",
       metadata: opts.metadata || {},
     },
+    notification: {
+      category: opts.category,
+      force: true,
+      preferencesChecked: true,
+      frequencyChecked: true,
+      agencyPreferencesChecked: !opts.demo,
+      templateVersion: TEMPLATE_VERSION,
+    },
+    agencyDelivery: {
+      state: "QUEUED",
+      category: opts.category,
+      queuedAt: admin.firestore.FieldValue.serverTimestamp(),
+    },
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 
-  return { queued: true, reason: "queued" };
+  return { queued: true, reason: "queued", mailId: mailRef.id };
 }
 
 // ---------------------------------------------------------------------------
@@ -78,13 +92,15 @@ export interface SendInviteEmailInput {
   recipientEmail: string;
   recipientFirstName?: string;
   customMessage?: string;
+  inviteToken?: string;
   demo?: boolean;
 }
 
-export async function sendAgencyInviteEmail(input: SendInviteEmailInput): Promise<{ queued: boolean; reason: string }> {
+export async function sendAgencyInviteEmail(input: SendInviteEmailInput): Promise<{ queued: boolean; reason: string; mailId?: string }> {
   const inviteUrl = canonicalCareerVividUrl(`/prepare/${encodeURIComponent(input.branchSlug)}`, {
     source: "agency_invite_email",
     branch: input.branchId,
+    invite: input.inviteToken,
   });
   const profileUrl = canonicalProfileUrl("agency_invite_email");
 
@@ -146,6 +162,7 @@ export async function sendAgencyInviteEmail(input: SendInviteEmailInput): Promis
       branchName: input.branchName,
       branchSlug: input.branchSlug,
       recruiterName: input.recruiterName,
+      ...(input.inviteToken ? { inviteToken: input.inviteToken } : {}),
     },
     demo: input.demo,
   });
@@ -262,9 +279,9 @@ export async function sendAgencyReminderEmail(input: SendReminderEmailInput): Pr
   const profileUrl = canonicalProfileUrl("agency_reminder_email");
 
   const messageLines = [
-    `Your recruiter ${input.recruiterName} at ${input.branchName} is waiting for your prepared resume.`,
-    "Don't leave them hanging! Open the prep portal to continue refining your resume, run your AI review, and share your readiness report.",
-    "A clean, polished resume significantly increases your chances of getting placed quickly.",
+    `${input.recruiterName} at ${input.branchName} has a prep link ready for your resume.`,
+    "Open the prep portal to continue refining your resume, run your AI review, and share your readiness report when you choose.",
+    "Your resume stays private until you explicitly turn sharing on.",
   ];
 
   const html = generateCareerVividEmail({
@@ -276,9 +293,9 @@ export async function sendAgencyReminderEmail(input: SendReminderEmailInput): Pr
       title: "Why finish your prep?",
       type: "info",
       lines: [
-        "Recruiters prefer candidates who have higher resume scores.",
-        "It only takes a few minutes using CareerVivid's AI reviewer.",
-        "Your resume stays fully private until you choose to click 'Share'.",
+        "Review your score and next-step suggestions.",
+        "Prepare the version you want recruiters to see.",
+        "Control sharing from your CareerVivid workspace.",
       ],
     },
     mainButton: {
@@ -295,9 +312,9 @@ export async function sendAgencyReminderEmail(input: SendReminderEmailInput): Pr
   });
 
   const text = [
-    `Your recruiter ${input.recruiterName} at ${input.branchName} is waiting for your prepared resume.`,
+    `${input.recruiterName} at ${input.branchName} has a prep link ready for your resume.`,
     "",
-    "Open the prep portal to continue refining your resume, run your AI review, and share your readiness report.",
+    "Open the prep portal to continue refining your resume, run your AI review, and share your readiness report when you choose.",
     "",
     `Continue resume prep: ${inviteUrl}`,
     `Manage email preferences: ${profileUrl}`,
@@ -307,7 +324,7 @@ export async function sendAgencyReminderEmail(input: SendReminderEmailInput): Pr
 
   return queueAgencyEmail({
     to: input.recipientEmail,
-    subject: "Your recruiter is waiting — finish your resume prep on CareerVivid",
+    subject: `Continue your resume prep for ${input.branchName}`,
     html,
     text,
     category: "agency_reminder",
@@ -320,4 +337,3 @@ export async function sendAgencyReminderEmail(input: SendReminderEmailInput): Pr
     demo: input.demo,
   });
 }
-

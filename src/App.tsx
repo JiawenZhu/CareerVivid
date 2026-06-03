@@ -258,6 +258,17 @@ const AppContent: React.FC = () => {
   // Community — read-only routes render instantly (no auth wait)
   const isCommunityPostRoute = path.startsWith('/community/post/');
   if (path === '/community' || path === '/community/guidelines' || isCommunityPostRoute) {
+    const communitySeo = path === '/community'
+      ? (
+        <SEOHelper
+          title="CareerVivid Community"
+          description="CareerVivid community articles, resume resources, job search workflows, and interview preparation guides."
+        />
+      )
+      : path === '/community/guidelines'
+        ? <SEOHelper title="Community Guidelines" description="Rules and best practices for the CareerVivid community." />
+        : null;
+
     return (
       <ThemeProvider>
         <CartProvider>
@@ -267,7 +278,7 @@ const AppContent: React.FC = () => {
                 titleTemplate="%s | CareerVivid"
                 defaultTitle="CareerVivid Community | AI Career Workspace"
               />
-                <SEOHelper title="Community Guidelines" description="Rules and best practices for the CareerVivid community." />
+              {communitySeo}
               <Suspense fallback={<LoadingFallback />}>
                 {path === '/community' && <CommunityDashboard />}
                 {path === '/community/guidelines' && <CommunityGuidelinesPage />}

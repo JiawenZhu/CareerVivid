@@ -16,7 +16,6 @@ try {
 
     await fs.copy('public/manifest.json', `${tempDir}/manifest.json`)
     await fs.copy('public/icons', `${tempDir}/icons`)
-    await fs.copy('public/avatars', `${tempDir}/avatars`)
     await fs.copy('public/content.css', `${tempDir}/content.css`)
     await fs.move(`${tempDir}/index.extension.html`, `${tempDir}/index.html`, { overwrite: true })
 
@@ -29,3 +28,4 @@ try {
     console.error(chalk.red(`\n❌ Extension build failed: ${p?.message ?? p}`))
     process.exit(1)
 }
+

@@ -1,9 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
-import { FileText, Activity, AlertTriangle, CreditCard, Shield } from 'lucide-react';
+import { ChevronDown, FileText, Activity, AlertTriangle, CreditCard, Shield } from 'lucide-react';
 
 const TermsOfServicePage: React.FC = () => {
+    const [openIndex, setOpenIndex] = useState<string | null>(null);
+
+    const toggleItem = (id: string) => {
+        setOpenIndex(openIndex === id ? null : id);
+    };
+
     const sections = [
         {
             icon: <FileText size={24} />,
@@ -88,39 +94,31 @@ const TermsOfServicePage: React.FC = () => {
     ];
 
     return (
-        <div className="min-h-screen flex flex-col bg-[#f7f1e7] font-sans text-[#211b16]">
-            <PublicHeader variant="editorial" />
-            <main className="relative flex-grow overflow-hidden pt-28 pb-20">
-                <div
-                    className="pointer-events-none absolute inset-0 opacity-55"
-                    style={{
-                        backgroundImage:
-                            'linear-gradient(to right, rgba(139, 90, 22, 0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(139, 90, 22, 0.06) 1px, transparent 1px)',
-                        backgroundSize: '64px 64px',
-                    }}
-                />
-                <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white dark:bg-gray-950 min-h-screen flex flex-col font-sans text-gray-900 dark:text-white">
+            <PublicHeader />
+            <main className="flex-grow pt-24 pb-20">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-6 text-[#211b16]">Terms of Service</h1>
-                        <p className="text-xl font-medium text-[#665a4a]">
+                        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-6">Terms of Service</h1>
+                        <p className="text-xl text-gray-600 dark:text-gray-400">
                             Effective Date: January 19, 2026
                         </p>
                     </div>
 
                     <div className="space-y-12">
                         {sections.map((section, idx) => (
-                            <div key={idx} className="rounded-xl border border-[#e4d3bc] bg-[#fffaf1] p-8 shadow-sm shadow-[#8b5a16]/5 md:p-12">
+                            <div key={idx} className="bg-gray-50 dark:bg-gray-900/50 rounded-3xl p-8 md:p-12">
                                 <div className="flex items-center gap-4 mb-8">
-                                    <div className="rounded-xl bg-[#eef4ff] p-3 text-[#2563eb]">
+                                    <div className="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 p-3 rounded-xl">
                                         {section.icon}
                                     </div>
-                                    <h2 className="text-2xl font-black text-[#211b16]">{section.title}</h2>
+                                    <h2 className="text-2xl font-bold">{section.title}</h2>
                                 </div>
                                 <div className="space-y-6">
                                     {section.items.map((item, itemIdx) => (
-                                        <div key={itemIdx} className="border-b border-[#eadbc5] last:border-0 pb-6 last:pb-0">
-                                            <h3 className="text-lg font-black mb-2 text-[#211b16]">{item.title}</h3>
-                                            <p className="leading-relaxed text-[#665a4a]">
+                                        <div key={itemIdx} className="border-b border-gray-200 dark:border-gray-800 last:border-0 pb-6 last:pb-0">
+                                            <h3 className="text-lg font-bold mb-2">{item.title}</h3>
+                                            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                                                 {item.content}
                                             </p>
                                         </div>

@@ -5,6 +5,9 @@ import App from './App';
 import { AuthProvider } from './contexts/AuthContext';
 import './i18n'; // Initialize i18next
 import './index.css';
+import { quietProductionConsole } from './utils/quietConsole';
+
+quietProductionConsole();
 
 // HANDLE DYNAMIC IMPORT ERRORS
 // Catches "Failed to fetch dynamically imported module" via unhandled promise rejections
@@ -36,6 +39,8 @@ window.addEventListener('vite:preloadError', (event) => {
 // Specifically handles QuotaExceededError which prevents login/SW registration
 window.addEventListener('unhandledrejection', (event) => {
   if (event.reason?.name === 'QuotaExceededError' || (event.reason?.message && event.reason.message.includes('Quota exceeded'))) {
+    console.error('CRITICAL: Storage quota exceeded. Initiating emergency cleanup...');
+    
     // 1. Clear large, non-essential localStorage items
     localStorage.removeItem('guestResume');
     

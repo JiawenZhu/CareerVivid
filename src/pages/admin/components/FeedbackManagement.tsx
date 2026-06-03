@@ -51,16 +51,6 @@ const FeedbackManagement: React.FC = () => {
         await updateDoc(feedbackRef, { status: newStatus });
     };
 
-    const priorityClass = (priority?: string) => {
-        switch (priority) {
-            case 'P0': return 'bg-red-100 text-red-800';
-            case 'P1': return 'bg-orange-100 text-orange-800';
-            case 'P2': return 'bg-yellow-100 text-yellow-800';
-            case 'P3': return 'bg-green-100 text-green-800';
-            default: return 'bg-gray-100 text-gray-700';
-        }
-    };
-
     if (loading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin w-8 h-8" /></div>;
 
     const statusColors: { [key: string]: string } = {
@@ -101,7 +91,6 @@ const FeedbackManagement: React.FC = () => {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comment</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AI Triage</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted At</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                         </tr>
@@ -119,21 +108,6 @@ const FeedbackManagement: React.FC = () => {
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-sm truncate" title={item.comment}>
                                     {item.comment || '-'}
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-sm">
-                                    {item.aiSupport ? (
-                                        <div title={item.aiSupport.replyDraft} className="space-y-1">
-                                            <div className="flex items-center gap-2">
-                                                <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${priorityClass(item.aiSupport.priority)}`}>
-                                                    {item.aiSupport.priority}
-                                                </span>
-                                                <span className="text-gray-700 dark:text-gray-300">{item.aiSupport.category}</span>
-                                            </div>
-                                            <p className="truncate text-xs">{item.aiSupport.summary}</p>
-                                        </div>
-                                    ) : (
-                                        <span className="text-gray-400">Pending</span>
-                                    )}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                     {item.createdAt?.toDate().toLocaleString()}

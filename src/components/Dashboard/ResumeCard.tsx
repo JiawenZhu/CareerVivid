@@ -1,4 +1,4 @@
-import React, { useState, useRef, useLayoutEffect, useEffect } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import { Edit3, Copy, Trash2, Share2 } from 'lucide-react';
 import { ResumeData } from '../../types';
 import ResumePreview from '../ResumePreview';
@@ -23,10 +23,6 @@ const ResumeCard: React.FC<ResumeCardProps> = ({ resume, onUpdate, onDuplicate, 
 
     const previewContainerRef = useRef<HTMLDivElement>(null);
     const [scale, setScale] = useState(0.2);
-
-    useEffect(() => {
-        setTitle(resume.title);
-    }, [resume.title]);
 
     useLayoutEffect(() => {
         const calculateScale = () => {
@@ -88,13 +84,11 @@ const ResumeCard: React.FC<ResumeCardProps> = ({ resume, onUpdate, onDuplicate, 
             draggable
             onDragStart={onDragStart}
             onContextMenu={handleContextMenu}
-            className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl border border-slate-200/80 dark:border-slate-800/80 transition-all duration-300 hover:border-indigo-500/40 dark:hover:border-indigo-400/40 shadow-sm hover:shadow-md hover:shadow-indigo-500/[0.03] flex flex-col cursor-grab active:cursor-grabbing overflow-hidden group relative select-none"
+            className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl border border-slate-200/80 dark:border-slate-800/80 transition-all duration-300 hover:border-indigo-500/40 dark:hover:border-indigo-400/40 shadow-sm hover:shadow-md hover:shadow-indigo-500/[0.03] flex flex-col cursor-grab active:cursor-grabbing overflow-hidden group relative"
         >
             <div onClick={!isEditingTitle ? navigateToEdit : undefined} className="block p-4 border-b border-slate-200/50 dark:border-slate-800/50 group-hover:bg-gray-50/50 dark:group-hover:bg-[#1a2029] transition-colors flex-grow cursor-pointer">
-                <div ref={previewContainerRef} className="w-full aspect-[210/297] bg-white dark:bg-gray-800 rounded-xl mb-4 overflow-hidden relative shadow-inner ring-1 ring-slate-200/70 dark:ring-slate-700/60 select-none">
+                <div ref={previewContainerRef} className="w-full aspect-[210/297] bg-gray-200 dark:bg-gray-700 rounded-lg mb-4 overflow-hidden relative">
                     <div
-                        aria-hidden="true"
-                        className="pointer-events-none select-none"
                         style={{
                             position: 'absolute',
                             top: 0,
@@ -105,12 +99,7 @@ const ResumeCard: React.FC<ResumeCardProps> = ({ resume, onUpdate, onDuplicate, 
                             transformOrigin: 'top left',
                         }}
                     >
-                        <ResumePreview
-                            resume={resume}
-                            template={resume.templateId}
-                            previewId={`dashboard-resume-preview-${resume.id}`}
-                            className="shadow-none select-none"
-                        />
+                        <ResumePreview resume={resume} template={resume.templateId} />
                     </div>
                 </div>
                 {isEditingTitle ? (
@@ -127,7 +116,7 @@ const ResumeCard: React.FC<ResumeCardProps> = ({ resume, onUpdate, onDuplicate, 
                             }
                         }}
                         autoFocus
-                        className="font-bold text-lg text-gray-800 dark:text-gray-100 truncate w-full border rounded-md px-2 py-0.5 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary-500 focus:outline-none select-text"
+                        className="font-bold text-lg text-gray-800 dark:text-gray-100 truncate w-full border rounded-md px-2 py-0.5 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary-500 focus:outline-none"
                     />
                 ) : (
                     <h3 onDoubleClick={(e) => { e.stopPropagation(); setIsEditingTitle(true); }} className="font-bold text-lg text-gray-800 dark:text-gray-100 truncate" title="Double-click to rename">{resume.title}</h3>

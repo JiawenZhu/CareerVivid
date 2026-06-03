@@ -34,7 +34,10 @@ const InviteByEmailForm: React.FC<InviteByEmailFormProps> = ({ branchId, demo })
         demo,
       });
       if (result.queued) {
-        setFeedback({ tone: 'ok', message: `Invite queued${demo ? ' (demo)' : ''}.` });
+        setFeedback({
+          tone: 'ok',
+          message: `Invite email queued${demo ? ' (demo)' : ''}${result.mailId ? ` · mail ${result.mailId}` : ''}.`,
+        });
       } else {
         setFeedback({ tone: 'warn', message: `Invite recorded — email not sent (${result.reason}).` });
       }

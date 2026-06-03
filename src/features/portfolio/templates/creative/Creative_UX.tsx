@@ -62,7 +62,7 @@ const UXFolio: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMobileView 
                                     />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-gray-300 font-bold text-6xl group-hover:bg-gray-200 transition-colors">
-                                        {(project.title || 'Project').charAt(0)}
+                                        {project.title.charAt(0)}
                                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                                     </div>
                                 )}

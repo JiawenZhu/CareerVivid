@@ -1,16 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
-import { EmailAuthProvider, reauthenticateWithCredential, updatePassword, updateProfile } from 'firebase/auth';
-import { ArrowLeft, KeyRound, Trash2, Loader2, User as UserIcon, CreditCard } from 'lucide-react';
+import { useResumes } from '../hooks/useResumes';
+import { usePracticeHistory } from '../hooks/useJobHistory';
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword, deleteUser, updateProfile } from 'firebase/auth';
+import { ArrowLeft, KeyRound, Trash2, Loader2, User as UserIcon, CreditCard, Mail } from 'lucide-react';
 import { functions } from '../firebase';
 import { httpsCallable } from 'firebase/functions';
+import { EmailPreferences } from '../types';
 import EmailPracticeSettings from '../components/EmailPracticeSettings';
 import { navigate } from '../utils/navigation';
+import { getEmailDisplayName, resolveUserDisplayName } from '../utils/userDisplayName';
+
+const defaultEmailPrefs: EmailPreferences = {
+    enabled: false,
+    frequency: 'every_week',
+    topicSource: 'smart',
+    manualTopic: '',
+};
 
 const ProfilePage: React.FC = () => {
     const { currentUser, userProfile, updateUserProfile, logOut, isPremium } = useAuth();
     const { t } = useTranslation();
+    const { deleteAllResumes } = useResumes();
+    const { deleteAllPracticeHistory } = usePracticeHistory();
+
+    // Email Preferences state
+    const [emailPrefs, setEmailPrefs] = useState<EmailPreferences>(defaultEmailPrefs);
+    const [emailPrefsLoading, setEmailPrefsLoading] = useState(false);
+    const [emailPrefsSuccess, setEmailPrefsSuccess] = useState('');
 
     // Password change state
     const [currentPassword, setCurrentPassword] = useState('');
@@ -44,13 +62,16 @@ const ProfilePage: React.FC = () => {
     const [nameError, setNameError] = useState('');
     const [nameSuccess, setNameSuccess] = useState('');
 
+    const resolvedDisplayName = resolveUserDisplayName({
+        profileDisplayName: userProfile?.displayName,
+        email: userProfile?.email || currentUser?.email,
+        authDisplayName: currentUser?.displayName,
+        fallback: 'Community Member',
+    });
+
     useEffect(() => {
-        if (currentUser?.displayName) {
-            setDisplayName(currentUser.displayName);
-        } else if (userProfile?.displayName && userProfile.displayName !== 'Anonymous Developer' && userProfile.displayName !== 'Community Member') {
-            setDisplayName(userProfile.displayName);
-        }
-    }, [currentUser, userProfile]);
+        setDisplayName(resolvedDisplayName);
+    }, [resolvedDisplayName]);
 
     const handleUpdateName = async () => {
         if (!currentUser) return;
@@ -58,8 +79,12 @@ const ProfilePage: React.FC = () => {
         setNameError('');
         setNameSuccess('');
         try {
-            await updateProfile(currentUser, { displayName });
-            await updateUserProfile({ displayName });
+            const nextDisplayName = displayName.trim() || getEmailDisplayName(currentUser.email);
+            await updateProfile(currentUser, { displayName: nextDisplayName });
+            await updateUserProfile({
+                displayName: nextDisplayName,
+                displayNameSource: displayName.trim() ? 'manual' : 'email',
+            });
             setIsEditingName(false);
             setNameSuccess(t('profile.name_updated', 'Name updated successfully.'));
             setTimeout(() => setNameSuccess(''), 3000);
@@ -69,6 +94,32 @@ const ProfilePage: React.FC = () => {
             setNameLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (userProfile?.emailPreferences) {
+            setEmailPrefs(userProfile.emailPreferences);
+        }
+    }, [userProfile]);
+
+    const handleEmailPrefsChange = <K extends keyof EmailPreferences>(key: K, value: EmailPreferences[K]) => {
+        setEmailPrefs(prev => ({ ...prev, [key]: value }));
+    };
+
+    const handleSaveEmailPrefs = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setEmailPrefsLoading(true);
+        setEmailPrefsSuccess('');
+        try {
+            await updateUserProfile({ emailPreferences: emailPrefs });
+            setEmailPrefsSuccess(t('profile.preferences_saved'));
+            setTimeout(() => setEmailPrefsSuccess(''), 3000);
+        } catch (error) {
+            console.error("Failed to save email preferences:", error);
+        } finally {
+            setEmailPrefsLoading(false);
+        }
+    };
+
 
     const handleChangePassword = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -89,12 +140,6 @@ const ProfilePage: React.FC = () => {
             const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
             await reauthenticateWithCredential(currentUser, credential);
             await updatePassword(currentUser, newPassword);
-            try {
-                const sendTransactionalAuthEmail = httpsCallable(functions, 'sendTransactionalAuthEmail');
-                await sendTransactionalAuthEmail({ type: 'password_reset_confirmation' });
-            } catch (receiptError) {
-                console.warn('Password receipt email could not be queued:', receiptError);
-            }
             setPasswordSuccess(t('profile.password_updated'));
             setCurrentPassword('');
             setNewPassword('');
@@ -115,9 +160,16 @@ const ProfilePage: React.FC = () => {
             const credential = EmailAuthProvider.credential(currentUser.email, deletePassword);
             await reauthenticateWithCredential(currentUser, credential);
 
-            const requestAccountDeletion = httpsCallable(functions, 'requestAccountDeletion');
-            await requestAccountDeletion({ confirmationText: deleteConfirmText });
+            // Delete all user data from Firestore
+            await Promise.all([
+                deleteAllResumes(),
+                deleteAllPracticeHistory()
+            ]);
 
+            // Delete the user from Auth
+            await deleteUser(currentUser);
+
+            // Auth state will change and App.tsx will redirect to AuthPage
             logOut();
 
         } catch (error: any) {
@@ -150,10 +202,7 @@ const ProfilePage: React.FC = () => {
             <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md shadow-xl transform transition-all">
                 <h3 className="text-lg font-bold mb-4 text-red-600 dark:text-red-400">{t('profile.delete_modal_title')}</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                    {t('profile.delete_modal_desc_soft', 'This starts a 30-day soft-deletion window. Your sign-in will be disabled immediately, and your workspace data will be retained until the scheduled permanent deletion date.')}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                    {t('profile.delete_modal_desc_recovery', 'After 30 days, CareerVivid will permanently remove your Firebase Authentication record and associated workspace data.')}
+                    {t('profile.delete_modal_desc')}
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                     {t('profile.delete_modal_confirm')} <strong className="font-mono text-red-500">DELETE</strong>
@@ -183,7 +232,7 @@ const ProfilePage: React.FC = () => {
                         className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-semibold text-sm disabled:bg-red-300 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                         {deleteLoading && <Loader2 size={16} className="animate-spin" />}
-                        {deleteLoading ? t('profile.deleting') : t('profile.start_deletion_window', 'Start deletion window')}
+                        {deleteLoading ? t('profile.deleting') : t('profile.delete_btn')}
                     </button>
                 </div>
             </div>
@@ -242,7 +291,7 @@ const ProfilePage: React.FC = () => {
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-3">
-                                    <p className="text-gray-500 dark:text-gray-400 font-medium">@{userProfile?.displayName || currentUser?.displayName || 'Community Member'}</p>
+                                    <p className="text-gray-500 dark:text-gray-400 font-medium">@{resolvedDisplayName}</p>
                                     <button
                                         onClick={() => setIsEditingName(true)}
                                         className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
@@ -278,15 +327,9 @@ const ProfilePage: React.FC = () => {
                                 <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder={t('profile.confirm_password')} required className="w-full px-4 py-2.5 border border-gray-200/60 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-[#0a0c10] focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-colors" />
                                 {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
                                 {passwordSuccess && <p className="text-green-500 text-sm">{passwordSuccess}</p>}
-                                <button
-                                    type="submit"
-                                    disabled={passwordLoading}
-                                    className="inline-flex min-w-[150px] items-center justify-center gap-2 rounded-xl bg-[#625bd5] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#514abf] disabled:cursor-not-allowed disabled:opacity-60"
-                                >
+                                <button type="submit" disabled={passwordLoading} className="bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-primary-700 flex items-center gap-2 disabled:bg-primary-300">
                                     {passwordLoading && <Loader2 size={16} className="animate-spin" />}
-                                    {passwordLoading
-                                        ? t('profile.updating_password', 'Updating...')
-                                        : t('profile.update_password', 'Update Password')}
+                                    {t('profile.update_password')}
                                 </button>
                             </form>
                         </div>

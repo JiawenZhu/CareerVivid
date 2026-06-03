@@ -1,29 +1,36 @@
 import '@testing-library/jest-dom';
 
-// Stub DataTransfer for jsdom tests
-if (typeof globalThis.DataTransfer === 'undefined') {
-  class MockDataTransfer {
-    private fileList: File[] = [];
+const createMemoryStorage = (): Storage => {
+  let store: Record<string, string> = {};
 
-    get files(): FileList {
-      const list = [...this.fileList] as unknown as FileList;
-      Object.defineProperty(list, 'item', {
-        value: (index: number) => this.fileList[index] || null,
-        writable: true,
-        configurable: true
-      });
-      return list;
-    }
+  return {
+    get length() {
+      return Object.keys(store).length;
+    },
+    clear: () => {
+      store = {};
+    },
+    getItem: (key: string) => store[key] ?? null,
+    key: (index: number) => Object.keys(store)[index] ?? null,
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    setItem: (key: string, value: string) => {
+      store[key] = String(value);
+    },
+  };
+};
 
-    get items() {
-      return {
-        add: (file: File) => {
-          this.fileList.push(file);
-        }
-      };
-    }
+if (typeof window !== 'undefined' && typeof globalThis.localStorage === 'undefined') {
+  const storage = window.localStorage || createMemoryStorage();
+  Object.defineProperty(globalThis, 'localStorage', {
+    configurable: true,
+    value: storage,
+  });
+  if (!window.localStorage) {
+    Object.defineProperty(window, 'localStorage', {
+      configurable: true,
+      value: storage,
+    });
   }
-
-  globalThis.DataTransfer = MockDataTransfer as any;
 }
-

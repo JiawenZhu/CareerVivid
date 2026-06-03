@@ -25,25 +25,25 @@ export const AIAnswerCard: React.FC<{ answer: AIAnswer; onInject: () => void }> 
     const isLibrary = answer.source === 'answer_library';
 
     return (
-        <div className={`rounded-2xl border p-2.5 transition-all ${answer.injected ? 'border-green-200 bg-green-50' : 'border-[#ececf4] bg-white hover:border-[#d9d7fb]'}`}>
+        <div className={`rounded-xl border p-2.5 transition-all ${answer.injected ? 'border-green-200 bg-green-50' : 'border-gray-100 bg-white hover:border-gray-200'}`}>
             <div className="flex items-start gap-2">
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-                        <span className="text-[10px] font-semibold text-gray-500 truncate max-w-[140px]">
+                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wide truncate max-w-[140px]">
                             {answer.label}
                         </span>
                         {(isAI || isLibrary) && (
-                            <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${CONFIDENCE_STYLES[answer.confidence]}`}>
+                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${CONFIDENCE_STYLES[answer.confidence]}`}>
                                 {answer.confidence}
                             </span>
                         )}
                         {isLibrary && (
-                            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
                                 library
                             </span>
                         )}
                         {answer.source === 'profile_field' && (
-                            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">
                                 profile
                             </span>
                         )}
@@ -75,10 +75,10 @@ export const AIAnswerCard: React.FC<{ answer: AIAnswer; onInject: () => void }> 
                     <button
                         onClick={onInject}
                         disabled={answer.injected}
-                        className={`flex-shrink-0 flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-lg transition-all ${
+                        className={`flex-shrink-0 flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-lg transition-all ${
                             answer.injected
                                 ? 'bg-green-100 text-green-600 cursor-default'
-                                : 'bg-[#625bd5] text-white hover:bg-[#5851c8] active:scale-95'
+                                : 'bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95'
                         }`}
                     >
                         {answer.injected ? <CheckCheck size={11} /> : <Copy size={11} />}

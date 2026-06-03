@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Mic, Globe, Briefcase, MessageSquare, Plus } from 'lucide-react';
+import { FileText, Mic, Globe, Briefcase, Plus } from 'lucide-react';
 import { navigate } from '../../utils/navigation';
 
 interface DashboardSummaryCardsProps {
@@ -7,15 +7,13 @@ interface DashboardSummaryCardsProps {
     interviewCount: number;
     portfolioCount: number;
     jobCount: number; // Not strictly used for count display in design, but good to have
-    communityPostCount?: number;
 }
 
 const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
     resumeCount,
     interviewCount,
     portfolioCount,
-    jobCount,
-    communityPostCount = 0
+    jobCount
 }) => {
     const cards = [
         {
@@ -39,7 +37,6 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
         },
         {
             title: 'Technical Interview Simulator Sessions',
-            mobileTitle: 'Interview Sessions',
             count: interviewCount,
             icon: Mic,
             color: 'text-purple-600',
@@ -65,36 +62,26 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
             link: '/job-tracker',
             isAction: jobCount === 0,
             actionText: '+ Track Job'
-        },
-        {
-            title: 'Community Posts',
-            count: communityPostCount,
-            icon: MessageSquare,
-            color: 'text-amber-600',
-            bg: 'bg-amber-100 dark:bg-amber-900/30',
-            link: '/my-posts',
-            isAction: false
         }
     ];
 
     return (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 md:gap-6 mb-8 md:mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-10">
             {cards.map((card, index) => (
                 <div
                     key={index}
                     onClick={() => navigate(card.link)}
-                    className="relative bg-white/70 dark:bg-gray-900/50 backdrop-blur-xl p-4 md:p-5 min-h-[128px] md:h-36 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 transition-all duration-300 hover:border-indigo-500/40 dark:hover:border-indigo-400/40 shadow-sm hover:shadow-md hover:shadow-indigo-500/[0.03] cursor-pointer group overflow-hidden flex flex-col justify-between"
+                    className="relative bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl p-5 h-36 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 transition-all duration-300 hover:border-indigo-500/40 dark:hover:border-indigo-400/40 shadow-sm hover:shadow-md hover:shadow-indigo-500/[0.03] cursor-pointer group overflow-hidden flex flex-col justify-between hidden md:flex"
                 >
                     {/* Subtle Top Gradient Line */}
                     <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                    <div className="flex gap-3 items-start min-h-12">
-                        <div className={`p-2 md:p-2.5 rounded-xl ${card.bg} border border-slate-200/40 dark:border-slate-800/40 flex-shrink-0 flex items-center justify-center`}>
+                    <div className="flex gap-3 items-start h-12">
+                        <div className={`p-2.5 rounded-xl ${card.bg} border border-slate-200/40 dark:border-slate-800/40 flex-shrink-0 flex items-center justify-center`}>
                             <card.icon className={`w-4 h-4 ${card.color}`} />
                         </div>
-                        <h3 className="text-[11px] font-bold text-gray-500 dark:text-gray-400 font-sans tracking-wider uppercase leading-tight text-left">
-                            <span className="md:hidden">{card.mobileTitle || card.title}</span>
-                            <span className="hidden md:inline">{card.title}</span>
+                        <h3 className="text-[11px] font-bold text-gray-500 dark:text-gray-400 font-sans tracking-wider uppercase leading-tight line-clamp-3 text-left">
+                            {card.title}
                         </h3>
                     </div>
 
@@ -104,7 +91,7 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
                                 {card.actionText}
                             </div>
                         ) : (
-                            <div className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white font-sans tracking-tight leading-none">
+                            <div className="text-3xl font-extrabold text-gray-900 dark:text-white font-sans tracking-tight leading-none">
                                 {card.count !== null ? card.count : 0}
                             </div>
                         )}

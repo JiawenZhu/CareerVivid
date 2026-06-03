@@ -221,7 +221,7 @@ const DemoPage: React.FC = () => {
 
             // 4. Redirect to External Interview Studio
             const baseUrl = 'https://careervivid-371634100960.us-west1.run.app';
-            const targetUrl = `${baseUrl}/interview-studio/${jobId}?token=${token}`;
+            const targetUrl = `${baseUrl}/#/interview-studio/${jobId}?token=${token}`;
 
             window.location.href = targetUrl;
             */
@@ -245,12 +245,12 @@ const DemoPage: React.FC = () => {
 
     return (
         <>
-            <div className="cv-warm-page cv-warm-grid flex flex-col font-sans">
-                <div className="sticky top-0 z-20 border-b border-[#e4d3bc] bg-[#f7f1e7]/90 px-4 pt-8 pb-6 backdrop-blur-xl dark:border-[#33312d] dark:bg-[#1f1f1d]/92 sm:px-6 lg:px-8">
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col font-sans">
+                <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 pt-8 pb-6 px-4 sm:px-6 lg:px-8 sticky top-0 z-20">
                     <div className="max-w-7xl mx-auto">
                         <a
                             href="/"
-                            className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[#665a4a] transition-colors hover:text-[#211b16] dark:text-[#aaa39a] dark:hover:text-[#f4f1e9]"
+                            className="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white mb-6 transition-colors"
                         >
                             <ArrowLeft size={16} />
                             Back to Home
@@ -258,21 +258,20 @@ const DemoPage: React.FC = () => {
 
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                             <div>
-                                <div className="cv-warm-eyebrow mb-2">Role practice library</div>
-                                <h1 className="cv-warm-heading text-3xl sm:text-4xl">{t('demo.title')}</h1>
-                                <p className="cv-warm-body mt-2 max-w-2xl text-lg">
+                                <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">{t('demo.title')}</h1>
+                                <p className="text-lg text-gray-600 dark:text-gray-400 mt-2 max-w-2xl">
                                     {t('demo.subtitle')}
                                 </p>
                             </div>
                             <div className="w-full md:w-auto">
                                 <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a97935] dark:text-[#caa26c]" size={20} />
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                                     <input
                                         type="text"
                                         placeholder="Search roles (e.g. Engineer)"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full rounded-lg border border-[#e4d3bc] bg-[#fffaf1] py-2.5 pl-10 pr-4 text-sm text-[#211b16] outline-none transition-all placeholder:text-[#9f907d] focus:border-[#bfa782] dark:border-[#37332d] dark:bg-[#262522] dark:text-[#f1eee7] md:w-64"
+                                        className="w-full md:w-64 pl-10 pr-4 py-2.5 bg-gray-100 dark:bg-gray-800 border-transparent focus:bg-white dark:focus:bg-gray-900 border focus:border-primary-500 rounded-lg text-sm transition-all outline-none"
                                     />
                                 </div>
                             </div>
@@ -285,8 +284,8 @@ const DemoPage: React.FC = () => {
                                         key={cat.name}
                                         onClick={() => setActiveCategory(cat.name)}
                                         className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold transition-all border ${activeCategory === cat.name
-                                            ? 'border-[#211b16] bg-[#211b16] text-white dark:border-[#f4f1e9] dark:bg-[#f4f1e9] dark:text-[#1f1f1d]'
-                                            : 'border-[#e4d3bc] bg-[#fffaf1] text-[#665a4a] hover:border-[#bfa782] dark:border-[#37332d] dark:bg-[#262522] dark:text-[#aaa39a]'
+                                            ? 'bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-gray-900'
+                                            : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700'
                                             }`}
                                     >
                                         {cat.name}
@@ -301,18 +300,18 @@ const DemoPage: React.FC = () => {
                     <div className="max-w-7xl mx-auto">
                         {displayCategories.map((industry) => (
                             <div key={industry.name} className="mb-12 animate-fade-in">
-                                {searchQuery && <h2 className="cv-warm-heading mb-6 flex items-center gap-2 text-xl"><Briefcase size={20} className="text-[#a97935] dark:text-[#caa26c]" /> {industry.name}</h2>}
+                                {searchQuery && <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2"><Briefcase size={20} className="text-gray-400" /> {industry.name}</h2>}
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {industry.roles.map((role) => {
                                         const interviewPrompt = `A mock interview for a ${role.name} position.`;
                                         return (
-                                            <div key={role.name} className="cv-warm-card group flex flex-col p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#bfa782] hover:shadow-xl hover:shadow-[#8b5a16]/10">
+                                            <div key={role.name} className="group bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800 hover:border-primary-500/30 dark:hover:border-primary-500/30 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col">
                                                 <div className="flex justify-between items-start mb-4">
-                                                    <h3 className="text-lg font-bold leading-tight text-[#211b16] transition-colors group-hover:text-[#9a651f] dark:text-[#f4f1e9] dark:group-hover:text-[#caa26c]">
+                                                    <h3 className="font-bold text-lg text-gray-900 dark:text-white leading-tight group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                                                         {role.name}
                                                     </h3>
-                                                    <div className="text-[#a97935] opacity-0 transition-opacity group-hover:opacity-100 dark:text-[#caa26c]">
+                                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400">
                                                         <ChevronRight size={20} />
                                                     </div>
                                                 </div>
@@ -320,13 +319,13 @@ const DemoPage: React.FC = () => {
                                                 <div className="mt-auto grid grid-cols-2 gap-3">
                                                     <button
                                                         onClick={() => handleGenerateResumeClick(role.name)}
-                                                        className="flex items-center justify-center gap-2 rounded-lg border border-[#e4d3bc] bg-[#fffaf1] px-4 py-2.5 text-sm font-semibold text-[#665a4a] transition-colors hover:border-[#bfa782] hover:text-[#211b16] dark:border-[#37332d] dark:bg-[#302e2a] dark:text-[#aaa39a] dark:hover:text-[#f4f1e9]"
+                                                        className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-700 dark:hover:text-primary-300 transition-colors border border-transparent hover:border-primary-200 dark:hover:border-primary-800"
                                                     >
                                                         <Wand2 size={16} /> Resume
                                                     </button>
                                                     <button
                                                         onClick={() => handleGenerateInterview(interviewPrompt, role.name)}
-                                                        className="flex items-center justify-center gap-2 rounded-lg border border-[#e4d3bc] bg-[#fffaf1] px-4 py-2.5 text-sm font-semibold text-[#665a4a] transition-colors hover:border-[#bfa782] hover:text-[#211b16] dark:border-[#37332d] dark:bg-[#302e2a] dark:text-[#aaa39a] dark:hover:text-[#f4f1e9]"
+                                                        className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors border border-transparent hover:border-indigo-200 dark:hover:border-indigo-800"
                                                     >
                                                         <Mic size={16} /> Interview
                                                     </button>

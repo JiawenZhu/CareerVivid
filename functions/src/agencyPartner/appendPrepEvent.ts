@@ -9,14 +9,19 @@ const db = admin.firestore();
 export type AgencyPrepEventType =
   | "invited"
   | "started"
+  | "resume_imported"
   | "resume_selected"
+  | "mock_interview_completed"
   | "ai_review_run"
   | "score_lifted"
   | "marked_ready"
   | "consent_granted"
   | "consent_revoked"
+  | "notes_updated"
   | "report_viewed_by_agency"
-  | "recruiter_note_added";
+  | "recruiter_note_added"
+  | "reminded"
+  | "quota_exceeded";
 
 export interface AppendPrepEventInput {
   sessionId: string;
@@ -24,7 +29,26 @@ export interface AppendPrepEventInput {
   payload?: Record<string, unknown>;
   actorUserId?: string;
   actorName?: string;
+  description?: string;
 }
+
+const DEFAULT_DESCRIPTIONS: Record<AgencyPrepEventType, string> = {
+  invited: "Candidate was invited to the agency prep portal.",
+  started: "Candidate started their prep session.",
+  resume_imported: "Candidate imported or selected a resume.",
+  resume_selected: "Candidate selected a resume.",
+  mock_interview_completed: "Candidate completed a mock interview practice.",
+  ai_review_run: "Candidate completed an AI resume review.",
+  score_lifted: "Candidate improved their readiness score.",
+  marked_ready: "Candidate is ready for recruiter review.",
+  consent_granted: "Candidate granted sharing consent.",
+  consent_revoked: "Candidate revoked sharing consent.",
+  notes_updated: "Recruiter notes were updated.",
+  report_viewed_by_agency: "Agency viewed the readiness report.",
+  recruiter_note_added: "Recruiter added a private note.",
+  reminded: "Candidate reminder email was sent.",
+  quota_exceeded: "Branch invite quota was exceeded.",
+};
 
 /**
  * Append an event to agencyPrepSessions/{sessionId}/events.
@@ -39,7 +63,10 @@ export async function appendPrepEvent(input: AppendPrepEventInput): Promise<void
 
   const payload: Record<string, unknown> = {
     type: input.type,
+    eventType: input.type,
+    description: input.description || DEFAULT_DESCRIPTIONS[input.type],
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    timestamp: admin.firestore.FieldValue.serverTimestamp(),
   };
 
   if (input.payload && Object.keys(input.payload).length > 0) payload.payload = input.payload;

@@ -1,7 +1,3 @@
-import typography from '@tailwindcss/typography';
-import containerQueries from '@tailwindcss/container-queries';
-import forms from '@tailwindcss/forms';
-
 /** @type {import('tailwindcss').Config} */
 export default {
     darkMode: 'class',
@@ -13,20 +9,9 @@ export default {
         extend: {
             colors: {
                 "primary": {
-                    50: "#f3f2ff",
-                    100: "#e8e6ff",
-                    200: "#d6d3ff",
-                    300: "#b8b2ff",
-                    400: "#948cf2",
-                    500: "#7069dc",
-                    600: "#625bd5",
-                    700: "#514abf",
-                    800: "#433d9a",
-                    900: "#39357b",
-                    950: "#211f49",
-                    DEFAULT: "#625bd5",
-                    dark: "#514abf",
-                    light: "#8d88e6",
+                    DEFAULT: "#10b981", // More premium emerald
+                    dark: "#059669",
+                    light: "#34d399",
                 },
                 "promax": {
                     start: "#4f46e5", // Indigo
@@ -82,8 +67,8 @@ export default {
         },
     },
     plugins: [
-        typography,
-        containerQueries,
-        forms,
+        require('@tailwindcss/typography'),
+        require('@tailwindcss/container-queries'),
+        require('@tailwindcss/forms'),
     ],
 };

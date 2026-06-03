@@ -1,0 +1,16 @@
+{
+  "description": "Temporary fingerprint baseline for non-agency files that were already dirty before the agency backend wiring pass. The agency scope checker ignores these paths only while their current content matches these fingerprints.",
+  "createdAt": "2026-06-01",
+  "entries": {
+    "app/community-sitemap/sitemap.ts": "file:sha256:617ee658ca2f1e7a69feca6726c21ace554170480400750ac4d91d43d72c2f6f",
+    "career-vivid": "gitdir:sha256:479a038bfe1154bd21ad797b3ad6b7ccd50423a3f39b0618f272c103e5191db5",
+    "docs/pm/README.md": "file:sha256:353c0a4a3e92d5d71a20000b6f6e0b1c7e540c3a1c19dee03abf14e16d2748a9",
+    "docs/pm/agent-progress-board.md": "file:sha256:4c5ebcd3a50df9fc671f180ca6f8247d9974fd120d78a50181908c0363f59802",
+    "docs/pm/cto-strategic-heartbeat.md": "file:sha256:2323fd9633faf47416f3b76d35d059253728e69850342f0ba2f188acf6268cb3",
+    "docs/pm/heartbeat-index.md": "file:sha256:c819a7b811a727b84100eab15fa63e0775b024c6958c4e9e715d00cca1325ebd",
+    "functions/src/seo/generateSitemap.ts": "file:sha256:7398252a11835e1225e7e0caae191db44aea7613f2dbadabf11af831a99c0a64",
+    "functions/src/seo/renderSeoContent.ts": "file:sha256:5bb0d5f1ef86ac56ab8088c9ec8bae5f6e388da6d321a23a399fdcc1829caed7",
+    "src/components/SEOHelper.tsx": "file:sha256:6064f71429b6fee10337e29c1fb6b7a9c48549e963eefeb8b00a0b9a0f8940e4",
+    "src/pages/community/CommunityPostPage.tsx": "file:sha256:a8692994f3399a5c707746b1958b0dc7e3667d7fa96b46b2325129c0b1174bf1"
+  }
+}

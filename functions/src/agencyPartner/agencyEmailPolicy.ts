@@ -29,6 +29,22 @@ const SHARED_CATEGORY: Record<AgencyEmailCategory, EmailNotificationCategory> = 
   agency_reminder: "marketing",
 };
 
+const AGENCY_REMINDER_THROTTLE_MS = 7 * 24 * 60 * 60 * 1000;
+
+const timestampToMillis = (value: unknown): number => {
+  if (!value) return 0;
+  if (typeof value === "number") return value;
+  if (typeof value === "string") {
+    const parsed = Date.parse(value);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  }
+  if (value instanceof Date) return value.getTime();
+  const maybeTimestamp = value as { toMillis?: () => number; toDate?: () => Date };
+  if (typeof maybeTimestamp.toMillis === "function") return maybeTimestamp.toMillis();
+  if (typeof maybeTimestamp.toDate === "function") return maybeTimestamp.toDate().getTime();
+  return 0;
+};
+
 /**
  * Resolve a user's email preferences and ask the shared policy module
  * whether the email should be suppressed. Returns null if the email is OK
@@ -58,4 +74,19 @@ export async function getAgencyEmailSuppressionReason(
     SHARED_CATEGORY[category],
     category
   );
+}
+
+export function getAgencyReminderThrottleReason(
+  sessionData: FirebaseFirestore.DocumentData,
+  nowMs = Date.now()
+): string | null {
+  const lastReminderMs = Math.max(
+    timestampToMillis(sessionData.lastAgencyReminderAt),
+    timestampToMillis(sessionData.lastReminderAt)
+  );
+
+  if (!lastReminderMs) return null;
+  return nowMs - lastReminderMs >= AGENCY_REMINDER_THROTTLE_MS
+    ? null
+    : "agency_reminder_recently_sent";
 }

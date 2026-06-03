@@ -45,3 +45,22 @@ export const safeRedirect = (url: string): void => {
     window.location.href = '/';
   }
 };
+
+/**
+ * Normalizes auth redirect targets to same-origin relative paths only.
+ * Use this for login/signup return URLs so query params cannot bounce users
+ * to an external site after authentication.
+ */
+export const getSafeRelativeRedirect = (url: string | null | undefined, fallback = '/dashboard'): string => {
+  if (!url) return fallback;
+
+  try {
+    const parsedUrl = new URL(url, window.location.origin);
+    if (parsedUrl.origin !== window.location.origin) {
+      return fallback;
+    }
+    return `${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`;
+  } catch {
+    return fallback;
+  }
+};

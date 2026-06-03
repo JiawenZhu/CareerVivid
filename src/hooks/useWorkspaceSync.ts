@@ -16,8 +16,24 @@ export const useWorkspaceSync = () => {
     const { practiceHistory, isLoading: isLoadingPracticeHistory } = usePracticeHistory();
 
     useEffect(() => {
+        console.log('[useWorkspaceSync] Triggered:', {
+            isInitialized,
+            isLoadingResumes,
+            isLoadingPortfolios,
+            isLoadingWhiteboards,
+            isLoadingCommunityPosts,
+            isLoadingPracticeHistory,
+            resumesCount: resumes?.length,
+            portfoliosCount: portfolios?.length,
+            whiteboardsCount: whiteboards?.length,
+            postsCount: myCommunityPosts?.length,
+            practiceHistoryCount: practiceHistory?.length,
+            currentNodesCount: nodes?.length
+        });
+
         // Block sync until the sidebar store has been initialized with the user's saved Firestore tree
         if (!isInitialized) {
+            console.log('[useWorkspaceSync] Sync blocked: store not yet initialized');
             return;
         }
 
@@ -186,6 +202,7 @@ export const useWorkspaceSync = () => {
         const nodesChanged = JSON.stringify(newNodes) !== JSON.stringify(nodes);
 
         if (nodesChanged) {
+            console.log('[useWorkspaceSync] Applying workspace sync changes to store');
             setNodes(newNodes);
         }
     }, [

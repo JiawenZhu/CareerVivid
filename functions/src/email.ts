@@ -8,12 +8,6 @@ import {
     renderSupportTriageHtml,
     renderSupportTriageText,
 } from "./customerSupport";
-import {
-    EmailNotificationCategory,
-    getEmailFrequencySuppressionReason,
-    getEmailPreferenceSuppressionReason,
-    isRequiredEmailCategory,
-} from "./emailPolicy";
 
 const smtpEmail = defineSecret("SMTP_EMAIL");
 const smtpPassword = defineSecret("SMTP_PASSWORD");
@@ -38,73 +32,12 @@ const getTransporter = () => {
 
 interface EmailRequest {
     to: string | string[];
-    userId?: string;
     message: {
         subject: string;
         text?: string;
         html?: string;
     };
-    notification?: {
-        category?: EmailNotificationCategory;
-        userId?: string;
-        force?: boolean;
-        preferencesChecked?: boolean;
-        frequencyChecked?: boolean;
-    };
-    lifecycle?: {
-        key?: string;
-        userId?: string;
-    };
 }
-
-const getPrimaryRecipient = (to: string | string[]): string => {
-    if (Array.isArray(to)) return String(to[0] || "").trim();
-    return String(to || "").trim();
-};
-
-const resolveUserProfileForEmail = async (data: EmailRequest) => {
-    const explicitUserId = data.userId || data.notification?.userId || data.lifecycle?.userId;
-    if (explicitUserId) {
-        const snap = await admin.firestore().collection("users").doc(explicitUserId).get();
-        return snap.exists ? { userId: explicitUserId, userData: snap.data() || {} } : null;
-    }
-
-    const recipient = getPrimaryRecipient(data.to);
-    if (!recipient) return null;
-
-    const snap = await admin.firestore()
-        .collection("users")
-        .where("email", "==", recipient)
-        .limit(1)
-        .get();
-
-    if (snap.empty) return null;
-    return { userId: snap.docs[0].id, userData: snap.docs[0].data() || {} };
-};
-
-const getEmailSuppressionReason = async (data: EmailRequest): Promise<string | null> => {
-    const category = data.notification?.category;
-    if (!category || data.notification?.force === true) return null;
-
-    const resolvedUser = await resolveUserProfileForEmail(data);
-    if (!resolvedUser) return "missing_user_profile_for_notification";
-
-    const preferenceReason = getEmailPreferenceSuppressionReason(
-        resolvedUser.userData,
-        category,
-        data.lifecycle?.key
-    );
-    if (preferenceReason) return preferenceReason;
-
-    if (!isRequiredEmailCategory(category) && data.notification?.frequencyChecked !== true) {
-        const frequencyReason = getEmailFrequencySuppressionReason(
-            resolvedUser.userData.emailPreferences as Record<string, unknown> | undefined
-        );
-        if (frequencyReason) return frequencyReason;
-    }
-
-    return null;
-};
 
 interface ContactMessageInput {
     name?: unknown;
@@ -265,19 +198,6 @@ export const onEmailRequestCreated = functions
                 delivery: {
                     state: "ERROR",
                     error: "Missing 'to' or 'message' fields.",
-                    endTime: admin.firestore.FieldValue.serverTimestamp(),
-                },
-            });
-            return;
-        }
-
-        const suppressionReason = await getEmailSuppressionReason(data);
-        if (suppressionReason) {
-            console.log(`Suppressed email request ${mailId}: ${suppressionReason}`);
-            await snapshot.ref.update({
-                delivery: {
-                    state: "SUPPRESSED",
-                    reason: suppressionReason,
                     endTime: admin.firestore.FieldValue.serverTimestamp(),
                 },
             });

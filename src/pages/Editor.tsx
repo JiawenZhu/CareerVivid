@@ -1,4 +1,4 @@
-import React, { Suspense, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { navigate } from '../utils/navigation';
 import { ResumeData } from '../types';
 import { useEditor } from '../hooks/useEditor';
@@ -10,19 +10,17 @@ import { TEMPLATES } from '../templates';
 import Toast from '../components/Toast';
 import AlertModal from '../components/AlertModal';
 import ConfirmationModal from '../components/ConfirmationModal';
+import FeedbackModal from '../components/FeedbackModal';
+import UpgradeModal from '../components/UpgradeModal';
+import ShareResumeModal from '../components/ShareResumeModal';
 import { Sparkles, Loader2 } from 'lucide-react';
+import ExportSuccessModal from '../components/ExportSuccessModal';
 
 // Refactored Components
 import EditorHeader from './editor/components/EditorHeader';
 import EditorSidebar from './editor/components/EditorSidebar';
 import EditorPreview from './editor/components/EditorPreview';
-import RightSidePanel from './editor/components/RightSidePanel';
-import { AIReviewProvider } from '../contexts/AIReviewContext';
-
-const FeedbackModal = React.lazy(() => import('../components/FeedbackModal'));
-const UpgradeModal = React.lazy(() => import('../components/UpgradeModal'));
-const ShareResumeModal = React.lazy(() => import('../components/ShareResumeModal'));
-const ExportSuccessModal = React.lazy(() => import('../components/ExportSuccessModal'));
+import OptimizationPanel from './editor/components/OptimizationPanel';
 
 interface EditorProps {
     resumeId?: string;
@@ -42,11 +40,6 @@ const pdfExportMessages = [
     "Generating secure PDF buffer...",
     "Almost ready for download!",
 ];
-
-const RIGHT_PANEL_COLLAPSE_WIDTH = 1280;
-
-const isConstrainedEditorWidth = () =>
-    typeof window !== 'undefined' && window.innerWidth <= RIGHT_PANEL_COLLAPSE_WIDTH;
 
 const Editor: React.FC<EditorProps> = (props) => {
     const {
@@ -89,8 +82,6 @@ const Editor: React.FC<EditorProps> = (props) => {
         isUpgradeModalOpen,
         setIsUpgradeModalOpen,
         isExporting,
-        isBuyingPdfCredit,
-        downloadCredits,
         exportProgress,
         isTranslating,
         optimizationJob,
@@ -117,7 +108,6 @@ const Editor: React.FC<EditorProps> = (props) => {
         handleFocusField,
         handleTemplateSelect,
         handleExport,
-        handleBuyOneTimePdfCredit,
         handleTranslateResume,
         handleGoogleDocsExport,
         toggleFeedbackOverlay,
@@ -141,27 +131,6 @@ const Editor: React.FC<EditorProps> = (props) => {
     // Track if any header dropdown (Download / Translate) is open
     // so the overflow banner can fade transparently behind them
     const [isAnyDropdownOpen, setIsAnyDropdownOpen] = useState(false);
-    const [isRightPanelOpen, setIsRightPanelOpen] = useState(() => !isConstrainedEditorWidth());
-
-    useEffect(() => {
-        const collapseRightPanelIfConstrained = () => {
-            if (isConstrainedEditorWidth()) {
-                setIsRightPanelOpen(false);
-            }
-        };
-
-        collapseRightPanelIfConstrained();
-        window.addEventListener('resize', collapseRightPanelIfConstrained);
-
-        return () => window.removeEventListener('resize', collapseRightPanelIfConstrained);
-    }, []);
-
-    // Auto-open right side panel when a job matching report is generated or loaded
-    useEffect(() => {
-        if (optimizationJob && !isConstrainedEditorWidth()) {
-            setIsRightPanelOpen(true);
-        }
-    }, [optimizationJob]);
 
     const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
 
@@ -183,9 +152,6 @@ const Editor: React.FC<EditorProps> = (props) => {
 
     const [initialTailorModalOpen, setInitialTailorModalOpen] = useState(false);
     const [initialJobDescription, setInitialJobDescription] = useState('');
-
-    const [initialCoverLetterOpen, setInitialCoverLetterOpen] = useState(false);
-    const [initialCoverLetterSeed, setInitialCoverLetterSeed] = useState<{ jobTitle?: string; companyName?: string; jobDescription?: string } | null>(null);
 
     // Auto-clear transit data from session storage after the tailor modal is successfully opened/stabilized
     useEffect(() => {
@@ -271,44 +237,6 @@ const Editor: React.FC<EditorProps> = (props) => {
         syncTransitJob();
     }, [currentUser?.uid]);
 
-    // Cover letter transit: intercept source=extension_cl, fetch scrape doc, open cover letter modal
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('source') !== 'extension_cl') return;
-
-        const scrapeId = params.get('scrapeId') || '';
-        const fallbackTitle = params.get('jobTitle') || '';
-        const fallbackCompany = params.get('company') || '';
-        window.history.replaceState({}, document.title, window.location.pathname);
-
-        const loadSeed = async () => {
-            if (scrapeId && currentUser?.uid) {
-                try {
-                    const docRef = doc(db, 'users', currentUser.uid, 'temporaryScrapes', scrapeId);
-                    const docSnap = await getDoc(docRef);
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        setInitialCoverLetterSeed({
-                            jobTitle: data.title || fallbackTitle,
-                            companyName: data.company || fallbackCompany,
-                            jobDescription: data.description || '',
-                        });
-                        await deleteDoc(docRef);
-                    } else {
-                        setInitialCoverLetterSeed({ jobTitle: fallbackTitle, companyName: fallbackCompany });
-                    }
-                } catch {
-                    setInitialCoverLetterSeed({ jobTitle: fallbackTitle, companyName: fallbackCompany });
-                }
-            } else {
-                setInitialCoverLetterSeed({ jobTitle: fallbackTitle, companyName: fallbackCompany });
-            }
-            setInitialCoverLetterOpen(true);
-        };
-
-        loadSeed();
-    }, [currentUser?.uid]);
-
     if (!resume && (!isShared && !isGuestMode)) {
         if (isResumeLoading) {
             return <div className="flex justify-center items-center h-screen dark:text-white">{t('editor.loading_resume')}</div>;
@@ -337,184 +265,165 @@ const Editor: React.FC<EditorProps> = (props) => {
     const resumeForPreview = tempPhoto ? { ...resume, personalDetails: { ...resume.personalDetails, photo: tempPhoto } } : resume;
 
     return (
-        <AIReviewProvider>
-            <div className="flex h-[100dvh] flex-col overflow-hidden bg-[#f6f2ec] text-slate-900 dark:bg-gray-950 dark:text-gray-100">
-                {showCelebration && (
-                    <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center animate-celebration-fade-in-out">
-                        <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl text-center">
-                            <Sparkles className="w-16 h-16 text-yellow-400 mx-auto animate-celebration-sparkle" />
-                            <h2 className="text-3xl font-bold mt-4 text-gray-900 dark:text-white">{t('editor.congrats')}</h2>
-                            <p className="text-gray-600 dark:text-gray-300 mt-2">{t('editor.new_resume_ready')}</p>
-                        </div>
+        <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden">
+            {showCelebration && (
+                <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center animate-celebration-fade-in-out">
+                    <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl text-center">
+                        <Sparkles className="w-16 h-16 text-yellow-400 mx-auto animate-celebration-sparkle" />
+                        <h2 className="text-3xl font-bold mt-4 text-gray-900 dark:text-white">{t('editor.congrats')}</h2>
+                        <p className="text-gray-600 dark:text-gray-300 mt-2">{t('editor.new_resume_ready')}</p>
                     </div>
-                )}
+                </div>
+            )}
 
-                <EditorHeader
+            <EditorHeader
+                resume={resume}
+                currentUser={currentUser!}
+                isShared={isShared}
+                isGuestMode={isGuestMode}
+                isTranslating={isTranslating}
+                isExporting={isExporting}
+                hasAnnotations={hasAnnotations}
+                hasViewedFeedback={hasViewedFeedback}
+                commentsCount={comments.length}
+                showAnnotationOverlay={showAnnotationOverlay}
+                theme={theme}
+                showGuideArrow={showGuideArrow}
+                onResumeChange={handleResumeChange}
+                onExport={handleExport}
+                onTranslate={handleTranslateResume}
+                onToggleFeedback={toggleFeedbackOverlay}
+                onShare={() => setIsShareModalOpen(true)}
+                onToggleTheme={toggleTheme}
+                setViewMode={setViewMode}
+                onDismissGuideArrow={() => setShowGuideArrow(false)}
+                onExportToGoogleDocs={handleGoogleDocsExport}
+                onDropdownChange={setIsAnyDropdownOpen}
+                initialTailorModalOpen={initialTailorModalOpen}
+                initialJobDescription={initialJobDescription}
+            />
+
+            <div className="flex-grow flex overflow-hidden relative h-[calc(100vh-64px)]">
+                <EditorSidebar
                     resume={resume}
                     currentUser={currentUser!}
-                    isShared={isShared}
+                    activeTab={activeTab}
+                    activeTemplate={activeTemplate}
+                    templates={TEMPLATES}
+                    sidebarWidth={sidebarWidth}
+                    sidebarMode={sidebarMode}
+                    isDesktop={isDesktop}
                     isGuestMode={isGuestMode}
-                    isTranslating={isTranslating}
-                    isExporting={isExporting}
-                    hasAnnotations={hasAnnotations}
-                    hasViewedFeedback={hasViewedFeedback}
-                    commentsCount={comments.length}
-                    showAnnotationOverlay={showAnnotationOverlay}
-                    theme={theme}
-                    showGuideArrow={showGuideArrow}
+                    isShared={isShared}
+                    isTemplateLoading={isTemplateLoading}
+                    tempPhoto={tempPhoto}
+                    sampleResume={sampleResumeForPreview}
+                    viewMode={viewMode}
+                    setActiveTab={setActiveTab}
+                    setTempPhoto={setTempPhoto}
                     onResumeChange={handleResumeChange}
-                    onExport={handleExport}
-                    onTranslate={handleTranslateResume}
-                    onToggleFeedback={toggleFeedbackOverlay}
-                    onShare={() => setIsShareModalOpen(true)}
-                    onToggleTheme={toggleTheme}
-                    setViewMode={setViewMode}
-                    onDismissGuideArrow={() => setShowGuideArrow(false)}
-                    onExportToGoogleDocs={handleGoogleDocsExport}
-                    onDropdownChange={setIsAnyDropdownOpen}
-                    initialTailorModalOpen={initialTailorModalOpen}
-                    initialJobDescription={initialJobDescription}
-                    initialCoverLetterOpen={initialCoverLetterOpen}
-                    initialCoverLetterSeed={initialCoverLetterSeed}
+                    onTemplateSelect={handleTemplateSelect}
+                    onDesignChange={handleDesignChange}
+                    onResizeSidebar={handleSidebarResize}
+                    onCloseComments={closeComments}
                 />
 
-                <div className="relative flex h-[calc(100dvh-64px)] flex-grow overflow-hidden">
-                    <EditorSidebar
-                        resume={resume}
-                        currentUser={currentUser!}
-                        activeTab={activeTab}
-                        activeTemplate={activeTemplate}
-                        templates={TEMPLATES}
-                        sidebarWidth={sidebarWidth}
-                        sidebarMode={sidebarMode}
-                        isDesktop={isDesktop}
-                        isGuestMode={isGuestMode}
-                        isShared={isShared}
-                        isTemplateLoading={isTemplateLoading}
-                        tempPhoto={tempPhoto}
-                        sampleResume={sampleResumeForPreview}
-                        viewMode={viewMode}
-                        setActiveTab={setActiveTab}
-                        setTempPhoto={setTempPhoto}
-                        onResumeChange={handleResumeChange}
-                        onTemplateSelect={handleTemplateSelect}
-                        onDesignChange={handleDesignChange}
-                        onResizeSidebar={handleSidebarResize}
-                        onCloseComments={closeComments}
+                <EditorPreview
+                    resume={resumeForPreview}
+                    viewMode={viewMode}
+                    scale={scale}
+                    currentUserUid={currentUser?.uid || ''}
+                    showAnnotationOverlay={showAnnotationOverlay}
+                    annotationUrl={annotationUrl}
+                    annotationObjects={annotationObjects}
+                    isPreviewBlurred={isPreviewBlurred}
+                    onResumeChange={handleResumeChange}
+                    onFocusField={handleFocusField}
+                    onDoubleClick={() => { setViewMode('preview'); }}
+                    isAnyDropdownOpen={isAnyDropdownOpen}
+                />
+
+                {optimizationJob && (
+                    <OptimizationPanel
+                        job={optimizationJob}
+                        onClear={() => {
+                            setOptimizationJob(null);
+                            sessionStorage.removeItem('jobDescriptionForOptimization');
+                            sessionStorage.removeItem('jobTitleForOptimization');
+                        }}
                     />
+                )}
+            </div>
 
-                    <EditorPreview
-                        resume={resumeForPreview}
-                        viewMode={viewMode}
-                        scale={scale}
-                        currentUserUid={currentUser?.uid || ''}
-                        showAnnotationOverlay={showAnnotationOverlay}
-                        annotationUrl={annotationUrl}
-                        annotationObjects={annotationObjects}
-                        isPreviewBlurred={isPreviewBlurred}
-                        onResumeChange={handleResumeChange}
-                        onFocusField={handleFocusField}
-                        onDoubleClick={() => { setViewMode('preview'); }}
-                        isAnyDropdownOpen={isAnyDropdownOpen}
-                        isRightPanelOpen={isRightPanelOpen}
-                        setIsRightPanelOpen={setIsRightPanelOpen}
-                    />
-
-                    <RightSidePanel
-                        resume={resumeForPreview}
-                        currentUserUid={currentUser?.uid || ''}
-                        onUpdate={handleResumeChange}
-                        optimizationJob={optimizationJob}
-                        isOpen={isRightPanelOpen}
-                        onClose={() => setIsRightPanelOpen(false)}
-                    />
-                </div>
-
-                {/* UI Modals */}
-                <ConfirmationModal
-                    isOpen={isConfirmModalOpen}
-                    title={t('editor.create_new_confirm_title')}
-                    message={t('editor.create_new_confirm_msg')}
-                    onConfirm={handleConfirmNew}
-                    onCancel={() => setIsConfirmModalOpen(false)}
-                    confirmText={t('dashboard.create_new')}
-                />
-                <ConfirmationModal
-                    isOpen={isSignupPromptOpen}
-                    title={t('editor.signup_prompt_title')}
-                    message={t('editor.signup_prompt_msg')}
-                    onConfirm={() => navigate('/signup')}
-                    onCancel={() => setIsSignupPromptOpen(false)}
-                    confirmText={t('auth.sign_up_free')}
-                />
-                <ConfirmationModal
-                    isOpen={translationSuccessModal.isOpen}
-                    title={t('editor.translation_complete')}
-                    message={t('editor.translation_success_msg')}
-                    confirmText={t('editor.go_to_translated') || 'Go to Translated Resume'}
-                    cancelText={t('editor.stay_on_current') || 'Stay on Current Page'}
-                    onConfirm={() => {
-                        navigate(`/edit/${translationSuccessModal.newResumeId}`);
-                        setTranslationSuccessModal({ isOpen: false, newResumeId: '' });
-                    }}
-                    onCancel={() => {
-                        setTranslationSuccessModal({ isOpen: false, newResumeId: '' });
-                    }}
-                />
-                <AlertModal
-                    isOpen={alertState.isOpen}
-                    title={alertState.title}
-                    message={alertState.message}
-                    onClose={() => setAlertState({ isOpen: false, title: '', message: '' })}
-                />
-                {isExporting && (
-                    <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-[101] flex items-center justify-center animate-fade-in">
-                        <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl text-center max-w-sm w-full mx-4 border border-gray-100 dark:border-gray-700 shadow-2xl space-y-4">
-                            <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
-                                <Loader2 className="w-16 h-16 text-primary-500 animate-spin absolute" strokeWidth={2.5} />
-                                <Sparkles className="w-6 h-6 text-primary-600 animate-pulse" />
-                            </div>
-                            <div className="space-y-1">
-                                <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
-                                    {exportProgress || 'Exporting Document...'}
-                                </h3>
-                                <div className="h-6 overflow-hidden">
-                                    <p key={loadingMessageIndex} className="text-xs text-gray-400 dark:text-gray-500 font-semibold animate-fade-in">
-                                        {pdfExportMessages[loadingMessageIndex]}
-                                    </p>
-                                </div>
+            {/* UI Modals */}
+            <ConfirmationModal
+                isOpen={isConfirmModalOpen}
+                title={t('editor.create_new_confirm_title')}
+                message={t('editor.create_new_confirm_msg')}
+                onConfirm={handleConfirmNew}
+                onCancel={() => setIsConfirmModalOpen(false)}
+                confirmText={t('dashboard.create_new')}
+            />
+            <ConfirmationModal
+                isOpen={isSignupPromptOpen}
+                title={t('editor.signup_prompt_title')}
+                message={t('editor.signup_prompt_msg')}
+                onConfirm={() => navigate('/signup')}
+                onCancel={() => setIsSignupPromptOpen(false)}
+                confirmText={t('auth.sign_up_free')}
+            />
+            <ConfirmationModal
+                isOpen={translationSuccessModal.isOpen}
+                title={t('editor.translation_complete')}
+                message={t('editor.translation_success_msg')}
+                confirmText={t('editor.go_to_translated') || 'Go to Translated Resume'}
+                cancelText={t('editor.stay_on_current') || 'Stay on Current Page'}
+                onConfirm={() => {
+                    navigate(`/edit/${translationSuccessModal.newResumeId}`);
+                    setTranslationSuccessModal({ isOpen: false, newResumeId: '' });
+                }}
+                onCancel={() => {
+                    setTranslationSuccessModal({ isOpen: false, newResumeId: '' });
+                }}
+            />
+            <AlertModal
+                isOpen={alertState.isOpen}
+                title={alertState.title}
+                message={alertState.message}
+                onClose={() => setAlertState({ isOpen: false, title: '', message: '' })}
+            />
+            {isExporting && (
+                <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-[101] flex items-center justify-center animate-fade-in">
+                    <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl text-center max-w-sm w-full mx-4 border border-gray-100 dark:border-gray-700 shadow-2xl space-y-4">
+                        <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
+                            <Loader2 className="w-16 h-16 text-primary-500 animate-spin absolute" strokeWidth={2.5} />
+                            <Sparkles className="w-6 h-6 text-primary-600 animate-pulse" />
+                        </div>
+                        <div className="space-y-1">
+                            <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                                {exportProgress || 'Exporting Document...'}
+                            </h3>
+                            <div className="h-6 overflow-hidden">
+                                <p key={loadingMessageIndex} className="text-xs text-gray-400 dark:text-gray-500 font-semibold animate-fade-in">
+                                    {pdfExportMessages[loadingMessageIndex]}
+                                </p>
                             </div>
                         </div>
                     </div>
-                )}
-                <Suspense fallback={null}>
-                    {isFeedbackModalOpen && (
-                        <FeedbackModal isOpen={isFeedbackModalOpen} onClose={() => setIsFeedbackModalOpen(false)} source="editor" />
-                    )}
-                    {isUpgradeModalOpen && (
-                        <UpgradeModal
-                            isOpen={isUpgradeModalOpen}
-                            onClose={() => setIsUpgradeModalOpen(false)}
-                            feature="PDF Export"
-                            downloadCredits={downloadCredits}
-                            isBuyingOneTime={isBuyingPdfCredit}
-                            onBuyOneTime={handleBuyOneTimePdfCredit}
-                        />
-                    )}
-                    {isShareModalOpen && resume && (
-                        <ShareResumeModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} resume={resume} onUpdate={updateResume} />
-                    )}
-                    {isExportSuccessModalOpen && (
-                        <ExportSuccessModal
-                            isOpen={isExportSuccessModalOpen}
-                            onClose={() => setIsExportSuccessModalOpen(false)}
-                            docUrl={exportedDocUrl}
-                        />
-                    )}
-                </Suspense>
-                {toastMessage && <Toast message={toastMessage} onClose={() => setToastMessage(null)} />}
-            </div>
-        </AIReviewProvider>
+                </div>
+            )}
+            <FeedbackModal isOpen={isFeedbackModalOpen} onClose={() => setIsFeedbackModalOpen(false)} source="editor" />
+            <UpgradeModal isOpen={isUpgradeModalOpen} onClose={() => setIsUpgradeModalOpen(false)} feature="PDF Export" />
+            {isShareModalOpen && resume && (
+                <ShareResumeModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} resume={resume} onUpdate={updateResume} />
+            )}
+            <ExportSuccessModal
+                isOpen={isExportSuccessModalOpen}
+                onClose={() => setIsExportSuccessModalOpen(false)}
+                docUrl={exportedDocUrl}
+            />
+            {toastMessage && <Toast message={toastMessage} onClose={() => setToastMessage(null)} />}
+        </div>
     );
 };
 

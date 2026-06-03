@@ -16,19 +16,19 @@ interface SkillsSectionProps {
 }
 
 const FormSection: React.FC<{ title: string; icon: React.ReactNode; children: React.ReactNode }> = ({ title, icon, children }) => (
-    <div className="mb-5 rounded-xl border border-[#e8dfd3] bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
-        <div className="mb-4 flex items-center border-b border-[#f0e8dc] pb-3 dark:border-gray-800">
+    <div className="mb-8 p-6 bg-white dark:bg-gray-800/50 dark:border dark:border-gray-700 rounded-lg shadow-md">
+        <div className="flex items-center mb-4">
             {icon}
-            <h2 className="ml-3 text-lg font-black text-slate-900 dark:text-gray-100">{title}</h2>
+            <h2 className="text-2xl font-bold ml-3 text-gray-800 dark:text-gray-100">{title}</h2>
         </div>
         {children}
     </div>
 );
 
 const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement> & { label: string }> = ({ label, id, ...props }) => (
-    <div className="mb-3" id={id ? `container-${id}` : undefined}>
-        <label htmlFor={id} className="mb-1 block text-xs font-bold text-slate-500 dark:text-gray-400">{label}</label>
-        <input id={id} {...props} className="w-full rounded-lg border border-[#ded6cb] bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-colors duration-200 focus:border-primary-400 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800" />
+    <div className="mb-4" id={id ? `container-${id}` : undefined}>
+        <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
+        <input id={id} {...props} className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-700 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 transition-colors duration-200" />
     </div>
 );
 
@@ -52,7 +52,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({
                     onDragStart={(e) => handleDragStart(e, index, 'skills')}
                     onDragOver={(e) => handleDragOver(e, index)}
                     onDrop={(e) => handleDrop(e, index, 'skills')}
-                    className="relative mb-3 rounded-xl border border-[#ede4d8] bg-[#fbf8f3]/70 p-4 transition-shadow hover:shadow-sm dark:border-gray-800 dark:bg-gray-950/40 cursor-default"
+                    className="relative p-5 border dark:border-gray-700 rounded-md mb-4 bg-gray-50/50 dark:bg-gray-800/30 hover:shadow-sm transition-shadow cursor-default"
                 >
                     <div className="absolute top-1/2 -translate-y-1/2 left-2 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600">
                         <GripVertical size={20} />

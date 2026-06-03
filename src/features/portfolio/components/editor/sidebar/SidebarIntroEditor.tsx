@@ -2,10 +2,8 @@ import React from 'react';
 import { PortfolioData, IntroAsset } from '../../../types/portfolio';
 import { Sparkles, Image as ImageIcon, Video, Gamepad2, Plus, X, Trash2, CheckCircle, GripVertical } from 'lucide-react';
 import { uploadImage } from '../../../../../services/storageService';
+import StockPhotoModal from '../../../../../components/StockPhotoModal';
 import { nanoid } from 'nanoid';
-import IntroEnterButtonEditor from './IntroEnterButtonEditor';
-
-const StockPhotoModal = React.lazy(() => import('../../../../../components/StockPhotoModal'));
 
 interface SidebarIntroEditorProps {
     portfolioData: PortfolioData;
@@ -457,25 +455,48 @@ const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, 
                         </div>
                     )}
 
-                    <IntroEnterButtonEditor
-                        introConfig={introConfig}
-                        themeClasses={themeClasses}
-                        onUpdate={handleConfigUpdate}
-                    />
+                    {/* Button Config (Shared/Global) */}
+                    <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+                        <label className={`text-xs font-semibold uppercase tracking-wider ${themeClasses.textMuted}`}>
+                            Enter Button
+                        </label>
+                        <div>
+                            <label className="text-xs text-gray-500 block mb-1">Button Text</label>
+                            <input
+                                type="text"
+                                value={introConfig.buttonText}
+                                onChange={(e) => handleConfigUpdate({ buttonText: e.target.value })}
+                                className={`w-full px-3 py-2 border rounded-lg text-sm ${themeClasses.inputBg}`}
+                            />
+                        </div>
+                        <div>
+                            <label className="text-xs text-gray-500 block mb-1">Button Style</label>
+                            <div className="flex gap-2">
+                                {['outline', 'solid', 'glass'].map((style) => (
+                                    <button
+                                        key={style}
+                                        onClick={() => handleConfigUpdate({ buttonStyle: style as any })}
+                                        className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${introConfig.buttonStyle === style
+                                            ? 'bg-pink-50 border-pink-200 text-pink-600 dark:bg-pink-900/30 dark:border-pink-800 dark:text-pink-400'
+                                            : 'border-gray-200 dark:border-gray-700 text-gray-500 hover:border-gray-300'
+                                            }`}
+                                    >
+                                        {style.charAt(0).toUpperCase() + style.slice(1)}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
-            <React.Suspense fallback={null}>
-                {isStockPhotoModalOpen && (
-                    <StockPhotoModal
-                        isOpen={isStockPhotoModalOpen}
-                        onClose={() => setIsStockPhotoModalOpen(false)}
-                        onSelect={(url) => {
-                            handleAssetUpdate({ contentUrl: url });
-                            setIsStockPhotoModalOpen(false);
-                        }}
-                    />
-                )}
-            </React.Suspense>
+            <StockPhotoModal
+                isOpen={isStockPhotoModalOpen}
+                onClose={() => setIsStockPhotoModalOpen(false)}
+                onSelect={(url) => {
+                    handleAssetUpdate({ contentUrl: url });
+                    setIsStockPhotoModalOpen(false);
+                }}
+            />
         </div>
     );
 };

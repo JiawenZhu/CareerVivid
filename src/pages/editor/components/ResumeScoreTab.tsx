@@ -186,9 +186,7 @@ const ResumeScoreTab: React.FC<ResumeScoreTabProps> = ({
                                                 <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-1.5">
                                                     {item.label}
                                                     {item.id !== 'summary' && (
-                                                        <span title={`Essential section: ${item.label}`} className="cursor-help inline-flex items-center">
-                                                            <HelpCircle size={12} className="text-gray-400" />
-                                                        </span>
+                                                        <HelpCircle size={12} className="text-gray-400 cursor-help" title={`Essential section: ${item.label}`} />
                                                     )}
                                                 </span>
                                                 <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md border ${

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Trash2, Image as ImageIcon, Upload, Brush } from 'lucide-react';
 import { PortfolioData } from '../../../types/portfolio';
-import SidebarExpandableTextarea from './SidebarExpandableTextarea';
 
 interface SidebarProjectsEditorProps {
     portfolioData: PortfolioData;
@@ -26,7 +25,6 @@ const SidebarProjectsEditor: React.FC<SidebarProjectsEditorProps> = ({
             title: 'New Project',
             description: 'Project description...',
             tags: [],
-            link: '',
             repoUrl: '',
             demoUrl: '',
             thumbnailUrl: ''
@@ -35,7 +33,7 @@ const SidebarProjectsEditor: React.FC<SidebarProjectsEditorProps> = ({
     };
 
     return (
-        <div id="projects" className="space-y-4">
+        <div className="space-y-4">
             {portfolioData.projects.map((proj, idx) => (
                 <div key={proj.id} className={`p-4 rounded-lg border relative group/card ${themeClasses.cardBg}`}>
                     <div className="absolute top-4 right-4 z-10 opacity-0 group-hover/card:opacity-100 transition-opacity">
@@ -65,7 +63,6 @@ const SidebarProjectsEditor: React.FC<SidebarProjectsEditorProps> = ({
                             <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase">Thumbnail</label>
                             <div className="flex gap-2">
                                 <button
-                                    id={`projects.${idx}.thumbnailUrl`}
                                     onClick={() => onImageUploadTrigger(`projects.${idx}.thumbnailUrl`)}
                                     className="px-2 py-1 bg-white/5 hover:bg-white/10 rounded text-[10px] font-medium text-gray-400 flex items-center gap-1 transition-colors"
                                 >
@@ -94,12 +91,10 @@ const SidebarProjectsEditor: React.FC<SidebarProjectsEditorProps> = ({
                         }}
                         placeholder="Project Title"
                     />
-                    <SidebarExpandableTextarea
+                    <textarea
                         id={`projects.${idx}.description`}
-                        compactRows={2}
-                        expandedRows={8}
-                        editorTheme={editorTheme}
-                        className="mb-2"
+                        rows={2}
+                        className={`bg-transparent text-sm w-full outline-none resize-none p-2 rounded mb-2 ${editorTheme === 'dark' ? 'text-gray-400 bg-black/10' : 'text-gray-600 bg-gray-100'}`}
                         value={proj.description}
                         onChange={(e) => {
                             const newProjects = [...portfolioData.projects];
@@ -109,17 +104,6 @@ const SidebarProjectsEditor: React.FC<SidebarProjectsEditorProps> = ({
                         placeholder="Description"
                     />
                     <div className="flex gap-2">
-                        <input
-                            id={`projects.${idx}.link`}
-                            placeholder="Documentation URL"
-                            className={`text-xs w-full p-2 rounded border outline-none transition-colors ${themeClasses.inputBgDarker}`}
-                            value={proj.link || ''}
-                            onChange={(e) => {
-                                const newProjects = [...portfolioData.projects];
-                                newProjects[idx].link = e.target.value;
-                                onUpdate({ projects: newProjects });
-                            }}
-                        />
                         <input
                             id={`projects.${idx}.repoUrl`}
                             placeholder="GitHub URL"
@@ -143,24 +127,9 @@ const SidebarProjectsEditor: React.FC<SidebarProjectsEditorProps> = ({
                             }}
                         />
                     </div>
-                    <input
-                        id={`projects.${idx}.tags`}
-                        placeholder="Tags, comma separated"
-                        className={`mt-2 text-xs w-full p-2 rounded border outline-none transition-colors ${themeClasses.inputBgDarker}`}
-                        value={(proj.tags || []).join(', ')}
-                        onChange={(e) => {
-                            const newProjects = [...portfolioData.projects];
-                            newProjects[idx].tags = e.target.value
-                                .split(',')
-                                .map(tag => tag.trim())
-                                .filter(Boolean);
-                            onUpdate({ projects: newProjects });
-                        }}
-                    />
                 </div>
             ))}
             <button
-                id="projects.add"
                 onClick={handleAddProject}
                 className="w-full py-2 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 rounded-lg text-sm font-medium transition-colors"
             >

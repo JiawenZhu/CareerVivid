@@ -16,13 +16,6 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
     resumes,
     themeClasses
 }) => {
-    const isLinkInBio = portfolioData.mode === 'linkinbio';
-    const isBusinessCard = portfolioData.mode === 'business_card';
-    const showResumeAttachment = !isBusinessCard;
-    const resumeAttachmentHelp = isLinkInBio
-        ? 'Select a resume that can be used by a resume link on this bio page.'
-        : 'Select a resume from your database to display as a download link on your portfolio.';
-
     const handleToggleStore = (enabled: boolean) => {
         onUpdate({
             linkInBio: {
@@ -51,16 +44,13 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
     return (
         <div className="space-y-4 animate-fade-in">
             {/* Intro Page Settings */}
-            {isLinkInBio && (
-                <SidebarIntroEditor
-                    portfolioData={portfolioData}
-                    onUpdate={onUpdate}
-                    themeClasses={themeClasses}
-                />
-            )}
+            <SidebarIntroEditor
+                portfolioData={portfolioData}
+                onUpdate={onUpdate}
+                themeClasses={themeClasses}
+            />
 
             {/* Commerce Hub Settings */}
-            {isLinkInBio && (
             <div className={`p-4 rounded-lg border ${themeClasses.cardBg}`}>
                 <div className="flex items-center gap-2 mb-3">
                     <Store className="text-blue-500" size={20} />
@@ -87,10 +77,8 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
                     Manage your products in the <a href="/commerce" target="_blank" className="text-blue-500 hover:underline">Commerce Dashboard</a>.
                 </p>
             </div>
-            )}
 
             {/* Animation Hub */}
-            {isLinkInBio && (
             <div className={`p-4 rounded-lg border ${themeClasses.cardBg}`}>
                 <div className="flex items-center gap-2 mb-3">
                     <Sparkles className="text-purple-500" size={20} />
@@ -270,10 +258,8 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
                     </div>
                 </div>
             </div>
-            )}
 
 
-            {showResumeAttachment && (
             <div className={`p-4 rounded-lg border ${themeClasses.cardBg}`}>
                 <div className="flex items-center gap-2 mb-3">
                     <FileText className="text-indigo-400" size={20} />
@@ -282,9 +268,8 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
 
                 <div id="resume.selector">
                     <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase">Attach Resume</label>
-                    <p className="text-xs text-gray-400 mb-2">{resumeAttachmentHelp}</p>
+                    <p className="text-xs text-gray-400 mb-2">Select a resume from your database to display as a download link on your portfolio.</p>
                     <select
-                        id="attachedResumeId"
                         value={portfolioData.attachedResumeId || ''}
                         onChange={(e) => onUpdate({ attachedResumeId: e.target.value })}
                         className={`w-full border rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500 transition-colors ${themeClasses.inputBg}`}
@@ -298,10 +283,8 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
                     </select>
                 </div>
             </div>
-            )}
 
             {/* Branding Settings (Premium) */}
-            {isLinkInBio && (
             <div className={`p-4 rounded-lg border ${themeClasses.cardBg}`}>
                 <div className="flex items-center gap-2 mb-3">
                     <Award className="text-amber-400" size={20} />
@@ -334,7 +317,6 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
                     </label>
                 </div>
             </div>
-            )}
         </div>
     );
 };

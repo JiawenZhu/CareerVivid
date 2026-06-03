@@ -2,6 +2,7 @@ import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { appendPrepEvent } from "./appendPrepEvent";
 import { sendAgencyReadinessEmail } from "./agencyEmails";
+import { DEFAULT_AGENCY_INVITE_LIMIT } from "./access";
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -16,18 +17,98 @@ const READINESS_THRESHOLD = 85;
 const readinessSummaryFromScore = (latestScore: number, scoreDelta: number): string => {
   const deltaText = scoreDelta > 0 ? `, improving by ${scoreDelta} points` : "";
   if (latestScore >= 90) return `Candidate reached a recruiter-ready score of ${latestScore}${deltaText}.`;
-  if (latestScore >= READINESS_THRESHOLD) return `Candidate is close to recruiter-ready with a score of ${latestScore}${deltaText}.`;
+  if (latestScore >= READINESS_THRESHOLD) return `Candidate is recruiter-ready with a score of ${latestScore}${deltaText}.`;
   return `Candidate is still preparing with a current score of ${latestScore}${deltaText}.`;
 };
 
+const hasChanged = (
+  before: FirebaseFirestore.DocumentData | null,
+  after: FirebaseFirestore.DocumentData,
+  field: string
+): boolean => before?.[field] !== after[field];
+
+async function updateBranchAggregates(branchId: string): Promise<{
+  seatsUsed: number;
+  inviteLimit: number;
+  overInviteLimit: boolean;
+}> {
+  const branchRef = db.collection("agencyBranches").doc(branchId);
+
+  const sessionsSnap = await db.collection("agencyPrepSessions")
+    .where("agencyBranchId", "==", branchId)
+    .get();
+
+  let scoreSum = 0;
+  let scoreCount = 0;
+  let deltaSum = 0;
+  let deltaCount = 0;
+  const statusCounts: Record<string, number> = {};
+
+  for (const docSnap of sessionsSnap.docs) {
+    const data = docSnap.data();
+    const status = String(data.status || "started");
+    statusCounts[status] = (statusCounts[status] || 0) + 1;
+    if (typeof data.latestScore === "number") {
+      scoreSum += data.latestScore;
+      scoreCount += 1;
+    }
+    if (typeof data.scoreDelta === "number") {
+      deltaSum += data.scoreDelta;
+      deltaCount += 1;
+    }
+  }
+
+  return db.runTransaction(async (transaction) => {
+    const branchSnap = await transaction.get(branchRef);
+    if (!branchSnap.exists) {
+      return {
+        seatsUsed: sessionsSnap.size,
+        inviteLimit: DEFAULT_AGENCY_INVITE_LIMIT,
+        overInviteLimit: sessionsSnap.size > DEFAULT_AGENCY_INVITE_LIMIT,
+      };
+    }
+
+    const branch = branchSnap.data() || {};
+    const inviteLimit = typeof branch.inviteLimit === "number"
+      ? branch.inviteLimit
+      : DEFAULT_AGENCY_INVITE_LIMIT;
+    const averageLatestScore = scoreCount > 0 ? Math.round(scoreSum / scoreCount) : null;
+    const averageScoreLift = deltaCount > 0 ? Math.round((deltaSum / deltaCount) * 10) / 10 : null;
+    const overInviteLimit = sessionsSnap.size > inviteLimit;
+    const readyCount = (statusCounts.ready || 0) + (statusCounts.shared || 0);
+    const sharedCount = statusCounts.shared || 0;
+
+    transaction.set(branchRef, {
+      seatsUsed: sessionsSnap.size,
+      totalCandidateSeatsUsed: sessionsSnap.size,
+      averageLatestScore,
+      averageBranchCandidateScore: averageLatestScore,
+      averageScoreLift,
+      averageBranchScoreLiftDelta: averageScoreLift,
+      overInviteLimit,
+      seatLimitExceeded: overInviteLimit,
+      quotaStatus: overInviteLimit ? "over_limit" : "ok",
+      metrics: {
+        seatsUsed: sessionsSnap.size,
+        inviteLimit,
+        averageLatestScore,
+        averageScoreLift,
+        statusCounts,
+        readyCount,
+        sharedCount,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      metricsUpdatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+
+    return { seatsUsed: sessionsSnap.size, inviteLimit, overInviteLimit };
+  });
+}
+
 /**
- * Watch agencyPrepSessions writes and emit timeline events for state changes
- * the client already makes (started, resume_selected, score_lifted, marked_ready,
- * consent_granted). Also queues the readiness notification email to the
- * branch owner when consent flips to true.
- *
- * This keeps the existing client services free of event-write coupling and
- * lets the activity timeline reflect what's already happening.
+ * Keep agency branch metrics and session timeline events synchronized from
+ * writes to agencyPrepSessions.
  */
 export const onAgencyPrepSessionWritten = functions
   .region(REGION)
@@ -37,8 +118,37 @@ export const onAgencyPrepSessionWritten = functions
     const before = change.before.exists ? change.before.data() as FirebaseFirestore.DocumentData : null;
     const after = change.after.exists ? change.after.data() as FirebaseFirestore.DocumentData : null;
 
-    // Deletion — nothing to do (resetDemoBranch handles its own teardown).
+    const branchId = (after?.agencyBranchId || before?.agencyBranchId) as string | undefined;
+    let aggregateResult: { seatsUsed: number; inviteLimit: number; overInviteLimit: boolean } | null = null;
+    if (branchId) {
+      aggregateResult = await updateBranchAggregates(branchId);
+    }
+
     if (!after) return;
+
+    if (
+      aggregateResult?.overInviteLimit &&
+      before === null &&
+      after.overLimit !== true
+    ) {
+      await change.after.ref.set({
+        overLimit: true,
+        status: "inactive",
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true });
+
+      await appendPrepEvent({
+        sessionId,
+        type: "quota_exceeded",
+        actorUserId: after.candidateUserId as string | undefined,
+        actorName: (after.candidateName as string) || "Candidate",
+        payload: {
+          seatsUsed: aggregateResult.seatsUsed,
+          inviteLimit: aggregateResult.inviteLimit,
+        },
+      });
+      return;
+    }
 
     const beforeStatus = before?.status as string | undefined;
     const afterStatus = after.status as string;
@@ -51,38 +161,9 @@ export const onAgencyPrepSessionWritten = functions
 
     const candidateName = (after.candidateName as string) || "Candidate";
     const candidateUid = after.candidateUserId as string | undefined;
-
     const ops: Promise<unknown>[] = [];
 
-    // started — first time the session exists
     if (!before && after) {
-      const branchId = after.agencyBranchId as string | undefined;
-      if (branchId) {
-        const branchSnap = await db.collection("agencyBranches").doc(branchId).get();
-        const branchData = branchSnap.exists ? branchSnap.data() : null;
-        const seatLimit = branchData && typeof branchData.inviteLimit === "number" ? branchData.inviteLimit : 40;
-
-        const sessionsSnap = await db.collection("agencyPrepSessions")
-          .where("agencyBranchId", "==", branchId)
-          .get();
-
-        if (sessionsSnap.size > seatLimit) {
-          await change.after.ref.update({
-            status: "inactive",
-            overLimit: true,
-            updatedAt: admin.firestore.FieldValue.serverTimestamp()
-          });
-          await appendPrepEvent({
-            sessionId,
-            type: "consent_revoked", // reuse standard event type mapping or safe type
-            actorUserId: candidateUid,
-            actorName: candidateName,
-            payload: { reason: "pilot_seat_limit_exceeded" }
-          });
-          return;
-        }
-      }
-
       ops.push(appendPrepEvent({
         sessionId,
         type: "started",
@@ -91,19 +172,21 @@ export const onAgencyPrepSessionWritten = functions
       }));
     }
 
-    // resume_selected — candidate attached/changed a resume
     if (afterResumeId && afterResumeId !== beforeResumeId) {
       ops.push(appendPrepEvent({
         sessionId,
-        type: "resume_selected",
+        type: "resume_imported",
         actorUserId: candidateUid,
         actorName: candidateName,
         payload: { resumeId: afterResumeId },
       }));
     }
 
-    // ai_review_run — status transitioned to reviewed and we didn't already track it
-    if (afterStatus === "reviewed" && beforeStatus !== "reviewed") {
+    if (
+      (afterStatus === "reviewed" || afterStatus === "ready" || afterStatus === "shared") &&
+      beforeStatus !== afterStatus &&
+      beforeStatus !== "reviewed"
+    ) {
       ops.push(appendPrepEvent({
         sessionId,
         type: "ai_review_run",
@@ -112,7 +195,6 @@ export const onAgencyPrepSessionWritten = functions
       }));
     }
 
-    // score_lifted — meaningful upward score movement
     if (
       typeof afterScore === "number" &&
       typeof beforeScore === "number" &&
@@ -124,10 +206,10 @@ export const onAgencyPrepSessionWritten = functions
         actorUserId: candidateUid,
         actorName: candidateName,
         payload: { fromScore: beforeScore, toScore: afterScore },
+        description: `Improved readiness score from ${beforeScore} to ${afterScore}.`,
       }));
     }
 
-    // marked_ready — first time we observe a ready (or higher) status
     if ((afterStatus === "ready" || afterStatus === "shared") && beforeStatus !== "ready" && beforeStatus !== "shared") {
       ops.push(appendPrepEvent({
         sessionId,
@@ -137,7 +219,6 @@ export const onAgencyPrepSessionWritten = functions
       }));
     }
 
-    // consent_granted — candidate just turned on sharing
     if (afterConsent && !beforeConsent) {
       ops.push(appendPrepEvent({
         sessionId,
@@ -146,8 +227,6 @@ export const onAgencyPrepSessionWritten = functions
         actorName: candidateName,
       }));
 
-      // Queue the readiness notification email to the branch owner.
-      const branchId = after.agencyBranchId as string | undefined;
       const recruiterUid = after.agencyOwnerUserId as string | undefined;
       if (branchId && recruiterUid) {
         const branchSnap = await db.collection("agencyBranches").doc(branchId).get();
@@ -176,6 +255,33 @@ export const onAgencyPrepSessionWritten = functions
             console.error("Failed to queue agency readiness email:", err);
           }));
         }
+      }
+    }
+
+    if (
+      hasChanged(before, after, "latestScore") ||
+      hasChanged(before, after, "scoreDelta") ||
+      hasChanged(before, after, "status")
+    ) {
+      const latestScore = typeof afterScore === "number" ? afterScore : null;
+      const scoreDelta = typeof after.scoreDelta === "number" ? after.scoreDelta : null;
+      if (
+        (latestScore !== after.readinessReport?.latestScore || scoreDelta !== after.readinessReport?.scoreDelta) &&
+        (afterStatus === "ready" || afterStatus === "shared")
+      ) {
+        ops.push(change.after.ref.set({
+          readinessReport: {
+            ...(after.readinessReport || {}),
+            resumeId: after.resumeId || after.readinessReport?.resumeId || null,
+            latestScore,
+            scoreDelta,
+            summary: typeof latestScore === "number" && typeof scoreDelta === "number"
+              ? readinessSummaryFromScore(latestScore, scoreDelta)
+              : after.readinessReport?.summary || null,
+            generatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          },
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true }));
       }
     }
 

@@ -1,6 +1,9 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
+import { randomBytes } from "crypto";
 import { sendAgencyInviteEmail } from "./agencyEmails";
+import { appendPrepEvent } from "./appendPrepEvent";
+import { authorizeBranchOwnerOrAdmin, DEFAULT_AGENCY_INVITE_LIMIT } from "./access";
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -11,17 +14,19 @@ const REGION = "us-west1";
 const MAX_INVITES_PER_BRANCH_PER_DAY = 50;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const createInviteToken = (): string =>
+  randomBytes(18)
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+
 /**
  * Send an agency invite email to a candidate and record the invite under
  * agencyBranches/{branchId}/invites. Only the branch owner (agency_partner)
  * or admin may call. Rate-limited per branch per day.
  */
 export const sendAgencyInvite = functions.region(REGION).https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError("unauthenticated", "Sign in required.");
-  }
-  const callerUid = context.auth.uid;
-
   const branchId = String(data?.branchId || "").trim();
   const email = String(data?.email || "").trim().toLowerCase();
   const firstName = data?.firstName ? String(data.firstName).trim() : undefined;
@@ -33,24 +38,28 @@ export const sendAgencyInvite = functions.region(REGION).https.onCall(async (dat
     throw new functions.https.HttpsError("invalid-argument", "Valid recipient email is required.");
   }
 
-  // Load branch + authorize
-  const branchRef = db.collection("agencyBranches").doc(branchId);
-  const branchSnap = await branchRef.get();
-  if (!branchSnap.exists) {
-    throw new functions.https.HttpsError("not-found", "Agency branch not found.");
-  }
-  const branch = branchSnap.data() as FirebaseFirestore.DocumentData;
+  const { branchRef, branchData: branch, callerUid } = await authorizeBranchOwnerOrAdmin(context, branchId);
 
-  const adminSnap = await db.collection("admins").doc(callerUid).get();
-  const isAdmin = adminSnap.exists;
-  if (!isAdmin && branch.ownerUserId !== callerUid) {
-    throw new functions.https.HttpsError("permission-denied", "Only the branch owner or an admin can send invites.");
-  }
-
-  // Seat-limit check: enforce branch's maximum total invites (default 40).
+  // Seat-limit check: count both invite records and already-started sessions,
+  // de-duplicated by candidate email so an invite that became a session only
+  // consumes one pilot seat.
   const allInvitesSnap = await branchRef.collection("invites").get();
-  const inviteLimit = typeof branch.inviteLimit === "number" ? branch.inviteLimit : 40;
-  if (allInvitesSnap.size >= inviteLimit) {
+  const sessionsSnap = await db
+    .collection("agencyPrepSessions")
+    .where("agencyBranchId", "==", branchId)
+    .get();
+  const occupiedEmails = new Set<string>();
+  allInvitesSnap.docs.forEach((inviteDoc) => {
+    const inviteEmail = String(inviteDoc.data().email || "").trim().toLowerCase();
+    if (inviteEmail) occupiedEmails.add(inviteEmail);
+  });
+  sessionsSnap.docs.forEach((sessionDoc) => {
+    const sessionEmail = String(sessionDoc.data().candidateEmail || "").trim().toLowerCase();
+    if (sessionEmail) occupiedEmails.add(sessionEmail);
+  });
+
+  const inviteLimit = typeof branch.inviteLimit === "number" ? branch.inviteLimit : DEFAULT_AGENCY_INVITE_LIMIT;
+  if (!occupiedEmails.has(email) && occupiedEmails.size >= inviteLimit) {
     throw new functions.https.HttpsError(
       "failed-precondition",
       `Invite limit of ${inviteLimit} reached for this branch pilot. Please contact CareerVivid to upgrade your pilot seat limit.`
@@ -72,6 +81,8 @@ export const sendAgencyInvite = functions.region(REGION).https.onCall(async (dat
 
   // Resolve a display name for the recruiter.
   const callerUserSnap = await db.collection("users").doc(callerUid).get();
+  const branchName = String(branch.branchName || branch.organization || "your agency branch");
+  const branchSlug = String(branch.slug || branchId);
   const recruiterName = (callerUserSnap.data()?.displayName as string)
     || (callerUserSnap.data()?.email as string)
     || (branch.contactName as string)
@@ -79,38 +90,80 @@ export const sendAgencyInvite = functions.region(REGION).https.onCall(async (dat
 
   // Write invite record first so the UI updates immediately even if email
   // suppression returns "not queued".
+  const inviteToken = createInviteToken();
   const inviteRef = branchRef.collection("invites").doc();
-  await inviteRef.set({
+  const rootInviteRef = db.collection("agencyInvites").doc(inviteRef.id);
+  const invitePayload = {
+    agencyBranchId: branchId,
+    branchName,
+    branchSlug,
+    inviteToken,
+    preparePath: `/prepare/${encodeURIComponent(branchSlug)}`,
     email,
     firstName: firstName || null,
     message: customMessage || null,
     sentByUserId: callerUid,
     sentByName: recruiterName,
     status: "sent",
+    deliveryState: "CREATED",
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-  });
+  };
+  await Promise.all([
+    inviteRef.set(invitePayload),
+    rootInviteRef.set(invitePayload),
+  ]);
 
   // Compose and queue the lifecycle email.
   const result = await sendAgencyInviteEmail({
     branchId,
-    branchName: branch.branchName as string,
-    branchSlug: branch.slug as string,
+    branchName,
+    branchSlug,
     recruiterName,
     recipientEmail: email,
     recipientFirstName: firstName,
     customMessage,
+    inviteToken,
     demo,
   });
 
-  // Record suppression reason on the invite doc for visibility in the dashboard.
-  if (!result.queued) {
-    await inviteRef.update({
-      status: "sent",
-      deliveryNote: result.reason,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  const deliveryPatch = {
+    status: "sent",
+    queuedMailId: result.mailId || null,
+    deliveryState: result.queued ? "QUEUED" : "SUPPRESSED",
+    deliveryNote: result.reason,
+    emailQueuedAt: result.queued ? admin.firestore.FieldValue.serverTimestamp() : null,
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
+  await Promise.all([
+    inviteRef.update(deliveryPatch),
+    rootInviteRef.update(deliveryPatch),
+  ]);
+
+  const matchingSession = sessionsSnap.docs.find((sessionDoc) => {
+    const sessionEmail = String(sessionDoc.data().candidateEmail || "").trim().toLowerCase();
+    return sessionEmail === email;
+  });
+  if (matchingSession) {
+    await appendPrepEvent({
+      sessionId: matchingSession.id,
+      type: "invited",
+      actorUserId: callerUid,
+      actorName: recruiterName,
+      payload: { inviteId: inviteRef.id },
     });
   }
 
-  return { inviteId: inviteRef.id, queued: result.queued, reason: result.reason };
+  await branchRef.set({
+    lastInviteAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  }, { merge: true });
+
+  return {
+    inviteId: inviteRef.id,
+    inviteToken,
+    mailId: result.mailId || null,
+    queued: result.queued,
+    reason: result.reason,
+  };
 });

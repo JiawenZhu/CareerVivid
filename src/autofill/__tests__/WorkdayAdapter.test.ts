@@ -16,7 +16,6 @@ vi.mock('../fillUtils', () => ({
   fillSelectByValue:  vi.fn().mockResolvedValue(undefined),
   fillTextarea:       vi.fn().mockResolvedValue(undefined),
   clickRadioByLabel:  vi.fn().mockResolvedValue(undefined),
-  isDemographicField: vi.fn().mockReturnValue(false),
 }));
 
 const adapter = new WorkdayAdapter();

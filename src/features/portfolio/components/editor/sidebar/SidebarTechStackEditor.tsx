@@ -13,7 +13,7 @@ const SidebarTechStackEditor: React.FC<SidebarTechStackEditorProps> = ({
     themeClasses
 }) => {
     return (
-        <div className="space-y-4" id="techStack">
+        <div className="space-y-4">
             <div className="flex flex-wrap gap-2">
                 {portfolioData.techStack.map((skill, idx) => (
                     <div key={skill.id} className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${themeClasses.cardBg}`}>
@@ -39,7 +39,7 @@ const SidebarTechStackEditor: React.FC<SidebarTechStackEditorProps> = ({
                     </div>
                 ))}
                 <button
-                    id="techStack.add"
+                    id="techStack"
                     onClick={() => {
                         const newStack = [...portfolioData.techStack, { id: Date.now().toString(), name: 'New Skill', level: 'Intermediate' as const }];
                         onUpdate({ techStack: newStack });

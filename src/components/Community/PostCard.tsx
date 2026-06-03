@@ -1,16 +1,22 @@
-import React, { useState } from 'react';
+import React, { useRef, useState, useLayoutEffect } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Heart, MessageSquare, BookOpen, FileText, Globe, PenTool, AlertTriangle, ExternalLink, Send, Loader2, Linkedin } from 'lucide-react';
 import { navigate } from '../../utils/navigation';
+import { slugifyTag } from '../../utils/tagUtils';
 import { CommunityPost, useCommunity, useComments } from '../../hooks/useCommunity';
 import { useAuth } from '../../contexts/AuthContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useTranslation } from 'react-i18next';
 import { enUS, es, fr, de, zhCN } from 'date-fns/locale';
+import DOMPurify from 'dompurify';
+import ResumePreview from '../ResumePreview';
+import { TEMPLATES } from '../../features/portfolio/templates';
+import LinkTreeVisual from '../../features/portfolio/templates/linkinbio/LinkTreeVisual';
+import { getTheme } from '../../features/portfolio/styles/themes';
+import { PortfolioData } from '../../features/portfolio/types/portfolio';
+import { WhiteboardData } from '../../types';
 import UserProfileSnippet from './UserProfileSnippet';
-import PostVisualSnapshot from './PostVisualSnapshot';
-import PostTags from './PostTags';
 
 const localeMap: Record<string, any> = {
     en: enUS,
@@ -19,6 +25,16 @@ const localeMap: Record<string, any> = {
     de,
     zh: zhCN,
 };
+
+// Tag palette — cycles for visual interest
+const TAG_COLORS = [
+    'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60',
+    'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60',
+    'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60',
+    'text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60',
+    'text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/60',
+    'text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/60',
+];
 
 // ── Asset Type Config ────────────────────────────────────────────────────────
 const ASSET_CONFIG = {
@@ -113,6 +129,180 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     const [showComments, setShowComments] = React.useState(false);
     const [commentText, setCommentText] = React.useState('');
     const [showFullContent, setShowFullContent] = React.useState(false);
+
+    // ── Visual Snapshot Component ──────────────────────────────────────
+    const VisualSnapshot = () => {
+        const postType = post.type;
+        const thumbnail = post.assetThumbnail;
+        const previewContainerRef = useRef<HTMLDivElement>(null);
+        const [scale, setScale] = useState(0.2);
+
+        useLayoutEffect(() => {
+            const calculateScale = () => {
+                if (previewContainerRef.current) {
+                    const parentWidth = previewContainerRef.current.offsetWidth;
+                    // For Resumes, the ResumePreview is roughly 824px wide
+                    // For Portfolios: Link-in-Bio is 430px, standard is 1200px
+                    let baseWidth = 824;
+
+                    if (post.type === 'portfolio' && post.portfolioData) {
+                        baseWidth = post.portfolioData.mode === 'linkinbio' ? 430 : 1200;
+                    }
+
+                    if (parentWidth > 0) {
+                        setScale(parentWidth / baseWidth);
+                    }
+                }
+            };
+
+            calculateScale();
+            const resizeObserver = new ResizeObserver(calculateScale);
+            if (previewContainerRef.current) {
+                resizeObserver.observe(previewContainerRef.current);
+            }
+
+            return () => resizeObserver.disconnect();
+        }, [post.type, post.portfolioData?.mode]);
+
+        if (postType === 'portfolio') {
+            const portfolio = post.portfolioData;
+            if (portfolio) {
+                const isBioLink = portfolio.mode === 'linkinbio';
+                // Adjust aspect ratio for bio links on mobile to fit the container better
+                const aspectClass = isBioLink ? 'aspect-[3/4] sm:aspect-[9/16]' : 'aspect-[4/3] sm:aspect-video';
+                const originalWidth = isBioLink ? 430 : 1200;
+                const originalHeight = isBioLink ? 932 : 675;
+
+                // For the feed, we want to maintain the card's aspect ratio,
+                // but if it's a bio link, it might look better centered or cropped.
+                // However, we'll try to follow the dashboard logic as closely as possible.
+
+                const CurrentTemplate = TEMPLATES[portfolio.templateId as keyof typeof TEMPLATES] || TEMPLATES.minimalist;
+                const bioLinkTheme = isBioLink && portfolio.linkInBio?.themeId ? getTheme(portfolio.linkInBio.themeId) : undefined;
+
+                return (
+                    <div ref={previewContainerRef} className={`w-full h-full bg-gray-100 dark:bg-gray-900 group-hover:bg-gray-200 dark:group-hover:bg-gray-800/50 transition-colors flex items-center justify-center overflow-hidden relative`}>
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: `${originalWidth}px`,
+                                height: `${originalHeight}px`,
+                                transform: `scale(${scale})`,
+                                transformOrigin: 'top left',
+                            }}
+                        >
+                            {isBioLink && portfolio.linkInBio && bioLinkTheme ? (
+                                <LinkTreeVisual data={portfolio} />
+                            ) : (
+                                <CurrentTemplate data={portfolio} />
+                            )}
+                        </div>
+                    </div>
+                );
+            }
+
+            if (thumbnail) {
+                return (
+                    <img
+                        src={thumbnail}
+                        alt={post.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                );
+            }
+        }
+
+        if (postType === 'whiteboard') {
+            // API-published mermaid diagram — show an SVG preview badge
+            if (post.dataFormat === 'mermaid') {
+                return (
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-[#0d1117] relative overflow-hidden">
+                        <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(#10b981 0.5px, transparent 0.5px)', backgroundSize: '14px 14px' }} />
+                        <div className="p-4 bg-emerald-900/40 rounded-2xl shadow-inner border border-emerald-800/50">
+                            <PenTool size={30} className="text-emerald-400" />
+                        </div>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">Whiteboard Diagram</p>
+                    </div>
+                );
+            }
+
+            const whiteboard = post.whiteboardData;
+            const svgThumbnail = whiteboard?.thumbnailSvg || thumbnail;
+
+            if (svgThumbnail?.startsWith('<svg')) {
+                const sanitizedSvgThumbnail = DOMPurify.sanitize(svgThumbnail, {
+                    USE_PROFILES: { svg: true, svgFilters: true },
+                });
+                return (
+                    <div className="w-full h-full bg-white dark:bg-gray-950 flex items-center justify-center p-2 overflow-hidden relative group-hover:bg-gray-50 dark:group-hover:bg-gray-900 transition-colors">
+                        <div
+                            className="w-full h-full flex items-center justify-center [&_svg]:max-w-full [&_svg]:max-h-full [&_svg]:w-auto [&_svg]:h-auto"
+                            dangerouslySetInnerHTML={{ __html: sanitizedSvgThumbnail }}
+                        />
+                        {/* Subtle grid pattern for whiteboard feel */}
+                        <div className="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(#000 0.5px, transparent 0.5px)', backgroundSize: '10px 10px' }}></div>
+                    </div>
+                );
+            }
+        }
+
+        if (postType === 'resume') {
+            if (post.resumeData) {
+                return (
+                    <div ref={previewContainerRef} className="w-full h-full bg-gray-50 dark:bg-gray-900 flex items-center justify-center overflow-hidden relative">
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '824px',
+                                height: '1165px',
+                                transform: `scale(${scale})`,
+                                transformOrigin: 'top left',
+                            }}
+                        >
+                            <ResumePreview resume={post.resumeData} template={post.resumeData.templateId} />
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="w-full h-full bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/20 flex items-center justify-center relative overflow-hidden">
+                    {/* Stylized Doc UI */}
+                    <div className="w-[120px] h-[160px] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col p-3 gap-2 transform -rotate-2 group-hover:rotate-0 transition-transform duration-300">
+                        <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                            <FileText size={16} />
+                        </div>
+                        <div className="h-1.5 w-full bg-gray-100 dark:bg-gray-700 rounded" />
+                        <div className="h-1 w-3/4 bg-gray-50 dark:bg-gray-700/50 rounded" />
+                        <div className="mt-auto space-y-1">
+                            <div className="h-0.5 w-full bg-gray-50 dark:bg-gray-700/30 rounded" />
+                            <div className="h-0.5 w-full bg-gray-50 dark:bg-gray-700/30 rounded" />
+                        </div>
+                    </div>
+                    {/* Background acccents */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-blue-400/10 dark:bg-blue-400/5 rounded-full blur-3xl -z-1" />
+                </div>
+            );
+        }
+
+        // Fallback for all types if thumbnail missing
+        const Icon = ASSET_CONFIG[postType as keyof typeof ASSET_CONFIG]?.icon || FileText;
+        return (
+            <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-gray-50 dark:bg-gray-900/50 group-hover:bg-gray-100 dark:group-hover:bg-gray-800 transition-colors">
+                <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 group-hover:scale-110 transition-transform duration-300">
+                    <Icon size={32} />
+                </div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                    {postType} Preview
+                </p>
+            </div>
+        );
+    };
+
 
     // Check if the current user already liked this post
     React.useEffect(() => {
@@ -213,7 +403,33 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
         // Algolia wraps matches in <em> tags by default
         const highlightedHtml = highlightResult.title.value;
-        return <span dangerouslySetInnerHTML={{ __html: highlightedHtml.replace(/<em>/g, '<mark class="bg-yellow-200 dark:bg-yellow-900/50 text-gray-900 dark:text-white rounded px-0.5">').replace(/<\/em>/g, '</mark>') }} />;
+        const parts = highlightedHtml.split(/(<\/?em>)/gi);
+        let isHighlighted = false;
+
+        return (
+            <span>
+                {parts.map((part: string, index: number) => {
+                    const lowerPart = part.toLowerCase();
+                    if (lowerPart === '<em>') {
+                        isHighlighted = true;
+                        return null;
+                    }
+                    if (lowerPart === '</em>') {
+                        isHighlighted = false;
+                        return null;
+                    }
+                    if (!part) return null;
+
+                    return isHighlighted ? (
+                        <mark key={index} className="bg-yellow-200 dark:bg-yellow-900/50 text-gray-900 dark:text-white rounded px-0.5">
+                            {part}
+                        </mark>
+                    ) : (
+                        <React.Fragment key={index}>{part}</React.Fragment>
+                    );
+                })}
+            </span>
+        );
     };
 
     // Determine click handler
@@ -400,7 +616,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
                     {/* Visual Preview */}
                     <div className="relative w-full aspect-[4/3] sm:aspect-video rounded-2xl overflow-hidden mb-4 md:mb-5 border border-white/50 dark:border-gray-700/50 shadow-inner bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
-                        <PostVisualSnapshot post={post} />
+                        <VisualSnapshot />
                         {/* Overlay gradient */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                     </div>
@@ -416,7 +632,20 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                         </p>
                     )}
 
-                    <PostTags tags={post.tags} />
+                    {/* Tags */}
+                    {post.tags?.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mb-4">
+                            {post.tags.map((tag, i) => (
+                                <button
+                                    key={tag}
+                                    onClick={(e) => { e.stopPropagation(); navigate(`/community?tag=${slugifyTag(tag)}`); }}
+                                    className={`inline-flex items-center gap-0.5 text-xs font-semibold px-2 py-0.5 rounded-md cursor-pointer hover:opacity-80 transition-opacity ${TAG_COLORS[i % TAG_COLORS.length]}`}
+                                >
+                                    #{tag}
+                                </button>
+                            ))}
+                        </div>
+                    )}
 
                     {/* Large CTA button */}
                     <button
@@ -466,7 +695,20 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                     {post.title}
                 </h2>
 
-                <PostTags tags={post.tags} className="mb-3" />
+                {/* Tags */}
+                {post.tags?.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                        {post.tags.map((tag, i) => (
+                            <button
+                                key={tag}
+                                onClick={(e) => { e.stopPropagation(); navigate(`/community?tag=${slugifyTag(tag)}`); }}
+                                className={`inline-flex items-center gap-0.5 text-xs font-semibold px-2 py-0.5 rounded-md cursor-pointer hover:opacity-80 transition-opacity ${TAG_COLORS[i % TAG_COLORS.length]}`}
+                            >
+                                #{tag}
+                            </button>
+                        ))}
+                    </div>
+                )}
 
                 {/* Content snippet — only when no cover image */}
                 {!post.coverImage && snippet && (

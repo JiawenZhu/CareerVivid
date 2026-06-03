@@ -11,7 +11,7 @@ export const useWhiteboards = () => {
     const { currentUser } = useAuth();
 
     useEffect(() => {
-        if (!currentUser || !currentUser.uid) {
+        if (!currentUser) {
             setWhiteboards([]);
             setIsLoading(false);
             return;
@@ -117,7 +117,7 @@ export const useWhiteboards = () => {
     };
 
     const createWhiteboard = async (title: string = 'Untitled Whiteboard'): Promise<string> => {
-        if (!currentUser || !currentUser.uid) throw new Error('Must be logged in to create whiteboard');
+        if (!currentUser) throw new Error('Must be logged in to create whiteboard');
 
         const newDocRef = doc(collection(db, 'whiteboards'));
         const now = Date.now();
@@ -172,7 +172,7 @@ export const useWhiteboards = () => {
     };
 
     const duplicateWhiteboard = async (originalId: string) => {
-        if (!currentUser || !currentUser.uid) throw new Error('Must be logged in');
+        if (!currentUser) throw new Error('Must be logged in');
 
         try {
             const originalDoc = await getDoc(doc(db, 'whiteboards', originalId));

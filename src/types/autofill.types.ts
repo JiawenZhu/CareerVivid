@@ -1,5 +1,5 @@
 /**
- * CareerVivid Job Application Assistant — Core Type Definitions
+ * CareerVivid Auto-Apply — Core Type Definitions
  *
  * These types define the data contract between:
  *  - The background service worker (syncs data from Firebase)
@@ -103,8 +103,6 @@ export interface ATSAdapter {
   getFormFields(): FormField[];
   /** Write a value into a single form field (React-safe) */
   fillField(field: FormField, value: string): Promise<void>;
-  /** Decoupled optional method to upload a file programmatically */
-  fillFileField?(field: FormField, file: File): Promise<void>;
 }
 
 // ---------------------------------------------------------------------------
@@ -117,11 +115,6 @@ export interface AutoFillResult {
   errorCount: number;
   fields: FormField[];
   timestamp: string;
-  resumeUpload?: {
-    status: 'success' | 'failed' | 'skipped';
-    fieldLabel?: string;
-    error?: string;
-  };
 }
 
 // ---------------------------------------------------------------------------
@@ -130,7 +123,7 @@ export interface AutoFillResult {
 export type ExtensionMessage =
   | { type: 'GET_RESUME_DATA' }
   | { type: 'AUTOFILL_APPLICATION'; resumeId?: string }
-  | { type: 'FILL_FORM'; profile: AutoFillProfile; base64Pdf?: string; fileName?: string }
+  | { type: 'FILL_FORM'; profile: AutoFillProfile }
   | { type: 'FILL_COMPLETE'; result: AutoFillResult }
   | { type: 'EXTRACT_JOB_DATA' }
   | { type: 'SAVE_JOB'; job: Partial<JobData> }
@@ -145,8 +138,6 @@ export interface JobData {
   location: string;
   description: string;
   url: string;
-  salary?: string;
-  stage?: string;
 }
 
 export interface ATSContext {

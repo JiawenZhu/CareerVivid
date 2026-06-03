@@ -45,6 +45,19 @@ export const addRecruiterNote = async (sessionId: string, body: string): Promise
   return result.data;
 };
 
+/** Update a recruiter note via the updateRecruiterNote callable. */
+export const updateRecruiterNote = async (
+  sessionId: string,
+  noteId: string,
+  body: string,
+): Promise<void> => {
+  const fn = httpsCallable<{ sessionId: string; noteId: string; body: string }, { ok: boolean }>(
+    functions,
+    'updateRecruiterNote',
+  );
+  await fn({ sessionId, noteId, body });
+};
+
 /** Delete a recruiter note via the deleteRecruiterNote callable. */
 export const deleteRecruiterNote = async (sessionId: string, noteId: string): Promise<void> => {
   const fn = httpsCallable<{ sessionId: string; noteId: string }, { ok: boolean }>(functions, 'deleteRecruiterNote');

@@ -1,10 +1,4 @@
 import { ResumeData } from '../types';
-import {
-    normalizeReviewEmploymentHistory,
-    normalizeReviewSkills,
-    safeReviewArray,
-    safeReviewText,
-} from './aiReviewDataGuards';
 
 export interface ScoreItem {
     id: string;
@@ -80,63 +74,11 @@ const ACTION_VERBS = [
     'provide', 'provided', 'maintain', 'maintained', 'prepare', 'prepared'
 ];
 
-const ROLE_SKILL_REQUIREMENTS: Record<string, Array<{ label: string; aliases: string[] }>> = {
-    support: [
-        { label: 'REST APIs', aliases: ['rest api', 'rest apis', 'api troubleshooting', 'apis'] },
-        { label: 'Troubleshooting', aliases: ['troubleshooting', 'debugging', 'debug'] },
-        { label: 'System Monitoring', aliases: ['system monitoring', 'monitoring', 'datadog', 'splunk', 'logs'] },
-        { label: 'Root Cause Analysis', aliases: ['root cause', 'rca'] },
-        { label: 'Ticketing Systems', aliases: ['jira', 'servicenow', 'zendesk', 'ticket'] },
-        { label: 'Customer Escalations', aliases: ['escalation', 'customer support', 'technical support'] },
-    ],
-    software: [
-        { label: 'Frontend Engineering', aliases: ['react', 'typescript', 'javascript', 'frontend', 'front-end'] },
-        { label: 'Backend/API Engineering', aliases: ['api', 'node', 'python', 'java', 'backend'] },
-        { label: 'Databases', aliases: ['sql', 'postgres', 'mysql', 'nosql', 'database'] },
-        { label: 'Cloud/DevOps', aliases: ['aws', 'gcp', 'azure', 'docker', 'kubernetes', 'ci/cd'] },
-        { label: 'Testing', aliases: ['testing', 'qa', 'unit test', 'automation'] },
-    ],
-    data: [
-        { label: 'SQL/Data Analysis', aliases: ['sql', 'data analysis', 'analytics'] },
-        { label: 'Python', aliases: ['python', 'pandas', 'numpy'] },
-        { label: 'Visualization', aliases: ['tableau', 'power bi', 'dashboard'] },
-        { label: 'Machine Learning', aliases: ['machine learning', 'ml', 'model'] },
-    ],
-};
-
-const getRoleSkillRequirements = (roleText: string) => {
-    const text = roleText.toLowerCase();
-    if (/(support|technical support|customer|service|troubleshoot|ticket|incident)/.test(text)) {
-        return ROLE_SKILL_REQUIREMENTS.support;
-    }
-    if (/(data|analytics|analyst|machine learning|ml)/.test(text)) {
-        return ROLE_SKILL_REQUIREMENTS.data;
-    }
-    if (/(software|developer|engineer|full[-\s]?stack|frontend|backend)/.test(text)) {
-        return ROLE_SKILL_REQUIREMENTS.software;
-    }
-    return [];
-};
-
-const getSkillNamesForScoring = (skills: ReturnType<typeof normalizeReviewSkills>): string[] => {
-    const seen = new Set<string>();
-    return skills
-        .flatMap((skill) => safeReviewText(skill.name).split(/[\n;,]+/))
-        .map((skill) => skill.trim())
-        .filter(Boolean)
-        .filter((skill) => {
-            const key = skill.toLowerCase();
-            if (seen.has(key)) return false;
-            seen.add(key);
-            return true;
-        });
-};
-
 // Helper to compute Jaccard similarity (word overlap) between two bullet strings
 const getJaccardSimilarity = (strA: string, strB: string): number => {
     const cleanWords = (str: string) => {
         return new Set(
-            safeReviewText(str).toLowerCase()
+            str.toLowerCase()
                 .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
                 .split(/\s+/)
                 .filter(w => w.length > 2) // ignore small prepositions/articles
@@ -156,9 +98,8 @@ const getJaccardSimilarity = (strA: string, strB: string): number => {
 
 // Helper to parse individual bullet achievements from a job description
 export const parseBulletPoints = (description: string): string[] => {
-    const safeDescription = safeReviewText(description);
-    if (!safeDescription) return [];
-    return safeDescription
+    if (!description) return [];
+    return description
         .split('\n')
         .map(line => {
             // Strip common list bullet markers
@@ -170,79 +111,74 @@ export const parseBulletPoints = (description: string): string[] => {
 };
 
 export const calculateResumeScore = (resume: ResumeData): ScoreBreakdown => {
-    const safeResume = (resume || {}) as Partial<ResumeData>;
     // ----------------------------------------------------
     // 1. SECTION COMPLETION SCORE (0 - 100)
     // ----------------------------------------------------
-    const personal = safeResume.personalDetails || {};
-    const professionalSummary = safeReviewText(safeResume.professionalSummary);
-    const allJobs = normalizeReviewEmploymentHistory(safeResume.employmentHistory);
-    const education = safeReviewArray(safeResume.education);
-    const skills = normalizeReviewSkills(safeResume.skills);
+    const personal = resume.personalDetails || {};
     
     const completionItems: ScoreItem[] = [
         {
             id: 'firstName',
             label: 'First Name',
-            isOk: !!safeReviewText(personal.firstName).trim(),
+            isOk: !!personal.firstName?.trim(),
             category: 'personal',
-            feedback: safeReviewText(personal.firstName).trim() ? 'Ok' : 'Please provide your first name'
+            feedback: personal.firstName?.trim() ? 'Ok' : 'Please provide your first name'
         },
         {
             id: 'lastName',
             label: 'Last Name',
-            isOk: !!safeReviewText(personal.lastName).trim(),
+            isOk: !!personal.lastName?.trim(),
             category: 'personal',
-            feedback: safeReviewText(personal.lastName).trim() ? 'Ok' : 'Please provide your last name'
+            feedback: personal.lastName?.trim() ? 'Ok' : 'Please provide your last name'
         },
         {
             id: 'email',
             label: 'Email',
-            isOk: !!safeReviewText(personal.email).trim(),
+            isOk: !!personal.email?.trim(),
             category: 'personal',
-            feedback: safeReviewText(personal.email).trim() ? 'Ok' : 'Add an email address so employers can reach you'
+            feedback: personal.email?.trim() ? 'Ok' : 'Add an email address so employers can reach you'
         },
         {
             id: 'phone',
             label: 'Phone Number',
-            isOk: !!safeReviewText(personal.phone).trim(),
+            isOk: !!personal.phone?.trim(),
             category: 'personal',
-            feedback: safeReviewText(personal.phone).trim() ? 'Ok' : 'Add a phone number to make scheduling interviews easy'
+            feedback: personal.phone?.trim() ? 'Ok' : 'Add a phone number to make scheduling interviews easy'
         },
         {
             id: 'location',
             label: 'Location',
-            isOk: !!(safeReviewText(personal.city).trim() || safeReviewText(personal.country).trim() || safeReviewText(personal.address).trim()),
+            isOk: !!(personal.city?.trim() || personal.country?.trim() || personal.address?.trim()),
             category: 'personal',
-            feedback: (safeReviewText(personal.city).trim() || safeReviewText(personal.country).trim() || safeReviewText(personal.address).trim()) ? 'Ok' : 'Provide your city, state, or country'
+            feedback: (personal.city?.trim() || personal.country?.trim() || personal.address?.trim()) ? 'Ok' : 'Provide your city, state, or country'
         },
         {
             id: 'summary',
             label: 'Professional Summary',
-            isOk: !!professionalSummary.trim() && professionalSummary.trim().length > 10,
+            isOk: !!resume.professionalSummary?.trim() && resume.professionalSummary.trim().length > 10,
             category: 'summary',
-            feedback: (professionalSummary.trim() && professionalSummary.trim().length > 10) ? 'Ok' : 'Add a brief professional summary about yourself'
+            feedback: (resume.professionalSummary?.trim() && resume.professionalSummary.trim().length > 10) ? 'Ok' : 'Add a brief professional summary about yourself'
         },
         {
             id: 'experience',
             label: 'Work Experiences',
-            isOk: allJobs.length > 0,
+            isOk: !!(resume.employmentHistory && resume.employmentHistory.length > 0),
             category: 'experience',
-            feedback: allJobs.length > 0 ? 'Ok' : 'Add at least one work experience item'
+            feedback: (resume.employmentHistory && resume.employmentHistory.length > 0) ? 'Ok' : 'Add at least one work experience item'
         },
         {
             id: 'education',
             label: 'Educations',
-            isOk: education.length > 0,
+            isOk: !!(resume.education && resume.education.length > 0),
             category: 'education',
-            feedback: education.length > 0 ? 'Ok' : 'Add your educational history'
+            feedback: (resume.education && resume.education.length > 0) ? 'Ok' : 'Add your educational history'
         },
         {
             id: 'skills',
             label: 'Skills',
-            isOk: skills.length > 0,
+            isOk: !!(resume.skills && resume.skills.length > 0),
             category: 'skills',
-            feedback: skills.length > 0 ? 'Ok' : 'List key professional skills to stand out'
+            feedback: (resume.skills && resume.skills.length > 0) ? 'Ok' : 'List key professional skills to stand out'
         }
     ];
 
@@ -259,6 +195,9 @@ export const calculateResumeScore = (resume: ResumeData): ScoreBreakdown => {
     const similarBulletPairs: SimilarBulletPair[] = [];
     const bulletDensityIssues: BulletDensityIssue[] = [];
 
+    // Experience scanning setup
+    const allJobs = resume.employmentHistory || [];
+    
     // A. Scan Verb Frequency
     const verbCounts: Record<string, number> = {};
     allJobs.forEach(job => {
@@ -378,8 +317,8 @@ export const calculateResumeScore = (resume: ResumeData): ScoreBreakdown => {
         category: 'quality',
         feedback: actionVerbFeedback
     });
-    if (actionVerbsOk) qualityPoints += 20;
-    else if (hasActionVerbs) qualityPoints += 10; // Partial credit for having them even if repeated
+    if (actionVerbsOk) qualityPoints += 25;
+    else if (hasActionVerbs) qualityPoints += 12; // Partial credit for having them even if repeated
 
     // Check Metrics & Numbers (ideal: at least 40% of bullets contain metrics)
     const totalBulletsCount = flatBullets.length;
@@ -400,46 +339,8 @@ export const calculateResumeScore = (resume: ResumeData): ScoreBreakdown => {
         category: 'quality',
         feedback: metricsFeedback
     });
-    if (hasEnoughMetrics) qualityPoints += 20;
-    else if (metricsRatio > 0) qualityPoints += Math.round(20 * (metricsRatio / 0.4)); // Partial credit
-
-    // Check whether the skills section covers the role the resume is targeting.
-    // This is a score bridge for AI Review: ATS skill recommendations should move readiness,
-    // but only when they fill concrete role-critical gaps.
-    const skillNames = getSkillNamesForScoring(skills);
-    const skillText = skillNames.join(' ').toLowerCase();
-    const roleText = [
-        safeReviewText(personal.jobTitle),
-        professionalSummary,
-        ...allJobs.map((job) => `${job.jobTitle} ${job.description}`),
-    ].join(' ');
-    const roleRequirements = getRoleSkillRequirements(roleText);
-    const matchedRoleSkills = roleRequirements.filter((requirement) =>
-        requirement.aliases.some((alias) => skillText.includes(alias))
-    );
-    const roleCoverageRatio = roleRequirements.length > 0
-        ? matchedRoleSkills.length / roleRequirements.length
-        : Math.min(skillNames.length / 8, 1);
-    const hasEnoughSkillDepth = skillNames.length >= 8;
-    const skillCoverageOk = hasEnoughSkillDepth && roleCoverageRatio >= 0.65;
-    const missingRoleSkillLabels = roleRequirements
-        .filter((requirement) => !matchedRoleSkills.includes(requirement))
-        .map((requirement) => requirement.label);
-
-    qualityItems.push({
-        id: 'roleSkillCoverage',
-        label: 'Role Keyword Coverage',
-        isOk: skillCoverageOk,
-        category: 'quality',
-        feedback: skillCoverageOk
-            ? 'Your skills include the core keywords recruiters and ATS screens expect for this role.'
-            : roleRequirements.length > 0
-                ? `Add role-critical skills such as ${missingRoleSkillLabels.slice(0, 4).join(', ')} to improve ATS readiness.`
-                : 'Add a deeper set of role-specific skills so recruiters can quickly see your fit.'
-    });
-    const skillReadinessPoints = skillCoverageOk
-        ? 20
-        : Math.round(20 * Math.min(roleCoverageRatio, hasEnoughSkillDepth ? 0.8 : 0.5));
+    if (hasEnoughMetrics) qualityPoints += 25;
+    else if (metricsRatio > 0) qualityPoints += Math.round(25 * (metricsRatio / 0.4)); // Partial credit
 
     // Check Bullet Point Counts per Experience (sweet spot: 3 to 6 bullets per job)
     let experienceBulletCountOk = true;
@@ -499,11 +400,6 @@ export const calculateResumeScore = (resume: ResumeData): ScoreBreakdown => {
         bulletFeedback = `Aim for 3-6 key achievement bullet points per work experience to avoid clutter. We found issues at: ${companies}.`;
     }
             
-    const healthyBulletDensityJobs = Math.max(0, totalJobsEvaluated - bulletDensityIssues.length);
-    const bulletDensityPoints = totalJobsEvaluated > 0
-        ? Math.round(20 * (healthyBulletDensityJobs / totalJobsEvaluated))
-        : 0;
-
     qualityItems.push({
         id: 'bulletDensity',
         label: 'Ideal Bullet Densities',
@@ -511,7 +407,7 @@ export const calculateResumeScore = (resume: ResumeData): ScoreBreakdown => {
         category: 'quality',
         feedback: bulletFeedback
     });
-    qualityPoints += bulletDensityPoints;
+    if (totalJobsEvaluated > 0 && experienceBulletCountOk) qualityPoints += 25;
 
     // Check for Duplicated/Similar Bullet Points
     const hasDuplicates = similarBulletPairs.length > 0;
@@ -526,9 +422,9 @@ export const calculateResumeScore = (resume: ResumeData): ScoreBreakdown => {
         category: 'quality',
         feedback: duplicateFeedback
     });
-    if (!hasDuplicates) qualityPoints += 20;
+    if (!hasDuplicates) qualityPoints += 25;
 
-    const qualityScore = Math.min(100, qualityPoints + skillReadinessPoints);
+    const qualityScore = qualityPoints;
 
     // ----------------------------------------------------
     // 4. CONTENT LENGTH & PAGE FULLNESS (0 - 100)
@@ -537,7 +433,7 @@ export const calculateResumeScore = (resume: ResumeData): ScoreBreakdown => {
     let lengthPoints = 0;
 
     // Calculate summary words
-    const summaryText = professionalSummary;
+    const summaryText = resume.professionalSummary || '';
     const summaryWords = summaryText.trim().split(/\s+/).filter(w => w.length > 0).length;
 
     // Estimate total words on resume
@@ -550,24 +446,21 @@ export const calculateResumeScore = (resume: ResumeData): ScoreBreakdown => {
         totalWordCount += (h.description || '').split(/\s+/).filter(w => w.length > 0).length;
     });
     
-    if (education.length > 0) {
-        education.forEach(e => {
+    if (resume.education) {
+        resume.education.forEach(e => {
             totalWordCount += (e.degree || '').split(/\s+/).length;
             totalWordCount += (e.school || '').split(/\s+/).length;
             totalWordCount += (e.description || '').split(/\s+/).filter(w => w.length > 0).length;
         });
     }
     
-    if (skills.length > 0) {
-        skills.forEach(s => {
+    if (resume.skills) {
+        resume.skills.forEach(s => {
             totalWordCount += (s.name || '').split(/\s+/).length;
         });
     }
 
     const isWordCountAdequate = totalWordCount >= 250;
-    const wordCountPoints = isWordCountAdequate
-        ? 50
-        : Math.max(0, Math.round(50 * (totalWordCount / 250)));
     lengthItems.push({
         id: 'wordCount',
         label: 'Resume Length',
@@ -577,7 +470,7 @@ export const calculateResumeScore = (resume: ResumeData): ScoreBreakdown => {
             ? 'Excellent! Your resume has a great length for a professional template.'
             : 'Too short! Add more descriptions, responsibilities, or bullet points to represent your experience.'
     });
-    lengthPoints += wordCountPoints;
+    if (isWordCountAdequate) lengthPoints += 50;
 
     // Spacing optimization feedback
     let pageFullnessRating: 'perfect' | 'blank_space' | 'overflow' = 'perfect';

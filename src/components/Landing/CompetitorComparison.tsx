@@ -299,11 +299,11 @@ export const CompetitorComparison: React.FC = () => {
           </div>
           <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
             <span className="text-primary-600 dark:text-primary-400 font-black">CareerVivid </span>
-            connects resume, tracker, interview prep, and portfolio workflows in one workspace.
+            replaces 4+ separate tools — for a fraction of the combined cost.
           </p>
         </div>
         <div className="flex-shrink-0 text-xs font-black uppercase tracking-wider text-primary-600 dark:text-primary-400 bg-white dark:bg-gray-900 border border-primary-200 dark:border-primary-800 px-4 py-2 rounded-full">
-          One workspace. One credit system.
+          One platform. One credit system.
         </div>
       </motion.div>
     </section>

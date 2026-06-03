@@ -23,8 +23,8 @@ export const DraggableSectionHeader: React.FC<DraggableSectionHeaderProps> = ({
     onTitleChange
 }) => {
     return (
-        <div className="flex items-start justify-between gap-3 mb-3 sm:mb-4 px-0 sm:px-1">
-            <div className="flex min-w-0 items-start gap-2 relative">
+        <div className="flex items-center justify-between mb-4 px-1">
+            <div className="flex items-center gap-2 relative">
                 {/* Immediate trigger for reorder modal */}
                 {onLongPress ? (
                     <div
@@ -47,7 +47,7 @@ export const DraggableSectionHeader: React.FC<DraggableSectionHeaderProps> = ({
             {hasItems && onViewAll && (
                 <button
                     onClick={onViewAll}
-                    className="shrink-0 text-[13px] font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 flex items-center gap-1 transition-colors px-2.5 sm:px-3 py-1.5 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-500/10"
+                    className="text-[13px] font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 flex items-center gap-1 transition-colors px-3 py-1.5 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-500/10"
                 >
                     View All <ChevronRight size={14} />
                 </button>
@@ -61,7 +61,6 @@ interface DashboardPreviewSectionProps<T> {
     icon?: React.ReactNode;
     items: T[];
     renderItem: (item: T) => React.ReactNode;
-    mobileRenderItem?: (item: T) => React.ReactNode;
     emptyMessage?: string;
     onViewAll?: () => void;
     viewMode?: 'row' | 'grid';
@@ -74,7 +73,6 @@ function DashboardPreviewSection<T>({
     icon,
     items,
     renderItem,
-    mobileRenderItem,
     emptyMessage = "No items yet.",
     onViewAll,
     viewMode = 'row',
@@ -97,7 +95,7 @@ function DashboardPreviewSection<T>({
     }, [inView]);
 
     return (
-        <div className="mb-8 sm:mb-12" ref={ref}>
+        <div className="mb-12" ref={ref}>
             <DraggableSectionHeader
                 title={title}
                 icon={icon}
@@ -114,45 +112,31 @@ function DashboardPreviewSection<T>({
             ) : items.length === 0 ? (
                 <div 
                     onClick={onViewAll}
-                    className={`bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-lg sm:rounded-2xl p-6 sm:p-10 text-center border border-dashed border-slate-200/80 dark:border-slate-800/80 transition-all duration-300 hover:border-indigo-500/40 dark:hover:border-indigo-400/40 flex flex-col justify-center items-center shadow-sm group/empty
+                    className={`bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl p-10 text-center border border-dashed border-slate-200/80 dark:border-slate-800/80 transition-all duration-300 hover:border-indigo-500/40 dark:hover:border-indigo-400/40 flex flex-col justify-center items-center shadow-sm group/empty
                         ${onViewAll ? 'cursor-pointer hover:bg-gray-50/50 dark:hover:bg-gray-800/40' : ''}
                     `}
                 >
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-50 dark:bg-gray-800/60 rounded-full flex items-center justify-center mb-3 sm:mb-4 group-hover/empty:scale-110 transition-transform duration-300 border border-slate-200/20 dark:border-slate-800/20">
-                        <Plus className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 dark:text-gray-500 group-hover/empty:text-indigo-500 dark:group-hover/empty:text-indigo-400 transition-colors" />
+                    <div className="w-12 h-12 bg-gray-50 dark:bg-gray-800/60 rounded-full flex items-center justify-center mb-4 group-hover/empty:scale-110 transition-transform duration-300 border border-slate-200/20 dark:border-slate-800/20">
+                        <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover/empty:text-indigo-500 dark:group-hover/empty:text-indigo-400 transition-colors" />
                     </div>
                     <p className="text-[14px] text-gray-500 dark:text-gray-400 font-medium group-hover/empty:text-indigo-500 dark:group-hover/empty:text-indigo-400 transition-colors">{emptyMessage}</p>
                 </div>
+            ) : viewMode === 'row' ? (
+                <div className="flex gap-5 overflow-x-auto pb-6 snap-x pt-2 pr-6 -mx-6 px-6 scrollbar-hide">
+                    {items.map((item, index) => (
+                        <div key={(item as any).id || index} className="snap-start shrink-0 w-[300px] md:w-[360px] transform-gpu">
+                            {renderItem(item)}
+                        </div>
+                    ))}
+                </div>
             ) : (
-                <>
-                    {mobileRenderItem && (
-                        <div className="grid grid-cols-1 gap-3 pb-2 pt-1 md:hidden">
-                            {items.map((item, index) => (
-                                <div key={(item as any).id || index} className="w-full min-w-0 transform-gpu">
-                                    {mobileRenderItem(item)}
-                                </div>
-                            ))}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-6 pt-2">
+                    {items.map((item, index) => (
+                        <div key={index} className="w-full transform-gpu">
+                            {renderItem(item)}
                         </div>
-                    )}
-
-                    {viewMode === 'row' ? (
-                        <div className={`${mobileRenderItem ? 'hidden md:flex' : 'flex'} gap-5 overflow-x-auto pb-6 snap-x pt-2 pr-6 -mx-6 px-6 scrollbar-hide`}>
-                            {items.map((item, index) => (
-                                <div key={(item as any).id || index} className="snap-start shrink-0 w-[300px] md:w-[360px] transform-gpu">
-                                    {renderItem(item)}
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className={`${mobileRenderItem ? 'hidden md:grid' : 'grid'} grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-6 pt-2`}>
-                            {items.map((item, index) => (
-                                <div key={(item as any).id || index} className="w-full transform-gpu">
-                                    {renderItem(item)}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </>
+                    ))}
+                </div>
             )}
         </div>
     );

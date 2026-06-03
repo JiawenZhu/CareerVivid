@@ -1,5 +1,5 @@
 /**
- * CareerVivid Job Application Assistant — Fill Utilities
+ * CareerVivid Auto-Apply — Fill Utilities
  *
  * Low-level DOM manipulation helpers used by all ATS adapters.
  *
@@ -121,64 +121,7 @@ export async function clickRadioByLabel(container: HTMLElement, value: string): 
   }
 }
 
-export async function fillFileInputReactSafe(el: HTMLInputElement, file: File): Promise<void> {
-  el.focus();
-
-  const dataTransfer = new DataTransfer();
-  dataTransfer.items.add(file);
-
-  try {
-    el.files = dataTransfer.files;
-  } catch (err) {
-    // Fallback for jsdom/testing environment where el.files is read-only
-    Object.defineProperty(el, 'files', {
-      value: dataTransfer.files,
-      writable: true,
-      configurable: true
-    });
-  }
-
-  // Dispatch events to trigger React/Angular/Vue state synchronization
-  el.dispatchEvent(new Event('input', { bubbles: true }));
-  el.dispatchEvent(new Event('change', { bubbles: true }));
-
-  el.blur();
-  await sleep(100);
-}
-
 /** Small promise-based delay */
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-/**
- * Detects whether a form field label is related to EEOC, voluntary self-identification,
- * or demographic questions (Gender, Race/Ethnicity, Veteran Status, Disability Status).
- */
-export function isDemographicField(label: string): boolean {
-  const norm = label.toLowerCase().trim();
-
-  const demographicKeywords = [
-    'gender',
-    'sex',
-    'race',
-    'ethnicity',
-    'hispanic',
-    'latino',
-    'veteran',
-    'military',
-    'disability',
-    'disabilities',
-    'handicap',
-    'eeoc',
-    'voluntary self-identification',
-    'voluntary self identification',
-    'sexual orientation',
-    'demographic',
-  ];
-
-  return demographicKeywords.some(keyword => {
-    const regex = new RegExp(`\\b${keyword}\\b`, 'i');
-    return regex.test(norm);
-  });
 }
