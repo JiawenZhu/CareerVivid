@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
     Mic,
-    Globe,
     Briefcase,
-    PenTool,
     PanelLeftClose,
     LogOut,
     LogIn,
@@ -13,12 +11,7 @@ import {
     Users,
     CreditCard,
     Gift,
-    FileText,
     LayoutDashboard,
-    MoreVertical,
-    Trash2,
-    SlidersHorizontal,
-    Check
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
@@ -33,13 +26,13 @@ import { useSidebarStore } from '../../store/useSidebarStore';
 import { SidebarNode } from '../../types';
 import { SidebarContextMenu } from './SidebarContextMenu';
 import ConfirmationModal from '../ConfirmationModal';
-import { getPathForNodeId } from '../../utils/workspaceNavigation';
 import { useResumes } from '../../hooks/useResumes';
 import { usePortfolios } from '../../hooks/usePortfolios';
 import { useWhiteboards } from '../../hooks/useWhiteboards';
 import { usePracticeHistory } from '../../hooks/useJobHistory';
 import { useMyCommunityPosts } from '../../hooks/useMyCommunityPosts';
-import { resolveUserDisplayName } from '../../utils/userDisplayName';
+import SidebarDocumentList from './SidebarDocumentList';
+import { getPreferredUserAvatar } from '../../utils/avatarFallback';
 
 const generateDefaultNodes = (t: any): SidebarNode[] => {
     return [];
@@ -57,12 +50,14 @@ const Sidebar: React.FC = () => {
     const { updateWhiteboard, deleteWhiteboard } = useWhiteboards();
     const { deletePracticeHistory } = usePracticeHistory();
     const { deletePost: deleteCommunityPost } = useMyCommunityPosts();
-    const displayName = resolveUserDisplayName({
-        profileDisplayName: userProfile?.displayName,
-        email: userProfile?.email || currentUser?.email,
-        authDisplayName: currentUser?.displayName,
-        fallback: 'My Profile',
-    });
+    const currentUserAvatar = currentUser ? getPreferredUserAvatar({
+        photoURL: (userProfile as any)?.photoURL || currentUser.photoURL,
+        avatarUrl: (userProfile as any)?.avatarUrl,
+        displayName: userProfile?.displayName || currentUser.displayName,
+        firstName: (userProfile as any)?.firstName,
+        email: userProfile?.email || currentUser.email,
+        seed: userProfile?.uid || currentUser.uid,
+    }) : '';
 
     const isResizingRef = useRef(false);
 
@@ -310,258 +305,129 @@ const Sidebar: React.FC = () => {
         });
     }, [nodes, sortBy, filterType]);
 
-    const getDocIcon = (type: string) => {
-        switch (type) {
-            case 'resume':
-                return <FileText size={15} className="text-sky-500" />;
-            case 'portfolio':
-                return <Globe size={15} className="text-emerald-500" />;
-            case 'whiteboard':
-                return <PenTool size={15} className="text-amber-500" />;
-            case 'post':
-                return <FileText size={15} className="text-violet-500" />;
-            case 'interview':
-                return <Mic size={15} className="text-rose-500" />;
-            default:
-                return <FileText size={15} className="text-gray-400" />;
-        }
-    };
-
     const themeOptions = [
         { value: 'light', icon: <Sun size={14} />, label: 'Light' },
         { value: 'dark', icon: <Moon size={14} />, label: 'Dark' },
         { value: 'system', icon: <Monitor size={14} />, label: 'System' },
     ] as const;
 
+    const quickLinks = [
+        { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+        { label: 'Community', path: '/community', icon: Users },
+        { label: 'Interview', path: '/interview-studio', icon: Mic },
+        { label: 'Job Tracker', path: '/job-tracker', icon: Briefcase },
+    ];
+
+    const accountLinks = [
+        { label: 'Subscription', path: '/subscription', icon: CreditCard },
+        { label: 'Developer', path: '/developer', icon: Monitor },
+        { label: 'Referrals', path: '/referrals', icon: Gift },
+    ];
+
+    const isActivePath = (path: string) => (
+        path === '/dashboard'
+            ? currentPath === path
+            : currentPath === path || currentPath.startsWith(`${path}/`)
+    );
+
     if (!currentUser) return null;
 
     return (
         <aside 
             style={{ width: `${sidebarWidth}px` }}
-            className="fixed inset-y-0 left-0 bg-white/60 dark:bg-gray-900/40 backdrop-blur-2xl border-r border-white/20 dark:border-gray-800/40 shadow-[4px_0_24px_rgba(0,0,0,0.02)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.2)] hidden md:flex flex-col z-30 transition-transform duration-300"
+            className="fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-stone-200/70 bg-[#fbfaf7]/90 shadow-[4px_0_24px_rgba(15,23,42,0.04)] backdrop-blur-2xl transition-transform duration-300 dark:border-slate-800/70 dark:bg-slate-950/70 dark:shadow-[4px_0_24px_rgba(0,0,0,0.22)] md:flex"
         >
             {/* Header / Logo */}
-            <div className="flex items-center justify-between h-16 sm:h-20 px-6 border-b border-white/20 dark:border-gray-800/40 shrink-0 relative">
-                <a href="/dashboard" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }} className="flex items-center">
+            <div className="relative flex h-16 shrink-0 items-center justify-between border-b border-stone-200/70 px-4 dark:border-slate-800/70 sm:h-20">
+                <a href="/dashboard" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }} className="flex min-w-0 items-center gap-2.5">
                     <Logo className="h-8 w-auto" />
+                    <span className="truncate text-sm font-extrabold tracking-tight text-slate-950 dark:text-white">CareerVivid</span>
                 </a>
                 <button
                     onClick={toggleNavPosition}
-                    className="p-1.5 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-855 transition-colors"
+                    className="rounded-xl border border-stone-200 bg-white p-1.5 text-slate-500 shadow-sm transition-colors hover:border-stone-300 hover:text-slate-950 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-slate-100"
                     title="Toggle Sidebar"
                 >
-                    <PanelLeftClose size={20} />
+                    <PanelLeftClose size={18} />
                 </button>
             </div>
 
             {/* Navigation main section */}
-            <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-4 select-none">
-                
-                {/* NAVIGATION SECTION */}
-                <div>
-                    <div className="flex items-center justify-between px-2 group mb-2 text-[10px] font-extrabold uppercase tracking-widest text-gray-400 dark:text-gray-500 relative">
-                        <span>Navigation</span>
-                        <div className="relative" ref={filterDropdownRef}>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setIsFilterDropdownOpen(!isFilterDropdownOpen);
-                                }}
-                                className={`p-1.5 rounded-lg transition-all flex items-center gap-1 hover:bg-white/40 dark:hover:bg-gray-800/20 hover:text-gray-900 dark:hover:text-gray-100 border border-transparent hover:border-gray-250/20 dark:hover:border-gray-800/40 cursor-pointer ${isFilterDropdownOpen || filterType !== 'all' ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-500/10 border-indigo-200/30' : 'text-gray-400 dark:text-gray-500'}`}
-                                title="Filter & Sort"
-                            >
-                                <SlidersHorizontal size={12} />
-                                {filterType !== 'all' && (
-                                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0"></span>
-                                )}
-                            </button>
-
-                            {isFilterDropdownOpen && (
-                                <div className="absolute right-0 mt-2 w-48 bg-white/95 dark:bg-gray-900/95 backdrop-blur-2xl border border-white/20 dark:border-gray-800/40 shadow-xl rounded-xl py-2 z-50 text-[11px] font-semibold text-gray-600 dark:text-gray-300">
-                                    <div className="px-3.5 py-1.5 text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider border-b border-gray-100 dark:border-gray-800 mb-1">
-                                        Filter By Type
-                                    </div>
-                                    {[
-                                        { value: 'all', label: 'All Files' },
-                                        { value: 'resume', label: 'Resumes' },
-                                        { value: 'portfolio', label: 'Portfolios' },
-                                        { value: 'whiteboard', label: 'Whiteboards' },
-                                        { value: 'interview', label: 'Interviews' }
-                                    ].map(opt => (
-                                        <button
-                                            key={opt.value}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setFilterType(opt.value);
-                                                savePreference('filterType', opt.value);
-                                            }}
-                                            className={`w-full flex items-center justify-between px-3.5 py-1.5 hover:bg-indigo-50/40 dark:hover:bg-indigo-500/5 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all text-left ${filterType === opt.value ? 'text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50/20 dark:bg-indigo-500/5' : ''}`}
-                                        >
-                                            <span>{opt.label}</span>
-                                            {filterType === opt.value && <Check size={12} className="text-indigo-500 shrink-0" />}
-                                        </button>
-                                    ))}
-
-                                    <div className="h-px bg-gray-100 dark:bg-gray-800 my-1"></div>
-
-                                    <div className="px-3.5 py-1.5 text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">
-                                        Sort By
-                                    </div>
-                                    {[
-                                        { value: 'createdAt', label: 'Sequence of Events' },
-                                        { value: 'updatedAt', label: 'Recently Modified' }
-                                    ].map(opt => (
-                                        <button
-                                            key={opt.value}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setSortBy(opt.value as any);
-                                                savePreference('sortBy', opt.value);
-                                            }}
-                                            className={`w-full flex items-center justify-between px-3.5 py-1.5 hover:bg-indigo-50/40 dark:hover:bg-indigo-500/5 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all text-left ${sortBy === opt.value ? 'text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50/20 dark:bg-indigo-500/5' : ''}`}
-                                        >
-                                            <span>{opt.label}</span>
-                                            {sortBy === opt.value && <Check size={12} className="text-indigo-500 shrink-0" />}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="space-y-1">
-                        {activeDocuments.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-6 px-4 border border-dashed border-gray-200 dark:border-gray-800/80 rounded-xl text-center">
-                                <span className="text-[10px] font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">
-                                    No Files Found
-                                </span>
-                                <span className="text-[9px] font-medium text-gray-400 dark:text-gray-500 leading-normal">
-                                    {filterType === 'all' 
-                                        ? 'Try creating a new document!' 
-                                        : `No items match the "${filterType}" filter.`}
-                                </span>
-                            </div>
-                        ) : (
-                            activeDocuments.map(doc => (
-                                <div 
-                                    key={doc.id}
-                                    onClick={() => {
-                                        setActiveNode(doc.id.toString());
-                                        navigate(getPathForNodeId(doc.id, doc.data?.type));
-                                    }}
-                                    onContextMenu={(e) => {
-                                        e.preventDefault();
-                                        setContextMenu({
-                                            x: e.clientX,
-                                            y: e.clientY,
-                                            nodeId: doc.id,
-                                            text: doc.text,
-                                            type: doc.data?.type || 'file'
-                                        });
-                                    }}
-                                    className={`group/doc flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-white/45 dark:hover:bg-gray-800/25 border border-transparent hover:border-gray-200/30 dark:hover:border-gray-800/30 cursor-pointer text-xs transition-all ${activeNodeId === doc.id.toString() ? 'bg-indigo-50/60 dark:bg-indigo-500/10 font-bold border-l-2 border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}`}
-                                >
-                                    <div className="w-5 h-5 flex items-center justify-center shrink-0">
-                                        {getDocIcon(doc.data?.type || '')}
-                                    </div>
-
-                                    {editingNodeId === doc.id ? (
-                                        <input
-                                            value={editValue}
-                                            onChange={(e) => setEditValue(e.target.value)}
-                                            onBlur={() => saveRename(doc.id)}
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter') saveRename(doc.id);
-                                                if (e.key === 'Escape') setEditingNodeId(null);
-                                            }}
-                                            className="flex-1 bg-white dark:bg-gray-800 border border-indigo-500 rounded px-1.5 py-0.5 outline-none text-xs font-semibold text-gray-900 dark:text-gray-100"
-                                            onClick={(e) => e.stopPropagation()}
-                                            autoFocus
-                                        />
-                                    ) : (
-                                        <span className="flex-1 truncate">{doc.text}</span>
-                                    )}
-
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            const rect = e.currentTarget.getBoundingClientRect();
-                                            setContextMenu({
-                                                x: rect.left,
-                                                y: rect.bottom,
-                                                nodeId: doc.id,
-                                                text: doc.text,
-                                                type: doc.data?.type || 'file'
-                                            });
-                                        }}
-                                        className="opacity-0 group-hover/doc:opacity-100 p-0.5 hover:bg-gray-100 dark:hover:bg-gray-855 rounded text-gray-400 transition-opacity"
-                                    >
-                                        <MoreVertical size={12} />
-                                    </button>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </div>
-
+            <nav className="min-h-0 flex-1 px-3 py-3 select-none">
+                <SidebarDocumentList
+                    activeDocuments={activeDocuments}
+                    activeNodeId={activeNodeId}
+                    editingNodeId={editingNodeId}
+                    editValue={editValue}
+                    filterType={filterType}
+                    sortBy={sortBy}
+                    isFilterDropdownOpen={isFilterDropdownOpen}
+                    filterDropdownRef={filterDropdownRef}
+                    setActiveNode={setActiveNode}
+                    setEditValue={setEditValue}
+                    setEditingNodeId={setEditingNodeId}
+                    setContextMenu={setContextMenu}
+                    setFilterType={setFilterType}
+                    setSortBy={setSortBy}
+                    setIsFilterDropdownOpen={setIsFilterDropdownOpen}
+                    savePreference={savePreference}
+                    saveRename={saveRename}
+                />
             </nav>
 
             {/* Utility Section */}
-            <div className="mt-auto flex flex-col gap-1 px-4 pt-4 pb-2 border-t border-transparent relative before:absolute before:inset-x-4 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-gray-200 dark:before:via-gray-700 before:to-transparent shrink-0">
-                
-                {/* Premium 2x2 Navigation Grid */}
-                <div className="grid grid-cols-2 gap-1 mb-2.5">
-                    <button 
-                        onClick={() => navigate('/dashboard')} 
-                        className={`flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all border ${currentPath === '/dashboard' ? 'bg-indigo-500 text-white border-indigo-600 shadow-sm shadow-indigo-500/10' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100/60 dark:hover:bg-gray-800/40 border-transparent'}`}
-                    >
-                        <LayoutDashboard size={13} /><span>Dashboard</span>
-                    </button>
-                    <button 
-                        onClick={() => navigate('/community')} 
-                        className={`flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all border ${currentPath === '/community' ? 'bg-indigo-500 text-white border-indigo-600 shadow-sm shadow-indigo-500/10' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100/60 dark:hover:bg-gray-800/40 border-transparent'}`}
-                    >
-                        <Users size={13} /><span>Community</span>
-                    </button>
-                    <button 
-                        onClick={() => navigate('/interview-studio')} 
-                        className={`flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all border ${currentPath === '/interview-studio' ? 'bg-indigo-500 text-white border-indigo-600 shadow-sm shadow-indigo-500/10' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100/60 dark:hover:bg-gray-800/40 border-transparent'}`}
-                    >
-                        <Mic size={13} /><span>Interview</span>
-                    </button>
-                    <button 
-                        onClick={() => navigate('/job-tracker')} 
-                        className={`flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all border ${currentPath === '/job-tracker' ? 'bg-indigo-500 text-white border-indigo-600 shadow-sm shadow-indigo-500/10' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100/60 dark:hover:bg-gray-800/40 border-transparent'}`}
-                    >
-                        <Briefcase size={13} /><span>Job Tracker</span>
-                    </button>
+            <div className="relative mt-auto shrink-0 border-t border-stone-200/70 px-3 py-2.5 dark:border-slate-800/70">
+                <div className="mb-2">
+                    <div className="mb-1.5 flex items-center justify-between px-1">
+                        <span className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-stone-500 dark:text-slate-400">Quick Access</span>
+                        <NotificationInbox />
+                    </div>
+                    <div className="grid grid-cols-2 gap-1.5">
+                        {quickLinks.map(({ label, path, icon: Icon }) => {
+                            const isActive = isActivePath(path);
+                            return (
+                                <button
+                                    key={path}
+                                    onClick={() => navigate(path)}
+                                    className={`flex min-h-[34px] items-center gap-2 rounded-xl border px-2 py-1.5 text-left text-[10px] font-bold transition-all ${isActive ? 'border-indigo-200 bg-indigo-50 text-indigo-700 shadow-sm dark:border-indigo-900/50 dark:bg-indigo-950/40 dark:text-indigo-200' : 'border-transparent text-slate-500 hover:border-stone-200 hover:bg-white/75 hover:text-slate-950 dark:text-slate-400 dark:hover:border-slate-800 dark:hover:bg-slate-900/80 dark:hover:text-slate-100'}`}
+                                >
+                                    <Icon size={14} />
+                                    <span className="min-w-0 truncate">{label}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
 
                 {aiUsage && (
-                    <div className="mb-2 px-1 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate('/subscription')}>
+                    <div className="mb-2 cursor-pointer rounded-2xl border border-stone-200/80 bg-white/65 px-3 py-2 shadow-sm transition hover:border-stone-300 hover:bg-white dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-slate-700" onClick={() => navigate('/subscription')}>
                         <AIUsageProgressBar used={aiUsage.count || 0} limit={aiUsage.limit || 10} isPremium={isPremium} variant="minimal" />
                     </div>
                 )}
-                
-                <button onClick={() => navigate('/subscription')} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg font-semibold text-gray-500 dark:text-gray-400 hover:bg-gray-100/60 dark:hover:bg-gray-800/40 hover:text-gray-900 dark:hover:text-gray-100 transition-colors text-xs w-full text-left">
-                    <CreditCard size={14} /><span>Subscription & Billing</span>
-                </button>
-                <button onClick={() => navigate('/developer')} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg font-semibold text-gray-500 dark:text-gray-400 hover:bg-gray-100/60 dark:hover:bg-gray-800/40 hover:text-gray-900 dark:hover:text-gray-100 transition-colors text-xs w-full text-left">
-                    <Monitor size={14} /><span>Developer Settings</span>
-                </button>
-                <button onClick={() => navigate('/referrals')} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg font-semibold text-gray-500 dark:text-gray-400 hover:bg-gray-100/60 dark:hover:bg-gray-800/40 hover:text-gray-900 dark:hover:text-gray-100 transition-colors text-xs w-full text-left">
-                    <Gift size={14} /><span>Referrals</span>
-                </button>
-                
-                <NotificationInbox />
+
+                <div className="mb-2 rounded-2xl border border-stone-200/70 bg-white/45 p-1 dark:border-slate-800/80 dark:bg-slate-950/30">
+                    {accountLinks.map(({ label, path, icon: Icon }) => {
+                        const isActive = isActivePath(path);
+                        return (
+                            <button
+                                key={path}
+                                onClick={() => navigate(path)}
+                                className={`flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-left text-[11px] font-semibold transition-colors ${isActive ? 'bg-white text-slate-950 shadow-sm dark:bg-slate-900 dark:text-white' : 'text-slate-500 hover:bg-white/80 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-900/80 dark:hover:text-slate-100'}`}
+                            >
+                                <Icon size={14} />
+                                <span className="truncate">{label}</span>
+                            </button>
+                        );
+                    })}
+                </div>
 
                 {/* Theme Toggle */}
-                <div className="flex items-center justify-between px-2.5 py-1 text-xs mb-1">
-                    <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Appearance</span>
-                    <div className="flex items-center gap-0.5 bg-gray-100/60 dark:bg-gray-800/40 rounded-lg p-0.5 border border-gray-250/20 dark:border-gray-800/30">
+                <div className="mb-1.5 flex items-center justify-between rounded-2xl border border-stone-200/70 bg-white/45 px-2.5 py-1.5 text-xs dark:border-slate-800/80 dark:bg-slate-950/30">
+                    <span className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-stone-500 dark:text-slate-400">Theme</span>
+                    <div className="flex items-center gap-0.5 rounded-xl border border-stone-200 bg-stone-50 p-0.5 dark:border-slate-800 dark:bg-slate-900">
                         {themeOptions.map(opt => (
                             <button key={opt.value} onClick={() => setTheme(opt.value)} title={opt.label}
-                                className={`p-1 rounded transition-all ${theme === opt.value ? 'bg-white dark:bg-gray-900 text-indigo-600 dark:text-indigo-400 shadow-sm border border-gray-200/30 dark:border-gray-800/30' : 'text-gray-400 hover:text-gray-750 dark:hover:text-gray-200'}`}>
+                                className={`rounded-lg p-1 transition-all ${theme === opt.value ? 'border border-stone-200 bg-white text-indigo-600 shadow-sm dark:border-slate-700 dark:bg-slate-950 dark:text-indigo-300' : 'text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}>
                                 {opt.icon}
                             </button>
                         ))}
@@ -569,29 +435,28 @@ const Sidebar: React.FC = () => {
                 </div>
 
                 {currentUser ? (
-                    <button onClick={logOut} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg font-semibold text-gray-500 hover:bg-red-50/50 dark:hover:bg-red-950/10 hover:text-red-600 transition-colors text-xs">
+                    <button onClick={logOut} className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-[11px] font-semibold text-slate-500 transition-colors hover:bg-red-50/70 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-950/20 dark:hover:text-red-300">
                         <LogOut size={14} /><span>Sign out</span>
                     </button>
                 ) : (
-                    <button onClick={() => navigate('/signin')} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg font-bold text-indigo-655 hover:bg-indigo-50/50 transition-colors text-xs">
+                    <button onClick={() => navigate('/signin')} className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-[11px] font-bold text-indigo-700 transition-colors hover:bg-indigo-50/70 dark:text-indigo-300 dark:hover:bg-indigo-950/30">
                         <LogIn size={14} /><span>Sign in / Sign up</span>
                     </button>
                 )}
             </div>
 
             {/* User Profile Card */}
-            <div className="p-4 border-t border-transparent relative before:absolute before:inset-x-4 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-gray-200 dark:before:via-gray-700 before:to-transparent shrink-0">
-                <div onClick={() => navigate('/profile')} className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-white/80 dark:hover:bg-gray-800/60 shadow-sm border border-transparent hover:border-gray-200/50 dark:hover:border-gray-700/50 transition-all duration-300 group">
-                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center overflow-hidden shrink-0">
-                        {currentUser.photoURL ? (
-                            <img src={currentUser.photoURL} alt="User" className="w-full h-full object-cover" />
-                        ) : (
-                            <span className="text-indigo-700 font-bold text-sm">{currentUser.email?.[0].toUpperCase() || 'U'}</span>
-                        )}
+            <div className="relative shrink-0 border-t border-stone-200/70 p-2.5 dark:border-slate-800/70">
+                <div onClick={() => navigate('/profile')} className="group flex cursor-pointer items-center gap-3 rounded-2xl border border-stone-200/70 bg-white/70 px-3 py-2 shadow-sm transition-all duration-300 hover:border-stone-300 hover:bg-white dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-slate-700">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-indigo-100">
+                        <img src={currentUserAvatar} alt="User avatar" className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                            {displayName}
+                        <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
+                            {currentUser.displayName || 'My Profile'}
+                        </p>
+                        <p className="truncate text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                            {currentUser.email}
                         </p>
                     </div>
                 </div>

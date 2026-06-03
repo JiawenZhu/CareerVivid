@@ -1,22 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { X, Plus, Copy, Loader2, Check, FileText, Wand2, Briefcase, Building2, Calendar, ChevronLeft, Trash2, Sparkles } from 'lucide-react';
+import { X, Plus, Copy, Loader2, Check, FileText, Wand2, Briefcase, Building2, Calendar, ChevronLeft, Trash2, Sparkles, Download, FileType, ExternalLink } from 'lucide-react';
 import { httpsCallable } from 'firebase/functions';
 import { collection, query, where, orderBy, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
-import { functions, db } from '@/firebase';
+import { functions, db, auth } from '@/firebase';
 import { ResumeData, CoverLetter } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { getGoogleDriveAccessToken } from '@/utils/googleDriveAuth';
+import { trackUsage } from '@/services/trackingService';
 
 interface CoverLetterManagerModalProps {
     isOpen: boolean;
     onClose: () => void;
     resume: ResumeData;
     theme?: string;
+    initialJob?: {
+        jobTitle?: string;
+        companyName?: string;
+        jobDescription?: string;
+    } | null;
 }
 
 type ViewMode = 'list' | 'create' | 'detail';
 
-const CoverLetterManagerModal: React.FC<CoverLetterManagerModalProps> = ({ isOpen, onClose, resume, theme }) => {
+const CoverLetterManagerModal: React.FC<CoverLetterManagerModalProps> = ({ isOpen, onClose, resume, theme, initialJob }) => {
     const { currentUser } = useAuth();
     const [viewMode, setViewMode] = useState<ViewMode>('list');
     const [coverLetters, setCoverLetters] = useState<CoverLetter[]>([]);
@@ -32,6 +39,19 @@ const CoverLetterManagerModal: React.FC<CoverLetterManagerModalProps> = ({ isOpe
 
     // Detail View State
     const [copied, setCopied] = useState(false);
+    const [isExportingDocument, setIsExportingDocument] = useState(false);
+    const [exportNotice, setExportNotice] = useState<string | null>(null);
+    const [exportError, setExportError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!isOpen || !initialJob) return;
+
+        setJobTitle(initialJob.jobTitle || '');
+        setCompanyName(initialJob.companyName || '');
+        setJobDescription(initialJob.jobDescription || '');
+        setSelectedLetter(null);
+        setViewMode('create');
+    }, [initialJob, isOpen]);
 
     // Fetch Cover Letters
     useEffect(() => {
@@ -124,9 +144,228 @@ const CoverLetterManagerModal: React.FC<CoverLetterManagerModalProps> = ({ isOpe
 
     const handleCopy = () => {
         if (!selectedLetter) return;
-        navigator.clipboard.writeText(selectedLetter.content);
+        navigator.clipboard.writeText(getResolvedCoverLetterContent(selectedLetter));
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    const getSafeFileName = (value: string) => (
+        value
+            .replace(/[^a-zA-Z0-9]+/g, '_')
+            .replace(/^_+|_+$/g, '')
+            .slice(0, 80) || 'cover_letter'
+    );
+
+    const getCoverLetterTitle = (letter: CoverLetter) => (
+        `Cover Letter - ${letter.jobTitle || 'Job Application'}`
+    );
+
+    const getCoverLetterSubtitle = (letter: CoverLetter) => (
+        [letter.companyName, resume.personalDetails?.firstName && resume.personalDetails?.lastName
+            ? `${resume.personalDetails.firstName} ${resume.personalDetails.lastName}`
+            : 'CareerVivid'
+        ].filter(Boolean).join(' | ')
+    );
+
+    const getCurrentCoverLetterDate = () => (
+        new Intl.DateTimeFormat('en-US', {
+            month: 'numeric',
+            day: 'numeric',
+            year: 'numeric',
+        }).format(new Date())
+    );
+
+    const getResumeLinkedInUrl = () => {
+        const linkedIn = resume.websites?.find((link) => (
+            link.label?.toLowerCase().includes('linkedin') ||
+            link.platform?.toLowerCase().includes('linkedin') ||
+            link.url?.toLowerCase().includes('linkedin')
+        ));
+        const url = linkedIn?.url?.trim();
+        if (!url) return '';
+        return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+    };
+
+    const getResolvedCoverLetterContent = (letter: CoverLetter) => {
+        let content = letter.content || '';
+        const linkedInUrl = getResumeLinkedInUrl();
+
+        content = content.replace(/\[Current Date\]/gi, getCurrentCoverLetterDate());
+
+        if (linkedInUrl) {
+            content = content.replace(/\[Your LinkedIn Profile URL\]/gi, linkedInUrl);
+        } else {
+            content = content
+                .split('\n')
+                .filter((line) => !/\[Your LinkedIn Profile URL\]/i.test(line))
+                .join('\n');
+        }
+
+        return content.replace(/\n{3,}/g, '\n\n').trim();
+    };
+
+    const getGoogleDocExportUrl = (docUrl: string) => {
+        const docId = docUrl.match(/\/document\/d\/([^/?#]+)/)?.[1];
+        return docId ? `https://docs.google.com/document/d/${docId}/export?format=docx` : '';
+    };
+
+    const triggerDownloadUrl = (url: string, fileName: string) => {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const getCachedGoogleAccessToken = async () => {
+        if (!currentUser?.uid) throw new Error('Please sign in before exporting your cover letter.');
+
+        const cacheKey = `cover_letter_gdoc_access_token_${currentUser.uid}`;
+        try {
+            const cached = sessionStorage.getItem(cacheKey);
+            if (cached) {
+                const { token, expiresAt } = JSON.parse(cached);
+                if (token && expiresAt > Date.now() + 60000) return token;
+            }
+        } catch (error) {
+            console.warn('Failed to read cached Google Drive token:', error);
+        }
+
+        const token = await getGoogleDriveAccessToken(currentUser, auth, 'cover-letter-export');
+        try {
+            sessionStorage.setItem(cacheKey, JSON.stringify({
+                token,
+                expiresAt: Date.now() + 3500 * 1000,
+            }));
+        } catch (error) {
+            console.warn('Failed to cache Google Drive token:', error);
+        }
+
+        return token;
+    };
+
+    const handleDownloadPdf = async () => {
+        if (!selectedLetter) return;
+
+        setIsExportingDocument(true);
+        setExportError(null);
+        setExportNotice(null);
+
+        try {
+            const { jsPDF } = await import('jspdf');
+            const pdf = new jsPDF({ unit: 'pt', format: 'letter' });
+            const margin = 54;
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const textWidth = pageWidth - margin * 2;
+            let y = margin;
+
+            const addPageIfNeeded = (lineHeight: number) => {
+                if (y + lineHeight > pageHeight - margin) {
+                    pdf.addPage();
+                    y = margin;
+                }
+            };
+
+            pdf.setFont('times', 'bold');
+            pdf.setFontSize(15);
+            const titleLines = pdf.splitTextToSize(getCoverLetterTitle(selectedLetter), textWidth);
+            for (const line of titleLines) {
+                addPageIfNeeded(18);
+                pdf.text(line, margin, y);
+                y += 18;
+            }
+
+            pdf.setFont('times', 'normal');
+            pdf.setFontSize(10);
+            const subtitle = getCoverLetterSubtitle(selectedLetter);
+            if (subtitle) {
+                const subtitleLines = pdf.splitTextToSize(subtitle, textWidth);
+                for (const line of subtitleLines) {
+                    addPageIfNeeded(14);
+                    pdf.text(line, margin, y);
+                    y += 14;
+                }
+            }
+
+            y += 18;
+            pdf.setFontSize(12);
+            const paragraphs = getResolvedCoverLetterContent(selectedLetter).split(/\n{2,}/).map(paragraph => paragraph.trim()).filter(Boolean);
+            for (const paragraph of paragraphs) {
+                const lines = pdf.splitTextToSize(paragraph.replace(/\n/g, ' '), textWidth);
+                for (const line of lines) {
+                    addPageIfNeeded(15);
+                    pdf.text(line, margin, y);
+                    y += 15;
+                }
+                y += 10;
+            }
+
+            const fileName = `${getSafeFileName(getCoverLetterTitle(selectedLetter))}.pdf`;
+            pdf.save(fileName);
+            setExportNotice('Cover letter PDF download started.');
+            if (currentUser?.uid) {
+                void trackUsage(currentUser.uid, 'cover_letter_export', { format: 'pdf' });
+            }
+        } catch (error: any) {
+            console.error('Cover letter PDF export failed:', error);
+            setExportError(error.message || 'Could not export this cover letter as PDF.');
+        } finally {
+            setIsExportingDocument(false);
+        }
+    };
+
+    const handleGoogleDocsExport = async (format: 'google-docs' | 'docx') => {
+        if (!selectedLetter) return;
+
+        setIsExportingDocument(true);
+        setExportError(null);
+        setExportNotice(null);
+
+        try {
+            const accessToken = await getCachedGoogleAccessToken();
+            const exportFn = httpsCallable(functions, 'exportToGoogleDocs');
+            const response = await exportFn({
+                accessToken,
+                documentData: {
+                    kind: 'cover-letter',
+                    title: getCoverLetterTitle(selectedLetter),
+                    subtitle: getCoverLetterSubtitle(selectedLetter),
+                    body: getResolvedCoverLetterContent(selectedLetter),
+                    folderName: 'CareerVivid Cover Letters',
+                    fileName: getCoverLetterTitle(selectedLetter),
+                },
+            });
+
+            const { docUrl } = response.data as any;
+            if (!docUrl) throw new Error('Google Docs export finished without a document link.');
+
+            if (format === 'docx') {
+                const docxUrl = getGoogleDocExportUrl(docUrl);
+                if (!docxUrl) throw new Error('Could not create the Word document download link.');
+                triggerDownloadUrl(docxUrl, `${getSafeFileName(getCoverLetterTitle(selectedLetter))}.docx`);
+                setExportNotice('Word document download started.');
+            } else {
+                window.open(docUrl, '_blank', 'noopener,noreferrer');
+                setExportNotice('Cover letter exported to Google Docs.');
+            }
+
+            if (currentUser?.uid) {
+                void trackUsage(currentUser.uid, 'cover_letter_export', { format });
+            }
+        } catch (error: any) {
+            console.error('Cover letter document export failed:', error);
+            if (error?.code === 'auth/popup-closed-by-user') {
+                setExportNotice('Export cancelled.');
+            } else {
+                setExportError(error.message || 'Could not export this cover letter.');
+            }
+        } finally {
+            setIsExportingDocument(false);
+        }
     };
 
     const renderList = () => (
@@ -298,18 +537,53 @@ const CoverLetterManagerModal: React.FC<CoverLetterManagerModalProps> = ({ isOpe
 
             <textarea
                 className="flex-1 w-full min-h-[300px] p-6 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 leading-relaxed focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none font-serif shadow-inner"
-                value={selectedLetter?.content || ''}
+                value={selectedLetter ? getResolvedCoverLetterContent(selectedLetter) : ''}
                 readOnly
             />
 
-            <div className="flex justify-end pt-2">
-                <button
-                    onClick={handleCopy}
-                    className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold py-2 px-5 rounded-lg shadow-md hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center gap-2"
-                >
-                    {copied ? <Check size={18} /> : <Copy size={18} />}
-                    {copied ? 'Copied!' : 'Copy to Clipboard'}
-                </button>
+            <div className="space-y-3 pt-2">
+                {(exportNotice || exportError) && (
+                    <p className={`rounded-lg border px-3 py-2 text-sm ${exportError
+                        ? 'border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200'
+                        : 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-200'
+                        }`}>
+                        {exportError || exportNotice}
+                    </p>
+                )}
+                <div className="flex flex-col-reverse gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
+                    <button
+                        onClick={handleDownloadPdf}
+                        disabled={isExportingDocument}
+                        className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                    >
+                        {isExportingDocument ? <Loader2 size={17} className="animate-spin" /> : <Download size={17} />}
+                        PDF
+                    </button>
+                    <button
+                        onClick={() => handleGoogleDocsExport('google-docs')}
+                        disabled={isExportingDocument}
+                        className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                    >
+                        {isExportingDocument ? <Loader2 size={17} className="animate-spin" /> : <ExternalLink size={17} />}
+                        Google Docs
+                    </button>
+                    <button
+                        onClick={() => handleGoogleDocsExport('docx')}
+                        disabled={isExportingDocument}
+                        className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                    >
+                        {isExportingDocument ? <Loader2 size={17} className="animate-spin" /> : <FileType size={17} />}
+                        Word
+                    </button>
+                    <button
+                        onClick={handleCopy}
+                        disabled={isExportingDocument}
+                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-5 py-2 text-sm font-semibold text-white shadow-md transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
+                    >
+                        {copied ? <Check size={18} /> : <Copy size={18} />}
+                        {copied ? 'Copied!' : 'Copy'}
+                    </button>
+                </div>
             </div>
         </div>
     );

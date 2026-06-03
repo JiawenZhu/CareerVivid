@@ -8,15 +8,26 @@ import { Helmet } from 'react-helmet-async';
 import { isExtensionContext } from './services/extensionStorage';
 import ExtensionLayout from './extension-ui/layout/ExtensionLayout';
 
+type PreloadableComponent<T extends React.ComponentType<any>> = React.LazyExoticComponent<T> & {
+  preload: () => Promise<{ default: T }>;
+};
+
+const lazyWithPreload = <T extends React.ComponentType<any>>(
+  factory: () => Promise<{ default: T }>
+): PreloadableComponent<T> => {
+  const Component = React.lazy(factory) as PreloadableComponent<T>;
+  Component.preload = factory;
+  return Component;
+};
 
 // Lazy load pages to drastically reduce initial JavaScript payload
-const Dashboard = React.lazy(() => import('./pages/Dashboard')); // Protected
-const Editor = React.lazy(() => import('./pages/Editor'));
+const Dashboard = lazyWithPreload(() => import('./pages/Dashboard')); // Protected
+const Editor = lazyWithPreload(() => import('./pages/Editor'));
 const WhiteboardsPage = React.lazy(() => import('./pages/WhiteboardsPage'));
 const WhiteboardEditor = React.lazy(() => import('./pages/WhiteboardEditor'));
 const AgentPage = React.lazy(() => import('./pages/AgentPage'));
 const GenerationHub = React.lazy(() => import('./pages/GenerationHub')); // Protected
-const InterviewStudio = React.lazy(() => import('./pages/InterviewStudio')); // Protected
+const InterviewStudio = lazyWithPreload(() => import('./pages/InterviewStudio')); // Protected
 const ProfilePage = React.lazy(() => import('./pages/ProfilePage')); // Protected
 const ChatBot = React.lazy(() => import('./components/ChatBot'));
 const AuthPage = React.lazy(() => import('./pages/AuthPage'));
@@ -32,8 +43,7 @@ const AdminDashboardPage = React.lazy(() => import('./pages/admin/AdminPage'));
 const StrategyDashboard = React.lazy(() => import('./pages/admin/StrategyDashboard'));
 const AcademicPartnerDashboard = React.lazy(() => import('./pages/academic/AcademicPartnerDashboard'));
 const VerifyEmailPage = React.lazy(() => import('./pages/VerifyEmailPage'));
-const JobTrackerPage = React.lazy(() => import('./pages/JobTrackerPage'));
-const DemoPage = React.lazy(() => import('./pages/DemoPage'));
+const JobTrackerPage = lazyWithPreload(() => import('./pages/JobTrackerPage'));
 const PdfPreviewPage = React.lazy(() => import('./pages/PdfPreviewPage'));
 const ContactPage = React.lazy(() => import('./pages/ContactPage'));
 const BlogListPage = React.lazy(() => import('./pages/BlogListPage'));
@@ -44,7 +54,6 @@ const PortfolioHub = React.lazy(() => import('./features/portfolio/pages/Portfol
 const PortfolioEditor = React.lazy(() => import('./features/portfolio/pages/PortfolioEditor'));
 const PortfolioBuilderPage = React.lazy(() => import('./pages/PortfolioBuilderPage'));
 const PublicPortfolioPage = React.lazy(() => import('./features/portfolio/pages/PublicPortfolioPage'));
-const PartnerLandingPage = React.lazy(() => import('./pages/partners/PartnerLandingPage'));
 const CheckoutSummary = React.lazy(() => import('./features/commerce/pages/CheckoutSummary'));
 const DropProductGallery = React.lazy(() => import('./features/commerce/pages/DropProductGallery'));
 const AssemblyLinePacking = React.lazy(() => import('./features/commerce/pages/AssemblyLinePacking'));
@@ -52,15 +61,12 @@ const CreateNewDrop = React.lazy(() => import('./features/commerce/pages/CreateN
 const UpcomingDropsFeed = React.lazy(() => import('./features/commerce/pages/UpcomingDropsFeed'));
 const BusinessCardPage = React.lazy(() => import('./pages/BusinessCardPage'));
 const OrderNfcCardPage = React.lazy(() => import('./pages/OrderNfcCardPage'));
-const AcademicPartnerPage = React.lazy(() => import('./pages/partners/AcademicPartnerPage'));
-const BusinessPartnerPage = React.lazy(() => import('./pages/partners/BusinessPartnerPage'));
-const StudentAmbassadorPage = React.lazy(() => import('./pages/partners/StudentAmbassadorPage'));
-const PartnerApplicationPage = React.lazy(() => import('./pages/partners/PartnerApplicationPage'));
 const PolicyPage = React.lazy(() => import('./pages/PolicyPage'));
 const TermsOfServicePage = React.lazy(() => import('./pages/TermsOfServicePage'));
 const PrivacyPolicyPage = React.lazy(() => import('./pages/PrivacyPolicyPage'));
-const HRPartnerPage = React.lazy(() => import('./pages/partners/HRPartnerPage'));
 const BusinessPartnerDashboard = React.lazy(() => import('./pages/BusinessPartnerDashboard'));
+const AgencyPartnerDashboard = React.lazy(() => import('./pages/AgencyPartnerDashboard'));
+const AgencyPreparePage = React.lazy(() => import('./pages/AgencyPreparePage'));
 const JobPostingEditor = React.lazy(() => import('./pages/JobPostingEditor'));
 const JobMarketPage = React.lazy(() => import('./pages/JobMarketPage'));
 const PublicJobBoardPage = React.lazy(() => import('./pages/PublicJobBoardPage'));
@@ -79,6 +85,13 @@ const ServicePortfolioPage = React.lazy(() => import('./pages/ServicePortfolioPa
 const ServicesPage = React.lazy(() => import('./pages/ServicesPage'));
 const MerchantProductSubmission = React.lazy(() => import('./pages/MerchantProductSubmission'));
 const FolderView = React.lazy(() => import('./pages/FolderView'));
+const PartnerLandingPage = React.lazy(() => import('./pages/partners/PartnerLandingPage'));
+const AcademicPartnerPage = React.lazy(() => import('./pages/partners/AcademicPartnerPage'));
+const BusinessPartnerPage = React.lazy(() => import('./pages/partners/BusinessPartnerPage'));
+const AgencyPartnerPage = React.lazy(() => import('./pages/partners/AgencyPartnerPage'));
+const HRPartnerPage = React.lazy(() => import('./pages/partners/HRPartnerPage'));
+const StudentAmbassadorPage = React.lazy(() => import('./pages/partners/StudentAmbassadorPage'));
+const PartnerApplicationPage = React.lazy(() => import('./pages/partners/PartnerApplicationPage'));
 
 // Community
 const CommunityDashboard = React.lazy(() => import('./pages/community/CommunityDashboard'));
@@ -90,27 +103,25 @@ const MyPostsPage = React.lazy(() => import('./pages/community/MyPostsPage'));
 const ApiDocsPage = React.lazy(() => import('./pages/ApiDocsPage'));
 const DeveloperSettings = React.lazy(() => import('./pages/DeveloperSettings'));
 const BillingDashboard = React.lazy(() => import('./pages/BillingDashboard'));
+const DndWorkspaceProvider = React.lazy(() => import('./components/DndWorkspaceProvider'));
 
 import { SUPPORTED_LANGUAGES } from './constants';
-import { DndProvider } from 'react-dnd';
-import { MultiBackend, getBackendOptions } from '@minoru/react-dnd-treeview';
 // import i18n from './i18n'; // Used in navigation.ts
 
 
 // Navigation utility
 import { navigate, getPathFromUrl } from './utils/navigation';
-import { getSafeRelativeRedirect } from './utils/security';
 
 
 const LoadingFallback = () => (
-  <div className="flex flex-col justify-center items-center h-screen bg-gray-100 dark:bg-gray-900">
-    <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
+  <div className="flex h-screen flex-col items-center justify-center bg-[#f7f1e7] dark:bg-[#1f1f1d]">
+    <Loader2 className="h-12 w-12 animate-spin text-[#9a651f] dark:text-[#caa26c]" />
   </div>
 );
 
 const AuthRedirect = ({ target }: { target: string }) => {
   useEffect(() => {
-    navigate(getSafeRelativeRedirect(target));
+    navigate(target);
   }, [target]);
   return <LoadingFallback />;
 };
@@ -124,10 +135,16 @@ import { useWorkspaceSync } from './hooks/useWorkspaceSync';
 import PWABadge from './components/PWABadge';
 import CreditCelebration from './components/CreditCelebration';
 
+const WorkspaceDataEffects: React.FC = () => {
+  useGuestDataMigration();
+  useWorkspaceSync();
+  return null;
+};
+
 const AppContent: React.FC = () => {
   const { currentUser, userProfile, loading, isAdmin, isAdminLoading, isEmailVerified } = useAuth();
-  useGuestDataMigration(); // Global guest data migration
-  useWorkspaceSync(); // Global sync of workspace items to sidebar nodes
+  const [path, setPath] = useState(getPathFromUrl());
+  const isExtensionWelcomeRoute = path === '/extension-welcome';
 
   // Run one-time initialization tasks
   useEffect(() => {
@@ -139,10 +156,27 @@ const AppContent: React.FC = () => {
     }
   }, [isAdmin]);
 
+  useEffect(() => {
+    if (!currentUser || loading) return;
+
+    const preloadCoreWorkspaceRoutes = () => {
+      void Dashboard.preload();
+      void Editor.preload();
+      void InterviewStudio.preload();
+      void JobTrackerPage.preload();
+    };
+
+    if ('requestIdleCallback' in window) {
+      const idleId = window.requestIdleCallback(preloadCoreWorkspaceRoutes, { timeout: 3500 });
+      return () => window.cancelIdleCallback(idleId);
+    }
+
+    const timeoutId = window.setTimeout(preloadCoreWorkspaceRoutes, 1800);
+    return () => window.clearTimeout(timeoutId);
+  }, [currentUser, loading]);
+
   // SEO Helper runs on every render to update canonical tags
   // Since App.tsx re-renders on path changes (due to setPath), this works perfectly.
-
-  const [path, setPath] = useState(getPathFromUrl());
 
   useEffect(() => {
     const onPathChange = () => {
@@ -152,9 +186,16 @@ const AppContent: React.FC = () => {
     // Also set initial path on load
     onPathChange();
 
-    // Check for legacy hash-based shared links (e.g., /#/shared/ or /#/portfolio/) and redirect to history mode
-    if (window.location.hash && (window.location.hash.startsWith('#/shared/') || window.location.hash.startsWith('#/portfolio/'))) {
-      const hashPath = window.location.hash.substring(1); // remove '#'
+    // Check for legacy hash-based shared links and redirect to history mode.
+    // Old scheduled interview emails used /#/interview-studio/:id, so keep that path working on owned domains.
+    const hashPath = window.location.hash?.startsWith('#/') ? window.location.hash.substring(1) : '';
+    const isLegacyHashRoute =
+      hashPath.startsWith('/shared/') ||
+      hashPath.startsWith('/portfolio/') ||
+      hashPath === '/interview-studio' ||
+      hashPath.startsWith('/interview-studio/');
+
+    if (isLegacyHashRoute) {
       window.history.replaceState(null, '', hashPath);
       setPath(getPathFromUrl()); // Update state to trigger re-render
     }
@@ -217,20 +258,53 @@ const AppContent: React.FC = () => {
   // Community — read-only routes render instantly (no auth wait)
   const isCommunityPostRoute = path.startsWith('/community/post/');
   if (path === '/community' || path === '/community/guidelines' || isCommunityPostRoute) {
+    const communitySeo = path === '/community'
+      ? (
+        <SEOHelper
+          title="CareerVivid Community"
+          description="CareerVivid community articles, resume resources, job search workflows, and interview preparation guides."
+        />
+      )
+      : path === '/community/guidelines'
+        ? <SEOHelper title="Community Guidelines" description="Rules and best practices for the CareerVivid community." />
+        : null;
+
     return (
       <ThemeProvider>
         <CartProvider>
           <NavigationProvider>
-            <div className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-200 font-sans">
+            <div className="min-h-screen bg-[#f7f1e7] text-[#211b16] dark:bg-[#1f1f1d] dark:text-[#f1eee7] font-sans">
               <Helmet
                 titleTemplate="%s | CareerVivid"
-                defaultTitle="CareerVivid | The Interactive 'Learning by Doing' Developer Platform"
+                defaultTitle="CareerVivid Community | AI Career Workspace"
               />
-                <SEOHelper title="Community Guidelines" description="Rules and best practices for the CareerVivid community." />
+              {communitySeo}
               <Suspense fallback={<LoadingFallback />}>
                 {path === '/community' && <CommunityDashboard />}
                 {path === '/community/guidelines' && <CommunityGuidelinesPage />}
                 {isCommunityPostRoute && <CommunityPostPage />}
+              </Suspense>
+            </div>
+          </NavigationProvider>
+        </CartProvider>
+      </ThemeProvider>
+    );
+  }
+
+  if (isExtensionWelcomeRoute) {
+    return (
+      <ThemeProvider>
+        <CartProvider>
+          <NavigationProvider>
+            <div className="min-h-screen bg-[#f7f1e7] text-[#211b16] dark:bg-[#1f1f1d] dark:text-[#f1eee7] font-sans">
+              <Helmet
+                titleTemplate="%s | CareerVivid"
+                defaultTitle="CareerVivid | AI Job Search Workspace & Chrome Extension"
+              />
+              <SEOHelper isRobotsAllowed />
+              <Suspense fallback={<LoadingFallback />}>
+                <ExtensionWelcomePage />
+                {currentUser && !loading && <ChatBot />}
               </Suspense>
             </div>
           </NavigationProvider>
@@ -323,24 +397,24 @@ const AppContent: React.FC = () => {
         </ProtectedRoute>
       );
     } else if (path === '/extension-welcome') {
-      content = (
-        <ProtectedRoute>
-          <ExtensionWelcomePage />
-        </ProtectedRoute>
-      );
+      content = <ExtensionWelcomePage />;
     } else if (path === '/signin' || path.startsWith('/signin?')) {
       const params = new URLSearchParams(window.location.search);
       const cliPort = params.get('cli_port');
-      if (currentUser && !cliPort) {
-        const redirect = params.get('redirect');
-        content = <AuthRedirect target={getSafeRelativeRedirect(redirect)} />;
+      const redirect = params.get('redirect');
+      const redirectTarget = redirect ? decodeURIComponent(redirect) : null;
+
+      if (redirectTarget?.startsWith('/extension-welcome')) {
+        content = <AuthRedirect target={redirectTarget} />;
+      } else if (currentUser && !cliPort) {
+        content = <AuthRedirect target={redirectTarget || '/dashboard'} />;
       } else {
         content = <SignInPage />;
       }
     } else if (path === '/signup') {
       const params = new URLSearchParams(window.location.search);
       const redirect = params.get('redirect');
-      content = currentUser ? <AuthRedirect target={getSafeRelativeRedirect(redirect)} /> : <SignUpPage />;
+      content = currentUser ? <AuthRedirect target={redirect ? decodeURIComponent(redirect) : '/dashboard'} /> : <SignUpPage />;
     } else if (path === '/auth') {
       if (currentUser) {
         content = <AuthRedirect target="/dashboard" />;
@@ -450,11 +524,22 @@ const AppContent: React.FC = () => {
       );
     }
 
+    // Agency Partner Dashboard
+    else if (path === '/agency-partner/dashboard') {
+      content = (
+        <ProtectedRoute>
+          <AgencyPartnerDashboard />
+        </ProtectedRoute>
+      );
+    }
+
     // Dynamic Nested Folder View
     else if (path.startsWith('/folder/')) {
       content = (
         <ProtectedRoute>
-          <FolderView />
+          <DndWorkspaceProvider>
+            <FolderView />
+          </DndWorkspaceProvider>
         </ProtectedRoute>
       );
     }
@@ -463,7 +548,9 @@ const AppContent: React.FC = () => {
     else if (path === '/hub' || path === '/folder/create-build-hub') {
       content = (
         <ProtectedRoute>
-          <FolderView />
+          <DndWorkspaceProvider>
+            <FolderView />
+          </DndWorkspaceProvider>
         </ProtectedRoute>
       );
     }
@@ -486,6 +573,10 @@ const AppContent: React.FC = () => {
           <Editor resumeId={id} />
         </ProtectedRoute>
       );
+    }
+    else if (path.startsWith('/prepare/')) {
+      const agencySlug = path.split('/')[2];
+      content = <AgencyPreparePage agencySlug={agencySlug} />;
     }
 
     // Portfolio Editor (Was accessible in both, keeping accessible)
@@ -587,7 +678,7 @@ const AppContent: React.FC = () => {
 
     // Pages that are definitely public
     else if (path === '/pricing') { content = <PricingPage />; }
-    else if (path === '/demo') { content = <DemoPage />; }
+    else if (path === '/demo') { content = <NotFoundPage />; }
     else if (path === '/contact') { content = <ContactPage />; }
     else if (path === '/services') { content = <ServicesPage />; }
     else if (path === '/service-portfolio') { content = <ServicePortfolioPage />; }
@@ -605,14 +696,12 @@ const AppContent: React.FC = () => {
     }
     else if (path === '/tech-preview') { content = <TechLandingPage />; }
     else if (path === '/partners') { content = <PartnerLandingPage />; }
-    else if (path.startsWith('/partners/')) {
-      if (path === '/partners/academic') content = <AcademicPartnerPage />;
-      else if (path === '/partners/business') content = <BusinessPartnerPage />;
-      else if (path === '/partners/students') content = <StudentAmbassadorPage />;
-      else if (path === '/partners/hiring') content = <HRPartnerPage />;
-      else if (path === '/partners/apply') content = <PartnerApplicationPage />;
-      else content = <NotFoundPage />;
-    }
+    else if (path === '/partners/academic') { content = <AcademicPartnerPage />; }
+    else if (path === '/partners/business') { content = <BusinessPartnerPage />; }
+    else if (path === '/partners/agency') { content = <AgencyPartnerPage />; }
+    else if (path === '/partners/hiring') { content = <HRPartnerPage />; }
+    else if (path === '/partners/students') { content = <StudentAmbassadorPage />; }
+    else if (path === '/partners/apply') { content = <PartnerApplicationPage />; }
     else if (path === '/business-card') { content = <BusinessCardPage />; }
     else if (path === '/order-nfc-card') { content = <OrderNfcCardPage />; }
     else if (path === '/dashboard/integrations') {
@@ -656,13 +745,32 @@ const AppContent: React.FC = () => {
     <ThemeProvider>
       <CartProvider>
         <NavigationProvider>
-          <div className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-200 font-sans">
+          <div className="min-h-screen bg-[#f7f1e7] text-[#211b16] dark:bg-[#1f1f1d] dark:text-[#f1eee7] font-sans">
+            {currentUser && <WorkspaceDataEffects />}
             <Helmet
               titleTemplate="%s | CareerVivid"
-              defaultTitle="CareerVivid Community | Build Your Brand & Network"
+              defaultTitle="CareerVivid | AI Job Search Workspace & Chrome Extension"
             />
             <SEOHelper
-              isRobotsAllowed={!['/dashboard', '/profile', '/billing', '/subscription', '/developer', '/my-posts', '/commerce', '/checkout'].some(p => path.startsWith(p))}
+              isRobotsAllowed={![
+                '/dashboard',
+                '/profile',
+                '/billing',
+                '/subscription',
+                '/developer',
+                '/my-posts',
+                '/commerce',
+                '/checkout',
+                '/newresume',
+                '/job-tracker',
+                '/interview-studio',
+                '/portfolio',
+                '/whiteboard',
+                '/folder',
+                '/edit',
+                '/referrals',
+                '/extension-auth-complete',
+              ].some(p => path.startsWith(p))}
             />
             <Suspense fallback={<LoadingFallback />}>
               {content}
@@ -686,11 +794,11 @@ const App: React.FC = () => {
   }
 
   return (
-    <DndProvider backend={MultiBackend} options={getBackendOptions()}>
+    <>
       <AppContent />
       <CreditCelebration />
       <PWABadge />
-    </DndProvider>
+    </>
   );
 };
 

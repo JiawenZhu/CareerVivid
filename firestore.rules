@@ -27,6 +27,16 @@ service cloud.firestore {
         );
     }
 
+    function isAgencyPartner() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        (
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'agency_partner' ||
+          (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('roles', []) != null &&
+           'agency_partner' in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('roles', []))
+        );
+    }
+
     function isUserOwner(userId) {
       return request.auth != null && request.auth.uid == userId;
     }
@@ -410,6 +420,126 @@ service cloud.firestore {
       // Business partner can create/update their own profile.
       allow create: if (isBusinessPartner() || isAdmin()) && request.resource.data.hrUserId == request.auth.uid;
       allow update, delete: if (isBusinessPartner() && resource.data.hrUserId == request.auth.uid) || isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // 🧭 AGENCY PARTNER PILOT (Candidate Preparation Links)
+    // ---------------------------------------------------------
+    match /agencyBranches/{branchId} {
+      // Public read lets candidate prep links resolve branch branding by slug.
+      allow read: if true;
+      // Initial branch creation happens through Admin SDK when an agency application is approved.
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin() ||
+        (isAgencyPartner() && resource.data.ownerUserId == request.auth.uid);
+
+      // Candidate invites sent by recruiters. Writes happen server-side only
+      // (via the sendAgencyInvite callable using Admin SDK, which bypasses
+      // these rules). Reads are limited to the branch owner and admins.
+      match /invites/{inviteId} {
+        allow read: if isAdmin() ||
+          (request.auth != null &&
+           get(/databases/$(database)/documents/agencyBranches/$(branchId)).data.ownerUserId == request.auth.uid);
+        allow write: if false;
+      }
+    }
+
+    match /agencyInvites/{inviteId} {
+      allow read: if isAdmin() ||
+        (request.auth != null &&
+         exists(/databases/$(database)/documents/agencyBranches/$(resource.data.agencyBranchId)) &&
+         get(/databases/$(database)/documents/agencyBranches/$(resource.data.agencyBranchId)).data.ownerUserId == request.auth.uid);
+      allow write: if false;
+    }
+
+    match /agencyPrepSessions/{sessionId} {
+      // Candidates can create their own prep session for an existing branch.
+      allow create: if request.auth != null &&
+        request.resource.data.candidateUserId == request.auth.uid &&
+        exists(/databases/$(database)/documents/agencyBranches/$(request.resource.data.agencyBranchId)) &&
+        request.resource.data.agencyOwnerUserId == get(/databases/$(database)/documents/agencyBranches/$(request.resource.data.agencyBranchId)).data.ownerUserId &&
+        request.resource.data.agencySlug == get(/databases/$(database)/documents/agencyBranches/$(request.resource.data.agencyBranchId)).data.slug &&
+        request.resource.data.keys().hasOnly([
+          'agencyBranchId',
+          'agencyOwnerUserId',
+          'agencySlug',
+          'candidateUserId',
+          'candidateName',
+          'candidateEmail',
+          'resumeId',
+          'resumeTitle',
+          'resumeSharePath',
+          'status',
+          'startingScore',
+          'latestScore',
+          'scoreDelta',
+          'positionTags',
+          'consentToShare',
+          'readinessReport',
+          'createdAt',
+          'updatedAt',
+          'startedAt',
+          'sharedAt'
+        ]);
+
+      // Candidates see their own prep session. Agency partners see only sessions owned by their branch.
+      allow read: if request.auth != null && (
+        resource.data.candidateUserId == request.auth.uid ||
+        (isAgencyPartner() && resource.data.agencyOwnerUserId == request.auth.uid) ||
+        isAdmin()
+      );
+
+      // Candidates may update readiness summary and consent fields for their own session.
+      allow update: if request.auth != null &&
+        resource.data.candidateUserId == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'candidateName',
+          'candidateEmail',
+          'resumeId',
+          'resumeTitle',
+          'resumeSharePath',
+          'status',
+          'startingScore',
+          'latestScore',
+          'scoreDelta',
+          'consentToShare',
+          'readinessReport',
+          'updatedAt',
+          'startedAt',
+          'sharedAt'
+        ]);
+
+      // Branch owners can maintain recruiter-side tags without editing the
+      // candidate-owned resume/share state.
+      allow update: if request.auth != null &&
+        (isAdmin() || resource.data.agencyOwnerUserId == request.auth.uid) &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'positionTags',
+          'updatedAt'
+        ]);
+
+      allow delete: if isAdmin();
+
+      // Recruiter-private notes. Visible only to the branch owner who owns
+      // this session and to admins. NEVER visible to the candidate. Writes
+      // happen via the addRecruiterNote callable using Admin SDK.
+      match /notes/{noteId} {
+        allow read: if isAdmin() ||
+          (request.auth != null &&
+           get(/databases/$(database)/documents/agencyPrepSessions/$(sessionId)).data.agencyOwnerUserId == request.auth.uid);
+        allow write: if false;
+      }
+
+      // Append-only activity timeline. Visible to candidate, branch owner,
+      // and admins. Writes happen server-side only (callables and triggers).
+      match /events/{eventId} {
+        allow read: if isAdmin() ||
+          (request.auth != null && (
+            get(/databases/$(database)/documents/agencyPrepSessions/$(sessionId)).data.candidateUserId == request.auth.uid ||
+            get(/databases/$(database)/documents/agencyPrepSessions/$(sessionId)).data.agencyOwnerUserId == request.auth.uid
+          ));
+        allow write: if false;
+      }
     }
 
     // ---------------------------------------------------------

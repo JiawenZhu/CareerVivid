@@ -2,6 +2,15 @@ import * as functions from "firebase-functions/v1";
 import { google } from "googleapis";
 import { ResumeData } from "./types";
 
+type ExportDocumentData = {
+    kind?: "cover-letter" | "document";
+    title: string;
+    subtitle?: string;
+    body: string;
+    folderName?: string;
+    fileName?: string;
+};
+
 export const exportToGoogleDocs = functions
     .region("us-west1")
     .runWith({ timeoutSeconds: 60, memory: "512MB" })
@@ -11,10 +20,17 @@ export const exportToGoogleDocs = functions
             throw new functions.https.HttpsError("unauthenticated", "User must be logged in.");
         }
 
-        const { resumeData, accessToken } = data as { resumeData: ResumeData, accessToken: string };
+        const { resumeData, documentData, accessToken } = data as {
+            resumeData?: ResumeData;
+            documentData?: ExportDocumentData;
+            accessToken: string;
+        };
 
         if (!accessToken) {
             throw new functions.https.HttpsError("invalid-argument", "Missing Google Access Token.");
+        }
+        if (!resumeData && !documentData) {
+            throw new functions.https.HttpsError("invalid-argument", "Missing export document data.");
         }
 
         try {
@@ -24,10 +40,12 @@ export const exportToGoogleDocs = functions
             const drive = google.drive({ version: "v3", auth });
             const docs = google.docs({ version: "v1", auth });
 
-            // 2. Folder Logic (Find or Create 'CareerVivid Resumes')
+            const folderName = documentData?.folderName || "CareerVivid Resumes";
+
+            // 2. Folder Logic (Find or Create target folder)
             let folderId: string;
             const folderSearch = await drive.files.list({
-                q: "mimeType='application/vnd.google-apps.folder' and name='CareerVivid Resumes' and trashed=false",
+                q: `mimeType='application/vnd.google-apps.folder' and name='${escapeDriveQuery(folderName)}' and trashed=false`,
                 fields: "files(id)",
                 spaces: "drive",
             });
@@ -36,7 +54,7 @@ export const exportToGoogleDocs = functions
                 folderId = folderSearch.data.files[0].id!;
             } else {
                 const folderMetadata = {
-                    name: "CareerVivid Resumes",
+                    name: folderName,
                     mimeType: "application/vnd.google-apps.folder",
                 };
                 const folder = await drive.files.create({
@@ -46,10 +64,14 @@ export const exportToGoogleDocs = functions
                 folderId = folder.data.id!;
             }
 
+            const documentName = documentData?.fileName ||
+                (resumeData ? `Resume - ${resumeData.personalDetails.firstName} ${resumeData.personalDetails.lastName}` : documentData?.title) ||
+                "CareerVivid Document";
+
             // 3. Create Doc
             const createResponse = await drive.files.create({
                 requestBody: {
-                    name: `Resume - ${resumeData.personalDetails.firstName} ${resumeData.personalDetails.lastName}`,
+                    name: documentName,
                     mimeType: "application/vnd.google-apps.document",
                     parents: [folderId],
                 },
@@ -83,6 +105,21 @@ export const exportToGoogleDocs = functions
                 }
                 currentIndex += text.length + 1;
             };
+
+            if (documentData) {
+                insertGenericDocument(documentData, insertText);
+                if (requests.length > 0) {
+                    await docs.documents.batchUpdate({
+                        documentId: docId,
+                        requestBody: { requests },
+                    });
+                }
+                return { success: true, docUrl: webViewLink };
+            }
+
+            if (!resumeData) {
+                throw new functions.https.HttpsError("invalid-argument", "Missing resume data.");
+            }
 
             // Title (Name)
             insertText(`${resumeData.personalDetails.firstName} ${resumeData.personalDetails.lastName}`, "TITLE");
@@ -157,4 +194,29 @@ export const exportToGoogleDocs = functions
 function stripHtml(html: string): string {
     if (!html) return "";
     return html.replace(/<[^>]*>?/gm, "").replace(/&nbsp;/g, " ");
+}
+
+function escapeDriveQuery(value: string): string {
+    return value.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
+
+function insertGenericDocument(
+    documentData: ExportDocumentData,
+    insertText: (text: string, style?: string) => void
+) {
+    const title = stripHtml(documentData.title || "CareerVivid Document").trim();
+    const subtitle = stripHtml(documentData.subtitle || "").trim();
+    const body = stripHtml(documentData.body || "").replace(/\r\n/g, "\n").trim();
+
+    insertText(title, "TITLE");
+    if (subtitle) insertText(subtitle, "SUBTITLE");
+
+    const paragraphs = body
+        .split(/\n{2,}/)
+        .map(paragraph => paragraph.replace(/\n/g, " ").replace(/\s+/g, " ").trim())
+        .filter(Boolean);
+
+    for (const paragraph of paragraphs) {
+        insertText(paragraph, "NORMAL_TEXT");
+    }
 }

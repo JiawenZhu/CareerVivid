@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 
-export type Theme = 'light' | 'dark' | 'system';
+export type Theme = 'light' | 'dark' | 'system' | 'bright';
 
 interface ThemeContextType {
   theme: Theme;
@@ -12,20 +12,48 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+interface ThemeProviderProps {
+  children: React.ReactNode;
+  defaultTheme?: Theme;
+  storageKey?: string;
+}
+
 function getSystemTheme(): 'light' | 'dark' {
   if (typeof window === 'undefined') return 'light';
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setThemeState] = useState<Theme>('system');
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({
+  children,
+  defaultTheme = 'system',
+  storageKey = 'careervivid-theme',
+}) => {
+  const [theme, setThemeState] = useState<Theme>(defaultTheme);
+  const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>(() => getSystemTheme());
 
   useEffect(() => {
-    const stored = localStorage.getItem('careervivid-theme') as Theme | null;
-    setThemeState(stored || 'system');
+    const stored = localStorage.getItem(storageKey) as Theme | null;
+    setThemeState(stored || defaultTheme);
+  }, [defaultTheme, storageKey]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = () => {
+      setSystemTheme(media.matches ? 'dark' : 'light');
+    };
+
+    handleChange();
+    media.addEventListener('change', handleChange);
+    return () => media.removeEventListener('change', handleChange);
   }, []);
 
-  const resolvedTheme: 'light' | 'dark' = theme === 'system' ? getSystemTheme() : theme;
+  const resolvedTheme: 'light' | 'dark' = theme === 'system'
+    ? systemTheme
+    : theme === 'dark'
+      ? 'dark'
+      : 'light';
 
   useEffect(() => {
     if (resolvedTheme === 'dark') {
@@ -33,11 +61,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, [resolvedTheme]);
+
+    document.documentElement.dataset.themeMode = theme;
+    document.documentElement.classList.toggle('cv-theme-bright', theme === 'bright');
+    document.documentElement.classList.toggle('cv-theme-system', theme === 'system');
+  }, [resolvedTheme, theme]);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem('careervivid-theme', newTheme);
+    localStorage.setItem(storageKey, newTheme);
   };
 
   // Kept for backward compatibility

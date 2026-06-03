@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { FileInput, Code, Palette, ChevronLeft, ChevronRight, Award } from 'lucide-react';
-import { ResumeData, TemplateInfo, UserProfile } from '../../../types';
+import React from 'react';
+import { ChevronLeft, ChevronRight, Sparkles, Edit3, Sliders } from 'lucide-react';
+import { ResumeData, TemplateInfo } from '../../../types';
 import ResumeForm from '../../../components/ResumeForm';
 import CommentsPanel from '../../../components/CommentsPanel';
 import TemplateSelector from './TemplateSelector';
 import DesignControls from './DesignControls';
-import ResumeScoreTab from './ResumeScoreTab';
+import { AIReviewPanel } from './AIReviewPanel';
 
 interface EditorSidebarProps {
     resume: ResumeData;
@@ -45,11 +45,11 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
         <>
             <div
                 className={`
-                    flex-shrink-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 
-                    h-full z-20 
+                    flex-shrink-0 border-r border-[#e5dccf] bg-[#fbf8f3] dark:border-gray-800 dark:bg-gray-950
+                    h-full z-20
                     absolute md:relative
                     transition-all duration-300 ease-in-out
-                    ${isDesktop ? '' : (viewMode === 'preview' ? 'hidden' : 'translate-x-0 w-full')} 
+                    ${isDesktop ? '' : (viewMode === 'preview' ? 'hidden' : 'translate-x-0 w-full')}
                     ${isDesktop && sidebarMode === 'closed' ? 'w-0 overflow-hidden' : ''}
                     md:translate-x-0
                     overflow-hidden
@@ -58,22 +58,38 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
             >
                 <div className="w-full h-full flex flex-col" style={{ minWidth: isDesktop ? '520px' : '100%' }}>
 
-                    <div className="flex items-center justify-between gap-1 border-b border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900">
-                        <button onClick={() => setActiveTab('content')} className={`flex-1 rounded-md py-2 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 ${activeTab === 'content' ? 'bg-white dark:bg-gray-800 text-primary-600 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
-                            <FileInput size={14} /> Content
+                    <div className="flex items-center justify-between gap-1 border-b border-[#e8dfd3] bg-white/80 p-2 backdrop-blur dark:border-gray-800 dark:bg-gray-900/90 select-none">
+                        <button
+                            onClick={() => setActiveTab('score')}
+                            className={`flex-1 rounded-lg py-2 text-xs font-bold flex items-center justify-center gap-1.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${activeTab === 'score' ? 'bg-[#22143f] text-white shadow-sm scale-[1.01]' : 'text-slate-500 hover:bg-[#f3eee6] hover:text-slate-800 dark:text-gray-400 dark:hover:bg-gray-800'}`}
+                        >
+                            <Sparkles size={14} className={activeTab === 'score' ? 'animate-pulse' : ''} /> AI Review
                         </button>
-                        <button onClick={() => setActiveTab('score')} className={`flex-1 rounded-md py-2 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 ${activeTab === 'score' ? 'bg-white dark:bg-gray-800 text-primary-600 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
-                            <Award size={14} /> Score
+                        <button
+                            onClick={() => setActiveTab('content')}
+                            className={`flex-1 rounded-lg py-2 text-xs font-bold flex items-center justify-center gap-1.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${activeTab === 'content' ? 'bg-[#22143f] text-white shadow-sm scale-[1.01]' : 'text-slate-500 hover:bg-[#f3eee6] hover:text-slate-800 dark:text-gray-400 dark:hover:bg-gray-800'}`}
+                        >
+                            <Edit3 size={14} /> Editor
                         </button>
-                        <button onClick={() => setActiveTab('template')} className={`flex-1 rounded-md py-2 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 ${activeTab === 'template' ? 'bg-white dark:bg-gray-800 text-primary-600 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
-                            <Code size={14} /> Template
-                        </button>
-                        <button onClick={() => setActiveTab('design')} className={`flex-1 rounded-md py-2 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1 ${activeTab === 'design' ? 'bg-white dark:bg-gray-800 text-primary-600 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>
-                            <Palette size={14} /> Design
+                        <button
+                            onClick={() => setActiveTab('design')}
+                            className={`flex-1 rounded-lg py-2 text-xs font-bold flex items-center justify-center gap-1.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${activeTab === 'design' ? 'bg-[#22143f] text-white shadow-sm scale-[1.01]' : 'text-slate-500 hover:bg-[#f3eee6] hover:text-slate-800 dark:text-gray-400 dark:hover:bg-gray-800'}`}
+                        >
+                            <Sliders size={14} /> Layout & Style
                         </button>
                     </div>
 
-                    <div className="custom-scrollbar flex-grow overflow-y-auto p-4">
+                    <div data-editor-sidebar-scroll className="custom-scrollbar flex-grow overflow-y-auto p-4">
+                        {activeTab === 'score' && (
+                            <div className="h-full animate-fade-in">
+                                <AIReviewPanel
+                                    resume={resume}
+                                    currentUserUid={currentUser?.uid || ''}
+                                    onUpdate={onResumeChange}
+                                />
+                            </div>
+                        )}
+
                         {activeTab === 'content' && (
                             <div className="animate-fade-in">
                                 <ResumeForm
@@ -86,32 +102,34 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
                             </div>
                         )}
 
-                        {activeTab === 'score' && (
-                            <ResumeScoreTab 
-                                resume={resume} 
-                                currentUserUid={currentUser?.uid || ''}
-                                onUpdate={onResumeChange}
-                            />
-                        )}
-
-                        {activeTab === 'template' && (
-                            <TemplateSelector
-                                templates={templates}
-                                activeTemplate={activeTemplate}
-                                sampleResume={sampleResume}
-                                isLoading={isTemplateLoading}
-                                activeColor={resume.themeColor}
-                                onSelect={onTemplateSelect}
-                                onColorSelect={(color) => onResumeChange({ themeColor: color })}
-                            />
-                        )}
-
                         {activeTab === 'design' && (
-                            <DesignControls
-                                resume={resume}
-                                activeTemplate={activeTemplate}
-                                onDesignChange={onDesignChange}
-                            />
+                            <div className="space-y-6 animate-fade-in">
+                                <div>
+                                    <h4 className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-3">
+                                        Choose Template
+                                    </h4>
+                                    <TemplateSelector
+                                        templates={templates}
+                                        activeTemplate={activeTemplate}
+                                        sampleResume={sampleResume}
+                                        isLoading={isTemplateLoading}
+                                        activeColor={resume.themeColor}
+                                        onSelect={onTemplateSelect}
+                                        onColorSelect={(color) => onResumeChange({ themeColor: color })}
+                                    />
+                                </div>
+                                <hr className="border-gray-200 dark:border-gray-700" />
+                                <div>
+                                    <h4 className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-3">
+                                        Customize Style
+                                    </h4>
+                                    <DesignControls
+                                        resume={resume}
+                                        activeTemplate={activeTemplate}
+                                        onDesignChange={onDesignChange}
+                                    />
+                                </div>
+                            </div>
                         )}
 
                         {activeTab === 'comments' && (
@@ -143,7 +161,7 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     disabled={sidebarMode === 'expanded' || (sidebarMode === 'standard' && activeTab !== 'content')}
                     className={`
                         w-8 h-10 flex items-center justify-center
-                        bg-white dark:bg-gray-800 
+                        bg-white dark:bg-gray-800
                         text-gray-500 dark:text-gray-400
                         hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400
                         disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-gray-500
@@ -159,7 +177,7 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     disabled={sidebarMode === 'closed'}
                     className={`
                         w-8 h-10 flex items-center justify-center
-                        bg-white dark:bg-gray-800 
+                        bg-white dark:bg-gray-800
                         text-gray-500 dark:text-gray-400
                         hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400
                         disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-gray-500

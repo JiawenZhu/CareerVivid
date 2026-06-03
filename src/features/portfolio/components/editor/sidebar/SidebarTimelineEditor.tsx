@@ -31,7 +31,7 @@ const SidebarTimelineEditor: React.FC<SidebarTimelineEditorProps> = ({
     };
 
     return (
-        <div className="space-y-4">
+        <div id="timeline" className="space-y-4">
             {portfolioData.timeline.map((job, idx) => (
                 <div key={job.id} className={`p-4 rounded-lg border relative group/card ${themeClasses.cardBg}`}>
                     <div className="absolute top-4 right-4 z-10 opacity-0 group-hover/card:opacity-100 transition-opacity">

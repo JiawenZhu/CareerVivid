@@ -4,6 +4,7 @@ import { usePortfolios } from '../../hooks/usePortfolios';
 import { useWhiteboards } from '../../hooks/useWhiteboards';
 import { usePracticeHistory } from '../../hooks/useJobHistory';
 import { useJobTracker } from '../../hooks/useJobTracker';
+import { useMyCommunityPosts } from '../../hooks/useMyCommunityPosts';
 import { ResumeData, PracticeHistoryEntry, JobApplicationData, WhiteboardData } from '../../types';
 import { PortfolioData } from '../../features/portfolio/types/portfolio';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +15,12 @@ import ResumeCard from './ResumeCard';
 import PortfolioCard from '../PortfolioCard';
 import InterviewHistoryCard from './InterviewHistoryCard';
 import WhiteboardCard from './WhiteboardCard';
+import {
+    MobileInterviewHistoryCard,
+    MobilePortfolioCard,
+    MobileResumeCard,
+    MobileWhiteboardCard
+} from './DashboardMobileCards';
 import StatusOverview from '../JobTracker/StatusOverview';
 import KanbanBoard from '../JobTracker/KanbanBoard';
 
@@ -22,6 +29,7 @@ export const WorkspaceSummaryCards: React.FC = () => {
     const { portfolios } = usePortfolios();
     const { practiceHistory } = usePracticeHistory();
     const { jobApplications } = useJobTracker();
+    const { posts } = useMyCommunityPosts();
 
     return (
         <DashboardSummaryCards
@@ -29,6 +37,7 @@ export const WorkspaceSummaryCards: React.FC = () => {
             interviewCount={practiceHistory.length}
             portfolioCount={portfolios.length}
             jobCount={jobApplications.length}
+            communityPostCount={posts.length}
         />
     );
 };
@@ -54,7 +63,17 @@ export const ResumesSection: React.FC<SectionProps & { setShareModalResume: (r: 
             onLongPress={onLongPress}
             onViewAll={() => navigate('/newresume')}
             onTitleChange={onTitleChange}
-            emptyMessage={t('dashboard.no_resumes') || "No resumes created yet. Create your first resume!"}
+            emptyMessage={t('dashboard.no_resumes', 'No resumes created yet. Create your first resume!')}
+            mobileRenderItem={(resume) => (
+                <MobileResumeCard
+                    key={resume.id}
+                    resume={resume}
+                    onDelete={deleteResume}
+                    onDuplicate={duplicateResume}
+                    onUpdate={updateResume}
+                    onShare={setShareModalResume}
+                />
+            )}
             renderItem={(resume) => (
                 <ResumeCard
                     key={resume.id}
@@ -87,6 +106,15 @@ export const PortfoliosSection: React.FC<SectionProps & {
             onViewAll={() => navigate('/portfolio')}
             onTitleChange={onTitleChange}
             emptyMessage="No portfolios created yet."
+            mobileRenderItem={(portfolio) => (
+                <MobilePortfolioCard
+                    key={portfolio.id}
+                    portfolio={portfolio}
+                    onDelete={deletePortfolio}
+                    onDuplicate={handleDuplicatePortfolio}
+                    onShare={setShareModalPortfolio}
+                />
+            )}
             renderItem={(portfolio) => (
                 <PortfolioCard
                     key={portfolio.id}
@@ -116,6 +144,14 @@ export const InterviewStudioSection: React.FC<SectionProps & { setSelectedJobFor
             onViewAll={() => navigate('/interview-studio')}
             onTitleChange={onTitleChange}
             emptyMessage="No practice sessions yet. Start your first mock interview!"
+            mobileRenderItem={(session) => (
+                <MobileInterviewHistoryCard
+                    key={session.id}
+                    entry={session}
+                    onDelete={deletePracticeHistory}
+                    onShowReport={setSelectedJobForReport}
+                />
+            )}
             renderItem={(session) => (
                 <InterviewHistoryCard
                     key={session.id}
@@ -144,6 +180,15 @@ export const WhiteboardsSection: React.FC<SectionProps & { setShareModalWhiteboa
                 onViewAll={() => navigate('/whiteboard')}
                 onTitleChange={onTitleChange}
                 emptyMessage="No whiteboards created yet."
+                mobileRenderItem={(whiteboard) => (
+                    <MobileWhiteboardCard
+                        key={whiteboard.id}
+                        whiteboard={whiteboard}
+                        onDelete={deleteWhiteboard}
+                        onDuplicate={duplicateWhiteboard}
+                        onShare={setShareModalWhiteboard}
+                    />
+                )}
                 renderItem={(whiteboard) => (
                     <WhiteboardCard
                         key={whiteboard.id}
@@ -189,8 +234,11 @@ export const JobTrackerSection: React.FC<SectionProps & { setSelectedJobApplicat
                 onTitleChange={onTitleChange}
             />
 
-            <div className="mb-6">
+            <div className="mb-6 hidden md:block">
                 <StatusOverview applications={jobApplications} />
+            </div>
+            <div className="mb-6 md:hidden">
+                <StatusOverview applications={jobApplications} variant="compact" />
             </div>
 
             <KanbanBoard
