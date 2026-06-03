@@ -103,9 +103,10 @@ const MyPostsPage = React.lazy(() => import('./pages/community/MyPostsPage'));
 const ApiDocsPage = React.lazy(() => import('./pages/ApiDocsPage'));
 const DeveloperSettings = React.lazy(() => import('./pages/DeveloperSettings'));
 const BillingDashboard = React.lazy(() => import('./pages/BillingDashboard'));
-const DndWorkspaceProvider = React.lazy(() => import('./components/DndWorkspaceProvider'));
 
 import { SUPPORTED_LANGUAGES } from './constants';
+import { DndProvider } from 'react-dnd';
+import { MultiBackend, getBackendOptions } from '@minoru/react-dnd-treeview';
 // import i18n from './i18n'; // Used in navigation.ts
 
 
@@ -534,9 +535,7 @@ const AppContent: React.FC = () => {
     else if (path.startsWith('/folder/')) {
       content = (
         <ProtectedRoute>
-          <DndWorkspaceProvider>
-            <FolderView />
-          </DndWorkspaceProvider>
+          <FolderView />
         </ProtectedRoute>
       );
     }
@@ -545,9 +544,7 @@ const AppContent: React.FC = () => {
     else if (path === '/hub' || path === '/folder/create-build-hub') {
       content = (
         <ProtectedRoute>
-          <DndWorkspaceProvider>
-            <FolderView />
-          </DndWorkspaceProvider>
+          <FolderView />
         </ProtectedRoute>
       );
     }
@@ -791,11 +788,11 @@ const App: React.FC = () => {
   }
 
   return (
-    <>
+    <DndProvider backend={MultiBackend} options={getBackendOptions()}>
       <AppContent />
       <CreditCelebration />
       <PWABadge />
-    </>
+    </DndProvider>
   );
 };
 

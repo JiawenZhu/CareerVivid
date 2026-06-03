@@ -68,11 +68,9 @@ export { sendTestEmails } from "./sendTestEmails";
 export {
   sendLifecycleActivationEmails,
   onLifecycleUsageLogCreated,
-  onFirstJobSavedLifecycle,
   onResumeCreatedLifecycle,
   onEmailPreferencesUpdated,
   sendEmailPreferenceUpdateNotifications,
-  sendResumePerformanceMilestoneEmails,
   sendLifecycleDemoEmails,
 } from "./lifecycleEmails";
 export { sendTransactionalAuthEmail } from "./transactionalEmails";
@@ -596,7 +594,6 @@ export const getPublicResume = functions.region('us-west1').runWith({ timeoutSec
         console.log("Resume found successfully, ownerIsPremium:", ownerIsPremium);
 
         // Send the data back with ownerIsPremium flag
-        res.set("Cache-Control", "public, max-age=30, s-maxage=120, stale-while-revalidate=300");
         return res.status(200).json({ ...data, id: doc.id, ownerIsPremium });
 
       } catch (error: any) {
