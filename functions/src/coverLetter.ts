@@ -52,14 +52,18 @@ export const generateCoverLetter = functions
             const email = contact?.email || '[Your Email Address]';
             const phone = contact?.phone || '[Your Phone Number]';
             const location = contact?.city ? `${contact.city}${contact.state ? ', ' + contact.state : ''}` : '[Your City, State]';
+            const currentDate = formatCoverLetterDate();
 
-            // Find LinkedIn from socialLinks if it exists
-            const socialLinks = contact?.socialLinks || [];
-            const linkedInLink = socialLinks.find((link: any) =>
-                link.label?.toLowerCase().includes('linkedin') ||
-                link.url?.toLowerCase().includes('linkedin')
+            // Find LinkedIn from the resume websites array. Do not invent a placeholder if absent.
+            const websites = resumeData?.websites || [];
+            const linkedInLink = websites.find((link: any) =>
+                String(link.label || "").toLowerCase().includes("linkedin") ||
+                String(link.platform || "").toLowerCase().includes("linkedin") ||
+                String(link.url || "").toLowerCase().includes("linkedin")
             );
-            const linkedIn = linkedInLink?.url || '[Your LinkedIn Profile URL]';
+            const linkedIn = normalizeUrl(linkedInLink?.url);
+            const linkedInPromptLine = linkedIn ? `          - LinkedIn: ${linkedIn}` : "";
+            const linkedInHeaderLine = linkedIn ? `             ${linkedIn}` : "";
 
             // 4. Construct Prompt
             const prompt = `
@@ -76,7 +80,8 @@ export const generateCoverLetter = functions
           - Location: ${location}
           - Phone: ${phone}
           - Email: ${email}
-          - LinkedIn: ${linkedIn}
+${linkedInPromptLine}
+          - Date: ${currentDate}
 
           THE CANDIDATE'S PROFILE:
           - Current Role: ${contact?.jobTitle || 'Professional'}
@@ -94,9 +99,12 @@ export const generateCoverLetter = functions
              ${fullName}
              ${location}
              ${phone} | ${email}
-             ${linkedIn}
+${linkedInHeaderLine}
+             ${currentDate}
           7. Keep it under 400 words.
-          8. CRITICAL: Do NOT invent fake experiences, companies, or dates. Only rephrase and highlight ACTUAL facts from the Current Resume.
+          8. If LinkedIn is absent above, skip the LinkedIn line entirely. Never output "[Your LinkedIn Profile URL]".
+          9. CRITICAL: Use "${currentDate}" for the date. Never output "[Current Date]".
+          10. CRITICAL: Do NOT invent fake experiences, companies, or dates. Only rephrase and highlight ACTUAL facts from the Current Resume.
         `;
 
             // 5. Call Gemini
@@ -105,7 +113,10 @@ export const generateCoverLetter = functions
                 model: "gemini-2.5-flash",
                 contents: prompt,
             });
-            const generatedText = result.text;
+            const generatedText = normalizeCoverLetterContent(result.text || "", {
+                currentDate,
+                linkedIn,
+            });
 
             // 6. Save to Firestore
             const coverLetterRef = admin
@@ -140,3 +151,34 @@ export const generateCoverLetter = functions
             throw new functions.https.HttpsError("internal", error.message || "Failed to generate cover letter");
         }
     });
+
+function formatCoverLetterDate(): string {
+    return new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/Chicago",
+        month: "numeric",
+        day: "numeric",
+        year: "numeric",
+    }).format(new Date());
+}
+
+function normalizeUrl(url?: string): string {
+    const value = String(url || "").trim();
+    if (!value) return "";
+    if (/^https?:\/\//i.test(value)) return value;
+    return `https://${value}`;
+}
+
+function normalizeCoverLetterContent(content: string, options: { currentDate: string; linkedIn: string }): string {
+    let output = content.replace(/\[Current Date\]/gi, options.currentDate);
+
+    if (options.linkedIn) {
+        output = output.replace(/\[Your LinkedIn Profile URL\]/gi, options.linkedIn);
+    } else {
+        output = output
+            .split("\n")
+            .filter(line => !/\[Your LinkedIn Profile URL\]/i.test(line))
+            .join("\n");
+    }
+
+    return output.replace(/\n{3,}/g, "\n\n").trim();
+}

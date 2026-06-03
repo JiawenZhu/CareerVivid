@@ -223,6 +223,7 @@ export type TrackEventType =
   | 'resume_suggestion' | 'question_generation'
   | 'resume_parse_text' | 'resume_parse_file' | 'resume_generate_prompt'
   | 'resume_download'
+  | 'cover_letter_export'
   | 'checkout_session_start'
   | 'job_prep_generation'
   | 'job_prep_regeneration'

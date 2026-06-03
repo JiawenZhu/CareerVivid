@@ -777,10 +777,16 @@ export const cliCoverLetterCreate = functions.region("us-west1").runWith({
             const email = contact?.email || '[Your Email Address]';
             const phone = contact?.phone || '[Your Phone Number]';
             const location = contact?.city ? `${contact.city}${contact.state ? ', ' + contact.state : ''}` : '[Your City, State]';
+            const currentDate = formatCliCoverLetterDate();
 
-            const socialLinks = contact?.socialLinks || [];
-            const linkedInLink = socialLinks.find((link: any) => link.label?.toLowerCase().includes('linkedin') || link.url?.toLowerCase().includes('linkedin'));
-            const linkedIn = linkedInLink?.url || '[Your LinkedIn Profile URL]';
+            const websites = resumeData.websites || [];
+            const linkedInLink = websites.find((link: any) =>
+                String(link.label || "").toLowerCase().includes("linkedin") ||
+                String(link.platform || "").toLowerCase().includes("linkedin") ||
+                String(link.url || "").toLowerCase().includes("linkedin")
+            );
+            const linkedIn = normalizeCliCoverLetterUrl(linkedInLink?.url);
+            const linkedInPromptLine = linkedIn ? `- LinkedIn: ${linkedIn}` : "";
 
             const prompt = `You are an expert career coach and professional resume writer.
 Write a compelling, professional cover letter for ${fullName}.
@@ -795,7 +801,8 @@ THE CANDIDATE'S CONTACT INFO (use these EXACT values in the header):
 - Location: ${location}
 - Phone: ${phone}
 - Email: ${email}
-- LinkedIn: ${linkedIn}
+${linkedInPromptLine}
+- Date: ${currentDate}
 
 THE CANDIDATE'S PROFILE:
 - Current Role: ${contact?.jobTitle || 'Professional'}
@@ -811,11 +818,13 @@ INSTRUCTIONS:
 5. Format nicely with paragraphs.
 6. CRITICAL: Use the candidate's REAL contact info from above in the header.
 7. Keep it under 400 words.
-8. CRITICAL: Do NOT invent fake experiences, companies, or dates. Only use facts from the candidate's profile.`;
+8. If LinkedIn is absent above, skip the LinkedIn line entirely. Never output "[Your LinkedIn Profile URL]".
+9. CRITICAL: Use "${currentDate}" for the date. Never output "[Current Date]".
+10. CRITICAL: Do NOT invent fake experiences, companies, or dates. Only use facts from the candidate's profile.`;
 
             const ai = getAIClient();
             const response = await ai.models.generateContent({ model: "gemini-2.5-flash", contents: prompt });
-            const generatedText = response.text || "";
+            const generatedText = normalizeCliCoverLetterContent(response.text || "", { currentDate, linkedIn });
 
             const coverLetterRef = db.collection("users").doc(user.uid).collection("coverLetters").doc();
             const coverLetter = {
@@ -838,6 +847,37 @@ INSTRUCTIONS:
         }
     });
 });
+
+function formatCliCoverLetterDate(): string {
+    return new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/Chicago",
+        month: "numeric",
+        day: "numeric",
+        year: "numeric",
+    }).format(new Date());
+}
+
+function normalizeCliCoverLetterUrl(url?: string): string {
+    const value = String(url || "").trim();
+    if (!value) return "";
+    if (/^https?:\/\//i.test(value)) return value;
+    return `https://${value}`;
+}
+
+function normalizeCliCoverLetterContent(content: string, options: { currentDate: string; linkedIn: string }): string {
+    let output = content.replace(/\[Current Date\]/gi, options.currentDate);
+
+    if (options.linkedIn) {
+        output = output.replace(/\[Your LinkedIn Profile URL\]/gi, options.linkedIn);
+    } else {
+        output = output
+            .split("\n")
+            .filter(line => !/\[Your LinkedIn Profile URL\]/i.test(line))
+            .join("\n");
+    }
+
+    return output.replace(/\n{3,}/g, "\n\n").trim();
+}
 
 // ──────────────────────────────────────────────────────────────────────────────
 // GET /cliCoverLettersList
