@@ -22,6 +22,7 @@ interface CoverLetterManagerModalProps {
 }
 
 type ViewMode = 'list' | 'create' | 'detail';
+type ExportAction = 'pdf' | 'google-docs' | 'docx';
 
 const CoverLetterManagerModal: React.FC<CoverLetterManagerModalProps> = ({ isOpen, onClose, resume, theme, initialJob }) => {
     const { currentUser } = useAuth();
@@ -39,9 +40,10 @@ const CoverLetterManagerModal: React.FC<CoverLetterManagerModalProps> = ({ isOpe
 
     // Detail View State
     const [copied, setCopied] = useState(false);
-    const [isExportingDocument, setIsExportingDocument] = useState(false);
+    const [activeExportAction, setActiveExportAction] = useState<ExportAction | null>(null);
     const [exportNotice, setExportNotice] = useState<string | null>(null);
     const [exportError, setExportError] = useState<string | null>(null);
+    const isExportingDocument = activeExportAction !== null;
 
     useEffect(() => {
         if (!isOpen || !initialJob) return;
@@ -250,7 +252,7 @@ const CoverLetterManagerModal: React.FC<CoverLetterManagerModalProps> = ({ isOpe
     const handleDownloadPdf = async () => {
         if (!selectedLetter) return;
 
-        setIsExportingDocument(true);
+        setActiveExportAction('pdf');
         setExportError(null);
         setExportNotice(null);
 
@@ -314,14 +316,14 @@ const CoverLetterManagerModal: React.FC<CoverLetterManagerModalProps> = ({ isOpe
             console.error('Cover letter PDF export failed:', error);
             setExportError(error.message || 'Could not export this cover letter as PDF.');
         } finally {
-            setIsExportingDocument(false);
+            setActiveExportAction(null);
         }
     };
 
-    const handleGoogleDocsExport = async (format: 'google-docs' | 'docx') => {
+    const handleGoogleDocsExport = async (format: Exclude<ExportAction, 'pdf'>) => {
         if (!selectedLetter) return;
 
-        setIsExportingDocument(true);
+        setActiveExportAction(format);
         setExportError(null);
         setExportNotice(null);
 
@@ -364,7 +366,7 @@ const CoverLetterManagerModal: React.FC<CoverLetterManagerModalProps> = ({ isOpe
                 setExportError(error.message || 'Could not export this cover letter.');
             }
         } finally {
-            setIsExportingDocument(false);
+            setActiveExportAction(null);
         }
     };
 
@@ -556,7 +558,7 @@ const CoverLetterManagerModal: React.FC<CoverLetterManagerModalProps> = ({ isOpe
                         disabled={isExportingDocument}
                         className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                     >
-                        {isExportingDocument ? <Loader2 size={17} className="animate-spin" /> : <Download size={17} />}
+                        {activeExportAction === 'pdf' ? <Loader2 size={17} className="animate-spin" /> : <Download size={17} />}
                         PDF
                     </button>
                     <button
@@ -564,7 +566,7 @@ const CoverLetterManagerModal: React.FC<CoverLetterManagerModalProps> = ({ isOpe
                         disabled={isExportingDocument}
                         className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                     >
-                        {isExportingDocument ? <Loader2 size={17} className="animate-spin" /> : <ExternalLink size={17} />}
+                        {activeExportAction === 'google-docs' ? <Loader2 size={17} className="animate-spin" /> : <ExternalLink size={17} />}
                         Google Docs
                     </button>
                     <button
@@ -572,7 +574,7 @@ const CoverLetterManagerModal: React.FC<CoverLetterManagerModalProps> = ({ isOpe
                         disabled={isExportingDocument}
                         className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                     >
-                        {isExportingDocument ? <Loader2 size={17} className="animate-spin" /> : <FileType size={17} />}
+                        {activeExportAction === 'docx' ? <Loader2 size={17} className="animate-spin" /> : <FileType size={17} />}
                         Word
                     </button>
                     <button
