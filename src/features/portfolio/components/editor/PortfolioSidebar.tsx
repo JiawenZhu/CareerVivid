@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-    User, Briefcase, Code, FolderGit2, Layers, Palette, FileText, Link as LinkIcon, ShoppingBag, Settings, BarChart3, Sparkles
+    User, Briefcase, Code, FolderGit2, Layers, Palette, FileText, Link as LinkIcon, GraduationCap
 } from 'lucide-react';
 import { PortfolioData } from '../../types/portfolio';
 import AppearanceControls from './AppearanceControls';
@@ -19,18 +19,32 @@ import SidebarSectionNav from './sidebar/SidebarSectionNav';
 import SidebarMobileNav from './sidebar/SidebarMobileNav';
 import SidebarProfileEditor from './sidebar/SidebarProfileEditor';
 import SidebarTimelineEditor from './sidebar/SidebarTimelineEditor';
+import SidebarEducationEditor from './sidebar/SidebarEducationEditor';
 import SidebarTechStackEditor from './sidebar/SidebarTechStackEditor';
 import SidebarProjectsEditor from './sidebar/SidebarProjectsEditor';
 import SidebarComponentsEditor from './sidebar/SidebarComponentsEditor';
 import SidebarDesignEditor from './sidebar/SidebarDesignEditor';
 import SidebarCardDesign from './sidebar/SidebarCardDesign';
 import SidebarSettingsEditor from './sidebar/SidebarSettingsEditor';
-import AnalyticsDashboard from '../analytics/AnalyticsDashboard';
+import SidebarSocialLinksEditor from './sidebar/SidebarSocialLinksEditor';
+
+type SidebarSection =
+    | 'hero'
+    | 'timeline'
+    | 'education'
+    | 'stack'
+    | 'projects'
+    | 'components'
+    | 'design'
+    | 'settings'
+    | 'links'
+    | 'commerce'
+    | 'intro';
 
 interface PortfolioSidebarProps {
     portfolioData: PortfolioData;
-    activeSection: 'hero' | 'timeline' | 'stack' | 'projects' | 'components' | 'design' | 'settings' | 'links' | 'commerce' | 'intro';
-    setActiveSection: (section: 'hero' | 'timeline' | 'stack' | 'projects' | 'components' | 'design' | 'settings' | 'links' | 'commerce' | 'intro') => void;
+    activeSection: SidebarSection;
+    setActiveSection: (section: SidebarSection) => void;
     isMobile: boolean;
     viewMode: 'edit' | 'preview';
     resumes: any[];
@@ -69,6 +83,7 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
     onUpgradeTrigger
 }) => {
     const isLinkInBio = portfolioData.mode === 'linkinbio';
+    const isBusinessCard = portfolioData.mode === 'business_card';
 
     const getSidebarSections = () => {
         if (portfolioData.mode === 'linkinbio') {
@@ -82,23 +97,31 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
         if (portfolioData.mode === 'business_card') {
             return [
                 { id: 'hero', icon: <User size={18} />, label: 'Card Details' },
-                { id: 'design', icon: <Palette size={18} />, label: 'Design' },
-                { id: 'settings', icon: <FileText size={18} />, label: 'Settings' }
+                { id: 'links', icon: <LinkIcon size={18} />, label: 'Contact Links' },
+                { id: 'design', icon: <Palette size={18} />, label: 'Card Design' }
             ];
         }
         return [
             { id: 'hero', icon: <User size={18} />, label: 'Hero' },
             { id: 'timeline', icon: <Briefcase size={18} />, label: 'Timeline' },
+            { id: 'education', icon: <GraduationCap size={18} />, label: 'Education' },
             { id: 'stack', icon: <Code size={18} />, label: 'Tech Stack' },
             { id: 'projects', icon: <FolderGit2 size={18} />, label: 'Projects' },
+            { id: 'links', icon: <LinkIcon size={18} />, label: 'Links' },
             { id: 'components', icon: <Layers size={18} />, label: 'Components' },
             { id: 'design', label: 'Design', icon: <Palette size={18} /> },
-            { id: 'settings', label: 'Settings', icon: <FileText size={18} /> }, // Was Settings icon but let's consistency check
-            { id: 'analytics', label: 'Analytics', icon: <BarChart3 size={18} /> },
+            { id: 'settings', label: 'Settings', icon: <FileText size={18} /> },
         ];
     };
 
     const sections = getSidebarSections();
+
+    useEffect(() => {
+        const firstSection = sections[0]?.id as SidebarSection | undefined;
+        if (firstSection && !sections.some(section => section.id === activeSection)) {
+            setActiveSection(firstSection);
+        }
+    }, [activeSection, sections, setActiveSection]);
 
     const themeClasses = {
         sidebarBg: editorTheme === 'dark' ? 'bg-[#0f1117] border-white/5' : 'bg-white border-gray-200',
@@ -265,10 +288,10 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
     };
 
     return (
-        <div className={`
+        <div id="portfolio-editor-sidebar" className={`
             border-r flex-col shrink-0 z-10 transition-all duration-300
             ${editorTheme === 'dark' ? 'bg-[#0f1117] border-white/5' : 'bg-white border-gray-200'}
-            ${isMobile ? 'w-full absolute inset-0 z-20' : 'w-[400px] relative'}
+            ${isMobile ? 'w-full absolute inset-0 z-20' : 'w-[320px] xl:w-[340px] relative'}
             ${isMobile && viewMode === 'preview' ? 'hidden' : 'flex'}
         `}>
             {/* Mobile Header */}
@@ -283,7 +306,7 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
             )}
 
             {/* Desktop Theme Switcher */}
-            {!isMobile && (
+            {!isMobile && !isBusinessCard && (
                 <SidebarThemeSelector
                     portfolioData={portfolioData}
                     onUpdate={onUpdate}
@@ -307,23 +330,31 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
             )}
 
             {/* Content Area */}
-            <div className={`flex-1 overflow-y-auto p-6 space-y-6 ${isMobile ? 'pb-24' : ''}`}>
+            <div className={`flex-1 overflow-y-auto p-4 space-y-5 ${isMobile ? 'pb-24' : ''}`}>
 
-                {activeSection === 'links' && isLinkInBio && portfolioData.linkInBio && (
-                    <div className="space-y-6">
-                        <LinksEditor
-                            linkInBio={portfolioData.linkInBio}
-                            onUpdate={(links) => onUpdate({ linkInBio: links })}
-                            theme={editorTheme}
-                            onImageUploadTrigger={onImageUploadTrigger}
-                        />
-                        <AppearanceControls
+                {activeSection === 'links' && (
+                    isLinkInBio && portfolioData.linkInBio ? (
+                        <div className="space-y-6">
+                            <LinksEditor
+                                linkInBio={portfolioData.linkInBio}
+                                onUpdate={(links) => onUpdate({ linkInBio: links })}
+                                theme={editorTheme}
+                                onImageUploadTrigger={onImageUploadTrigger}
+                            />
+                            <AppearanceControls
+                                portfolioData={portfolioData}
+                                onUpdate={onUpdate}
+                                themeClasses={themeClasses}
+                                editorTheme={editorTheme}
+                            />
+                        </div>
+                    ) : (
+                        <SidebarSocialLinksEditor
                             portfolioData={portfolioData}
                             onUpdate={onUpdate}
                             themeClasses={themeClasses}
-                            editorTheme={editorTheme}
                         />
-                    </div>
+                    )
                 )}
 
 
@@ -344,6 +375,15 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({
 
                 {activeSection === 'timeline' && (
                     <SidebarTimelineEditor
+                        portfolioData={portfolioData}
+                        onUpdate={onUpdate}
+                        themeClasses={themeClasses}
+                        editorTheme={editorTheme}
+                    />
+                )}
+
+                {activeSection === 'education' && (
+                    <SidebarEducationEditor
                         portfolioData={portfolioData}
                         onUpdate={onUpdate}
                         themeClasses={themeClasses}

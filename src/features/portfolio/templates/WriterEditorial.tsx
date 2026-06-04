@@ -84,33 +84,38 @@ const WriterEditorial: React.FC<PortfolioTemplateProps> = ({ data, onEdit, isMob
                     </div>
 
                     <div className="space-y-24">
-                        {(projects || []).map(project => (
-                            <article key={project.id} className="group cursor-pointer">
-                                <div className={`flex ${responsiveClass('flex-col', 'md:flex-row')} gap-12 items-start`}>
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-3 text-xs font-sans font-bold uppercase tracking-wider text-gray-500 mb-4">
-                                            <span>{project.tags[0] || 'Essay'}</span>
-                                            <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-                                            <span>{new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+                        {(projects || []).map(project => {
+                            const projectTags = Array.isArray(project.tags) ? project.tags : [];
+                            const publicationType = projectTags.find(Boolean) || 'Essay';
+
+                            return (
+                                <article key={project.id} className="group cursor-pointer">
+                                    <div className={`flex ${responsiveClass('flex-col', 'md:flex-row')} gap-12 items-start`}>
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-3 text-xs font-sans font-bold uppercase tracking-wider text-gray-500 mb-4">
+                                                <span>{publicationType}</span>
+                                                <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+                                                <span>{new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+                                            </div>
+                                            <h3 className="text-2xl md:text-3xl font-bold mb-4 group-hover:underline decoration-2 underline-offset-4 decoration-gray-300 leading-tight">
+                                                {project.title}
+                                            </h3>
+                                            <p className="text-base text-gray-600 leading-relaxed font-serif">
+                                                {project.description}
+                                            </p>
+                                            <div className="mt-6 flex items-center gap-2 text-sm font-sans font-bold text-black opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all">
+                                                Read Story <ChevronRight size={14} />
+                                            </div>
                                         </div>
-                                        <h3 className="text-2xl md:text-3xl font-bold mb-4 group-hover:underline decoration-2 underline-offset-4 decoration-gray-300 leading-tight">
-                                            {project.title}
-                                        </h3>
-                                        <p className="text-base text-gray-600 leading-relaxed font-serif">
-                                            {project.description}
-                                        </p>
-                                        <div className="mt-6 flex items-center gap-2 text-sm font-sans font-bold text-black opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all">
-                                            Read Story <ChevronRight size={14} />
-                                        </div>
+                                        {project.thumbnailUrl && (
+                                            <div className={`w-full ${responsiveClass('', 'md:w-56')} aspect-[4/5] bg-gray-100 flex-shrink-0 grayscale group-hover:grayscale-0 transition-all duration-500 shadow-sm group-hover:shadow-md`}>
+                                                <img src={project.thumbnailUrl} alt="" className="w-full h-full object-cover mix-blend-multiply" />
+                                            </div>
+                                        )}
                                     </div>
-                                    {project.thumbnailUrl && (
-                                        <div className={`w-full ${responsiveClass('', 'md:w-56')} aspect-[4/5] bg-gray-100 flex-shrink-0 grayscale group-hover:grayscale-0 transition-all duration-500 shadow-sm group-hover:shadow-md`}>
-                                            <img src={project.thumbnailUrl} alt="" className="w-full h-full object-cover mix-blend-multiply" />
-                                        </div>
-                                    )}
-                                </div>
-                            </article>
-                        ))}
+                                </article>
+                            );
+                        })}
                     </div>
                 </div>
             </section>

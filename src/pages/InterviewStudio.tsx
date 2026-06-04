@@ -2,26 +2,24 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CAREER_PATHS, Industry } from '../data/careers';
-import { ArrowRight, Mic, Loader2, ChevronLeft, LayoutDashboard, Plus } from 'lucide-react';
+import { ArrowRight, Mic, Loader2, ChevronLeft, Clock, SlidersHorizontal, Sparkles, Trash2, BarChart3 } from 'lucide-react';
 import { generateInterviewQuestions } from '../services/geminiService';
-import AIInterviewAgentModal from '../components/AIInterviewAgentModal';
 import { usePracticeHistory } from '../hooks/useJobHistory';
 import { Job, PracticeHistoryEntry, ResumeData } from '../types';
-import { navigate } from '../utils/navigation';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigation } from '../contexts/NavigationContext';
 import { useResumes } from '../hooks/useResumes';
 import { db } from '../firebase';
 import { doc, getDoc, deleteDoc } from 'firebase/firestore';
-import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useAICreditCheck } from '../hooks/useAICreditCheck';
-import InterviewHistoryCard from '../components/Dashboard/InterviewHistoryCard';
 import { InterviewHistoryCardSkeleton } from '../components/Dashboard/DashboardSkeletons';
 import ConfirmationModal from '../components/ConfirmationModal';
 import AppLayout from '../components/Layout/AppLayout';
 
 // Lazy load modal
 const InterviewReportModal = React.lazy(() => import('../components/InterviewReportModal'));
+const loadAIInterviewAgentModal = () => import('../components/AIInterviewAgentModal');
+const AIInterviewAgentModal = React.lazy(loadAIInterviewAgentModal);
+const preloadAIInterviewAgentModal = () => loadAIInterviewAgentModal().catch(() => undefined);
 
 const formatResumeForContext = (resume: ResumeData): string => {
     let context = `Name: ${resume.personalDetails.firstName} ${resume.personalDetails.lastName}\n`;
@@ -70,15 +68,25 @@ const placeholderPrompts = [
     'Systems design interview for a backend engineer role',
 ];
 
+type InterviewMode = 'Behavioral' | 'Technical' | 'Mixed' | 'Screening';
+type InterviewDifficulty = 'Entry' | 'Standard' | 'Senior';
+type InterviewDuration = '5 min' | '15 min' | '30 min';
+
+const interviewModes: InterviewMode[] = ['Behavioral', 'Technical', 'Mixed', 'Screening'];
+const interviewDifficulties: InterviewDifficulty[] = ['Entry', 'Standard', 'Senior'];
+const interviewDurations: InterviewDuration[] = ['5 min', '15 min', '30 min'];
+
 interface InterviewStudioProps {
     jobId?: string;
 }
 
 const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
     const { currentUser } = useAuth();
-    const { navPosition } = useNavigation();
     const { t } = useTranslation();
     const [prompt, setPrompt] = useState('');
+    const [interviewMode, setInterviewMode] = useState<InterviewMode>('Behavioral');
+    const [interviewDifficulty, setInterviewDifficulty] = useState<InterviewDifficulty>('Standard');
+    const [interviewDuration, setInterviewDuration] = useState<InterviewDuration>('15 min');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [selectedIndustry, setSelectedIndustry] = useState<Industry | null>(null);
@@ -102,6 +110,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
     } | null>(null);
     const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
     const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+    const [handledDeepLinkJobId, setHandledDeepLinkJobId] = useState<string | null>(null);
 
     // Modal States
     const [selectedJobForReport, setSelectedJobForReport] = useState<PracticeHistoryEntry | null>(null);
@@ -182,6 +191,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
             const params = new URLSearchParams(window.location.search);
             const source = params.get('source');
             const scrapeId = params.get('scrapeId');
+            const resumeId = params.get('resumeId');
 
             if (source === 'extension_practice' && scrapeId) {
                 if (!currentUser) return; // Wait until auth state is resolved
@@ -209,7 +219,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                         window.history.replaceState({}, document.title, newUrl);
 
                         // Start interview immediately
-                        await handleStartInterview(jobData.description, jobData);
+                        await handleStartInterview(jobData.description, jobData, resumeId || undefined);
                     }
                 } catch (error) {
                     console.error('Error syncing transit job:', error);
@@ -223,7 +233,21 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
     }, [currentUser, resumes]);
 
 
-    const handleStartInterview = async (generationPrompt: string, jobData?: Omit<Job, 'id'>) => {
+    const buildQuestionGenerationPrompt = (basePrompt: string) => {
+        return [
+            'Interview setup:',
+            `- Mode: ${interviewMode}`,
+            `- Difficulty: ${interviewDifficulty}`,
+            `- Target duration: ${interviewDuration}`,
+            '',
+            'Job or practice context:',
+            basePrompt.trim(),
+            '',
+            'Generate interview questions that match the setup, seniority, and target duration.',
+        ].join('\n');
+    };
+
+    const handleStartInterview = async (generationPrompt: string, jobData?: Omit<Job, 'id'>, resumeId?: string) => {
         if (!generationPrompt.trim() || !currentUser) return;
 
         // CHECK CREDIT BEFORE STARTING
@@ -231,9 +255,10 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
 
         setIsLoading(true);
         setError('');
+        void preloadAIInterviewAgentModal();
         try {
             // Generate interview questions
-            const questions = await generateInterviewQuestions(currentUser.uid, generationPrompt);
+            const questions = await generateInterviewQuestions(currentUser.uid, buildQuestionGenerationPrompt(generationPrompt));
             const job: Omit<Job, 'id'> = jobData || {
                 title: generationPrompt,
                 company: 'Custom Practice',
@@ -254,13 +279,13 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
 
             // Construct redirect URL to Interview Microservice
             const baseUrl = 'https://careervivid-371634100960.us-west1.run.app';
-            const targetUrl = `${baseUrl}/#/interview-studio/${newJobId}?token=${token}`;
+            const targetUrl = `${baseUrl}/interview-studio/${newJobId}?token=${token}`;
 
             // Redirect to external microservice
             window.location.href = targetUrl;
             */
 
-            const activeResume = resumes.find(r => r.isDefault) || resumes[0];
+            const activeResume = (resumeId && resumes.find(r => r.id === resumeId)) || resumes.find(r => r.isDefault) || resumes[0];
             const resumeContext = activeResume ? formatResumeForContext(activeResume) : '';
 
             setInterviewState({
@@ -313,49 +338,61 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
         handleStartInterview(jobData.description, jobData);
     };
 
-    // Handle Deep Linking from Email
+    const decodedJobId = jobId ? decodeURIComponent(jobId) : undefined;
+
+    // Handle deep links from scheduled practice emails.
     useEffect(() => {
-        if (jobId && !isLoading && practiceHistory.length > 0) {
-            const foundJob = practiceHistory.find(h => h.id === jobId);
-            if (foundJob) {
-                // Auto-start the interview
-                const startSavedInterview = async () => {
-                    setIsLoading(true);
-                    try {
-                        /*
-                        const functions = getFunctions(undefined, 'us-west1');
-                        const getToken = httpsCallable(functions, 'getInterviewAuthToken');
-                        const result = await getToken();
-                        const { token } = result.data as { token: string };
-
-                        const baseUrl = 'https://careervivid-371634100960.us-west1.run.app';
-                        const targetUrl = `${baseUrl}/#/interview-studio/${jobId}?token=${token}`;
-                        window.location.href = targetUrl;
-                        */
-
-                        const activeResume = resumes.find(r => r.isDefault) || resumes[0];
-                        const resumeContext = activeResume ? formatResumeForContext(activeResume) : '';
-
-                        setInterviewState({
-                            jobId: foundJob.id,
-                            prompt: foundJob.job.description || foundJob.job.title,
-                            questions: foundJob.questions || [],
-                            isFirstTime: false,
-                            resumeContext,
-                            jobTitle: foundJob.job.title,
-                            jobCompany: foundJob.job.company || 'Custom Practice',
-                        });
-                        setIsInterviewModalOpen(true);
-                        setIsLoading(false);
-                    } catch (e) {
-                        setError("Failed to start scheduled interview. Please try again.");
-                        setIsLoading(false);
-                    }
-                };
-                startSavedInterview();
-            }
+        if (!decodedJobId || handledDeepLinkJobId === decodedJobId || isInterviewModalOpen || isLoadingHistory) {
+            return;
         }
-    }, [jobId, practiceHistory, isLoading]);
+
+        const foundJob = practiceHistory.find(h => h.id === decodedJobId);
+        if (!foundJob) {
+            setError("This scheduled practice session was not found for the signed-in account. Confirm you are using the same CareerVivid account that received the email.");
+            setHandledDeepLinkJobId(decodedJobId);
+            return;
+        }
+
+        const startSavedInterview = async () => {
+            setIsLoading(true);
+            setError('');
+            try {
+                void preloadAIInterviewAgentModal();
+                /*
+                const functions = getFunctions(undefined, 'us-west1');
+                const getToken = httpsCallable(functions, 'getInterviewAuthToken');
+                const result = await getToken();
+                const { token } = result.data as { token: string };
+
+                const baseUrl = 'https://careervivid-371634100960.us-west1.run.app';
+                const targetUrl = `${baseUrl}/interview-studio/${decodedJobId}?token=${token}`;
+                window.location.href = targetUrl;
+                */
+
+                const activeResume = resumes.find(r => r.isDefault) || resumes[0];
+                const resumeContext = activeResume ? formatResumeForContext(activeResume) : '';
+
+                setInterviewState({
+                    jobId: foundJob.id,
+                    prompt: foundJob.job.description || foundJob.job.title,
+                    questions: foundJob.questions || [],
+                    isFirstTime: false,
+                    resumeContext,
+                    jobTitle: foundJob.job.title,
+                    jobCompany: foundJob.job.company || 'Custom Practice',
+                });
+                setHandledDeepLinkJobId(decodedJobId);
+                setIsInterviewModalOpen(true);
+                setIsLoading(false);
+            } catch (e) {
+                setError("Failed to start scheduled interview. Please try again.");
+                setHandledDeepLinkJobId(decodedJobId);
+                setIsLoading(false);
+            }
+        };
+
+        startSavedInterview();
+    }, [decodedJobId, handledDeepLinkJobId, isInterviewModalOpen, isLoadingHistory, practiceHistory, resumes]);
 
     const handlePromptSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -388,47 +425,84 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
         });
     };
 
+    const formatSessionDate = (timestamp: any) => {
+        if (!timestamp) return 'N/A';
+        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        return date.toLocaleDateString();
+    };
+
+    const renderSegmentedControl = <T extends string,>(
+        label: string,
+        options: T[],
+        value: T,
+        onChange: (option: T) => void,
+        icon: React.ReactNode
+    ) => (
+        <div>
+            <div className="flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                {icon}
+                <span>{label}</span>
+            </div>
+            <div className={`grid ${options.length === 4 ? 'grid-cols-2' : 'grid-cols-3'} gap-1 rounded-lg bg-gray-100 dark:bg-gray-900/70 p-1`}>
+                {options.map(option => (
+                    <button
+                        key={option}
+                        type="button"
+                        onClick={() => onChange(option)}
+                        className={`min-h-[34px] rounded-md px-2 text-xs font-semibold leading-tight transition-colors ${value === option
+                            ? 'bg-white text-indigo-700 shadow-sm dark:bg-gray-700 dark:text-indigo-200'
+                            : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'
+                            }`}
+                        aria-pressed={value === option}
+                    >
+                        {option}
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
+
 
     const renderContent = () => {
         if (selectedIndustry) {
             return (
-                <div>
-                    <button onClick={() => setSelectedIndustry(null)} className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 mb-4 font-semibold">
-                        <ChevronLeft size={18} /> {t('interview_studio.back_to_industries')}
+                <section className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5 shadow-sm">
+                    <button onClick={() => setSelectedIndustry(null)} className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 mb-4 font-semibold">
+                        <ChevronLeft size={16} /> {t('interview_studio.back_to_industries')}
                     </button>
-                    <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">{t('interview_studio.select_role', { industry: selectedIndustry.name })}</h2>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">{t('interview_studio.select_role', { industry: selectedIndustry.name })}</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 @[960px]/interview-page:grid-cols-1 gap-2.5">
                         {selectedIndustry.roles.map(role => (
                             <button
                                 key={role.name}
                                 onClick={() => handleRoleSelect(role.name)}
-                                className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-soft hover:shadow-md hover:border-primary-500 dark:hover:border-primary-400 border border-transparent transition-all text-left flex items-center justify-between group"
+                                className="min-h-[54px] p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:border-primary-500 dark:hover:border-primary-400 border border-gray-200 dark:border-gray-700 transition-all text-left flex items-center justify-between gap-3 group"
                             >
-                                <h3 className="font-semibold text-gray-900 dark:text-gray-100">{role.name}</h3>
-                                <ArrowRight size={20} className="text-gray-400 group-hover:text-primary-500 transition-colors" />
+                                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{role.name}</h3>
+                                <ArrowRight size={16} className="text-gray-400 group-hover:text-primary-500 transition-colors" />
                             </button>
                         ))}
                     </div>
-                </div>
+                </section>
             );
         }
 
         return (
-            <div>
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">{t('interview_studio.select_career')}</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            <section className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5 shadow-sm">
+                <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">{t('interview_studio.select_career')}</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 @[960px]/interview-page:grid-cols-1 gap-2.5">
                     {CAREER_PATHS.map(industry => (
                         <button
                             key={industry.name}
                             onClick={() => setSelectedIndustry(industry)}
-                            className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-soft hover:shadow-md hover:border-primary-500 dark:hover:border-primary-400 border border-transparent transition-all text-left flex items-center justify-between group"
+                            className="min-h-[54px] p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:border-primary-500 dark:hover:border-primary-400 border border-gray-200 dark:border-gray-700 transition-all text-left flex items-center justify-between gap-3 group"
                         >
-                            <h3 className="font-semibold text-gray-900 dark:text-gray-100">{industry.name}</h3>
-                            <ArrowRight size={20} className="text-gray-400 group-hover:text-primary-500 transition-colors" />
+                            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{industry.name}</h3>
+                            <ArrowRight size={16} className="text-gray-400 group-hover:text-primary-500 transition-colors" />
                         </button>
                     ))}
                 </div>
-            </div>
+            </section>
         );
     };
 
@@ -453,97 +527,134 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
     return (
         <AppLayout>
             <CreditLimitModal />
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-20 relative text-left">
-                {/* Top Section: Past Sessions */}
-                <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 pt-8 pb-12 mb-12">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex justify-between items-center mb-8">
-                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                                <Mic className="text-indigo-600" size={32} />
-                                Past Sessions
-                            </h1>
-                            <div className="flex items-center gap-3">
-                                {practiceHistory.length > 0 && (
-                                    <div className={navPosition === 'side' ? 'md:hidden' : ''}>
-                                        <button
-                                            onClick={() => navigate('/dashboard')}
-                                            className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                                        >
-                                            <LayoutDashboard size={18} />
-                                            <span className="hidden sm:inline">Dashboard</span>
-                                        </button>
-                                    </div>
-                                )}
-                                <button
-                                    onClick={() => document.getElementById('start-session')?.scrollIntoView({ behavior: 'smooth' })}
-                                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2 font-medium"
-                                >
-                                    <Plus size={20} /> New Session
-                                </button>
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-16 relative text-left">
+                <div id="start-session" className="@container/interview-page max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-5">
+                    <section className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5 shadow-sm">
+                        <div className="flex items-center justify-between gap-4 mb-4">
+                            <div>
+                                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Recent sessions</h2>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{practiceHistory.length} saved</p>
                             </div>
+                            <Mic className="text-indigo-500 flex-shrink-0" size={20} />
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 @[720px]/interview-page:grid-cols-2 @[1040px]/interview-page:grid-cols-3 gap-3">
                             {isLoadingHistory
                                 ? Array.from({ length: 3 }).map((_, i) => <InterviewHistoryCardSkeleton key={i} />)
                                 : practiceHistory.length > 0 ? (
-                                    practiceHistory.map(entry => (
-                                        <InterviewHistoryCard
-                                            key={entry.id}
-                                            entry={entry}
-                                            onShowReport={setSelectedJobForReport}
-                                            onDelete={handleDeleteClick}
-                                            onDragStart={(e) => e.preventDefault()}
-                                            onPracticeAgain={handlePracticeAgainDirect}
-                                        />
-                                    ))
+                                    practiceHistory.map(entry => {
+                                        const practiceCount = entry.interviewHistory?.length || 0;
+                                        return (
+                                            <article
+                                                key={entry.id}
+                                                className="rounded-lg border border-gray-200 bg-gray-50/80 p-3 dark:border-gray-700 dark:bg-gray-800/60"
+                                            >
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div className="min-w-0">
+                                                        <h3 className="truncate text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                            {entry.job.title}
+                                                        </h3>
+                                                        <p className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
+                                                            {entry.job.company || 'Custom Practice'}
+                                                        </p>
+                                                    </div>
+                                                    {practiceCount > 0 && (
+                                                        <span className="shrink-0 rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-bold text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300">
+                                                            {practiceCount} {practiceCount === 1 ? 'practice' : 'practices'}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                                    Last activity: {formatSessionDate(entry.timestamp)}
+                                                </p>
+                                                <div className="mt-3 flex flex-wrap items-center gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleDeleteClick(entry.id)}
+                                                        aria-label={`Delete ${entry.job.title}`}
+                                                        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
+                                                    >
+                                                        <Trash2 size={15} />
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handlePracticeAgainDirect(entry)}
+                                                        className="inline-flex h-8 items-center gap-1.5 rounded-md bg-white px-2.5 text-xs font-semibold text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-200 dark:ring-gray-700 dark:hover:bg-gray-800"
+                                                    >
+                                                        <Sparkles size={14} /> Practice Again
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setSelectedJobForReport(entry)}
+                                                        disabled={!entry.interviewHistory || entry.interviewHistory.length === 0}
+                                                        className="inline-flex h-8 items-center gap-1.5 rounded-md bg-indigo-50 px-2.5 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-100 hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-indigo-950/40 dark:text-indigo-300 dark:ring-indigo-900/60 dark:hover:bg-indigo-950/70"
+                                                    >
+                                                        <BarChart3 size={14} /> Report
+                                                    </button>
+                                                </div>
+                                            </article>
+                                        );
+                                    })
                                 ) : (
-                                    <div className="col-span-full py-12 text-center bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
-                                        <p className="text-gray-500 dark:text-gray-400 mb-4">No interview sessions found.</p>
-                                        <button
-                                            onClick={() => document.getElementById('start-session')?.scrollIntoView({ behavior: 'smooth' })}
-                                            className="text-indigo-600 font-medium hover:underline"
-                                        >
-                                            Start your first mock interview below
-                                        </button>
+                                    <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 py-8 text-center dark:border-gray-700 dark:bg-gray-800/50 @[720px]/interview-page:col-span-2 @[1040px]/interview-page:col-span-3">
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">No interview sessions found.</p>
                                     </div>
                                 )
                             }
                         </div>
+                    </section>
+
+                    <div className="grid grid-cols-1 @[960px]/interview-page:grid-cols-[minmax(0,1fr)_360px] gap-5 items-start">
+                        <main className="space-y-4">
+                            <section className="@container/setup bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5 @[720px]/setup:p-6 shadow-sm">
+                                <div className="flex flex-col gap-5">
+                                    <div>
+                                        <div className="inline-flex items-center gap-2 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 rounded-full px-2.5 py-1 mb-3">
+                                            <Mic size={14} />
+                                            <span>Interview workspace</span>
+                                        </div>
+                                        <h1 className="text-2xl @[560px]/setup:text-3xl font-extrabold text-gray-900 dark:text-gray-100">{t('interview_studio.title')}</h1>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5 max-w-2xl">{t('interview_studio.subtitle')}</p>
+                                    </div>
+
+                                    <form onSubmit={handlePromptSubmit} className="space-y-4">
+                                        <div>
+                                            <label htmlFor="interview-prompt" className="block text-xs font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                                                {t('interview_studio.start_title')}
+                                            </label>
+                                            <div className="flex flex-col @[560px]/setup:flex-row gap-3">
+                                                <input
+                                                    id="interview-prompt"
+                                                    type="text"
+                                                    value={prompt}
+                                                    onChange={(e) => setPrompt(e.target.value)}
+                                                    placeholder={placeholder}
+                                                    className="flex-grow w-full px-3.5 py-2.5 text-sm border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none transition-shadow"
+                                                />
+                                                <button
+                                                    type="submit"
+                                                    className="flex-shrink-0 min-h-[42px] bg-indigo-600 text-white text-sm font-semibold py-2.5 px-4 rounded-lg shadow-soft hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 disabled:bg-indigo-300 disabled:cursor-not-allowed"
+                                                    disabled={!prompt.trim() || isLoading}
+                                                >
+                                                    {t('interview_studio.start_btn')} <ArrowRight size={16} />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 @[560px]/setup:grid-cols-3 gap-4">
+                                            {renderSegmentedControl('Mode', interviewModes, interviewMode, setInterviewMode, <Sparkles size={16} className="text-indigo-500" />)}
+                                            {renderSegmentedControl('Difficulty', interviewDifficulties, interviewDifficulty, setInterviewDifficulty, <SlidersHorizontal size={16} className="text-indigo-500" />)}
+                                            {renderSegmentedControl('Duration', interviewDurations, interviewDuration, setInterviewDuration, <Clock size={16} className="text-indigo-500" />)}
+                                        </div>
+                                    </form>
+                                </div>
+                            </section>
+                            {error && <p className="text-red-500 bg-red-100 dark:bg-red-900/20 dark:text-red-400 p-3 rounded-lg">{error}</p>}
+                        </main>
+                        <div>
+                            {renderContent()}
+                        </div>
                     </div>
-                </div>
-
-                {/* Bottom Section: Start New */}
-                <div id="start-session" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-10">
-                        <Mic className="w-12 h-12 mx-auto text-indigo-500" />
-                        <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-gray-100 mt-4">{t('interview_studio.title')}</h1>
-                        <p className="text-lg text-gray-500 dark:text-gray-400 mt-2 max-w-2xl mx-auto">{t('interview_studio.subtitle')}</p>
-                    </div>
-
-                    <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mb-10">
-                        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">{t('interview_studio.start_title')}</h2>
-                        <form onSubmit={handlePromptSubmit} className="flex flex-col sm:flex-row gap-4">
-                            <input
-                                type="text"
-                                value={prompt}
-                                onChange={(e) => setPrompt(e.target.value)}
-                                placeholder={placeholder}
-                                className="flex-grow w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none transition-shadow"
-                            />
-                            <button
-                                type="submit"
-                                className="flex-shrink-0 bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-soft hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 disabled:bg-indigo-300"
-                                disabled={!prompt.trim() || isLoading}
-                            >
-                                {t('interview_studio.start_btn')} <ArrowRight size={20} />
-                            </button>
-                        </form>
-                    </div>
-
-                    {renderContent()}
-
-                    {error && <p className="text-red-500 text-center mt-6 bg-red-100 dark:bg-red-900/20 dark:text-red-400 p-3 rounded-lg">{error}</p>}
                 </div>
             </div>
 
@@ -561,21 +672,23 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                 onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
             />
 
-            {isInterviewModalOpen && interviewState && (
-                <AIInterviewAgentModal
-                    jobId={interviewState.jobId}
-                    interviewPrompt={interviewState.prompt}
-                    questions={interviewState.questions}
-                    isFirstTime={interviewState.isFirstTime}
-                    resumeContext={interviewState.resumeContext}
-                    jobTitle={interviewState.jobTitle}
-                    jobCompany={interviewState.jobCompany}
-                    onClose={() => {
-                        setIsInterviewModalOpen(false);
-                        setInterviewState(null);
-                    }}
-                />
-            )}
+            <Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"><Loader2 className="animate-spin text-white" /></div>}>
+                {isInterviewModalOpen && interviewState && (
+                    <AIInterviewAgentModal
+                        jobId={interviewState.jobId}
+                        interviewPrompt={interviewState.prompt}
+                        questions={interviewState.questions}
+                        isFirstTime={interviewState.isFirstTime}
+                        resumeContext={interviewState.resumeContext}
+                        jobTitle={interviewState.jobTitle}
+                        jobCompany={interviewState.jobCompany}
+                        onClose={() => {
+                            setIsInterviewModalOpen(false);
+                            setInterviewState(null);
+                        }}
+                    />
+                )}
+            </Suspense>
         </AppLayout>
     );
 };

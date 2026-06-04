@@ -11,6 +11,8 @@ import {
 import {
   HydratedLifecycleEmailKey,
   findUserIdByEmail,
+  getResumePerformanceSnapshot,
+  hydrateEmailContext,
   queueHydratedLifecycleEmail,
 } from "./emailDataBinding";
 
@@ -25,6 +27,8 @@ const MIN_ACCOUNT_AGE_FOR_WELCOME_MS = 15 * 60 * 1000;
 const LIFECYCLE_EMAIL_COOLDOWN_MS = 6 * 60 * 60 * 1000;
 const EMAIL_PREFERENCE_NOTIFICATION_QUEUE = "email_preference_notification_queue";
 const EMAIL_PREFERENCE_CONFIRMATION_DELAY_MS = 5 * 60 * 1000;
+const RESUME_PERFORMANCE_REPEAT_MS = 7 * 24 * 60 * 60 * 1000;
+const ACTIVE_USER_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 
 export type LifecycleEmailKey =
   | "welcome_first_resume"
@@ -139,12 +143,14 @@ const timestampToMillis = (value: unknown): number => {
 
 const normalizePreferencePayload = (value: unknown): string => {
   if (!value || typeof value !== "object") return "";
+  const bookkeepingKeys = new Set(["lastSentAt", "lastQueuedAt", "lastDeliveredAt", "updatedAt"]);
 
   const sortObject = (input: unknown): unknown => {
     if (Array.isArray(input)) return input.map(sortObject);
     if (!input || typeof input !== "object") return input;
 
     return Object.keys(input as Record<string, unknown>)
+      .filter((key) => !bookkeepingKeys.has(key))
       .sort()
       .reduce<Record<string, unknown>>((acc, key) => {
         acc[key] = sortObject((input as Record<string, unknown>)[key]);
@@ -166,6 +172,32 @@ const getUserName = (userData: admin.firestore.DocumentData): string => {
 
 const getUserEmail = (userData: admin.firestore.DocumentData, override?: string): string => {
   return String(override || userData.email || "").trim();
+};
+
+const getMostRecentUserActivityMs = (userData: admin.firestore.DocumentData): number => {
+  const candidates = [
+    userData.lastActiveAt,
+    userData.lastLogin,
+    userData.lastLoginAt,
+    userData.lastSeenAt,
+    userData.updatedAt,
+    userData.createdAt,
+  ];
+
+  return Math.max(...candidates.map(timestampToMillis), 0);
+};
+
+const isRecentlyActiveUser = (userData: admin.firestore.DocumentData, now = Date.now()): boolean => {
+  const lastActivity = getMostRecentUserActivityMs(userData);
+  return lastActivity > 0 && now - lastActivity <= ACTIVE_USER_WINDOW_MS;
+};
+
+const wasResumePerformanceMilestoneSentRecently = (
+  userData: admin.firestore.DocumentData,
+  now = Date.now()
+): boolean => {
+  const sentAt = timestampToMillis(userData.lifecycleEmails?.sent?.resume_performance_milestone?.sentAt);
+  return sentAt > 0 && now - sentAt < RESUME_PERFORMANCE_REPEAT_MS;
 };
 
 const isLifecycleEmailSuppressed = (
@@ -352,8 +384,7 @@ export async function evaluateLifecycleEmailsForUser(userId: string) {
   const hasResume = await hasAnyResume(userId);
 
   if (!hasResume && accountOldEnoughForWelcome) {
-    return queueLifecycleEmail(userId, "welcome_first_resume", {
-      userData,
+    return queueHydratedLifecycleEmail(userId, "onboarding_welcome", {
       reason: "no_resume_after_signup_delay"
     });
   }
@@ -361,8 +392,7 @@ export async function evaluateLifecycleEmailsForUser(userId: string) {
   if (hasResume) {
     const hasResumeMatch = await hasUsageEvent(userId, "resume_match_analysis");
     if (!hasResumeMatch) {
-      return queueLifecycleEmail(userId, "resume_completed_tailor_job", {
-        userData,
+      return queueHydratedLifecycleEmail(userId, "first_resume_completed_tailor_job", {
         reason: "first_resume_without_match_analysis"
       });
     }
@@ -408,13 +438,18 @@ export const onLifecycleUsageLogCreated = functions
     const userId = data.userId;
     const eventType = data.eventType;
 
-    if (!userId || eventType === "lifecycle_email_queued") {
+    if (
+      !userId ||
+      eventType === "lifecycle_email_queued" ||
+      eventType === "hydrated_lifecycle_email_queued"
+    ) {
       return null;
     }
 
     const lifecycleEventUpdates: Record<string, unknown> = {
       "lifecycleEmails.updatedAt": admin.firestore.FieldValue.serverTimestamp()
     };
+    const queueTasks: Array<Promise<unknown>> = [];
 
     if (eventType === "resume_created") {
       lifecycleEventUpdates["lifecycleEmails.events.firstResumeCreatedAt"] =
@@ -424,6 +459,70 @@ export const onLifecycleUsageLogCreated = functions
     if (eventType === "resume_match_analysis") {
       lifecycleEventUpdates["lifecycleEmails.events.firstResumeMatchAnalysisAt"] =
         data.timestamp || admin.firestore.FieldValue.serverTimestamp();
+      queueTasks.push(queueHydratedLifecycleEmail(userId, "review_completed_score_suggestions", {
+        reason: "resume_match_analysis_completed",
+        metadata: {
+          logId: snap.id,
+          resumeId: data.resumeId || null,
+          jobId: data.jobId || null,
+        },
+      }));
+    }
+
+    if (eventType === "resume_review_completed" || eventType === "resume_suggestion") {
+      lifecycleEventUpdates["lifecycleEmails.events.lastResumeReviewCompletedAt"] =
+        data.timestamp || admin.firestore.FieldValue.serverTimestamp();
+      queueTasks.push(queueHydratedLifecycleEmail(userId, "review_completed_score_suggestions", {
+        reason: String(eventType),
+        metadata: {
+          logId: snap.id,
+          resumeId: data.resumeId || null,
+          currentScore: data.currentScore || null,
+          suggestionCount: data.suggestionCount || null,
+        },
+      }));
+    }
+
+    if (eventType === "interview_analysis") {
+      lifecycleEventUpdates["lifecycleEmails.events.lastInterviewAnalysisAt"] =
+        data.timestamp || admin.firestore.FieldValue.serverTimestamp();
+      queueTasks.push(queueHydratedLifecycleEmail(userId, "interview_practice_reminder", {
+        reason: "interview_analysis_completed",
+        metadata: {
+          logId: snap.id,
+          jobId: data.jobId || data.sessionId || null,
+          score: data.overallScore || null,
+        },
+      }));
+    }
+
+    if (eventType === "shared_resume_viewed") {
+      lifecycleEventUpdates["lifecycleEmails.events.firstSharedResumeViewedAt"] =
+        data.timestamp || admin.firestore.FieldValue.serverTimestamp();
+      queueTasks.push(queueHydratedLifecycleEmail(userId, "shared_resume_recruiter_engagement", {
+        reason: "shared_resume_viewed",
+        metadata: {
+          logId: snap.id,
+          resumeId: data.resumeId || null,
+          source: data.source || null,
+        },
+      }));
+    }
+
+    if (eventType === "first_job_saved") {
+      lifecycleEventUpdates["lifecycleEmails.events.lastJobSavedAt"] =
+        data.timestamp || admin.firestore.FieldValue.serverTimestamp();
+    }
+
+    if (["resume_download", "shared_resume_viewed", "interview_analysis"].includes(String(eventType))) {
+      queueTasks.push(queueHydratedLifecycleEmail(userId, "advocacy_value_request", {
+        reason: `value_moment_${eventType}`,
+        metadata: {
+          logId: snap.id,
+          valueEventType: eventType,
+          resumeId: data.resumeId || null,
+        },
+      }));
     }
 
     if (Object.keys(lifecycleEventUpdates).length > 1) {
@@ -433,6 +532,58 @@ export const onLifecycleUsageLogCreated = functions
     if (eventType === "resume_created") {
       await evaluateLifecycleEmailsForUser(userId);
     }
+
+    if (queueTasks.length > 0) {
+      await Promise.allSettled(queueTasks);
+    }
+
+    return null;
+  });
+
+export const onFirstJobSavedLifecycle = functions
+  .region(REGION)
+  .firestore
+  .document("users/{userId}/jobTracker/{jobId}")
+  .onCreate(async (snap, context) => {
+    const { userId, jobId } = context.params;
+    const data = snap.data() || {};
+    const timestamp = admin.firestore.FieldValue.serverTimestamp();
+    const userRef = db.collection("users").doc(userId);
+
+    await db.runTransaction(async (transaction) => {
+      const userSnap = await transaction.get(userRef);
+      const userData = userSnap.data() || {};
+      const alreadySavedFirstJob = Boolean(userData.lifecycleEmails?.events?.firstJobSavedAt);
+
+      transaction.set(userRef, {
+        lifecycleEmails: {
+          events: {
+            ...(alreadySavedFirstJob ? {} : { firstJobSavedAt: timestamp }),
+            lastJobSavedAt: timestamp,
+          },
+          updatedAt: timestamp,
+        },
+      }, { merge: true });
+    });
+
+    await db.collection("usage_logs").add({
+      userId,
+      eventType: "first_job_saved",
+      jobId,
+      jobTitle: data.jobTitle || data.title || null,
+      companyName: data.companyName || data.company || null,
+      timestamp,
+      source: data.source || "job_tracker",
+    });
+
+    await queueHydratedLifecycleEmail(userId, "first_job_saved_application_packet", {
+      reason: "first_job_saved",
+      metadata: {
+        jobId,
+        jobTitle: data.jobTitle || data.title || null,
+        companyName: data.companyName || data.company || null,
+      },
+    });
 
     return null;
   });
@@ -582,6 +733,77 @@ export const sendEmailPreferenceUpdateNotifications = functions
     return null;
   });
 
+export const sendResumePerformanceMilestoneEmails = functions
+  .region(REGION)
+  .pubsub
+  .schedule("0 8 * * *")
+  .timeZone("America/Chicago")
+  .onRun(async () => {
+    const usersSnap = await db
+      .collection("users")
+      .orderBy("createdAt", "desc")
+      .limit(250)
+      .get();
+
+    let evaluated = 0;
+    let queued = 0;
+    let skipped = 0;
+    const now = Date.now();
+
+    for (const userDoc of usersSnap.docs) {
+      evaluated += 1;
+      const userData = userDoc.data();
+
+      if (!getUserEmail(userData)) {
+        skipped += 1;
+        continue;
+      }
+
+      if (!isRecentlyActiveUser(userData, now)) {
+        skipped += 1;
+        continue;
+      }
+
+      if (wasResumePerformanceMilestoneSentRecently(userData, now)) {
+        skipped += 1;
+        continue;
+      }
+
+      try {
+        const context = await hydrateEmailContext(userDoc.id);
+        if (!context?.activeResumeId) {
+          skipped += 1;
+          continue;
+        }
+
+        const snapshot = getResumePerformanceSnapshot(context);
+        if (!snapshot) {
+          skipped += 1;
+          continue;
+        }
+
+        const result = await queueHydratedLifecycleEmail(userDoc.id, "resume_performance_milestone", {
+          reason: "daily_resume_performance_milestone",
+          metadata: {
+            score: snapshot.score,
+            scoreLabel: snapshot.label,
+            scoreSource: snapshot.source,
+            resumeId: context.activeResumeId,
+          },
+        });
+
+        if (result.queued) queued += 1;
+        else skipped += 1;
+      } catch (error) {
+        skipped += 1;
+        console.error(`[LifecycleEmails] Failed resume performance milestone for ${userDoc.id}:`, error);
+      }
+    }
+
+    console.log(`[LifecycleEmails] Resume performance milestones evaluated=${evaluated}, queued=${queued}, skipped=${skipped}.`);
+    return null;
+  });
+
 export const sendLifecycleDemoEmails = functions
   .region(REGION)
   .https
@@ -610,6 +832,14 @@ export const sendLifecycleDemoEmails = functions
         "onboarding_welcome",
         "feature_ai_editor",
         "weekly_status_digest",
+        "first_resume_completed_tailor_job",
+        "review_completed_score_suggestions",
+        "first_job_saved_application_packet",
+        "interview_practice_reminder",
+        "shared_resume_recruiter_engagement",
+        "advocacy_value_request",
+        "resume_performance_milestone",
+        "notification_settings_updated",
       ];
       for (const key of demoKeys) {
         const result = await queueHydratedLifecycleEmail(resolvedUserId, key, {

@@ -61,6 +61,43 @@ vi.mock('../../store/useSidebarStore', () => ({
     useSidebarStore: vi.fn()
 }));
 
+vi.mock('../../hooks/useResumes', () => ({
+    useResumes: () => ({
+        updateResume: vi.fn(),
+        deleteResume: vi.fn()
+    })
+}));
+
+vi.mock('../../hooks/usePortfolios', () => ({
+    usePortfolios: () => ({
+        updatePortfolio: vi.fn(),
+        deletePortfolio: vi.fn()
+    })
+}));
+
+vi.mock('../../hooks/useWhiteboards', () => ({
+    useWhiteboards: () => ({
+        updateWhiteboard: vi.fn(),
+        deleteWhiteboard: vi.fn()
+    })
+}));
+
+vi.mock('../../hooks/useJobHistory', () => ({
+    usePracticeHistory: () => ({
+        deletePracticeHistory: vi.fn()
+    })
+}));
+
+vi.mock('../../hooks/useMyCommunityPosts', () => ({
+    useMyCommunityPosts: () => ({
+        deletePost: vi.fn()
+    })
+}));
+
+vi.mock('../NotificationInbox', () => ({
+    default: () => <div data-testid="notification-inbox" />
+}));
+
 describe('Sidebar Component - Sorting and Filtering UX', () => {
     const mockNodes = [
         {
@@ -114,7 +151,7 @@ describe('Sidebar Component - Sorting and Filtering UX', () => {
         localStorage.clear();
 
         (useAuth as any).mockReturnValue({
-            currentUser: { uid: 'test-user', email: 'test@careervivid.com', displayName: 'Jiawen' },
+            currentUser: { email: 'test@careervivid.com', displayName: 'Jiawen' },
             userProfile: { sidebarNodes: mockNodes },
             updateUserProfile: vi.fn(),
             logOut: vi.fn(),

@@ -4,31 +4,18 @@ import { useAuth } from '../contexts/AuthContext';
 import { useResumes } from '../hooks/useResumes';
 import { usePracticeHistory } from '../hooks/useJobHistory';
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword, deleteUser, updateProfile } from 'firebase/auth';
-import { ArrowLeft, KeyRound, Trash2, Loader2, User as UserIcon, CreditCard, Mail } from 'lucide-react';
+import { ArrowLeft, KeyRound, Trash2, Loader2, User as UserIcon, CreditCard } from 'lucide-react';
 import { functions } from '../firebase';
 import { httpsCallable } from 'firebase/functions';
-import { EmailPreferences } from '../types';
 import EmailPracticeSettings from '../components/EmailPracticeSettings';
 import { navigate } from '../utils/navigation';
 import { getEmailDisplayName, resolveUserDisplayName } from '../utils/userDisplayName';
-
-const defaultEmailPrefs: EmailPreferences = {
-    enabled: false,
-    frequency: 'every_week',
-    topicSource: 'smart',
-    manualTopic: '',
-};
 
 const ProfilePage: React.FC = () => {
     const { currentUser, userProfile, updateUserProfile, logOut, isPremium } = useAuth();
     const { t } = useTranslation();
     const { deleteAllResumes } = useResumes();
     const { deleteAllPracticeHistory } = usePracticeHistory();
-
-    // Email Preferences state
-    const [emailPrefs, setEmailPrefs] = useState<EmailPreferences>(defaultEmailPrefs);
-    const [emailPrefsLoading, setEmailPrefsLoading] = useState(false);
-    const [emailPrefsSuccess, setEmailPrefsSuccess] = useState('');
 
     // Password change state
     const [currentPassword, setCurrentPassword] = useState('');
@@ -94,32 +81,6 @@ const ProfilePage: React.FC = () => {
             setNameLoading(false);
         }
     };
-
-    useEffect(() => {
-        if (userProfile?.emailPreferences) {
-            setEmailPrefs(userProfile.emailPreferences);
-        }
-    }, [userProfile]);
-
-    const handleEmailPrefsChange = <K extends keyof EmailPreferences>(key: K, value: EmailPreferences[K]) => {
-        setEmailPrefs(prev => ({ ...prev, [key]: value }));
-    };
-
-    const handleSaveEmailPrefs = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setEmailPrefsLoading(true);
-        setEmailPrefsSuccess('');
-        try {
-            await updateUserProfile({ emailPreferences: emailPrefs });
-            setEmailPrefsSuccess(t('profile.preferences_saved'));
-            setTimeout(() => setEmailPrefsSuccess(''), 3000);
-        } catch (error) {
-            console.error("Failed to save email preferences:", error);
-        } finally {
-            setEmailPrefsLoading(false);
-        }
-    };
-
 
     const handleChangePassword = async (e: React.FormEvent) => {
         e.preventDefault();

@@ -111,11 +111,23 @@ export const onUserCreated = functions
  * Trigger: On Partner Application Updated
  * Logic:
  * 1. Listen for status change to 'approved'.
- * 2. If 'business' type and approved:
+ * 2. If 'business' or 'agency' type and approved:
  * 3. Check if user exists.
  * 4. If NEW: Create user (pwd: INITIAL_PARTNER_PASSWORD) + assign role.
  * 5. If EXISTING: Update role.
  */
+const normalizeAgencySlug = (value: string) => {
+    const slug = value
+        .trim()
+        .toLowerCase()
+        .replace(/&/g, ' and ')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .replace(/-{2,}/g, '-');
+
+    return slug || 'agency-branch';
+};
+
 export const onPartnerApplicationUpdated = functions
     .runWith({ secrets: [INITIAL_PARTNER_PASSWORD] })
     .region('us-west1')
@@ -127,16 +139,39 @@ export const onPartnerApplicationUpdated = functions
 
         // Only run if status changed to 'approved'
         if (newData.status === 'approved' && oldData.status !== 'approved') {
-            const { email, name, type, organization } = newData;
+            const { email, name, type, organization, website } = newData;
             console.log(`Processing approval for ${type} partner: ${email}`);
 
-            if (type !== 'business') {
-                console.log('Not a business partner. Skipping auto-creation.');
+            if (type !== 'business' && type !== 'agency') {
+                console.log('Not a business or agency partner. Skipping auto-creation.');
                 // Note: Academic partners might need manual role assignment or different logic
                 return null;
             }
 
             try {
+                const assignedRole = type === 'agency' ? 'agency_partner' : 'business_partner';
+                const ensureAgencyBranch = async (uid: string) => {
+                    if (type !== 'agency') return;
+
+                    const appId = context.params.appId;
+                    const baseSlug = normalizeAgencySlug(organization || name || email);
+                    const branchSlug = `${baseSlug}-${appId.slice(0, 6)}`;
+                    await admin.firestore().collection('agencyBranches').doc(appId).set({
+                        ownerUserId: uid,
+                        organization: organization || '',
+                        branchName: organization || `${name}'s Agency Branch`,
+                        slug: branchSlug,
+                        contactName: name || '',
+                        contactEmail: email || '',
+                        website: website || '',
+                        primaryColor: '#2f6f5e',
+                        pilotStatus: 'active',
+                        inviteLimit: 20,
+                        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                    }, { merge: true });
+                };
+
                 // Check if user exists
                 let userRecord;
                 try {
@@ -170,8 +205,8 @@ export const onPartnerApplicationUpdated = functions
                         email: email,
                         displayName: name,
                         photoURL: userRecord.photoURL || null,
-                        role: 'business_partner',
-                        roles: ['business_partner'],
+                        role: assignedRole,
+                        roles: [assignedRole],
                         plan: 'free', // Default plan, maybe upgrade later?
                         createdAt: admin.firestore.FieldValue.serverTimestamp(),
                         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -186,6 +221,7 @@ export const onPartnerApplicationUpdated = functions
                         createdUserId: uid,
                         accountCreationMessage: 'Account created successfully'
                     });
+                    await ensureAgencyBranch(uid);
                 } else {
                     // Update existing user
                     const userData = userSnap.data();
@@ -196,14 +232,14 @@ export const onPartnerApplicationUpdated = functions
                         currentRoles.push(userData.role);
                     }
 
-                    if (!currentRoles.includes('business_partner')) {
-                        currentRoles.push('business_partner');
+                    if (!currentRoles.includes(assignedRole)) {
+                        currentRoles.push(assignedRole);
                         await userRef.update({
                             roles: currentRoles,
-                            role: 'business_partner', // Update legacy field too for safety
+                            role: assignedRole, // Update legacy field too for safety
                             updatedAt: admin.firestore.FieldValue.serverTimestamp()
                         });
-                        console.log(`Updated existing user ${uid} with business_partner role`);
+                        console.log(`Updated existing user ${uid} with ${assignedRole} role`);
 
                         // Update application with role assignment success
                         await admin.firestore().collection('partner_applications').doc(context.params.appId).update({
@@ -212,16 +248,18 @@ export const onPartnerApplicationUpdated = functions
                             createdUserId: uid,
                             accountCreationMessage: 'Role added to existing account'
                         });
+                        await ensureAgencyBranch(uid);
                     } else {
-                        console.log(`User ${uid} already has business_partner role`);
+                        console.log(`User ${uid} already has ${assignedRole} role`);
 
                         // Update application noting role already exists
                         await admin.firestore().collection('partner_applications').doc(context.params.appId).update({
                             accountCreated: true,
                             accountCreatedAt: admin.firestore.FieldValue.serverTimestamp(),
                             createdUserId: uid,
-                            accountCreationMessage: 'User already has business_partner role'
+                            accountCreationMessage: `User already has ${assignedRole} role`
                         });
+                        await ensureAgencyBranch(uid);
                     }
                 }
 

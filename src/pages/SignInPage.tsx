@@ -436,7 +436,7 @@ const SignInPage: React.FC = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg shadow-primary-500/20 text-sm font-bold text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-70 disabled:cursor-not-allowed transition-all transform hover:-translate-y-0.5"
+                            className="w-full flex justify-center py-3.5 px-4 border border-[#c7d2fe] rounded-xl shadow-lg shadow-indigo-100/70 text-sm font-bold text-[#211b4d] bg-[#EEF2FF] hover:bg-[#e0e7ff] hover:text-[#18083d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-400 disabled:bg-[#f5f7ff] disabled:text-slate-400 disabled:cursor-not-allowed transition-all transform hover:-translate-y-0.5 dark:border-primary-800 dark:bg-primary-600 dark:text-white dark:hover:bg-primary-500 dark:shadow-primary-900/20 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
                         >
                             {t('auth.sign_in')}
                         </button>

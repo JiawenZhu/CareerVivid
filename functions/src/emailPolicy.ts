@@ -4,6 +4,7 @@ export type EmailNotificationCategory =
   | "feature_spotlight"
   | "weekly_digest"
   | "lifecycle"
+  | "milestone"
   | "transactional"
   | "billing"
   | "practice"
@@ -39,6 +40,7 @@ const CATEGORY_ALIASES: Record<EmailNotificationCategory, string[]> = {
   feature_spotlight: ["feature_spotlight", "featureSpotlight", "features", "product_updates", "marketing"],
   weekly_digest: ["weekly_digest", "weeklyDigest", "digest", "retention", "lifecycle"],
   lifecycle: ["lifecycle", "activation", "onboarding", "retention"],
+  milestone: ["milestone", "resume_performance", "resumePerformance", "score_update", "lifecycle"],
   transactional: ["transactional", "system"],
   billing: ["billing", "transactional", "system"],
   practice: ["practice", "scheduled_practice", "interview_practice"],
@@ -47,10 +49,33 @@ const CATEGORY_ALIASES: Record<EmailNotificationCategory, string[]> = {
   system: ["system", "transactional"],
 };
 
+const REQUIRED_EMAIL_CATEGORIES = new Set<EmailNotificationCategory>([
+  "transactional",
+  "billing",
+  "system",
+]);
+
+export function isRequiredEmailCategory(category: EmailNotificationCategory): boolean {
+  return REQUIRED_EMAIL_CATEGORIES.has(category);
+}
+
+export function normalizeEmailDigestFrequency(frequency: unknown): EmailDigestFrequency {
+  const normalized = String(frequency || "every_week")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_") as EmailDigestFrequency | "weekly" | "every_day" | "day" | "week";
+
+  if (normalized === "daily" || normalized === "every_day" || normalized === "day") return "daily";
+  if (normalized === "weekly" || normalized === "week") return "every_week";
+  if (normalized in EMAIL_FREQUENCY_DAYS) return normalized as EmailDigestFrequency;
+
+  return "every_week";
+}
+
 const hasDisabledAlias = (values: unknown, aliases: string[]): boolean => {
   if (!Array.isArray(values)) return false;
-  const normalized = values.map((value) => String(value).trim());
-  return aliases.some((alias) => normalized.includes(alias));
+  const normalized = values.map((value) => String(value).trim().toLowerCase().replace(/[\s-]+/g, "_"));
+  return aliases.some((alias) => normalized.includes(String(alias).trim().toLowerCase().replace(/[\s-]+/g, "_")));
 };
 
 const readBoolean = (source: unknown, aliases: string[]): boolean | null => {
@@ -81,7 +106,7 @@ const timestampToMillis = (value: unknown): number => {
 };
 
 export function getEmailFrequencyDays(frequency: unknown): number {
-  const normalized = String(frequency || "every_week").trim() as EmailDigestFrequency;
+  const normalized = normalizeEmailDigestFrequency(frequency);
   return EMAIL_FREQUENCY_DAYS[normalized] || EMAIL_FREQUENCY_DAYS.every_week;
 }
 
@@ -109,6 +134,10 @@ export function getEmailPreferenceSuppressionReason(
 ): string | null {
   if (!userData) return "missing_user_profile";
 
+  if (isRequiredEmailCategory(category)) {
+    return null;
+  }
+
   const aliases = Array.from(new Set([category, key || "", ...CATEGORY_ALIASES[category]].filter(Boolean)));
   const lifecycleEmails = userData.lifecycleEmails as Record<string, unknown> | undefined;
   if (lifecycleEmails?.unsubscribed === true || lifecycleEmails?.unsubscribedAt) {
@@ -120,8 +149,8 @@ export function getEmailPreferenceSuppressionReason(
     return "email_preferences_unsubscribed";
   }
 
-  if (category === "practice" && preferences.enabled === false) {
-    return "practice_email_disabled";
+  if (preferences.enabled === false) {
+    return "optional_email_disabled";
   }
 
   if (hasDisabledAlias(preferences.disabledCategories, aliases)) {
@@ -148,7 +177,26 @@ export function getEmailPreferenceSuppressionReason(
 }
 
 export function canonicalCareerVividUrl(path: string, params?: Record<string, string | number | boolean | undefined>): string {
-  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const raw = String(path || "/").trim();
+  let pathOnly = raw;
+
+  if (/^https?:\/\//i.test(raw)) {
+    const parsed = new URL(raw);
+    pathOnly = parsed.hash.startsWith("#/") ? parsed.hash.slice(1) : parsed.pathname;
+    for (const [key, value] of parsed.searchParams.entries()) {
+      if (params?.[key] === undefined) {
+        params = { ...(params || {}), [key]: value };
+      }
+    }
+  }
+
+  if (pathOnly.startsWith("/#/")) {
+    pathOnly = pathOnly.slice(2);
+  } else if (pathOnly.startsWith("#/")) {
+    pathOnly = pathOnly.slice(1);
+  }
+
+  const normalizedPath = pathOnly.startsWith("/") ? pathOnly : `/${pathOnly}`;
   const url = new URL(`${CAREERVIVID_APP_URL}${normalizedPath}`);
 
   for (const [key, value] of Object.entries(params || {})) {
@@ -158,6 +206,10 @@ export function canonicalCareerVividUrl(path: string, params?: Record<string, st
   }
 
   return url.toString();
+}
+
+export function canonicalInterviewStudioUrl(jobId: string, source = "scheduled_practice_email"): string {
+  return canonicalCareerVividUrl(`/interview-studio/${encodeURIComponent(jobId)}`, { source });
 }
 
 export function canonicalSignupUrl(source = "lifecycle_email"): string {
