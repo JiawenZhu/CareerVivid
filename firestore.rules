@@ -153,6 +153,22 @@ service cloud.firestore {
         }
       }
 
+      match /applicationProfile/{profileId} {
+        allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      }
+
+      match /applicationQueue/{queueId} {
+        allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      }
+
+      match /applicationRuns/{runId} {
+        allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+
+        match /steps/{stepId} {
+          allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+        }
+      }
+
       match /{allChildren=**} {
         allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
       }
