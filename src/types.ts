@@ -401,7 +401,6 @@ export interface ApplicationProfile {
   backgroundLegal: {
     backgroundCheckConsent: boolean | null;
     ageEligibilityAttested: boolean | null;
-    workEligibilityAttested: boolean | null;
   };
   autoApplyRules: {
     enabled: boolean;

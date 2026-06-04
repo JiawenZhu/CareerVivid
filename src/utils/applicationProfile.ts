@@ -72,9 +72,8 @@ export function createDefaultApplicationProfile(
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || '',
     },
     backgroundLegal: {
-      backgroundCheckConsent: null,
+      backgroundCheckConsent: false,
       ageEligibilityAttested: null,
-      workEligibilityAttested: null,
     },
     autoApplyRules: {
       enabled: false,
@@ -129,6 +128,9 @@ export function validateApplicationProfile(profile: ApplicationProfile): {
   const requireBoolean = (label: string, value: boolean | null) => {
     if (value === null || value === undefined) missing.push(label);
   };
+  const requireTrue = (label: string, value: boolean | null) => {
+    if (value !== true) missing.push(label);
+  };
 
   requireText('First name', profile.identity.firstName);
   requireText('Last name', profile.identity.lastName);
@@ -139,10 +141,8 @@ export function validateApplicationProfile(profile: ApplicationProfile): {
   requireBoolean('Legally authorized to work', profile.workAuthorization.legallyAuthorized);
   requireBoolean('Sponsorship needed now', profile.workAuthorization.needsSponsorshipNow);
   requireBoolean('Sponsorship needed in the future', profile.workAuthorization.needsSponsorshipFuture);
-  requireBoolean('Willing to relocate', profile.relocationRemote.willingToRelocate);
-  requireBoolean('Background check consent', profile.backgroundLegal.backgroundCheckConsent);
-  requireBoolean('Age eligibility attestation', profile.backgroundLegal.ageEligibilityAttested);
-  requireBoolean('Work eligibility attestation', profile.backgroundLegal.workEligibilityAttested);
+  requireBoolean('Open to relocation', profile.relocationRemote.willingToRelocate);
+  requireTrue('I am 18 years of age or older', profile.backgroundLegal.ageEligibilityAttested);
 
   if (!profile.eeo.gender) missing.push('EEO gender answer');
   if (!profile.eeo.raceEthnicity) missing.push('EEO race/ethnicity answer');
@@ -231,6 +231,6 @@ export function resolveSensitiveApplicationAnswer(
 export function getApplicationProfileCompletionPercent(profile: ApplicationProfile | null): number {
   if (!profile) return 0;
   const { missingRequiredFields } = validateApplicationProfile(profile);
-  const requiredCount = 17;
+  const requiredCount = 15;
   return Math.max(0, Math.round(((requiredCount - missingRequiredFields.length) / requiredCount) * 100));
 }

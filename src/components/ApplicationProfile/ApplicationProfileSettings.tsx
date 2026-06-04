@@ -61,6 +61,7 @@ const Field: React.FC<FieldProps> = ({ label, children, helper }) => (
 );
 
 const inputClass = 'w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100 dark:border-gray-800 dark:bg-[#0a0c10] dark:text-gray-100 dark:focus:border-primary-500 dark:focus:ring-primary-950/50';
+const checkboxCardClass = 'flex items-start gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm font-semibold text-gray-700 transition hover:border-primary-200 hover:bg-primary-50/40 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-primary-900/70 dark:hover:bg-primary-950/20';
 
 const Section: React.FC<{
   icon: React.ReactNode;
@@ -261,15 +262,15 @@ export const ApplicationProfileSettings: React.FC = () => {
               {[EEO_OPTIONS[0], EEO_OPTIONS[1], ...EEO_OPTIONS.slice(12, 14)].map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
             </select>
           </Field>
-          <Field label="Target compensation"><input value={draft.compensation.targetSalary} onChange={event => updateSection('compensation', 'targetSalary', event.target.value)} className={inputClass} /></Field>
-          <Field label="Minimum compensation"><input value={draft.compensation.minimumSalary} onChange={event => updateSection('compensation', 'minimumSalary', event.target.value)} className={inputClass} /></Field>
+          <Field label="Desired salary"><input value={draft.compensation.targetSalary} onChange={event => updateSection('compensation', 'targetSalary', event.target.value)} className={inputClass} /></Field>
+          <Field label="Minimum acceptable salary"><input value={draft.compensation.minimumSalary} onChange={event => updateSection('compensation', 'minimumSalary', event.target.value)} className={inputClass} /></Field>
           <Field label="Compensation type">
             <select value={draft.compensation.preferenceType} onChange={event => updateSection('compensation', 'preferenceType', event.target.value as SalaryPreferenceType)} className={inputClass}>
               <option value="annual">Annual</option>
               <option value="hourly">Hourly</option>
             </select>
           </Field>
-          <Field label="Work model preference">
+          <Field label="Preferred workplace">
             <select value={draft.relocationRemote.workModelPreference} onChange={event => updateSection('relocationRemote', 'workModelPreference', event.target.value as ApplicationWorkModelPreference)} className={inputClass}>
               <option value="flexible">Flexible</option>
               <option value="remote">Remote</option>
@@ -277,7 +278,7 @@ export const ApplicationProfileSettings: React.FC = () => {
               <option value="onsite">On-site</option>
             </select>
           </Field>
-          <Field label="Willing to relocate">
+          <Field label="Open to relocation">
             <select value={booleanToInput(draft.relocationRemote.willingToRelocate)} onChange={event => updateSection('relocationRemote', 'willingToRelocate', inputToBoolean(event.target.value))} className={inputClass}>
               {booleanOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
             </select>
@@ -290,30 +291,15 @@ export const ApplicationProfileSettings: React.FC = () => {
 
       <Section
         icon={<Briefcase size={18} />}
-        title="Availability, legal, and auto-apply rules"
-        description="Rules decide which jobs can be submitted automatically."
+        title="Availability and auto-apply rules"
+        description="Choose when the agent can apply and when it should pause."
       >
         <div className="grid gap-4 md:grid-cols-3">
           <Field label="Start date"><input type="date" value={draft.availability.startDate} onChange={event => updateSection('availability', 'startDate', event.target.value)} className={inputClass} /></Field>
           <Field label="Work schedule"><input value={draft.availability.workSchedule} onChange={event => updateSection('availability', 'workSchedule', event.target.value)} className={inputClass} /></Field>
           <Field label="Timezone"><input value={draft.availability.timezone} onChange={event => updateSection('availability', 'timezone', event.target.value)} className={inputClass} /></Field>
-          <Field label="Background check consent">
-            <select value={booleanToInput(draft.backgroundLegal.backgroundCheckConsent)} onChange={event => updateSection('backgroundLegal', 'backgroundCheckConsent', inputToBoolean(event.target.value))} className={inputClass}>
-              {booleanOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
-            </select>
-          </Field>
-          <Field label="Age eligibility attested">
-            <select value={booleanToInput(draft.backgroundLegal.ageEligibilityAttested)} onChange={event => updateSection('backgroundLegal', 'ageEligibilityAttested', inputToBoolean(event.target.value))} className={inputClass}>
-              {booleanOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
-            </select>
-          </Field>
-          <Field label="Work eligibility attested">
-            <select value={booleanToInput(draft.backgroundLegal.workEligibilityAttested)} onChange={event => updateSection('backgroundLegal', 'workEligibilityAttested', inputToBoolean(event.target.value))} className={inputClass}>
-              {booleanOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
-            </select>
-          </Field>
-          <Field label="Max per day"><input type="number" min={1} max={100} value={draft.autoApplyRules.maxApplicationsPerDay} onChange={event => updateSection('autoApplyRules', 'maxApplicationsPerDay', Number(event.target.value))} className={inputClass} /></Field>
-          <Field label="Max per night"><input type="number" min={1} max={50} value={draft.autoApplyRules.maxApplicationsPerNight} onChange={event => updateSection('autoApplyRules', 'maxApplicationsPerNight', Number(event.target.value))} className={inputClass} /></Field>
+          <Field label="Maximum applications per day"><input type="number" min={1} max={100} value={draft.autoApplyRules.maxApplicationsPerDay} onChange={event => updateSection('autoApplyRules', 'maxApplicationsPerDay', Number(event.target.value))} className={inputClass} /></Field>
+          <Field label="Maximum applications per night"><input type="number" min={1} max={50} value={draft.autoApplyRules.maxApplicationsPerNight} onChange={event => updateSection('autoApplyRules', 'maxApplicationsPerNight', Number(event.target.value))} className={inputClass} /></Field>
           <Field label="Minimum match score"><input type="number" min={0} max={100} value={draft.autoApplyRules.minimumMatchScore} onChange={event => updateSection('autoApplyRules', 'minimumMatchScore', Number(event.target.value))} className={inputClass} /></Field>
           <Field label="Excluded companies" helper="Comma-separated">
             <input value={listToInputValue(draft.autoApplyRules.excludedCompanies)} onChange={event => updateSection('autoApplyRules', 'excludedCompanies', normalizeListInput(event.target.value))} className={inputClass} />
@@ -322,18 +308,31 @@ export const ApplicationProfileSettings: React.FC = () => {
             <input value={listToInputValue(draft.autoApplyRules.excludedJobTitles)} onChange={event => updateSection('autoApplyRules', 'excludedJobTitles', normalizeListInput(event.target.value))} className={inputClass} />
           </Field>
         </div>
-        <div className="mt-4 grid gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-950 md:grid-cols-3">
-          <label className="flex items-start gap-3 text-sm font-semibold text-gray-700 dark:text-gray-200">
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <label className={checkboxCardClass}>
+            <input type="checkbox" checked={draft.backgroundLegal.backgroundCheckConsent === true} onChange={event => updateSection('backgroundLegal', 'backgroundCheckConsent', event.target.checked)} className="mt-1" />
+            <span>
+              <span className="block">Allow agent to apply to jobs requiring background checks.</span>
+              <span className="mt-1 block text-[11px] font-medium text-gray-500 dark:text-gray-400">The agent still pauses if a site asks for a separate legal disclosure or signature.</span>
+            </span>
+          </label>
+          <label className={checkboxCardClass}>
+            <input type="checkbox" checked={draft.backgroundLegal.ageEligibilityAttested === true} onChange={event => updateSection('backgroundLegal', 'ageEligibilityAttested', event.target.checked)} className="mt-1" />
+            <span>I am 18 years of age or older.</span>
+          </label>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <label className={checkboxCardClass}>
             <input type="checkbox" checked={draft.autoApplyRules.enabled} onChange={event => updateSection('autoApplyRules', 'enabled', event.target.checked)} className="mt-1" />
-            Enable Apply Agent queueing.
+            <span>Queue applications automatically.</span>
           </label>
-          <label className="flex items-start gap-3 text-sm font-semibold text-gray-700 dark:text-gray-200">
+          <label className={checkboxCardClass}>
             <input type="checkbox" checked={draft.autoApplyRules.requireApprovalForLowConfidence} onChange={event => updateSection('autoApplyRules', 'requireApprovalForLowConfidence', event.target.checked)} className="mt-1" />
-            Require approval for low confidence.
+            <span>Ask for my review if match score is low.</span>
           </label>
-          <label className="flex items-start gap-3 text-sm font-semibold text-gray-700 dark:text-gray-200">
+          <label className={checkboxCardClass}>
             <input type="checkbox" checked={draft.autoApplyRules.requireApprovalForMissingSensitiveAnswers} onChange={event => updateSection('autoApplyRules', 'requireApprovalForMissingSensitiveAnswers', event.target.checked)} className="mt-1" />
-            Stop when sensitive answers are missing.
+            <span>Pause application if sensitive questions are asked.</span>
           </label>
         </div>
       </Section>

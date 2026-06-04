@@ -77,6 +77,8 @@ export function useApplicationProfile() {
       backgroundLegal: {
         ...defaultProfile.backgroundLegal,
         ...(profile?.backgroundLegal || {}),
+        backgroundCheckConsent:
+          profile?.backgroundLegal?.backgroundCheckConsent ?? defaultProfile.backgroundLegal.backgroundCheckConsent,
       },
       autoApplyRules: {
         ...defaultProfile.autoApplyRules,

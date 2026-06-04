@@ -33,7 +33,6 @@ function readyProfile(): ApplicationProfile {
     backgroundLegal: {
       backgroundCheckConsent: true,
       ageEligibilityAttested: true,
-      workEligibilityAttested: true,
     },
     consent: {
       ...profile.consent,
@@ -69,6 +68,17 @@ describe('applicationProfile sensitive field handling', () => {
 
     expect(answer).toEqual(expect.objectContaining({
       answer: 'Prefer not to answer',
+      source: 'application_profile',
+      requiresUser: false,
+    }));
+  });
+
+  it('uses the work authorization answer for eligibility questions', () => {
+    const profile = readyProfile();
+    const answer = resolveSensitiveApplicationAnswer('Are you eligible to work in the United States?', profile);
+
+    expect(answer).toEqual(expect.objectContaining({
+      answer: 'Yes',
       source: 'application_profile',
       requiresUser: false,
     }));
