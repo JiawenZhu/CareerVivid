@@ -426,8 +426,19 @@ const getLatestSharedResumeUrl = (context: HydratedEmailContext): string | undef
 };
 
 export async function findUserIdByEmail(email: string): Promise<string | null> {
-  const snap = await db.collection("users").where("email", "==", email).limit(1).get();
-  return snap.empty ? null : snap.docs[0].id;
+  const normalizedEmail = cleanText(email).toLowerCase();
+  if (!normalizedEmail) return null;
+
+  const snap = await db.collection("users").where("email", "==", normalizedEmail).limit(1).get();
+  if (!snap.empty) return snap.docs[0].id;
+
+  try {
+    const userRecord = await admin.auth().getUserByEmail(normalizedEmail);
+    return userRecord.uid;
+  } catch (error: any) {
+    if (error?.code === "auth/user-not-found") return null;
+    throw error;
+  }
 }
 
 export async function hydrateEmailContext(userId: string, toOverride?: string): Promise<HydratedEmailContext | null> {
