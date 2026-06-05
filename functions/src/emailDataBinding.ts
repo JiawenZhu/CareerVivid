@@ -291,11 +291,6 @@ const getTargetLocations = (
     addUniqueLocation(locations, job.location);
   }
 
-  for (const fallback of ["Champaign, Illinois", "Springfield", "San Francisco Bay Area"]) {
-    if (locations.length >= 3) break;
-    addUniqueLocation(locations, fallback);
-  }
-
   return locations.slice(0, 4);
 };
 
@@ -426,8 +421,19 @@ const getLatestSharedResumeUrl = (context: HydratedEmailContext): string | undef
 };
 
 export async function findUserIdByEmail(email: string): Promise<string | null> {
-  const snap = await db.collection("users").where("email", "==", email).limit(1).get();
-  return snap.empty ? null : snap.docs[0].id;
+  const normalizedEmail = cleanText(email).toLowerCase();
+  if (!normalizedEmail) return null;
+
+  const snap = await db.collection("users").where("email", "==", normalizedEmail).limit(1).get();
+  if (!snap.empty) return snap.docs[0].id;
+
+  try {
+    const userRecord = await admin.auth().getUserByEmail(normalizedEmail);
+    return userRecord.uid;
+  } catch (error: any) {
+    if (error?.code === "auth/user-not-found") return null;
+    throw error;
+  }
 }
 
 export async function hydrateEmailContext(userId: string, toOverride?: string): Promise<HydratedEmailContext | null> {
@@ -619,14 +625,16 @@ export function getResumePerformanceSnapshot(context: HydratedEmailContext): Res
   if (!context.activeResume) return null;
 
   const storedScore = parseResumeScore(context.activeResume);
-  const score = storedScore ?? calculateResumeScoreFromContent(context.activeResume);
+  if (storedScore === null) return null;
+
+  const score = storedScore;
   const resumeTitle = cleanText(context.activeResume.title) || "Active resume";
 
   return {
     score,
     label: getResumeScoreLabel(score),
     tone: getResumeScoreTone(score),
-    source: storedScore === null ? "calculated" : "stored",
+    source: "stored",
     resumeTitle,
     suggestions: buildResumeScoreSuggestions(score),
     stats: [
@@ -674,12 +682,13 @@ const getActivePreferenceTrackLabels = (context: HydratedEmailContext): string[]
 
 function buildOnboardingEmail(context: HydratedEmailContext) {
   const locations = context.targetLocations.join(", ");
+  const workspaceScope = locations ? `workspace for ${locations}` : "workspace";
   const modules: CareerVividEmailModule[] = [
     {
       type: "hero",
       eyebrow: "Welcome to CareerVivid",
       title: "Your job search workspace is ready",
-      subtitle: `${context.professionalTitle} workspace for ${locations}. Move beyond rigid tracking sheets and keep resumes, roles, and prep connected.`,
+      subtitle: `${context.professionalTitle} ${workspaceScope}. Move beyond rigid tracking sheets and keep resumes, roles, and prep connected.`,
       visual: {
         kind: "mockup",
         background: "warm",
@@ -691,7 +700,12 @@ function buildOnboardingEmail(context: HydratedEmailContext) {
           rows: [
             { label: "Profile", title: "Identity hydrated", meta: context.email, status: "success" },
             { label: "Resume", title: context.activeResume?.title || "Active resume", meta: context.activeResumeId || "Open dashboard", status: "success" },
-            { label: "Markets", title: context.targetLocations.slice(0, 3).join(" / "), meta: "Target locations", status: "neutral" },
+            {
+              label: "Markets",
+              title: context.targetLocations.length ? context.targetLocations.slice(0, 3).join(" / ") : "Add target locations",
+              meta: context.targetLocations.length ? "Target locations" : "No target location is saved yet",
+              status: "neutral",
+            },
           ],
         },
       },
@@ -923,6 +937,46 @@ function buildFirstResumeCompletedEmail(context: HydratedEmailContext) {
 
 function buildReviewCompletedEmail(context: HydratedEmailContext) {
   const snapshot = getResumePerformanceSnapshot(context);
+  if (!snapshot) {
+    const modules: CareerVividEmailModule[] = [
+      {
+        type: "status",
+        title: "Resume review is ready",
+        body: "Open the active resume workspace to review saved suggestions. No score is shown because this resume does not have a saved review score yet.",
+        status: "warning",
+        rows: [
+          { value: context.activeResumeId ? "Ready" : "Open", label: "Editor", helper: "Active route" },
+          { value: context.metrics.savedJobs.toString(), label: "Saved jobs", helper: "In workspace" },
+          { value: context.metrics.aiPrepModules.toString(), label: "AI prep", helper: "From real workspace records" },
+        ],
+      },
+      {
+        type: "cta",
+        primary: { text: "Open resume editor", url: context.urls.resumeEditor },
+        secondary: { text: "Open dashboard", url: context.urls.dashboard },
+        helper: "Score-based emails only show a number when a saved resume score exists.",
+      },
+    ];
+
+    return {
+      subject: "Your resume review is ready",
+      preheader: "Open your active resume workspace for saved review suggestions.",
+      html: generateCareerVividModuleEmail({
+        title: "Your resume review is ready",
+        preheader: "Open your active resume workspace for saved review suggestions.",
+        userName: context.displayName,
+        modules,
+        footerText: CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER,
+      }),
+      text: [
+        `Hi ${context.firstName}, your resume review is ready.`,
+        "No score is shown because this resume does not have a saved review score yet.",
+        `Open resume editor: ${context.urls.resumeEditor}`,
+        CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER,
+      ].join("\n"),
+    };
+  }
+
   const score = snapshot?.score ?? 0;
   const suggestions = snapshot?.suggestions || buildResumeScoreSuggestions(score);
 
@@ -1154,6 +1208,64 @@ function buildAdvocacyValueRequestEmail(context: HydratedEmailContext) {
 
 function buildResumePerformanceEmail(context: HydratedEmailContext) {
   const snapshot = getResumePerformanceSnapshot(context);
+  if (!snapshot) {
+    const resumeTitle = context.activeResume?.title || "Active resume";
+    const modules: CareerVividEmailModule[] = [
+      {
+        type: "hero",
+        eyebrow: "Resume performance",
+        title: "Open your active resume for the next review",
+        subtitle: `${resumeTitle} is selected, but no saved resume score is available yet.`,
+        variant: "milestone",
+        visual: {
+          kind: "mockup",
+          background: "warm",
+          mockup: {
+            badge: "No saved score",
+            title: resumeTitle,
+            subtitle: `${context.professionalTitle} workspace`,
+            metrics: [
+              { value: context.metrics.savedJobs.toString(), label: "Saved jobs", helper: "In workspace" },
+              { value: context.metrics.aiPrepModules.toString(), label: "AI prep", helper: "From real records" },
+              { value: context.activeResumeId ? "Yes" : "No", label: "Resume selected", helper: "Active route" },
+            ],
+            rows: [
+              { label: "Review", title: "Run or open a saved resume review", meta: "Score-based emails need a stored review score.", status: "warning" },
+              { label: "Editor", title: "Keep the resume context current", meta: "Use the active resume editor for the next pass.", status: "neutral" },
+            ],
+            footer: "No score is shown because this resume does not have a saved review score yet.",
+          },
+        },
+      },
+      {
+        type: "cta",
+        primary: { text: "Open resume editor", url: context.urls.resumeEditor },
+        secondary: { text: "Open dashboard", url: context.urls.dashboard },
+        helper: "CareerVivid only shows score numbers here when they come from saved workspace data.",
+      },
+    ];
+
+    return {
+      subject: "Open your active resume for the next review",
+      preheader: "No score is shown until a saved resume score exists in your workspace.",
+      html: generateCareerVividModuleEmail({
+        title: "Your CareerVivid resume performance update",
+        preheader: "No score is shown until a saved resume score exists in your workspace.",
+        userName: context.displayName,
+        modules,
+        footerText: CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER,
+      }),
+      text: [
+        `Hi ${context.firstName},`,
+        "",
+        `${resumeTitle} is selected, but no saved resume score is available yet.`,
+        `Open resume editor: ${context.urls.resumeEditor}`,
+        "",
+        CAREERVIVID_SYSTEM_NOTIFICATION_FOOTER,
+      ].join("\n"),
+    };
+  }
+
   const score = snapshot?.score ?? 0;
   const scoreLabel = snapshot?.label || "Resume score";
   const resumeTitle = snapshot?.resumeTitle || context.activeResume?.title || "Active resume";
@@ -1337,6 +1449,13 @@ export async function queueHydratedLifecycleEmail(
   const context = await hydrateEmailContext(userId, options.to);
   if (!context || !context.email) {
     return { queued: false, reason: "missing_user_context" };
+  }
+
+  if (
+    (key === "review_completed_score_suggestions" || key === "resume_performance_milestone") &&
+    !getResumePerformanceSnapshot(context)
+  ) {
+    return { queued: false, reason: "missing_resume_score" };
   }
 
   if (!options.force) {

@@ -223,6 +223,34 @@ function getFreshTokenPromise(): Promise<string | null> {
     });
 }
 
+async function callCareerVividFunction<T = any>(
+    functionName: string,
+    data: Record<string, any>,
+    idToken?: string | null
+): Promise<T> {
+    const token = idToken || await getFreshTokenPromise();
+    if (!token || token === 'mock-dev-id-token') {
+        throw new Error('Please sign in to CareerVivid with a real account.');
+    }
+
+    const response = await fetch(`https://us-west1-jastalk-firebase.cloudfunctions.net/${functionName}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ data }),
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Cloud Function error: ${response.status} ${errorText}`);
+    }
+
+    const json = await response.json() as any;
+    return (json.result || json) as T;
+}
+
 function parseFirestoreRestValue(val: any): any {
     if (!val) return null;
     const type = Object.keys(val)[0];
@@ -761,14 +789,17 @@ async function syncProfileFromFirebase(userId: string, resumeId: string): Promis
 
         let resumeData: Record<string, any> | null = null;
         let userData: Record<string, any> | null = null;
+        let applicationProfileData: Record<string, any> | null = null;
 
         if (idToken && idToken !== 'mock-dev-id-token') {
             const resumeUrl = `https://firestore.googleapis.com/v1/projects/jastalk-firebase/databases/(default)/documents/users/${userId}/resumes/${resumeId}`;
             const userUrl = `https://firestore.googleapis.com/v1/projects/jastalk-firebase/databases/(default)/documents/users/${userId}`;
+            const applicationProfileUrl = `https://firestore.googleapis.com/v1/projects/jastalk-firebase/databases/(default)/documents/users/${userId}/applicationProfile/profile`;
 
-            const [resumeResp, userResp] = await Promise.all([
+            const [resumeResp, userResp, applicationProfileResp] = await Promise.all([
                 fetch(resumeUrl, { headers: { 'Authorization': `Bearer ${idToken}` } }),
-                fetch(userUrl, { headers: { 'Authorization': `Bearer ${idToken}` } })
+                fetch(userUrl, { headers: { 'Authorization': `Bearer ${idToken}` } }),
+                fetch(applicationProfileUrl, { headers: { 'Authorization': `Bearer ${idToken}` } })
             ]);
 
             if (!resumeResp.ok) {
@@ -785,6 +816,13 @@ async function syncProfileFromFirebase(userId: string, resumeId: string): Promis
                 console.warn('[CareerVivid] Failed to fetch user profile via REST, using empty object');
                 userData = {};
             }
+
+            if (applicationProfileResp.ok) {
+                const rawApplicationProfile = await applicationProfileResp.json();
+                applicationProfileData = parseFirestoreRestDoc(rawApplicationProfile);
+            } else {
+                applicationProfileData = null;
+            }
         } else {
             throw new Error('Authentication missing. Please log in to CareerVivid again.');
         }
@@ -793,7 +831,7 @@ async function syncProfileFromFirebase(userId: string, resumeId: string): Promis
             throw new Error('Resume data was not found.');
         }
 
-        const profile: AutoFillProfile = normalizeResumeToProfile(resumeData, userData || {}, resumeId);
+        const profile: AutoFillProfile = normalizeResumeToProfile(resumeData, userData || {}, resumeId, applicationProfileData);
 
         await chrome.storage.local.set({
             autofillProfile: profile,
@@ -820,6 +858,36 @@ async function fetchResumesFromFirebase(userId: string): Promise<Record<string, 
 
     if (!response.ok) {
         throw new Error(`Failed to fetch resumes via REST: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const documents = data.documents || [];
+    return documents
+        .map((doc: any) => parseFirestoreRestDoc(doc))
+        .sort((a: any, b: any) => {
+            const aTime = new Date(a.updatedAt || 0).getTime();
+            const bTime = new Date(b.updatedAt || 0).getTime();
+            return bTime - aTime;
+        });
+}
+
+async function fetchApplicationQueueFromFirebase(userId: string): Promise<Record<string, any>[]> {
+    const idToken = await getFreshTokenPromise();
+    if (!idToken || idToken === 'mock-dev-id-token') {
+        return [];
+    }
+
+    const url = `https://firestore.googleapis.com/v1/projects/jastalk-firebase/databases/(default)/documents/users/${userId}/applicationQueue`;
+    const response = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${idToken}` }
+    });
+
+    if (response.status === 404) {
+        return [];
+    }
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch application queue via REST: ${response.statusText}`);
     }
 
     const data = await response.json();
@@ -890,7 +958,8 @@ async function ensureAutofillProfile(): Promise<AutoFillProfile> {
 function normalizeResumeToProfile(
     resumeData: Record<string, any>,
     userData: Record<string, any>,
-    resumeId: string
+    resumeId: string,
+    applicationProfileData: Record<string, any> | null = null
 ): AutoFillProfile {
     const contact = resumeData.personalDetails || resumeData.contact || resumeData.personalInfo || {};
     const experiences = resumeData.employmentHistory || resumeData.experience || resumeData.workExperience || [];
@@ -947,6 +1016,7 @@ function normalizeResumeToProfile(
         skills,
         sourceResumeId: resumeId,
         lastSyncedAt: new Date().toISOString(),
+        applicationProfile: applicationProfileData || undefined,
     };
 }
 
@@ -1013,14 +1083,93 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             return true;
         }
 
+        case 'FETCH_APPLICATION_QUEUE': {
+            chrome.storage.local.get(['uid', 'isAuthenticated'], (stored) => {
+                if (!stored.isAuthenticated || !stored.uid) {
+                    sendResponse({ success: false, error: 'Please log in to CareerVivid first.' });
+                    return;
+                }
+
+                fetchApplicationQueueFromFirebase(stored.uid).then((items) => {
+                    sendResponse({ success: true, items });
+                }).catch((err: any) => {
+                    sendResponse({ success: false, error: err.message || 'Unable to fetch application queue.' });
+                });
+            });
+            return true;
+        }
+
+        case 'CLAIM_APPLICATION_QUEUE_ITEM': {
+            const { queueId } = message;
+            callCareerVividFunction('claimApplicationQueueItem', {
+                queueId,
+                executorId: `extension:${chrome.runtime.id}`,
+                executorType: 'extension',
+            }).then((result) => {
+                sendResponse({ success: true, ...result });
+            }).catch((err: any) => {
+                sendResponse({ success: false, error: err.message || 'Unable to claim queue item.' });
+            });
+            return true;
+        }
+
+        case 'EXECUTE_APPLICATION_QUEUE_ITEM': {
+            const { queueId } = message;
+            callCareerVividFunction<{ queueItem: any }>('claimApplicationQueueItem', {
+                queueId,
+                executorId: `extension:${chrome.runtime.id}`,
+                executorType: 'extension',
+            }).then(async (result) => {
+                const profile = await ensureAutofillProfile();
+                const queueItem = result.queueItem || {};
+                const queueAwareProfile: AutoFillProfile = {
+                    ...profile,
+                    queueId,
+                    answerPlan: queueItem.answerPlan,
+                };
+
+                await chrome.storage.local.set({
+                    autofillProfile: queueAwareProfile,
+                    activeApplicationQueue: {
+                        queueId,
+                        applyUrl: queueItem.applyUrl || '',
+                        answerPlan: queueItem.answerPlan || null,
+                        claimedAt: new Date().toISOString(),
+                    },
+                });
+
+                if (queueItem.applyUrl) {
+                    chrome.tabs.create({ url: queueItem.applyUrl }, (tab) => {
+                        sendResponse({ success: true, queueItem, tabId: tab.id });
+                    });
+                } else {
+                    sendResponse({ success: true, queueItem, warning: 'Queue item has no apply URL.' });
+                }
+            }).catch((err: any) => {
+                sendResponse({ success: false, error: err.message || 'Unable to execute queue item.' });
+            });
+            return true;
+        }
+
         // Popup triggers auto-fill on the current tab (structured fields only — fast path)
         case 'AUTOFILL_APPLICATION':
-            ensureAutofillProfile().then((profile) => {
+            Promise.all([
+                ensureAutofillProfile(),
+                chrome.storage.local.get(['activeApplicationQueue'])
+            ]).then(([profile, stored]) => {
+                const activeQueue = stored.activeApplicationQueue || null;
+                const queueAwareProfile: AutoFillProfile = activeQueue?.queueId ? {
+                    ...profile,
+                    queueId: activeQueue.queueId,
+                    answerPlan: activeQueue.answerPlan,
+                } : profile;
+
                 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
                     if (tabs[0]?.id) {
                         chrome.tabs.sendMessage(tabs[0].id, {
                             type: 'FILL_FORM',
-                            profile,
+                            profile: queueAwareProfile,
+                            queueId: queueAwareProfile.queueId,
                         });
                         sendResponse({ success: true });
                     } else {
@@ -1031,6 +1180,25 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 sendResponse({ success: false, error: err.message || 'No profile synced. Please select a resume first.' });
             });
             return true;
+
+        case 'REPORT_APPLICATION_FILL_RESULT': {
+            const { queueId, result } = message;
+            callCareerVividFunction('reportApplicationRunStep', {
+                queueId,
+                step: {
+                    type: 'field',
+                    label: 'Autofill summary',
+                    value: `${result?.filledCount || 0} filled, ${result?.skippedCount || 0} skipped, ${result?.errorCount || 0} errors`,
+                    status: result?.errorCount ? 'failed' : 'filled',
+                    message: `Platform: ${result?.platform || 'Unknown'}`,
+                },
+            }).then((receiptResult) => {
+                sendResponse({ success: true, ...receiptResult });
+            }).catch((err: any) => {
+                sendResponse({ success: false, error: err.message || 'Unable to report fill result.' });
+            });
+            return true;
+        }
 
         // Create a temporary scrape transit document in Firestore REST via background to bypass CORS origin checks in popup
         case 'CREATE_TRANSIT_DOC': {

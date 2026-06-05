@@ -985,6 +985,14 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         // Relay result back to popup for the results panel
         sendRuntimeMessage({ type: 'FILL_COMPLETE', result });
 
+        if (profile.queueId) {
+          sendRuntimeMessage({
+            type: 'REPORT_APPLICATION_FILL_RESULT',
+            queueId: profile.queueId,
+            result,
+          });
+        }
+
         // Phase 2: Auto-log to job tracker (best-effort, no user action needed)
         if (result.filledCount > 0) {
           const job = extractJobData();

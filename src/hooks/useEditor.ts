@@ -28,6 +28,39 @@ interface UseEditorProps {
     initialActiveTab?: 'content' | 'template' | 'design' | 'comments' | 'score';
 }
 
+const waitForNextPaint = () =>
+    new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+
+const getVisibleResumeExportRoot = () => {
+    const roots = Array.from(document.querySelectorAll<HTMLElement>('[data-resume-export-root="true"]'));
+
+    return roots.find((root) => {
+        const rect = root.getBoundingClientRect();
+        const styles = window.getComputedStyle(root);
+        const hasRenderedContent = Boolean(root.textContent?.trim());
+
+        return (
+            rect.width > 100 &&
+            rect.height > 100 &&
+            styles.display !== 'none' &&
+            styles.visibility !== 'hidden' &&
+            hasRenderedContent
+        );
+    }) || null;
+};
+
+const waitForResumeExportRoot = async (timeoutMs = 8000) => {
+    const startedAt = performance.now();
+
+    while (performance.now() - startedAt < timeoutMs) {
+        const root = getVisibleResumeExportRoot();
+        if (root) return root;
+        await waitForNextPaint();
+    }
+
+    return getVisibleResumeExportRoot();
+};
+
 export const useEditor = ({
     resumeId,
     initialData,
@@ -325,10 +358,20 @@ export const useEditor = ({
                 }
                 if (!isGuestMode && !isShared) setIsFeedbackModalOpen(true);
             } else {
-                const elementToCapture = document.querySelector('.origin-top') as HTMLElement;
+                if (optionId === 'pdf') {
+                    setViewMode('preview');
+                }
+
+                const elementToCapture = await waitForResumeExportRoot();
                 if (!elementToCapture) throw new Error("Preview element not found");
                 const html2canvas = (await import('html2canvas')).default;
-                const canvas = await html2canvas(elementToCapture, { scale: 3, useCORS: true });
+                const canvas = await html2canvas(elementToCapture, {
+                    scale: 3,
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                    windowWidth: elementToCapture.scrollWidth,
+                    windowHeight: elementToCapture.scrollHeight
+                });
 
                 if (optionId === 'pdf') {
                     const { jsPDF } = await import('jspdf');

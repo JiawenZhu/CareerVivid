@@ -830,6 +830,8 @@ export const sendLifecycleDemoEmails = functions
       const results = [];
       const demoKeys: HydratedLifecycleEmailKey[] = [
         "onboarding_welcome",
+        "feature_ai_editor",
+        "weekly_status_digest",
         "first_resume_completed_tailor_job",
         "review_completed_score_suggestions",
         "first_job_saved_application_packet",
@@ -837,6 +839,7 @@ export const sendLifecycleDemoEmails = functions
         "shared_resume_recruiter_engagement",
         "advocacy_value_request",
         "resume_performance_milestone",
+        "notification_settings_updated",
       ];
       for (const key of demoKeys) {
         const result = await queueHydratedLifecycleEmail(resolvedUserId, key, {

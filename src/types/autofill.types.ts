@@ -31,6 +31,21 @@ export interface AutoFillEducation {
   gpa?: string;
 }
 
+export interface AutoFillAnswerPlanItem {
+  label: string;
+  answer: string;
+  confidence?: 'high' | 'medium' | 'low';
+  source?: string;
+  sensitive?: boolean;
+  requiresUser?: boolean;
+}
+
+export interface AutoFillAnswerPlan {
+  answers: AutoFillAnswerPlanItem[];
+  missingRequiredLabels?: string[];
+  sensitiveBlockedLabels?: string[];
+}
+
 export interface AutoFillProfile {
   // Personal
   firstName: string;
@@ -57,6 +72,12 @@ export interface AutoFillProfile {
   // Metadata
   sourceResumeId: string;
   lastSyncedAt: string;
+
+  // Queue-aware execution metadata. Optional so the existing fill-only path
+  // continues to work when no Apply Agent queue item is active.
+  queueId?: string;
+  applicationProfile?: Record<string, any>;
+  answerPlan?: AutoFillAnswerPlan;
 }
 
 // ---------------------------------------------------------------------------
@@ -123,8 +144,12 @@ export interface AutoFillResult {
 export type ExtensionMessage =
   | { type: 'GET_RESUME_DATA' }
   | { type: 'AUTOFILL_APPLICATION'; resumeId?: string }
-  | { type: 'FILL_FORM'; profile: AutoFillProfile }
+  | { type: 'FILL_FORM'; profile: AutoFillProfile; queueId?: string }
   | { type: 'FILL_COMPLETE'; result: AutoFillResult }
+  | { type: 'FETCH_APPLICATION_QUEUE' }
+  | { type: 'CLAIM_APPLICATION_QUEUE_ITEM'; queueId: string }
+  | { type: 'EXECUTE_APPLICATION_QUEUE_ITEM'; queueId: string }
+  | { type: 'REPORT_APPLICATION_FILL_RESULT'; queueId: string; result: AutoFillResult }
   | { type: 'EXTRACT_JOB_DATA' }
   | { type: 'SAVE_JOB'; job: Partial<JobData> }
   | { type: 'GET_ATS_CONTEXT' }
