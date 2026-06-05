@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { AlertTriangle, Bot, CheckCircle2, ExternalLink, Loader2, Moon, ShieldCheck } from 'lucide-react';
+import { AlertTriangle, Bot, CheckCircle2, ExternalLink, Loader2, Moon, RefreshCw, ShieldCheck } from 'lucide-react';
 import type { ApplicationQueueItem, JobApplicationData, ResumeData } from '../../types';
 import { useApplicationProfile } from '../../hooks/useApplicationProfile';
 import { useApplicationQueue } from '../../hooks/useApplicationQueue';
@@ -15,13 +15,25 @@ interface ApplyAgentPanelProps {
 const STATUS_LABELS: Record<string, string> = {
   draft: 'Draft',
   preparing: 'Preparing',
-  ready: 'Ready',
+  ready: 'Packet ready',
   approved: 'Approved',
-  running: 'Running',
-  needs_user: 'Needs You',
+  running: 'Applying now',
+  needs_user: 'Needs review',
   submitted: 'Submitted',
   failed: 'Failed',
   skipped: 'Skipped',
+};
+
+const STATUS_HELP: Record<string, string> = {
+  draft: 'Saved but not ready yet.',
+  preparing: 'Building the application packet.',
+  ready: 'Saved in the queue. Nothing has been submitted yet.',
+  approved: 'Approved and waiting for an executor.',
+  running: 'The browser runner is working on this application.',
+  needs_user: 'Review the items below, then re-check.',
+  submitted: 'Submitted and waiting for receipt details.',
+  failed: 'Stopped after an error.',
+  skipped: 'Filtered out by your rules.',
 };
 
 const STATUS_STYLES: Record<string, string> = {
@@ -58,7 +70,11 @@ const getSkippedReason = (job: JobApplicationData, minimumScore: number, exclude
 
 const QueueRow: React.FC<{
   item: ApplicationQueueItem;
-}> = ({ item }) => (
+  job?: JobApplicationData;
+  isRefreshing: boolean;
+  onReview: () => void;
+  onRefresh: () => void;
+}> = ({ item, job, isRefreshing, onReview, onRefresh }) => (
   <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm dark:border-gray-800 dark:bg-gray-950">
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0">
@@ -69,11 +85,44 @@ const QueueRow: React.FC<{
         {STATUS_LABELS[item.status] || item.status}
       </span>
     </div>
+    <p className="mt-2 text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+      {STATUS_HELP[item.status] || 'Saved in the application queue.'}
+    </p>
+    {item.riskFlags.length > 0 && (
+      <ul className="mt-2 space-y-1">
+        {item.riskFlags.slice(0, 3).map(flag => (
+          <li key={flag} className="flex items-start gap-1.5 text-[11px] font-bold text-amber-600 dark:text-amber-300">
+            <AlertTriangle size={11} className="mt-0.5 flex-shrink-0" />
+            <span>{flag}</span>
+          </li>
+        ))}
+        {item.riskFlags.length > 3 && (
+          <li className="text-[11px] font-bold text-amber-600 dark:text-amber-300">
+            +{item.riskFlags.length - 3} more item(s)
+          </li>
+        )}
+      </ul>
+    )}
     <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-bold text-gray-500 dark:text-gray-400">
       {typeof item.matchScore === 'number' && <span>{item.matchScore}% match</span>}
       {item.atsPlatform && <span>{item.atsPlatform}</span>}
-      {item.riskFlags.length > 0 && (
-        <span className="text-amber-600 dark:text-amber-300">{item.riskFlags.length} risk flag(s)</span>
+      <button
+        type="button"
+        onClick={onReview}
+        className="ml-auto inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 dark:text-primary-300"
+      >
+        Review job
+      </button>
+      {job && (
+        <button
+          type="button"
+          onClick={onRefresh}
+          disabled={isRefreshing}
+          className="inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-primary-300"
+        >
+          {isRefreshing ? <Loader2 size={11} className="animate-spin" /> : <RefreshCw size={11} />}
+          Re-check
+        </button>
       )}
       {item.applyUrl && (
         <button
@@ -94,6 +143,7 @@ export const ApplyAgentPanel: React.FC<ApplyAgentPanelProps> = ({ applications, 
   const [preparingJobId, setPreparingJobId] = useState<string | null>(null);
   const [prepareError, setPrepareError] = useState('');
 
+  const jobsById = useMemo(() => new Map(applications.map(job => [job.id, job])), [applications]);
   const queuedJobIds = useMemo(() => new Set(items.map(item => item.jobId)), [items]);
   const suggestedJobs = useMemo(() => {
     const rules = profileWithDefaults.autoApplyRules;
@@ -141,7 +191,7 @@ export const ApplyAgentPanel: React.FC<ApplyAgentPanelProps> = ({ applications, 
               </span>
             </div>
             <p className="mt-1 max-w-3xl text-sm font-medium text-gray-500 dark:text-gray-400">
-              Prepare approved application packets from real resume data. Sensitive questions only use saved Application Profile answers.
+              Prepare saved application packets from real resume data. Nothing is submitted until an executor starts.
             </p>
           </div>
         </div>
@@ -181,15 +231,27 @@ export const ApplyAgentPanel: React.FC<ApplyAgentPanelProps> = ({ applications, 
             <h3 className="text-sm font-bold text-gray-950 dark:text-gray-100">Queue</h3>
             <div className="flex gap-1 text-[10px] font-bold text-gray-500 dark:text-gray-400">
               <span>Ready {counts.ready || 0}</span>
-              <span>Running {counts.running || 0}</span>
-              <span>Needs You {counts.needs_user || 0}</span>
+              <span>Applying {counts.running || 0}</span>
+              <span>Review {counts.needs_user || 0}</span>
             </div>
           </div>
           <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-1">
             {isLoading ? (
               <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm font-semibold text-gray-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400">Loading queue...</div>
             ) : items.length > 0 ? (
-              items.slice(0, 4).map(item => <QueueRow key={item.id} item={item} />)
+              items.slice(0, 4).map(item => {
+                const job = jobsById.get(item.jobId);
+                return (
+                  <QueueRow
+                    key={item.id}
+                    item={item}
+                    job={job}
+                    isRefreshing={preparingJobId === item.jobId}
+                    onReview={() => job ? onJobSelect(job) : item.applyUrl && window.open(item.applyUrl, '_blank', 'noopener,noreferrer')}
+                    onRefresh={() => job && prepareJob(job)}
+                  />
+                );
+              })
             ) : (
               <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 text-sm font-semibold text-gray-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400">
                 No queued applications yet.
@@ -229,7 +291,7 @@ export const ApplyAgentPanel: React.FC<ApplyAgentPanelProps> = ({ applications, 
                     className="inline-flex items-center gap-1 rounded-lg bg-primary-600 px-3 py-1.5 text-[11px] font-bold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {preparingJobId === job.id && <Loader2 size={12} className="animate-spin" />}
-                    Prepare
+                    {preparingJobId === job.id ? 'Queueing' : 'Prepare'}
                   </button>
                 </div>
               </div>
