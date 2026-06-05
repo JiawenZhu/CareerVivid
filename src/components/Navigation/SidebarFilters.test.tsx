@@ -94,10 +94,6 @@ vi.mock('../../hooks/useMyCommunityPosts', () => ({
     })
 }));
 
-vi.mock('../NotificationInbox', () => ({
-    default: () => <div data-testid="notification-inbox" />
-}));
-
 describe('Sidebar Component - Sorting and Filtering UX', () => {
     const mockNodes = [
         {

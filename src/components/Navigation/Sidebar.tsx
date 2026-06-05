@@ -15,7 +15,6 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
-import NotificationInbox from '../NotificationInbox';
 import Logo from '../Logo';
 import { useNavigation } from '../../contexts/NavigationContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -380,7 +379,6 @@ const Sidebar: React.FC = () => {
                 <div className="mb-2">
                     <div className="mb-1.5 flex items-center justify-between px-1">
                         <span className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-stone-500 dark:text-slate-400">Quick Access</span>
-                        <NotificationInbox />
                     </div>
                     <div className="grid grid-cols-2 gap-1.5">
                         {quickLinks.map(({ label, path, icon: Icon }) => {
