@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Zap, TrendingUp, Handshake } from 'lucide-react';
+import { SUBSCRIPTION_CATALOG } from '../../config/subscriptionCatalog';
 
 const EnterpriseCalculator: React.FC = () => {
     const [seats, setSeats] = useState(10);
-    const PRICE_PER_SEAT = 12;
-    const CREDITS_PER_SEAT = 1200;
+    const PRICE_PER_SEAT = SUBSCRIPTION_CATALOG.enterprise.monthlyPrice;
+    const CREDITS_PER_SEAT = SUBSCRIPTION_CATALOG.enterprise.creditLimit;
 
     const totalCost = seats * PRICE_PER_SEAT;
     const totalCredits = seats * CREDITS_PER_SEAT;

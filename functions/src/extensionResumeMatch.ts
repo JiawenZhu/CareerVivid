@@ -7,6 +7,7 @@ import {
   getVertexLocationForModel,
   resolveVertexModelName,
 } from "./utils/ai";
+import { getPlanMonthlyLimitForUser } from "./utils/planLimits";
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -34,21 +35,6 @@ interface ResumeMatchAnalysis {
   responsibilities?: GranularMatchCategory;
   keywords?: GranularMatchCategory;
   jobTitle?: GranularMatchCategory;
-}
-
-function getMonthlyLimit(data: admin.firestore.DocumentData): number {
-  const plan = data.plan || "free";
-  let limit = 100;
-
-  if (plan === "pro" || plan === "premium" || plan === "pro_monthly" || plan === "pro_sprint") {
-    limit = 1000;
-  } else if (plan === "max" || plan === "pro_max") {
-    limit = 5000;
-  } else if (plan === "enterprise") {
-    limit = Math.max(1, Number(data.seats || 1)) * 1500;
-  }
-
-  return limit + Number(data.promotions?.tokenCredits || 0);
 }
 
 function getResetDate(value: unknown): Date | null {
@@ -81,7 +67,7 @@ async function deductCredits(userId: string, cost: number) {
 
     const data = userDoc.data() || {};
     const aiUsage = data.aiUsage || {};
-    const limit = getMonthlyLimit(data);
+    const limit = getPlanMonthlyLimitForUser(data);
     const shouldReset = hasMonthElapsed(getResetDate(aiUsage.lastResetDate));
     const currentCount = shouldReset ? 0 : Number(aiUsage.count || 0);
     const isAdmin = data.role === "admin" || (data.roles || []).includes("admin");

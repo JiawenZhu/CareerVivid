@@ -26,6 +26,7 @@ import {
     PRO_MAX_PLAN_CREDIT_LIMIT,
     ENTERPRISE_PLAN_CREDIT_LIMIT
 } from '../config/creditCosts';
+import { SUBSCRIPTION_CATALOG } from '../config/subscriptionCatalog';
 import AIUsageProgressBar from '../components/AIUsageProgressBar';
 
 const BillingDashboard: React.FC = () => {
@@ -39,9 +40,9 @@ const BillingDashboard: React.FC = () => {
     const isEnterprise = currentPlan === 'enterprise';
 
     const plans = [
-        { id: 'pro', name: 'Pro', price: '$9', limit: PRO_PLAN_CREDIT_LIMIT, priceId: 'price_1TJoONRJNflGxv32zSqxC9bZ' },
-        { id: 'max', name: 'Max', price: '$29', limit: PRO_MAX_PLAN_CREDIT_LIMIT, priceId: 'price_1TJoONRJNflGxv32wxPHw9FR' },
-        { id: 'enterprise', name: 'Enterprise', price: '$12/seat', limit: ENTERPRISE_PLAN_CREDIT_LIMIT, priceId: 'price_1TJoQyRJNflGxv32FQ9TxIjq' }
+        { id: 'pro', name: 'Pro', price: `$${SUBSCRIPTION_CATALOG.pro.monthlyPrice}`, limit: PRO_PLAN_CREDIT_LIMIT, priceId: SUBSCRIPTION_CATALOG.pro.monthlyPriceId },
+        { id: 'max', name: 'Max', price: `$${SUBSCRIPTION_CATALOG.max.monthlyPrice}`, limit: PRO_MAX_PLAN_CREDIT_LIMIT, priceId: SUBSCRIPTION_CATALOG.max.monthlyPriceId },
+        { id: 'enterprise', name: 'Enterprise', price: `$${SUBSCRIPTION_CATALOG.enterprise.monthlyPrice}/seat`, limit: ENTERPRISE_PLAN_CREDIT_LIMIT, priceId: SUBSCRIPTION_CATALOG.enterprise.monthlyPriceId }
     ];
 
     const handleUpgrade = async (priceId: string) => {
@@ -216,7 +217,7 @@ const BillingDashboard: React.FC = () => {
                                         Upgrade to Enterprise
                                     </h3>
                                     <p className="text-gray-400 text-sm mb-8 leading-relaxed max-w-md">
-                                        Need more than <span className="text-white font-bold">10,000</span> credits? Pooled team balances, SSO, and Private Workspaces start at just $12 per seat.
+                                        Need a team credit pool? Enterprise includes <span className="text-white font-bold">{ENTERPRISE_PLAN_CREDIT_LIMIT.toLocaleString()}</span> credits per seat, SSO, and Private Workspaces from $12 per seat.
                                     </p>
                                     <button onClick={() => navigate('/pricing')} className="bg-white text-gray-900 font-bold py-3.5 px-8 rounded-xl text-sm hover:bg-gray-100 hover:scale-[1.02] transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]">
                                         Explore Enterprise
@@ -256,7 +257,7 @@ const BillingDashboard: React.FC = () => {
                                             {!isCurrentPlan && (
                                                 <button
                                                     onClick={() => handleUpgrade(p.priceId)}
-                                                    disabled={isLoading}
+                                                    disabled={isLoading || !p.priceId}
                                                     className="w-full mt-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl text-[11px] font-black uppercase tracking-widest hover:opacity-90 hover:scale-[1.02] transition-all shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                                                 >
                                                     Switch to {p.name}

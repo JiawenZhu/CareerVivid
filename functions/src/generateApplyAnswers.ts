@@ -3,6 +3,7 @@ import * as admin from "firebase-admin";
 
 import { getAIClient } from "./utils/ai";
 import { getLabelHash } from "./answerLibrary";
+import { getPlanMonthlyLimitForUser } from "./utils/planLimits";
 
 if (!admin.apps.length) {
     admin.initializeApp();
@@ -42,7 +43,7 @@ async function deductCredits(userId: string, cost: number): Promise<void> {
         const data = userDoc.data()!;
         const aiUsage = data.aiUsage || {};
         const count: number = aiUsage.count || 0;
-        const limit: number = aiUsage.monthlyLimit || getDefaultLimit(data.plan);
+        const limit = getPlanMonthlyLimitForUser(data);
         const isAdmin = data.role === "admin" || (data.roles || []).includes("admin");
 
         if (!isAdmin && count + cost > limit) {
@@ -55,13 +56,6 @@ async function deductCredits(userId: string, cost: number): Promise<void> {
             "aiUsage.count": admin.firestore.FieldValue.increment(cost),
         });
     });
-}
-
-function getDefaultLimit(plan?: string): number {
-    if (plan === "pro_monthly") return 300;
-    if (plan === "pro_sprint") return 100;
-    if (plan === "pro" || plan === "pro_max") return 666;
-    return 10;
 }
 
 // ── Determine which questions need AI ─────────────────────────────────────────

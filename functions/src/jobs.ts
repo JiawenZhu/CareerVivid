@@ -7,6 +7,7 @@ import { performGoogleSearch } from "./utils/customSearch";
 import type { CustomSearchResult } from "./utils/customSearch";
 import { searchJobsInCTS, createOrUpdateJobsBatch } from "./talentSolution";
 import { secureCorsHandler } from "./utils/corsUtils.js";
+import { getPlanMonthlyLimitForUser } from "./utils/planLimits";
 
 // Initialize Firebase Admin if not already initialized
 if (!admin.apps.length) {
@@ -583,15 +584,8 @@ export const searchJobsCallable = functions.region('us-west1').runWith({
         const userRoles = userData?.roles || [];
         isAdmin = userRole === 'admin' || userRoles.includes('admin');
 
-        // Calculate limit based on user's plan
         const userPlan = userData?.plan;
-        if (userPlan === 'pro_sprint') {
-            aiUsageLimit = 100; // Sprint: 100 AI Credits/month
-        } else if (userPlan === 'pro_monthly') {
-            aiUsageLimit = 300; // Monthly: 300 AI Credits/month
-        } else if (aiUsageData.monthlyLimit) {
-            aiUsageLimit = aiUsageData.monthlyLimit;
-        }
+        aiUsageLimit = userData ? getPlanMonthlyLimitForUser(userData) : aiUsageLimit;
 
         console.log(`[searchJobsCallable] User ${userId} | Role: ${userRole} | Admin: ${isAdmin} | Plan: ${userPlan} | AI Usage: ${aiUsageCount}/${aiUsageLimit}`);
 

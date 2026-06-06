@@ -7,6 +7,7 @@ import {
     PRO_MAX_PLAN_CREDIT_LIMIT,
     AI_CREDIT_COSTS,
 } from '../../config/creditCosts';
+import { SUBSCRIPTION_CATALOG } from '../../config/subscriptionCatalog';
 
 interface SliderConfig {
     id: string;
@@ -102,8 +103,8 @@ interface PlanConfig {
 
 const PLANS: PlanConfig[] = [
     { name: 'Free',       limit: FREE_PLAN_CREDIT_LIMIT,    color: '#6b7280', price: '$0/mo',    accent: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300' },
-    { name: 'Pro',        limit: PRO_PLAN_CREDIT_LIMIT,     color: '#6366f1', price: '$9/mo',    accent: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' },
-    { name: 'Max',        limit: PRO_MAX_PLAN_CREDIT_LIMIT, color: '#a855f7', price: '$29/mo',   accent: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300' },
+    { name: 'Pro',        limit: PRO_PLAN_CREDIT_LIMIT,     color: '#6366f1', price: `$${SUBSCRIPTION_CATALOG.pro.monthlyPrice}/mo`,    accent: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' },
+    { name: 'Max',        limit: PRO_MAX_PLAN_CREDIT_LIMIT, color: '#a855f7', price: `$${SUBSCRIPTION_CATALOG.max.monthlyPrice}/mo`,   accent: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300' },
 ];
 
 export const CreditCalculator: React.FC = () => {
