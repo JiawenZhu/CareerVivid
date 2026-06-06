@@ -237,7 +237,7 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                         <div className="text-xs text-amber-400 font-bold tracking-widest mt-3 uppercase bg-amber-400/10 inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-amber-400/20">
                             <Zap size={12} /> {ENTERPRISE_PLAN_CREDIT_LIMIT.toLocaleString()} pooled credits/seat
                         </div>
-                        <p className="text-xs text-gray-500 mt-2">Credits pool across all seats</p>
+                        <p className="text-xs text-gray-500 mt-2">{SUBSCRIPTION_CATALOG.enterprise.minimumSeats}-seat minimum, credits pool across all seats</p>
                     </div>
                     <ul className="space-y-3.5 mb-8 flex-grow text-sm font-medium text-gray-300 relative z-10">
                         <li className="flex items-start gap-3"><Check className="text-amber-400 flex-shrink-0 mt-0.5" size={18} /><span>Private Team Workspaces</span></li>

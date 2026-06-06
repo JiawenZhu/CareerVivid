@@ -6,7 +6,7 @@
  *  - Free:       100 AI credits / month  (Gemini models only)
  *  - Pro:      1,000 AI credits / month
  *  - Max:      4,500 AI credits / month
- *  - Enterprise: 1,500 AI credits / seat / month (pooled)
+ *  - Enterprise: 1,500 AI credits / seat / month (pooled, 2-seat minimum)
  */
 
 // --- Tier Limits (Monthly) ---
@@ -14,6 +14,7 @@ export const FREE_PLAN_CREDIT_LIMIT = 100;        // Free tier: 100 credits/mo
 export const PRO_PLAN_CREDIT_LIMIT = 1000;        // Pro: $12/mo or $120/yr → 1,000 credits
 export const PRO_MAX_PLAN_CREDIT_LIMIT = 4500;    // Max: $35/mo or $372/yr → 4,500 credits
 export const ENTERPRISE_PLAN_CREDIT_LIMIT = 1500; // Enterprise: $12/seat (pooled)
+export const ENTERPRISE_MINIMUM_SEATS = 2;
 
 // --- CLI Agent costs (per AI round-trip) ---
 export const CLI_AGENT_COSTS = {

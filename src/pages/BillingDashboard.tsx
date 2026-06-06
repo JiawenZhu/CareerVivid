@@ -38,20 +38,22 @@ const BillingDashboard: React.FC = () => {
 
     const currentPlan = userProfile?.plan || 'free';
     const isEnterprise = currentPlan === 'enterprise';
+    const enterpriseSeats = Math.max(SUBSCRIPTION_CATALOG.enterprise.minimumSeats, userProfile?.seats || 1);
 
     const plans = [
         { id: 'pro', name: 'Pro', price: `$${SUBSCRIPTION_CATALOG.pro.monthlyPrice}`, limit: PRO_PLAN_CREDIT_LIMIT, priceId: SUBSCRIPTION_CATALOG.pro.monthlyPriceId },
         { id: 'max', name: 'Max', price: `$${SUBSCRIPTION_CATALOG.max.monthlyPrice}`, limit: PRO_MAX_PLAN_CREDIT_LIMIT, priceId: SUBSCRIPTION_CATALOG.max.monthlyPriceId },
-        { id: 'enterprise', name: 'Enterprise', price: `$${SUBSCRIPTION_CATALOG.enterprise.monthlyPrice}/seat`, limit: ENTERPRISE_PLAN_CREDIT_LIMIT, priceId: SUBSCRIPTION_CATALOG.enterprise.monthlyPriceId }
+        { id: 'enterprise', name: 'Enterprise', price: `$${SUBSCRIPTION_CATALOG.enterprise.monthlyPrice}/seat`, limit: SUBSCRIPTION_CATALOG.enterprise.minimumSeats * ENTERPRISE_PLAN_CREDIT_LIMIT, priceId: SUBSCRIPTION_CATALOG.enterprise.monthlyPriceId, minimumSeats: SUBSCRIPTION_CATALOG.enterprise.minimumSeats }
     ];
 
-    const handleUpgrade = async (priceId: string) => {
+    const handleUpgrade = async (priceId: string, quantity = 1) => {
         if (!currentUser) return;
         setIsLoading(true);
         try {
             const createCheckoutSession = httpsCallable(functions, 'createCheckoutSession');
             const result: any = await createCheckoutSession({
                 priceId,
+                quantity,
                 successUrl: `${window.location.origin}/#/billing?success=true`,
                 cancelUrl: `${window.location.origin}/#/billing`,
             });
@@ -161,7 +163,7 @@ const BillingDashboard: React.FC = () => {
                                         </div>
                                         <div>
                                             <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Team Management</h2>
-                                            <p className="text-gray-500 dark:text-gray-400 font-medium text-sm mt-1">Managing {userProfile?.seats || 1} Developer Seats</p>
+                                            <p className="text-gray-500 dark:text-gray-400 font-medium text-sm mt-1">Managing {enterpriseSeats} Developer Seats</p>
                                         </div>
                                     </div>
                                     <button className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all hover:rotate-90">
@@ -253,10 +255,15 @@ const BillingDashboard: React.FC = () => {
                                             <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 dark:text-gray-400 tracking-wider">
                                                 <Zap size={14} className={isCurrentPlan ? "text-primary-500" : ""} /> {p.limit.toLocaleString()} CREDITS / MO
                                             </div>
+                                            {p.id === 'enterprise' && (
+                                                <div className="mt-2 text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                                                    {p.minimumSeats}-seat minimum
+                                                </div>
+                                            )}
                                             
                                             {!isCurrentPlan && (
                                                 <button
-                                                    onClick={() => handleUpgrade(p.priceId)}
+                                                    onClick={() => handleUpgrade(p.priceId, p.id === 'enterprise' ? p.minimumSeats : 1)}
                                                     disabled={isLoading || !p.priceId}
                                                     className="w-full mt-5 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl text-[11px] font-black uppercase tracking-widest hover:opacity-90 hover:scale-[1.02] transition-all shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                                                 >

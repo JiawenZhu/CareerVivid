@@ -10,15 +10,15 @@ async function setupEnterprise() {
   if (existingEnterprise) {
       console.log('Found existing Enterprise product: ' + existingEnterprise.id);
       enterpriseProduct = await stripe.products.update(existingEnterprise.id, {
-        description: '1,500 pooled AI Credits / seat / mo',
-        metadata: { plan: 'enterprise', credits_per_seat: '1500', catalog_version: '2026-06-06' },
+        description: '1,500 pooled AI Credits / seat / mo, 2-seat minimum',
+        metadata: { plan: 'enterprise', credits_per_seat: '1500', minimum_seats: '2', catalog_version: '2026-06-06' },
       });
   } else {
       console.log('Creating new Enterprise product...');
       enterpriseProduct = await stripe.products.create({
         name: 'Enterprise',
-        description: '1,500 pooled AI Credits / seat / mo',
-        metadata: { plan: 'enterprise', credits_per_seat: '1500', catalog_version: '2026-06-06' },
+        description: '1,500 pooled AI Credits / seat / mo, 2-seat minimum',
+        metadata: { plan: 'enterprise', credits_per_seat: '1500', minimum_seats: '2', catalog_version: '2026-06-06' },
       });
   }
 
@@ -29,7 +29,7 @@ async function setupEnterprise() {
     currency: 'usd',
     recurring: { interval: 'month' },
     nickname: 'Enterprise Seat Monthly - 2026 Catalog',
-    metadata: { plan: 'enterprise', interval: 'month', credits_per_seat: '1500', catalog_version: '2026-06-06' },
+    metadata: { plan: 'enterprise', interval: 'month', credits_per_seat: '1500', minimum_seats: '2', catalog_version: '2026-06-06' },
   });
 
   console.log('\n✅ SUCCESS! Here is your LIVE Enterprise Price ID:');

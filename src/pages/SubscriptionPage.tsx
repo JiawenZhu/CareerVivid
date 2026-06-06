@@ -204,6 +204,7 @@ const SubscriptionPage: React.FC = () => {
                 "Team Workspaces",
                 t('subscription.features.all_templates'),
                 `${ENTERPRISE_PLAN_CREDIT_LIMIT} Credits per seat`,
+                `${SUBSCRIPTION_CATALOG.enterprise.minimumSeats}-seat minimum`,
                 "Centralized Billing",
                 "Custom Solutions",
                 "Admin Dashboard",
@@ -214,7 +215,7 @@ const SubscriptionPage: React.FC = () => {
         },
     ];
 
-    const handleUpgrade = async (priceId: string | null) => {
+    const handleUpgrade = async (priceId: string | null, quantity = 1) => {
         if (!priceId || !currentUser) return;
 
         setIsLoading(true);
@@ -226,6 +227,7 @@ const SubscriptionPage: React.FC = () => {
             const createCheckoutSession = httpsCallable(functions, 'createCheckoutSession');
             const result: any = await createCheckoutSession({
                 priceId,
+                quantity,
                 successUrl: `${window.location.origin}/#/subscription?success=true`,
                 cancelUrl: `${window.location.origin}/#/subscription`,
             });
@@ -480,7 +482,13 @@ const SubscriptionPage: React.FC = () => {
                                         <div className="mt-1">
                                             <AIUsageProgressBar 
                                                 used={userProfile?.aiUsage?.count || 0}
-                                                limit={currentPlan === 'pro' ? PRO_PLAN_CREDIT_LIMIT : currentPlan === 'max' ? PRO_MAX_PLAN_CREDIT_LIMIT : currentPlan === 'enterprise' ? ENTERPRISE_PLAN_CREDIT_LIMIT : FREE_PLAN_CREDIT_LIMIT}
+                                                limit={currentPlan === 'pro'
+                                                    ? PRO_PLAN_CREDIT_LIMIT
+                                                    : currentPlan === 'max'
+                                                        ? PRO_MAX_PLAN_CREDIT_LIMIT
+                                                        : currentPlan === 'enterprise'
+                                                            ? Math.max(SUBSCRIPTION_CATALOG.enterprise.minimumSeats, userProfile?.seats || 1) * ENTERPRISE_PLAN_CREDIT_LIMIT
+                                                            : FREE_PLAN_CREDIT_LIMIT}
                                                 isPremium={currentPlan !== 'free'}
                                                 variant="compact"
                                             />
@@ -505,7 +513,7 @@ const SubscriptionPage: React.FC = () => {
                                 </div>
 
                                 <button 
-                                    onClick={() => handleUpgrade(SUBSCRIPTION_CATALOG.enterprise.monthlyPriceId)}
+                                    onClick={() => handleUpgrade(SUBSCRIPTION_CATALOG.enterprise.monthlyPriceId, SUBSCRIPTION_CATALOG.enterprise.minimumSeats)}
                                     className="bg-white text-gray-900 hover:bg-gray-100 font-bold py-3.5 px-8 rounded-2xl transition-colors shadow-md text-sm tracking-tight mt-2"
                                 >
                                     Explore Enterprise
@@ -548,7 +556,7 @@ const SubscriptionPage: React.FC = () => {
                                             ? PRO_MAX_PLAN_CREDIT_LIMIT
                                             : plan.id === 'pro'
                                                 ? PRO_PLAN_CREDIT_LIMIT
-                                                : ENTERPRISE_PLAN_CREDIT_LIMIT;
+                                                : SUBSCRIPTION_CATALOG.enterprise.minimumSeats * ENTERPRISE_PLAN_CREDIT_LIMIT;
                                         
                                         return (
                                         <div 
@@ -582,7 +590,7 @@ const SubscriptionPage: React.FC = () => {
                                                 </div>
                                             ) : (
                                                 <button
-                                                    onClick={() => checkoutPriceId && handleUpgrade(checkoutPriceId)}
+                                                    onClick={() => checkoutPriceId && handleUpgrade(checkoutPriceId, plan.id === 'enterprise' ? SUBSCRIPTION_CATALOG.enterprise.minimumSeats : 1)}
                                                     disabled={isLoading || !checkoutPriceId}
                                                     className={`w-full py-3 rounded-xl font-bold text-[13px] tracking-wide transition-all ${
                                                         'bg-[#1a1c23] hover:bg-black text-white dark:bg-gray-800 dark:hover:bg-gray-700 shadow-sm'

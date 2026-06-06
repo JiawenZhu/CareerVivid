@@ -43,15 +43,15 @@ const EnterpriseCalculator: React.FC = () => {
                         </div>
                         <input
                             type="range"
-                            min="5"
+                            min={SUBSCRIPTION_CATALOG.enterprise.minimumSeats}
                             max="500"
-                            step="5"
+                            step="1"
                             value={seats}
                             onChange={(e) => setSeats(parseInt(e.target.value))}
                             className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary-600 transition-all hover:h-4"
                         />
                         <div className="flex justify-between text-xs font-bold text-gray-400 uppercase tracking-wider">
-                            <span>5</span>
+                            <span>{SUBSCRIPTION_CATALOG.enterprise.minimumSeats}</span>
                             <span>500+</span>
                         </div>
                     </div>

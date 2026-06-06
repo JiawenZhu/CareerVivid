@@ -4,6 +4,7 @@ import { defineSecret } from "firebase-functions/params";
 import Stripe from "stripe";
 import * as admin from "firebase-admin";
 import { generateCareerVividEmail } from "./emailTemplates";
+import { ENTERPRISE_MINIMUM_SEATS } from "./utils/planLimits";
 
 const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
 const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
@@ -95,6 +96,21 @@ function assertCheckoutPriceAllowed(priceId: string, mode: Stripe.Checkout.Sessi
     );
 }
 
+function normalizeCheckoutQuantity(
+    quantity: unknown,
+    priceId: string,
+    mode: Stripe.Checkout.SessionCreateParams.Mode
+) {
+    const requestedQuantity = Math.floor(Number(quantity || 1));
+    const safeQuantity = Number.isFinite(requestedQuantity) && requestedQuantity > 0 ? requestedQuantity : 1;
+
+    if (mode === "subscription" && priceId === PRICE_IDS.ENTERPRISE_MONTHLY) {
+        return Math.max(ENTERPRISE_MINIMUM_SEATS, safeQuantity);
+    }
+
+    return safeQuantity;
+}
+
 // One visible "Download Once" purchase gets backend retry allowance for failed exports.
 const PDF_DOWNLOAD_CREDITS_PER_PURCHASE = 3;
 
@@ -154,16 +170,23 @@ export const createCheckoutSession = onCall(
             const mode: Stripe.Checkout.SessionCreateParams.Mode =
                 requestedMode === 'payment' || ONE_TIME_PRICE_IDS.includes(priceId) ? "payment" : "subscription";
             assertCheckoutPriceAllowed(priceId, mode);
+            const checkoutQuantity = normalizeCheckoutQuantity(quantity, priceId, mode);
+            const checkoutMetadata = {
+                userId: userId,
+                priceId: priceId,
+                ...metadata,
+                ...(priceId === PRICE_IDS.ENTERPRISE_MONTHLY ? { seats: String(checkoutQuantity) } : {}),
+            };
 
             try {
                 // Create checkout session
                 const session = await stripe.checkout.sessions.create({
                     customer: stripeCustomerId,
                     mode: mode,
-                    line_items: [{ price: priceId, quantity: quantity || 1 }],
+                    line_items: [{ price: priceId, quantity: checkoutQuantity }],
                     success_url: successUrl,
                     cancel_url: cancelUrl,
-                    metadata: { userId: userId, priceId: priceId, ...metadata },
+                    metadata: checkoutMetadata,
                 });
 
                 return { url: session.url, sessionId: session.id };
@@ -187,10 +210,10 @@ export const createCheckoutSession = onCall(
                     const session = await stripe.checkout.sessions.create({
                         customer: newCustomerId,
                         mode: mode,
-                        line_items: [{ price: priceId, quantity: quantity || 1 }],
+                        line_items: [{ price: priceId, quantity: checkoutQuantity }],
                         success_url: successUrl,
                         cancel_url: cancelUrl,
-                        metadata: { userId: userId, priceId: priceId, ...metadata },
+                        metadata: checkoutMetadata,
                     });
 
                     return { url: session.url, sessionId: session.id };
@@ -653,10 +676,15 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
                 return;
             }
 
+            const seats = subscriptionPrice.plan === "enterprise"
+                ? normalizeCheckoutQuantity(session.metadata?.seats, PRICE_IDS.ENTERPRISE_MONTHLY, "subscription")
+                : null;
+
             // Subscription activated
             await userRef.set(
                 {
                     plan: subscriptionPrice.plan,
+                    ...(seats ? { seats } : {}),
                     resumeLimit: 9999, // Legacy unrestricted resumes (credits handle AI logic)
                     subscriptionStatus: "active",
                     stripeCustomerId: session.customer,
@@ -729,6 +757,14 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
         updateData.billingInterval = subscriptionPrice.billingInterval;
         updateData.subscriptionCatalogVersion = subscriptionPrice.legacy ? "legacy" : "2026-06-06";
         updateData.resumeLimit = isPremium ? 9999 : 1;
+
+        if (subscriptionPrice.plan === "enterprise") {
+            updateData.seats = normalizeCheckoutQuantity(
+                subscription.items.data[0]?.quantity,
+                PRICE_IDS.ENTERPRISE_MONTHLY,
+                "subscription"
+            );
+        }
     }
 
     await userDoc.ref.set(updateData, { merge: true });

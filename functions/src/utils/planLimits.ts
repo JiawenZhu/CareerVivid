@@ -8,9 +8,11 @@ export const PLAN_CREDIT_LIMITS = {
   enterprisePerSeat: 1500,
 } as const;
 
+export const ENTERPRISE_MINIMUM_SEATS = 2;
+
 export function getPlanMonthlyLimit(plan?: string, seats = 1): number {
   if (plan === "enterprise") {
-    return Math.max(1, seats) * PLAN_CREDIT_LIMITS.enterprisePerSeat;
+    return Math.max(ENTERPRISE_MINIMUM_SEATS, seats) * PLAN_CREDIT_LIMITS.enterprisePerSeat;
   }
   if (plan === "max" || plan === "pro_max") return PLAN_CREDIT_LIMITS.max;
   if (plan === "pro_monthly" || plan === "pro" || plan === "premium") return PLAN_CREDIT_LIMITS.pro;

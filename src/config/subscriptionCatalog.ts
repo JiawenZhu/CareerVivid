@@ -1,5 +1,6 @@
 import {
     ENTERPRISE_PLAN_CREDIT_LIMIT,
+    ENTERPRISE_MINIMUM_SEATS,
     PRO_MAX_PLAN_CREDIT_LIMIT,
     PRO_PLAN_CREDIT_LIMIT,
 } from './creditCosts';
@@ -40,6 +41,7 @@ export const SUBSCRIPTION_CATALOG = {
         name: 'Enterprise',
         monthlyPrice: 12,
         creditLimit: ENTERPRISE_PLAN_CREDIT_LIMIT,
+        minimumSeats: ENTERPRISE_MINIMUM_SEATS,
         monthlyPriceId: STRIPE_SUBSCRIPTION_PRICE_IDS.enterpriseMonthly,
     },
 } as const;

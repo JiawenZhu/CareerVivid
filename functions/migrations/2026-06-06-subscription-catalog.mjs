@@ -33,6 +33,7 @@ const catalog = {
     enterprise: {
       seatMonthlyPriceCents: 1200,
       creditsPerSeatPerBillingCycle: 1500,
+      minimumSeats: 2,
       pricingModel: "contract_or_seat_based",
       stripePriceEnv: {
         monthly: "STRIPE_PRICE_ENTERPRISE_MONTHLY",
@@ -44,7 +45,7 @@ const catalog = {
 
 function limitForUser(data) {
   const plan = data.plan || "free";
-  if (plan === "enterprise") return Math.max(1, Number(data.seats || 1)) * 1500;
+  if (plan === "enterprise") return Math.max(2, Number(data.seats || 1)) * 1500;
   if (plan === "max" || plan === "pro_max") return 4500;
   if (plan === "pro" || plan === "premium" || plan === "pro_monthly") return 1000;
   if (plan === "pro_sprint") return 300;
@@ -83,6 +84,10 @@ async function run() {
 
       if (plan !== "enterprise" && !data.billingInterval) {
         nextData.billingInterval = "month";
+      }
+
+      if (plan === "enterprise" && Number(data.seats || 1) < 2) {
+        nextData.seats = 2;
       }
 
       if (commit) {
