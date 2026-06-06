@@ -8,11 +8,11 @@ import {
 const env = (name: string) => (import.meta.env[name] as string | undefined)?.trim() || '';
 
 export const STRIPE_SUBSCRIPTION_PRICE_IDS = {
-    proMonthly: env('VITE_STRIPE_PRICE_PRO_MONTHLY'),
-    proAnnual: env('VITE_STRIPE_PRICE_PRO_ANNUAL'),
-    maxMonthly: env('VITE_STRIPE_PRICE_MAX_MONTHLY'),
-    maxAnnual: env('VITE_STRIPE_PRICE_MAX_ANNUAL'),
-    enterpriseMonthly: env('VITE_STRIPE_PRICE_ENTERPRISE_MONTHLY') || 'price_1TJoQyRJNflGxv32FQ9TxIjq',
+    proMonthly: env('VITE_STRIPE_PRICE_PRO_MONTHLY') || 'price_1TfQaqRJNflGxv32GIVnEOKu',
+    proAnnual: env('VITE_STRIPE_PRICE_PRO_ANNUAL') || 'price_1TfQaqRJNflGxv32OZ73C04t',
+    maxMonthly: env('VITE_STRIPE_PRICE_MAX_MONTHLY') || 'price_1TfQarRJNflGxv32CC7MqVnt',
+    maxAnnual: env('VITE_STRIPE_PRICE_MAX_ANNUAL') || 'price_1TfQarRJNflGxv323VMZLt0U',
+    enterpriseMonthly: env('VITE_STRIPE_PRICE_ENTERPRISE_MONTHLY') || 'price_1TfQauRJNflGxv32cDBdjco9',
 } as const;
 
 export const SUBSCRIPTION_CATALOG = {

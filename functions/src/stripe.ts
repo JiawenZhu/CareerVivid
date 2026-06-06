@@ -20,11 +20,11 @@ const PRICE_IDS = {
     NFC_CUSTOM: "price_1So67jRJNflGxv32TKsC7AbX", // Custom NFC Card - $12.90
     NFC_STANDARD: "price_1So6AtRJNflGxv32qHMPnhwz", // Standard NFC Card - $9.89
     // Active 2026 subscription catalog
-    PRO_MONTHLY: envPrice("STRIPE_PRICE_PRO_MONTHLY"),
-    PRO_ANNUAL: envPrice("STRIPE_PRICE_PRO_ANNUAL"),
-    MAX_MONTHLY: envPrice("STRIPE_PRICE_MAX_MONTHLY"),
-    MAX_ANNUAL: envPrice("STRIPE_PRICE_MAX_ANNUAL"),
-    ENTERPRISE_MONTHLY: envPrice("STRIPE_PRICE_ENTERPRISE_MONTHLY") || "price_1TJoQyRJNflGxv32FQ9TxIjq",
+    PRO_MONTHLY: envPrice("STRIPE_PRICE_PRO_MONTHLY") || "price_1TfQaqRJNflGxv32GIVnEOKu",
+    PRO_ANNUAL: envPrice("STRIPE_PRICE_PRO_ANNUAL") || "price_1TfQaqRJNflGxv32OZ73C04t",
+    MAX_MONTHLY: envPrice("STRIPE_PRICE_MAX_MONTHLY") || "price_1TfQarRJNflGxv32CC7MqVnt",
+    MAX_ANNUAL: envPrice("STRIPE_PRICE_MAX_ANNUAL") || "price_1TfQarRJNflGxv323VMZLt0U",
+    ENTERPRISE_MONTHLY: envPrice("STRIPE_PRICE_ENTERPRISE_MONTHLY") || "price_1TfQauRJNflGxv32cDBdjco9",
     // Legacy subscription listeners retained for existing subscribers and old webhooks.
     LEGACY_PRO_MONTHLY: "price_1ScLOaRJNflGxv32BwQnSBs0",
     LEGACY_PRO_LIVE: "price_1TJoONRJNflGxv32zSqxC9bZ",
