@@ -127,18 +127,19 @@ export function PublicHeader() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    const storedTheme = window.localStorage.getItem("careervivid-theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const nextTheme = storedTheme === "dark" || (!storedTheme && prefersDark) ? "dark" : "light";
+    const storedTheme = window.localStorage.getItem("careervivid-public-theme");
+    const nextTheme = storedTheme === "dark" ? "dark" : "light";
     setTheme(nextTheme);
     document.documentElement.classList.toggle("dark", nextTheme === "dark");
+    document.documentElement.dataset.themeMode = nextTheme;
   }, []);
 
   const toggleTheme = () => {
     const nextTheme = theme === "light" ? "dark" : "light";
     setTheme(nextTheme);
-    window.localStorage.setItem("careervivid-theme", nextTheme);
+    window.localStorage.setItem("careervivid-public-theme", nextTheme);
     document.documentElement.classList.toggle("dark", nextTheme === "dark");
+    document.documentElement.dataset.themeMode = nextTheme;
   };
 
   return (

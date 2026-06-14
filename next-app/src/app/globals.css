@@ -2,6 +2,14 @@
 
 @theme {
   --color-primary: #625bd5;
+  --color-primary-50: #f3f2ff;
+  --color-primary-100: #e8e6ff;
+  --color-primary-300: #b8b2ff;
+  --color-primary-400: #9189f3;
+  --color-primary-500: #7069dc;
+  --color-primary-600: #625bd5;
+  --color-primary-700: #5148c8;
+  --color-primary-900: #29245f;
   --color-primary-dark: #4f46c6;
   --color-background-light: #f7f1e7;
   --color-background-dark: #1f1f1d;
