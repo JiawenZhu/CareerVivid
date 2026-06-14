@@ -115,6 +115,10 @@
         "region": "us-west1"
       },
       {
+        "source": "/portfolio/edit/**",
+        "destination": "/app.html"
+      },
+      {
         "source": "/portfolio/*/edit/**",
         "destination": "/app.html"
       },
@@ -125,8 +129,7 @@
       },
       {
         "source": "/whiteboard/**",
-        "function": "renderSeoContent",
-        "region": "us-west1"
+        "destination": "/app.html"
       },
       {
         "source": "/zh/shared/**",
