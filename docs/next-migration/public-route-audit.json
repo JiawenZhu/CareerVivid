@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-14T15:11:05.674Z",
+  "generatedAt": "2026-06-14T15:16:24.079Z",
   "rows": [
     {
       "route": "/",
@@ -1021,7 +1021,7 @@
       "component": "BlogListPage",
       "componentFile": "src/pages/BlogListPage.tsx",
       "nextTarget": "next-app/src/app/blog/page.tsx",
-      "nextTargetExists": false,
+      "nextTargetExists": true,
       "tracedFiles": 12,
       "traceTruncated": false,
       "signals": [
@@ -1097,7 +1097,7 @@
       "component": "BlogPostPage",
       "componentFile": "src/pages/BlogPostPage.tsx",
       "nextTarget": "next-app/src/app/blog/[slug]/page.tsx",
-      "nextTargetExists": false,
+      "nextTargetExists": true,
       "tracedFiles": 14,
       "traceTruncated": false,
       "signals": [
@@ -2193,7 +2193,7 @@
       "component": "ContactPage",
       "componentFile": "src/pages/ContactPage.tsx",
       "nextTarget": "next-app/src/app/contact/page.tsx",
-      "nextTargetExists": false,
+      "nextTargetExists": true,
       "tracedFiles": 13,
       "traceTruncated": false,
       "signals": [
@@ -11174,7 +11174,7 @@
       "component": "PricingPage",
       "componentFile": "src/pages/PricingPage.tsx",
       "nextTarget": "next-app/src/app/pricing/page.tsx",
-      "nextTargetExists": false,
+      "nextTargetExists": true,
       "tracedFiles": 21,
       "traceTruncated": false,
       "signals": [
