@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-14T15:00:03.480Z",
+  "generatedAt": "2026-06-14T15:11:05.674Z",
   "rows": [
     {
       "route": "/",
@@ -12,6 +12,7 @@
       "component": null,
       "componentFile": null,
       "nextTarget": "next-app/src/app/page.tsx",
+      "nextTargetExists": true,
       "tracedFiles": 0,
       "traceTruncated": false,
       "signals": [],
@@ -30,6 +31,7 @@
       "component": "LandingPage",
       "componentFile": "src/pages/LandingPage.tsx",
       "nextTarget": "next-app/src/app/page.tsx",
+      "nextTargetExists": true,
       "tracedFiles": 12,
       "traceTruncated": false,
       "signals": [
@@ -89,6 +91,7 @@
       "component": "AcademicPartnerDashboard",
       "componentFile": "src/pages/academic/AcademicPartnerDashboard.tsx",
       "nextTarget": "next-app/src/app/academic-partner/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 13,
       "traceTruncated": false,
       "signals": [
@@ -197,6 +200,7 @@
       "component": "ThemeProvider",
       "componentFile": null,
       "nextTarget": "next-app/src/app/admin/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 0,
       "traceTruncated": false,
       "signals": [],
@@ -214,6 +218,7 @@
       "component": "ThemeProvider",
       "componentFile": null,
       "nextTarget": "next-app/src/app/admin/login/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 0,
       "traceTruncated": false,
       "signals": [],
@@ -231,6 +236,7 @@
       "component": "ThemeProvider",
       "componentFile": null,
       "nextTarget": "next-app/src/app/admin/strategy/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 0,
       "traceTruncated": false,
       "signals": [],
@@ -248,6 +254,7 @@
       "component": "AgencyPartnerDashboard",
       "componentFile": "src/pages/AgencyPartnerDashboard.tsx",
       "nextTarget": "next-app/src/app/agency-partner/dashboard/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 46,
       "traceTruncated": false,
       "signals": [
@@ -472,6 +479,7 @@
       "component": "AgentPage",
       "componentFile": "src/pages/AgentPage.tsx",
       "nextTarget": "next-app/src/app/agent/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 6,
       "traceTruncated": false,
       "signals": [
@@ -520,6 +528,7 @@
       "component": "SignInPage",
       "componentFile": "src/pages/SignInPage.tsx",
       "nextTarget": "next-app/src/app/auth/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 17,
       "traceTruncated": false,
       "signals": [
@@ -652,6 +661,7 @@
       "component": "BioLinksPage",
       "componentFile": "src/pages/BioLinksPage.tsx",
       "nextTarget": "next-app/src/app/bio-links/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 33,
       "traceTruncated": false,
       "signals": [
@@ -968,6 +978,7 @@
       "component": "GetMoreReview01",
       "componentFile": "src/pages/bio-links/template/ticktok/GetMoreReview01.tsx",
       "nextTarget": "next-app/src/app/bio-links/template/ticktok/get-more-review01/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 3,
       "traceTruncated": false,
       "signals": [
@@ -1010,6 +1021,7 @@
       "component": "BlogListPage",
       "componentFile": "src/pages/BlogListPage.tsx",
       "nextTarget": "next-app/src/app/blog/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 12,
       "traceTruncated": false,
       "signals": [
@@ -1085,6 +1097,7 @@
       "component": "BlogPostPage",
       "componentFile": "src/pages/BlogPostPage.tsx",
       "nextTarget": "next-app/src/app/blog/[slug]/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 14,
       "traceTruncated": false,
       "signals": [
@@ -1184,6 +1197,7 @@
       "component": "BusinessCardPage",
       "componentFile": "src/pages/BusinessCardPage.tsx",
       "nextTarget": "next-app/src/app/business-card/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 20,
       "traceTruncated": false,
       "signals": [
@@ -1340,6 +1354,7 @@
       "component": "BusinessPartnerDashboard",
       "componentFile": "src/pages/BusinessPartnerDashboard.tsx",
       "nextTarget": "next-app/src/app/business-partner/dashboard/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 18,
       "traceTruncated": false,
       "signals": [
@@ -1478,6 +1493,7 @@
       "component": "JobPostingEditor",
       "componentFile": "src/pages/JobPostingEditor.tsx",
       "nextTarget": "next-app/src/app/business-partner/jobs/new/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 15,
       "traceTruncated": false,
       "signals": [
@@ -1590,6 +1606,7 @@
       "component": "CheckoutSummary",
       "componentFile": "src/features/commerce/pages/CheckoutSummary.tsx",
       "nextTarget": "next-app/src/app/checkout/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 14,
       "traceTruncated": false,
       "signals": [
@@ -1702,6 +1719,7 @@
       "component": "CommerceDashboard",
       "componentFile": "src/features/commerce/pages/CommerceDashboard.tsx",
       "nextTarget": "next-app/src/app/commerce/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 17,
       "traceTruncated": false,
       "signals": [
@@ -1827,6 +1845,7 @@
       "component": "SEOHelper",
       "componentFile": null,
       "nextTarget": "next-app/src/app/community/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 0,
       "traceTruncated": false,
       "signals": [],
@@ -1844,6 +1863,7 @@
       "component": "EditPost",
       "componentFile": "src/pages/community/EditPost.tsx",
       "nextTarget": "next-app/src/app/community/edit/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 17,
       "traceTruncated": false,
       "signals": [
@@ -1992,6 +2012,7 @@
       "component": "CommunityEditor",
       "componentFile": "src/pages/community/CommunityEditor.tsx",
       "nextTarget": "next-app/src/app/community/new/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 19,
       "traceTruncated": false,
       "signals": [
@@ -2172,6 +2193,7 @@
       "component": "ContactPage",
       "componentFile": "src/pages/ContactPage.tsx",
       "nextTarget": "next-app/src/app/contact/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 13,
       "traceTruncated": false,
       "signals": [
@@ -2251,6 +2273,7 @@
       "component": "Dashboard",
       "componentFile": "src/pages/Dashboard.tsx",
       "nextTarget": "next-app/src/app/dashboard/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 120,
       "traceTruncated": true,
       "signals": [
@@ -4331,6 +4354,7 @@
       "component": "IntegrationsPage",
       "componentFile": "src/pages/IntegrationsPage.tsx",
       "nextTarget": "next-app/src/app/dashboard/integrations/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 17,
       "traceTruncated": false,
       "signals": [
@@ -4467,6 +4491,7 @@
       "component": "NotFoundPage",
       "componentFile": "src/pages/NotFoundPage.tsx",
       "nextTarget": "next-app/src/app/demo/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 11,
       "traceTruncated": false,
       "signals": [
@@ -4526,6 +4551,7 @@
       "component": "DeveloperSettings",
       "componentFile": "src/pages/DeveloperSettings.tsx",
       "nextTarget": "next-app/src/app/developer/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 12,
       "traceTruncated": false,
       "signals": [
@@ -4631,6 +4657,7 @@
       "component": "ApiDocsPage",
       "componentFile": "src/pages/ApiDocsPage.tsx",
       "nextTarget": "next-app/src/app/developers/api/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 6,
       "traceTruncated": false,
       "signals": [
@@ -4669,6 +4696,7 @@
       "component": "DropProductGallery",
       "componentFile": "src/features/commerce/pages/DropProductGallery.tsx",
       "nextTarget": "next-app/src/app/drop/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 5,
       "traceTruncated": false,
       "signals": [
@@ -4699,6 +4727,7 @@
       "component": "Editor",
       "componentFile": "src/pages/Editor.tsx",
       "nextTarget": "next-app/src/app/edit/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 74,
       "traceTruncated": false,
       "signals": [
@@ -5107,6 +5136,7 @@
       "component": "Editor",
       "componentFile": "src/pages/Editor.tsx",
       "nextTarget": "next-app/src/app/edit/guest/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 74,
       "traceTruncated": false,
       "signals": [
@@ -5517,6 +5547,7 @@
       "component": "ExtensionAuthCompletePage",
       "componentFile": "src/pages/ExtensionAuthCompletePage.tsx",
       "nextTarget": "next-app/src/app/extension-auth-complete/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 12,
       "traceTruncated": false,
       "signals": [
@@ -5621,6 +5652,7 @@
       "component": "ExtensionWelcomePage",
       "componentFile": "src/pages/ExtensionWelcomePage.tsx",
       "nextTarget": "next-app/src/app/extension-welcome/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 17,
       "traceTruncated": false,
       "signals": [
@@ -5805,6 +5837,7 @@
       "component": "UpcomingDropsFeed",
       "componentFile": "src/features/commerce/pages/UpcomingDropsFeed.tsx",
       "nextTarget": "next-app/src/app/feed/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 7,
       "traceTruncated": false,
       "signals": [
@@ -5851,6 +5884,7 @@
       "component": "DndWorkspaceProvider",
       "componentFile": "src/components/DndWorkspaceProvider.tsx",
       "nextTarget": "next-app/src/app/folder/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 1,
       "traceTruncated": false,
       "signals": [],
@@ -5869,6 +5903,7 @@
       "component": "DndWorkspaceProvider",
       "componentFile": "src/components/DndWorkspaceProvider.tsx",
       "nextTarget": "next-app/src/app/hub/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 1,
       "traceTruncated": false,
       "signals": [],
@@ -5886,6 +5921,7 @@
       "component": "InterviewStudio",
       "componentFile": "src/pages/InterviewStudio.tsx",
       "nextTarget": "next-app/src/app/interview-studio/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 38,
       "traceTruncated": false,
       "signals": [
@@ -6306,6 +6342,7 @@
       "component": "JobMarketPage",
       "componentFile": "src/pages/JobMarketPage/index.tsx",
       "nextTarget": "next-app/src/app/job-market/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 26,
       "traceTruncated": false,
       "signals": [
@@ -6542,6 +6579,7 @@
       "component": "JobTrackerPage",
       "componentFile": "src/pages/JobTrackerPage.tsx",
       "nextTarget": "next-app/src/app/job-tracker/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 59,
       "traceTruncated": false,
       "signals": [
@@ -7138,6 +7176,7 @@
       "component": "ThemeProvider",
       "componentFile": null,
       "nextTarget": "next-app/src/app/jobs/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 0,
       "traceTruncated": false,
       "signals": [],
@@ -7155,6 +7194,7 @@
       "component": "CreateNewDrop",
       "componentFile": "src/features/commerce/pages/CreateNewDrop.tsx",
       "nextTarget": "next-app/src/app/merchant/new-drop/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 5,
       "traceTruncated": false,
       "signals": [
@@ -7185,6 +7225,7 @@
       "component": "AssemblyLinePacking",
       "componentFile": "src/features/commerce/pages/AssemblyLinePacking.tsx",
       "nextTarget": "next-app/src/app/merchant/packing/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 5,
       "traceTruncated": false,
       "signals": [
@@ -7219,6 +7260,7 @@
       "component": "MerchantProductSubmission",
       "componentFile": "src/pages/MerchantProductSubmission.tsx",
       "nextTarget": "next-app/src/app/merchant/submit/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 12,
       "traceTruncated": false,
       "signals": [
@@ -7324,6 +7366,7 @@
       "component": "MyPostsPage",
       "componentFile": "src/pages/community/MyPostsPage.tsx",
       "nextTarget": "next-app/src/app/my-posts/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 34,
       "traceTruncated": false,
       "signals": [
@@ -7728,6 +7771,7 @@
       "component": "GenerationHub",
       "componentFile": "src/pages/GenerationHub.tsx",
       "nextTarget": "next-app/src/app/newresume/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 43,
       "traceTruncated": false,
       "signals": [
@@ -8184,6 +8228,7 @@
       "component": "OrderNfcCardPage",
       "componentFile": "src/pages/OrderNfcCardPage.tsx",
       "nextTarget": "next-app/src/app/order-nfc-card/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 13,
       "traceTruncated": false,
       "signals": [
@@ -8292,6 +8337,7 @@
       "component": "ProductPage",
       "componentFile": "src/features/commerce/pages/ProductPage.tsx",
       "nextTarget": "next-app/src/app/p/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 5,
       "traceTruncated": false,
       "signals": [
@@ -8346,6 +8392,7 @@
       "component": "PartnerLandingPage",
       "componentFile": "src/pages/partners/PartnerLandingPage.tsx",
       "nextTarget": "next-app/src/app/partners/page.tsx",
+      "nextTargetExists": true,
       "tracedFiles": 13,
       "traceTruncated": false,
       "signals": [
@@ -8417,6 +8464,7 @@
       "component": "AcademicPartnerPage",
       "componentFile": "src/pages/partners/AcademicPartnerPage.tsx",
       "nextTarget": "next-app/src/app/partners/academic/page.tsx",
+      "nextTargetExists": true,
       "tracedFiles": 11,
       "traceTruncated": false,
       "signals": [
@@ -8472,6 +8520,7 @@
       "component": "AgencyPartnerPage",
       "componentFile": "src/pages/partners/AgencyPartnerPage.tsx",
       "nextTarget": "next-app/src/app/partners/agency/page.tsx",
+      "nextTargetExists": true,
       "tracedFiles": 12,
       "traceTruncated": false,
       "signals": [
@@ -8547,6 +8596,7 @@
       "component": "PartnerApplicationPage",
       "componentFile": "src/pages/partners/PartnerApplicationPage.tsx",
       "nextTarget": "next-app/src/app/partners/apply/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 12,
       "traceTruncated": false,
       "signals": [
@@ -8630,6 +8680,7 @@
       "component": "BusinessPartnerPage",
       "componentFile": "src/pages/partners/BusinessPartnerPage.tsx",
       "nextTarget": "next-app/src/app/partners/business/page.tsx",
+      "nextTargetExists": true,
       "tracedFiles": 11,
       "traceTruncated": false,
       "signals": [
@@ -8685,6 +8736,7 @@
       "component": "HRPartnerPage",
       "componentFile": "src/pages/partners/HRPartnerPage.tsx",
       "nextTarget": "next-app/src/app/partners/hiring/page.tsx",
+      "nextTargetExists": true,
       "tracedFiles": 11,
       "traceTruncated": false,
       "signals": [
@@ -8740,6 +8792,7 @@
       "component": "StudentAmbassadorPage",
       "componentFile": "src/pages/partners/StudentAmbassadorPage.tsx",
       "nextTarget": "next-app/src/app/partners/students/page.tsx",
+      "nextTargetExists": true,
       "tracedFiles": 11,
       "traceTruncated": false,
       "signals": [
@@ -8795,6 +8848,7 @@
       "component": "ThemeProvider",
       "componentFile": null,
       "nextTarget": "next-app/src/app/pdf-preview/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 0,
       "traceTruncated": false,
       "signals": [],
@@ -8812,6 +8866,7 @@
       "component": "PolicyPage",
       "componentFile": "src/pages/PolicyPage.tsx",
       "nextTarget": "next-app/src/app/policy/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 11,
       "traceTruncated": false,
       "signals": [
@@ -8875,6 +8930,7 @@
       "component": "ClientPortalPage",
       "componentFile": "src/pages/ClientPortalPage.tsx",
       "nextTarget": "next-app/src/app/portal/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 24,
       "traceTruncated": false,
       "signals": [
@@ -9075,6 +9131,7 @@
       "component": "PortfolioHub",
       "componentFile": "src/features/portfolio/pages/PortfolioHub.tsx",
       "nextTarget": "next-app/src/app/portfolio/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 112,
       "traceTruncated": false,
       "signals": [
@@ -10819,6 +10876,7 @@
       "component": "PortfolioBuilderPage",
       "componentFile": "src/pages/PortfolioBuilderPage.tsx",
       "nextTarget": "next-app/src/app/portfolio-builder/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 17,
       "traceTruncated": false,
       "signals": [
@@ -10939,6 +10997,7 @@
       "component": "AgencyPreparePage",
       "componentFile": "src/pages/AgencyPreparePage.tsx",
       "nextTarget": "next-app/src/app/prepare/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 25,
       "traceTruncated": false,
       "signals": [
@@ -11115,6 +11174,7 @@
       "component": "PricingPage",
       "componentFile": "src/pages/PricingPage.tsx",
       "nextTarget": "next-app/src/app/pricing/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 21,
       "traceTruncated": false,
       "signals": [
@@ -11267,6 +11327,7 @@
       "component": "PrivacyPolicyPage",
       "componentFile": "src/pages/PrivacyPolicyPage.tsx",
       "nextTarget": "next-app/src/app/privacy/page.tsx",
+      "nextTargetExists": true,
       "tracedFiles": 11,
       "traceTruncated": false,
       "signals": [
@@ -11322,6 +11383,7 @@
       "component": "ProfilePage",
       "componentFile": "src/pages/ProfilePage.tsx",
       "nextTarget": "next-app/src/app/profile/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 19,
       "traceTruncated": false,
       "signals": [
@@ -11550,6 +11612,7 @@
       "component": "ReferralLandingPage",
       "componentFile": "src/pages/ReferralLandingPage.tsx",
       "nextTarget": "next-app/src/app/referral/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 17,
       "traceTruncated": false,
       "signals": [
@@ -11682,6 +11745,7 @@
       "component": "ReferralPage",
       "componentFile": "src/pages/ReferralPage.tsx",
       "nextTarget": "next-app/src/app/referrals/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 13,
       "traceTruncated": false,
       "signals": [
@@ -11790,6 +11854,7 @@
       "component": "ServicePortfolioPage",
       "componentFile": "src/pages/ServicePortfolioPage.tsx",
       "nextTarget": "next-app/src/app/service-portfolio/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 2,
       "traceTruncated": false,
       "signals": [
@@ -11832,6 +11897,7 @@
       "component": "ServicesPage",
       "componentFile": "src/pages/ServicesPage.tsx",
       "nextTarget": "next-app/src/app/services/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 12,
       "traceTruncated": false,
       "signals": [
@@ -11903,6 +11969,7 @@
       "component": "ThemeProvider",
       "componentFile": null,
       "nextTarget": "next-app/src/app/shared/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 0,
       "traceTruncated": false,
       "signals": [],
@@ -11922,6 +11989,7 @@
       "component": "SignInPage",
       "componentFile": "src/pages/SignInPage.tsx",
       "nextTarget": "next-app/src/app/signin/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 17,
       "traceTruncated": false,
       "signals": [
@@ -12054,6 +12122,7 @@
       "component": "SignUpPage",
       "componentFile": "src/pages/SignUpPage.tsx",
       "nextTarget": "next-app/src/app/signup/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 14,
       "traceTruncated": false,
       "signals": [
@@ -12137,6 +12206,7 @@
       "component": "BillingDashboard",
       "componentFile": "src/pages/BillingDashboard.tsx",
       "nextTarget": "next-app/src/app/subscription/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 14,
       "traceTruncated": false,
       "signals": [
@@ -12249,6 +12319,7 @@
       "component": "TechLandingPage",
       "componentFile": "src/pages/TechLandingPage.tsx",
       "nextTarget": "next-app/src/app/tech-preview/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 11,
       "traceTruncated": false,
       "signals": [
@@ -12308,6 +12379,7 @@
       "component": "TermsOfServicePage",
       "componentFile": "src/pages/TermsOfServicePage.tsx",
       "nextTarget": "next-app/src/app/terms/page.tsx",
+      "nextTargetExists": true,
       "tracedFiles": 11,
       "traceTruncated": false,
       "signals": [
@@ -12367,6 +12439,7 @@
       "component": "ProgrammaticSeoPage",
       "componentFile": "src/pages/ProgrammaticSeoPage.tsx",
       "nextTarget": "next-app/src/app/topic/[slug]/page.tsx",
+      "nextTargetExists": true,
       "tracedFiles": 3,
       "traceTruncated": false,
       "signals": [
@@ -12413,6 +12486,7 @@
       "component": null,
       "componentFile": null,
       "nextTarget": "next-app/src/app/tracker/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 0,
       "traceTruncated": false,
       "signals": [],
@@ -12430,6 +12504,7 @@
       "component": "WhiteboardsPage",
       "componentFile": "src/pages/WhiteboardsPage.tsx",
       "nextTarget": "next-app/src/app/whiteboard/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 37,
       "traceTruncated": false,
       "signals": [
@@ -12842,6 +12917,7 @@
       "component": "WhiteboardEditor",
       "componentFile": "src/pages/WhiteboardEditor.tsx",
       "nextTarget": "next-app/src/app/whiteboard/page.tsx",
+      "nextTargetExists": false,
       "tracedFiles": 17,
       "traceTruncated": false,
       "signals": [

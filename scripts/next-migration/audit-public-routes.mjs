@@ -253,6 +253,10 @@ function nextTargetForRoute({ exact, prefixes }) {
   return `next-app/src/app/${parts.join('/')}/page.tsx`;
 }
 
+function nextTargetExists(nextTarget) {
+  return Boolean(nextTarget && fs.existsSync(path.join(repoRoot, nextTarget)));
+}
+
 function migrationPlanStatus({ exact, prefixes, statementText }) {
   const protectedRoute = protectedMarkers.some(marker => statementText.includes(marker));
   const planned =
@@ -310,6 +314,8 @@ function buildAudit() {
     const status = migrationPlanStatus({ ...routes, statementText });
     const risk = riskFromTrace(trace, status);
 
+    const nextTarget = nextTargetForRoute(routes);
+
     rows.push({
       route: routeLabel(routes),
       exactRoutes: routes.exact,
@@ -318,7 +324,8 @@ function buildAudit() {
       risk,
       component: primaryComponent,
       componentFile: componentFile ? toRepoPath(componentFile) : null,
-      nextTarget: nextTargetForRoute(routes),
+      nextTarget,
+      nextTargetExists: nextTargetExists(nextTarget),
       tracedFiles: trace.tracedFiles,
       traceTruncated: trace.truncated,
       signals: trace.signals,
@@ -349,11 +356,12 @@ function renderMarkdown(rows) {
     `- Medium-risk candidates: ${candidates.filter(row => row.risk === 'medium').length}`,
     `- Low-risk candidates: ${candidates.filter(row => row.risk === 'low').length}`,
     `- Candidates needing public shell/client boundary work: ${candidates.filter(row => row.restrictedImports.length > 0 || row.signals.length > 0).length}`,
+    `- Planned candidates with a Next target present: ${candidates.filter(row => row.nextTargetExists).length}`,
     '',
     '## Planned Public Candidates',
     '',
-    '| Route | Risk | Component | Traced files | Client/server notes | Next target |',
-    '| --- | --- | --- | ---: | --- | --- |',
+    '| Route | Risk | Component | Traced files | Client/server notes | Next target | Target state |',
+    '| --- | --- | --- | ---: | --- | --- | --- |',
     ...candidates.map(row => [
       `\`${row.route}\``,
       row.risk,
@@ -361,13 +369,14 @@ function renderMarkdown(rows) {
       row.tracedFiles,
       summarizeSignals(row),
       row.nextTarget ? `\`${row.nextTarget}\`` : 'n/a',
+      row.nextTargetExists ? 'present' : 'missing',
     ].join(' | ')).map(line => `| ${line} |`),
     '',
     '## All Route Branches',
     '',
-    '| Route | Status | Risk | Component | Next target |',
-    '| --- | --- | --- | --- | --- |',
-    ...rows.map(row => `| \`${row.route}\` | ${row.status} | ${row.risk} | ${row.componentFile ? `\`${row.componentFile}\`` : row.component ?? 'n/a'} | ${row.nextTarget ? `\`${row.nextTarget}\`` : 'n/a'} |`),
+    '| Route | Status | Risk | Component | Next target | Target state |',
+    '| --- | --- | --- | --- | --- | --- |',
+    ...rows.map(row => `| \`${row.route}\` | ${row.status} | ${row.risk} | ${row.componentFile ? `\`${row.componentFile}\`` : row.component ?? 'n/a'} | ${row.nextTarget ? `\`${row.nextTarget}\`` : 'n/a'} | ${row.nextTargetExists ? 'present' : 'missing'} |`),
     '',
     '## Migration Guidance',
     '',
