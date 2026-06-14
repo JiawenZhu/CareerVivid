@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Home from "../page";
+import { ProductPageContent } from "../../components/public/ProductPageContent";
+import { PublicShell } from "../../components/public/PublicShell";
 
 export const metadata: Metadata = {
   title: "Product",
@@ -10,4 +11,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default Home;
+export default function ProductPage() {
+  return (
+    <PublicShell>
+      <ProductPageContent />
+    </PublicShell>
+  );
+}
