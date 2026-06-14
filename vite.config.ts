@@ -49,9 +49,12 @@ export default defineConfig(({ mode }) => {
           ]
         },
         workbox: {
-          // Keep the SPA shell updateable without storing every route chunk
-          // under a long-lived service-worker cache.
-          globPatterns: ['index.html', 'assets/index-*.js', 'assets/index-*.css'],
+          // Firebase Hosting now owns HTML routing: public pages serve exported
+          // Next HTML while authenticated/app routes fall through to app.html.
+          // Do not let the PWA service worker answer navigations with a cached
+          // index.html, because index.html is the Next homepage in the hybrid build.
+          navigateFallback: null,
+          globPatterns: ['assets/index-*.js', 'assets/index-*.css'],
           globIgnores: ['nextjs/**/*'],
           navigateFallbackDenylist: NEXT_SEO_NAVIGATION_DENYLIST,
           runtimeCaching: [
