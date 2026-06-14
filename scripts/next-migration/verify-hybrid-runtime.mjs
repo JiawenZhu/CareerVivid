@@ -43,7 +43,7 @@ const viteShellRoutes = [
 
 const contentChecks = new Map([
   ['/product', ['Save job links', 'Resume builder workspace', 'Interview studio', 'Career pipeline']],
-  ['/pricing', ['Credit Calculator', 'Enterprise team usage', 'Choose your plan']],
+  ['/pricing', ['Credit Calculator', 'Enterprise Team Usage', 'Find Your Perfect Plan', 'Choose your plan']],
   ['/partners', ['Fueling the Future of Work', 'Academic', 'Business', 'Ambassadors']],
 ]);
 

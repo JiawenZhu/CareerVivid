@@ -84,7 +84,7 @@ function PlanCard({
     <article className={`relative flex min-h-[520px] flex-col rounded-[1.5rem] border p-7 shadow-sm ${dark ? "border-[#302d3f] bg-[#211f2d] text-white" : highlighted ? "border-[#caa26c] bg-[#fbf7ee]" : "border-[#e7dfd2] bg-white"}`}>
       {highlighted ? <span className="absolute right-5 top-5 rounded-full bg-[#fff4d7] px-3 py-1 text-[11px] font-bold text-[#8a5b12]">Power</span> : null}
       <div className="mb-6">
-        <h2 className={`text-[25px] font-semibold ${dark ? "text-white" : "text-gray-950"}`}>{plan.name}</h2>
+        <h3 className={`text-[25px] font-semibold ${dark ? "text-white" : "text-gray-950"}`}>{plan.name}</h3>
         <p className={`mt-2 text-sm font-medium ${dark ? "text-[#d8d2c7]" : "text-[#665a4a]"}`}>
           {plan.name === "Free" ? "Try CareerVivid today." : plan.name === "Pro" ? "For active job seekers." : plan.name === "Max" ? "For heavy AI and job-search usage." : "For teams and organizations."}
         </p>
@@ -134,7 +134,7 @@ function CreditCalculator() {
         <p className="inline-flex items-center gap-2 rounded-full bg-[#f0eeff] px-4 py-1.5 text-sm font-bold text-[#625bd5]">
           <Zap size={15} /> Credit Calculator
         </p>
-        <h2 className="mt-4 text-3xl font-black tracking-tight md:text-5xl">Find your plan by monthly AI usage.</h2>
+        <h2 className="mt-4 text-3xl font-black tracking-tight md:text-5xl">Find Your Perfect Plan</h2>
         <p className="mx-auto mt-4 max-w-2xl text-sm font-medium leading-7 text-[#665a4a]">Move the sliders to estimate how many credits your job search, resume tailoring, interviews, and agent workflows may use.</p>
       </div>
 
@@ -221,8 +221,7 @@ function EnterpriseEstimator() {
     <section className="rounded-[1.5rem] border border-[#e4d3bc] bg-white p-6 shadow-sm md:p-10">
       <div className="grid gap-10 lg:grid-cols-[1fr_360px] lg:items-center">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#a97935]">Enterprise team usage</p>
-          <h2 className="mt-3 text-3xl font-black tracking-tight md:text-5xl">Pool AI credits across a team.</h2>
+          <h2 className="text-3xl font-black tracking-tight md:text-5xl">Enterprise Team Usage</h2>
           <p className="mt-4 text-base font-medium leading-8 text-[#665a4a]">Enterprise starts at ${plans.enterprise.price}/seat/month with {plans.enterprise.credits.toLocaleString()} credits per seat and shared team workspaces.</p>
           <div className="mt-8 rounded-2xl border border-[#e4d3bc] bg-[#fffaf1] p-5">
             <div className="mb-4 flex items-end justify-between">
@@ -257,13 +256,13 @@ export function PricingPageContent() {
     <main>
       <section className="mx-auto max-w-6xl px-6 py-16 text-center">
         <p className="inline-flex items-center gap-2 rounded-full border border-[#d9d7ff] bg-[#f3f2ff] px-5 py-2 text-sm font-black text-[#5148c8]">
-          <span className="h-2.5 w-2.5 rounded-full bg-[#625bd5]" /> AI Credit Plans - Free to get started
+          <span className="h-2.5 w-2.5 rounded-full bg-[#625bd5]" /> AI Credit Plans — Free to get started
         </p>
         <h1 className="mx-auto mt-7 max-w-4xl text-5xl font-black leading-tight tracking-normal md:text-7xl">
-          One AI credit system for your entire career.
+          One AI credit system for your entire career
         </h1>
         <p className="mx-auto mt-6 max-w-3xl text-lg font-medium leading-8 text-[#665a4a] md:text-xl">
-          Power the CLI agent, resume tailoring, job search, voice interviews, and more from a single pool of AI credits that resets every month.
+          Power the CLI agent, resume tailoring, job search, voice interviews, and more — all from a single pool of AI credits that resets every month.
         </p>
       </section>
 
