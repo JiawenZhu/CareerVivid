@@ -31,12 +31,15 @@ const expectedRewriteSources = new Set([
   '/partners/business',
   '/partners/hiring',
   '/partners/students',
+  '/topic/ai-native-developer-portfolios',
+  '/topic/vibe-coding-platform',
+]);
+
+const viteShellRewriteSources = new Set([
   '/blog',
   '/blog/ai-job-search-workspace',
   '/blog/ai-resume-builder-job-tracker',
   '/blog/chrome-extension-job-autofill',
-  '/topic/ai-native-developer-portfolios',
-  '/topic/vibe-coding-platform',
 ]);
 
 const failures = [];
@@ -62,6 +65,13 @@ for (const source of expectedRewriteSources) {
   const destinationFile = path.join(distRoot, destination);
   if (!fs.existsSync(destinationFile)) {
     failures.push(`Rewrite for ${source} points to missing build artifact: ${destination}`);
+  }
+}
+
+for (const source of viteShellRewriteSources) {
+  const destination = rewriteBySource.get(source);
+  if (destination !== '/app.html') {
+    failures.push(`Rewrite for ${source} should point to /app.html, found ${destination || 'missing'}`);
   }
 }
 

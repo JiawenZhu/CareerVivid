@@ -227,19 +227,19 @@
       },
       {
         "source": "/blog",
-        "destination": "/nextjs/blog.html"
+        "destination": "/app.html"
       },
       {
         "source": "/blog/ai-job-search-workspace",
-        "destination": "/nextjs/blog/ai-job-search-workspace.html"
+        "destination": "/app.html"
       },
       {
         "source": "/blog/ai-resume-builder-job-tracker",
-        "destination": "/nextjs/blog/ai-resume-builder-job-tracker.html"
+        "destination": "/app.html"
       },
       {
         "source": "/blog/chrome-extension-job-autofill",
-        "destination": "/nextjs/blog/chrome-extension-job-autofill.html"
+        "destination": "/app.html"
       },
       {
         "source": "/topic/ai-native-developer-portfolios",

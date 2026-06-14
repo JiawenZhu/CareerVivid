@@ -17,10 +17,6 @@ const publicNextRoutes = [
   '/partners/business',
   '/partners/hiring',
   '/partners/students',
-  '/blog',
-  '/blog/ai-job-search-workspace',
-  '/blog/ai-resume-builder-job-tracker',
-  '/blog/chrome-extension-job-autofill',
   '/topic/ai-native-developer-portfolios',
   '/topic/vibe-coding-platform',
 ];
@@ -39,14 +35,16 @@ const viteShellRoutes = [
   '/profile',
   '/billing',
   '/subscription',
+  '/blog',
+  '/blog/ai-job-search-workspace',
+  '/blog/ai-resume-builder-job-tracker',
+  '/blog/chrome-extension-job-autofill',
 ];
 
 const contentChecks = new Map([
   ['/product', ['Save job links', 'Resume builder workspace', 'Interview studio', 'Career pipeline']],
   ['/pricing', ['Credit Calculator', 'Enterprise team usage', 'Choose your plan']],
   ['/partners', ['Fueling the Future of Work', 'Academic', 'Business', 'Ambassadors']],
-  ['/blog', ['Career Resources & Tips', 'Expert advice to help you land your dream job', 'Read More']],
-  ['/blog/ai-job-search-workspace', ['Article tools', 'Share this guide', 'schema.org']],
 ]);
 
 const failures = [];
