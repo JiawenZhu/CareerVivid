@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-import { Providers } from "@next/components/Providers";
-
 export const metadata: Metadata = {
+  metadataBase: new URL("https://careervivid.app"),
   title: {
     template: "%s | CareerVivid",
-    default: "CareerVivid Community | Build Your Brand & Network",
+    default: "CareerVivid | AI Job Search Workspace & Chrome Extension",
   },
-  description: "The Interactive 'Learning by Doing' Developer Platform",
+  description:
+    "CareerVivid is an AI job-search workspace for resumes, job tracking, interview prep, portfolios, and Chrome extension autofill.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    url: "https://careervivid.app/",
+    siteName: "CareerVivid",
+    title: "CareerVivid | AI Job Search Workspace & Chrome Extension",
+    description:
+      "Build resumes, save job context, prepare interviews, and keep every application moving from one workspace.",
+  },
 };
 
 export default function RootLayout({
@@ -29,13 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Providers>
-          {children}
-        </Providers>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
