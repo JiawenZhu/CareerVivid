@@ -1,20 +1,17 @@
 import type { Metadata } from "next";
-import { ProductPageContent } from "../../components/public/ProductPageContent";
-import { PublicShell } from "../../components/public/PublicShell";
+import { HomePage } from "../../components/public/HomePage";
 
 export const metadata: Metadata = {
-  title: "Product",
+  title: {
+    absolute: "CareerVivid | AI Job Search Workspace & Chrome Extension",
+  },
   description:
-    "Explore CareerVivid's AI resume, job tracker, interview prep, and application workspace.",
+    "CareerVivid is an AI job-search workspace for direct job links, resume tailoring, application tracking, interview prep, and Chrome extension workflows.",
   alternates: {
     canonical: "/product",
   },
 };
 
 export default function ProductPage() {
-  return (
-    <PublicShell>
-      <ProductPageContent />
-    </PublicShell>
-  );
+  return <HomePage />;
 }

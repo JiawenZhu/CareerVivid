@@ -42,10 +42,10 @@ const viteShellRoutes = [
 ];
 
 const contentChecks = new Map([
-  ['/product', ['Resume editor', 'Mock interview', 'Job pipeline']],
+  ['/product', ['Save job links', 'Resume builder workspace', 'Interview studio', 'Career pipeline']],
   ['/pricing', ['Credit Calculator', 'Enterprise team usage', 'Choose your plan']],
-  ['/partners', ['Academic', 'Agency', 'Business']],
-  ['/blog', ['Practical notes for a clearer job search', 'Job search', 'Resume']],
+  ['/partners', ['Fueling the Future of Work', 'Academic', 'Business', 'Ambassadors']],
+  ['/blog', ['Career Resources & Tips', 'Expert advice to help you land your dream job', 'Read More']],
   ['/blog/ai-job-search-workspace', ['Article tools', 'Share this guide', 'schema.org']],
 ]);
 
@@ -71,7 +71,12 @@ async function assertRoute(route, expectedKind) {
   if (!ok) failures.push(`${route} expected ${expectedKind}, got ${response.status} ${actualKind}`);
 
   const requiredPhrases = contentChecks.get(route) ?? [];
-  const text = body.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  const text = body
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;/g, "'")
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ');
   for (const phrase of requiredPhrases) {
     if (!body.includes(phrase) && !text.includes(phrase)) {
       failures.push(`${route} is missing expected content: ${phrase}`);

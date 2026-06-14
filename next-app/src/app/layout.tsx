@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     default: "CareerVivid | AI Job Search Workspace & Chrome Extension",
   },
   description:
-    "CareerVivid is an AI job-search workspace for resumes, job tracking, interview prep, portfolios, and Chrome extension autofill.",
+    "CareerVivid is an AI job-search workspace for direct job links, resume tailoring, application tracking, interview prep, and Chrome extension workflows.",
   alternates: {
     canonical: "/",
   },
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     siteName: "CareerVivid",
     title: "CareerVivid | AI Job Search Workspace & Chrome Extension",
     description:
-      "Build resumes, save job context, prepare interviews, and keep every application moving from one workspace.",
+      "CareerVivid is an AI job-search workspace for direct job links, resume tailoring, application tracking, interview prep, and Chrome extension workflows.",
   },
 };
 
