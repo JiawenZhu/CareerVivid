@@ -82,6 +82,15 @@
             "value": "no-cache, no-store, must-revalidate"
           }
         ]
+      },
+      {
+        "source": "/app.html",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
       }
     ],
     "rewrites": [
@@ -107,7 +116,7 @@
       },
       {
         "source": "/portfolio/*/edit/**",
-        "destination": "/index.html"
+        "destination": "/app.html"
       },
       {
         "source": "/portfolio/**",
@@ -151,11 +160,11 @@
       },
       {
         "source": "/zh/demo",
-        "destination": "/index.html"
+        "destination": "/app.html"
       },
       {
         "source": "/es/demo",
-        "destination": "/index.html"
+        "destination": "/app.html"
       },
       {
         "source": "/_next/static/**",
@@ -164,6 +173,78 @@
       {
         "source": "/_next/**",
         "destination": "/nextjs/_next/:splat"
+      },
+      {
+        "source": "/",
+        "destination": "/nextjs/index.html"
+      },
+      {
+        "source": "/product",
+        "destination": "/nextjs/product.html"
+      },
+      {
+        "source": "/pricing",
+        "destination": "/nextjs/pricing.html"
+      },
+      {
+        "source": "/contact",
+        "destination": "/nextjs/contact.html"
+      },
+      {
+        "source": "/privacy",
+        "destination": "/nextjs/privacy.html"
+      },
+      {
+        "source": "/terms",
+        "destination": "/nextjs/terms.html"
+      },
+      {
+        "source": "/partners",
+        "destination": "/nextjs/partners.html"
+      },
+      {
+        "source": "/partners/academic",
+        "destination": "/nextjs/partners/academic.html"
+      },
+      {
+        "source": "/partners/agency",
+        "destination": "/nextjs/partners/agency.html"
+      },
+      {
+        "source": "/partners/business",
+        "destination": "/nextjs/partners/business.html"
+      },
+      {
+        "source": "/partners/hiring",
+        "destination": "/nextjs/partners/hiring.html"
+      },
+      {
+        "source": "/partners/students",
+        "destination": "/nextjs/partners/students.html"
+      },
+      {
+        "source": "/blog",
+        "destination": "/nextjs/blog.html"
+      },
+      {
+        "source": "/blog/ai-job-search-workspace",
+        "destination": "/nextjs/blog/ai-job-search-workspace.html"
+      },
+      {
+        "source": "/blog/ai-resume-builder-job-tracker",
+        "destination": "/nextjs/blog/ai-resume-builder-job-tracker.html"
+      },
+      {
+        "source": "/blog/chrome-extension-job-autofill",
+        "destination": "/nextjs/blog/chrome-extension-job-autofill.html"
+      },
+      {
+        "source": "/topic/ai-native-developer-portfolios",
+        "destination": "/nextjs/topic/ai-native-developer-portfolios.html"
+      },
+      {
+        "source": "/topic/vibe-coding-platform",
+        "destination": "/nextjs/topic/vibe-coding-platform.html"
       },
       {
         "source": "/zh/pricing",
@@ -261,7 +342,7 @@
       },
       {
         "source": "**",
-        "destination": "/index.html"
+        "destination": "/app.html"
       }
     ],
     "maxVersionRetained": 5

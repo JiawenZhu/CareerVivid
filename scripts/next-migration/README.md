@@ -7,6 +7,7 @@ This folder contains the migration tooling for moving CareerVivid public SEO pag
 ```bash
 npm run next-migration:audit
 npm run next-migration:deps
+npm run next-migration:verify-hosting
 ```
 
 ## Tools
@@ -14,6 +15,7 @@ npm run next-migration:deps
 - `ts-morph`: TypeScript-aware public route and dependency inspection.
 - `jscodeshift`: codemods for repeatable source transforms.
 - `madge`: dependency graph inspection for import coupling.
+- `verify-hosting-rewrites.mjs`: checks that migrated public routes have Firebase Hosting rewrites pointing at exported Next HTML files.
 
 ## Rules
 

@@ -17,6 +17,7 @@
     "clean": "zx scripts/clean.mjs",
     "next-migration:audit": "node scripts/next-migration/audit-public-routes.mjs",
     "next-migration:deps": "madge --extensions ts,tsx --ts-config tsconfig.json src/App.tsx",
+    "next-migration:verify-hosting": "node scripts/next-migration/verify-hosting-rewrites.mjs",
     "seed:templates": "node scripts/seedTemplates.js",
     "test": "vitest run",
     "test:autofill": "vitest run src/autofill/__tests__"

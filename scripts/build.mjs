@@ -43,6 +43,7 @@ try {
 
     console.log(chalk.yellow('\n📦 Building Vite App...'))
     await $`npm run build:vite`
+    await $`cp dist/index.html dist/app.html`
 
     console.log(chalk.yellow('\n📦 Building and Exporting Next.js App...'))
     // Build next-app
@@ -55,6 +56,9 @@ try {
     // Copy exported static files to dist/nextjs
     // Next.js static export outputs to 'out' directory by default when output: 'export' is set
     await $`cp -r next-app/out/* dist/nextjs/`
+    await $`rm -rf dist/_next`
+    await $`cp -r next-app/out/_next dist/_next`
+    await $`cp next-app/out/index.html dist/index.html`
 
     console.log(chalk.green('\n✅ Build completed successfully!'))
 } catch (p) {
