@@ -38,18 +38,21 @@ const DEFAULT_SECTION_NAMES: Record<string, string> = {
     jobTracker: 'Career Pipeline',
 };
 
+const DASHBOARD_PREVIEW_LIMIT = 24;
+const dashboardPreviewOptions = { maxItems: DASHBOARD_PREVIEW_LIMIT };
+
 export const useDashboard = () => {
     const { navPosition, toggleNavPosition } = useNavigation();
     const dashboardTitle = useSidebarStore(state => state.getNodeTitle('/dashboard')) || 'Dashboard';
     const isDesktop = useMediaQuery('(min-width: 768px)');
     const { t } = useTranslation();
 
-    const { resumes, deleteResume, updateResume, isLoading: isLoadingResumes, saveAIGeneratedResume, duplicateResume } = useResumes();
-    const { portfolios, deletePortfolio, updatePortfolio, duplicatePortfolio } = usePortfolios();
-    const { practiceHistory, deletePracticeHistory, updatePracticeHistory, isLoading: isLoadingHistory, addCompletedPractice } = usePracticeHistory();
-    const { jobApplications, deleteJobApplication, updateJobApplication, isLoading: isLoadingJobs, deleteAllJobApplications } = useJobTracker();
-    const { whiteboards, createWhiteboard, deleteWhiteboard, duplicateWhiteboard, updateWhiteboard } = useWhiteboards();
-    const { posts: myCommunityPosts, isLoading: isLoadingCommunityPosts, deletePost: deleteCommunityPost } = useMyCommunityPosts();
+    const { resumes, deleteResume, updateResume, isLoading: isLoadingResumes, saveAIGeneratedResume, duplicateResume } = useResumes(undefined, dashboardPreviewOptions);
+    const { portfolios, deletePortfolio, updatePortfolio, duplicatePortfolio } = usePortfolios(dashboardPreviewOptions);
+    const { practiceHistory, deletePracticeHistory, updatePracticeHistory, isLoading: isLoadingHistory, addCompletedPractice } = usePracticeHistory(dashboardPreviewOptions);
+    const { jobApplications, deleteJobApplication, updateJobApplication, isLoading: isLoadingJobs, deleteAllJobApplications } = useJobTracker(dashboardPreviewOptions);
+    const { whiteboards, createWhiteboard, deleteWhiteboard, duplicateWhiteboard, updateWhiteboard } = useWhiteboards(dashboardPreviewOptions);
+    const { posts: myCommunityPosts, isLoading: isLoadingCommunityPosts, deletePost: deleteCommunityPost } = useMyCommunityPosts(dashboardPreviewOptions);
 
     const { currentUser, logOut, isAdmin, userProfile, isPremium, aiUsage } = useAuth();
 

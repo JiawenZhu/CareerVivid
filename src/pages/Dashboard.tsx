@@ -1,5 +1,5 @@
 import React, { Suspense, useRef, useEffect } from 'react';
-import { PlusCircle, FileText, Mic, Briefcase, LayoutDashboard, Loader2, Globe, User as UserIcon, ChevronDown, FolderPlus, PenTool, LayoutGrid, List, PanelLeft, Github, Users, MessageSquare, ClipboardList, ArrowRight, Sparkles, type LucideIcon } from 'lucide-react';
+import { PlusCircle, FileText, Mic, Briefcase, LayoutDashboard, Globe, User as UserIcon, ChevronDown, FolderPlus, PenTool, LayoutGrid, List, PanelLeft, Users, MessageSquare, ArrowRight, Sparkles, type LucideIcon } from 'lucide-react';
 
 // Hooks & Logic
 import { useDashboard } from '../hooks/useDashboard';
@@ -31,6 +31,7 @@ import DashboardPostCard from '../components/Dashboard/DashboardPostCard';
 import { MobilePostCard } from '../components/Dashboard/DashboardMobileCards';
 import ReorderDashboardModal from '../components/Dashboard/ReorderDashboardModal';
 import JobDetailModal from '../components/JobTracker/JobDetailModal';
+import CareerProfileGraphCard from '../components/Dashboard/CareerProfileGraphCard';
 
 // Lazy load modal
 const InterviewReportModal = React.lazy(() => import('../components/InterviewReportModal'));
@@ -39,7 +40,7 @@ const mobileWorkflowActions = [
     { label: 'Resume', icon: FileText, path: '/newresume', className: 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-950/30 dark:text-blue-200 dark:border-blue-900/50' },
     { label: 'Portfolio', icon: Globe, path: '/portfolio', className: 'bg-pink-50 text-pink-700 border-pink-100 dark:bg-pink-950/30 dark:text-pink-200 dark:border-pink-900/50' },
     { label: 'Interview', icon: Mic, path: '/interview-studio', className: 'bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-950/30 dark:text-purple-200 dark:border-purple-900/50' },
-    { label: 'Jobs', icon: Briefcase, path: '/job-tracker', className: 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-200 dark:border-emerald-900/50' },
+    { label: 'Jobs', icon: Briefcase, path: '/jobs/recommend', className: 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-200 dark:border-emerald-900/50' },
     { label: 'Community', icon: MessageSquare, path: '/community', className: 'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-950/30 dark:text-amber-200 dark:border-amber-900/50' },
     { label: 'Whiteboard', icon: PenTool, path: '/whiteboard', className: 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-900/60 dark:text-slate-200 dark:border-slate-800' },
 ];
@@ -103,9 +104,9 @@ const DesktopWorkspaceCommandCenter: React.FC<DesktopWorkspaceCommandCenterProps
         },
         {
             label: 'Find Jobs',
-            description: 'Search and track roles',
+            description: 'Recommended matches',
             icon: Briefcase,
-            path: '/job-market',
+            path: '/jobs/recommend',
             className: 'border-emerald-100 bg-emerald-50/70 text-emerald-700 hover:border-emerald-200 hover:bg-emerald-100/80 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-200',
         },
         {
@@ -238,10 +239,8 @@ const Dashboard: React.FC = () => {
         navPosition,
         toggleNavPosition,
         dashboardTitle,
-        isDesktop,
         t,
         resumes,
-        isLoadingResumes,
         updateResume,
         portfolios,
         updatePortfolio,
@@ -313,15 +312,6 @@ const Dashboard: React.FC = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [setIsUserMenuOpen, setIsNewMenuOpen]);
 
-    if (isDesktop && isLoadingResumes) {
-        return (
-            <div className="flex flex-col justify-center items-center h-screen bg-gray-100 dark:bg-gray-950">
-                <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
-                <p className="dark:text-white mt-4">{t('dashboard.loading')}</p>
-            </div>
-        );
-    }
-
     return (
         <AppLayout>
             <div className="min-h-screen bg-gray-50/50 dark:bg-[#0a0c10]/80 relative overflow-hidden">
@@ -387,8 +377,8 @@ const Dashboard: React.FC = () => {
                                                 <button onClick={() => { navigate('/interview-studio'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                     <Mic size={16} /> {t('dashboard.interview_practice')}
                                                 </button>
-                                                <button onClick={() => { navigate('/job-market'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                    <Briefcase size={16} /> Find Jobs (Professional)
+                                                <button onClick={() => { navigate('/jobs/recommend'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                    <Briefcase size={16} /> Find recommended jobs
                                                 </button>
                                                 <button onClick={() => { navigate('/job-tracker'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                     <Briefcase size={16} /> {t('dashboard.track_new_job')}
@@ -469,6 +459,13 @@ const Dashboard: React.FC = () => {
                     )}
 
                     <MobileWorkflowLauncher />
+
+                    <CareerProfileGraphCard
+                        resumes={resumes}
+                        portfolios={portfolios}
+                        practiceHistory={practiceHistory}
+                        jobApplications={jobApplications}
+                    />
 
                     <div className={navPosition === 'side' ? undefined : 'md:hidden'}>
                         <WorkspaceSummaryCards />

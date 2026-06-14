@@ -24,12 +24,15 @@ import {
 import StatusOverview from '../JobTracker/StatusOverview';
 import KanbanBoard from '../JobTracker/KanbanBoard';
 
+const DASHBOARD_PREVIEW_LIMIT = 24;
+const dashboardPreviewOptions = { maxItems: DASHBOARD_PREVIEW_LIMIT };
+
 export const WorkspaceSummaryCards: React.FC = () => {
-    const { resumes } = useResumes();
-    const { portfolios } = usePortfolios();
-    const { practiceHistory } = usePracticeHistory();
-    const { jobApplications } = useJobTracker();
-    const { posts } = useMyCommunityPosts();
+    const { resumes } = useResumes(undefined, dashboardPreviewOptions);
+    const { portfolios } = usePortfolios(dashboardPreviewOptions);
+    const { practiceHistory } = usePracticeHistory(dashboardPreviewOptions);
+    const { jobApplications } = useJobTracker(dashboardPreviewOptions);
+    const { posts } = useMyCommunityPosts(dashboardPreviewOptions);
 
     return (
         <DashboardSummaryCards
@@ -52,7 +55,7 @@ interface SectionProps {
 export const ResumesSection: React.FC<SectionProps & { setShareModalResume: (r: ResumeData) => void }> = ({ 
     viewMode, sectionName, onLongPress, onTitleChange, setShareModalResume 
 }) => {
-    const { resumes, deleteResume, duplicateResume, updateResume } = useResumes();
+    const { resumes, deleteResume, duplicateResume, updateResume } = useResumes(undefined, dashboardPreviewOptions);
     const { t } = useTranslation();
     
     return (
@@ -95,7 +98,7 @@ export const PortfoliosSection: React.FC<SectionProps & {
 }> = ({ 
     viewMode, sectionName, onLongPress, onTitleChange, setShareModalPortfolio, handleDuplicatePortfolio 
 }) => {
-    const { portfolios, deletePortfolio, updatePortfolio } = usePortfolios();
+    const { portfolios, deletePortfolio, updatePortfolio } = usePortfolios(dashboardPreviewOptions);
     
     return (
         <DashboardPreviewSection
@@ -133,7 +136,7 @@ export const PortfoliosSection: React.FC<SectionProps & {
 export const InterviewStudioSection: React.FC<SectionProps & { setSelectedJobForReport: (e: PracticeHistoryEntry) => void }> = ({ 
     viewMode, sectionName, onLongPress, onTitleChange, setSelectedJobForReport 
 }) => {
-    const { practiceHistory, deletePracticeHistory } = usePracticeHistory();
+    const { practiceHistory, deletePracticeHistory } = usePracticeHistory(dashboardPreviewOptions);
     
     return (
         <DashboardPreviewSection
@@ -168,7 +171,7 @@ export const InterviewStudioSection: React.FC<SectionProps & { setSelectedJobFor
 export const WhiteboardsSection: React.FC<SectionProps & { setShareModalWhiteboard: (w: WhiteboardData) => void }> = ({ 
     viewMode, sectionName, onLongPress, onTitleChange, setShareModalWhiteboard 
 }) => {
-    const { whiteboards, deleteWhiteboard, duplicateWhiteboard, updateWhiteboard, createWhiteboard } = useWhiteboards();
+    const { whiteboards, deleteWhiteboard, duplicateWhiteboard, updateWhiteboard, createWhiteboard } = useWhiteboards(dashboardPreviewOptions);
     
     return (
         <React.Fragment>
@@ -221,7 +224,7 @@ export const WhiteboardsSection: React.FC<SectionProps & { setShareModalWhiteboa
 export const JobTrackerSection: React.FC<SectionProps & { setSelectedJobApplication: (j: JobApplicationData) => void }> = ({ 
     viewMode, sectionName, onLongPress, onTitleChange, setSelectedJobApplication 
 }) => {
-    const { jobApplications, updateJobApplication } = useJobTracker();
+    const { jobApplications, updateJobApplication } = useJobTracker(dashboardPreviewOptions);
     
     return (
         <div className="mb-10">
