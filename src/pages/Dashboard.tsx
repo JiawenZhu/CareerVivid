@@ -31,7 +31,7 @@ import DashboardPostCard from '../components/Dashboard/DashboardPostCard';
 import { MobilePostCard } from '../components/Dashboard/DashboardMobileCards';
 import ReorderDashboardModal from '../components/Dashboard/ReorderDashboardModal';
 import JobDetailModal from '../components/JobTracker/JobDetailModal';
-import CareerProfileGraphCard from '../components/Dashboard/CareerProfileGraphCard';
+import CareerProfileGraphCard, { SkillGapLearningSection } from '../components/Dashboard/CareerProfileGraphCard';
 
 // Lazy load modal
 const InterviewReportModal = React.lazy(() => import('../components/InterviewReportModal'));
@@ -460,16 +460,16 @@ const Dashboard: React.FC = () => {
 
                     <MobileWorkflowLauncher />
 
+                    <div className={navPosition === 'side' ? undefined : 'md:hidden'}>
+                        <WorkspaceSummaryCards />
+                    </div>
+
                     <CareerProfileGraphCard
                         resumes={resumes}
                         portfolios={portfolios}
                         practiceHistory={practiceHistory}
                         jobApplications={jobApplications}
                     />
-
-                    <div className={navPosition === 'side' ? undefined : 'md:hidden'}>
-                        <WorkspaceSummaryCards />
-                    </div>
 
                     <div className={`justify-end mt-6 mb-2 pr-1 ${navPosition === 'side' ? 'hidden md:flex' : 'flex md:hidden'}`}>
                         <button onClick={() => setViewMode(viewMode === 'row' ? 'grid' : 'row')} className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors text-gray-500 dark:text-gray-400 flex items-center gap-2 text-sm font-medium" title={viewMode === 'row' ? 'Switch to Grid View' : 'Switch to Row View'}>
@@ -515,6 +515,13 @@ const Dashboard: React.FC = () => {
                                 return null;
                         }
                     })}
+
+                    <SkillGapLearningSection
+                        resumes={resumes}
+                        portfolios={portfolios}
+                        practiceHistory={practiceHistory}
+                        jobApplications={jobApplications}
+                    />
                 </div>
 
                 {/* Modals & Overlays */}
