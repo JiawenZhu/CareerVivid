@@ -26,7 +26,7 @@
 
 import { onRequest } from "firebase-functions/v2/https";
 import { GoogleGenAI } from "@google/genai";
-import { getAIClient } from "./utils/ai";
+import { getAIClient, getVertexLocationForModel } from "./utils/ai";
 import * as admin from "firebase-admin";
 import { secureCorsHandler } from "./utils/corsUtils.js";
 import { randomUUID } from "crypto";
@@ -78,7 +78,8 @@ async function callGemini(
   maxTokens: number | undefined,
   apiKey: string | undefined
 ): Promise<string> {
-  const ai = apiKey ? new GoogleGenAI({ apiKey }) : getAIClient();
+  const clientKey = apiKey || ((model.includes("gemini-3.5") || model.includes("gemini-3.1")) ? process.env.GEMINI_API_KEY : undefined);
+  const ai = clientKey ? new GoogleGenAI({ apiKey: clientKey }) : getAIClient(undefined, getVertexLocationForModel(model));
   const { systemMsg, contents } = buildGeminiContents(messages);
 
   const config: any = {};
@@ -105,7 +106,8 @@ async function callGeminiStream(
   res: any,
   id: string
 ): Promise<void> {
-  const ai = apiKey ? new GoogleGenAI({ apiKey }) : getAIClient();
+  const clientKey = apiKey || ((model.includes("gemini-3.5") || model.includes("gemini-3.1")) ? process.env.GEMINI_API_KEY : undefined);
+  const ai = clientKey ? new GoogleGenAI({ apiKey: clientKey }) : getAIClient(undefined, getVertexLocationForModel(model));
   const { systemMsg, contents } = buildGeminiContents(messages);
 
   const config: any = {};
@@ -191,7 +193,7 @@ export const llmGateway = onRequest(
     region: "us-west1",
     memory: "512MiB",
     timeoutSeconds: 120,
-    secrets: [],
+    secrets: ["GEMINI_API_KEY"],
   },
   async (req, res) => {
     corsHandler(req as any, res as any, async () => {

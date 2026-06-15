@@ -27,6 +27,8 @@ const MODEL_CREDIT_COST: Record<string, number> = {
   "gemini-2.5-flash": 1,
   "gemini-2.5-pro": 2,
   "gemini-2.0-pro-exp-02-05": 3,
+  "gemini-3.1-flash-lite": 0.75,
+  "gemini-3.5-flash": 1.5,
   // Fallback for any other Gemini model
   default: 1,
 };

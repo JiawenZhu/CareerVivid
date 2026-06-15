@@ -23,7 +23,7 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { secureCorsHandler } from "./utils/corsUtils.js";
-import { getAIClient } from "./utils/ai";
+import { getAIClient, getVertexLocationForModel } from "./utils/ai";
 import { Content } from "@google/genai";
 
 if (!admin.apps.length) {
@@ -41,6 +41,8 @@ const MODEL_CREDIT_COST: Record<string, number> = {
   "gemini-2.5-flash": 1,
   "gemini-2.5-pro": 2,
   "gemini-2.0-pro-exp-02-05": 3,
+  "gemini-3.1-flash-lite": 0.75,
+  "gemini-3.5-flash": 1.5,
   default: 1,
 };
 
@@ -144,6 +146,7 @@ export const agentProxy = functions
   .runWith({
     timeoutSeconds: 120,
     memory: "512MB",
+    secrets: ["GEMINI_API_KEY"],
   })
   .https.onRequest(async (req, res) => {
     corsHandler(req, res, async () => {
@@ -195,7 +198,10 @@ export const agentProxy = functions
 
       // ── Call Gemini ─────────────────────────────────────────────────────
       try {
-        const ai = getAIClient();
+        const clientKey = (model.includes("gemini-3.5") || model.includes("gemini-3.1"))
+          ? process.env.GEMINI_API_KEY
+          : undefined;
+        const ai = getAIClient(clientKey, getVertexLocationForModel(model));
 
         const config: Record<string, any> = {};
         if (systemInstruction) config.systemInstruction = systemInstruction;

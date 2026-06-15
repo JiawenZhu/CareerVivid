@@ -8,6 +8,7 @@ import {
     Sun,
     Moon,
     Monitor,
+    SunMoon,
     Users,
     CreditCard,
     Gift,
@@ -306,6 +307,7 @@ const Sidebar: React.FC = () => {
 
     const themeOptions = [
         { value: 'light', icon: <Sun size={14} />, label: 'Light' },
+        { value: 'bright', icon: <SunMoon size={14} />, label: 'Bright' },
         { value: 'dark', icon: <Moon size={14} />, label: 'Dark' },
         { value: 'system', icon: <Monitor size={14} />, label: 'System' },
     ] as const;

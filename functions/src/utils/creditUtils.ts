@@ -17,6 +17,8 @@ export const MODEL_CREDIT_COST: Record<string, number> = {
   "gemini-3.1-flash-preview": 1,
   "gemini-3.1-pro-preview": 2,
   "gemini-2.5-pro-preview": 2,
+  "gemini-3.1-flash-lite": 0.75,
+  "gemini-3.5-flash": 1.5,
   // Anthropic / Claude
   "claude-haiku-4-5": 0.5,
   "claude-3-5-haiku-20241022": 0.5,
