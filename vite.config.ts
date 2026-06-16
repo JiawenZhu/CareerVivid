@@ -49,10 +49,12 @@ export default defineConfig(({ mode }) => {
           ]
         },
         workbox: {
-          // Keep the SPA shell updateable without storing every route chunk
-          // under a long-lived service-worker cache.
-          globPatterns: ['index.html', 'assets/index-*.js', 'assets/index-*.css'],
+          // Keep Firebase Hosting as the source of truth for SPA navigations.
+          // Precaching index.html can leave one browser profile pinned to an
+          // old shell that references deleted hashed chunks.
+          globPatterns: ['assets/index-*.js', 'assets/index-*.css', 'manifest.webmanifest'],
           globIgnores: ['nextjs/**/*'],
+          navigateFallback: null,
           navigateFallbackDenylist: NEXT_SEO_NAVIGATION_DENYLIST,
           runtimeCaching: [
             {
