@@ -12,15 +12,12 @@ import { defineSecret } from "firebase-functions/params";
 import { TranslationServiceClient } from "@google-cloud/translate";
 import { getAIClient } from "./utils/ai.js";
 import { GoogleAuth } from "google-auth-library";
+import { getPlanMonthlyLimit as resolvePlanMonthlyLimit } from "./utils/planLimits";
 
 const corsHandler = secureCorsHandler;
 
 function getPlanMonthlyLimit(plan?: string, seats = 1): number {
-  if (plan === "enterprise") return Math.max(1, seats) * 1500;
-  if (plan === "max" || plan === "pro_max") return 5000;
-  if (plan === "pro_monthly" || plan === "pro") return 1000;
-  if (plan === "pro_sprint") return 300;
-  return 100;
+  return resolvePlanMonthlyLimit(plan, seats);
 }
 
 // Initialize the database connection
@@ -127,6 +124,7 @@ export {
 } from "./autoApplyAgent";
 export { analyzeExtensionResumeMatch } from "./extensionResumeMatch";
 export { saveAnswerLibrary, getAnswerLibrary } from "./answerLibrary";
+export { getRecommendedScrapedJobs, openRecommendedJob, scrapeRecommendedJobs, scrapeRecommendedJobsCron, validateExternalJobLink, validateRecommendedJobOpen } from "./scrapedJobs";
 
 // CLI Job Hunt API
 export { cliJobsHunt, cliJobsCreate, cliJobsUpdate, cliJobsDelete, cliJobsList, cliResumeGet, cliResumesList, cliResumeCreate, cliResumeUpdate, cliResumeDelete, cliCoverLetterCreate, cliCoverLettersList } from "./cliJobs";

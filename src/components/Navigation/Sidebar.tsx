@@ -314,6 +314,7 @@ const Sidebar: React.FC = () => {
 
     const quickLinks = [
         { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+        { label: 'Jobs', path: '/jobs/recommend', icon: Briefcase },
         { label: 'Community', path: '/community', icon: Users },
         { label: 'Interview', path: '/interview-studio', icon: Mic },
         { label: 'Job Tracker', path: '/job-tracker', icon: Briefcase },

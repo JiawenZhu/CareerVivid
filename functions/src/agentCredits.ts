@@ -10,6 +10,7 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { defineSecret } from "firebase-functions/params";
+import { getPlanMonthlyLimit as resolvePlanMonthlyLimit, getPlanMonthlyLimitForUser } from "./utils/planLimits";
 
 const novuSecretKey = defineSecret("NOVU_SECRET_KEY");
 
@@ -37,10 +38,7 @@ const MODEL_CREDIT_COST: Record<string, number> = {
 // Monthly credit limits by plan
 // ─────────────────────────────────────────────────────────────────────────────
 function getMonthlyLimit(plan?: string): number {
-  if (plan === "max" || plan === "pro_max") return 10000;
-  if (plan === "pro_monthly" || plan === "pro") return 1000;
-  if (plan === "pro_sprint") return 300;
-  return 100; // free
+  return resolvePlanMonthlyLimit(plan);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -122,10 +120,7 @@ export const agentDeductCredits = functions
         // Reset count if new month
         let count: number =
           usageMonth === currentMonth ? aiUsage.count ?? 0 : 0;
-        let limit: number =
-          aiUsage.monthlyLimit ?? getMonthlyLimit(userData.plan);
-        const tokenCredits = userData.promotions?.tokenCredits || 0;
-        limit += tokenCredits;
+        const limit = getPlanMonthlyLimitForUser(userData);
 
         // Track if we crossed thresholds
         let triggerWarning = false;

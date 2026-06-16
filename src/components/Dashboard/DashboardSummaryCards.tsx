@@ -33,7 +33,7 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
             icon: Briefcase,
             color: 'text-emerald-600',
             bg: 'bg-emerald-100 dark:bg-emerald-900/30',
-            link: '/job-market',
+            link: '/jobs/recommend',
             isAction: true,
             actionText: 'Find Jobs'
         },

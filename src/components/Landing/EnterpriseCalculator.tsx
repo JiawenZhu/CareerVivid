@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Zap, TrendingUp, Handshake } from 'lucide-react';
+import { SUBSCRIPTION_CATALOG } from '../../config/subscriptionCatalog';
 
 const EnterpriseCalculator: React.FC = () => {
     const [seats, setSeats] = useState(10);
-    const PRICE_PER_SEAT = 12;
-    const CREDITS_PER_SEAT = 1200;
+    const PRICE_PER_SEAT = SUBSCRIPTION_CATALOG.enterprise.monthlyPrice;
+    const CREDITS_PER_SEAT = SUBSCRIPTION_CATALOG.enterprise.creditLimit;
 
     const totalCost = seats * PRICE_PER_SEAT;
     const totalCredits = seats * CREDITS_PER_SEAT;
@@ -42,15 +43,15 @@ const EnterpriseCalculator: React.FC = () => {
                         </div>
                         <input
                             type="range"
-                            min="5"
+                            min={SUBSCRIPTION_CATALOG.enterprise.minimumSeats}
                             max="500"
-                            step="5"
+                            step="1"
                             value={seats}
                             onChange={(e) => setSeats(parseInt(e.target.value))}
                             className="w-full h-3 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary-600 transition-all hover:h-4"
                         />
                         <div className="flex justify-between text-xs font-bold text-gray-400 uppercase tracking-wider">
-                            <span>5</span>
+                            <span>{SUBSCRIPTION_CATALOG.enterprise.minimumSeats}</span>
                             <span>500+</span>
                         </div>
                     </div>

@@ -11,6 +11,7 @@ import { navigate } from '../utils/navigation';
 import { PricingComparison } from '../components/Landing/PricingComparison';
 import { CreditCalculator } from '../components/Landing/CreditCalculator';
 import EnterpriseCalculator from '../components/Landing/EnterpriseCalculator';
+import { SUBSCRIPTION_CATALOG } from '../config/subscriptionCatalog';
 
 const PricingPage: React.FC = () => {
     const { t } = useTranslation();
@@ -111,7 +112,7 @@ const PricingPage: React.FC = () => {
                         className="mt-16 -mx-4 sm:mx-0"
                     >
                         <PricingComparison
-                            onCloudUpgrade={() => handleChoosePlan('price_1TJoONRJNflGxv32zSqxC9bZ')}
+                            onCloudUpgrade={() => handleChoosePlan(SUBSCRIPTION_CATALOG.pro.monthlyPriceId)}
                             isLoading={loadingPriceId !== null}
                         />
 
@@ -123,7 +124,9 @@ const PricingPage: React.FC = () => {
                                 className="text-center mb-16"
                             >
                                 <h2 className="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">Enterprise Team Usage</h2>
-                                <p className="text-xl text-gray-600 dark:text-gray-400 mt-4 max-w-2xl mx-auto">Pool AI credits across your entire team — 5,000 credits/seat at just $12/seat/month.</p>
+                                <p className="text-xl text-gray-600 dark:text-gray-400 mt-4 max-w-2xl mx-auto">
+                                    Pool AI credits across your entire team — {SUBSCRIPTION_CATALOG.enterprise.creditLimit.toLocaleString()} credits/seat at just ${SUBSCRIPTION_CATALOG.enterprise.monthlyPrice}/seat/month.
+                                </p>
                             </motion.div>
                             <EnterpriseCalculator />
                         </div>

@@ -4,22 +4,32 @@ import { defineSecret } from "firebase-functions/params";
 import Stripe from "stripe";
 import * as admin from "firebase-admin";
 import { generateCareerVividEmail } from "./emailTemplates";
+import { ENTERPRISE_MINIMUM_SEATS } from "./utils/planLimits";
 
 const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
 const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
 
-// Price IDs for the different plans
+const envPrice = (name: string) => process.env[name]?.trim() || "";
+
+// Price IDs for the different plans. Stripe Price amounts are immutable, so the
+// 2026 catalog IDs must be supplied after the new Prices are created in Stripe.
 const PRICE_IDS = {
     SPRINT: "price_1ScLNsRJNflGxv32cvu6cTsK", // The 7-Day Sprint - One-time
-    MONTHLY: "price_1ScLOaRJNflGxv32BwQnSBs0", // Legacy Pro Monthly - Subscription
     DOWNLOAD_ONCE: "price_1TcIecRJNflGxv32sYZFOnn5", // Download Once - $2.99
     DOWNLOAD_ONCE_LEGACY: "price_1ScLPERJNflGxv32Wxtpvg62", // Download Once - $1.99 legacy price
     NFC_CUSTOM: "price_1So67jRJNflGxv32TKsC7AbX", // Custom NFC Card - $12.90
     NFC_STANDARD: "price_1So6AtRJNflGxv32qHMPnhwz", // Standard NFC Card - $9.89
-    // New Live Current Plans
-    PRO: "price_1TJoONRJNflGxv32zSqxC9bZ",
-    MAX: "price_1TJoONRJNflGxv32wxPHw9FR",
-    ENTERPRISE: "price_1TJoQyRJNflGxv32FQ9TxIjq",
+    // Active 2026 subscription catalog
+    PRO_MONTHLY: envPrice("STRIPE_PRICE_PRO_MONTHLY") || "price_1TfQaqRJNflGxv32GIVnEOKu",
+    PRO_ANNUAL: envPrice("STRIPE_PRICE_PRO_ANNUAL") || "price_1TfQaqRJNflGxv32OZ73C04t",
+    MAX_MONTHLY: envPrice("STRIPE_PRICE_MAX_MONTHLY") || "price_1TfQarRJNflGxv32CC7MqVnt",
+    MAX_ANNUAL: envPrice("STRIPE_PRICE_MAX_ANNUAL") || "price_1TfQarRJNflGxv323VMZLt0U",
+    ENTERPRISE_MONTHLY: envPrice("STRIPE_PRICE_ENTERPRISE_MONTHLY") || "price_1TfQauRJNflGxv32cDBdjco9",
+    // Legacy subscription listeners retained for existing subscribers and old webhooks.
+    LEGACY_PRO_MONTHLY: "price_1ScLOaRJNflGxv32BwQnSBs0",
+    LEGACY_PRO_LIVE: "price_1TJoONRJNflGxv32zSqxC9bZ",
+    LEGACY_MAX_LIVE: "price_1TJoONRJNflGxv32wxPHw9FR",
+    LEGACY_ENTERPRISE_LIVE: "price_1TJoQyRJNflGxv32FQ9TxIjq",
 } as const;
 
 // One-time payment price IDs
@@ -35,6 +45,71 @@ const DOWNLOAD_ONCE_PRICE_IDS = [
     PRICE_IDS.DOWNLOAD_ONCE,
     PRICE_IDS.DOWNLOAD_ONCE_LEGACY,
 ];
+
+const ACTIVE_SUBSCRIPTION_PRICE_IDS = [
+    PRICE_IDS.PRO_MONTHLY,
+    PRICE_IDS.PRO_ANNUAL,
+    PRICE_IDS.MAX_MONTHLY,
+    PRICE_IDS.MAX_ANNUAL,
+    PRICE_IDS.ENTERPRISE_MONTHLY,
+].filter(Boolean);
+
+const LEGACY_SUBSCRIPTION_PRICE_IDS = [
+    PRICE_IDS.LEGACY_PRO_MONTHLY,
+    PRICE_IDS.LEGACY_PRO_LIVE,
+    PRICE_IDS.LEGACY_MAX_LIVE,
+    PRICE_IDS.LEGACY_ENTERPRISE_LIVE,
+];
+
+function resolveSubscriptionPrice(priceId?: string | null): {
+    plan: "pro" | "max" | "enterprise" | "pro_monthly";
+    billingInterval: "month" | "year";
+    legacy: boolean;
+} | null {
+    if (!priceId) return null;
+
+    if (priceId === PRICE_IDS.PRO_MONTHLY) return { plan: "pro", billingInterval: "month", legacy: false };
+    if (priceId === PRICE_IDS.PRO_ANNUAL) return { plan: "pro", billingInterval: "year", legacy: false };
+    if (priceId === PRICE_IDS.MAX_MONTHLY) return { plan: "max", billingInterval: "month", legacy: false };
+    if (priceId === PRICE_IDS.MAX_ANNUAL) return { plan: "max", billingInterval: "year", legacy: false };
+    if (priceId === PRICE_IDS.ENTERPRISE_MONTHLY) return { plan: "enterprise", billingInterval: "month", legacy: false };
+
+    if (priceId === PRICE_IDS.LEGACY_PRO_MONTHLY) return { plan: "pro_monthly", billingInterval: "month", legacy: true };
+    if (priceId === PRICE_IDS.LEGACY_PRO_LIVE) return { plan: "pro", billingInterval: "month", legacy: true };
+    if (priceId === PRICE_IDS.LEGACY_MAX_LIVE) return { plan: "max", billingInterval: "month", legacy: true };
+    if (priceId === PRICE_IDS.LEGACY_ENTERPRISE_LIVE) return { plan: "enterprise", billingInterval: "month", legacy: true };
+
+    return null;
+}
+
+function assertCheckoutPriceAllowed(priceId: string, mode: Stripe.Checkout.SessionCreateParams.Mode) {
+    if (mode === "payment") {
+        if (ONE_TIME_PRICE_IDS.includes(priceId as any)) return;
+        throw new HttpsError("invalid-argument", "Unsupported one-time Stripe price ID.");
+    }
+
+    if (ACTIVE_SUBSCRIPTION_PRICE_IDS.includes(priceId)) return;
+
+    throw new HttpsError(
+        "failed-precondition",
+        "This subscription price is not configured in the active CareerVivid catalog. Create the Stripe Price and set the matching STRIPE_PRICE_* environment variable."
+    );
+}
+
+function normalizeCheckoutQuantity(
+    quantity: unknown,
+    priceId: string,
+    mode: Stripe.Checkout.SessionCreateParams.Mode
+) {
+    const requestedQuantity = Math.floor(Number(quantity || 1));
+    const safeQuantity = Number.isFinite(requestedQuantity) && requestedQuantity > 0 ? requestedQuantity : 1;
+
+    if (mode === "subscription" && priceId === PRICE_IDS.ENTERPRISE_MONTHLY) {
+        return Math.max(ENTERPRISE_MINIMUM_SEATS, safeQuantity);
+    }
+
+    return safeQuantity;
+}
 
 // One visible "Download Once" purchase gets backend retry allowance for failed exports.
 const PDF_DOWNLOAD_CREDITS_PER_PURCHASE = 3;
@@ -94,16 +169,24 @@ export const createCheckoutSession = onCall(
             // Determine mode: use requested mode if provided, otherwise check if price is one-time
             const mode: Stripe.Checkout.SessionCreateParams.Mode =
                 requestedMode === 'payment' || ONE_TIME_PRICE_IDS.includes(priceId) ? "payment" : "subscription";
+            assertCheckoutPriceAllowed(priceId, mode);
+            const checkoutQuantity = normalizeCheckoutQuantity(quantity, priceId, mode);
+            const checkoutMetadata = {
+                userId: userId,
+                priceId: priceId,
+                ...metadata,
+                ...(priceId === PRICE_IDS.ENTERPRISE_MONTHLY ? { seats: String(checkoutQuantity) } : {}),
+            };
 
             try {
                 // Create checkout session
                 const session = await stripe.checkout.sessions.create({
                     customer: stripeCustomerId,
                     mode: mode,
-                    line_items: [{ price: priceId, quantity: quantity || 1 }],
+                    line_items: [{ price: priceId, quantity: checkoutQuantity }],
                     success_url: successUrl,
                     cancel_url: cancelUrl,
-                    metadata: { userId: userId, priceId: priceId, ...metadata },
+                    metadata: checkoutMetadata,
                 });
 
                 return { url: session.url, sessionId: session.id };
@@ -127,10 +210,10 @@ export const createCheckoutSession = onCall(
                     const session = await stripe.checkout.sessions.create({
                         customer: newCustomerId,
                         mode: mode,
-                        line_items: [{ price: priceId, quantity: quantity || 1 }],
+                        line_items: [{ price: priceId, quantity: checkoutQuantity }],
                         success_url: successUrl,
                         cancel_url: cancelUrl,
-                        metadata: { userId: userId, priceId: priceId, ...metadata },
+                        metadata: checkoutMetadata,
                     });
 
                     return { url: session.url, sessionId: session.id };
@@ -585,26 +668,30 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             );
 
             console.log(`Sprint plan activated for user ${userId}, expires at ${expiresAt.toDate()}`);
-        } else if (
-            priceId === PRICE_IDS.MONTHLY || 
-            priceId === PRICE_IDS.PRO || 
-            priceId === PRICE_IDS.MAX || 
-            priceId === PRICE_IDS.ENTERPRISE
-        ) {
-            // Determine exact plan name based on the price ID
-            let assignedPlan = "pro";
-            if (priceId === PRICE_IDS.MAX) assignedPlan = "max";
-            if (priceId === PRICE_IDS.ENTERPRISE) assignedPlan = "enterprise";
-            if (priceId === PRICE_IDS.MONTHLY) assignedPlan = "pro_monthly"; // preserve legacy name
+        } else {
+            const subscriptionPrice = resolveSubscriptionPrice(priceId);
+
+            if (!subscriptionPrice) {
+                console.warn(`Ignoring checkout session ${session.id} for unrecognized subscription price ${priceId}`);
+                return;
+            }
+
+            const seats = subscriptionPrice.plan === "enterprise"
+                ? normalizeCheckoutQuantity(session.metadata?.seats, PRICE_IDS.ENTERPRISE_MONTHLY, "subscription")
+                : null;
 
             // Subscription activated
             await userRef.set(
                 {
-                    plan: assignedPlan,
+                    plan: subscriptionPrice.plan,
+                    ...(seats ? { seats } : {}),
                     resumeLimit: 9999, // Legacy unrestricted resumes (credits handle AI logic)
                     subscriptionStatus: "active",
                     stripeCustomerId: session.customer,
                     stripeSubscriptionId: session.subscription,
+                    stripePriceId: priceId,
+                    billingInterval: subscriptionPrice.billingInterval,
+                    subscriptionCatalogVersion: subscriptionPrice.legacy ? "legacy" : "2026-06-06",
                     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
                     promotions: {
                         isPremium: true,
@@ -613,7 +700,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
                 { merge: true }
             );
 
-            console.log(`${assignedPlan} subscription activated for user ${userId}`);
+            console.log(`${subscriptionPrice.plan} subscription activated for user ${userId}`);
         }
     } catch (error) {
         console.error(`Error updating user ${userId}:`, error);
@@ -645,6 +732,8 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 
     const status = subscription.status;
     let firestoreStatus: string = status;
+    const subscriptionPriceId = subscription.items.data[0]?.price?.id;
+    const subscriptionPrice = resolveSubscriptionPrice(subscriptionPriceId);
 
     // If subscription is active but scheduled to cancel, mark as 'active_canceling'
     if (status === 'active' && subscription.cancel_at_period_end) {
@@ -653,16 +742,32 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 
     const isPremium = status === "active" || status === "trialing";
 
-    await userDoc.ref.set(
-        {
-            subscriptionStatus: firestoreStatus as any,
-            promotions: {
-                isPremium: isPremium,
-            },
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    const updateData: admin.firestore.UpdateData<admin.firestore.DocumentData> = {
+        subscriptionStatus: firestoreStatus as any,
+        stripeSubscriptionId: subscription.id,
+        stripePriceId: subscriptionPriceId || null,
+        promotions: {
+            isPremium: isPremium,
         },
-        { merge: true }
-    );
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    if (subscriptionPrice) {
+        updateData.plan = subscriptionPrice.plan;
+        updateData.billingInterval = subscriptionPrice.billingInterval;
+        updateData.subscriptionCatalogVersion = subscriptionPrice.legacy ? "legacy" : "2026-06-06";
+        updateData.resumeLimit = isPremium ? 9999 : 1;
+
+        if (subscriptionPrice.plan === "enterprise") {
+            updateData.seats = normalizeCheckoutQuantity(
+                subscription.items.data[0]?.quantity,
+                PRICE_IDS.ENTERPRISE_MONTHLY,
+                "subscription"
+            );
+        }
+    }
+
+    await userDoc.ref.set(updateData, { merge: true });
 
     console.log(`Subscription updated for user ${userId}: ${firestoreStatus} (Stripe: ${status})`);
 }

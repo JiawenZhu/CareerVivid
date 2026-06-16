@@ -25,6 +25,7 @@ import * as admin from "firebase-admin";
 import { secureCorsHandler } from "./utils/corsUtils.js";
 import { getAIClient, getVertexLocationForModel } from "./utils/ai";
 import { Content } from "@google/genai";
+import { getPlanMonthlyLimitForUser, getPlanMonthlyLimit as resolvePlanMonthlyLimit } from "./utils/planLimits";
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -47,10 +48,7 @@ const MODEL_CREDIT_COST: Record<string, number> = {
 };
 
 function getMonthlyLimit(plan?: string): number {
-  if (plan === "max" || plan === "pro_max") return 10000;
-  if (plan === "pro_monthly" || plan === "pro") return 1000;
-  if (plan === "pro_sprint") return 300;
-  return 100; // free
+  return resolvePlanMonthlyLimit(plan);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -102,9 +100,7 @@ async function resolveAndDeduct(
     const currentMonth = new Date().toISOString().slice(0, 7); // "2026-04"
     const usageMonth: string = aiUsage.month || "";
     let count: number = usageMonth === currentMonth ? (aiUsage.count ?? 0) : 0;
-    let limit: number = aiUsage.monthlyLimit ?? getMonthlyLimit(userData.plan);
-    const tokenCredits = userData.promotions?.tokenCredits || 0;
-    limit += tokenCredits;
+    const limit = getPlanMonthlyLimitForUser(userData);
 
     if (!isAdmin && count + costPerCall > limit - 2) {
       return {

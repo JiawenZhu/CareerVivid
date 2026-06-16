@@ -10,6 +10,7 @@ import {
     PRO_MAX_PLAN_CREDIT_LIMIT,
     ENTERPRISE_PLAN_CREDIT_LIMIT,
 } from '../../config/creditCosts';
+import { SUBSCRIPTION_CATALOG } from '../../config/subscriptionCatalog';
 
 interface PricingComparisonProps {
     onCloudUpgrade?: () => void;
@@ -153,13 +154,15 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                     </div>
                     <div className="mb-8">
                         <div className="flex items-baseline gap-1">
-                            <span className="text-5xl font-black text-gray-900 dark:text-white">$9</span>
+                            <span className="text-5xl font-black text-gray-900 dark:text-white">${SUBSCRIPTION_CATALOG.pro.monthlyPrice}</span>
                             <span className="text-gray-500 text-sm font-bold">/mo</span>
                         </div>
                         <div className="text-xs text-primary-600 font-bold tracking-widest mt-3 uppercase bg-primary-50 dark:bg-primary-900/20 inline-flex items-center gap-1.5 px-3 py-1 rounded-full">
                             <Zap size={12} /> {PRO_PLAN_CREDIT_LIMIT.toLocaleString()} AI credits / mo
                         </div>
-                        <p className="text-xs text-gray-400 mt-2">≈ 1,000 Flash turns or 500 Pro turns</p>
+                        <p className="text-xs text-gray-400 mt-2">
+                            ${SUBSCRIPTION_CATALOG.pro.annualMonthlyEquivalent}/mo billed yearly (${SUBSCRIPTION_CATALOG.pro.annualPrice}/yr)
+                        </p>
                     </div>
                     <ul className="space-y-3.5 mb-8 flex-grow text-sm font-medium text-gray-600 dark:text-gray-400">
                         <li className="flex items-start gap-3"><Check className="text-primary-500 flex-shrink-0 mt-0.5" size={18} /><span>Everything in Free</span></li>
@@ -192,18 +195,20 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                     </div>
                     <div className="mb-8 relative z-10">
                         <div className="flex items-baseline gap-1">
-                            <span className="text-5xl font-black text-gray-900 dark:text-white">$29</span>
+                            <span className="text-5xl font-black text-gray-900 dark:text-white">${SUBSCRIPTION_CATALOG.max.monthlyPrice}</span>
                             <span className="text-gray-500 text-sm font-bold">/mo</span>
                         </div>
                         <div className="text-xs text-purple-600 font-bold tracking-widest mt-3 uppercase bg-purple-50 dark:bg-purple-900/20 inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-purple-100 dark:border-purple-800/50">
                             <Zap size={12} /> {PRO_MAX_PLAN_CREDIT_LIMIT.toLocaleString()} AI credits / mo
                         </div>
-                        <p className="text-xs text-gray-400 mt-2">≈ 10,000 Flash turns or 5,000 Pro turns</p>
+                        <p className="text-xs text-gray-400 mt-2">
+                            ${SUBSCRIPTION_CATALOG.max.annualMonthlyEquivalent}/mo billed yearly (${SUBSCRIPTION_CATALOG.max.annualPrice}/yr)
+                        </p>
                     </div>
                     <ul className="space-y-3.5 mb-8 flex-grow text-sm font-medium text-gray-600 dark:text-gray-400 relative z-10">
                         <li className="flex items-start gap-3"><Check className="text-purple-500 flex-shrink-0 mt-0.5" size={18} /><span>Everything in Pro</span></li>
                         <li className="flex items-start gap-3"><Check className="text-purple-500 flex-shrink-0 mt-0.5" size={18} /><span>Private posts &amp; advanced ReactFlow</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-purple-500 flex-shrink-0 mt-0.5" size={18} /><span>10× more AI turns than Pro</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-purple-500 flex-shrink-0 mt-0.5" size={18} /><span>4.5× more AI turns than Pro</span></li>
                         <li className="flex items-start gap-3"><Check className="text-purple-500 flex-shrink-0 mt-0.5" size={18} /><span>Priority model access</span></li>
                     </ul>
                     <button
@@ -232,7 +237,7 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                         <div className="text-xs text-amber-400 font-bold tracking-widest mt-3 uppercase bg-amber-400/10 inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-amber-400/20">
                             <Zap size={12} /> {ENTERPRISE_PLAN_CREDIT_LIMIT.toLocaleString()} pooled credits/seat
                         </div>
-                        <p className="text-xs text-gray-500 mt-2">Credits pool across all seats</p>
+                        <p className="text-xs text-gray-500 mt-2">{SUBSCRIPTION_CATALOG.enterprise.minimumSeats}-seat minimum, credits pool across all seats</p>
                     </div>
                     <ul className="space-y-3.5 mb-8 flex-grow text-sm font-medium text-gray-300 relative z-10">
                         <li className="flex items-start gap-3"><Check className="text-amber-400 flex-shrink-0 mt-0.5" size={18} /><span>Private Team Workspaces</span></li>

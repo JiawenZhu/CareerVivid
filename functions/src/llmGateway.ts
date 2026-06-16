@@ -30,7 +30,8 @@ import { getAIClient, getVertexLocationForModel } from "./utils/ai";
 import * as admin from "firebase-admin";
 import { secureCorsHandler } from "./utils/corsUtils.js";
 import { randomUUID } from "crypto";
-import { resolveAndDeduct, getMonthlyLimit } from "./utils/creditUtils.js";
+import { resolveAndDeduct } from "./utils/creditUtils.js";
+import { getPlanMonthlyLimitForUser } from "./utils/planLimits";
 
 if (!admin.apps.length) admin.initializeApp();
 
@@ -182,8 +183,7 @@ async function readCredits(apiKey: string): Promise<{ creditsUsed: number; credi
   const aiUsage = data.aiUsage || {};
   const currentMonth = new Date().toISOString().slice(0, 7);
   const count = aiUsage.month === currentMonth ? (aiUsage.count ?? 0) : 0;
-  const tokenCredits = data.promotions?.tokenCredits || 0;
-  const limit = (aiUsage.monthlyLimit ?? getMonthlyLimit(data.plan)) + tokenCredits;
+  const limit = getPlanMonthlyLimitForUser(data);
   return { creditsUsed: count, creditsRemaining: Math.max(0, limit - count), monthlyLimit: limit };
 }
 

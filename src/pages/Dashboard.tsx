@@ -31,6 +31,7 @@ import DashboardPostCard from '../components/Dashboard/DashboardPostCard';
 import { MobilePostCard } from '../components/Dashboard/DashboardMobileCards';
 import ReorderDashboardModal from '../components/Dashboard/ReorderDashboardModal';
 import JobDetailModal from '../components/JobTracker/JobDetailModal';
+import CareerProfileGraphCard, { SkillGapLearningSection } from '../components/Dashboard/CareerProfileGraphCard';
 
 // Lazy load modal
 const InterviewReportModal = React.lazy(() => import('../components/InterviewReportModal'));
@@ -39,7 +40,7 @@ const mobileWorkflowActions = [
     { label: 'Resume', icon: FileText, path: '/newresume', className: 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-950/30 dark:text-blue-200 dark:border-blue-900/50' },
     { label: 'Portfolio', icon: Globe, path: '/portfolio', className: 'bg-pink-50 text-pink-700 border-pink-100 dark:bg-pink-950/30 dark:text-pink-200 dark:border-pink-900/50' },
     { label: 'Interview', icon: Mic, path: '/interview-studio', className: 'bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-950/30 dark:text-purple-200 dark:border-purple-900/50' },
-    { label: 'Jobs', icon: Briefcase, path: '/job-tracker', className: 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-200 dark:border-emerald-900/50' },
+    { label: 'Jobs', icon: Briefcase, path: '/jobs/recommend', className: 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-200 dark:border-emerald-900/50' },
     { label: 'Community', icon: MessageSquare, path: '/community', className: 'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-950/30 dark:text-amber-200 dark:border-amber-900/50' },
     { label: 'Whiteboard', icon: PenTool, path: '/whiteboard', className: 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-900/60 dark:text-slate-200 dark:border-slate-800' },
 ];
@@ -474,6 +475,13 @@ const Dashboard: React.FC = () => {
                         <WorkspaceSummaryCards />
                     </div>
 
+                    <CareerProfileGraphCard
+                        resumes={resumes}
+                        portfolios={portfolios}
+                        practiceHistory={practiceHistory}
+                        jobApplications={jobApplications}
+                    />
+
                     <div className={`justify-end mt-6 mb-2 pr-1 ${navPosition === 'side' ? 'hidden md:flex' : 'flex md:hidden'}`}>
                         <button onClick={() => setViewMode(viewMode === 'row' ? 'grid' : 'row')} className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors text-gray-500 dark:text-gray-400 flex items-center gap-2 text-sm font-medium" title={viewMode === 'row' ? 'Switch to Grid View' : 'Switch to Row View'}>
                             {viewMode === 'row' ? (<><LayoutGrid size={18} /> <span className="hidden sm:inline">Grid View</span></>) : (<><List size={18} /> <span className="hidden sm:inline">Row View</span></>)}
@@ -518,6 +526,13 @@ const Dashboard: React.FC = () => {
                                 return null;
                         }
                     })}
+
+                    <SkillGapLearningSection
+                        resumes={resumes}
+                        portfolios={portfolios}
+                        practiceHistory={practiceHistory}
+                        jobApplications={jobApplications}
+                    />
                 </div>
 
                 {/* Modals & Overlays */}

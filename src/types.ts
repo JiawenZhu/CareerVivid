@@ -236,7 +236,7 @@ export interface UserProfile {
   aiUsage?: {
     count: number;        // Current month's usage (aggregated sum)
     lastResetDate: any;   // Firestore Timestamp - when counter was last reset
-    monthlyLimit: number; // 100 (free), 1000 (pro), 5000 (max), or pooled limit
+    monthlyLimit: number; // 100 (free), 1000 (pro), 4500 (max), or pooled limit
   };
 }
 

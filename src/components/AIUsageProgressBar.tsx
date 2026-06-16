@@ -35,9 +35,9 @@ const AIUsageProgressBar: React.FC<AIUsageProgressBarProps> = ({
 
     // Helper to get plan label using the same constants as AuthContext
     const getPlanLabel = () => {
-        if (limit >= ENTERPRISE_PLAN_CREDIT_LIMIT) return 'Enterprise';
         if (limit === PRO_MAX_PLAN_CREDIT_LIMIT) return 'Max';
         if (limit === PRO_PLAN_CREDIT_LIMIT) return 'Pro';
+        if (limit >= ENTERPRISE_PLAN_CREDIT_LIMIT) return 'Enterprise';
         return 'CareerVivid';
     };
 
