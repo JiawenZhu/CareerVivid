@@ -27,7 +27,9 @@ window.addEventListener('unhandledrejection', (event) => {
 });
 
 window.addEventListener('vite:preloadError', (event) => {
-  event.preventDefault();
+  // Do not preventDefault here. Vite treats a prevented preload error as
+  // handled and resolves the lazy import to undefined, which crashes React.lazy
+  // with "Cannot read properties of undefined (reading 'default')".
   void requestVersionRecovery('startup-vite-preload');
 });
 

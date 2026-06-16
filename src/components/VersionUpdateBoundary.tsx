@@ -110,7 +110,9 @@ const useVersionUpdateRecovery = () => {
     };
 
     const handlePreloadError = (event: Event) => {
-      event.preventDefault();
+      // Let Vite throw the original preload error. Preventing the event makes
+      // Vite resolve React.lazy imports as undefined, causing a secondary
+      // "reading 'default'" crash before the recovery reload can finish.
       void requestVersionRecovery('vite-preload');
     };
 
@@ -140,6 +142,16 @@ const useVersionUpdateRecovery = () => {
       window.removeEventListener('error', handleResourceError, true);
     };
   }, []);
+
+  useEffect(() => {
+    if (!recoveryReason) return;
+
+    const timeoutId = window.setTimeout(() => {
+      setRecoveryReason(null);
+    }, 8_000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [recoveryReason]);
 
   return recoveryReason;
 };
