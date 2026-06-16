@@ -3,6 +3,7 @@ import { RefreshCw } from 'lucide-react';
 
 const VERSION_RECOVERY_EVENT = 'careervivid:version-recovery';
 const VERSION_RECOVERY_RELOAD_KEY = 'careervivid:version-recovery:last-reload-at';
+const VERSION_RECOVERY_PENDING_RELOAD_KEY = 'careervivid:version-recovery:pending-reload';
 const VERSION_RECOVERY_COOLDOWN_MS = 15_000;
 
 type VersionRecoveryDetail = {
@@ -75,11 +76,21 @@ export const requestVersionRecovery = async (reason: string) => {
 
   const now = Date.now();
   const lastReloadAt = Number(window.sessionStorage.getItem(VERSION_RECOVERY_RELOAD_KEY) || '0');
-  if (Number.isFinite(lastReloadAt) && now - lastReloadAt < VERSION_RECOVERY_COOLDOWN_MS) {
+  const elapsedSinceReload = Number.isFinite(lastReloadAt) ? now - lastReloadAt : VERSION_RECOVERY_COOLDOWN_MS;
+  if (elapsedSinceReload < VERSION_RECOVERY_COOLDOWN_MS) {
+    if (!window.sessionStorage.getItem(VERSION_RECOVERY_PENDING_RELOAD_KEY)) {
+      const retryDelay = Math.max(VERSION_RECOVERY_COOLDOWN_MS - elapsedSinceReload + 500, 1_000);
+      window.sessionStorage.setItem(VERSION_RECOVERY_PENDING_RELOAD_KEY, String(now + retryDelay));
+      window.setTimeout(() => {
+        window.sessionStorage.removeItem(VERSION_RECOVERY_PENDING_RELOAD_KEY);
+        window.location.reload();
+      }, retryDelay);
+    }
     return;
   }
 
   window.sessionStorage.setItem(VERSION_RECOVERY_RELOAD_KEY, String(now));
+  window.sessionStorage.removeItem(VERSION_RECOVERY_PENDING_RELOAD_KEY);
 
   try {
     await Promise.allSettled([
