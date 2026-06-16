@@ -44,6 +44,7 @@ const StrategyDashboard = React.lazy(() => import('./pages/admin/StrategyDashboa
 const AcademicPartnerDashboard = React.lazy(() => import('./pages/academic/AcademicPartnerDashboard'));
 const VerifyEmailPage = React.lazy(() => import('./pages/VerifyEmailPage'));
 const JobTrackerPage = lazyWithPreload(() => import('./pages/JobTrackerPage'));
+const JobsRecommendPage = React.lazy(() => import('./pages/JobsRecommendPage'));
 const PdfPreviewPage = React.lazy(() => import('./pages/PdfPreviewPage'));
 const ContactPage = React.lazy(() => import('./pages/ContactPage'));
 const BlogListPage = React.lazy(() => import('./pages/BlogListPage'));
@@ -225,8 +226,8 @@ const AppContent: React.FC = () => {
     )
   }
 
-  // Public Job Board Route
-  if (path.startsWith('/jobs/')) {
+  // Public Job Board Route. Keep app-owned job recommendations out of this catch-all.
+  if (path.startsWith('/jobs/') && path !== '/jobs/recommend') {
     return (
       <ThemeProvider>
         <Suspense fallback={<LoadingFallback />}>
@@ -449,6 +450,13 @@ const AppContent: React.FC = () => {
       content = (
         <ProtectedRoute>
           <JobTrackerPage />
+        </ProtectedRoute>
+      );
+    }
+    else if (path === '/jobs/recommend') {
+      content = (
+        <ProtectedRoute>
+          <JobsRecommendPage />
         </ProtectedRoute>
       );
     }
