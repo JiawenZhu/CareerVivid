@@ -2,6 +2,40 @@
 
 console.log(chalk.blue('🧩 Building CareerVivid Extension...'))
 
+const chromeWebStoreDescription = 'Autofill applications, save roles, tailor resumes, and practice interviews with CareerVivid.'
+const developmentOrigins = new Set([
+    'http://localhost/*',
+    'http://127.0.0.1/*'
+])
+
+const stripDevelopmentOrigins = (value) => {
+    if (Array.isArray(value)) {
+        return value.filter((entry) => !developmentOrigins.has(entry))
+    }
+
+    return value
+}
+
+const prepareStoreManifest = async (sourcePath, targetPath) => {
+    const manifest = await fs.readJson(sourcePath)
+
+    manifest.description = chromeWebStoreDescription
+    manifest.host_permissions = stripDevelopmentOrigins(manifest.host_permissions)
+
+    if (manifest.externally_connectable?.matches) {
+        manifest.externally_connectable.matches = stripDevelopmentOrigins(manifest.externally_connectable.matches)
+    }
+
+    if (Array.isArray(manifest.content_scripts)) {
+        manifest.content_scripts = manifest.content_scripts.map((contentScript) => ({
+            ...contentScript,
+            matches: stripDevelopmentOrigins(contentScript.matches)
+        }))
+    }
+
+    await fs.writeJson(targetPath, manifest, { spaces: 2 })
+}
+
 try {
     const tempDir = 'dist-extension-temp'
     const distExt = 'dist-extension'
@@ -14,7 +48,7 @@ try {
 
     console.log(chalk.yellow('\n📁 Preparing Extension Assets...'))
 
-    await fs.copy('public/manifest.json', `${tempDir}/manifest.json`)
+    await prepareStoreManifest('public/manifest.json', `${tempDir}/manifest.json`)
     await fs.copy('public/icons', `${tempDir}/icons`)
     await fs.copy('public/content.css', `${tempDir}/content.css`)
     await fs.move(`${tempDir}/index.extension.html`, `${tempDir}/index.html`, { overwrite: true })
@@ -28,4 +62,3 @@ try {
     console.error(chalk.red(`\n❌ Extension build failed: ${p?.message ?? p}`))
     process.exit(1)
 }
-
