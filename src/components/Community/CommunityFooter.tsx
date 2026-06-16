@@ -1,8 +1,6 @@
 import React from 'react';
-import { Github, Star, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { useCommunityStats } from '../../hooks/useCommunityMeta';
-
-const REPO_URL = 'https://github.com/Jastalk/CareerVivid';
 
 const CommunityFooter: React.FC = () => {
     const { memberCount, loading } = useCommunityStats();

@@ -140,6 +140,7 @@ export { agentProxy } from "./agentProxy";
 export { llmGateway } from "./llmGateway.js";
 export { publicResumeApi } from "./publicResumeApi";
 export { resolveImageForAIEdit } from "./imageProxy";
+export { vapiWebhook } from "./vapiWebhook";
 
 const APP_BASE_URL =
   process.env.CAREERVIVID_APP_URL ||

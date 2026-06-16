@@ -23,7 +23,6 @@ const Footer: React.FC<FooterProps> = ({ variant = 'default', policyPath = '/pol
                     </div>
                     <div className={`flex flex-wrap justify-center gap-6 ${isBrutalist ? 'text-white font-mono text-sm' : 'text-gray-500 dark:text-gray-400'}`}>
                         <button onClick={() => navigate('/')} className={`transition-colors ${isBrutalist ? 'hover:text-green-400 hover:underline uppercase' : 'hover:text-primary-500'}`}>Features</button>
-                        <button onClick={() => navigate('/community')} className={`transition-colors ${isBrutalist ? 'hover:text-green-400 hover:underline uppercase' : 'hover:text-primary-500'}`}>Community</button>
                         <button onClick={() => navigate('/pricing')} className={`transition-colors ${isBrutalist ? 'hover:text-green-400 hover:underline uppercase' : 'hover:text-primary-500'}`}>Pricing</button>
                         <button onClick={() => navigate('/contact')} className={`transition-colors ${isBrutalist ? 'hover:text-green-400 hover:underline uppercase' : 'hover:text-primary-500'}`}>Support</button>
                         <button onClick={() => navigate('/terms')} className={`transition-colors ${isBrutalist ? 'hover:text-green-400 hover:underline uppercase' : 'hover:text-primary-500'}`}>Terms</button>

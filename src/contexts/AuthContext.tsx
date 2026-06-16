@@ -4,7 +4,7 @@ import { onAuthStateChanged, onIdTokenChanged, User, signOut } from 'firebase/au
 import { auth, db } from '../firebase';
 import { doc, getDoc, onSnapshot, updateDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { trackUsage } from '../services/trackingService';
-import { FREE_PLAN_CREDIT_LIMIT, PRO_PLAN_CREDIT_LIMIT, PRO_MAX_PLAN_CREDIT_LIMIT, ENTERPRISE_PLAN_CREDIT_LIMIT, ENTERPRISE_MINIMUM_SEATS } from '../config/creditCosts';
+import { FREE_PLAN_CREDIT_LIMIT, PRO_PLAN_CREDIT_LIMIT, PRO_MAX_PLAN_CREDIT_LIMIT, ENTERPRISE_PLAN_CREDIT_LIMIT } from '../config/creditCosts';
 import { navigate } from '../utils/navigation';
 import { UserProfile } from '../types';
 import { createExtensionAuthPayload, syncAuthWithExtension } from '../utils/extensionAuthBridge';
@@ -239,7 +239,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             monthlyLimit = PRO_MAX_PLAN_CREDIT_LIMIT;
             break;
           case 'enterprise':
-            monthlyLimit = Math.max(ENTERPRISE_MINIMUM_SEATS, userData.seats || 1) * ENTERPRISE_PLAN_CREDIT_LIMIT;
+            monthlyLimit = (userData.seats || 1) * ENTERPRISE_PLAN_CREDIT_LIMIT;
             break;
           default:
             // Free plan or any unrecognized plan → FREE_PLAN_CREDIT_LIMIT
@@ -428,7 +428,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             limit = PRO_MAX_PLAN_CREDIT_LIMIT;
             break;
           case 'enterprise':
-            limit = Math.max(ENTERPRISE_MINIMUM_SEATS, userProfile.seats || 1) * ENTERPRISE_PLAN_CREDIT_LIMIT;
+            limit = (userProfile.seats || 1) * ENTERPRISE_PLAN_CREDIT_LIMIT;
             break;
         }
       }

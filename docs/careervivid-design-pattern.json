@@ -1,0 +1,307 @@
+{
+  "name": "CareerVivid Design Pattern",
+  "version": "2026-06-16",
+  "purpose": "Reusable CareerVivid visual and interaction pattern for product UI, public pages, dashboards, and Chrome extension surfaces.",
+  "sourceOfTruth": {
+    "repo": "/Users/jiawenzhu/Developer/careervivid-release",
+    "files": [
+      "src/index.css",
+      "src/extension-ui/layout/ExtensionLayout.tsx",
+      "src/extension-ui/pages/ExtensionHome.tsx",
+      "src/extension-ui/components/ExtensionHeader.tsx",
+      "src/components/JobTracker/KanbanBoard.tsx",
+      "src/pages/JobTrackerPage.tsx",
+      "src/pages/ExtensionWelcomePage.tsx",
+      "public/avatars/careervivid-rabbit-glasses.jpg",
+      "public/avatars/careervivid-rabbit-bow.jpg"
+    ]
+  },
+  "brandDirection": {
+    "personality": [
+      "warm",
+      "useful",
+      "calm",
+      "job-search focused",
+      "professional"
+    ],
+    "avoid": [
+      "flashy AI toy language",
+      "dominant bright purple",
+      "saturated purple gradients as primary surfaces",
+      "decorative blobs, orbs, or bokeh",
+      "oversized typography inside compact product surfaces",
+      "long explanatory UI copy"
+    ]
+  },
+  "color": {
+    "light": {
+      "pageBackground": "#f7f1e7",
+      "extensionBackground": "#f7f8fb",
+      "surface": "#fffaf1",
+      "card": "#ffffff",
+      "warmCard": "rgba(255, 250, 241, 0.88)",
+      "primaryText": "#211b16",
+      "dashboardText": "#111827",
+      "deepText": "#0f172a",
+      "mutedText": "#665a4a",
+      "secondaryText": "#64748b",
+      "subtleText": "#9ca3af",
+      "warmBorder": "#e4d3bc",
+      "softBorder": "#ececf4",
+      "standardBorder": "#e5e7eb",
+      "warmAccent": "#a97935",
+      "warmAccentSoft": "#caa26c",
+      "careerPurple": "#625bd5",
+      "careerPurpleSoft": "#7069dc",
+      "careerPurpleTint": "#eef0ff",
+      "careerPurpleTintAlt": "#f3f2ff"
+    },
+    "dark": {
+      "pageBackground": "#1f1f1d",
+      "surface": "#262522",
+      "surfaceRaised": "#302e2a",
+      "dashboardBackground": "#111827",
+      "dashboardSurface": "#0f172a",
+      "primaryText": "#f4f1e9",
+      "bodyText": "#f1eee7",
+      "mutedText": "#aaa39a",
+      "dashboardMutedText": "#94a3b8",
+      "subtleText": "#9ca3af",
+      "border": "#37332d",
+      "shadow": "rgba(0, 0, 0, 0.2)"
+    },
+    "status": {
+      "toApply": "#6b7280",
+      "applied": "#3b82f6",
+      "interviewing": "#eab308",
+      "offered": "#22c55e",
+      "rejected": "#ef4444",
+      "priorityHigh": {
+        "background": "#fff1f2",
+        "text": "#be123c"
+      },
+      "priorityMedium": {
+        "background": "#fffbeb",
+        "text": "#b45309"
+      },
+      "priorityLow": {
+        "background": "#f3f4f6",
+        "text": "#4b5563"
+      }
+    },
+    "usageRules": [
+      "Use CareerVivid purple as an accent or primary CTA only.",
+      "Keep surrounding surfaces warm, light, and calm.",
+      "Use status colors in chips, dots, badges, and icons instead of large color blocks.",
+      "Prefer tinted icon backgrounds over saturated panels.",
+      "Do not let the UI become one-note purple, blue-purple, dark slate, or beige-only."
+    ]
+  },
+  "typography": {
+    "fontFamilies": {
+      "body": "Inter, sans-serif",
+      "heading": "Plus Jakarta Sans, sans-serif"
+    },
+    "letterSpacing": "0",
+    "scales": {
+      "pageTitle": {
+        "fontSize": "24-32px",
+        "fontWeight": "600-700",
+        "lineHeight": "1.15-1.25"
+      },
+      "sectionHeading": {
+        "fontSize": "16-22px",
+        "fontWeight": "600-700",
+        "case": "sentence or title case"
+      },
+      "cardTitle": {
+        "fontSize": "13-15px",
+        "fontWeight": "700",
+        "lineHeight": "1.25-1.35"
+      },
+      "body": {
+        "fontSize": "12-14px",
+        "fontWeight": "500",
+        "lineHeight": "1.45-1.7"
+      },
+      "metadata": {
+        "fontSize": "10-12px",
+        "fontWeight": "600-700",
+        "colorRole": "muted"
+      },
+      "badge": {
+        "fontSize": "10-11px",
+        "fontWeight": "700",
+        "copyLength": "short"
+      }
+    },
+    "rules": [
+      "Avoid excessive uppercase except tiny labels or status chips.",
+      "Do not use hero-scale type inside cards, sidebars, extension panels, or dashboards.",
+      "Keep visible product copy short and operational."
+    ]
+  },
+  "shapeAndElevation": {
+    "radius": {
+      "compactControl": "6-8px",
+      "standardCard": "8-16px",
+      "extensionActionCard": "16-20px",
+      "avatar": "999px"
+    },
+    "borders": {
+      "default": "1px solid #e5e7eb",
+      "warm": "1px solid #e4d3bc",
+      "dark": "1px solid #37332d"
+    },
+    "shadow": {
+      "warmCard": "0 1px 2px rgba(139, 90, 22, 0.05)",
+      "extensionCard": "0 8px 18px rgba(15, 23, 42, 0.04)",
+      "hoverCard": "0 12px 22px rgba(0, 0, 0, 0.07)"
+    },
+    "rules": [
+      "Cards should not be nested inside decorative cards.",
+      "Sections should use practical workspace layout rather than marketing card stacks.",
+      "Use thin borders and restrained shadows.",
+      "Keep controls compact, icon-supported, and stable."
+    ]
+  },
+  "layoutPatterns": {
+    "publicWebsite": {
+      "background": "warm paper",
+      "firstViewport": "show CareerVivid as a real job-search workspace with product UI, dashboard surfaces, screenshots, or workflow imagery",
+      "composition": "editorial, warm, concrete, product-led"
+    },
+    "dashboard": {
+      "background": "near-white or light gray workspace",
+      "density": "compact and scan-friendly",
+      "controls": "filters, segmented controls, and buttons should be aligned and reachable"
+    },
+    "jobPipeline": {
+      "column": {
+        "minWidth": "244px",
+        "padding": "10px",
+        "radius": "8px",
+        "background": "rgba(249, 250, 251, 0.8)",
+        "border": "#e5e7eb"
+      },
+      "card": {
+        "padding": "10px 8px",
+        "radius": "6px",
+        "titleSize": "13px",
+        "companySize": "11px",
+        "metadataSize": "10px",
+        "iconContainer": "28px square"
+      },
+      "statusDots": {
+        "size": "10px",
+        "shape": "circle"
+      }
+    },
+    "chromeExtension": {
+      "defaultTheme": "system",
+      "surface": "#f7f8fb",
+      "card": "#ffffff",
+      "border": "#ececf4",
+      "heightMinimum": "520px",
+      "homeHeightMinimum": "540px",
+      "header": "sticky, white/95, backdrop blur, bottom border",
+      "footer": "sticky bottom, white/95, top border",
+      "themeControl": "one visible trigger with clickable system/light/dark choices on hover, focus, or click"
+    }
+  },
+  "components": {
+    "button": {
+      "height": "32-44px depending on context",
+      "radius": "8-12px",
+      "label": "short verb phrase",
+      "icons": "use lucide icons where available",
+      "primary": {
+        "background": "#625bd5",
+        "text": "#ffffff",
+        "hover": "#5148c7"
+      },
+      "secondary": {
+        "background": "#ffffff",
+        "border": "#e5e7eb",
+        "text": "#374151"
+      }
+    },
+    "badge": {
+      "padding": "2-6px",
+      "radius": "4-999px",
+      "fontSize": "10-11px",
+      "fontWeight": "700",
+      "case": "short sentence case unless tiny status label"
+    },
+    "input": {
+      "height": "32-40px",
+      "radius": "6-8px",
+      "border": "#e5e7eb",
+      "focusBorder": "#625bd5",
+      "fontSize": "12-14px",
+      "fontWeight": "600"
+    },
+    "avatar": {
+      "size": "36px in extension header",
+      "shape": "circle",
+      "ring": "2px white",
+      "fallbacks": {
+        "neutralDefault": "public/avatars/careervivid-rabbit-glasses.jpg",
+        "feminineWhenKnown": "public/avatars/careervivid-rabbit-bow.jpg"
+      },
+      "priority": [
+        "Google account avatar",
+        "custom saved avatar",
+        "CareerVivid fallback avatar"
+      ]
+    }
+  },
+  "copy": {
+    "tone": [
+      "direct",
+      "warm",
+      "practical",
+      "outcome-oriented"
+    ],
+    "preferredLabels": [
+      "Job detected",
+      "No job detected",
+      "Application workspace",
+      "Save to tracker",
+      "Tailor resume",
+      "Match keywords",
+      "Practice",
+      "Mock interview",
+      "Active resume",
+      "Career pipeline"
+    ],
+    "avoidPhrases": [
+      "revolutionary",
+      "magic",
+      "unlock your future",
+      "AI-powered everything",
+      "NO JOB DETECTED as a large label"
+    ],
+    "errorCopyRule": "Name the failure and give the next action."
+  },
+  "accessibilityAndQa": {
+    "requiredChecks": [
+      "Desktop width",
+      "Mobile width",
+      "Chrome extension side panel width",
+      "Light mode",
+      "Dark mode",
+      "System/default theme behavior",
+      "Text overflow in buttons, chips, cards, and sidebars",
+      "Clickable hover menu behavior for theme controls",
+      "Visible focus states on primary actions",
+      "Muted-label contrast",
+      "Relevant build or test command"
+    ],
+    "darkModeRules": [
+      "Convert white cards into dark cards instead of mixing bright panels on dark backgrounds.",
+      "Keep borders low contrast but visible.",
+      "Soften purple, amber, green, and rose accents."
+    ]
+  }
+}

@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "CareerVivid - Auto-Apply & AI Career Coach",
-  "version": "1.1.0",
-  "description": "Autofill job applications on Greenhouse, Lever, LinkedIn & more using your AI-powered CareerVivid resume. Track applications, tailor resumes, and practice interviews.",
+  "name": "CareerVivid - Job Tracker & AI Career Coach",
+  "version": "2.1.1",
+  "homepage_url": "https://careervivid.app",
+  "description": "Save job postings, track applications, tailor resumes, and practice interviews with CareerVivid's AI career tools.",
   "permissions": [
     "storage",
     "unlimitedStorage",
@@ -17,15 +18,11 @@
   "externally_connectable": {
     "matches": [
       "https://careervivid.app/*",
-      "https://*.careervivid.app/*",
-      "http://localhost/*",
-      "http://127.0.0.1/*"
+      "https://*.careervivid.app/*"
     ]
   },
   "host_permissions": [
     "https://*/*",
-    "http://localhost/*",
-    "http://127.0.0.1/*",
     "https://careervivid.app/*"
   ],
   "action": {
@@ -45,9 +42,7 @@
   "content_scripts": [
     {
       "matches": [
-        "https://*/*",
-        "http://localhost/*",
-        "http://127.0.0.1/*"
+        "https://*/*"
       ],
       "js": ["content.js"],
       "css": ["content.css"],
@@ -64,6 +59,7 @@
       "resources": [
         "index.html",
         "assets/*",
+        "avatars/*",
         "icons/*",
         "content.css"
       ],
@@ -71,6 +67,6 @@
     }
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebase.com https://firebasestorage.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com wss://*.firebaseio.com https://*.cloudfunctions.net https://us-west1-jastalk-firebase.cloudfunctions.net; img-src 'self' data: https: blob:;"
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebase.com https://firebasestorage.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com wss://*.firebaseio.com https://*.cloudfunctions.net https://us-west1-jastalk-firebase.cloudfunctions.net; img-src 'self' data: https: blob:;"
   }
 }

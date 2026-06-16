@@ -21,6 +21,7 @@ vi.mock('lucide-react', () => ({
     Briefcase: () => <div data-testid="icon-briefcase" />,
     PenTool: () => <div data-testid="icon-pentool" />,
     PanelLeftClose: () => <div data-testid="icon-panelleftclose" />,
+    PanelLeftOpen: () => <div data-testid="icon-panelleftopen" />,
     LogOut: () => <div data-testid="icon-logout" />,
     LogIn: () => <div data-testid="icon-login" />,
     Sun: () => <div data-testid="icon-sun" />,
@@ -162,7 +163,9 @@ describe('Sidebar Component - Sorting and Filtering UX', () => {
 
         (useNavigation as any).mockReturnValue({
             toggleNavPosition: vi.fn(),
+            toggleSidebarMode: vi.fn(),
             navPosition: 'side',
+            sidebarMode: 'expanded',
             sidebarWidth: 256,
             setSidebarWidth: vi.fn()
         });

@@ -111,6 +111,7 @@
     "fast-xml-parser": "^5.8.0",
     "jsdom": "^28.1.0",
     "lighthouse": "^12.6.1",
+    "playwright": "^1.60.0",
     "postcss": "^8.5.14",
     "react-helmet-async": "^2.0.5",
     "tailwindcss": "^3.4.1",

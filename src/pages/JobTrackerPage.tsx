@@ -11,7 +11,6 @@ import JobDetailModal from '../components/JobTracker/JobDetailModal';
 import AddJobModal, { type InitialJobData } from '../components/JobTracker/AddJobUrlModal';
 import TodayJobSearchPlan from '../components/JobTracker/TodayJobSearchPlan';
 import PipelineControls from '../components/JobTracker/PipelineControls';
-import ApplyAgentPanel from '../components/JobTracker/ApplyAgentPanel';
 import { ArrowLeft, PlusCircle } from 'lucide-react';
 import { navigate } from '../utils/navigation';
 import AppLayout from '../components/Layout/AppLayout';
@@ -349,12 +348,6 @@ const JobTrackerPage: React.FC = () => {
                                 <StatusOverview applications={jobApplications} variant="compact" />
 
                                 <TodayJobSearchPlan applications={jobApplications} onJobSelect={handleCardClick} />
-
-                                <ApplyAgentPanel
-                                    applications={jobApplications}
-                                    resumes={resumes}
-                                    onJobSelect={handleCardClick}
-                                />
 
                                 <PipelineControls
                                     searchQuery={searchQuery}

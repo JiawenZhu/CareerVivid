@@ -1,5 +1,5 @@
 import React, { Suspense, useRef, useEffect } from 'react';
-import { PlusCircle, FileText, Mic, Briefcase, LayoutDashboard, Loader2, Globe, User as UserIcon, ChevronDown, FolderPlus, PenTool, LayoutGrid, List, PanelLeft, Github, Users, MessageSquare, ClipboardList, ArrowRight, Sparkles, type LucideIcon } from 'lucide-react';
+import { PlusCircle, FileText, Mic, Briefcase, Loader2, Globe, User as UserIcon, ChevronDown, FolderPlus, PenTool, LayoutGrid, List, Users, MessageSquare } from 'lucide-react';
 
 // Hooks & Logic
 import { useDashboard } from '../hooks/useDashboard';
@@ -15,6 +15,7 @@ import SharePortfolioModal from '../components/SharePortfolioModal';
 import ShareWhiteboardModal from '../components/ShareWhiteboardModal';
 import LanguageSelect from '../components/LanguageSelect';
 import AIUsageProgressBar from '../components/AIUsageProgressBar';
+import { getPlanDisplayName } from '../config/subscriptionCatalog';
 
 // Refactored Sections
 import { 
@@ -63,181 +64,8 @@ const MobileWorkflowLauncher: React.FC = () => (
     </nav>
 );
 
-interface DesktopWorkspaceCommandCenterProps {
-    title: string;
-    resumeCount: number;
-    interviewCount: number;
-    portfolioCount: number;
-    jobCount: number;
-    communityPostCount: number;
-    whiteboardCount: number;
-    viewMode: 'row' | 'grid';
-    onToggleView: () => void;
-    onOrganizeSections: () => void;
-}
-
-const DesktopWorkspaceCommandCenter: React.FC<DesktopWorkspaceCommandCenterProps> = ({
-    title,
-    resumeCount,
-    interviewCount,
-    portfolioCount,
-    jobCount,
-    communityPostCount,
-    whiteboardCount,
-    viewMode,
-    onToggleView,
-    onOrganizeSections,
-}) => {
-    const primaryActions: Array<{
-        label: string;
-        description: string;
-        icon: LucideIcon;
-        path: string;
-        className: string;
-    }> = [
-        {
-            label: 'Build Resume',
-            description: `${resumeCount} saved`,
-            icon: FileText,
-            path: '/newresume',
-            className: 'border-blue-100 bg-blue-50/70 text-blue-700 hover:border-blue-200 hover:bg-blue-100/80 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-200',
-        },
-        {
-            label: 'Find Jobs',
-            description: 'Search and track roles',
-            icon: Briefcase,
-            path: '/job-market',
-            className: 'border-emerald-100 bg-emerald-50/70 text-emerald-700 hover:border-emerald-200 hover:bg-emerald-100/80 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-200',
-        },
-        {
-            label: 'Practice Interview',
-            description: `${interviewCount} sessions`,
-            icon: Mic,
-            path: '/interview-studio',
-            className: 'border-violet-100 bg-violet-50/70 text-violet-700 hover:border-violet-200 hover:bg-violet-100/80 dark:border-violet-900/40 dark:bg-violet-950/30 dark:text-violet-200',
-        },
-    ];
-
-    const workspaceStats: Array<{
-        label: string;
-        value: number;
-        icon: LucideIcon;
-        path: string;
-    }> = [
-        { label: 'Resumes', value: resumeCount, icon: FileText, path: '/newresume' },
-        { label: 'Pipeline', value: jobCount, icon: Briefcase, path: '/job-tracker' },
-        { label: 'Interviews', value: interviewCount, icon: Mic, path: '/interview-studio' },
-        { label: 'Portfolios', value: portfolioCount, icon: Globe, path: '/portfolio' },
-        { label: 'Community', value: communityPostCount, icon: MessageSquare, path: '/my-posts' },
-        { label: 'Whiteboards', value: whiteboardCount, icon: PenTool, path: '/whiteboard' },
-    ];
-
-    return (
-        <section className="hidden md:block mb-8">
-            <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(360px,0.55fr)]">
-                <div className="rounded-[1.35rem] border border-stone-200/80 bg-white/85 p-5 shadow-sm dark:border-slate-800/80 dark:bg-slate-950/55">
-                    <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                        <div className="max-w-2xl">
-                            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-stone-500 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-400">
-                                <Sparkles size={13} />
-                                Workspace
-                            </div>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-gray-950 dark:text-white lg:text-4xl">
-                                {title}
-                            </h1>
-                            <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-                                Start from the action you need, then use the sections below for detailed editing and review.
-                            </p>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2">
-                            <button
-                                type="button"
-                                onClick={onToggleView}
-                                className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-700"
-                                title={viewMode === 'row' ? 'Switch to Grid View' : 'Switch to Row View'}
-                            >
-                                {viewMode === 'row' ? <LayoutGrid size={16} /> : <List size={16} />}
-                                {viewMode === 'row' ? 'Grid View' : 'Row View'}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={onOrganizeSections}
-                                className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-700"
-                            >
-                                <LayoutDashboard size={16} />
-                                Organize
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="mt-6 grid gap-3 lg:grid-cols-3">
-                        {primaryActions.map(({ label, description, icon: Icon, path, className }) => (
-                            <button
-                                key={path}
-                                type="button"
-                                onClick={() => navigate(path)}
-                                className={`group flex min-h-[92px] items-center justify-between rounded-2xl border px-4 py-3 text-left shadow-sm transition ${className}`}
-                            >
-                                <span className="flex items-center gap-3">
-                                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/80 shadow-sm dark:bg-slate-950/40">
-                                        <Icon size={20} />
-                                    </span>
-                                    <span>
-                                        <span className="block text-sm font-bold">{label}</span>
-                                        <span className="mt-1 block text-xs font-medium opacity-75">{description}</span>
-                                    </span>
-                                </span>
-                                <ArrowRight size={17} className="opacity-45 transition group-hover:translate-x-0.5 group-hover:opacity-80" />
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="rounded-[1.35rem] border border-stone-200/80 bg-white/85 p-5 shadow-sm dark:border-slate-800/80 dark:bg-slate-950/55">
-                    <div className="flex items-start justify-between gap-4">
-                        <div>
-                            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-stone-500 dark:text-slate-400">
-                                Workspace Snapshot
-                            </p>
-                            <h2 className="mt-1 text-lg font-extrabold text-gray-950 dark:text-white">
-                                Your active career assets
-                            </h2>
-                        </div>
-                        <button
-                            type="button"
-                            onClick={() => navigate('/subscription')}
-                            className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 transition hover:bg-blue-100 dark:border-blue-900/40 dark:bg-blue-950/30 dark:text-blue-200"
-                        >
-                            Credits
-                        </button>
-                    </div>
-                    <div className="mt-5 grid grid-cols-2 gap-2.5">
-                        {workspaceStats.map(({ label, value, icon: Icon, path }) => (
-                            <button
-                                key={label}
-                                type="button"
-                                onClick={() => navigate(path)}
-                                className="group rounded-2xl border border-stone-200 bg-stone-50/70 p-3 text-left transition hover:border-stone-300 hover:bg-white dark:border-slate-800 dark:bg-slate-900/70 dark:hover:border-slate-700 dark:hover:bg-slate-900"
-                            >
-                                <span className="flex items-center justify-between gap-2">
-                                    <Icon size={15} className="text-slate-500 dark:text-slate-400" />
-                                    <ArrowRight size={13} className="text-slate-400 opacity-0 transition group-hover:opacity-100" />
-                                </span>
-                                <span className="mt-3 block text-2xl font-extrabold tracking-tight text-gray-950 dark:text-white">{value}</span>
-                                <span className="mt-0.5 block text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        </section>
-    );
-};
-
 const Dashboard: React.FC = () => {
     const {
-        navPosition,
-        toggleNavPosition,
         dashboardTitle,
         isDesktop,
         t,
@@ -340,7 +168,7 @@ const Dashboard: React.FC = () => {
                     variant="default"
                 />
 
-                <header className={`bg-white/80 dark:bg-[#0a0c10]/80 backdrop-blur-md border-b border-gray-200/60 dark:border-gray-800/60 shadow-sm sticky top-0 z-20 ${navPosition === 'side' ? 'md:hidden' : ''}`}>
+                <header className="bg-white/80 dark:bg-[#0a0c10]/80 backdrop-blur-md border-b border-gray-200/60 dark:border-gray-800/60 shadow-sm sticky top-0 z-20 md:hidden">
                     <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center h-16 sm:h-20">
                             <div className="flex min-w-0 items-center gap-3">
@@ -355,14 +183,11 @@ const Dashboard: React.FC = () => {
                             <div className="flex items-center gap-2 md:gap-3">
                                 {aiUsage && (
                                     <div className="hidden xl:block w-48">
-                                        <AIUsageProgressBar used={aiUsage.count} limit={aiUsage.limit} isPremium={isPremium} onUpgradeClick={() => navigate('/subscription')} variant="minimal" />
+                                        <AIUsageProgressBar used={aiUsage.count} limit={aiUsage.limit} isPremium={isPremium} onUpgradeClick={() => navigate('/subscription')} variant="minimal" planLabel={getPlanDisplayName(userProfile?.plan)} />
                                     </div>
                                 )}
                                 <LanguageSelect />
                                 <ThemeToggle />
-                                <button onClick={toggleNavPosition} className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors hidden md:block" title="Toggle Sidebar">
-                                    <PanelLeft size={20} />
-                                </button>
                                 <button onClick={() => navigate('/community')} className="flex items-center gap-2 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 font-semibold py-2 px-3 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-900/80 transition-colors cursor-pointer md:hidden">
                                     <Users size={20} /> <span className="hidden md:inline">{t('nav.community', 'Community')}</span>
                                 </button>
@@ -439,7 +264,7 @@ const Dashboard: React.FC = () => {
                         </div>
                         {aiUsage && (
                             <div className="block xl:hidden pb-3 -mt-2">
-                                <AIUsageProgressBar used={aiUsage.count} limit={aiUsage.limit} isPremium={isPremium} onUpgradeClick={() => navigate('/subscription')} variant="mobile-line" />
+                                <AIUsageProgressBar used={aiUsage.count} limit={aiUsage.limit} isPremium={isPremium} onUpgradeClick={() => navigate('/subscription')} variant="mobile-line" planLabel={getPlanDisplayName(userProfile?.plan)} />
                             </div>
                         )}
                     </div>
@@ -450,28 +275,13 @@ const Dashboard: React.FC = () => {
                         <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-all">{dashboardTitle}</h1>
                     </div>
 
-                    {navPosition === 'side' ? (
-                        <div className="mb-8 hidden md:block">
-                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-all">{dashboardTitle}</h1>
-                        </div>
-                    ) : (
-                        <DesktopWorkspaceCommandCenter
-                            title={dashboardTitle}
-                            resumeCount={resumes.length}
-                            interviewCount={practiceHistory.length}
-                            portfolioCount={portfolios.length}
-                            jobCount={jobApplications.length}
-                            communityPostCount={myCommunityPosts.length}
-                            whiteboardCount={whiteboards.length}
-                            viewMode={viewMode}
-                            onToggleView={() => setViewMode(viewMode === 'row' ? 'grid' : 'row')}
-                            onOrganizeSections={() => setIsReorderModalOpen(true)}
-                        />
-                    )}
+                    <div className="mb-8 hidden md:block">
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-all">{dashboardTitle}</h1>
+                    </div>
 
                     <MobileWorkflowLauncher />
 
-                    <div className={navPosition === 'side' ? undefined : 'md:hidden'}>
+                    <div>
                         <WorkspaceSummaryCards />
                     </div>
 
@@ -482,7 +292,7 @@ const Dashboard: React.FC = () => {
                         jobApplications={jobApplications}
                     />
 
-                    <div className={`justify-end mt-6 mb-2 pr-1 ${navPosition === 'side' ? 'hidden md:flex' : 'flex md:hidden'}`}>
+                    <div className="hidden justify-end mt-6 mb-2 pr-1 md:flex">
                         <button onClick={() => setViewMode(viewMode === 'row' ? 'grid' : 'row')} className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors text-gray-500 dark:text-gray-400 flex items-center gap-2 text-sm font-medium" title={viewMode === 'row' ? 'Switch to Grid View' : 'Switch to Row View'}>
                             {viewMode === 'row' ? (<><LayoutGrid size={18} /> <span className="hidden sm:inline">Grid View</span></>) : (<><List size={18} /> <span className="hidden sm:inline">Row View</span></>)}
                         </button>

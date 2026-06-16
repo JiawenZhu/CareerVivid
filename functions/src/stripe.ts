@@ -96,6 +96,22 @@ function assertCheckoutPriceAllowed(priceId: string, mode: Stripe.Checkout.Sessi
     );
 }
 
+function resolveCheckoutPriceId(priceId: string) {
+    if (priceId === PRICE_IDS.LEGACY_PRO_MONTHLY || priceId === PRICE_IDS.LEGACY_PRO_LIVE) {
+        return PRICE_IDS.PRO_MONTHLY;
+    }
+
+    if (priceId === PRICE_IDS.LEGACY_MAX_LIVE) {
+        return PRICE_IDS.MAX_MONTHLY;
+    }
+
+    if (priceId === PRICE_IDS.LEGACY_ENTERPRISE_LIVE) {
+        return PRICE_IDS.ENTERPRISE_MONTHLY;
+    }
+
+    return priceId;
+}
+
 function normalizeCheckoutQuantity(
     quantity: unknown,
     priceId: string,
@@ -166,16 +182,18 @@ export const createCheckoutSession = onCall(
                 );
             }
 
+            const checkoutPriceId = resolveCheckoutPriceId(priceId);
             // Determine mode: use requested mode if provided, otherwise check if price is one-time
             const mode: Stripe.Checkout.SessionCreateParams.Mode =
-                requestedMode === 'payment' || ONE_TIME_PRICE_IDS.includes(priceId) ? "payment" : "subscription";
-            assertCheckoutPriceAllowed(priceId, mode);
-            const checkoutQuantity = normalizeCheckoutQuantity(quantity, priceId, mode);
+                requestedMode === 'payment' || ONE_TIME_PRICE_IDS.includes(checkoutPriceId as any) ? "payment" : "subscription";
+            assertCheckoutPriceAllowed(checkoutPriceId, mode);
+            const checkoutQuantity = normalizeCheckoutQuantity(quantity, checkoutPriceId, mode);
             const checkoutMetadata = {
                 userId: userId,
-                priceId: priceId,
+                priceId: checkoutPriceId,
+                requestedPriceId: priceId,
                 ...metadata,
-                ...(priceId === PRICE_IDS.ENTERPRISE_MONTHLY ? { seats: String(checkoutQuantity) } : {}),
+                ...(checkoutPriceId === PRICE_IDS.ENTERPRISE_MONTHLY ? { seats: String(checkoutQuantity) } : {}),
             };
 
             try {
@@ -183,7 +201,7 @@ export const createCheckoutSession = onCall(
                 const session = await stripe.checkout.sessions.create({
                     customer: stripeCustomerId,
                     mode: mode,
-                    line_items: [{ price: priceId, quantity: checkoutQuantity }],
+                    line_items: [{ price: checkoutPriceId, quantity: checkoutQuantity }],
                     success_url: successUrl,
                     cancel_url: cancelUrl,
                     metadata: checkoutMetadata,
@@ -210,7 +228,7 @@ export const createCheckoutSession = onCall(
                     const session = await stripe.checkout.sessions.create({
                         customer: newCustomerId,
                         mode: mode,
-                        line_items: [{ price: priceId, quantity: checkoutQuantity }],
+                        line_items: [{ price: checkoutPriceId, quantity: checkoutQuantity }],
                         success_url: successUrl,
                         cancel_url: cancelUrl,
                         metadata: checkoutMetadata,

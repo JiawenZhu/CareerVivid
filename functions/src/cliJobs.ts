@@ -12,7 +12,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { getAIClient } from "./utils/ai";
 import { secureCorsHandler } from "./utils/corsUtils.js";
 import { resolveAuth } from "./utils/authUtils.js";
-import { defineSecret } from "firebase-functions/params";
+import { findValidatedScrapedJobMatches, type ValidatedScrapedJobMatch } from "./scrapedJobs";
 
 if (!admin.apps.length) {
     admin.initializeApp();
@@ -20,9 +20,6 @@ if (!admin.apps.length) {
 
 const db = admin.firestore();
 const corsHandler = secureCorsHandler;
-
-const googleSearchApiKey = defineSecret("GOOGLE_SEARCH_API_KEY");
-const googleSearchCx = defineSecret("GOOGLE_SEARCH_CX");
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -65,29 +62,6 @@ interface JobTrackerEntry {
 // ── Auth Helper ───────────────────────────────────────────────────────────────
 // Auth logic moved to shared utils/authUtils.js
 
-// ── Google Search Helper ──────────────────────────────────────────────────────
-
-async function performSearch(query: string, searchKey: string, cx: string): Promise<{ title: string; link: string; snippet: string }[]> {
-    const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&key=${searchKey}&cx=${cx}&num=10`;
-    const resp = await fetch(url);
-    if (!resp.ok) throw new Error(`CSE error: ${resp.status}`);
-    const data = await resp.json() as any;
-    return (data.items || []).map((item: any) => ({
-        title: item.title || "",
-        link: item.link || "",
-        snippet: item.snippet || "",
-    }));
-}
-
-// ── Score Label ───────────────────────────────────────────────────────────────
-
-function scoreLabel(score: number): ScoredJob["scoreLabel"] {
-    if (score >= 80) return "Excellent";
-    if (score >= 60) return "Good";
-    if (score >= 40) return "Fair";
-    return "Low";
-}
-
 // ──────────────────────────────────────────────────────────────────────────────
 // POST /cliJobsHunt
 // Body: { resumeContent: string, role: string, location: string, count?: number, minScore?: number }
@@ -95,7 +69,6 @@ function scoreLabel(score: number): ScoredJob["scoreLabel"] {
 // ──────────────────────────────────────────────────────────────────────────────
 
 export const cliJobsHunt = functions.region("us-west1").runWith({
-    secrets: [googleSearchApiKey, googleSearchCx],
     timeoutSeconds: 120,
     memory: "512MB",
 }).https.onRequest(async (req, res) => {
@@ -115,136 +88,49 @@ export const cliJobsHunt = functions.region("us-west1").runWith({
             targetOrgs?: string[];
         };
 
-        const searchKey = googleSearchApiKey.value();
-        const cx = googleSearchCx.value();
-
-
-        // ── Step 1: Parallel Job Search ────────────────────────────────────────
-        let queries: string[] = [];
-        if (targetOrgs && targetOrgs.length > 0) {
-            const orgsQuery = targetOrgs.map(o => `"${o}"`).join(" OR ");
-            queries = [
-                `${role} (${orgsQuery}) ${location ? "in " + location + " " : ""}site:greenhouse.io OR site:lever.co OR site:myworkdayjobs.com OR site:ashbyhq.com`
-            ];
-        } else {
-            queries = [
-                `${role} jobs${location ? " in " + location : ""} site:linkedin.com OR site:lever.co OR site:greenhouse.io`,
-                `${role} careers${location ? " " + location : ""} apply now`,
-            ];
-        }
-
-        let rawResults: { title: string; link: string; snippet: string }[] = [];
-
-        if (searchKey && cx) {
-            const searches = await Promise.allSettled(
-                queries.map(q => performSearch(q, searchKey, cx))
-            );
-            searches.forEach(r => {
-                if (r.status === "fulfilled") rawResults.push(...r.value);
-            });
-            // Deduplicate by link
-            const seen = new Set<string>();
-            rawResults = rawResults.filter(r => {
-                if (seen.has(r.link)) return false;
-                seen.add(r.link);
-                return true;
-            });
-        }
-
-        // ── Step 2: Parse & Score with Gemini ─────────────────────────────────
-        const ai = getAIClient();
-
-        const searchContext = rawResults.length > 0
-            ? rawResults.slice(0, 20).map(r => `URL: ${r.link}\nTitle: ${r.title}\nSnippet: ${r.snippet}`).join("\n\n")
-            : `(No real search results — generate realistic mock jobs for role: ${role}${location ? ", location: " + location : ""})`;
-
-        const resumeSnippet = resumeContent
-            ? resumeContent.substring(0, 3000)
-            : "No resume provided. Use general scoring.";
-
-        const prompt = `You are an expert job matching AI.
-
-CANDIDATE RESUME (excerpt):
-${resumeSnippet}
-
-JOB SEARCH RESULTS for "${role}"${location ? " in " + location : ""}:
-${searchContext}
-
-TASK:
-1. Extract up to ${count} real job postings from the search results. If search results are empty, create ${count} realistic mock jobs.
-2. For each job, score the candidate's match (0-100) based on the resume.
-3. Return ONLY a valid JSON array. No markdown. No explanation.
-
-REQUIRED format — each item must have all fields:
-[
-  {
-    "id": "unique-slug-from-title-company",
-    "title": "Exact Job Title",
-    "company": "Company Name",
-    "location": "City, State or Remote",
-    "description": "2-3 sentence job description",
-    "url": "https://apply-url.com",
-    "salary": "$120k-$160k or null",
-    "score": 85,
-    "scoreLabel": "Excellent|Good|Fair|Low",
-    "aiSummary": "1 sentence: why this job matches (or doesn't match) the candidate",
-    "missingSkills": ["Skill1", "Skill2"]
-  }
-]`;
-
-        let jobs: ScoredJob[] = [];
-
         try {
-            const response = await ai.models.generateContent({
-                model: "gemini-2.5-flash",
-                contents: prompt,
+            const jobs = await findValidatedScrapedJobMatches({
+                resumeContent,
+                role,
+                location,
+                count,
+                minScore,
+                targetOrgs,
             });
 
-            const text = (response.text || "").trim();
-            // Strip markdown code fences if present
-            const cleaned = text.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
+            // Save to user's jobSearchHistory (async). These records are safe to
+            // reuse because the URL is the validated ATS final URL, not AI output.
+            const historyBatch = db.batch();
+            jobs.forEach((job: ValidatedScrapedJobMatch) => {
+                const ref = db.collection("users").doc(user.uid).collection("jobSearchHistory").doc(job.id);
+                historyBatch.set(ref, {
+                    ...job,
+                    createdAt: FieldValue.serverTimestamp(),
+                    updatedAt: FieldValue.serverTimestamp(),
+                    searchedAt: FieldValue.serverTimestamp(),
+                    source: "cli_validated_scraped_feed",
+                    portalSource: "cli_validated_scraped_feed",
+                }, { merge: true });
+            });
+            if (jobs.length > 0) {
+                historyBatch.commit().catch(e => console.warn("[cliJobsHunt] History save failed:", e));
+            }
 
-            const parsed = JSON.parse(cleaned) as any[];
-            jobs = parsed.map(j => ({
-                id: j.id || `${String(j.title || "").toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${String(j.company || "").toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
-                title: String(j.title || "Unknown Role"),
-                company: String(j.company || "Unknown Company"),
-                location: String(j.location || "Remote / Unspecified"),
-                description: String(j.description || "No description provided."),
-                url: String(j.url || ""),
-                salary: j.salary || null,
-                score: typeof j.score === "number" ? Math.min(100, Math.max(0, j.score)) : 50,
-                scoreLabel: j.scoreLabel || scoreLabel(j.score || 50),
-                aiSummary: String(j.aiSummary || "No AI summary available."),
-                missingSkills: Array.isArray(j.missingSkills) ? j.missingSkills : [],
-            }));
-
-            // Apply minScore filter & sort descending
-            jobs = jobs
-                .filter(j => j.score >= minScore)
-                .sort((a, b) => b.score - a.score)
-                .slice(0, count);
+            console.log(`[cliJobsHunt] User ${user.uid} — returned ${jobs.length} validated scraped jobs for "${role}"`);
+            res.json({
+                jobs,
+                total: jobs.length,
+                source: "validated_scraped_feed",
+                message: jobs.length
+                    ? "Showing validated ATS listings only. Each URL was checked before being returned."
+                    : "No validated jobs matched this search yet. Broaden the role/location or refresh the scraped jobs feed.",
+            });
 
         } catch (err: any) {
-            console.error("[cliJobsHunt] Gemini/parse error:", err.message);
-            res.status(500).json({ error: `AI processing failed: ${err.message}` });
+            console.error("[cliJobsHunt] Validated scraped job search failed:", err.message);
+            res.status(500).json({ error: `Validated job search failed: ${err.message}` });
             return;
         }
-
-        // ── Step 3: Save to user's jobSearchHistory (async) ───────────────────
-        const historyBatch = db.batch();
-        jobs.forEach(job => {
-            const ref = db.collection("users").doc(user.uid).collection("jobSearchHistory").doc(job.id);
-            historyBatch.set(ref, {
-                ...job,
-                searchedAt: FieldValue.serverTimestamp(),
-                source: "cli_hunt",
-            }, { merge: true });
-        });
-        historyBatch.commit().catch(e => console.warn("[cliJobsHunt] History save failed:", e));
-
-        console.log(`[cliJobsHunt] User ${user.uid} — found ${jobs.length} scored jobs for "${role}"`);
-        res.json({ jobs, total: jobs.length });
     });
 });
 

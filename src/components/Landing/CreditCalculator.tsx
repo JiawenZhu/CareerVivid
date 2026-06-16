@@ -6,6 +6,7 @@ import {
     PRO_PLAN_CREDIT_LIMIT,
     PRO_MAX_PLAN_CREDIT_LIMIT,
     AI_CREDIT_COSTS,
+    ENTERPRISE_PLAN_CREDIT_LIMIT,
 } from '../../config/creditCosts';
 import { SUBSCRIPTION_CATALOG } from '../../config/subscriptionCatalog';
 
@@ -29,7 +30,7 @@ const SLIDERS: SliderConfig[] = [
         costPerUse: AI_CREDIT_COSTS.CLI_AGENT_FLASH,
         max: 500,
         step: 10,
-        color: '#6366f1',
+        color: '#0f766e',
     },
     {
         id: 'agentLiteTurns',
@@ -39,7 +40,7 @@ const SLIDERS: SliderConfig[] = [
         costPerUse: AI_CREDIT_COSTS.CLI_AGENT_FLASH_LITE,
         max: 500,
         step: 10,
-        color: '#8b5cf6',
+        color: '#0ea5e9',
     },
     {
         id: 'agentProTurns',
@@ -49,7 +50,7 @@ const SLIDERS: SliderConfig[] = [
         costPerUse: AI_CREDIT_COSTS.CLI_AGENT_PRO,
         max: 200,
         step: 5,
-        color: '#a855f7',
+        color: '#475569',
     },
     {
         id: 'resumeTailors',
@@ -103,8 +104,15 @@ interface PlanConfig {
 
 const PLANS: PlanConfig[] = [
     { name: 'Free',       limit: FREE_PLAN_CREDIT_LIMIT,    color: '#6b7280', price: '$0/mo',    accent: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300' },
-    { name: 'Pro',        limit: PRO_PLAN_CREDIT_LIMIT,     color: '#6366f1', price: `$${SUBSCRIPTION_CATALOG.pro.monthlyPrice}/mo`,    accent: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' },
-    { name: 'Max',        limit: PRO_MAX_PLAN_CREDIT_LIMIT, color: '#a855f7', price: `$${SUBSCRIPTION_CATALOG.max.monthlyPrice}/mo`,   accent: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300' },
+    { name: 'Pro',        limit: PRO_PLAN_CREDIT_LIMIT,     color: '#625bd5', price: `$${SUBSCRIPTION_CATALOG.pro.monthlyPrice}/mo`,    accent: 'bg-[#f3f2ff] dark:bg-[#28264f] text-[#625bd5] dark:text-[#a9a5ff]' },
+    { name: 'Max',        limit: PRO_MAX_PLAN_CREDIT_LIMIT, color: '#a97935', price: `$${SUBSCRIPTION_CATALOG.max.monthlyPrice}/mo`,   accent: 'bg-amber-100 dark:bg-amber-900/30 text-[#8a5a1f] dark:text-[#f0c987]' },
+    {
+        name: 'Enterprise',
+        limit: ENTERPRISE_PLAN_CREDIT_LIMIT * SUBSCRIPTION_CATALOG.enterprise.minimumSeats,
+        color: '#211b16',
+        price: `$${SUBSCRIPTION_CATALOG.enterprise.monthlyPrice * SUBSCRIPTION_CATALOG.enterprise.minimumSeats}/mo min`,
+        accent: 'bg-[#211b16] dark:bg-black text-white',
+    },
 ];
 
 export const CreditCalculator: React.FC = () => {
@@ -133,13 +141,13 @@ export const CreditCalculator: React.FC = () => {
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="text-center mb-16">
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-sm font-bold mb-6">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#fff7eb] dark:bg-[#302a22] text-[#8a5a1f] dark:text-[#f0c987] text-xs font-semibold mb-6 border border-[#e4d3bc] dark:border-[#5a4630]">
                         <Zap size={15} /> Credit Calculator
                     </div>
-                    <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight mb-4">
+                    <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 dark:text-white tracking-tight mb-4">
                         Find Your Perfect Plan
                     </h2>
-                    <p className="max-w-2xl mx-auto text-lg text-gray-600 dark:text-gray-400 font-medium">
+                    <p className="max-w-2xl mx-auto text-base text-gray-600 dark:text-gray-400 font-medium">
                         Drag the sliders to estimate how many credits you'll use each month.
                     </p>
                 </div>
@@ -152,12 +160,12 @@ export const CreditCalculator: React.FC = () => {
                                 <div className="flex justify-between items-start mb-3">
                                     <div className="flex items-center gap-2">
                                         <span style={{ color: slider.color }}>{slider.icon}</span>
-                                        <span className="font-bold text-gray-800 dark:text-gray-200 text-sm">{slider.label}</span>
+                                        <span className="font-semibold text-gray-800 dark:text-gray-200 text-sm">{slider.label}</span>
                                     </div>
                                     <div className="text-right">
-                                        <span className="text-2xl font-black text-gray-900 dark:text-white">{values[slider.id]}</span>
+                                        <span className="text-2xl font-bold text-gray-900 dark:text-white">{values[slider.id]}</span>
                                         <span className="text-xs text-gray-400 ml-1">uses</span>
-                                        <div className="text-xs font-bold" style={{ color: slider.color }}>
+                                        <div className="text-xs font-semibold" style={{ color: slider.color }}>
                                             = {(values[slider.id] * slider.costPerUse).toFixed(1)} cr
                                         </div>
                                     </div>
@@ -196,14 +204,14 @@ export const CreditCalculator: React.FC = () => {
                     <div className="lg:col-span-2 sticky top-6 space-y-5">
                         {/* Plan Selector */}
                         <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-800">
-                            <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-3">Compare with plan</p>
+                            <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Compare with plan</p>
                             <div className="flex gap-2 flex-wrap">
                                 {PLANS.map((p) => (
                                     <button
                                         key={p.name}
                                         onClick={() => setSelectedPlan(p)}
                                         data-selected={selectedPlan.name === p.name}
-                                        className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all border-2 ${
+                                        className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all border-2 ${
                                             selectedPlan.name === p.name
                                                 ? 'border-current shadow-sm scale-105'
                                                 : 'border-transparent text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'
@@ -217,9 +225,9 @@ export const CreditCalculator: React.FC = () => {
 
                         {/* Credit Gauge */}
                         <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-800">
-                            <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-1">Estimated monthly usage</p>
+                            <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Estimated monthly usage</p>
                             <div className="flex justify-between items-end mb-3">
-                                <span className="text-4xl font-black" style={{ color: overLimit ? '#ef4444' : selectedPlan.color }}>
+                                <span className="text-4xl font-bold" style={{ color: overLimit ? '#ef4444' : selectedPlan.color }}>
                                     {totalCredits.toFixed(1)}
                                 </span>
                                 <span className="text-sm text-gray-400 font-medium">of {selectedPlan.limit.toLocaleString()} credits</span>
@@ -248,7 +256,7 @@ export const CreditCalculator: React.FC = () => {
                                     >
                                         <AlertTriangle className="text-red-500 flex-shrink-0 mt-0.5" size={16} />
                                         <div>
-                                            <p className="text-sm font-bold text-red-700 dark:text-red-400">
+                                            <p className="text-sm font-semibold text-red-700 dark:text-red-400">
                                                 Exceeds {selectedPlan.name} plan by {(totalCredits - selectedPlan.limit).toFixed(1)} credits
                                             </p>
                                             <p className="text-xs text-red-600/80 dark:text-red-400/70 mt-0.5">
@@ -276,7 +284,7 @@ export const CreditCalculator: React.FC = () => {
                         {/* Breakdown */}
                         {breakdown.length > 0 && (
                             <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-800">
-                                <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-4">Credit breakdown</p>
+                                <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-4">Credit breakdown</p>
                                 <div className="space-y-2.5">
                                     {breakdown.map((row) => (
                                         <div key={row.label} className="flex items-center gap-3">
@@ -284,7 +292,7 @@ export const CreditCalculator: React.FC = () => {
                                             <span className="flex-grow text-xs text-gray-600 dark:text-gray-400 font-medium truncate">
                                                 {row.label}
                                             </span>
-                                            <span className="text-xs font-bold" style={{ color: row.color }}>
+                                            <span className="text-xs font-semibold" style={{ color: row.color }}>
                                                 {row.credits.toFixed(1)} cr
                                             </span>
                                         </div>
@@ -294,18 +302,18 @@ export const CreditCalculator: React.FC = () => {
                         )}
 
                         {/* CTA */}
-                        <div className="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-xl shadow-indigo-500/25">
+                        <div className="bg-[#211b16] rounded-2xl p-6 text-white shadow-xl shadow-[#211b16]/15">
                             <div className="flex items-center justify-between mb-3">
-                                <span className="font-black text-sm">Try CareerVivid free</span>
-                                <Zap size={18} className="text-yellow-300" />
+                                <span className="font-semibold text-sm">Try CareerVivid free</span>
+                                <Zap size={18} className="text-[#f0c987]" />
                             </div>
-                            <p className="text-indigo-200 text-xs font-medium mb-5 leading-relaxed">
+                            <p className="text-[#e7d7c2] text-xs font-medium mb-5 leading-relaxed">
                                 {FREE_PLAN_CREDIT_LIMIT} free AI credits every month — no credit card required.
                                 <br />Use the CLI agent, search jobs, and tailor resumes instantly.
                             </p>
                             <a
                                 href="/signup"
-                                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white text-indigo-700 font-black text-sm hover:bg-indigo-50 transition-colors"
+                                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white text-[#211b16] font-semibold text-sm hover:bg-[#fff7eb] transition-colors"
                             >
                                 Get {FREE_PLAN_CREDIT_LIMIT} free credits <ChevronRight size={16} />
                             </a>

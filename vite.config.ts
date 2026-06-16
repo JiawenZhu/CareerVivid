@@ -49,10 +49,9 @@ export default defineConfig(({ mode }) => {
           ]
         },
         workbox: {
-          // Keep Firebase Hosting as the source of truth for SPA navigations.
-          // Precaching index.html can leave one browser profile pinned to an
-          // old shell that references deleted hashed chunks.
-          globPatterns: ['assets/index-*.js', 'assets/index-*.css', 'manifest.webmanifest'],
+          // Do not precache index.html or build chunks. Firebase Hosting headers
+          // own those lifecycles so old service workers cannot serve stale shells.
+          globPatterns: ['manifest.webmanifest'],
           globIgnores: ['nextjs/**/*'],
           navigateFallback: null,
           navigateFallbackDenylist: NEXT_SEO_NAVIGATION_DENYLIST,

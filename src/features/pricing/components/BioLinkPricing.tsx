@@ -6,8 +6,6 @@ import { functions } from '../../../firebase';
 import { httpsCallable } from 'firebase/functions';
 import { trackUsage } from '../../../services/trackingService';
 import { navigate } from '../../../utils/navigation';
-import { PRO_PLAN_CREDIT_LIMIT } from '../../../config/creditCosts';
-import { SUBSCRIPTION_CATALOG } from '../../../config/subscriptionCatalog';
 
 interface PricingTier {
     name: string;
@@ -86,20 +84,20 @@ const BIO_LINK_PLANS: PricingTier[] = [
         name: 'All-Access Bundle',
         subtitle: 'The complete toolkit: Bio-Link + Resume Builder.',
         price: {
-            monthly: `$${SUBSCRIPTION_CATALOG.pro.monthlyPrice}`,
-            yearly: `$${SUBSCRIPTION_CATALOG.pro.annualMonthlyEquivalent}`,
+            monthly: '$14.90',
+            yearly: '$14.90',
         },
         duration: {
             monthly: '/mo',
-            yearly: '/mo billed yearly',
+            yearly: '/mo',
         },
         priceId: {
-            monthly: SUBSCRIPTION_CATALOG.pro.monthlyPriceId,
-            yearly: SUBSCRIPTION_CATALOG.pro.annualPriceId,
+            monthly: 'price_1TJoONRJNflGxv32zSqxC9bZ',
+            yearly: 'price_1TJoONRJNflGxv32zSqxC9bZ',
         },
         features: [
             'Everything in Bio-Link Pro',
-            `${PRO_PLAN_CREDIT_LIMIT.toLocaleString()} AI Credits / month`,
+            '300 AI Credits / month',
             'Create & Edit up to 15 Resumes',
             'Unlimited PDF Downloads',
             'Unlimited Interview Practice',
@@ -128,10 +126,6 @@ const BioLinkPricing: React.FC = () => {
         }
 
         const priceId = billingCycle === 'monthly' ? tier.priceId.monthly : tier.priceId.yearly;
-        if (!priceId) {
-            setError('This checkout price is not configured yet.');
-            return;
-        }
 
         if (!currentUser) {
             navigate('/signup?source=bio-link');
@@ -332,7 +326,7 @@ const BioLinkPricing: React.FC = () => {
 
                             <button
                                 onClick={() => handleChoosePlan(BIO_LINK_PLANS[2])}
-                                disabled={loadingPriceId !== null || !(billingCycle === 'monthly' ? BIO_LINK_PLANS[2].priceId.monthly : BIO_LINK_PLANS[2].priceId.yearly)}
+                                disabled={loadingPriceId !== null}
                                 className="w-full py-4 border-4 border-black bg-[#3b82f6] text-white font-black text-lg uppercase tracking-wider shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-auto"
                             >
                                 {loadingPriceId === (billingCycle === 'monthly' ? BIO_LINK_PLANS[2].priceId.monthly : BIO_LINK_PLANS[2].priceId.yearly)

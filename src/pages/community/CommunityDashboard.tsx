@@ -7,7 +7,7 @@ import {
     Home, TrendingUp, Briefcase, FileText,
     Loader2, PenLine, Hash, ExternalLink, Terminal,
     Globe, PenTool, StickyNote, UserPlus, LayoutDashboard, Sparkles, Menu, X,
-    Star, Github
+    Package
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -28,7 +28,7 @@ import { useCommunityStats } from '../../hooks/useCommunityMeta';
 const appId = import.meta.env.VITE_ALGOLIA_APP_ID || 'dummy_app_id';
 const apiKey = import.meta.env.VITE_ALGOLIA_SEARCH_KEY || 'dummy_search_key';
 const searchClient = algoliasearch(appId, apiKey);
-const REPO_URL = 'https://github.com/Jastalk/CareerVivid';
+const PACKAGE_URL = 'https://www.npmjs.com/package/careervivid';
 
 const PostCard = lazy(() => import('../../components/Community/PostCard'));
 
@@ -300,15 +300,15 @@ const CommunityDashboard: React.FC = () => {
                                 })}
                             </p>
                             <a
-                                href={REPO_URL}
+                                href={PACKAGE_URL}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="group relative flex items-center gap-2 px-3.5 py-1.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:border-primary-500 dark:hover:border-primary-400 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md overflow-hidden shrink-0"
                             >
                                 <div className="absolute inset-0 bg-gradient-to-r from-primary-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                <Star size={13} className="text-yellow-400 fill-yellow-400" />
-                                <span className="text-xs font-bold text-gray-700 dark:text-gray-300">Star on GitHub</span>
-                                <Github size={14} className="text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
+                                <Package size={13} className="text-primary-500" />
+                                <span className="text-xs font-bold text-gray-700 dark:text-gray-300">View npm package</span>
+                                <ExternalLink size={14} className="text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
                             </a>
                         </div>
                     </div>
