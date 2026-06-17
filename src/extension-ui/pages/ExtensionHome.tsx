@@ -1,12 +1,12 @@
 /// <reference types="chrome" />
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import {
     Wand2, Mic, ChevronRight, FileText, Loader2, Mail, LayoutDashboard, ExternalLink, Briefcase, Target, MessageSquareText
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useResumes } from '../../hooks/useResumes';
 import { getAppUrl, getResumeBuilderUrl, isCareerVividAppUrl } from '../../utils/extensionUtils';
-import { ResumeMatchAnalysis } from '../../types';
+import { ResumeData, ResumeMatchAnalysis } from '../../types';
 import { FREE_PLAN_CREDIT_LIMIT, PRO_PLAN_CREDIT_LIMIT, PRO_MAX_PLAN_CREDIT_LIMIT, ENTERPRISE_PLAN_CREDIT_LIMIT } from '../../config/creditCosts';
 
 // Extracted Sub-Components
@@ -16,6 +16,82 @@ import { MatchBreakdownCard } from '../components/MatchBreakdownCard';
 import { AIAnswerCard, AIAnswer } from '../components/AIAnswerCard';
 
 type ScrapedJob = { title: string; company: string; location?: string; description?: string; salary?: string };
+
+const stringifyResumeValue = (value: unknown): string => {
+    if (!value) return '';
+    if (typeof value === 'string') return value.trim();
+    if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+    if (Array.isArray(value)) return value.map(stringifyResumeValue).filter(Boolean).join('\n');
+    if (typeof value === 'object') return Object.values(value as Record<string, unknown>).map(stringifyResumeValue).filter(Boolean).join(' ');
+    return '';
+};
+
+const buildResumeTextFromResume = (resume: ResumeData | null): string => {
+    if (!resume) return '';
+
+    const personalDetails = resume.personalDetails || ({} as ResumeData['personalDetails']);
+    const skills = (resume.skills || [])
+        .map(skill => typeof skill === 'string' ? skill : [skill.name, skill.level].filter(Boolean).join(' - '))
+        .filter(Boolean)
+        .join(', ');
+    const employment = (resume.employmentHistory || [])
+        .map(job => [
+            [job.jobTitle, job.employer].filter(Boolean).join(' at '),
+            [job.city, job.startDate, job.endDate].filter(Boolean).join(' | '),
+            stringifyResumeValue(job.description),
+        ].filter(Boolean).join('\n'))
+        .filter(Boolean)
+        .join('\n\n');
+    const education = (resume.education || [])
+        .map(edu => [
+            [edu.degree, edu.school].filter(Boolean).join(' - '),
+            [edu.city, edu.startDate, edu.endDate].filter(Boolean).join(' | '),
+            stringifyResumeValue(edu.description),
+        ].filter(Boolean).join('\n'))
+        .filter(Boolean)
+        .join('\n\n');
+    const websites = (resume.websites || [])
+        .map(site => [site.label, site.url].filter(Boolean).join(': '))
+        .filter(Boolean)
+        .join('\n');
+
+    return [
+        resume.title,
+        personalDetails.jobTitle,
+        stringifyResumeValue(resume.professionalSummary),
+        skills && `Skills: ${skills}`,
+        employment && `Experience:\n${employment}`,
+        education && `Education:\n${education}`,
+        websites && `Links:\n${websites}`,
+    ].filter(Boolean).join('\n\n').trim();
+};
+
+const buildResumeTextFromProfile = (profile: any): string => {
+    if (!profile) return '';
+
+    const skills = Array.isArray(profile.skills) ? profile.skills.map(stringifyResumeValue).filter(Boolean).join(', ') : '';
+    const workExperience = Array.isArray(profile.workExperience)
+        ? profile.workExperience.map((job: any) => [
+            [job.title, job.company].filter(Boolean).join(' at '),
+            [job.location, job.startDate, job.endDate].filter(Boolean).join(' | '),
+            stringifyResumeValue(job.description),
+        ].filter(Boolean).join('\n')).filter(Boolean).join('\n\n')
+        : '';
+    const education = Array.isArray(profile.education)
+        ? profile.education.map((edu: any) => [
+            [edu.degree, edu.fieldOfStudy, edu.school].filter(Boolean).join(' - '),
+            [edu.graduationDate, edu.gpa].filter(Boolean).join(' | '),
+        ].filter(Boolean).join('\n')).filter(Boolean).join('\n\n')
+        : '';
+
+    return [
+        [profile.firstName, profile.lastName].filter(Boolean).join(' '),
+        stringifyResumeValue(profile.summary),
+        skills && `Skills: ${skills}`,
+        workExperience && `Experience:\n${workExperience}`,
+        education && `Education:\n${education}`,
+    ].filter(Boolean).join('\n\n').trim();
+};
 
 const JOB_SITE_PATTERNS = [
     'linkedin.com/jobs',
@@ -101,6 +177,8 @@ const ExtensionHome: React.FC = () => {
     const [matchScore, setMatchScore] = useState<number | null>(null);
     const [matchAnalysis, setMatchAnalysis] = useState<ResumeMatchAnalysis | null>(null);
     const [isCalculatingScore, setIsCalculatingScore] = useState(false);
+    const [analysisError, setAnalysisError] = useState<string | null>(null);
+    const [analysisRetryKey, setAnalysisRetryKey] = useState(0);
 
     const userProfile = contextUserProfile || restUserProfile;
     const effectiveAIUsage = contextAIUsage || getProfileAIUsage(userProfile);
@@ -201,6 +279,10 @@ const ExtensionHome: React.FC = () => {
     const [selectedResumeId, setSelectedResumeId] = useState<string | null>(null);
     const activeResume = resumes.find(resume => resume.id === selectedResumeId) || resumes[0] || null;
     const activeResumeTitle = activeResume?.title || null;
+    const resumeTextForAnalysis = useMemo(() => {
+        return buildResumeTextFromResume(activeResume) || buildResumeTextFromProfile(localProfile);
+    }, [activeResume, localProfile]);
+    const hasResumeTextForAnalysis = resumeTextForAnalysis.trim().length > 80;
 
     // AI Smart Fill state
     const [aiAnswers, setAiAnswers] = useState<AIAnswer[]>([]);
@@ -233,6 +315,7 @@ const ExtensionHome: React.FC = () => {
         setMatchScore(null);
         setMatchAnalysis(null);
         setIsCalculatingScore(false);
+        setAnalysisError(null);
         setFillResult(null);
         setIsFilling(false);
         setAiAnswers([]);
@@ -353,9 +436,27 @@ const ExtensionHome: React.FC = () => {
     }, [resetJobDependentState]);
 
     useEffect(() => {
-        if (!resolvedUserId || !scrapedJob?.description || !localProfile || !currentTab?.url) {
+        if (!resolvedUserId || !scrapedJob?.description || !currentTab?.url) {
             setMatchScore(null);
             setMatchAnalysis(null);
+            setAnalysisError(null);
+            setIsCalculatingScore(false);
+            return;
+        }
+
+        if (isLoadingResumes) {
+            setMatchScore(null);
+            setMatchAnalysis(null);
+            setAnalysisError(null);
+            setIsCalculatingScore(false);
+            return;
+        }
+
+        if (!hasResumeTextForAnalysis) {
+            setMatchScore(null);
+            setMatchAnalysis(null);
+            setAnalysisError('Select or sync a resume before running Gemini match analysis.');
+            setIsCalculatingScore(false);
             return;
         }
 
@@ -364,12 +465,13 @@ const ExtensionHome: React.FC = () => {
                 currentTab.url,
                 scrapedJob.title,
                 scrapedJob.company,
-                selectedResumeId || 'default',
+                activeResume?.id || selectedResumeId || localProfile?.sourceResumeId || 'default',
             ]);
 
             try {
                 setMatchScore(null);
                 setMatchAnalysis(null);
+                setAnalysisError(null);
                 setIsCalculatingScore(true);
 
                 // First check cache
@@ -396,14 +498,6 @@ const ExtensionHome: React.FC = () => {
                     return;
                 }
 
-                // Construct a unified resume text from localProfile structured fields
-                const resumeParts = [
-                    localProfile.summary || '',
-                    localProfile.skills?.join(', ') || '',
-                    localProfile.workExperience?.map((w: any) => `${w.title} at ${w.company}\n${w.description}`).join('\n\n') || '',
-                    localProfile.education?.map((e: any) => `${e.degree} in ${e.fieldOfStudy} from ${e.school}`).join('\n\n') || '',
-                ];
-                const resumeText = resumeParts.filter(Boolean).join('\n\n');
                 // Truncate job description to 2500 characters for high speed matching
                 const truncatedJd = scrapedJob.description.slice(0, 2500);
 
@@ -415,12 +509,12 @@ const ExtensionHome: React.FC = () => {
                 }>((resolve) => {
                     chrome.runtime.sendMessage({
                         type: 'ANALYZE_RESUME_MATCH',
-                        resumeText,
+                        resumeText: resumeTextForAnalysis.slice(0, 4000),
                         jobDescription: truncatedJd,
                         pageUrl: currentTab.url,
                         jobTitle: scrapedJob.title || '',
                         companyName: scrapedJob.company || '',
-                        resumeId: selectedResumeId || '',
+                        resumeId: activeResume?.id || selectedResumeId || localProfile?.sourceResumeId || '',
                     }, (response) => {
                         const _ = chrome.runtime.lastError;
                         resolve(response || { success: false, error: 'Extension background service did not respond.' });
@@ -466,13 +560,28 @@ const ExtensionHome: React.FC = () => {
                 }
                 setMatchScore(null);
                 setMatchAnalysis(null);
+                setAnalysisError(err instanceof Error ? err.message : 'Gemini match analysis failed.');
             } finally {
                 setIsCalculatingScore(false);
             }
         };
 
         runAnalysis();
-    }, [scrapedJob?.description, scrapedJob?.title, scrapedJob?.company, localProfile, resolvedUserId, currentTab?.url, selectedResumeId, isOutOfCredits]);
+    }, [
+        scrapedJob?.description,
+        scrapedJob?.title,
+        scrapedJob?.company,
+        activeResume?.id,
+        localProfile?.sourceResumeId,
+        resumeTextForAnalysis,
+        hasResumeTextForAnalysis,
+        resolvedUserId,
+        currentTab?.url,
+        selectedResumeId,
+        isLoadingResumes,
+        isOutOfCredits,
+        analysisRetryKey,
+    ]);
 
     // Listen for FILL_COMPLETE from content script
     useEffect(() => {
@@ -1017,17 +1126,17 @@ const ExtensionHome: React.FC = () => {
     // ── Gate: Sign In ──────────────────────────────────────────────────────────
     if (isGuest) {
         return (
-            <div className="min-h-[540px] h-screen w-full bg-[#f8f8fb] flex flex-col font-sans text-gray-900">
+            <div className="min-h-[540px] h-screen w-full bg-[#f8f8fb] flex flex-col font-sans text-gray-900 dark:bg-[#1f1f1d] dark:text-[#f4f1e9]">
                 <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
                     {/* Logo mark */}
                     <div className="w-14 h-14 rounded-2xl bg-[#625bd5] flex items-center justify-center shadow-[0_14px_28px_rgba(98,91,213,0.18)] mb-5">
                         <Wand2 className="w-7 h-7 text-white" />
                     </div>
 
-                    <h1 className="text-xl font-semibold text-gray-950 leading-tight">
+                    <h1 className="text-xl font-semibold text-gray-950 leading-tight dark:text-[#f4f1e9]">
                         Sign in to unlock<br />your job search tools
                     </h1>
-                    <p className="mt-2 text-xs text-gray-500 leading-relaxed max-w-[230px]">
+                    <p className="mt-2 text-xs text-gray-500 leading-relaxed max-w-[230px] dark:text-[#aaa39a]">
                         Track jobs, match your resume to roles, and prepare tailored application materials.
                     </p>
 
@@ -1038,11 +1147,11 @@ const ExtensionHome: React.FC = () => {
                             { icon: Target, text: 'AI resume match score and keyword analysis' },
                             { icon: MessageSquareText, text: 'Support for application questions' },
                         ].map(({ icon: Icon, text }) => (
-                            <div key={text} className="flex items-center gap-2.5 bg-white rounded-2xl px-3 py-2.5 border border-[#ececf4] shadow-sm">
-                                <span className="h-6 w-6 rounded-xl bg-[#eef0ff] text-[#625bd5] flex items-center justify-center flex-shrink-0">
+                            <div key={text} className="flex items-center gap-2.5 bg-white rounded-2xl px-3 py-2.5 border border-[#ececf4] shadow-sm dark:border-[#3a3834] dark:bg-[#262522] dark:shadow-none">
+                                <span className="h-6 w-6 rounded-xl bg-[#eef0ff] text-[#625bd5] flex items-center justify-center flex-shrink-0 dark:bg-[#302f49] dark:text-[#b8b3ff]">
                                     <Icon size={12} />
                                 </span>
-                                <span className="text-[11px] font-semibold text-gray-700">{text}</span>
+                                <span className="text-[11px] font-semibold text-gray-700 dark:text-[#f4f1e9]">{text}</span>
                             </div>
                         ))}
                     </div>
@@ -1057,7 +1166,7 @@ const ExtensionHome: React.FC = () => {
                         </button>
                         <button
                             onClick={() => window.open(getAppUrl('/signup'), '_blank')}
-                            className="w-full py-2.5 rounded-2xl bg-white hover:bg-[#f8f8fb] text-gray-700 font-semibold text-sm border border-[#ececf4] shadow-sm transition-all hover:border-[#d9d7fb]"
+                            className="w-full py-2.5 rounded-2xl bg-white hover:bg-[#f8f8fb] text-gray-700 font-semibold text-sm border border-[#ececf4] shadow-sm transition-all hover:border-[#d9d7fb] dark:border-[#3a3834] dark:bg-[#262522] dark:text-[#f4f1e9] dark:shadow-none dark:hover:border-[#4d4a73] dark:hover:bg-[#302e2a]"
                         >
                             Create free account
                         </button>
@@ -1065,7 +1174,7 @@ const ExtensionHome: React.FC = () => {
                 </div>
 
                 <footer className="px-6 pb-5 text-center">
-                    <p className="text-[10px] text-gray-400">Free forever · No credit card required</p>
+                    <p className="text-[10px] text-gray-400 dark:text-[#aaa39a]">Free forever · No credit card required</p>
                 </footer>
             </div>
         );
@@ -1074,17 +1183,17 @@ const ExtensionHome: React.FC = () => {
     // ── Gate: No Resumes ───────────────────────────────────────────────────────
     if (needsResume) {
         return (
-            <div className="min-h-[540px] h-screen w-full bg-[#f8f8fb] flex flex-col font-sans text-gray-900">
+            <div className="min-h-[540px] h-screen w-full bg-[#f8f8fb] flex flex-col font-sans text-gray-900 dark:bg-[#1f1f1d] dark:text-[#f4f1e9]">
                 <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
                     {/* Icon */}
                     <div className="w-14 h-14 rounded-2xl bg-[#625bd5] flex items-center justify-center shadow-[0_14px_28px_rgba(98,91,213,0.18)] mb-5">
                         <FileText className="w-7 h-7 text-white" />
                     </div>
 
-                    <h1 className="text-xl font-semibold text-gray-950 leading-tight">
+                    <h1 className="text-xl font-semibold text-gray-950 leading-tight dark:text-[#f4f1e9]">
                         Create your first resume
                     </h1>
-                    <p className="mt-2 text-xs text-gray-500 leading-relaxed max-w-[230px]">
+                    <p className="mt-2 text-xs text-gray-500 leading-relaxed max-w-[230px] dark:text-[#aaa39a]">
                         CareerVivid needs a base resume to power AI matching and tailored materials.
                     </p>
 
@@ -1095,8 +1204,8 @@ const ExtensionHome: React.FC = () => {
                             '2. Return here to match your next job',
                             '3. Get AI match scores and smart answers',
                         ].map((step) => (
-                            <div key={step} className="flex items-center gap-2.5 bg-white rounded-2xl px-3 py-2.5 border border-[#ececf4] shadow-sm">
-                                <span className="text-[11px] font-semibold text-gray-700">{step}</span>
+                            <div key={step} className="flex items-center gap-2.5 bg-white rounded-2xl px-3 py-2.5 border border-[#ececf4] shadow-sm dark:border-[#3a3834] dark:bg-[#262522] dark:shadow-none">
+                                <span className="text-[11px] font-semibold text-gray-700 dark:text-[#f4f1e9]">{step}</span>
                             </div>
                         ))}
                     </div>
@@ -1111,7 +1220,7 @@ const ExtensionHome: React.FC = () => {
                         </button>
                         <button
                             onClick={() => window.open(getAppUrl('/dashboard'), '_blank')}
-                            className="w-full py-2.5 rounded-2xl bg-white hover:bg-[#f8f8fb] text-gray-700 font-semibold text-sm border border-[#ececf4] shadow-sm transition-all hover:border-[#d9d7fb]"
+                            className="w-full py-2.5 rounded-2xl bg-white hover:bg-[#f8f8fb] text-gray-700 font-semibold text-sm border border-[#ececf4] shadow-sm transition-all hover:border-[#d9d7fb] dark:border-[#3a3834] dark:bg-[#262522] dark:text-[#f4f1e9] dark:shadow-none dark:hover:border-[#4d4a73] dark:hover:bg-[#302e2a]"
                         >
                             Open dashboard
                         </button>
@@ -1119,19 +1228,19 @@ const ExtensionHome: React.FC = () => {
                 </div>
 
                 <footer className="px-6 pb-5 text-center">
-                    <p className="text-[10px] text-gray-400">Signed in as {currentUser?.email || 'your account'}</p>
+                    <p className="text-[10px] text-gray-400 dark:text-[#aaa39a]">Signed in as {currentUser?.email || 'your account'}</p>
                 </footer>
             </div>
         );
     }
 
     return (
-        <div className="min-h-[540px] h-screen w-full bg-[#f8f8fb] flex flex-col font-sans text-gray-900 relative overflow-hidden">
+        <div className="min-h-[540px] h-screen w-full bg-[#f8f8fb] flex flex-col font-sans text-gray-900 relative overflow-hidden dark:bg-[#1f1f1d] dark:text-[#f4f1e9]">
             {isPreparingTransit && (
-                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-6 text-center">
+                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-6 text-center dark:bg-[#1f1f1d]/85">
                     <Loader2 className="w-12 h-12 text-[#625bd5] animate-spin mb-4" />
-                    <h3 className="font-semibold text-gray-900 text-base">Syncing job details</h3>
-                    <p className="text-xs text-gray-500 mt-2 max-w-[240px]">
+                    <h3 className="font-semibold text-gray-900 text-base dark:text-[#f4f1e9]">Syncing job details</h3>
+                    <p className="text-xs text-gray-500 mt-2 max-w-[240px] dark:text-[#aaa39a]">
                         Preparing your CareerVivid workspace...
                     </p>
                 </div>
@@ -1149,22 +1258,22 @@ const ExtensionHome: React.FC = () => {
 
                 {/* ── AI Credit Error Banner ── */}
                 {aiError && (
-                    <div className="rounded-2xl border border-amber-200 bg-amber-50 px-3.5 py-3 flex items-start gap-2.5 shadow-sm">
-                        <div className="mt-0.5 flex-shrink-0 h-5 w-5 rounded-full bg-amber-100 flex items-center justify-center">
-                            <span className="text-amber-600 text-[11px] font-semibold">!</span>
+                    <div className="rounded-2xl border border-amber-200 bg-amber-50 px-3.5 py-3 flex items-start gap-2.5 shadow-sm dark:border-amber-900/60 dark:bg-amber-950/30">
+                        <div className="mt-0.5 flex-shrink-0 h-5 w-5 rounded-full bg-amber-100 flex items-center justify-center dark:bg-amber-900/60">
+                            <span className="text-amber-600 text-[11px] font-semibold dark:text-amber-300">!</span>
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-xs font-semibold text-amber-800 leading-snug">{aiError}</p>
+                            <p className="text-xs font-semibold text-amber-800 leading-snug dark:text-amber-200">{aiError}</p>
                             <button
                                 onClick={() => window.open('https://careervivid.app/subscription', '_blank')}
-                                className="mt-1.5 text-[10px] font-semibold text-[#625bd5] hover:text-[#4f4a9f] transition-colors underline underline-offset-2"
+                                className="mt-1.5 text-[10px] font-semibold text-[#625bd5] hover:text-[#4f4a9f] transition-colors underline underline-offset-2 dark:text-[#b8b3ff] dark:hover:text-[#d8d5ff]"
                             >
                                 Upgrade to CareerVivid Pro →
                             </button>
                         </div>
                         <button
                             onClick={() => setAiError(null)}
-                            className="flex-shrink-0 text-amber-400 hover:text-amber-600 transition-colors mt-0.5"
+                            className="flex-shrink-0 text-amber-400 hover:text-amber-600 transition-colors mt-0.5 dark:text-amber-400 dark:hover:text-amber-200"
                             aria-label="Dismiss"
                         >
                             <span className="text-sm leading-none">×</span>
@@ -1182,6 +1291,9 @@ const ExtensionHome: React.FC = () => {
                     onNewResume={() => handleAction('new_resume')}
                     aiUsage={effectiveAIUsage ?? undefined}
                     selectedResumeTitle={activeResumeTitle}
+                    hasResumeContext={hasResumeTextForAnalysis}
+                    analysisError={analysisError}
+                    onRetryAnalysis={() => setAnalysisRetryKey(value => value + 1)}
                 />
 
                 {/* ── Mark as Applied ── */}
@@ -1191,8 +1303,8 @@ const ExtensionHome: React.FC = () => {
                         disabled={markedApplied}
                         className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl text-sm font-semibold border transition-all duration-300 ${
                             markedApplied
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 cursor-default'
-                                : 'bg-white text-slate-700 border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 shadow-sm hover:shadow-emerald-100'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 cursor-default dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-300'
+                                : 'bg-white text-slate-700 border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 shadow-sm hover:shadow-emerald-100 dark:border-[#3a3834] dark:bg-[#262522] dark:text-[#f4f1e9] dark:shadow-none dark:hover:border-emerald-900/70 dark:hover:bg-emerald-950/25 dark:hover:text-emerald-300'
                         }`}
                     >
                         {markedApplied ? (
@@ -1217,33 +1329,33 @@ const ExtensionHome: React.FC = () => {
                 <div className="grid grid-cols-2 gap-3">
                     <button
                         onClick={() => handleAction(isJobSite ? 'tailor_resume' : 'new_resume')}
-                        className="group flex flex-col items-start p-3 bg-white rounded-[20px] border border-[#ececf4] shadow-[0_10px_22px_rgba(15,23,42,0.05)] hover:shadow-[0_14px_26px_rgba(15,23,42,0.07)] hover:border-[#d9d7fb] transition-all duration-300"
+                        className="group flex flex-col items-start p-3 bg-white rounded-[20px] border border-[#ececf4] shadow-[0_10px_22px_rgba(15,23,42,0.05)] hover:shadow-[0_14px_26px_rgba(15,23,42,0.07)] hover:border-[#d9d7fb] transition-all duration-300 dark:border-[#3a3834] dark:bg-[#262522] dark:shadow-none dark:hover:border-[#4d4a73] dark:hover:bg-[#302e2a]"
                     >
-                        <div className="p-2 rounded-xl bg-[#f3f2ff] text-[#625bd5] mb-2 group-hover:scale-105 transition-transform">
+                        <div className="p-2 rounded-xl bg-[#f3f2ff] text-[#625bd5] mb-2 group-hover:scale-105 transition-transform dark:bg-[#302f49] dark:text-[#b8b3ff]">
                             <Wand2 size={18} />
                         </div>
-                        <span className="font-semibold text-gray-900 text-sm">Tailor resume</span>
-                        <span className="text-[10px] text-gray-500 mt-0.5">Match keywords</span>
+                        <span className="font-semibold text-gray-900 text-sm dark:text-[#f4f1e9]">Tailor resume</span>
+                        <span className="text-[10px] text-gray-500 mt-0.5 dark:text-[#aaa39a]">Match keywords</span>
                     </button>
 
                     <button
                         onClick={() => handleAction('practice_interview')}
-                        className="group flex flex-col items-start p-3 bg-white rounded-[20px] border border-[#ececf4] shadow-[0_10px_22px_rgba(15,23,42,0.05)] hover:shadow-[0_14px_26px_rgba(15,23,42,0.07)] hover:border-[#f4d6e7] transition-all duration-300"
+                        className="group flex flex-col items-start p-3 bg-white rounded-[20px] border border-[#ececf4] shadow-[0_10px_22px_rgba(15,23,42,0.05)] hover:shadow-[0_14px_26px_rgba(15,23,42,0.07)] hover:border-[#f4d6e7] transition-all duration-300 dark:border-[#3a3834] dark:bg-[#262522] dark:shadow-none dark:hover:border-[#5a3b4a] dark:hover:bg-[#302e2a]"
                     >
-                        <div className="p-2 rounded-xl bg-[#fff0f7] text-[#d95b92] mb-2 group-hover:scale-105 transition-transform">
+                        <div className="p-2 rounded-xl bg-[#fff0f7] text-[#d95b92] mb-2 group-hover:scale-105 transition-transform dark:bg-[#3a2630] dark:text-[#ff9ac4]">
                             <Mic size={18} />
                         </div>
-                        <span className="font-semibold text-gray-900 text-sm">Practice</span>
-                        <span className="text-[10px] text-gray-500 mt-0.5">Mock interview</span>
+                        <span className="font-semibold text-gray-900 text-sm dark:text-[#f4f1e9]">Practice</span>
+                        <span className="text-[10px] text-gray-500 mt-0.5 dark:text-[#aaa39a]">Mock interview</span>
                     </button>
                 </div>
 
                 {/* ── Recent Resumes ── */}
                 <div>
                     <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-xs font-semibold text-gray-400">Resumes</h3>
+                        <h3 className="text-xs font-semibold text-gray-400 dark:text-[#aaa39a]">Resumes</h3>
                         <button onClick={() => window.open(getResumeBuilderUrl(), '_blank')}
-                            className="text-[10px] text-[#625bd5] font-semibold hover:underline flex items-center gap-0.5">
+                            className="text-[10px] text-[#625bd5] font-semibold hover:underline flex items-center gap-0.5 dark:text-[#b8b3ff]">
                             View all <ChevronRight size={10} />
                         </button>
                     </div>
@@ -1252,23 +1364,27 @@ const ExtensionHome: React.FC = () => {
                             <div
                                 key={resume.id}
                                 onClick={() => window.open(`https://careervivid.app/edit/${resume.id}`, '_blank')}
-                                className={`flex items-center gap-3 p-3 bg-white rounded-2xl border transition-all cursor-pointer shadow-sm group ${selectedResumeId === resume.id ? 'border-[#c8c7f4] bg-[#f5f4ff] shadow-[0_8px_18px_rgba(98,91,213,0.10)]' : 'border-[#ececf4] hover:border-[#d9d7fb]'}`}
+                                className={`flex items-center gap-3 p-3 rounded-2xl border transition-all cursor-pointer shadow-sm group dark:shadow-none ${
+                                    selectedResumeId === resume.id
+                                        ? 'border-[#c8c7f4] bg-[#f5f4ff] shadow-[0_8px_18px_rgba(98,91,213,0.10)] dark:border-[#4d4a73] dark:bg-[#302f49]'
+                                        : 'border-[#ececf4] bg-white hover:border-[#d9d7fb] dark:border-[#3a3834] dark:bg-[#262522] dark:hover:border-[#4d4a73]'
+                                }`}
                             >
-                                <div className={`h-8 w-8 rounded-xl flex items-center justify-center ${selectedResumeId === resume.id ? 'bg-[#e9e8ff] text-[#625bd5]' : 'bg-[#f4f5f8] text-gray-400 group-hover:text-[#625bd5]'}`}>
+                                <div className={`h-8 w-8 rounded-xl flex items-center justify-center ${selectedResumeId === resume.id ? 'bg-[#e9e8ff] text-[#625bd5] dark:bg-[#3b3760] dark:text-[#b8b3ff]' : 'bg-[#f4f5f8] text-gray-400 group-hover:text-[#625bd5] dark:bg-[#302e2a] dark:text-[#aaa39a] dark:group-hover:text-[#b8b3ff]'}`}>
                                     <FileText size={15} />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <div className="text-sm font-semibold text-gray-900 truncate">{resume.title || 'Untitled'}</div>
+                                    <div className="text-sm font-semibold text-gray-900 truncate dark:text-[#f4f1e9]">{resume.title || 'Untitled'}</div>
                                     {selectedResumeId === resume.id && (
-                                        <div className="text-[10px] text-[#625bd5] font-semibold">Active resume</div>
+                                        <div className="text-[10px] text-[#625bd5] font-semibold dark:text-[#b8b3ff]">Active resume</div>
                                     )}
                                 </div>
-                                <ExternalLink size={12} className="text-gray-300 group-hover:text-[#8d88e6] flex-shrink-0" />
+                                <ExternalLink size={12} className="text-gray-300 group-hover:text-[#8d88e6] flex-shrink-0 dark:text-[#6d675f] dark:group-hover:text-[#b8b3ff]" />
                             </div>
                         ))}
                         {resumes.length === 0 && (
-                            <div className="text-center py-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                                <p className="text-[10px] text-gray-400">No resumes yet.</p>
+                            <div className="text-center py-4 bg-gray-50 rounded-xl border border-dashed border-gray-200 dark:border-[#3a3834] dark:bg-[#262522]">
+                                <p className="text-[10px] text-gray-400 dark:text-[#aaa39a]">No resumes yet.</p>
                             </div>
                         )}
                     </div>
@@ -1276,20 +1392,20 @@ const ExtensionHome: React.FC = () => {
 
                 {/* AI Smart Fill Review Panel */}
                 {showAiPanel && aiAnswers.length > 0 && (
-                    <div className="border-t border-[#ececf4] bg-white pt-3 space-y-2">
+                    <div className="border-t border-[#ececf4] bg-white pt-3 space-y-2 dark:border-[#3a3834] dark:bg-[#1f1f1d]">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-xs font-semibold text-gray-800">
+                                <p className="text-xs font-semibold text-gray-800 dark:text-[#f4f1e9]">
                                     {aiAnswers.filter(a => a.source === 'ai_generated').length} AI answers ready
                                 </p>
-                                <p className="text-[10px] text-gray-400">Review answers, then fill.</p>
+                                <p className="text-[10px] text-gray-400 dark:text-[#aaa39a]">Review answers, then fill.</p>
                             </div>
                             <button
                                 onClick={handleFillAll}
                                 className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
                                     fillAllConfirm
                                         ? 'bg-amber-500 text-white animate-pulse'
-                                        : 'bg-[#f3f2ff] text-[#625bd5] hover:bg-[#ecebff]'
+                                        : 'bg-[#f3f2ff] text-[#625bd5] hover:bg-[#ecebff] dark:bg-[#302f49] dark:text-[#b8b3ff] dark:hover:bg-[#3b3760]'
                                 }`}
                             >
                                 {fillAllConfirm ? 'Confirm fill all?' : 'Fill all'}
@@ -1309,23 +1425,23 @@ const ExtensionHome: React.FC = () => {
             </main>
 
             {/* Footer — Quick Actions */}
-            <footer className="px-3.5 pt-3 pb-3 bg-white/95 backdrop-blur border-t border-[#ececf4] sticky bottom-0 z-10">
+            <footer className="px-3.5 pt-3 pb-3 bg-white/95 backdrop-blur border-t border-[#ececf4] sticky bottom-0 z-10 dark:border-[#3a3834] dark:bg-[#1f1f1d]/95">
                 <div className="grid grid-cols-4 gap-2 mb-2.5">
                     {[
-                        { label: 'New resume',   icon: FileText,        color: 'bg-[#eef0ff] text-[#625bd5]', action: () => handleAction('new_resume') },
-                        { label: 'Cover letter', icon: Mail,            color: 'bg-[#f3f2ff] text-[#7069dc]', action: () => handleAction('cover_letter') },
-                        { label: 'Interview',    icon: Mic,             color: 'bg-[#fff0f7] text-[#d95b92]', action: () => handleAction('practice_interview') },
-                        { label: 'Dashboard',    icon: LayoutDashboard, color: 'bg-[#f4f5f8] text-slate-600', action: () => window.open('https://careervivid.app/dashboard', '_blank') },
+                        { label: 'New resume',   icon: FileText,        color: 'bg-[#eef0ff] text-[#625bd5] dark:bg-[#302f49] dark:text-[#b8b3ff]', action: () => handleAction('new_resume') },
+                        { label: 'Cover letter', icon: Mail,            color: 'bg-[#f3f2ff] text-[#7069dc] dark:bg-[#302f49] dark:text-[#b8b3ff]', action: () => handleAction('cover_letter') },
+                        { label: 'Interview',    icon: Mic,             color: 'bg-[#fff0f7] text-[#d95b92] dark:bg-[#3a2630] dark:text-[#ff9ac4]', action: () => handleAction('practice_interview') },
+                        { label: 'Dashboard',    icon: LayoutDashboard, color: 'bg-[#f4f5f8] text-slate-600 dark:bg-[#302e2a] dark:text-[#c9c3ba]', action: () => window.open('https://careervivid.app/dashboard', '_blank') },
                     ].map(({ label, icon: Icon, color, action }) => (
                         <button
                             key={label}
                             onClick={action}
-                            className="group flex flex-col items-center gap-1 py-2 rounded-xl hover:bg-gray-50 transition-colors"
+                            className="group flex flex-col items-center gap-1 py-2 rounded-xl hover:bg-gray-50 transition-colors dark:hover:bg-[#262522]"
                         >
                             <div className={`h-9 w-9 rounded-xl flex items-center justify-center ${color} group-hover:scale-105 transition-transform`}>
                                 <Icon size={15} />
                             </div>
-                            <span className="text-[9px] font-semibold text-gray-500 leading-none">{label}</span>
+                            <span className="text-[9px] font-semibold text-gray-500 leading-none dark:text-[#aaa39a]">{label}</span>
                         </button>
                     ))}
                 </div>

@@ -95,10 +95,10 @@ const ExtensionLayout: React.FC = () => {
     // Loading state
     if (stillLoading) {
         return (
-            <div className={`${rootThemeClass} min-h-[520px] h-screen w-full bg-[#f8f8fb] flex items-center justify-center`}>
+            <div className={`${rootThemeClass} min-h-[520px] h-screen w-full bg-[#f8f8fb] flex items-center justify-center dark:bg-[#1f1f1d]`}>
                 <div className="flex flex-col items-center gap-3">
                     <div className="h-8 w-8 border-2 border-[#625bd5] border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-xs text-gray-400">Loading...</p>
+                    <p className="text-xs text-gray-400 dark:text-[#aaa39a]">Loading...</p>
                 </div>
             </div>
         );
@@ -108,7 +108,7 @@ const ExtensionLayout: React.FC = () => {
     if (!isAuthenticated) {
         return (
             <div className={`${rootThemeClass} min-h-[520px] h-screen w-full`}>
-                <div className="bg-white min-h-[520px] h-full text-gray-900">
+                <div className="bg-white min-h-[520px] h-full text-gray-900 dark:bg-[#1f1f1d] dark:text-[#f4f1e9]">
                     <ExtensionLogin />
                 </div>
             </div>
@@ -118,7 +118,7 @@ const ExtensionLayout: React.FC = () => {
     // Authenticated View: Show Home Dashboard
     return (
         <div className={`${rootThemeClass} min-h-[520px] h-screen w-full`}>
-            <div className="bg-[#f8f8fb] min-h-[520px] h-full text-gray-900">
+            <div className="bg-[#f8f8fb] min-h-[520px] h-full text-gray-900 dark:bg-[#1f1f1d] dark:text-[#f4f1e9]">
                 <ExtensionHome />
             </div>
         </div>

@@ -1013,6 +1013,78 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             return true;
         }
 
+        case 'ANALYZE_RESUME_MATCH': {
+            const { resumeText, jobDescription, pageUrl, jobTitle, companyName, resumeId } = message;
+
+            getFreshTokenPromise().then(async (idToken) => {
+                if (!idToken) {
+                    sendResponse({ success: false, error: 'Not authenticated. Please log in to CareerVivid.' });
+                    return;
+                }
+
+                if (idToken === 'mock-dev-id-token') {
+                    sendResponse({ success: false, error: 'Please sign in to CareerVivid to analyze a real resume.' });
+                    return;
+                }
+
+                if (!String(resumeText || '').trim() || !String(jobDescription || '').trim()) {
+                    sendResponse({ success: false, error: 'Resume text and job description are required.' });
+                    return;
+                }
+
+                try {
+                    const endpoint = 'https://us-west1-jastalk-firebase.cloudfunctions.net/analyzeExtensionResumeMatch';
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${idToken}`,
+                        },
+                        body: JSON.stringify({
+                            data: {
+                                resumeText,
+                                jobDescription,
+                                pageUrl,
+                                jobTitle,
+                                companyName,
+                                resumeId,
+                            },
+                        }),
+                    });
+
+                    const rawText = await response.text();
+                    let json: any = null;
+                    try {
+                        json = rawText ? JSON.parse(rawText) : null;
+                    } catch (_) {
+                        json = null;
+                    }
+
+                    if (!response.ok) {
+                        const callableError = json?.error?.message || json?.message || rawText;
+                        sendResponse({ success: false, error: callableError || `Cloud Function error: ${response.status}` });
+                        return;
+                    }
+
+                    const result = json?.result || json;
+                    if (!result?.analysis) {
+                        sendResponse({ success: false, error: 'Gemini analysis returned no result.' });
+                        return;
+                    }
+
+                    sendResponse({
+                        success: true,
+                        analysis: result.analysis,
+                        credits: result.credits,
+                    });
+                } catch (err: any) {
+                    console.error('[CareerVivid] ANALYZE_RESUME_MATCH failed:', err);
+                    sendResponse({ success: false, error: err.message || 'Network error' });
+                }
+            });
+            return true;
+        }
+
         // Popup triggers auto-fill on the current tab (structured fields only — fast path)
         case 'AUTOFILL_APPLICATION':
             ensureAutofillProfile().then((profile) => {
