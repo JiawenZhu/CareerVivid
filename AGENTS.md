@@ -16,6 +16,13 @@ codex/live-stable-baseline-20260529
 
 Do not use `/Users/jiawenzhu/Developer/careervivid` for new production work unless the user explicitly asks for it. That worktree has unrelated in-progress changes and should not be treated as the clean deploy base.
 
+## Chrome Extension Packaging
+
+- Always prepare Chrome extension builds and upload zip files from `/Users/jiawenzhu/Developer/careervivid-release`.
+- Never source Chrome extension code, `dist-extension`, upload zips, or screenshots from `/Users/jiawenzhu/Developer/careervivid`.
+- When only creating a Chrome Web Store upload zip, package from a copied staging directory so the original `dist-extension` folder remains untouched.
+- Keep the upload folder free of obsolete extension zips so the latest `2.1.1` package is unambiguous.
+
 ## Ownership
 
 - Lead Codex owns overall product direction, design quality, feature development, deployment sequencing, release safety, and final integration.
