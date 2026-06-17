@@ -199,6 +199,8 @@ const ExtensionHome: React.FC = () => {
     const [isFilling, setIsFilling] = useState(false);
     const [hasProfile, setHasProfile] = useState(false);
     const [selectedResumeId, setSelectedResumeId] = useState<string | null>(null);
+    const activeResume = resumes.find(resume => resume.id === selectedResumeId) || resumes[0] || null;
+    const activeResumeTitle = activeResume?.title || null;
 
     // AI Smart Fill state
     const [aiAnswers, setAiAnswers] = useState<AIAnswer[]>([]);
@@ -1179,6 +1181,7 @@ const ExtensionHome: React.FC = () => {
                     onSaveJob={(stage) => handleAction('save_job', stage)}
                     onNewResume={() => handleAction('new_resume')}
                     aiUsage={effectiveAIUsage ?? undefined}
+                    selectedResumeTitle={activeResumeTitle}
                 />
 
                 {/* ── Mark as Applied ── */}
