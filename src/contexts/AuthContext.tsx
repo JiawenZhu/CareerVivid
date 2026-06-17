@@ -178,6 +178,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
 
+    const finishAdminCheck = (isUserAdmin: boolean) => {
+      if (!isActive || adminCheckDone) return;
+
+      setIsAdmin(isUserAdmin);
+      setIsAdminLoading(false);
+      adminCheckDone = true;
+      tryFinishLoading();
+    };
+
     const failOpenUserProfile = (reason: string, error?: unknown) => {
       if (!isActive || userProfileLoaded) return;
 
@@ -197,6 +206,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const profileLoadTimeout = window.setTimeout(() => {
       failOpenUserProfile('User profile load timed out');
     }, 10000);
+    const adminCheckTimeout = window.setTimeout(() => {
+      console.warn('[AuthContext] Admin check timed out; continuing as a standard user.');
+      finishAdminCheck(false);
+    }, 5000);
 
     // Real-time listener for user profile data (including premium status)
     const userDocRef = doc(db, 'users', currentUser.uid);
@@ -315,8 +328,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const isHardcodedAdmin = currentUser.email === 'evan@jastalk.com' || currentUser.uid === 'n95XpkySLMhwcHcpKTOpFAqrOPi2';
 
       if (isHardcodedAdmin) {
-        setIsAdmin(true);
+        window.clearTimeout(adminCheckTimeout);
+        finishAdminCheck(true);
+
         // Attempt self-healing (restore DB record if missing)
+        // This must not block the app shell from loading for known admins.
         try {
           const adminDocRef = doc(db, 'admins', currentUser.uid);
           // We blindly set (merge) to ensure the record exists without needing read permissions first if rules are strict
@@ -326,26 +342,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.warn("Self-healing admin check failed, but UI access is still granted.", e);
           }
         }
-        setIsAdminLoading(false);
-        adminCheckDone = true;
-        tryFinishLoading();
         return;
       }
 
       try {
         const adminDocRef = doc(db, 'admins', currentUser.uid);
         const adminDoc = await getDoc(adminDocRef);
-        setIsAdmin(adminDoc.exists());
+        window.clearTimeout(adminCheckTimeout);
+        finishAdminCheck(adminDoc.exists());
       } catch (error: any) {
         // Suppress expected "permission-denied" errors for normal users checking admins table
         if (error?.code !== 'permission-denied') {
           console.error("Error checking admin status:", error);
         }
-        setIsAdmin(false);
-      } finally {
-        setIsAdminLoading(false);
-        adminCheckDone = true;
-        tryFinishLoading();
+        window.clearTimeout(adminCheckTimeout);
+        finishAdminCheck(false);
       }
     };
     checkAdmin();
@@ -353,6 +364,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       isActive = false;
       window.clearTimeout(profileLoadTimeout);
+      window.clearTimeout(adminCheckTimeout);
       unsubscribeUser();
     };
 

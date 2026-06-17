@@ -18,7 +18,6 @@ const getLangFromPath = () => {
   // If no prefix found, we assume English (root path)
   // This helps i18n init with 'en' immediately instead of waiting for fallback
   return 'en';
-  return undefined;
 };
 
 i18n
@@ -36,7 +35,7 @@ i18n
     defaultNS: 'translation',
 
     backend: {
-      loadPath: '/locales/{{lng}}/translation.json?v=' + new Date().getTime(),
+      loadPath: '/locales/{{lng}}/translation.json',
     },
 
     detection: {

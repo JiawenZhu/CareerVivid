@@ -61,6 +61,8 @@ const AUTH_DOMAINS = [
     'http://127.0.0.1:5173'
 ] as const;
 
+type AuthDomain = typeof AUTH_DOMAINS[number];
+
 const AUTH_REFRESH_ALARM = 'careervivid-refresh-auth-token';
 
 type ExtensionAuthPayload = {
@@ -81,6 +83,86 @@ const CAREERVIVID_TAB_HOSTS = new Set([
     '127.0.0.1'
 ]);
 
+const SUPPORTED_JOB_BOARD_HOSTS = [
+    'linkedin.com',
+    'indeed.com',
+    'joinhandshake.com',
+    'builtin.com',
+] as const;
+
+function toOriginPermissionPattern(url: AuthDomain): string | null {
+    try {
+        const parsed = new URL(url);
+        return `${parsed.protocol}//${parsed.hostname}/*`;
+    } catch {
+        return null;
+    }
+}
+
+function manifestHostPatternMatches(url: AuthDomain, pattern: string): boolean {
+    if (pattern === '<all_urls>') return true;
+
+    try {
+        const parsedUrl = new URL(url);
+        const match = pattern.match(/^(\*|http|https):\/\/([^/]+)(?:\/.*)?$/);
+        if (!match) return false;
+
+        const [, scheme, patternHostname] = match;
+        if (scheme !== '*' && `${scheme}:` !== parsedUrl.protocol) return false;
+        if (patternHostname === '*') return true;
+        if (patternHostname.startsWith('*.')) {
+            const baseHost = patternHostname.slice(2);
+            return parsedUrl.hostname === baseHost || parsedUrl.hostname.endsWith(`.${baseHost}`);
+        }
+
+        return parsedUrl.hostname === patternHostname;
+    } catch {
+        return false;
+    }
+}
+
+function hasManifestHostPermission(url: AuthDomain): boolean {
+    const manifest = chrome.runtime.getManifest() as chrome.runtime.Manifest & {
+        host_permissions?: string[];
+        optional_host_permissions?: string[];
+    };
+    const patterns = [
+        ...(manifest.host_permissions || []),
+        ...(manifest.optional_host_permissions || []),
+    ];
+
+    return patterns.some((pattern) => manifestHostPatternMatches(url, pattern));
+}
+
+function hasOriginPermission(url: AuthDomain): Promise<boolean> {
+    const origin = toOriginPermissionPattern(url);
+    if (!origin) return Promise.resolve(false);
+    if (hasManifestHostPermission(url)) return Promise.resolve(true);
+
+    return new Promise((resolve) => {
+        if (!chrome.permissions?.contains) {
+            resolve(false);
+            return;
+        }
+
+        chrome.permissions.contains({ origins: [origin] }, (granted) => {
+            const _ = chrome.runtime.lastError;
+            resolve(Boolean(granted));
+        });
+    });
+}
+
+async function getPermittedAuthDomains(): Promise<AuthDomain[]> {
+    const checks = await Promise.all(
+        AUTH_DOMAINS.map(async (domain) => {
+            const permitted = await hasOriginPermission(domain);
+            return permitted ? domain : null;
+        })
+    );
+
+    return checks.filter((domain): domain is AuthDomain => Boolean(domain));
+}
+
 function parseJwt(token: string): any {
     try {
         const base64Url = token.split('.')[1];
@@ -91,6 +173,17 @@ function parseJwt(token: string): any {
         return JSON.parse(jsonPayload);
     } catch (e) {
         return null;
+    }
+}
+
+function isSupportedJobBoardTabUrl(url?: string | null): boolean {
+    if (!url) return false;
+
+    try {
+        const hostname = new URL(url).hostname.replace(/^www\./, '');
+        return SUPPORTED_JOB_BOARD_HOSTS.some(host => hostname === host || hostname.endsWith(`.${host}`));
+    } catch {
+        return false;
     }
 }
 
@@ -392,27 +485,41 @@ function scheduleAuthTokenClear(): void {
 }
 
 function findAuthCookie(callback: (cookie: chrome.cookies.Cookie | null) => void): void {
-    let checkedCount = 0;
     const cookieNames = ['session', '__session', 'token'];
-    const totalChecks = AUTH_DOMAINS.length * cookieNames.length;
-    let foundAuth = false;
 
-    AUTH_DOMAINS.forEach((domain) => {
-        cookieNames.forEach((name) => {
-            chrome.cookies.get({ url: domain, name }, (cookie) => {
-                checkedCount++;
-                if (cookie && !foundAuth) {
-                    foundAuth = true;
-                    callback(cookie);
-                    return;
-                }
+    getPermittedAuthDomains()
+        .then((domains) => {
+            let checkedCount = 0;
+            const totalChecks = domains.length * cookieNames.length;
+            let foundAuth = false;
 
-                if (checkedCount === totalChecks && !foundAuth) {
-                    callback(null);
-                }
+            if (totalChecks === 0) {
+                callback(null);
+                return;
+            }
+
+            domains.forEach((domain) => {
+                cookieNames.forEach((name) => {
+                    chrome.cookies.get({ url: domain, name }, (cookie) => {
+                        const cookieError = chrome.runtime.lastError;
+                        checkedCount++;
+
+                        if (!cookieError && cookie && !foundAuth) {
+                            foundAuth = true;
+                            callback(cookie);
+                            return;
+                        }
+
+                        if (checkedCount === totalChecks && !foundAuth) {
+                            callback(null);
+                        }
+                    });
+                });
             });
+        })
+        .catch(() => {
+            callback(null);
         });
-    });
 }
 
 function clearAuthToken(callback?: () => void): void {
@@ -738,7 +845,7 @@ chrome.alarms?.onAlarm.addListener((alarm) => {
     });
 });
 
-chrome.tabs.onUpdated.addListener((_tabId, changeInfo, tab) => {
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status === 'complete' && isCareerVividTabUrl(tab.url)) {
         setTimeout(() => {
             hydrateAuthState().catch((err) => {
@@ -746,6 +853,33 @@ chrome.tabs.onUpdated.addListener((_tabId, changeInfo, tab) => {
             });
         }, 500);
     }
+
+    if ((changeInfo.url || changeInfo.status === 'complete') && isSupportedJobBoardTabUrl(tab.url)) {
+        chrome.tabs.sendMessage(tabId, {
+            type: 'CAREERVIVID_TAB_NAVIGATION_CHANGED',
+            url: tab.url,
+            status: changeInfo.status || null,
+            reason: changeInfo.url ? 'tab-url-updated' : 'tab-load-complete',
+        }, () => {
+            const _ = chrome.runtime.lastError;
+        });
+    }
+});
+
+chrome.tabs.onActivated.addListener(({ tabId }) => {
+    chrome.tabs.get(tabId, (tab) => {
+        const _ = chrome.runtime.lastError;
+        if (!isSupportedJobBoardTabUrl(tab?.url)) return;
+
+        chrome.tabs.sendMessage(tabId, {
+            type: 'CAREERVIVID_TAB_NAVIGATION_CHANGED',
+            url: tab.url,
+            status: 'active',
+            reason: 'tab-activated',
+        }, () => {
+            const _ = chrome.runtime.lastError;
+        });
+    });
 });
 
 // ── Profile Sync: Firebase → chrome.storage.local ────────────────────────────
@@ -1013,78 +1147,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             return true;
         }
 
-        case 'ANALYZE_RESUME_MATCH': {
-            const { resumeText, jobDescription, pageUrl, jobTitle, companyName, resumeId } = message;
-
-            getFreshTokenPromise().then(async (idToken) => {
-                if (!idToken) {
-                    sendResponse({ success: false, error: 'Not authenticated. Please log in to CareerVivid.' });
-                    return;
-                }
-
-                if (idToken === 'mock-dev-id-token') {
-                    sendResponse({ success: false, error: 'Please sign in to CareerVivid to analyze a real resume.' });
-                    return;
-                }
-
-                if (!String(resumeText || '').trim() || !String(jobDescription || '').trim()) {
-                    sendResponse({ success: false, error: 'Resume text and job description are required.' });
-                    return;
-                }
-
-                try {
-                    const endpoint = 'https://us-west1-jastalk-firebase.cloudfunctions.net/analyzeExtensionResumeMatch';
-                    const response = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${idToken}`,
-                        },
-                        body: JSON.stringify({
-                            data: {
-                                resumeText,
-                                jobDescription,
-                                pageUrl,
-                                jobTitle,
-                                companyName,
-                                resumeId,
-                            },
-                        }),
-                    });
-
-                    const rawText = await response.text();
-                    let json: any = null;
-                    try {
-                        json = rawText ? JSON.parse(rawText) : null;
-                    } catch (_) {
-                        json = null;
-                    }
-
-                    if (!response.ok) {
-                        const callableError = json?.error?.message || json?.message || rawText;
-                        sendResponse({ success: false, error: callableError || `Cloud Function error: ${response.status}` });
-                        return;
-                    }
-
-                    const result = json?.result || json;
-                    if (!result?.analysis) {
-                        sendResponse({ success: false, error: 'Gemini analysis returned no result.' });
-                        return;
-                    }
-
-                    sendResponse({
-                        success: true,
-                        analysis: result.analysis,
-                        credits: result.credits,
-                    });
-                } catch (err: any) {
-                    console.error('[CareerVivid] ANALYZE_RESUME_MATCH failed:', err);
-                    sendResponse({ success: false, error: err.message || 'Network error' });
-                }
-            });
-            return true;
-        }
-
         // Popup triggers auto-fill on the current tab (structured fields only — fast path)
         case 'AUTOFILL_APPLICATION':
             ensureAutofillProfile().then((profile) => {
@@ -1118,8 +1180,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                         fields: {
                             title: { stringValue: job.title || '' },
                             company: { stringValue: job.company || '' },
+                            location: { stringValue: job.location || '' },
+                            salary: { stringValue: job.salary || '' },
                             description: { stringValue: job.description || '' },
                             url: { stringValue: job.url || '' },
+                            stage: { stringValue: job.stage || '' },
+                            resumeId: { stringValue: job.resumeId || '' },
+                            resumeTitle: { stringValue: job.resumeTitle || '' },
+                            localTransitId: { stringValue: job.localTransitId || '' },
                             createdAt: { timestampValue: new Date().toISOString() }
                         }
                     };

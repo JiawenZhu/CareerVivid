@@ -1,21 +1,150 @@
 /// <reference types="chrome" />
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import {
-    Wand2, Mic, ChevronRight, FileText, Loader2, Mail, LayoutDashboard, ExternalLink, Briefcase, Target, MessageSquareText
+    Wand2, Mic, ChevronRight, FileText, Loader2, Mail, LayoutDashboard, ExternalLink, Briefcase, Target, MessageSquareText, Search
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useResumes } from '../../hooks/useResumes';
 import { getAppUrl, getResumeBuilderUrl, isCareerVividAppUrl } from '../../utils/extensionUtils';
-import { ResumeData, ResumeMatchAnalysis } from '../../types';
+import { ResumeData } from '../../types';
 import { FREE_PLAN_CREDIT_LIMIT, PRO_PLAN_CREDIT_LIMIT, PRO_MAX_PLAN_CREDIT_LIMIT, ENTERPRISE_PLAN_CREDIT_LIMIT } from '../../config/creditCosts';
+import { buildJobBoardRoutes, buildResumeSearchQuery } from '../../utils/jobBoardRouter';
+import { buildLocalMatchAudit, LocalMatchAuditResult } from '../../utils/localMatchAudit';
 
 // Extracted Sub-Components
 import { ExtensionHeader } from '../components/ExtensionHeader';
 import type { AutoFillResult } from '../components/AutoFillCard';
 import { MatchBreakdownCard } from '../components/MatchBreakdownCard';
 import { AIAnswerCard, AIAnswer } from '../components/AIAnswerCard';
+import { JobDiscoveryModal } from '../components/JobDiscoveryModal';
+import { LocalDeepDiveAudit } from '../components/LocalDeepDiveAudit';
 
 type ScrapedJob = { title: string; company: string; location?: string; description?: string; salary?: string };
+
+type TrackerTransitPayload = {
+    source: 'extension_tracker';
+    transitId: string;
+    createdAt: string;
+    expiresAt: number;
+    url: string;
+    title: string;
+    company: string;
+    location: string;
+    salary: string;
+    fallbackDescription: string;
+    stage: string;
+    resumeId: string;
+    resumeTitle: string;
+};
+
+type ActiveJobContextPayload = {
+    source: 'extension_job_context';
+    contextId: string;
+    createdAt: string;
+    expiresAt: number;
+    pageUrl: string;
+    pageTitle: string;
+    job: ScrapedJob;
+    resumeId: string;
+    resumeTitle: string;
+};
+
+type WorkspaceActionId = 'save_job' | 'tailor_resume' | 'practice_interview' | 'cover_letter';
+
+const ACTIVE_JOB_CONTEXT_STORAGE_KEY = 'activeCareerVividJobContext';
+
+const WORKSPACE_HANDOFF_COPY: Record<WorkspaceActionId, {
+    title: string;
+    description: string;
+    step: string;
+    icon: React.ElementType;
+    iconClassName: string;
+}> = {
+    save_job: {
+        title: 'Saving to Job Tracker',
+        description: 'Logging this role to your pipeline before opening the tracker.',
+        step: 'Syncing job record',
+        icon: Briefcase,
+        iconClassName: 'bg-[#eef0ff] text-[#625bd5] dark:bg-[#302f49] dark:text-[#b8b3ff]',
+    },
+    tailor_resume: {
+        title: 'Opening resume workspace',
+        description: 'Passing the job brief into your active resume for tailoring.',
+        step: 'Loading resume context',
+        icon: Wand2,
+        iconClassName: 'bg-[#fbf2ff] text-[#8f3df0] dark:bg-[#302f49] dark:text-[#b8b3ff]',
+    },
+    practice_interview: {
+        title: 'Preparing interview studio',
+        description: 'Building mock interview prep from this job context.',
+        step: 'Creating practice context',
+        icon: Mic,
+        iconClassName: 'bg-[#fff0f7] text-[#d95b92] dark:bg-[#3a2630] dark:text-[#ff9ac4]',
+    },
+    cover_letter: {
+        title: 'Preparing cover letter',
+        description: 'Carrying the job context into your application workspace.',
+        step: 'Drafting handoff',
+        icon: Mail,
+        iconClassName: 'bg-[#f3f2ff] text-[#7069dc] dark:bg-[#302f49] dark:text-[#b8b3ff]',
+    },
+};
+
+const WorkspaceHandoffCard: React.FC<{ action: WorkspaceActionId | null; jobTitle?: string | null }> = ({ action, jobTitle }) => {
+    const config = WORKSPACE_HANDOFF_COPY[action || 'tailor_resume'];
+    const Icon = config.icon;
+
+    return (
+        <section
+            aria-live="polite"
+            className="overflow-hidden rounded-[22px] border border-[#d9d7fb] bg-white p-3.5 shadow-[0_16px_34px_rgba(98,91,213,0.10)] transition-all duration-500 dark:border-[#4d4a73] dark:bg-[#262522] dark:shadow-none"
+        >
+            <div className="flex items-start gap-3">
+                <span className={`relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl ${config.iconClassName}`}>
+                    <Icon size={16} />
+                    <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-white text-[#625bd5] shadow-sm dark:bg-[#1f1f1d] dark:text-[#b8b3ff]">
+                        <Loader2 size={10} className="animate-spin" />
+                    </span>
+                </span>
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                        <p className="truncate text-sm font-semibold text-slate-950 dark:text-[#f4f1e9]">{config.title}</p>
+                        <span className="rounded-full border border-[#d9d7fb] bg-[#f3f2ff] px-2 py-1 text-[9px] font-semibold text-[#625bd5] dark:border-[#4d4a73] dark:bg-[#302f49] dark:text-[#b8b3ff]">
+                            Working
+                        </span>
+                    </div>
+                    <p className="mt-1 text-[11px] leading-snug text-slate-500 dark:text-[#aaa39a]">
+                        {config.description}
+                    </p>
+                    {jobTitle && (
+                        <p className="mt-1 truncate text-[10px] font-semibold text-slate-400 dark:text-[#8e887f]">
+                            {jobTitle}
+                        </p>
+                    )}
+                </div>
+            </div>
+
+            <div className="mt-3 overflow-hidden rounded-full bg-[#f1f4f8] p-0.5 dark:bg-[#1f1f1d]">
+                <div className="h-1.5 w-3/4 animate-pulse rounded-full bg-[#8d88e6]" />
+            </div>
+
+            <div className="mt-3 grid grid-cols-3 gap-1.5">
+                {['Capture', config.step, 'Open'].map((label, index) => (
+                    <div
+                        key={label}
+                        className={`rounded-2xl px-2 py-2 text-center text-[9px] font-semibold ${
+                            index === 1
+                                ? 'bg-[#f3f2ff] text-[#625bd5] dark:bg-[#302f49] dark:text-[#b8b3ff]'
+                                : 'bg-[#f8f8fb] text-slate-400 dark:bg-[#1f1f1d] dark:text-[#8e887f]'
+                        }`}
+                    >
+                        {label}
+                    </div>
+                ))}
+            </div>
+        </section>
+    );
+};
 
 const stringifyResumeValue = (value: unknown): string => {
     if (!value) return '';
@@ -128,6 +257,61 @@ const isLikelyJobSiteUrl = (url: string) => {
     return isKnownJobSite || isCustomJobPage;
 };
 
+const getDisplayHost = (url?: string | null): string => {
+    if (!url) return 'Current page';
+
+    try {
+        const parsedUrl = new URL(url);
+        if (parsedUrl.protocol === 'chrome:') return 'chrome';
+        return parsedUrl.hostname.replace(/^www\./, '');
+    } catch {
+        return url.replace(/^https?:\/\//, '').split('/')[0] || 'Current page';
+    }
+};
+
+const VALID_JOB_DESCRIPTION_MIN_LENGTH = 80;
+
+const hasUsableJobDescription = (job?: ScrapedJob | null): boolean => {
+    return Boolean(
+        job?.title?.trim() &&
+        job?.description?.trim() &&
+        job.description.trim().length >= VALID_JOB_DESCRIPTION_MIN_LENGTH
+    );
+};
+
+const isFreshActiveJobContext = (value: unknown): value is ActiveJobContextPayload => {
+    const payload = value as ActiveJobContextPayload | null | undefined;
+    return Boolean(
+        payload?.source === 'extension_job_context' &&
+        payload.expiresAt &&
+        payload.expiresAt > Date.now() &&
+        payload.pageUrl &&
+        payload.job?.title?.trim()
+    );
+};
+
+const buildFallbackJobFromTab = (tab?: { url: string; title: string } | null): ScrapedJob | null => {
+    if (!tab?.url || isCareerVividAppUrl(tab.url)) return null;
+
+    const host = getDisplayHost(tab.url);
+    const rawTitle = (tab.title || '').replace(/\s+-\s+Google Chrome$/i, '').trim();
+    const atMatch = rawTitle.match(/\s@\s([^|–—-]+)(?:\s*[|–—-].*)?$/);
+    const company = atMatch?.[1]?.trim() || host;
+    const title = rawTitle
+        .replace(/\s@\s[^|–—-]+(?:\s*[|–—-].*)?$/i, '')
+        .replace(/\s+\|\s+LinkedIn.*$/i, '')
+        .replace(/\s+Jobs\s+\|\s+LinkedIn.*$/i, '')
+        .trim();
+
+    return {
+        title: title || 'Saved job',
+        company,
+        location: '',
+        description: '',
+        url: tab.url,
+    };
+};
+
 const makeStorageKey = (namespace: string, parts: Array<string | null | undefined>) => {
     const input = parts.filter(Boolean).join('|');
     let hash = 0x811c9dc5;
@@ -167,26 +351,21 @@ const getProfileAIUsage = (profile: any): { count: number; limit: number } | nul
 };
 
 const ExtensionHome: React.FC = () => {
-    const { userProfile: contextUserProfile, currentUser, logOut, aiUsage: contextAIUsage, refreshAIUsage, loading: authLoading } = useAuth();
-    const refreshAIUsageRef = useRef(refreshAIUsage);
+    const { userProfile: contextUserProfile, currentUser, logOut, aiUsage: contextAIUsage, loading: authLoading } = useAuth();
     const [resolvedUserId, setResolvedUserId] = useState<string | null>(null);
     const [isAuthResolved, setIsAuthResolved] = useState(false);
     const [localProfile, setLocalProfile] = useState<any>(null);
     const [restUserProfile, setRestUserProfile] = useState<any>(null);
     const [localPhotoURL, setLocalPhotoURL] = useState<string | null>(null);
-    const [matchScore, setMatchScore] = useState<number | null>(null);
-    const [matchAnalysis, setMatchAnalysis] = useState<ResumeMatchAnalysis | null>(null);
-    const [isCalculatingScore, setIsCalculatingScore] = useState(false);
-    const [analysisError, setAnalysisError] = useState<string | null>(null);
-    const [analysisRetryKey, setAnalysisRetryKey] = useState(0);
+    const [hasDetectedJob, setHasDetectedJob] = useState(false);
+    const [isDiscoveryModalOpen, setIsDiscoveryModalOpen] = useState(false);
+    const [isJobContextRefreshing, setIsJobContextRefreshing] = useState(false);
+    const [isLocalAuditLoading, setIsLocalAuditLoading] = useState(false);
+    const [localAudit, setLocalAudit] = useState<LocalMatchAuditResult | null>(null);
 
     const userProfile = contextUserProfile || restUserProfile;
     const effectiveAIUsage = contextAIUsage || getProfileAIUsage(userProfile);
     const isOutOfCredits = effectiveAIUsage ? effectiveAIUsage.count >= effectiveAIUsage.limit : false;
-
-    useEffect(() => {
-        refreshAIUsageRef.current = refreshAIUsage;
-    }, [refreshAIUsage]);
 
     useEffect(() => {
         if (authLoading) return; // wait for Firebase auth to settle
@@ -273,16 +452,24 @@ const ExtensionHome: React.FC = () => {
     const [isApplicationPage, setIsApplicationPage] = useState(false);
     const [atsPlatform, setAtsPlatform] = useState<string | null>(null);
     const [scrapedJob, setScrapedJob] = useState<ScrapedJob | null>(null);
+    const [activeJobContext, setActiveJobContext] = useState<ActiveJobContextPayload | null>(null);
     const [fillResult, setFillResult] = useState<AutoFillResult | null>(null);
     const [isFilling, setIsFilling] = useState(false);
     const [hasProfile, setHasProfile] = useState(false);
     const [selectedResumeId, setSelectedResumeId] = useState<string | null>(null);
     const activeResume = resumes.find(resume => resume.id === selectedResumeId) || resumes[0] || null;
     const activeResumeTitle = activeResume?.title || null;
+    const jobBoardQueryResult = useMemo(
+        () => buildResumeSearchQuery(activeResume, localProfile || userProfile),
+        [activeResume, localProfile, userProfile]
+    );
+    const jobBoardRoutes = useMemo(
+        () => buildJobBoardRoutes(jobBoardQueryResult.query),
+        [jobBoardQueryResult.query]
+    );
     const resumeTextForAnalysis = useMemo(() => {
         return buildResumeTextFromResume(activeResume) || buildResumeTextFromProfile(localProfile);
     }, [activeResume, localProfile]);
-    const hasResumeTextForAnalysis = resumeTextForAnalysis.trim().length > 80;
 
     // AI Smart Fill state
     const [aiAnswers, setAiAnswers] = useState<AIAnswer[]>([]);
@@ -307,15 +494,31 @@ const ExtensionHome: React.FC = () => {
     const [showCoverLetterPanel, setShowCoverLetterPanel] = useState(false);
     const [copiedCoverLetter, setCopiedCoverLetter] = useState(false);
     const [isPreparingTransit, setIsPreparingTransit] = useState(false);
+    const [handoffAction, setHandoffAction] = useState<WorkspaceActionId | null>(null);
     const contextRequestIdRef = useRef(0);
     const lastTabUrlRef = useRef<string | null>(null);
+    const activeJobContextRef = useRef<ActiveJobContextPayload | null>(null);
+    const handoffTimerRef = useRef<number | null>(null);
+    const canUseStoredContextForTab = Boolean(
+        activeJobContext &&
+        currentTab?.url &&
+        (isCareerVividAppUrl(currentTab.url) || activeJobContext.pageUrl === currentTab.url)
+    );
+    const activeJobFromContext = canUseStoredContextForTab ? activeJobContext?.job || null : null;
+    const actionableJob = scrapedJob || activeJobFromContext;
+    const hasActionableJob = hasDetectedJob || hasUsableJobDescription(actionableJob);
+    const actionJobSourceUrl = scrapedJob
+        ? currentTab?.url || ''
+        : canUseStoredContextForTab
+            ? activeJobContext?.pageUrl || ''
+            : currentTab?.url || '';
 
     const resetJobDependentState = useCallback(() => {
         setScrapedJob(null);
-        setMatchScore(null);
-        setMatchAnalysis(null);
-        setIsCalculatingScore(false);
-        setAnalysisError(null);
+        setHasDetectedJob(false);
+        setIsJobContextRefreshing(false);
+        setIsLocalAuditLoading(false);
+        setLocalAudit(null);
         setFillResult(null);
         setIsFilling(false);
         setAiAnswers([]);
@@ -332,6 +535,72 @@ const ExtensionHome: React.FC = () => {
         setCoverLetterReady(false);
         setShowCoverLetterPanel(false);
         setCopiedCoverLetter(false);
+    }, []);
+
+    const clearHandoffTimer = useCallback(() => {
+        if (handoffTimerRef.current) {
+            window.clearTimeout(handoffTimerRef.current);
+            handoffTimerRef.current = null;
+        }
+    }, []);
+
+    const beginHandoffTransition = useCallback((action: WorkspaceActionId) => {
+        clearHandoffTimer();
+        setHandoffAction(action);
+        handoffTimerRef.current = window.setTimeout(() => {
+            setHandoffAction(null);
+            handoffTimerRef.current = null;
+        }, 8500);
+    }, [clearHandoffTimer]);
+
+    const finishHandoffTransition = useCallback((delay = 1600) => {
+        clearHandoffTimer();
+        handoffTimerRef.current = window.setTimeout(() => {
+            setHandoffAction(null);
+            handoffTimerRef.current = null;
+        }, delay);
+    }, [clearHandoffTimer]);
+
+    useEffect(() => {
+        return () => clearHandoffTimer();
+    }, [clearHandoffTimer]);
+
+    useEffect(() => {
+        activeJobContextRef.current = activeJobContext;
+    }, [activeJobContext]);
+
+    const loadActiveJobContext = useCallback((): Promise<ActiveJobContextPayload | null> => {
+        return new Promise(resolve => {
+            if (typeof chrome === 'undefined' || !chrome.storage?.local) {
+                resolve(null);
+                return;
+            }
+
+            chrome.storage.local.get([ACTIVE_JOB_CONTEXT_STORAGE_KEY], (stored: any) => {
+                const payload = stored?.[ACTIVE_JOB_CONTEXT_STORAGE_KEY];
+                if (isFreshActiveJobContext(payload)) {
+                    resolve(payload);
+                    return;
+                }
+
+                if (payload) {
+                    chrome.storage.local.remove([ACTIVE_JOB_CONTEXT_STORAGE_KEY], () => resolve(null));
+                    return;
+                }
+
+                resolve(null);
+            });
+        });
+    }, []);
+
+    const clearActiveJobContext = useCallback(() => {
+        activeJobContextRef.current = null;
+        setActiveJobContext(null);
+        if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+            chrome.storage.local.remove([ACTIVE_JOB_CONTEXT_STORAGE_KEY], () => {
+                const _ = chrome.runtime?.lastError;
+            });
+        }
     }, []);
 
     const refreshActiveTabContext = useCallback(() => {
@@ -354,6 +623,8 @@ const ExtensionHome: React.FC = () => {
                 setIsJobSite(false);
                 setIsApplicationPage(false);
                 setAtsPlatform(null);
+                setHasDetectedJob(false);
+                setIsJobContextRefreshing(false);
                 resetJobDependentState();
                 return;
             }
@@ -370,9 +641,30 @@ const ExtensionHome: React.FC = () => {
                 setIsJobSite(false);
                 setIsApplicationPage(false);
                 setAtsPlatform(null);
-                setScrapedJob(null);
-                setMatchScore(null);
-                setMatchAnalysis(null);
+                setIsJobContextRefreshing(true);
+                loadActiveJobContext().then((payload) => {
+                    if (!isCurrentRequest()) return;
+                    setIsJobContextRefreshing(false);
+
+                    if (payload) {
+                        setActiveJobContext(payload);
+                        setScrapedJob(payload.job);
+                        setHasDetectedJob(hasUsableJobDescription(payload.job));
+                        setIsJobSite(true);
+                        return;
+                    }
+
+                    const existingPayload = activeJobContextRef.current;
+                    if (isFreshActiveJobContext(existingPayload)) {
+                        setScrapedJob(existingPayload.job);
+                        setHasDetectedJob(hasUsableJobDescription(existingPayload.job));
+                        setIsJobSite(true);
+                        return;
+                    }
+
+                    setScrapedJob(null);
+                    setHasDetectedJob(false);
+                });
                 return;
             }
 
@@ -401,19 +693,23 @@ const ExtensionHome: React.FC = () => {
 
             if (!tab?.id) return;
 
-            chrome.tabs.sendMessage(tab.id, { type: 'EXTRACT_JOB_DATA' }, (response) => {
+            setIsJobContextRefreshing(true);
+            chrome.tabs.sendMessage(tab.id, { type: 'VERIFY_JOB_CONTEXT' }, (response) => {
                 const _ = chrome.runtime.lastError;
                 if (!isCurrentRequest()) return;
+                setIsJobContextRefreshing(false);
 
                 if (response?.job) {
+                    clearActiveJobContext();
                     setScrapedJob(response.job);
-                    setIsJobSite(true);
+                    setHasDetectedJob(response.hasDetectedJob === true || hasUsableJobDescription(response.job));
+                    setIsJobSite(response.hasDetectedJob === true || response.hasJobMetadata === true || isLikelyJobSiteUrl(url));
                     return;
                 }
 
                 setScrapedJob(null);
-                setMatchScore(null);
-                setMatchAnalysis(null);
+                setHasDetectedJob(false);
+                setLocalAudit(null);
             });
 
             chrome.tabs.sendMessage(tab.id, { type: 'GET_ATS_CONTEXT' }, (response) => {
@@ -433,155 +729,41 @@ const ExtensionHome: React.FC = () => {
                 setAtsPlatform(null);
             });
         });
-    }, [resetJobDependentState]);
+    }, [clearActiveJobContext, loadActiveJobContext, resetJobDependentState]);
 
     useEffect(() => {
-        if (!resolvedUserId || !scrapedJob?.description || !currentTab?.url) {
-            setMatchScore(null);
-            setMatchAnalysis(null);
-            setAnalysisError(null);
-            setIsCalculatingScore(false);
+        if (!hasActionableJob || !actionableJob?.description || !resumeTextForAnalysis.trim()) {
+            setLocalAudit(null);
+            setIsLocalAuditLoading(false);
             return;
         }
 
-        if (isLoadingResumes) {
-            setMatchScore(null);
-            setMatchAnalysis(null);
-            setAnalysisError(null);
-            setIsCalculatingScore(false);
-            return;
+        setIsLocalAuditLoading(true);
+        const timer = window.setTimeout(() => {
+            setLocalAudit(buildLocalMatchAudit(resumeTextForAnalysis, actionableJob.description || ''));
+            setIsLocalAuditLoading(false);
+        }, 140);
+
+        return () => window.clearTimeout(timer);
+    }, [hasActionableJob, actionableJob?.description, resumeTextForAnalysis]);
+
+    useEffect(() => {
+        if (hasActionableJob && isDiscoveryModalOpen) {
+            setIsDiscoveryModalOpen(false);
         }
+    }, [hasActionableJob, isDiscoveryModalOpen]);
 
-        if (!hasResumeTextForAnalysis) {
-            setMatchScore(null);
-            setMatchAnalysis(null);
-            setAnalysisError('Select or sync a resume before running Gemini match analysis.');
-            setIsCalculatingScore(false);
-            return;
+    useEffect(() => {
+        if (
+            handoffAction &&
+            currentTab?.url &&
+            isCareerVividAppUrl(currentTab.url) &&
+            hasActionableJob &&
+            !isJobContextRefreshing
+        ) {
+            finishHandoffTransition(1400);
         }
-
-        const runAnalysis = async () => {
-            const cacheKey = makeStorageKey('analysis', [
-                currentTab.url,
-                scrapedJob.title,
-                scrapedJob.company,
-                activeResume?.id || selectedResumeId || localProfile?.sourceResumeId || 'default',
-            ]);
-
-            try {
-                setMatchScore(null);
-                setMatchAnalysis(null);
-                setAnalysisError(null);
-                setIsCalculatingScore(true);
-
-                // First check cache
-                const cachedRes = await new Promise<any>((resolve) => {
-                    chrome.storage.local.get([cacheKey], resolve);
-                });
-
-                if (cachedRes && cachedRes[cacheKey]) {
-                    const cachedData = cachedRes[cacheKey];
-                    // Cache TTL: 2 hours
-                    if (Date.now() - cachedData.timestamp < 2 * 60 * 60 * 1000) {
-                        setMatchScore(cachedData.score);
-                        setMatchAnalysis(cachedData.analysis);
-                        setIsCalculatingScore(false);
-                        return;
-                    }
-                }
-
-                // Cache miss — block if the user is out of AI credits
-                if (isOutOfCredits) {
-                    setMatchScore(null);
-                    setMatchAnalysis(null);
-                    setIsCalculatingScore(false);
-                    return;
-                }
-
-                // Truncate job description to 2500 characters for high speed matching
-                const truncatedJd = scrapedJob.description.slice(0, 2500);
-
-                const result = await new Promise<{
-                    success?: boolean;
-                    analysis?: ResumeMatchAnalysis;
-                    credits?: { count: number; limit: number; remaining: number; charged: number };
-                    error?: string;
-                }>((resolve) => {
-                    chrome.runtime.sendMessage({
-                        type: 'ANALYZE_RESUME_MATCH',
-                        resumeText: resumeTextForAnalysis.slice(0, 4000),
-                        jobDescription: truncatedJd,
-                        pageUrl: currentTab.url,
-                        jobTitle: scrapedJob.title || '',
-                        companyName: scrapedJob.company || '',
-                        resumeId: activeResume?.id || selectedResumeId || localProfile?.sourceResumeId || '',
-                    }, (response) => {
-                        const _ = chrome.runtime.lastError;
-                        resolve(response || { success: false, error: 'Extension background service did not respond.' });
-                    });
-                });
-
-                if (!result?.success || !result.analysis) {
-                    throw new Error(result?.error || 'AI match analysis failed.');
-                }
-
-                if (result.credits) {
-                    setRestUserProfile((profile: any) => profile ? {
-                        ...profile,
-                        aiUsage: {
-                            ...(profile.aiUsage || {}),
-                            count: result.credits!.count,
-                            monthlyLimit: result.credits!.limit,
-                        },
-                    } : profile);
-                    refreshAIUsageRef.current().catch(() => {
-                        // Background auth may be the active auth source in the extension side panel.
-                    });
-                }
-
-                const analysis = result.analysis;
-                if (typeof analysis?.matchPercentage === 'number') {
-                    const score = Math.round(analysis.matchPercentage);
-                    setMatchScore(score);
-                    setMatchAnalysis(analysis);
-
-                    // Save to cache
-                    chrome.storage.local.set({
-                        [cacheKey]: {
-                            score,
-                            analysis,
-                            timestamp: Date.now()
-                        }
-                    });
-                }
-            } catch (err) {
-                if (import.meta.env.DEV) {
-                    console.debug('[CareerVivid] Match score calculation failed:', err);
-                }
-                setMatchScore(null);
-                setMatchAnalysis(null);
-                setAnalysisError(err instanceof Error ? err.message : 'Gemini match analysis failed.');
-            } finally {
-                setIsCalculatingScore(false);
-            }
-        };
-
-        runAnalysis();
-    }, [
-        scrapedJob?.description,
-        scrapedJob?.title,
-        scrapedJob?.company,
-        activeResume?.id,
-        localProfile?.sourceResumeId,
-        resumeTextForAnalysis,
-        hasResumeTextForAnalysis,
-        resolvedUserId,
-        currentTab?.url,
-        selectedResumeId,
-        isLoadingResumes,
-        isOutOfCredits,
-        analysisRetryKey,
-    ]);
+    }, [currentTab?.url, finishHandoffTransition, handoffAction, hasActionableJob, isJobContextRefreshing]);
 
     // Listen for FILL_COMPLETE from content script
     useEffect(() => {
@@ -598,6 +780,9 @@ const ExtensionHome: React.FC = () => {
                     setSubmittedJobId(window.location.href);
                 }
             }
+            if (message.type === 'JOB_CONTEXT_LOADING') {
+                setIsJobContextRefreshing(true);
+            }
             if (message.type === 'JOB_CONTEXT_CHANGED') {
                 const applyJobContext = (url: string, title: string) => {
                     if (url && lastTabUrlRef.current !== url) {
@@ -608,7 +793,12 @@ const ExtensionHome: React.FC = () => {
                         setCurrentTab({ url, title });
                         setPrefetchCacheKey(makeStorageKey('prefetch', [url]));
                     }
+                    if (message.job) {
+                        clearActiveJobContext();
+                    }
                     setScrapedJob(message.job || null);
+                    setHasDetectedJob(message.hasDetectedJob === true || hasUsableJobDescription(message.job));
+                    setIsJobContextRefreshing(false);
                     setIsApplicationPage(!!message.context?.isApplicationPage);
                     setAtsPlatform(message.context?.platform || null);
                     setIsJobSite(!!message.job || !!message.context?.isApplicationPage || !!message.context?.platform || isLikelyJobSiteUrl(url));
@@ -627,7 +817,7 @@ const ExtensionHome: React.FC = () => {
         };
         chrome.runtime.onMessage.addListener(handleMessage);
         return () => chrome.runtime.onMessage.removeListener(handleMessage);
-    }, [submittedJobId, scrapedJob, resetJobDependentState]);
+    }, [submittedJobId, scrapedJob, clearActiveJobContext, resetJobDependentState]);
 
     // On mount: get tab info, ATS context, cached profile, prefetch cache
     useEffect(() => {
@@ -822,18 +1012,26 @@ const ExtensionHome: React.FC = () => {
         });
     }, [hasProfile, resolvedUserId, resumes]);
 
+    const openDiscoveryModal = useCallback(() => {
+        setIsDiscoveryModalOpen(true);
+    }, []);
+
     const handleMarkApplied = useCallback(() => {
+        if (!hasActionableJob) {
+            openDiscoveryModal();
+            return;
+        }
         if (markedApplied) return;
         setMarkedApplied(true);
         chrome.runtime.sendMessage({
             type: 'UPDATE_JOB_STATUS',
-            url: currentTab?.url || '',
-            title: scrapedJob?.title || '',
-            company: scrapedJob?.company || '',
+            url: actionJobSourceUrl || currentTab?.url || '',
+            title: actionableJob?.title || '',
+            company: actionableJob?.company || '',
             status: 'Applied',
             stage: 'applied',
         }, () => { const _ = chrome.runtime.lastError; });
-    }, [markedApplied, currentTab, scrapedJob]);
+    }, [hasActionableJob, markedApplied, actionJobSourceUrl, currentTab, actionableJob, openDiscoveryModal]);
 
     const getSelectedResumeContext = () => {
         const activeResume = resumes.find(resume => resume.id === selectedResumeId) || resumes[0];
@@ -843,30 +1041,148 @@ const ExtensionHome: React.FC = () => {
         };
     };
 
-    const buildTrackerTransitPath = (job: ScrapedJob, url: string, stage?: string) => {
+    const persistActiveJobContext = (job: ScrapedJob, pageUrl: string, pageTitle?: string): Promise<ActiveJobContextPayload> => {
         const resumeContext = getSelectedResumeContext();
-        const params = new URLSearchParams({
+        const payload: ActiveJobContextPayload = {
+            source: 'extension_job_context',
+            contextId: `job-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+            createdAt: new Date().toISOString(),
+            expiresAt: Date.now() + 1000 * 60 * 60 * 24,
+            pageUrl,
+            pageTitle: pageTitle || job.title || getDisplayHost(pageUrl),
+            job: {
+                title: job.title || 'Saved job',
+                company: job.company || getDisplayHost(pageUrl),
+                location: job.location || '',
+                description: job.description || '',
+                salary: job.salary || '',
+            },
+            resumeId: resumeContext.resumeId,
+            resumeTitle: resumeContext.resumeTitle,
+        };
+
+        return new Promise(resolve => {
+            chrome.storage.local.set({ [ACTIVE_JOB_CONTEXT_STORAGE_KEY]: payload }, () => {
+                activeJobContextRef.current = payload;
+                setActiveJobContext(payload);
+                resolve(payload);
+            });
+        });
+    };
+
+    const buildTrackerTransitPayload = (job: ScrapedJob, url: string, stage?: string): TrackerTransitPayload => {
+        const resumeContext = getSelectedResumeContext();
+
+        return {
             source: 'extension_tracker',
+            transitId: `cv-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+            createdAt: new Date().toISOString(),
+            expiresAt: Date.now() + 1000 * 60 * 60 * 24,
             url,
+            title: job.title || 'Saved job',
+            company: job.company || getDisplayHost(url),
+            location: job.location || '',
+            salary: job.salary || '',
+            fallbackDescription: job.description || '',
             stage: stage || 'wishlist',
+            resumeId: resumeContext.resumeId,
+            resumeTitle: resumeContext.resumeTitle,
+        };
+    };
+
+    const buildTrackerTransitPathFromPayload = (payload: TrackerTransitPayload) => {
+        const params = new URLSearchParams({
+            source: payload.source,
+            localTransitId: payload.transitId,
+            url: payload.url,
+            stage: payload.stage,
         });
 
-        if (job.description) params.set('fallbackDescription', job.description);
-        if (job.title) params.set('title', job.title);
-        if (job.company) params.set('company', job.company);
-        if (job.location) params.set('location', job.location);
-        if (job.salary) params.set('salary', job.salary);
-        if (resumeContext.resumeId) params.set('resumeId', resumeContext.resumeId);
-        if (resumeContext.resumeTitle) params.set('resumeTitle', resumeContext.resumeTitle);
+        if (payload.title) params.set('title', payload.title);
+        if (payload.company) params.set('company', payload.company);
+        if (payload.location) params.set('location', payload.location);
+        if (payload.salary) params.set('salary', payload.salary);
+        if (payload.resumeId) params.set('resumeId', payload.resumeId);
+        if (payload.resumeTitle) params.set('resumeTitle', payload.resumeTitle);
+        if (payload.fallbackDescription && payload.fallbackDescription.length <= 1500) {
+            params.set('fallbackDescription', payload.fallbackDescription);
+        }
 
         return `/job-tracker?${params.toString()}`;
     };
 
+    const persistTrackerTransitPayload = (payload: TrackerTransitPayload): Promise<void> => {
+        return new Promise(resolve => {
+            chrome.storage.local.get(['trackedJobs'], (stored: any) => {
+                const trackedJobs = Array.isArray(stored.trackedJobs) ? stored.trackedJobs : [];
+                const localEntry = {
+                    title: payload.title,
+                    company: payload.company,
+                    location: payload.location,
+                    salary: payload.salary,
+                    description: payload.fallbackDescription,
+                    url: payload.url,
+                    stage: payload.stage,
+                    status: 'saved',
+                    source: 'extension_tracker',
+                    transitId: payload.transitId,
+                    savedAt: payload.createdAt,
+                };
+                const dedupedJobs = trackedJobs.filter((job: any) => {
+                    if (payload.url && job?.url === payload.url) return false;
+                    return !(job?.title === payload.title && job?.company === payload.company);
+                });
+
+                chrome.storage.local.set({
+                    pendingTrackerTransitPayload: payload,
+                    trackedJobs: [localEntry, ...dedupedJobs].slice(0, 100),
+                }, () => resolve());
+            });
+        });
+    };
+
     const handleAction = async (action: string, stage?: string) => {
-        if (action === 'save_job' && currentTab?.url && scrapedJob) {
+        const saveFallbackJob = buildFallbackJobFromTab(currentTab);
+        const jobForAction = actionableJob || saveFallbackJob;
+        const sourceUrlForAction = actionJobSourceUrl || currentTab?.url || activeJobContext?.pageUrl || '';
+        const sourceTitleForAction = activeJobContext?.pageTitle || currentTab?.title || jobForAction?.title || '';
+        const canSaveFromCurrentPage = action === 'save_job' && Boolean(
+            sourceUrlForAction &&
+            jobForAction &&
+            (actionableJob || isCareerVividAppUrl(currentTab?.url || '') || (saveFallbackJob && (isJobSite || isApplicationPage || isLikelyJobSiteUrl(currentTab?.url || ''))))
+        );
+        const jobBoundActions = new Set<WorkspaceActionId>(['tailor_resume', 'practice_interview', 'cover_letter']);
+        const workspaceAction = action as WorkspaceActionId;
+        if (jobBoundActions.has(workspaceAction) && !hasActionableJob) {
+            openDiscoveryModal();
+            return;
+        }
+
+        if (action === 'save_job' && !canSaveFromCurrentPage) {
+            openDiscoveryModal();
+            return;
+        }
+
+        if ((action === 'save_job' || jobBoundActions.has(workspaceAction)) && jobForAction && sourceUrlForAction) {
+            beginHandoffTransition(workspaceAction);
+        }
+
+        if ((action === 'save_job' || jobBoundActions.has(workspaceAction)) && jobForAction && sourceUrlForAction) {
+            await persistActiveJobContext(jobForAction, sourceUrlForAction, sourceTitleForAction);
+        }
+
+        if (action === 'save_job' && sourceUrlForAction) {
+            const jobForTracker = jobForAction;
+            if (!jobForTracker) {
+                openDiscoveryModal();
+                return;
+            }
+            const trackerTransitPayload = buildTrackerTransitPayload(jobForTracker, sourceUrlForAction, stage);
+            await persistTrackerTransitPayload(trackerTransitPayload);
+
             if (!resolvedUserId) {
-                alert('Please sign in to CareerVivid before saving jobs.');
-                window.open(getAppUrl('/login'), '_blank');
+                window.open(getAppUrl(buildTrackerTransitPathFromPayload(trackerTransitPayload)), '_blank');
+                finishHandoffTransition(1600);
                 return;
             }
             try {
@@ -877,7 +1193,7 @@ const ExtensionHome: React.FC = () => {
                 const token = tokenRes.firebaseIdToken;
 
                 if (!token || token === 'mock-dev-id-token') {
-                    window.open(getAppUrl(buildTrackerTransitPath(scrapedJob, currentTab.url, stage)), '_blank');
+                    window.open(getAppUrl(buildTrackerTransitPathFromPayload(trackerTransitPayload)), '_blank');
                     return;
                 }
 
@@ -887,16 +1203,16 @@ const ExtensionHome: React.FC = () => {
                         type: 'CREATE_TRANSIT_DOC',
                         userId: resolvedUserId,
                         job: {
-                            title: scrapedJob.title || '',
-                            company: scrapedJob.company || '',
-                            location: scrapedJob.location || '',
-                            description: scrapedJob.description || '',
-                            url: currentTab?.url || '',
-                            salary: scrapedJob.salary || '',
+                            title: jobForTracker.title || '',
+                            company: jobForTracker.company || '',
+                            location: jobForTracker.location || '',
+                            description: jobForTracker.description || '',
+                            url: sourceUrlForAction,
+                            salary: jobForTracker.salary || '',
                             stage: stage || 'wishlist',
                             resumeId: resumeContext.resumeId,
                             resumeTitle: resumeContext.resumeTitle,
-                            matchAnalysisJson: resumeContext.resumeId && matchAnalysis ? JSON.stringify(matchAnalysis) : '',
+                            localTransitId: trackerTransitPayload.transitId,
                         }
                     }, (response) => {
                         const _ = chrome.runtime.lastError;
@@ -908,17 +1224,19 @@ const ExtensionHome: React.FC = () => {
                     throw new Error(res?.error || 'Failed to create transit doc');
                 }
 
-                window.open(getAppUrl(`/job-tracker?source=extension_tracker&scrapeId=${res.scrapeId}`), '_blank');
+                window.open(getAppUrl(`/job-tracker?source=extension_tracker&scrapeId=${res.scrapeId}&localTransitId=${trackerTransitPayload.transitId}`), '_blank');
             } catch (error: any) {
                 if (import.meta.env.DEV) {
                     console.debug('Error creating transit doc:', error);
                 }
-                window.open(getAppUrl(buildTrackerTransitPath(scrapedJob, currentTab.url, stage)), '_blank');
+                window.open(getAppUrl(buildTrackerTransitPathFromPayload(trackerTransitPayload)), '_blank');
             } finally {
                 setIsPreparingTransit(false);
+                finishHandoffTransition(1600);
             }
-        } else if (action === 'tailor_resume' && scrapedJob) {
+        } else if (action === 'tailor_resume' && jobForAction) {
             if (!resolvedUserId) {
+                setHandoffAction(null);
                 alert('Please sign in to CareerVivid before tailoring your resume.');
                 window.open(getAppUrl('/login'), '_blank');
                 return;
@@ -943,10 +1261,10 @@ const ExtensionHome: React.FC = () => {
                         type: 'CREATE_TRANSIT_DOC',
                         userId: resolvedUserId,
                         job: {
-                            title: scrapedJob.title || '',
-                            company: scrapedJob.company || '',
-                            description: scrapedJob.description || '',
-                            url: currentTab?.url || '',
+                            title: jobForAction.title || '',
+                            company: jobForAction.company || '',
+                            description: jobForAction.description || '',
+                            url: sourceUrlForAction,
                             resumeId: resumeContext.resumeId,
                             resumeTitle: resumeContext.resumeTitle,
                         }
@@ -968,18 +1286,20 @@ const ExtensionHome: React.FC = () => {
                 }
             } catch (error: any) {
                 const targetResumeId = selectedResumeId || resumes[0]?.id;
-                chrome.storage.local.set({ pending_tailor_jd: scrapedJob.description || '' }, () => {
+                chrome.storage.local.set({ pending_tailor_jd: jobForAction.description || '' }, () => {
                     if (targetResumeId) {
-                        window.open(getAppUrl(`/edit/${targetResumeId}?source=extension_tailor&jobTitle=${encodeURIComponent(scrapedJob.title)}&fallbackDescription=${encodeURIComponent(scrapedJob.description || '')}`), '_blank');
+                        window.open(getAppUrl(`/edit/${targetResumeId}?source=extension_tailor&jobTitle=${encodeURIComponent(jobForAction.title)}&fallbackDescription=${encodeURIComponent(jobForAction.description || '')}`), '_blank');
                     } else {
-                        window.open(getAppUrl(`/newresume?source=extension_tailor&jobTitle=${encodeURIComponent(scrapedJob.title)}&fallbackDescription=${encodeURIComponent(scrapedJob.description || '')}`), '_blank');
+                        window.open(getAppUrl(`/newresume?source=extension_tailor&jobTitle=${encodeURIComponent(jobForAction.title)}&fallbackDescription=${encodeURIComponent(jobForAction.description || '')}`), '_blank');
                     }
                 });
             } finally {
                 setIsPreparingTransit(false);
+                finishHandoffTransition(1600);
             }
-        } else if (action === 'practice_interview' && scrapedJob) {
+        } else if (action === 'practice_interview' && jobForAction) {
             if (!resolvedUserId) {
+                setHandoffAction(null);
                 alert('Please sign in to CareerVivid before practicing interviews.');
                 window.open(getAppUrl('/login'), '_blank');
                 return;
@@ -1004,10 +1324,10 @@ const ExtensionHome: React.FC = () => {
                         type: 'CREATE_TRANSIT_DOC',
                         userId: resolvedUserId,
                         job: {
-                            title: scrapedJob.title || '',
-                            company: scrapedJob.company || '',
-                            description: scrapedJob.description || '',
-                            url: currentTab?.url || '',
+                            title: jobForAction.title || '',
+                            company: jobForAction.company || '',
+                            description: jobForAction.description || '',
+                            url: sourceUrlForAction,
                             resumeId: resumeContext.resumeId,
                             resumeTitle: resumeContext.resumeTitle,
                         }
@@ -1029,7 +1349,7 @@ const ExtensionHome: React.FC = () => {
                 }
             } catch (error: any) {
                 const targetResumeId = selectedResumeId || resumes[0]?.id;
-                const cleanTitle = scrapedJob.title ? encodeURIComponent(scrapedJob.title.replace(/\(.*\)/, '').trim()) : 'General';
+                const cleanTitle = jobForAction.title ? encodeURIComponent(jobForAction.title.replace(/\(.*\)/, '').trim()) : 'General';
                 if (targetResumeId) {
                     window.open(getAppUrl(`/interview-studio/new?role=${cleanTitle}&resumeId=${targetResumeId}`), '_blank');
                 } else {
@@ -1037,9 +1357,11 @@ const ExtensionHome: React.FC = () => {
                 }
             } finally {
                 setIsPreparingTransit(false);
+                finishHandoffTransition(1600);
             }
-        } else if (action === 'cover_letter' && scrapedJob) {
+        } else if (action === 'cover_letter' && jobForAction) {
             if (!resolvedUserId) {
+                setHandoffAction(null);
                 alert('Please sign in to CareerVivid before generating a cover letter.');
                 window.open(getAppUrl('/login'), '_blank');
                 return;
@@ -1068,10 +1390,10 @@ const ExtensionHome: React.FC = () => {
                         type: 'CREATE_TRANSIT_DOC',
                         userId: resolvedUserId,
                         job: {
-                            title: scrapedJob.title || '',
-                            company: scrapedJob.company || '',
-                            description: scrapedJob.description || '',
-                            url: currentTab?.url || '',
+                            title: jobForAction.title || '',
+                            company: jobForAction.company || '',
+                            description: jobForAction.description || '',
+                            url: sourceUrlForAction,
                             stage: 'applying',
                             resumeId: resumeContext.resumeId,
                             resumeTitle: resumeContext.resumeTitle,
@@ -1101,6 +1423,7 @@ const ExtensionHome: React.FC = () => {
                 }
             } finally {
                 setIsPreparingTransit(false);
+                finishHandoffTransition(1600);
             }
         } else if (action === 'new_resume') {
             window.open(getResumeBuilderUrl(), '_blank');
@@ -1110,6 +1433,19 @@ const ExtensionHome: React.FC = () => {
     const hasNoResumes = !isLoadingResumes && resumes.length === 0;
     const isGuest = isAuthResolved && !resolvedUserId;
     const needsResume = isAuthResolved && !!resolvedUserId && !isLoadingResumes && resumes.length === 0;
+    const activeHost = getDisplayHost(canUseStoredContextForTab ? activeJobContext?.pageUrl : currentTab?.url);
+    const shouldShowJobWorkspace = hasActionableJob && Boolean(actionableJob);
+    const isHandoffActive = Boolean(handoffAction || isPreparingTransit);
+    const isActionBusy = (action: WorkspaceActionId) => handoffAction === action;
+    const getActionCardClass = (action: WorkspaceActionId, hoverBorderClass: string) => {
+        const active = isActionBusy(action);
+        return [
+            'group flex min-h-[148px] flex-col items-start p-2.5 rounded-[22px] border shadow-[0_12px_26px_rgba(15,23,42,0.05)] transition-all duration-300 disabled:cursor-wait disabled:opacity-75 dark:shadow-none',
+            active
+                ? 'border-[#a7a2f0] bg-[#fbfbff] shadow-[0_16px_30px_rgba(98,91,213,0.13)] dark:border-[#6862a7] dark:bg-[#302f49]/55'
+                : `border-[#dce2ec] bg-white hover:shadow-[0_16px_30px_rgba(15,23,42,0.07)] ${hoverBorderClass} dark:border-[#3a3834] dark:bg-[#262522] dark:hover:bg-[#302e2a]`,
+        ].join(' ');
+    };
 
     // ── Gate: Loading ──────────────────────────────────────────────────────────
     if (!isAuthResolved || authLoading) {
@@ -1236,16 +1572,6 @@ const ExtensionHome: React.FC = () => {
 
     return (
         <div className="min-h-[540px] h-screen w-full bg-[#f8f8fb] flex flex-col font-sans text-gray-900 relative overflow-hidden dark:bg-[#1f1f1d] dark:text-[#f4f1e9]">
-            {isPreparingTransit && (
-                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-6 text-center dark:bg-[#1f1f1d]/85">
-                    <Loader2 className="w-12 h-12 text-[#625bd5] animate-spin mb-4" />
-                    <h3 className="font-semibold text-gray-900 text-base dark:text-[#f4f1e9]">Syncing job details</h3>
-                    <p className="text-xs text-gray-500 mt-2 max-w-[240px] dark:text-[#aaa39a]">
-                        Preparing your CareerVivid workspace...
-                    </p>
-                </div>
-            )}
-
             {/* Modular Header */}
             <ExtensionHeader
                 userProfile={userProfile}
@@ -1281,23 +1607,61 @@ const ExtensionHome: React.FC = () => {
                     </div>
                 )}
 
-                <MatchBreakdownCard
-                    matchScore={matchScore}
-                    matchAnalysis={matchAnalysis}
-                    isCalculatingScore={isCalculatingScore}
-                    isJobSite={isJobSite}
-                    scrapedJob={scrapedJob}
-                    onSaveJob={(stage) => handleAction('save_job', stage)}
-                    onNewResume={() => handleAction('new_resume')}
-                    aiUsage={effectiveAIUsage ?? undefined}
-                    selectedResumeTitle={activeResumeTitle}
-                    hasResumeContext={hasResumeTextForAnalysis}
-                    analysisError={analysisError}
-                    onRetryAnalysis={() => setAnalysisRetryKey(value => value + 1)}
-                />
+                {!shouldShowJobWorkspace && (
+                    <div className="flex items-center gap-3 rounded-full border border-[#dce2ec] bg-white px-3.5 py-3 text-slate-900 shadow-[0_8px_20px_rgba(15,23,42,0.08)] dark:border-[#3a3834] dark:bg-[#262522] dark:text-[#f4f1e9]">
+                        <span className="h-2 w-2 flex-shrink-0 rounded-full bg-[#94a3b8]" />
+                        <Search size={18} className="flex-shrink-0 text-[#43546d] dark:text-[#c9c3ba]" />
+                        <span className="min-w-0 flex-1 truncate text-base font-semibold text-[#43546d] dark:text-[#f4f1e9]">
+                            Unsupported page
+                        </span>
+                        <span className="max-w-[132px] truncate text-sm font-semibold text-[#6b7280] dark:text-[#aaa39a]">
+                            {activeHost}
+                        </span>
+                    </div>
+                )}
+
+                {isHandoffActive && shouldShowJobWorkspace && (
+                    <WorkspaceHandoffCard
+                        action={handoffAction}
+                        jobTitle={actionableJob?.title}
+                    />
+                )}
+
+                {shouldShowJobWorkspace ? (
+                    <>
+                        <MatchBreakdownCard
+                            isJobSite={isJobSite}
+                            scrapedJob={actionableJob}
+                        />
+                        <LocalDeepDiveAudit
+                            audit={localAudit}
+                            isLoading={!isHandoffActive && (isJobContextRefreshing || isLocalAuditLoading)}
+                        />
+                    </>
+                ) : (
+                    <section className="rounded-[24px] border border-[#dce2ec] bg-white p-4 shadow-[0_14px_30px_rgba(15,23,42,0.06)] dark:border-[#3a3834] dark:bg-[#262522] dark:shadow-none">
+                        <span className="inline-flex items-center gap-2 rounded-full border border-[#dce2ec] bg-white px-3 py-1.5 text-xs font-semibold text-[#43546d] dark:border-[#3a3834] dark:bg-[#302e2a] dark:text-[#c9c3ba]">
+                            <Search size={13} />
+                            No job detected
+                        </span>
+                        <h2 className="mt-4 text-[22px] font-semibold leading-tight text-slate-950 dark:text-[#f4f1e9]">
+                            Open a job page to unlock actions
+                        </h2>
+                        <p className="mt-3 text-base leading-relaxed text-[#64748b] dark:text-[#aaa39a]">
+                            Save, tailor, cover letters, and mock interviews need a live job description.
+                        </p>
+                        <button
+                            onClick={openDiscoveryModal}
+                            className="mt-6 flex w-full items-center justify-center gap-3 rounded-[18px] bg-[#050817] px-4 py-4 text-lg font-semibold text-white shadow-[0_16px_28px_rgba(5,8,23,0.14)] transition-all hover:bg-black active:scale-[0.99] dark:bg-[#f4f1e9] dark:text-[#1f1f1d] dark:shadow-none"
+                        >
+                            <Search size={20} />
+                            Find a job page
+                        </button>
+                    </section>
+                )}
 
                 {/* ── Mark as Applied ── */}
-                {isApplicationPage && (
+                {isApplicationPage && hasActionableJob && (
                     <button
                         onClick={handleMarkApplied}
                         disabled={markedApplied}
@@ -1325,28 +1689,51 @@ const ExtensionHome: React.FC = () => {
                     </button>
                 )}
 
-                {/* ── Secondary Actions ── */}
-                <div className="grid grid-cols-2 gap-3">
+                {/* ── Core Workspace Actions ── */}
+                <div className="grid grid-cols-3 gap-2">
                     <button
-                        onClick={() => handleAction(isJobSite ? 'tailor_resume' : 'new_resume')}
-                        className="group flex flex-col items-start p-3 bg-white rounded-[20px] border border-[#ececf4] shadow-[0_10px_22px_rgba(15,23,42,0.05)] hover:shadow-[0_14px_26px_rgba(15,23,42,0.07)] hover:border-[#d9d7fb] transition-all duration-300 dark:border-[#3a3834] dark:bg-[#262522] dark:shadow-none dark:hover:border-[#4d4a73] dark:hover:bg-[#302e2a]"
+                        onClick={() => handleAction('save_job')}
+                        disabled={isPreparingTransit}
+                        aria-busy={isActionBusy('save_job')}
+                        className={getActionCardClass('save_job', 'hover:border-[#c8c7f4] dark:hover:border-[#4d4a73]')}
                     >
-                        <div className="p-2 rounded-xl bg-[#f3f2ff] text-[#625bd5] mb-2 group-hover:scale-105 transition-transform dark:bg-[#302f49] dark:text-[#b8b3ff]">
-                            <Wand2 size={18} />
+                        <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-2xl bg-[#eef0ff] text-[#625bd5] transition-transform group-hover:scale-105 dark:bg-[#302f49] dark:text-[#b8b3ff]">
+                            {isActionBusy('save_job') ? <Loader2 size={17} className="animate-spin" /> : <Briefcase size={17} />}
                         </div>
-                        <span className="font-semibold text-gray-900 text-sm dark:text-[#f4f1e9]">Tailor resume</span>
-                        <span className="text-[10px] text-gray-500 mt-0.5 dark:text-[#aaa39a]">Match keywords</span>
+                        <span className="text-left text-[12px] font-semibold leading-tight text-gray-900 dark:text-[#f4f1e9]">Save to Job Tracker</span>
+                        <span className="mt-1 text-left text-[10px] leading-snug text-gray-500 dark:text-[#aaa39a]">
+                            Instantly log this role to your central pipeline to monitor application updates, deadlines, and follow-ups.
+                        </span>
+                    </button>
+
+                    <button
+                        onClick={() => handleAction('tailor_resume')}
+                        disabled={isPreparingTransit}
+                        aria-busy={isActionBusy('tailor_resume')}
+                        className={getActionCardClass('tailor_resume', 'hover:border-[#d9d7fb] dark:hover:border-[#4d4a73]')}
+                    >
+                        <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-2xl bg-[#fbf2ff] text-[#8f3df0] transition-transform group-hover:scale-105 dark:bg-[#302f49] dark:text-[#b8b3ff]">
+                            {isActionBusy('tailor_resume') ? <Loader2 size={17} className="animate-spin" /> : <Wand2 size={17} />}
+                        </div>
+                        <span className="text-left text-[12px] font-semibold leading-tight text-gray-900 dark:text-[#f4f1e9]">Tailor resume</span>
+                        <span className="mt-1 text-left text-[10px] leading-snug text-gray-500 dark:text-[#aaa39a]">
+                            {hasActionableJob ? 'Adapt this resume around the strongest role keywords.' : 'Open a job page first.'}
+                        </span>
                     </button>
 
                     <button
                         onClick={() => handleAction('practice_interview')}
-                        className="group flex flex-col items-start p-3 bg-white rounded-[20px] border border-[#ececf4] shadow-[0_10px_22px_rgba(15,23,42,0.05)] hover:shadow-[0_14px_26px_rgba(15,23,42,0.07)] hover:border-[#f4d6e7] transition-all duration-300 dark:border-[#3a3834] dark:bg-[#262522] dark:shadow-none dark:hover:border-[#5a3b4a] dark:hover:bg-[#302e2a]"
+                        disabled={isPreparingTransit}
+                        aria-busy={isActionBusy('practice_interview')}
+                        className={getActionCardClass('practice_interview', 'hover:border-[#f4d6e7] dark:hover:border-[#5a3b4a]')}
                     >
-                        <div className="p-2 rounded-xl bg-[#fff0f7] text-[#d95b92] mb-2 group-hover:scale-105 transition-transform dark:bg-[#3a2630] dark:text-[#ff9ac4]">
-                            <Mic size={18} />
+                        <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-2xl bg-[#fff0f7] text-[#d95b92] transition-transform group-hover:scale-105 dark:bg-[#3a2630] dark:text-[#ff9ac4]">
+                            {isActionBusy('practice_interview') ? <Loader2 size={17} className="animate-spin" /> : <Mic size={17} />}
                         </div>
-                        <span className="font-semibold text-gray-900 text-sm dark:text-[#f4f1e9]">Practice</span>
-                        <span className="text-[10px] text-gray-500 mt-0.5 dark:text-[#aaa39a]">Mock interview</span>
+                        <span className="text-left text-[12px] font-semibold leading-tight text-gray-900 dark:text-[#f4f1e9]">Practice</span>
+                        <span className="mt-1 text-left text-[10px] leading-snug text-gray-500 dark:text-[#aaa39a]">
+                            Build a focused mock interview from this job context.
+                        </span>
                     </button>
                 </div>
 
@@ -1376,7 +1763,7 @@ const ExtensionHome: React.FC = () => {
                                 <div className="flex-1 min-w-0">
                                     <div className="text-sm font-semibold text-gray-900 truncate dark:text-[#f4f1e9]">{resume.title || 'Untitled'}</div>
                                     {selectedResumeId === resume.id && (
-                                        <div className="text-[10px] text-[#625bd5] font-semibold dark:text-[#b8b3ff]">Active resume</div>
+                                        <div className="text-[10px] text-[#625bd5] font-semibold dark:text-[#b8b3ff]">Used for autofill</div>
                                     )}
                                 </div>
                                 <ExternalLink size={12} className="text-gray-300 group-hover:text-[#8d88e6] flex-shrink-0 dark:text-[#6d675f] dark:group-hover:text-[#b8b3ff]" />
@@ -1425,8 +1812,8 @@ const ExtensionHome: React.FC = () => {
             </main>
 
             {/* Footer — Quick Actions */}
-            <footer className="px-3.5 pt-3 pb-3 bg-white/95 backdrop-blur border-t border-[#ececf4] sticky bottom-0 z-10 dark:border-[#3a3834] dark:bg-[#1f1f1d]/95">
-                <div className="grid grid-cols-4 gap-2 mb-2.5">
+            <footer className="px-3.5 pt-3 pb-4 bg-white/95 backdrop-blur sticky bottom-0 z-10 dark:bg-[#1f1f1d]/95">
+                <div className="grid grid-cols-4 gap-1.5 rounded-[28px] bg-[#f1f4f8] px-2.5 py-3 dark:bg-[#262522]">
                     {[
                         { label: 'New resume',   icon: FileText,        color: 'bg-[#eef0ff] text-[#625bd5] dark:bg-[#302f49] dark:text-[#b8b3ff]', action: () => handleAction('new_resume') },
                         { label: 'Cover letter', icon: Mail,            color: 'bg-[#f3f2ff] text-[#7069dc] dark:bg-[#302f49] dark:text-[#b8b3ff]', action: () => handleAction('cover_letter') },
@@ -1436,16 +1823,24 @@ const ExtensionHome: React.FC = () => {
                         <button
                             key={label}
                             onClick={action}
-                            className="group flex flex-col items-center gap-1 py-2 rounded-xl hover:bg-gray-50 transition-colors dark:hover:bg-[#262522]"
+                            className="group flex flex-col items-center gap-1.5 py-1.5 rounded-2xl hover:bg-white/80 transition-colors dark:hover:bg-[#302e2a]"
                         >
-                            <div className={`h-9 w-9 rounded-xl flex items-center justify-center ${color} group-hover:scale-105 transition-transform`}>
+                            <div className={`h-9 w-9 rounded-2xl flex items-center justify-center ${color} group-hover:scale-105 transition-transform`}>
                                 <Icon size={15} />
                             </div>
-                            <span className="text-[9px] font-semibold text-gray-500 leading-none dark:text-[#aaa39a]">{label}</span>
+                            <span className="text-[10px] font-semibold text-[#64748b] leading-none dark:text-[#aaa39a]">{label}</span>
                         </button>
                     ))}
                 </div>
             </footer>
+
+            <JobDiscoveryModal
+                open={isDiscoveryModalOpen}
+                onClose={() => setIsDiscoveryModalOpen(false)}
+                routes={jobBoardRoutes}
+                queryResult={jobBoardQueryResult}
+                activeResumeTitle={activeResumeTitle}
+            />
         </div>
     );
 };
