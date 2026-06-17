@@ -16,9 +16,9 @@ const requiredManifest = {
 }
 
 const requiredBundleStrings = [
-  'Tailor Resume',
+  'Tailor resume',
   'Practice',
-  'Open Dashboard',
+  'Dashboard',
   'HYDRATE_AUTH',
   'GENERATE_AI_ANSWERS',
   'CREATE_TRANSIT_DOC',
