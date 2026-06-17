@@ -71,9 +71,30 @@ export const ExtensionHeader: React.FC<ExtensionHeaderProps> = ({
         currentUser?.displayName ||
         'CareerVivid User';
     const email = userProfile?.email || currentUser?.email || localProfile?.email || '';
+    const providerPhotoURL = currentUser?.providerData?.find((provider: any) => provider?.photoURL)?.photoURL || null;
+    const profilePhotoURL =
+        userProfile?.photoURL ||
+        userProfile?.photoUrl ||
+        userProfile?.picture ||
+        userProfile?.photo ||
+        userProfile?.imageUrl ||
+        userProfile?.imageURL ||
+        null;
+    const profileAvatarUrl =
+        userProfile?.avatarUrl ||
+        userProfile?.avatarURL ||
+        userProfile?.avatar ||
+        localProfile?.avatarUrl ||
+        localProfile?.avatarURL ||
+        localProfile?.avatar ||
+        localProfile?.photoURL ||
+        localProfile?.photoUrl ||
+        localProfile?.picture ||
+        localProfile?.photo ||
+        null;
     const avatarUrl = getPreferredUserAvatar({
-        photoURL: userProfile?.photoURL || currentUser?.photoURL || localPhotoURL,
-        avatarUrl: userProfile?.avatarUrl,
+        photoURL: profilePhotoURL || currentUser?.photoURL || providerPhotoURL || localPhotoURL,
+        avatarUrl: profileAvatarUrl,
         displayName,
         firstName: userProfile?.firstName || localProfile?.firstName,
         email,

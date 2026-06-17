@@ -11,7 +11,7 @@ import { FREE_PLAN_CREDIT_LIMIT, PRO_PLAN_CREDIT_LIMIT, PRO_MAX_PLAN_CREDIT_LIMI
 
 // Extracted Sub-Components
 import { ExtensionHeader } from '../components/ExtensionHeader';
-import { AutoFillCard, AutoFillResult } from '../components/AutoFillCard';
+import type { AutoFillResult } from '../components/AutoFillCard';
 import { MatchBreakdownCard } from '../components/MatchBreakdownCard';
 import { AIAnswerCard, AIAnswer } from '../components/AIAnswerCard';
 
@@ -1145,58 +1145,6 @@ const ExtensionHome: React.FC = () => {
 
             <main className="flex-1 px-3.5 py-3 space-y-3 overflow-y-auto">
 
-                {/* ── Modular AutoFill Card (Application Pages) ── */}
-                <AutoFillCard
-                    isApplicationPage={isApplicationPage}
-                    atsPlatform={atsPlatform}
-                    hasProfile={hasProfile}
-                    selectedResumeId={selectedResumeId}
-                    resumes={resumes}
-                    onSelectResume={(newResumeId) => {
-                        setSelectedResumeId(newResumeId);
-                        chrome.storage.local.set({ selectedResumeId: newResumeId });
-                        if (resolvedUserId) {
-                            chrome.runtime.sendMessage({
-                                type: 'SYNC_PROFILE',
-                                userId: resolvedUserId,
-                                resumeId: newResumeId
-                            }, (res) => {
-                                const _ = chrome.runtime.lastError;
-                            });
-                        }
-                    }}
-                    fillResult={fillResult}
-                />
-
-                {/* ── Mark as Applied ── */}
-                {isApplicationPage && (
-                    <button
-                        onClick={handleMarkApplied}
-                        disabled={markedApplied}
-                        className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl text-sm font-semibold border transition-all duration-300 ${
-                            markedApplied
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 cursor-default'
-                                : 'bg-white text-slate-700 border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 shadow-sm hover:shadow-emerald-100'
-                        }`}
-                    >
-                        {markedApplied ? (
-                            <>
-                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <polyline points="20 6 9 17 4 12" />
-                                </svg>
-                                Applied - tracked
-                            </>
-                        ) : (
-                            <>
-                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <polyline points="20 6 9 17 4 12" />
-                                </svg>
-                                Mark as applied
-                            </>
-                        )}
-                    </button>
-                )}
-
                 {/* ── AI Credit Error Banner ── */}
                 {aiError && (
                     <div className="rounded-2xl border border-amber-200 bg-amber-50 px-3.5 py-3 flex items-start gap-2.5 shadow-sm">
@@ -1232,6 +1180,35 @@ const ExtensionHome: React.FC = () => {
                     onNewResume={() => handleAction('new_resume')}
                     aiUsage={effectiveAIUsage ?? undefined}
                 />
+
+                {/* ── Mark as Applied ── */}
+                {isApplicationPage && (
+                    <button
+                        onClick={handleMarkApplied}
+                        disabled={markedApplied}
+                        className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl text-sm font-semibold border transition-all duration-300 ${
+                            markedApplied
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 cursor-default'
+                                : 'bg-white text-slate-700 border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 shadow-sm hover:shadow-emerald-100'
+                        }`}
+                    >
+                        {markedApplied ? (
+                            <>
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                                Applied - tracked
+                            </>
+                        ) : (
+                            <>
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                                Mark as applied
+                            </>
+                        )}
+                    </button>
+                )}
 
                 {/* ── Secondary Actions ── */}
                 <div className="grid grid-cols-2 gap-3">
