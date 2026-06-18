@@ -6,6 +6,7 @@ import CommunityShowcaseHero from '../components/Landing/CommunityShowcaseHero';
 import {
     FAQSection,
     FinalCTA,
+    DemoVideoSection,
     ProductIndex,
     ProofSection,
     TeamsAndTrustSection,
@@ -104,6 +105,7 @@ const LandingPage: React.FC = () => (
         <main>
             <CommunityShowcaseHero />
             <ProductIndex />
+            <DemoVideoSection />
             <UserStoriesSection />
             <ProofSection />
             <WorkflowSection />

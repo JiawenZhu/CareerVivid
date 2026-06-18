@@ -12,7 +12,7 @@ const developmentOrigins = new Set([
 
 const requiredManifest = {
   name: 'CareerVivid - Job Tracker & AI Career Coach',
-  version: '2.1.1'
+  version: '3.1.1'
 }
 
 const requiredBundleStrings = [

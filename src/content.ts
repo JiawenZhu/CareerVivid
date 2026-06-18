@@ -29,6 +29,13 @@ type CareerVividAuthPayload = {
   apiKey?: string | null;
 };
 
+declare global {
+  interface Window {
+    __careerVividContentScriptBooted?: boolean;
+    __careerVividAuthSyncStarted?: boolean;
+  }
+}
+
 function sendRuntimeMessage<T = any>(
   message: any,
   callback?: (response: T | undefined) => void
@@ -1465,8 +1472,10 @@ function startCareerVividAuthSync(): void {
     isCareerVividWebApp();
 
   if (!isCareerVividSite) return;
+  if (window.__careerVividAuthSyncStarted) return;
+  window.__careerVividAuthSyncStarted = true;
 
-  console.log('[CareerVivid Extension] Main site detected. Starting IndexedDB auth sync.');
+  console.debug('[CareerVivid Extension] Main site detected. Starting IndexedDB auth sync.');
 
   let lastToken = '';
   let missedChecks = 0;
@@ -1602,35 +1611,6 @@ function parseFirebaseIndexedDbValue(value: any): any {
     return JSON.parse(value);
   } catch (_) {
     return null;
-  }
-}
-
-function checkAuthStatus(callback?: () => void): void {
-  let resolved = false;
-
-  const timeout = setTimeout(() => {
-    if (!resolved) {
-      resolved = true;
-      console.warn('[CareerVivid] Auth check timed out after 500ms. Defaulting to unauthenticated state.');
-      isUserAuthenticated = false;
-      callback?.();
-    }
-  }, 500);
-
-  const sent = sendRuntimeMessage<{ isAuthenticated: boolean }>({ type: 'CHECK_AUTH_STATUS' }, (res) => {
-    if (!resolved) {
-      resolved = true;
-      clearTimeout(timeout);
-      isUserAuthenticated = res?.isAuthenticated === true;
-      callback?.();
-    }
-  });
-
-  if (!sent && !resolved) {
-    resolved = true;
-    clearTimeout(timeout);
-    isUserAuthenticated = false;
-    callback?.();
   }
 }
 
@@ -2043,31 +2023,31 @@ async function silentPrefetch(): Promise<void> {
  */
 async function safeInit(): Promise<void> {
   try {
+    if (window.__careerVividContentScriptBooted) return;
+    window.__careerVividContentScriptBooted = true;
+
+    if (isCareerVividWebApp()) {
+      startCareerVividAuthSync();
+      startTrackerTransitBridge();
+      return;
+    }
+
+    const context = getATSContext();
+    const shouldRunJobTools = isSupportedJobBoardPage() || context.isApplicationPage || context.isJobListingPage;
+    if (!shouldRunJobTools) return;
+
     injectStyles();
+    startInjectionWindow();
+    setupSpaNavigationListener();
+    startJobContextObserver();
 
-    checkAuthStatus(async () => {
-      try {
-        startInjectionWindow();
-        setupSpaNavigationListener();
-        startJobContextObserver();
-
-        if (isCareerVividWebApp()) {
-          startCareerVividAuthSync();
-          startTrackerTransitBridge();
-        }
-
-        const context = getATSContext();
-        if (context.isApplicationPage) {
-          setTimeout(() => {
-            silentPrefetch().catch(e => {
-              console.debug('[CareerVivid] Safe prefetch skipped:', e);
-            });
-          }, 1500);
-        }
-      } catch (innerError) {
-        console.error('[CareerVivid] Safe initialization callback failed:', innerError);
-      }
-    });
+    if (context.isApplicationPage) {
+      setTimeout(() => {
+        silentPrefetch().catch(e => {
+          console.debug('[CareerVivid] Safe prefetch skipped:', e);
+        });
+      }, 1500);
+    }
 
   } catch (outerError) {
     console.error('[CareerVivid] Unhandled content script boot error:', outerError);

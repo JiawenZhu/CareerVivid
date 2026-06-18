@@ -13,6 +13,7 @@ import {
     LayoutDashboard,
     Lock,
     Mic,
+    PlayCircle,
     Search,
     ShieldCheck,
     Sparkles,
@@ -157,6 +158,63 @@ export const ProductIndex = () => (
             ))}
         </div>
     </section>
+);
+
+export const DemoVideoSection = () => (
+    <PaperSection className="py-14 sm:py-20">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.72fr_1.28fr] lg:items-center lg:px-8">
+            <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#e4d3bc] bg-[#fffaf1]/88 px-3 py-2 text-xs font-bold text-[#8a6027] shadow-sm">
+                    <PlayCircle size={15} className="text-[#625bd5]" />
+                    Product walkthrough
+                </div>
+                <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[#211b16] sm:text-4xl">
+                    See the Chrome-to-workspace flow in action.
+                </h2>
+                <p className="mt-4 text-base font-medium leading-7 text-[#665a4a]">
+                    Watch how CareerVivid keeps a saved job, resume tailoring, and interview prep connected in one application workspace.
+                </p>
+                <div className="mt-6 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                    {[
+                        ['Capture', 'Save the role from Chrome.'],
+                        ['Tailor', 'Load the job into your resume.'],
+                        ['Practice', 'Prepare from the same context.'],
+                    ].map(([label, copy]) => (
+                        <div key={label} className="rounded-xl border border-[#e4d3bc] bg-[#fffaf1]/88 p-4 shadow-sm">
+                            <p className="text-sm font-semibold text-[#211b16]">{label}</p>
+                            <p className="mt-1 text-xs font-semibold leading-5 text-[#665a4a]">{copy}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="rounded-[22px] border border-[#e4d3bc] bg-[#fffaf1]/90 p-2 shadow-2xl shadow-[#8b5a16]/10 sm:p-3">
+                <div className="overflow-hidden rounded-2xl border border-[#eadbc5] bg-[#211b16]">
+                    <div className="flex items-center justify-between border-b border-white/10 bg-[#2b241d] px-3 py-2 sm:px-4">
+                        <div className="flex items-center gap-2" aria-hidden="true">
+                            <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
+                            <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+                            <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+                        </div>
+                        <span className="rounded-full border border-white/10 bg-white/8 px-3 py-1 text-[11px] font-semibold text-[#f4f1e9]">
+                            CareerVivid demo
+                        </span>
+                    </div>
+                    <div className="relative aspect-video w-full bg-[#211b16]">
+                        <iframe
+                            className="absolute inset-0 h-full w-full"
+                            src="https://www.youtube.com/embed/8LhKxfBjvfg?si=KNGiuzfLSUk-OPqC"
+                            title="CareerVivid Chrome extension and job-search workspace demo"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            allowFullScreen
+                            loading="lazy"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </PaperSection>
 );
 
 export const ProofSection = () => (

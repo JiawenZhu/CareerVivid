@@ -204,7 +204,7 @@ const MockInterviewPreview = () => (
 );
 
 const JobPipelinePreview = () => (
-    <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(220px,250px)]">
+    <div className="grid gap-0">
         <div className="min-w-0 p-3 sm:p-4">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                 <div>
@@ -232,26 +232,26 @@ const JobPipelinePreview = () => (
                 </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {[
-                    { title: 'To Apply', count: 3, color: 'bg-[#7d6e5e]', cards: [['Senior UX Engineer', 'Google', '61% match']] },
+                    { title: 'To apply', count: 3, color: 'bg-[#7d6e5e]', cards: [['Senior UX Engineer', 'Google', '61% match']] },
                     { title: 'Applied', count: 33, color: 'bg-[#625bd5]', cards: [['AI Systems Engineer', 'OpenAI', '86% match']] },
-                    { title: 'Interviewing', count: 0, color: 'bg-[#a97935]', cards: [['When interviews start', 'Drop jobs here', '']] },
+                    { title: 'Interview', count: 0, color: 'bg-[#a97935]', cards: [['When interviews start', 'Drop jobs here', '']] },
                 ].map((column) => (
-                    <div key={column.title} className="min-h-[132px] min-w-0 overflow-hidden rounded-xl border border-[#eadbc5] bg-[#f9efe0]/70 p-2.5">
-                        <div className="mb-3 flex items-start justify-between gap-2">
-                            <span className="flex min-w-0 items-center gap-1.5 text-[12px] font-semibold leading-tight text-[#211b16]">
+                    <div key={column.title} className="min-h-[150px] min-w-0 overflow-hidden rounded-xl border border-[#eadbc5] bg-[#f9efe0]/70 p-2 sm:p-2.5">
+                        <div className="mb-2 flex items-center justify-between gap-1.5">
+                            <span className="flex min-w-0 items-center gap-1.5 text-[11px] font-semibold leading-tight text-[#211b16] sm:text-xs">
                                 <span className={`h-2 w-2 shrink-0 rounded-full ${column.color}`} />
-                                <span className="break-words">{column.title}</span>
+                                <span className="truncate">{column.title}</span>
                             </span>
-                            <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-xs font-bold text-[#665a4a] shadow-sm">{column.count}</span>
+                            <span className="shrink-0 rounded-full bg-white px-1.5 py-0.5 text-[11px] font-bold leading-none text-[#665a4a] shadow-sm sm:px-2 sm:text-xs">{column.count}</span>
                         </div>
                         <div className="space-y-2">
                             {column.cards.map(([role, company, meta]) => (
-                                <div key={`${company}-${role}`} className="min-w-0 rounded-lg border border-[#eadbc5] bg-white/90 p-2.5 shadow-sm">
-                                    <p className="break-words text-[13px] font-semibold leading-tight text-[#211b16]">{role}</p>
-                                    <p className="mt-1 break-words text-xs font-semibold text-[#665a4a]">{company}</p>
-                                    {meta && <p className="mt-2 text-xs font-bold text-[#625bd5]">{meta}</p>}
+                                <div key={`${company}-${role}`} className="min-w-0 rounded-lg border border-[#eadbc5] bg-white/90 p-2 shadow-sm sm:p-2.5">
+                                    <p className="break-words text-[12px] font-semibold leading-snug text-[#211b16] sm:text-[13px]">{role}</p>
+                                    <p className="mt-1 truncate text-[11px] font-semibold text-[#665a4a] sm:text-xs">{company}</p>
+                                    {meta && <p className="mt-2 text-[11px] font-bold leading-tight text-[#625bd5] sm:text-xs">{meta}</p>}
                                 </div>
                             ))}
                         </div>
@@ -260,14 +260,16 @@ const JobPipelinePreview = () => (
             </div>
         </div>
 
-        <aside className="border-t border-[#eadbc5] bg-[#f9efe0]/80 p-3 lg:border-l lg:border-t-0">
-            <div className="rounded-xl border border-[#eadbc5] bg-white/90 p-3 shadow-sm">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#a97935]">Plan summary</p>
-                <h4 className="mt-1 text-base font-semibold text-[#211b16]">Due work and next actions</h4>
-                <p className="mt-3 text-sm font-medium leading-relaxed text-[#665a4a]">
+        <aside className="border-t border-[#eadbc5] bg-[#f9efe0]/80 p-3">
+            <div className="grid gap-3 rounded-xl border border-[#eadbc5] bg-white/90 p-3 shadow-sm sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+                <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#a97935]">Plan summary</p>
+                    <h4 className="mt-1 text-base font-semibold text-[#211b16]">Due work and next actions</h4>
+                    <p className="mt-2 text-sm font-medium leading-relaxed text-[#665a4a]">
                     Focus on due work, planned next actions, high-fit roles, and jobs missing a clear next step.
-                </p>
-                <div className="mt-3 grid grid-cols-2 gap-2">
+                    </p>
+                </div>
+                <div className="grid grid-cols-2 gap-2 sm:w-[200px]">
                     {['0 due', '2 next', '4 high fit', '1 prep'].map((item) => (
                         <span key={item} className="rounded-lg border border-[#eadbc5] bg-[#fffaf1] px-2 py-2 text-center text-xs font-semibold text-[#665a4a]">
                             {item}

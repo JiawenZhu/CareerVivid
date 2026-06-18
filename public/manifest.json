@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "CareerVivid - Job Tracker & AI Career Coach",
-  "version": "2.1.1",
+  "version": "3.1.1",
   "homepage_url": "https://careervivid.app",
   "description": "Save job postings, track applications, tailor resumes, and practice interviews with CareerVivid's AI career tools.",
   "permissions": [

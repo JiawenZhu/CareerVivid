@@ -115,8 +115,14 @@ import { navigate, getPathFromUrl } from './utils/navigation';
 
 
 const LoadingFallback = () => (
-  <div className="flex h-screen flex-col items-center justify-center bg-[#f7f1e7] dark:bg-[#1f1f1d]">
-    <Loader2 className="h-12 w-12 animate-spin text-[#9a651f] dark:text-[#caa26c]" />
+  <div className="cv-warm-page cv-warm-grid flex h-screen flex-col items-center justify-center px-4 text-center">
+    <div className="rounded-2xl border border-[#e4d3bc] bg-[#fffaf1]/90 px-6 py-5 shadow-sm dark:border-[#37332d] dark:bg-[#262522]/90">
+      <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl border border-[#e4d3bc] bg-white text-[#9a651f] dark:border-[#37332d] dark:bg-[#302e2a] dark:text-[#caa26c]">
+        <Loader2 className="h-5 w-5 animate-spin" />
+      </div>
+      <p className="mt-3 text-sm font-bold text-[#211b16] dark:text-[#f4f1e9]">Preparing your CareerVivid workspace...</p>
+      <p className="mt-1 text-xs font-semibold text-[#665a4a] dark:text-[#aaa39a]">Loading your sign-in session.</p>
+    </div>
   </div>
 );
 
