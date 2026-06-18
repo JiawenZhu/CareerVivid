@@ -694,23 +694,39 @@ const ExtensionHome: React.FC = () => {
             if (!tab?.id) return;
 
             setIsJobContextRefreshing(true);
-            chrome.tabs.sendMessage(tab.id, { type: 'VERIFY_JOB_CONTEXT' }, (response) => {
-                const _ = chrome.runtime.lastError;
-                if (!isCurrentRequest()) return;
-                setIsJobContextRefreshing(false);
+            const verifyJobContextWithRetry = (attempt = 0) => {
+                chrome.tabs.sendMessage(tab.id!, { type: 'VERIFY_JOB_CONTEXT' }, (response) => {
+                    const _ = chrome.runtime.lastError;
+                    if (!isCurrentRequest()) return;
 
-                if (response?.job) {
-                    clearActiveJobContext();
-                    setScrapedJob(response.job);
-                    setHasDetectedJob(response.hasDetectedJob === true || hasUsableJobDescription(response.job));
-                    setIsJobSite(response.hasDetectedJob === true || response.hasJobMetadata === true || isLikelyJobSiteUrl(url));
-                    return;
-                }
+                    const hasUsableResponse = response?.hasDetectedJob === true || hasUsableJobDescription(response?.job);
+                    const shouldRetry = !hasUsableResponse && attempt < 2 && isLikelyJobSiteUrl(url);
 
-                setScrapedJob(null);
-                setHasDetectedJob(false);
-                setLocalAudit(null);
-            });
+                    if (shouldRetry) {
+                        window.setTimeout(() => {
+                            if (isCurrentRequest()) {
+                                verifyJobContextWithRetry(attempt + 1);
+                            }
+                        }, attempt === 0 ? 650 : 1250);
+                        return;
+                    }
+
+                    setIsJobContextRefreshing(false);
+
+                    if (response?.job) {
+                        clearActiveJobContext();
+                        setScrapedJob(response.job);
+                        setHasDetectedJob(response.hasDetectedJob === true || hasUsableJobDescription(response.job));
+                        setIsJobSite(response.hasDetectedJob === true || response.hasJobMetadata === true || isLikelyJobSiteUrl(url));
+                        return;
+                    }
+
+                    setScrapedJob(null);
+                    setHasDetectedJob(false);
+                    setLocalAudit(null);
+                });
+            };
+            verifyJobContextWithRetry();
 
             chrome.tabs.sendMessage(tab.id, { type: 'GET_ATS_CONTEXT' }, (response) => {
                 const _ = chrome.runtime.lastError;
@@ -1437,6 +1453,17 @@ const ExtensionHome: React.FC = () => {
     const shouldShowJobWorkspace = hasActionableJob && Boolean(actionableJob);
     const isHandoffActive = Boolean(handoffAction || isPreparingTransit);
     const isActionBusy = (action: WorkspaceActionId) => handoffAction === action;
+    const emptyStateLabel = isJobContextRefreshing
+        ? 'Scanning job page'
+        : isJobSite
+            ? 'No job detected'
+            : 'Unsupported page';
+    const emptyStateTitle = isJobSite
+        ? 'Reading this job page'
+        : 'Open a job page to unlock actions';
+    const emptyStateDescription = isJobContextRefreshing
+        ? 'CareerVivid is checking the active job detail pane.'
+        : 'Save, tailor, cover letters, and mock interviews need a live job description.';
     const getActionCardClass = (action: WorkspaceActionId, hoverBorderClass: string) => {
         const active = isActionBusy(action);
         return [
@@ -1612,7 +1639,7 @@ const ExtensionHome: React.FC = () => {
                         <span className="h-2 w-2 flex-shrink-0 rounded-full bg-[#94a3b8]" />
                         <Search size={18} className="flex-shrink-0 text-[#43546d] dark:text-[#c9c3ba]" />
                         <span className="min-w-0 flex-1 truncate text-base font-semibold text-[#43546d] dark:text-[#f4f1e9]">
-                            Unsupported page
+                            {emptyStateLabel}
                         </span>
                         <span className="max-w-[132px] truncate text-sm font-semibold text-[#6b7280] dark:text-[#aaa39a]">
                             {activeHost}
@@ -1642,13 +1669,13 @@ const ExtensionHome: React.FC = () => {
                     <section className="rounded-[24px] border border-[#dce2ec] bg-white p-4 shadow-[0_14px_30px_rgba(15,23,42,0.06)] dark:border-[#3a3834] dark:bg-[#262522] dark:shadow-none">
                         <span className="inline-flex items-center gap-2 rounded-full border border-[#dce2ec] bg-white px-3 py-1.5 text-xs font-semibold text-[#43546d] dark:border-[#3a3834] dark:bg-[#302e2a] dark:text-[#c9c3ba]">
                             <Search size={13} />
-                            No job detected
+                            {emptyStateLabel}
                         </span>
                         <h2 className="mt-4 text-[22px] font-semibold leading-tight text-slate-950 dark:text-[#f4f1e9]">
-                            Open a job page to unlock actions
+                            {emptyStateTitle}
                         </h2>
                         <p className="mt-3 text-base leading-relaxed text-[#64748b] dark:text-[#aaa39a]">
-                            Save, tailor, cover letters, and mock interviews need a live job description.
+                            {emptyStateDescription}
                         </p>
                         <button
                             onClick={openDiscoveryModal}

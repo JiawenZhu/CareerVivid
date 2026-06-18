@@ -375,7 +375,11 @@ const VALID_JOB_DESCRIPTION_MIN_LENGTH = 80;
 
 function getElementText(selector: string, root: ParentNode = document): string {
   const el = root.querySelector(selector);
-  return el?.textContent?.replace(/\s+/g, ' ').trim() || '';
+  if (!el) return '';
+  const text = el instanceof HTMLElement
+    ? (el.innerText || el.textContent || '')
+    : (el.textContent || '');
+  return text.replace(/\s+/g, ' ').trim();
 }
 
 function getFirstElementText(selectors: string[], root: ParentNode = document): string {
@@ -396,7 +400,7 @@ function cleanJobText(text: string): string {
 
 function extractSalaryFromText(...sources: Array<string | null | undefined>): string {
   const text = cleanJobText(sources.filter(Boolean).join(' '));
-  const match = text.match(/\$[\d,.]+(?:\s?[Kk])?(?:\s*(?:-|–|to)\s*\$?[\d,.]+(?:\s?[Kk])?)?(?:\s*(?:\/|per\s*)\s*(?:yr|year|hr|hour|mo|month))?/i);
+  const match = text.match(/\$[\d,.]+(?:\s?[Kk])?(?:\s*(?:-|–|to|and)\s*\$?[\d,.]+(?:\s?[Kk])?)?(?:\s*(?:\/|per\s*)\s*(?:yr|year|hr|hour|mo|month))?/i);
   return match?.[0]?.trim() || '';
 }
 
@@ -454,6 +458,125 @@ function getLinkedInJobId(): string {
   }
 }
 
+function getLinkedInTitleParts(): { title: string; company: string } {
+  const parts = document.title
+    .split('|')
+    .map(part => cleanJobText(part))
+    .filter(Boolean);
+
+  return {
+    title: parts[0] || '',
+    company: parts[1] && !/^linkedin$/i.test(parts[1]) ? parts[1] : '',
+  };
+}
+
+function findLinkedInDetailRoot(): ParentNode {
+  const stableRoot = document.querySelector('.jobs-search__job-details--container') ||
+    document.querySelector('.jobs-search__job-details') ||
+    document.querySelector('.jobs-details__main-content') ||
+    document.querySelector('[data-view-name="job-details"]') ||
+    document.querySelector('.job-view-layout') ||
+    document.querySelector('.scaffold-layout__detail') ||
+    document.querySelector('.jobs-search-results__details');
+
+  if (stableRoot) return stableRoot;
+
+  const clean = (value?: string | null) => cleanJobText(value || '');
+  const currentJobId = getLinkedInJobId();
+  const currentJobLink = currentJobId
+    ? document.querySelector(`a[href*="/jobs/view/${currentJobId}"]`)
+    : null;
+  const aboutNode = Array.from(document.querySelectorAll('h1,h2,h3,h4,span,div'))
+    .find(el => /^About the job$/i.test(clean(el.textContent)));
+
+  if (aboutNode) {
+    let current: Element | null = aboutNode;
+    let best: Element = aboutNode;
+
+    while (current?.parentElement && current.parentElement !== document.body) {
+      current = current.parentElement;
+      const text = clean(current instanceof HTMLElement ? current.innerText : current.textContent);
+      const containsAbout = /About the job/i.test(text);
+      const containsCurrentJob = currentJobLink ? current.contains(currentJobLink) : false;
+      const hasUsefulDescription = text.length > 700 && /requirements|what you'll do|job overview|qualifications|responsibilities/i.test(text);
+
+      if (containsAbout && (containsCurrentJob || hasUsefulDescription)) {
+        best = current;
+      }
+
+      if (containsCurrentJob && text.length > 1400) break;
+      if (text.length > 12000) break;
+    }
+
+    return best;
+  }
+
+  return currentJobLink?.parentElement || document;
+}
+
+function getLinkedInCurrentJobLinkText(): string {
+  const currentJobId = getLinkedInJobId();
+  if (!currentJobId) return '';
+
+  const link = document.querySelector(`a[href*="/jobs/view/${currentJobId}"]`);
+  return cleanJobText(link?.textContent || '');
+}
+
+function getLinkedInLocation(detailRoot: ParentNode): string {
+  const lines = [
+    ...getPageLines(detailRoot),
+    ...getPageLines(document),
+  ];
+  const titleParts = getLinkedInTitleParts();
+  const title = titleParts.title.toLowerCase();
+  const company = titleParts.company.toLowerCase();
+  const locationLine = lines.find(line => {
+    const normalized = line.toLowerCase();
+    if (!line || normalized === title || normalized === company) return false;
+    if (/reposted|clicked apply|promoted by hirer|responses managed/i.test(line)) {
+      return /remote|hybrid|on-site|on site|united states|,\s*[a-z]{2}\b/i.test(line);
+    }
+    return /remote|hybrid|on-site|on site|united states|,\s*[A-Z]{2}\b/.test(line);
+  });
+
+  if (!locationLine) return '';
+
+  return cleanJobText(
+    locationLine
+      .split(/·|Reposted|Promoted by hirer|Responses managed/i)[0]
+      .replace(/\b(Full-time|Part-time|Contract|Temporary|Internship)\b/gi, '')
+  );
+}
+
+function extractLinkedInDescription(detailRoot: ParentNode): string {
+  const directDescription = getFirstElementText([
+    '#job-details',
+    '.jobs-description__content',
+    '.jobs-box__html-content',
+    '.jobs-description-content__text',
+    '.jobs-description',
+    '.jobs-details__main-content',
+    '.jobs-search__job-details--container',
+    '[data-view-name="job-details"]',
+  ], detailRoot);
+
+  if (directDescription) return cleanJobText(directDescription);
+
+  const lines = getPageLines(detailRoot);
+  const aboutIndex = lines.findIndex(line => /^About the job$/i.test(line));
+  const sourceLines = aboutIndex >= 0 ? lines.slice(aboutIndex) : lines;
+  const stopIndex = sourceLines.findIndex((line, index) => index > 0 && (
+    /^About the company$/i.test(line) ||
+    /^Company photos$/i.test(line) ||
+    /^Job search faster with Premium/i.test(line) ||
+    /^LinkedIn Corporation/i.test(line) ||
+    /^Get job alerts/i.test(line)
+  ));
+  const descriptionLines = stopIndex > 0 ? sourceLines.slice(0, stopIndex) : sourceLines;
+
+  return cleanJobText(descriptionLines.join(' '));
+}
+
 function getCompanyFromPage(): string {
   // 1. Try og:site_name metadata
   const siteName = document.querySelector('meta[property="og:site_name"]')?.getAttribute('content');
@@ -486,11 +609,8 @@ function extractJobData(): { title: string; company: string; location: string; d
     if (isCareerVividWebApp()) return null;
 
     if (isLinkedIn) {
-      const detailRoot = document.querySelector('.jobs-search__job-details--container') ||
-        document.querySelector('.jobs-details__main-content') ||
-        document.querySelector('[data-view-name="job-details"]') ||
-        document.querySelector('.job-view-layout') ||
-        document;
+      const detailRoot = findLinkedInDetailRoot();
+      const titleParts = getLinkedInTitleParts();
       const title = getFirstElementText([
         '.job-details-jobs-unified-top-card__job-title h1',
         '.job-details-jobs-unified-top-card__job-title',
@@ -498,7 +618,7 @@ function extractJobData(): { title: string; company: string; location: string; d
         '.jobs-unified-top-card__job-title',
         'h1 a[href*="/jobs/view/"]',
         'h1',
-      ], detailRoot);
+      ], detailRoot) || getLinkedInCurrentJobLinkText() || titleParts.title;
       const company = getFirstElementText([
         '.job-details-jobs-unified-top-card__company-name a',
         '.job-details-jobs-unified-top-card__company-name',
@@ -507,23 +627,15 @@ function extractJobData(): { title: string; company: string; location: string; d
         '.job-details-jobs-unified-top-card__primary-description-container a[href*="/company/"]',
         '.jobs-unified-top-card__primary-description-container a[href*="/company/"]',
         '.jobs-search__job-details--container a[href*="/company/"]',
-      ], detailRoot);
+        'a[href*="/company/"]',
+      ], detailRoot) || titleParts.company;
       const location = getFirstElementText([
         '.job-details-jobs-unified-top-card__primary-description-container',
         '.jobs-unified-top-card__primary-description-container',
         '.job-details-jobs-unified-top-card__tertiary-description-container',
         '.jobs-unified-top-card__tertiary-description-container',
-      ], detailRoot);
-      const description = getFirstElementText([
-        '#job-details',
-        '.jobs-description__content',
-        '.jobs-box__html-content',
-        '.jobs-description-content__text',
-        '.jobs-description',
-        '.jobs-details__main-content',
-        '.jobs-search__job-details--container',
-        '[data-view-name="job-details"]',
-      ], detailRoot);
+      ], detailRoot) || getLinkedInLocation(detailRoot);
+      const description = extractLinkedInDescription(detailRoot);
       const salary = extractSalaryFromText(description, location, detailRoot.textContent || '');
       if (title && (company || description)) {
         return {
