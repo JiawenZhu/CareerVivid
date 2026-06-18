@@ -29,6 +29,43 @@ describe('buildLocalMatchAudit', () => {
 
     expect(audit.coverageLabel).toBe('Scanning');
     expect(audit.score).toBe(0);
+    expect(audit.signalCount).toBe(0);
     expect(audit.matchedSkills).toEqual([]);
+  });
+
+  it('does not report a perfect fit for a single overlapping keyword', () => {
+    const resume = `
+      Front End Developer with JavaScript, React, TypeScript, and documentation experience.
+      Built responsive web applications and managed technical content workflows.
+    `;
+    const job = `
+      Nurse-Illinois Hope Houses. Full job description.
+      Current Illinois Registered Nurse license required.
+      AA/AS degree in Nursing required.
+      Provides ongoing medical assessment, case management, medication administration, and patient care.
+      Behavioral/Mental Health setting experience and experience working with youth preferred.
+      Completes timely and accurate documentation required for the position.
+    `;
+
+    const audit = buildLocalMatchAudit(resume, job);
+
+    expect(audit.matchedSkills.map(item => item.term)).toContain('Documentation');
+    expect(audit.missingKeywords.map(item => item.term)).toEqual(
+      expect.arrayContaining(['RN License', 'Nursing', 'Medication administration', 'Behavioral health'])
+    );
+    expect(audit.signalCount).toBeGreaterThanOrEqual(8);
+    expect(audit.score).toBeLessThan(35);
+    expect(audit.coverageLabel).toBe('Large gap');
+  });
+
+  it('uses a minimum signal floor for sparse job text', () => {
+    const audit = buildLocalMatchAudit(
+      'Documentation and content strategy',
+      'Full job description. Documentation required for this role.'
+    );
+
+    expect(audit.signalCount).toBeGreaterThan(1);
+    expect(audit.score).toBeLessThan(100);
+    expect(audit.coverageLabel).not.toBe('Strong local fit');
   });
 });

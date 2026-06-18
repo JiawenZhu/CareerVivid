@@ -96,7 +96,7 @@ export const LocalDeepDiveAudit: React.FC<LocalDeepDiveAuditProps> = ({ audit, i
             <div className="mb-3 flex items-center justify-between gap-2 rounded-2xl border border-[#ececf4] bg-[#f8f8fb] px-3 py-2 dark:border-[#3a3834] dark:bg-[#1f1f1d]">
                 <span className="text-[11px] font-semibold text-slate-700 dark:text-[#f4f1e9]">{audit.coverageLabel}</span>
                 <span className="text-[10px] text-slate-500 dark:text-[#aaa39a]">
-                    {audit.matchedSkills.length} matched · {audit.missingKeywords.length} gaps
+                    {audit.matchedSkills.length} of {audit.signalCount} signals · {audit.missingKeywords.length} gaps
                 </span>
             </div>
 

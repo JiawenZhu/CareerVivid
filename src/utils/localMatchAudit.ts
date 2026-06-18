@@ -7,10 +7,13 @@ export interface LocalMatchAuditItem {
 export interface LocalMatchAuditResult {
   score: number;
   coverageLabel: string;
+  signalCount: number;
   matchedSkills: LocalMatchAuditItem[];
   missingKeywords: LocalMatchAuditItem[];
   recommendations: string[];
 }
+
+const MIN_JOB_SIGNAL_COUNT = 8;
 
 const KEYWORD_BANK: Array<{
   label: string;
@@ -44,6 +47,23 @@ const KEYWORD_BANK: Array<{
   { label: 'Information Architecture', category: 'domain', patterns: ['information architecture'] },
   { label: 'Design Systems', category: 'domain', patterns: ['design system', 'design systems'] },
   { label: 'Product collaboration', category: 'requirement', patterns: ['product managers', 'product manager', 'stakeholder', 'collaborate'] },
+  { label: 'Project management', category: 'requirement', patterns: ['project management', 'manage projects'] },
+  { label: 'Quality assurance', category: 'requirement', patterns: ['quality assurance', 'qa', 'quality improvement'] },
+  { label: 'Process improvement', category: 'requirement', patterns: ['process improvement', 'process improvements', 'continuous improvement'] },
+  { label: 'Troubleshooting', category: 'requirement', patterns: ['troubleshooting', 'troubleshoot'] },
+  { label: 'System integration', category: 'technical', patterns: ['system integration', 'systems integration'] },
+  { label: 'Nursing', category: 'domain', patterns: ['nursing', 'nurse'] },
+  { label: 'RN License', category: 'requirement', patterns: ['rn license', 'registered nurse license', 'registered nurse', 'illinois license'] },
+  { label: 'Associate Degree in Nursing', category: 'requirement', patterns: ['associate degree in nursing', 'aa/as degree in nursing', 'degree in nursing'] },
+  { label: 'Patient care', category: 'domain', patterns: ['patient care', 'resident care', 'healthcare to patients'] },
+  { label: 'Medical assessment', category: 'domain', patterns: ['medical assessment', 'health assessment', 'triage assessments', 'assessment of prospective residents'] },
+  { label: 'Case management', category: 'domain', patterns: ['case management', 'care management'] },
+  { label: 'Medication administration', category: 'requirement', patterns: ['medication administration', 'psychotropic medication', 'medication issues'] },
+  { label: 'Behavioral health', category: 'domain', patterns: ['behavioral health', 'mental health', 'behavior disorders'] },
+  { label: 'Youth services', category: 'domain', patterns: ['working with youth', 'youth services', 'youth with behavior'] },
+  { label: 'CPR / First Aid', category: 'requirement', patterns: ['cpr and first aid', 'cpr', 'first aid'] },
+  { label: 'Clinical records', category: 'requirement', patterns: ['maintains records of treatment', 'billing documentation', 'clinical records'] },
+  { label: 'Microsoft Office', category: 'technical', patterns: ['microsoft windows', 'microsoft office'] },
 ];
 
 const normalize = (value: string): string => value.toLowerCase().replace(/\s+/g, ' ').trim();
@@ -71,7 +91,21 @@ const getCoverageLabel = (score: number): string => {
   return 'Large gap';
 };
 
-const buildRecommendations = (missing: LocalMatchAuditItem[], matched: LocalMatchAuditItem[]): string[] => {
+const buildRecommendations = (
+  missing: LocalMatchAuditItem[],
+  matched: LocalMatchAuditItem[],
+  detectedSignalCount: number
+): string[] => {
+  if (detectedSignalCount < MIN_JOB_SIGNAL_COUNT) {
+    return [
+      `Only ${detectedSignalCount} explicit job signal${detectedSignalCount === 1 ? '' : 's'} were detected, so the score is capped by a minimum signal floor.`,
+      'Review the full posting before treating this as a complete fit assessment.',
+      matched.length > 0
+        ? `Use the matched ${matched.slice(0, 2).map(item => item.term).join(' and ')} evidence only where it directly supports the role.`
+        : 'Start by adding truthful evidence for the job title, required tools, and core responsibilities.',
+    ];
+  }
+
   if (missing.length === 0) {
     return [
       'Keep the strongest matched terms visible in your summary and most recent experience.',
@@ -106,6 +140,7 @@ export const buildLocalMatchAudit = (
     return {
       score: 0,
       coverageLabel: 'Scanning',
+      signalCount: 0,
       matchedSkills: [],
       missingKeywords: [],
       recommendations: ['Wait for the job description to finish loading, then run the audit again.'],
@@ -128,14 +163,15 @@ export const buildLocalMatchAudit = (
       evidence: findEvidence(jobDescription, item.patterns),
     }));
 
-  const denominator = Math.max(jobTerms.length, 1);
+  const denominator = Math.max(jobTerms.length, MIN_JOB_SIGNAL_COUNT);
   const score = Math.round((matchedSkills.length / denominator) * 100);
 
   return {
     score,
     coverageLabel: getCoverageLabel(score),
+    signalCount: denominator,
     matchedSkills,
     missingKeywords,
-    recommendations: buildRecommendations(missingKeywords, matchedSkills),
+    recommendations: buildRecommendations(missingKeywords, matchedSkills, jobTerms.length),
   };
 };
