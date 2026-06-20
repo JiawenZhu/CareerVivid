@@ -5,6 +5,7 @@ import {
     Briefcase,
     Building2,
     Check,
+    ClipboardCheck,
     ExternalLink,
     FileText,
     LayoutDashboard,
@@ -350,6 +351,10 @@ const ExtensionWelcomePage: React.FC = () => {
                                     <Sparkles size={17} />
                                     Welcome
                                 </button>
+                                <button type="button" onClick={() => navigate('/onboarding')} className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition">
+                                    <ClipboardCheck size={17} />
+                                    Quick Start
+                                </button>
                                 <button type="button" onClick={() => navigate('/job-market')} className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition">
                                     <Briefcase size={17} />
                                     Application Hub
@@ -662,9 +667,17 @@ const ExtensionWelcomePage: React.FC = () => {
                                                     <button
                                                         type="button"
                                                         onClick={() => setShowPinGuide(true)}
+                                                        className="inline-flex items-center gap-2 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                                                    >
+                                                        Pin guide
+                                                        <Pin size={15} />
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => navigate('/onboarding')}
                                                         className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-5 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700"
                                                     >
-                                                        Continue
+                                                        Start Quick Setup
                                                         <ArrowRight size={16} />
                                                     </button>
                                                 </div>

@@ -1,5 +1,5 @@
 import React, { Suspense, useRef, useEffect } from 'react';
-import { PlusCircle, FileText, Mic, Briefcase, Loader2, Globe, User as UserIcon, ChevronDown, FolderPlus, PenTool, LayoutGrid, List, Users, MessageSquare } from 'lucide-react';
+import { PlusCircle, FileText, Mic, Briefcase, Loader2, Globe, User as UserIcon, ChevronDown, FolderPlus, PenTool, LayoutGrid, List, Users, MessageSquare, Sparkles } from 'lucide-react';
 
 // Hooks & Logic
 import { useDashboard } from '../hooks/useDashboard';
@@ -32,12 +32,13 @@ import DashboardPostCard from '../components/Dashboard/DashboardPostCard';
 import { MobilePostCard } from '../components/Dashboard/DashboardMobileCards';
 import ReorderDashboardModal from '../components/Dashboard/ReorderDashboardModal';
 import JobDetailModal from '../components/JobTracker/JobDetailModal';
-import CareerProfileGraphCard, { SkillGapLearningSection } from '../components/Dashboard/CareerProfileGraphCard';
+import CareerProfileGraphCard from '../components/Dashboard/CareerProfileGraphCard';
 
 // Lazy load modal
 const InterviewReportModal = React.lazy(() => import('../components/InterviewReportModal'));
 
 const mobileWorkflowActions = [
+    { label: 'Start', icon: Sparkles, path: '/onboarding', className: 'bg-amber-50 text-amber-800 border-amber-100 dark:bg-amber-950/30 dark:text-amber-200 dark:border-amber-900/50' },
     { label: 'Resume', icon: FileText, path: '/newresume', className: 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-950/30 dark:text-blue-200 dark:border-blue-900/50' },
     { label: 'Portfolio', icon: Globe, path: '/portfolio', className: 'bg-pink-50 text-pink-700 border-pink-100 dark:bg-pink-950/30 dark:text-pink-200 dark:border-pink-900/50' },
     { label: 'Interview', icon: Mic, path: '/interview-studio', className: 'bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-950/30 dark:text-purple-200 dark:border-purple-900/50' },
@@ -198,6 +199,9 @@ const Dashboard: React.FC = () => {
                                     {isNewMenuOpen && (
                                         <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-20 border dark:border-gray-700">
                                             <div className="py-1">
+                                                <button onClick={() => { navigate('/onboarding'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                    <Sparkles size={16} /> Quick Start
+                                                </button>
                                                 <button onClick={() => { navigate('/newresume'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                     <FileText size={16} /> {t('dashboard.new_resume')}
                                                 </button>
@@ -336,13 +340,6 @@ const Dashboard: React.FC = () => {
                                 return null;
                         }
                     })}
-
-                    <SkillGapLearningSection
-                        resumes={resumes}
-                        portfolios={portfolios}
-                        practiceHistory={practiceHistory}
-                        jobApplications={jobApplications}
-                    />
                 </div>
 
                 {/* Modals & Overlays */}

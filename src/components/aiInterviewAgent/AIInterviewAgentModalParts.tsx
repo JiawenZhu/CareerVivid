@@ -1,5 +1,19 @@
 import React from 'react';
-import { BarChart, Bot, Loader2, Mic, StopCircle, User, X } from 'lucide-react';
+import {
+  BarChart,
+  Bot,
+  Briefcase,
+  CheckCircle2,
+  Circle,
+  ClipboardList,
+  Loader2,
+  Mic,
+  Radio,
+  Sparkles,
+  StopCircle,
+  User,
+  X,
+} from 'lucide-react';
 import { InterviewStatus, TranscriptEntry } from '../../types';
 
 type StatusTone = 'green' | 'blue' | 'amber' | 'red' | 'gray';
@@ -42,6 +56,89 @@ const statusToneClasses: Record<StatusTone, {
   },
 };
 
+const compactText = (value: string, maxLength = 220) => {
+  const cleaned = value.replace(/\s+/g, ' ').trim();
+  if (cleaned.length <= maxLength) return cleaned;
+  return `${cleaned.slice(0, maxLength).trim()}...`;
+};
+
+const getFinalTurns = (transcript: TranscriptEntry[], speaker?: TranscriptEntry['speaker']) =>
+  transcript.filter(entry => entry.isFinal && (!speaker || entry.speaker === speaker));
+
+const getLatestFinalUserAnswer = (transcript: TranscriptEntry[]) =>
+  [...getFinalTurns(transcript, 'user')].reverse()[0]?.text || '';
+
+const normalizeQuestionText = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/[''"]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const transcriptTurnIncludesQuestion = (turnText: string, question: string) => {
+  const normalizedTurn = normalizeQuestionText(turnText);
+  const normalizedQuestion = normalizeQuestionText(question);
+  if (!normalizedQuestion) return false;
+  if (normalizedTurn.includes(normalizedQuestion)) return true;
+
+  const words = normalizedQuestion.split(' ').filter(word => word.length > 2);
+  if (words.length < 5) return false;
+
+  const leadingPhrase = words.slice(0, Math.min(words.length, 8)).join(' ');
+  return normalizedTurn.includes(leadingPhrase);
+};
+
+type QuestionFlowState = 'covered' | 'current' | 'queued';
+
+const getQuestionFlowStates = (questions: string[], transcript: TranscriptEntry[]): QuestionFlowState[] => {
+  const finalTurns = getFinalTurns(transcript);
+  const askedTurnIndexes = new Map<number, number>();
+  let searchStart = 0;
+
+  questions.forEach((question, questionIndex) => {
+    const askedTurnIndex = finalTurns.findIndex((entry, turnIndex) =>
+      turnIndex >= searchStart &&
+      entry.speaker === 'ai' &&
+      transcriptTurnIncludesQuestion(entry.text, question),
+    );
+
+    if (askedTurnIndex >= 0) {
+      askedTurnIndexes.set(questionIndex, askedTurnIndex);
+      searchStart = askedTurnIndex + 1;
+    }
+  });
+
+  return questions.map((_, questionIndex) => {
+    const askedTurnIndex = askedTurnIndexes.get(questionIndex);
+    if (askedTurnIndex === undefined) return 'queued';
+
+    const nextAskedTurnIndex = askedTurnIndexes.get(questionIndex + 1);
+    const hasAnswerAfterQuestion = finalTurns.some((entry, turnIndex) =>
+      entry.speaker === 'user' &&
+      turnIndex > askedTurnIndex &&
+      (nextAskedTurnIndex === undefined || turnIndex < nextAskedTurnIndex),
+    );
+
+    if (hasAnswerAfterQuestion || nextAskedTurnIndex !== undefined) return 'covered';
+    return 'current';
+  });
+};
+
+const hasMetricSignal = (value: string) => /\b(\d+|percent|revenue|users|customers|hours|weeks|months|%|x)\b/i.test(value);
+
+const hasImpactSignal = (value: string) => /\b(impact|result|improved|reduced|increased|launched|delivered|owned|led|built|shipped|collaborated)\b/i.test(value);
+
+const getLiveStatusCopy = (status: InterviewStatus) => {
+  if (status === 'listening') return 'Listening';
+  if (status === 'speaking') return 'Vivid speaking';
+  if (status === 'connecting') return 'Connecting';
+  if (status === 'analyzing') return 'Debriefing';
+  if (status === 'ended') return 'Ended';
+  if (status === 'error') return 'Needs attention';
+  return 'Ready';
+};
+
 const getStatusMeta = (
   status: InterviewStatus,
   preparation?: { isPreparingAgent?: boolean; isAgentPrepared?: boolean },
@@ -73,27 +170,208 @@ const getStatusMeta = (
 
 export const InterviewHeader: React.FC<{
   interviewPrompt: string;
+  jobTitle?: string;
+  jobCompany?: string;
   onClose: () => void;
-}> = ({ interviewPrompt, onClose }) => (
-  <header className="flex items-start justify-between gap-4 border-b border-gray-200 bg-white px-5 py-4 dark:border-gray-800 dark:bg-gray-900">
-    <div className="min-w-0">
-      <h2 id="ai-interview-modal-title" className="text-lg font-bold text-gray-950 dark:text-white">
-        AI Interview Agent
-      </h2>
-      <p id="ai-interview-modal-description" className="mt-1 max-w-2xl truncate text-sm text-gray-500 dark:text-gray-400">
-        Topic: {interviewPrompt}
-      </p>
+}> = ({ interviewPrompt, jobTitle, jobCompany, onClose }) => (
+  <header className="flex items-start justify-between gap-4 border-b border-[#e7d8c5] bg-[#fffaf1] px-4 py-4 dark:border-[#3b3730] dark:bg-[#24231f] sm:px-5">
+    <div className="min-w-0 space-y-2">
+      <div className="inline-flex items-center gap-2 rounded-full border border-[#e6d5bc] bg-white px-2.5 py-1 text-[11px] font-bold text-[#8a642f] dark:border-[#51483c] dark:bg-[#302e2a] dark:text-[#d6b57f]">
+        <Radio size={13} aria-hidden="true" />
+        Live interview encounter
+      </div>
+      <div>
+        <h2 id="ai-interview-modal-title" className="text-lg font-bold leading-tight text-[#211b16] dark:text-[#f4f1e9]">
+          {jobTitle || 'Mock interview'}
+        </h2>
+        <p id="ai-interview-modal-description" className="mt-1 max-w-3xl truncate text-sm text-[#665a4a] dark:text-[#aaa39a]">
+          {jobCompany && jobCompany !== 'Custom Practice' ? `${jobCompany} - ` : ''}{compactText(interviewPrompt, 160)}
+        </p>
+      </div>
     </div>
     <button
       type="button"
       onClick={onClose}
       aria-label="Close AI interview agent"
-      className="rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
+      className="rounded-full p-2 text-[#665a4a] transition-colors hover:bg-[#f0e3d2] hover:text-[#211b16] focus:outline-none focus:ring-2 focus:ring-[#8d88e6] dark:text-[#aaa39a] dark:hover:bg-[#302e2a] dark:hover:text-[#f4f1e9]"
     >
       <X size={20} aria-hidden="true" />
     </button>
   </header>
 );
+
+export const EncounterBriefPanel: React.FC<{
+  jobTitle: string;
+  jobCompany: string;
+  interviewPrompt: string;
+  questions: string[];
+}> = ({ jobTitle, jobCompany, interviewPrompt, questions }) => (
+  <aside className="space-y-3">
+    <section className="rounded-xl border border-[#e7d8c5] bg-white p-4 shadow-sm dark:border-[#3b3730] dark:bg-[#262522]">
+      <div className="flex items-center gap-2 text-[11px] font-bold text-[#9a6b2f] dark:text-[#d6b57f]">
+        <Briefcase size={14} aria-hidden="true" />
+        Role packet
+      </div>
+      <h3 className="mt-3 text-base font-bold leading-tight text-[#211b16] dark:text-[#f4f1e9]">{jobTitle || 'Mock interview'}</h3>
+      <p className="mt-1 text-xs font-semibold text-[#665a4a] dark:text-[#aaa39a]">{jobCompany || 'Custom Practice'}</p>
+      <p className="mt-3 text-xs leading-relaxed text-[#665a4a] dark:text-[#aaa39a]">{compactText(interviewPrompt)}</p>
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <div className="rounded-lg border border-[#efe1ce] bg-[#fffaf1] px-3 py-2 dark:border-[#3b3730] dark:bg-[#1f1f1d]">
+          <p className="text-[10px] font-bold text-[#9a6b2f] dark:text-[#d6b57f]">Questions</p>
+          <p className="text-lg font-bold text-[#211b16] dark:text-[#f4f1e9]">{questions.length}</p>
+        </div>
+        <div className="rounded-lg border border-[#ececf4] bg-[#f8f8fb] px-3 py-2 dark:border-[#3b3730] dark:bg-[#1f1f1d]">
+          <p className="text-[10px] font-bold text-[#625bd5] dark:text-[#a8a3ff]">Engine</p>
+          <p className="text-xs font-bold text-[#211b16] dark:text-[#f4f1e9]">Realtime</p>
+        </div>
+      </div>
+    </section>
+  </aside>
+);
+
+export const QuestionQueuePanel: React.FC<{
+  questions: string[];
+  transcript: TranscriptEntry[];
+}> = ({ questions, transcript }) => {
+  const questionFlowStates = getQuestionFlowStates(questions, transcript);
+  const coveredCount = questionFlowStates.filter(state => state === 'covered').length;
+
+  return (
+    <section className="rounded-xl border border-[#e7d8c5] bg-white p-4 shadow-sm dark:border-[#3b3730] dark:bg-[#262522]">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-[11px] font-bold text-[#9a6b2f] dark:text-[#d6b57f]">
+          <ClipboardList size={14} aria-hidden="true" />
+          Question flow
+        </div>
+        <span className="rounded-full bg-[#f3f2ff] px-2 py-0.5 text-[10px] font-bold text-[#625bd5] dark:bg-[#34314e] dark:text-[#b7b2ff]">
+          {coveredCount}/{questions.length || 0}
+        </span>
+      </div>
+      <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
+        {questions.length === 0 ? (
+          <p className="rounded-lg border border-dashed border-[#e6d5bc] bg-[#fffaf1] p-3 text-xs text-[#665a4a] dark:border-[#3b3730] dark:bg-[#1f1f1d] dark:text-[#aaa39a]">
+            Vivid will build the flow from the live prompt.
+          </p>
+        ) : questions.map((question, index) => {
+          const questionState = questionFlowStates[index] || 'queued';
+          const isDone = questionState === 'covered';
+          const isActive = questionState === 'current';
+
+          return (
+            <div
+              key={`${question}-${index}`}
+              className={`rounded-lg border p-3 transition-colors ${isActive
+                ? 'border-[#8d88e6] bg-[#f3f2ff] dark:border-[#7069dc] dark:bg-[#302f48]'
+                : isDone
+                  ? 'border-[#cfe8dc] bg-[#f4fbf7] dark:border-[#315443] dark:bg-[#1e2b26]'
+                  : 'border-[#efe1ce] bg-[#fffaf1] dark:border-[#3b3730] dark:bg-[#1f1f1d]'
+                }`}
+            >
+              <div className="mb-1.5 flex items-center gap-2">
+                {isDone ? (
+                  <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-300" aria-hidden="true" />
+                ) : (
+                  <Circle size={12} className={isActive ? 'text-[#625bd5]' : 'text-[#b79a72] dark:text-[#7c7063]'} aria-hidden="true" />
+                )}
+                <span className="text-[10px] font-bold text-[#665a4a] dark:text-[#aaa39a]">
+                  {isDone ? 'Covered' : isActive ? 'Current' : 'Queued'}
+                </span>
+              </div>
+              <p className="text-xs font-semibold leading-snug text-[#211b16] dark:text-[#f4f1e9]">{question}</p>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+};
+
+export const LiveObserverPanel: React.FC<{
+  status: InterviewStatus;
+  transcript: TranscriptEntry[];
+}> = ({ status, transcript }) => {
+  const userTurns = getFinalTurns(transcript, 'user');
+  const aiTurns = getFinalTurns(transcript, 'ai');
+  const latestAnswer = getLatestFinalUserAnswer(transcript);
+  const answerHasMetric = hasMetricSignal(latestAnswer);
+  const answerHasImpact = hasImpactSignal(latestAnswer);
+  const answerHasDepth = latestAnswer.length >= 160;
+  const signals = [
+    { label: 'Concrete metric', active: answerHasMetric },
+    { label: 'Impact language', active: answerHasImpact },
+    { label: 'Answer depth', active: answerHasDepth },
+  ];
+
+  return (
+    <aside className="space-y-3">
+      <section className="rounded-xl border border-[#e7d8c5] bg-white p-4 shadow-sm dark:border-[#3b3730] dark:bg-[#262522]">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-[11px] font-bold text-[#9a6b2f] dark:text-[#d6b57f]">
+            <Sparkles size={14} aria-hidden="true" />
+            Live observer
+          </div>
+          <span className="rounded-full bg-[#eef8f2] px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-[#213629] dark:text-emerald-300">
+            {getLiveStatusCopy(status)}
+          </span>
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="rounded-lg border border-[#efe1ce] bg-[#fffaf1] px-3 py-2 dark:border-[#3b3730] dark:bg-[#1f1f1d]">
+            <p className="text-[10px] font-bold text-[#9a6b2f] dark:text-[#d6b57f]">Your turns</p>
+            <p className="text-lg font-bold text-[#211b16] dark:text-[#f4f1e9]">{userTurns.length}</p>
+          </div>
+          <div className="rounded-lg border border-[#efe1ce] bg-[#fffaf1] px-3 py-2 dark:border-[#3b3730] dark:bg-[#1f1f1d]">
+            <p className="text-[10px] font-bold text-[#9a6b2f] dark:text-[#d6b57f]">Vivid turns</p>
+            <p className="text-lg font-bold text-[#211b16] dark:text-[#f4f1e9]">{aiTurns.length}</p>
+          </div>
+        </div>
+        <div className="mt-4 space-y-2">
+          {signals.map(signal => (
+            <div key={signal.label} className="flex items-center justify-between gap-3 rounded-lg border border-[#efe1ce] bg-[#fffaf1] px-3 py-2 dark:border-[#3b3730] dark:bg-[#1f1f1d]">
+              <span className="text-xs font-semibold text-[#211b16] dark:text-[#f4f1e9]">{signal.label}</span>
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${signal.active
+                ? 'bg-emerald-50 text-emerald-700 dark:bg-[#213629] dark:text-emerald-300'
+                : 'bg-[#f3f2ff] text-[#625bd5] dark:bg-[#34314e] dark:text-[#b7b2ff]'
+                }`}>
+                {signal.active ? 'Detected' : 'Watch'}
+              </span>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-[11px] leading-relaxed text-[#665a4a] dark:text-[#aaa39a]">
+          Final scoring still uses the saved transcript and full feedback report.
+        </p>
+      </section>
+    </aside>
+  );
+};
+
+export const SessionMapPanel: React.FC<{ status: InterviewStatus; hasTranscript: boolean }> = ({ status, hasTranscript }) => {
+  const steps = [
+    { label: 'Brief', active: status === 'idle' || status === 'connecting', done: status !== 'idle' && status !== 'connecting' },
+    { label: 'Live interview', active: status === 'listening' || status === 'speaking', done: status === 'ended' || status === 'analyzing' },
+    { label: 'Debrief', active: status === 'ended' || status === 'analyzing', done: false },
+  ];
+
+  return (
+    <section className="rounded-xl border border-[#e7d8c5] bg-white p-4 shadow-sm dark:border-[#3b3730] dark:bg-[#262522]">
+      <div className="mb-3 flex items-center gap-2 text-[11px] font-bold text-[#9a6b2f] dark:text-[#d6b57f]">
+        <BarChart size={14} aria-hidden="true" />
+        Session path
+      </div>
+      <div className="space-y-2">
+        {steps.map(step => (
+          <div key={step.label} className="flex items-center gap-2">
+            <span className={`h-2.5 w-2.5 rounded-full ${step.done ? 'bg-emerald-500' : step.active ? 'bg-[#625bd5]' : 'bg-[#d9c9b4] dark:bg-[#5a5147]'}`} />
+            <span className={`text-xs font-semibold ${step.active ? 'text-[#211b16] dark:text-[#f4f1e9]' : 'text-[#665a4a] dark:text-[#aaa39a]'}`}>{step.label}</span>
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 text-[11px] text-[#665a4a] dark:text-[#aaa39a]">
+        {hasTranscript ? 'Transcript is being captured.' : 'Start when ready.'}
+      </p>
+    </section>
+  );
+};
 
 const AudioActivityVisual: React.FC<{ status: InterviewStatus }> = ({ status }) => {
   const meta = getStatusMeta(status);

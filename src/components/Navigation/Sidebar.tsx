@@ -13,6 +13,7 @@ import {
     CreditCard,
     Gift,
     LayoutDashboard,
+    Sparkles,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
@@ -317,6 +318,7 @@ const Sidebar: React.FC = () => {
 
     const quickLinks = [
         { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+        { label: 'Quick Start', path: '/onboarding', icon: Sparkles },
         { label: 'Jobs', path: '/jobs/recommend', icon: Briefcase },
         { label: 'Community', path: '/community', icon: Users },
         { label: 'Interview', path: '/interview-studio', icon: Mic },

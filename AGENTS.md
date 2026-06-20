@@ -56,10 +56,20 @@ npm run build && firebase deploy --only hosting
 
 ## Current Incident Context
 
-The previous live break was caused by stale cached SPA HTML being served for hashed JavaScript chunks, producing strict MIME errors such as:
-
-```text
-Expected a JavaScript-or-Wasm module script but the server responded with a MIME type of "text/html"
-```
-
 The clean release branch includes safeguards for SPA rewrites and service-worker caching. Future changes should preserve those protections.
+
+## Video Creation & YouTube Deployment Workflow
+
+When provided with a video project directory (e.g., `Resume editor demo video (1)` containing exporter scripts, HTML/React timeline code, soundtracks, and assets):
+
+1. **Compile and Render the Video:**
+   - Host the timeline page locally (e.g., on `localhost:8765`).
+   - Run the frame exporter script using Playwright to capture screenshot frames. Ensure you programmatically hide temporary overlays, voiceover buttons, or recording indicators (e.g., `#vo-btn`, `#rec-btn`) if required.
+   - Use `ffmpeg` to compile the image frames to an H.264 video at `1920x1080` resolution and mux the background soundtrack.
+   - Clean up temporary files, silent tracks, and raw screenshotted frames.
+2. **Obtain User Review:**
+   - Present the rendered video file to the user for review.
+   - Wait for the user to confirm there are no more changes.
+3. **Deploy to YouTube:**
+   - Once the user explicitly approves, upload the video to YouTube using the `hackathon-youtube-uploader` skill.
+   - By default, the privacy setting must be set to `public`.

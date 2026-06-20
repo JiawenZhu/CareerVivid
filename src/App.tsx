@@ -35,6 +35,7 @@ const SignInPage = React.lazy(() => import('./pages/SignInPage'));
 const SignUpPage = React.lazy(() => import('./pages/SignUpPage'));
 const ExtensionAuthCompletePage = React.lazy(() => import('./pages/ExtensionAuthCompletePage'));
 const ExtensionWelcomePage = React.lazy(() => import('./pages/ExtensionWelcomePage'));
+const OnboardingPage = React.lazy(() => import('./pages/OnboardingPage'));
 const LandingPage = React.lazy(() => import('./pages/LandingPage'));
 const TechLandingPage = React.lazy(() => import('./pages/TechLandingPage'));
 const PricingPage = React.lazy(() => import('./pages/PricingPage'));
@@ -421,7 +422,7 @@ const AppContent: React.FC = () => {
     } else if (path === '/signup') {
       const params = new URLSearchParams(window.location.search);
       const redirect = params.get('redirect');
-      content = currentUser ? <AuthRedirect target={redirect ? decodeURIComponent(redirect) : '/dashboard'} /> : <SignUpPage />;
+      content = currentUser ? <AuthRedirect target={redirect ? decodeURIComponent(redirect) : '/onboarding'} /> : <SignUpPage />;
     } else if (path === '/auth') {
       if (currentUser) {
         content = <AuthRedirect target="/dashboard" />;
@@ -438,6 +439,14 @@ const AppContent: React.FC = () => {
       content = (
         <ProtectedRoute>
           <Dashboard />
+        </ProtectedRoute>
+      );
+    }
+
+    else if (path === '/onboarding' || path === '/quick-start') {
+      content = (
+        <ProtectedRoute>
+          <OnboardingPage />
         </ProtectedRoute>
       );
     }
@@ -768,6 +777,8 @@ const AppContent: React.FC = () => {
             <SEOHelper
               isRobotsAllowed={![
                 '/dashboard',
+                '/onboarding',
+                '/quick-start',
                 '/profile',
                 '/billing',
                 '/subscription',

@@ -91,7 +91,7 @@ const makeJob = (overrides: Partial<JobApplicationData> = {}): JobApplicationDat
     ...overrides,
 });
 
-const makePractice = (): PracticeHistoryEntry => ({
+const makePractice = (overrides: Partial<PracticeHistoryEntry> = {}): PracticeHistoryEntry => ({
     id: 'practice-1',
     job: {
         id: 'practice-job',
@@ -114,6 +114,7 @@ const makePractice = (): PracticeHistoryEntry => ({
         areasForImprovement: 'More metrics.',
         transcript: [],
     }],
+    ...overrides,
 });
 
 describe('career profile graph', () => {
@@ -130,6 +131,13 @@ describe('career profile graph', () => {
         expect(graph.targetRoles).toContain('Frontend Platform Engineer');
         expect(graph.proofProjects).toContain('Verified Job Matcher');
         expect(graph.activeGoals).toContain('Tailor resume');
+        expect(graph.roleGoal.title).toBe('Acme AI Frontend Platform Engineer');
+        expect(graph.roleGoal.steps.map((step) => step.id)).toEqual([
+            'target',
+            'resumeMatch',
+            'interviewScore',
+            'applicationPlan',
+        ]);
         const claudeCodeMission = graph.learningMissions.find((mission) => mission.skill === 'Claude Code');
         expect(claudeCodeMission).toMatchObject({
             skill: 'Claude Code',
@@ -157,7 +165,7 @@ describe('career profile graph', () => {
         ]);
     });
 
-    it('points the next best step at the weakest missing signal', () => {
+    it('does not treat target roles as completed goals without saved jobs', () => {
         const graph = buildCareerProfileGraph({
             resumes: [makeResume()],
             portfolios: [],
@@ -165,7 +173,84 @@ describe('career profile graph', () => {
             jobApplications: [],
         });
 
-        expect(graph.nextBestStep.id).toBe('proof');
-        expect(graph.nextBestStep.actionPath).toBe('/portfolio');
+        expect(graph.targetRoles).toContain('Full Stack Engineer');
+        expect(graph.activeGoals).toEqual([]);
+
+        const goalsNode = graph.nodes.find((node) => node.id === 'goals');
+        expect(goalsNode).toMatchObject({
+            value: 'No goal',
+            progress: 0,
+            actionLabel: 'Save target job',
+        });
+        expect(graph.roleGoal).toMatchObject({
+            title: 'Choose a target role',
+            readinessScore: 0,
+            readinessLabel: 'Not started',
+        });
+        expect(graph.nextBestStep.id).toBe('goals');
+        expect(graph.nextBestStep.actionPath).toBe('/jobs/recommend');
+    });
+
+    it('builds target-role goal progress from resume match and interview scores', () => {
+        const graph = buildCareerProfileGraph({
+            resumes: [makeResume()],
+            portfolios: [],
+            practiceHistory: [makePractice({
+                job: {
+                    id: 'openai-practice',
+                    title: 'Software Engineer',
+                    company: 'OpenAI',
+                    location: 'San Francisco',
+                    description: 'Software engineer interview practice.',
+                    url: 'https://example.com/openai',
+                },
+                interviewHistory: [{
+                    id: 'openai-analysis',
+                    timestamp: Date.now(),
+                    overallScore: 88,
+                    communicationScore: 90,
+                    confidenceScore: 86,
+                    relevanceScore: 88,
+                    strengths: 'Strong role examples.',
+                    areasForImprovement: 'Tighten system design details.',
+                    transcript: [],
+                }],
+            })],
+            jobApplications: [makeJob({
+                id: 'openai-job',
+                jobTitle: 'Software Engineer',
+                companyName: 'OpenAI',
+                applicationStatus: 'Interviewing',
+                nextAction: 'Prepare final interview',
+                matchAnalyses: {
+                    'resume-1': {
+                        totalKeywords: 10,
+                        matchedKeywords: ['React', 'TypeScript', 'System design'],
+                        missingKeywords: ['Distributed systems'],
+                        matchPercentage: 92,
+                        summary: 'Strong match for OpenAI software engineering.',
+                    },
+                },
+            })],
+        });
+
+        expect(graph.roleGoal.title).toBe('OpenAI Software Engineer');
+        expect(graph.roleGoal.readinessScore).toBeGreaterThanOrEqual(85);
+        expect(graph.roleGoal.steps.find((step) => step.id === 'resumeMatch')).toMatchObject({
+            score: 92,
+            status: 'ready',
+        });
+        expect(graph.roleGoal.steps.find((step) => step.id === 'interviewScore')).toMatchObject({
+            score: 88,
+            status: 'ready',
+        });
+        expect(graph.roleGoal.nextStep.id).toBe('applicationPlan');
+
+        const goalsNode = graph.nodes.find((node) => node.id === 'goals');
+        expect(goalsNode).toMatchObject({
+            value: `${graph.roleGoal.readinessScore}% ready`,
+            progress: graph.roleGoal.readinessScore,
+            actionLabel: 'Open plan',
+        });
     });
 });
