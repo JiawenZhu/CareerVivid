@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     ArrowRight,
     Briefcase,
@@ -11,25 +12,15 @@ import {
     Wand2,
 } from 'lucide-react';
 
-const trustSignals = [
-    'Direct company links saved',
-    'Resume and interview prep together',
-    'Chrome extension workflow',
-];
+const trustSignalKeys = ['direct_links', 'resume_prep', 'chrome_extension'];
 
 const heroStoryAvatars = [
-    { label: 'Career switcher', src: '/avatars/careervivid-rabbit-bow.jpg', fallback: 'M', tone: 'bg-[#f3f2ff] text-[#625bd5]' },
-    { label: 'New grad', src: '/avatars/careervivid-rabbit-glasses.jpg', fallback: 'A', tone: 'bg-[#f7fff8] text-[#15803d]' },
-    { label: 'Busy applicant', src: '', fallback: 'J', tone: 'bg-[#fff7e8] text-[#a16207]' },
+    { label: 'career-switcher', src: '/avatars/careervivid-rabbit-bow.jpg', fallback: 'M', tone: 'bg-[#f3f2ff] text-[#625bd5]' },
+    { label: 'new-grad', src: '/avatars/careervivid-rabbit-glasses.jpg', fallback: 'A', tone: 'bg-[#f7fff8] text-[#15803d]' },
+    { label: 'busy-applicant', src: '', fallback: 'J', tone: 'bg-[#fff7e8] text-[#a16207]' },
 ];
 
 const ROTATION_MS = 7000;
-
-const previewTabs = [
-    { label: 'Resume builder', icon: FileText },
-    { label: 'Interview studio', icon: Mic },
-    { label: 'Career pipeline', icon: Briefcase },
-];
 
 const ProgressBar = ({ value, tone = 'bg-[#625bd5]' }: { value: number; tone?: string }) => (
     <div className="h-2 overflow-hidden rounded-full bg-[#ece2d2]">
@@ -47,36 +38,38 @@ const MiniMetric = ({ label, value, tone }: { label: string; value: string; tone
     </div>
 );
 
-const ResumeEditorPreview = () => (
-    <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(220px,250px)]">
+const ResumeEditorPreview = () => {
+    const { t } = useTranslation();
+
+    return <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(220px,250px)]">
         <div className="min-w-0 p-3 sm:p-4">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#a97935]">My Resumes</p>
-                    <h3 className="text-lg font-semibold text-[#211b16]">Resume builder workspace</h3>
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#a97935]">{t('landing.community_showcase.resume.my_resumes')}</p>
+                    <h3 className="text-lg font-semibold text-[#211b16]">{t('landing.community_showcase.resume.workspace')}</h3>
                 </div>
                 <button className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#625bd5] px-3 text-sm font-bold text-white shadow-lg shadow-[#625bd5]/15">
                     <FileText size={16} />
-                    New Resume
+                    {t('landing.community_showcase.resume.new_resume')}
                 </button>
             </div>
 
             <div className="rounded-xl border border-[#eadbc5] bg-white/90 p-3 shadow-sm">
                 <div className="mb-2 flex items-center justify-between gap-3">
-                    <p className="text-sm font-semibold text-[#211b16]">Tailored for Associate React Developer</p>
-                    <span className="rounded-full bg-[#f3f2ff] px-2.5 py-1 text-xs font-bold text-[#625bd5]">Preview</span>
+                    <p className="text-sm font-semibold text-[#211b16]">{t('landing.community_showcase.resume.tailored_for')}</p>
+                    <span className="rounded-full bg-[#f3f2ff] px-2.5 py-1 text-xs font-bold text-[#625bd5]">{t('landing.community_showcase.resume.preview')}</span>
                 </div>
                 <div className="rounded-lg border border-[#eadbc5] bg-[#fffaf1] p-3">
                     <div className="border-b border-[#eadbc5] pb-2">
                         <h4 className="text-base font-semibold text-[#211b16]">Jiawen Zhu</h4>
-                        <p className="text-sm font-bold text-[#665a4a]">Front End Developer</p>
+                        <p className="text-sm font-bold text-[#665a4a]">{t('landing.community_showcase.resume.role')}</p>
                     </div>
                     <div className="mt-3 grid gap-3 sm:grid-cols-[1.2fr_0.8fr]">
                         <div className="space-y-2">
                             {[
-                                ['Profile', 'Responsive, accessible web interfaces with React and JavaScript.'],
-                                ['Experience', 'Project work, stakeholder collaboration, and measurable UI improvements.'],
-                                ['Education', 'Computer Science foundation with product development.'],
+                                [t('landing.community_showcase.resume.sections.profile'), t('landing.community_showcase.resume.copy.profile')],
+                                [t('landing.community_showcase.resume.sections.experience'), t('landing.community_showcase.resume.copy.experience')],
+                                [t('landing.community_showcase.resume.sections.education'), t('landing.community_showcase.resume.copy.education')],
                             ].map(([label, copy]) => (
                                 <div key={label}>
                                     <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#a97935]">{label}</p>
@@ -86,11 +79,11 @@ const ResumeEditorPreview = () => (
                         </div>
                         <div className="space-y-3">
                             <div>
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#a97935]">Contact</p>
-                                <p className="mt-1 text-xs font-semibold text-[#665a4a]">Email · LinkedIn · Portfolio</p>
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#a97935]">{t('landing.community_showcase.resume.sections.contact')}</p>
+                                <p className="mt-1 text-xs font-semibold text-[#665a4a]">{t('landing.community_showcase.resume.contact_line')}</p>
                             </div>
                             <div>
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#a97935]">Skills</p>
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#a97935]">{t('landing.community_showcase.resume.sections.skills')}</p>
                                 <div className="mt-2 flex flex-wrap gap-1.5">
                                     {['HTML', 'CSS', 'JavaScript', 'React'].map((skill) => (
                                         <span key={skill} className="rounded-full bg-[#f7fff8] px-2 py-1 text-[11px] font-bold text-[#137245]">
@@ -103,9 +96,9 @@ const ResumeEditorPreview = () => (
                     </div>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-1.5">
-                    {['Profile', 'Experience', 'Contact', 'Skills', 'Education', 'Export'].map((section) => (
+                    {['profile', 'experience', 'contact', 'skills', 'education', 'export'].map((section) => (
                         <span key={section} className="rounded-full border border-[#eadbc5] bg-[#f9efe0]/70 px-2.5 py-1 text-[11px] font-semibold text-[#665a4a]">
-                            {section}
+                            {t(`landing.community_showcase.resume.chips.${section}`)}
                         </span>
                     ))}
                 </div>
@@ -114,34 +107,36 @@ const ResumeEditorPreview = () => (
 
         <aside className="border-t border-[#eadbc5] bg-[#f9efe0]/80 p-3 lg:border-l lg:border-t-0">
             <div className="rounded-xl border border-[#eadbc5] bg-white/90 p-3 shadow-sm">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#a97935]">Create section</p>
-                <h4 className="mt-1 text-base font-semibold text-[#211b16]">Paste resume content</h4>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#a97935]">{t('landing.community_showcase.resume.create_section')}</p>
+                <h4 className="mt-1 text-base font-semibold text-[#211b16]">{t('landing.community_showcase.resume.paste_title')}</h4>
                 <p className="mt-3 text-sm font-medium leading-relaxed text-[#665a4a]">
-                    Paste an existing resume, then turn it into structured sections you can edit, tailor, and reuse.
+                    {t('landing.community_showcase.resume.paste_body')}
                 </p>
                 <div className="mt-3 rounded-lg border border-dashed border-[#d8c6ad] bg-[#fffaf1] p-3 text-xs font-semibold leading-5 text-[#8a7865]">
-                    Paste your resume content here...
+                    {t('landing.community_showcase.resume.paste_placeholder')}
                 </div>
                 <button className="mt-3 inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg bg-[#625bd5] text-sm font-semibold text-white">
                     <Wand2 size={15} />
-                    Tailor for a job
+                    {t('landing.community_showcase.resume.tailor_job')}
                 </button>
             </div>
         </aside>
-    </div>
-);
+    </div>;
+};
 
-const MockInterviewPreview = () => (
-    <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(220px,250px)]">
+const MockInterviewPreview = () => {
+    const { t } = useTranslation();
+
+    return <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(220px,250px)]">
         <div className="min-w-0 p-3 sm:p-4">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#a97935]">Interview workspace</p>
-                    <h3 className="text-lg font-semibold text-[#211b16]">Technical Interview Simulator</h3>
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#a97935]">{t('landing.community_showcase.interview.workspace')}</p>
+                    <h3 className="text-lg font-semibold text-[#211b16]">{t('landing.community_showcase.interview.title')}</h3>
                 </div>
                 <button className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#625bd5] px-3 text-sm font-bold text-white shadow-lg shadow-[#625bd5]/15">
                     <Mic size={16} />
-                    Start Interview Mode
+                    {t('landing.community_showcase.interview.start_mode')}
                 </button>
             </div>
 
@@ -151,16 +146,16 @@ const MockInterviewPreview = () => (
                         <MessageSquareText size={21} />
                     </div>
                     <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#a97935]">Prompt</p>
-                        <p className="mt-2 text-base font-semibold leading-6 text-[#211b16]">Prepare for your next interview with an AI-powered mock session.</p>
+                        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#a97935]">{t('landing.community_showcase.interview.prompt')}</p>
+                        <p className="mt-2 text-base font-semibold leading-6 text-[#211b16]">{t('landing.community_showcase.interview.prompt_body')}</p>
                     </div>
                 </div>
 
                 <div className="mt-4 grid gap-2 sm:grid-cols-3">
                     {[
-                        ['Mode', 'Behavioral', 'bg-[#f3f2ff] text-[#625bd5]'],
-                        ['Difficulty', 'Standard', 'bg-[#fff7e8] text-[#9a651f]'],
-                        ['Duration', '15 min', 'bg-[#f7fff8] text-[#137245]'],
+                        [t('landing.community_showcase.interview.mode'), t('landing.community_showcase.interview.behavioral'), 'bg-[#f3f2ff] text-[#625bd5]'],
+                        [t('landing.community_showcase.interview.difficulty'), t('landing.community_showcase.interview.standard'), 'bg-[#fff7e8] text-[#9a651f]'],
+                        [t('landing.community_showcase.interview.duration'), t('landing.community_showcase.interview.duration_value'), 'bg-[#f7fff8] text-[#137245]'],
                     ].map(([label, value, tone]) => (
                         <div key={label} className="rounded-lg border border-[#eadbc5] bg-[#f9efe0]/60 p-3">
                             <span className={`rounded-full px-2 py-1 text-[11px] font-semibold ${tone}`}>{label}</span>
@@ -170,11 +165,11 @@ const MockInterviewPreview = () => (
                 </div>
 
                 <div className="mt-4 rounded-lg border border-[#eadbc5] bg-[#f9efe0]/70 p-3">
-                    <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#a97935]">Career paths</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#a97935]">{t('landing.community_showcase.interview.career_paths')}</p>
                     <div className="mt-2 flex flex-wrap gap-2">
-                        {['Technology', 'Finance & Business', 'Creative & Marketing'].map((path) => (
+                        {['technology', 'finance', 'creative'].map((path) => (
                             <span key={path} className="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-[#665a4a]">
-                                {path}
+                                {t(`landing.community_showcase.interview.paths.${path}`)}
                             </span>
                         ))}
                     </div>
@@ -184,13 +179,13 @@ const MockInterviewPreview = () => (
 
         <aside className="border-t border-[#eadbc5] bg-[#f9efe0]/80 p-3 lg:border-l lg:border-t-0">
             <div className="rounded-xl border border-[#eadbc5] bg-white/90 p-3 shadow-sm">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#a97935]">Recent sessions</p>
-                <h4 className="mt-1 text-base font-semibold text-[#211b16]">17 saved</h4>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#a97935]">{t('landing.community_showcase.interview.recent_sessions')}</p>
+                <h4 className="mt-1 text-base font-semibold text-[#211b16]">{t('landing.community_showcase.interview.saved_count')}</h4>
                 <div className="mt-3 space-y-2">
                     {[
-                        ['Real-time Fraud Detection', 'Practice Again'],
-                        ['Production Incident', 'Report'],
-                        ['Zero Downtime Refactor', 'Practice Again'],
+                        [t('landing.community_showcase.interview.sessions.fraud'), t('landing.community_showcase.interview.practice_again')],
+                        [t('landing.community_showcase.interview.sessions.incident'), t('landing.community_showcase.interview.report')],
+                        [t('landing.community_showcase.interview.sessions.refactor'), t('landing.community_showcase.interview.practice_again')],
                     ].map(([title, action]) => (
                         <div key={title} className="rounded-lg border border-[#eadbc5] bg-[#fffaf1] p-3">
                             <p className="text-sm font-semibold leading-tight text-[#211b16]">{title}</p>
@@ -200,43 +195,45 @@ const MockInterviewPreview = () => (
                 </div>
             </div>
         </aside>
-    </div>
-);
+    </div>;
+};
 
-const JobPipelinePreview = () => (
-    <div className="grid gap-0">
+const JobPipelinePreview = () => {
+    const { t } = useTranslation();
+
+    return <div className="grid gap-0">
         <div className="min-w-0 p-3 sm:p-4">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#a97935]">Career pipeline</p>
-                    <h3 className="text-lg font-semibold text-[#211b16]">Today's job-search plan</h3>
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#a97935]">{t('landing.community_showcase.pipeline.label')}</p>
+                    <h3 className="text-lg font-semibold text-[#211b16]">{t('landing.community_showcase.pipeline.title')}</h3>
                 </div>
                 <button className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#625bd5] px-3 text-sm font-bold text-white shadow-lg shadow-[#625bd5]/15">
                     <Briefcase size={16} />
-                    Track New Job
+                    {t('landing.community_showcase.pipeline.track_new')}
                 </button>
             </div>
 
             <div className="mb-3 grid grid-cols-3 gap-2">
-                <MiniMetric label="Total" value="36" tone="bg-[#f7f1e7] text-[#665a4a]" />
-                <MiniMetric label="Active" value="29" tone="bg-[#f3f2ff] text-[#625bd5]" />
-                <MiniMetric label="Interviews" value="3" tone="bg-[#fff7e8] text-[#9a651f]" />
+                <MiniMetric label={t('landing.community_showcase.pipeline.metrics.total')} value="36" tone="bg-[#f7f1e7] text-[#665a4a]" />
+                <MiniMetric label={t('landing.community_showcase.pipeline.metrics.active')} value="29" tone="bg-[#f3f2ff] text-[#625bd5]" />
+                <MiniMetric label={t('landing.community_showcase.pipeline.metrics.interviews')} value="3" tone="bg-[#fff7e8] text-[#9a651f]" />
             </div>
 
             <div className="mb-3 rounded-xl border border-[#eadbc5] bg-white/90 p-3 shadow-sm">
-                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#a97935]">Pipeline controls</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#a97935]">{t('landing.community_showcase.pipeline.controls')}</p>
                 <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto_auto]">
-                    <span className="rounded-lg border border-[#eadbc5] bg-[#fffaf1] px-3 py-2 text-xs font-bold text-[#8a7865]">Search jobs</span>
-                    <span className="rounded-lg border border-[#eadbc5] bg-[#fffaf1] px-3 py-2 text-xs font-bold text-[#665a4a]">Kanban</span>
-                    <span className="rounded-lg border border-[#eadbc5] bg-[#fffaf1] px-3 py-2 text-xs font-bold text-[#665a4a]">Strategy</span>
+                    <span className="rounded-lg border border-[#eadbc5] bg-[#fffaf1] px-3 py-2 text-xs font-bold text-[#8a7865]">{t('landing.community_showcase.pipeline.search_jobs')}</span>
+                    <span className="rounded-lg border border-[#eadbc5] bg-[#fffaf1] px-3 py-2 text-xs font-bold text-[#665a4a]">{t('landing.community_showcase.pipeline.kanban')}</span>
+                    <span className="rounded-lg border border-[#eadbc5] bg-[#fffaf1] px-3 py-2 text-xs font-bold text-[#665a4a]">{t('landing.community_showcase.pipeline.strategy')}</span>
                 </div>
             </div>
 
             <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {[
-                    { title: 'To apply', count: 3, color: 'bg-[#7d6e5e]', cards: [['Senior UX Engineer', 'Google', '61% match']] },
-                    { title: 'Applied', count: 33, color: 'bg-[#625bd5]', cards: [['AI Systems Engineer', 'OpenAI', '86% match']] },
-                    { title: 'Interview', count: 0, color: 'bg-[#a97935]', cards: [['When interviews start', 'Drop jobs here', '']] },
+                    { title: t('landing.community_showcase.pipeline.columns.to_apply'), count: 3, color: 'bg-[#7d6e5e]', cards: [[t('landing.community_showcase.pipeline.cards.ux_role'), 'Google', t('landing.community_showcase.pipeline.match_61')]] },
+                    { title: t('landing.community_showcase.pipeline.columns.applied'), count: 33, color: 'bg-[#625bd5]', cards: [[t('landing.community_showcase.pipeline.cards.ai_role'), 'OpenAI', t('landing.community_showcase.pipeline.match_86')]] },
+                    { title: t('landing.community_showcase.pipeline.columns.interview'), count: 0, color: 'bg-[#a97935]', cards: [[t('landing.community_showcase.pipeline.cards.when_interviews'), t('landing.community_showcase.pipeline.cards.drop_here'), '']] },
                 ].map((column) => (
                     <div key={column.title} className="min-h-[150px] min-w-0 overflow-hidden rounded-xl border border-[#eadbc5] bg-[#f9efe0]/70 p-2 sm:p-2.5">
                         <div className="mb-2 flex items-center justify-between gap-1.5">
@@ -263,14 +260,19 @@ const JobPipelinePreview = () => (
         <aside className="border-t border-[#eadbc5] bg-[#f9efe0]/80 p-3">
             <div className="grid gap-3 rounded-xl border border-[#eadbc5] bg-white/90 p-3 shadow-sm sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
                 <div className="min-w-0">
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#a97935]">Plan summary</p>
-                    <h4 className="mt-1 text-base font-semibold text-[#211b16]">Due work and next actions</h4>
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#a97935]">{t('landing.community_showcase.pipeline.plan_summary')}</p>
+                    <h4 className="mt-1 text-base font-semibold text-[#211b16]">{t('landing.community_showcase.pipeline.next_actions')}</h4>
                     <p className="mt-2 text-sm font-medium leading-relaxed text-[#665a4a]">
-                    Focus on due work, planned next actions, high-fit roles, and jobs missing a clear next step.
+                    {t('landing.community_showcase.pipeline.next_actions_body')}
                     </p>
                 </div>
                 <div className="grid grid-cols-2 gap-2 sm:w-[200px]">
-                    {['0 due', '2 next', '4 high fit', '1 prep'].map((item) => (
+                    {[
+                        t('landing.community_showcase.pipeline.summary_due'),
+                        t('landing.community_showcase.pipeline.summary_next'),
+                        t('landing.community_showcase.pipeline.summary_high_fit'),
+                        t('landing.community_showcase.pipeline.summary_prep'),
+                    ].map((item) => (
                         <span key={item} className="rounded-lg border border-[#eadbc5] bg-[#fffaf1] px-2 py-2 text-center text-xs font-semibold text-[#665a4a]">
                             {item}
                         </span>
@@ -278,11 +280,17 @@ const JobPipelinePreview = () => (
                 </div>
             </div>
         </aside>
-    </div>
-);
+    </div>;
+};
 
 const ProductPreview = () => {
+    const { t } = useTranslation();
     const [activeSlide, setActiveSlide] = useState(0);
+    const previewTabs = [
+        { label: t('landing.community_showcase.tabs.resume_builder'), icon: FileText },
+        { label: t('landing.community_showcase.tabs.interview_studio'), icon: Mic },
+        { label: t('landing.community_showcase.tabs.career_pipeline'), icon: Briefcase },
+    ];
 
     useEffect(() => {
         const timer = window.setInterval(() => {
@@ -309,12 +317,12 @@ const ProductPreview = () => {
                     </div>
                     <div className="hidden items-center gap-2 rounded-full border border-[#e4d3bc] bg-[#fffaf1] px-3 py-1 text-xs font-semibold text-[#665a4a] sm:flex">
                         <AppWindow size={14} />
-                        CareerVivid workspace
+                        {t('landing.community_showcase.workspace_label')}
                     </div>
                 </div>
 
                 <div className="border-b border-[#eadbc5] bg-[#fffaf1] px-3 py-2">
-                    <div className="grid gap-2 sm:grid-cols-3" role="tablist" aria-label="CareerVivid workspace preview">
+                    <div className="grid gap-2 sm:grid-cols-3" role="tablist" aria-label={t('landing.community_showcase.workspace_preview')}>
                         {previewTabs.map(({ label, icon: Icon }, index) => {
                             const isActive = activeSlide === index;
                             return (
@@ -353,13 +361,15 @@ const ProductPreview = () => {
     );
 };
 
-const CompactProductPreview = () => (
-    <div className="rounded-xl border border-[#e4d3bc] bg-[#fffaf1]/90 p-4 shadow-lg shadow-[#8b5a16]/10">
+const CompactProductPreview = () => {
+    const { t } = useTranslation();
+
+    return <div className="rounded-xl border border-[#e4d3bc] bg-[#fffaf1]/90 p-4 shadow-lg shadow-[#8b5a16]/10">
         <div className="mb-4 flex items-center justify-between gap-3">
             <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#a97935]">Saved role</p>
-                <h3 className="mt-1 text-lg font-semibold leading-tight text-[#211b16]">Frontend Web Engineer</h3>
-                <p className="mt-1 text-sm font-semibold text-[#665a4a]">NVIDIA · Direct apply link saved</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#a97935]">{t('landing.community_showcase.compact.saved_role')}</p>
+                <h3 className="mt-1 text-lg font-semibold leading-tight text-[#211b16]">{t('landing.community_showcase.compact.role')}</h3>
+                <p className="mt-1 text-sm font-semibold text-[#665a4a]">{t('landing.community_showcase.compact.company_line')}</p>
             </div>
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#f3f2ff] text-[#625bd5]">
                 <Briefcase size={22} />
@@ -367,9 +377,9 @@ const CompactProductPreview = () => (
         </div>
         <div className="grid grid-cols-3 gap-2">
             {[
-                ['Match', '75%'],
-                ['Status', 'To apply'],
-                ['Prep', 'Ready'],
+                [t('landing.community_showcase.compact.match'), '75%'],
+                [t('landing.community_showcase.compact.status'), t('landing.community_showcase.compact.to_apply')],
+                [t('landing.community_showcase.compact.prep'), t('landing.community_showcase.compact.ready')],
             ].map(([label, value]) => (
                 <div key={label} className="rounded-lg border border-[#eadbc5] bg-white/80 p-3">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#a97935]">{label}</p>
@@ -377,10 +387,12 @@ const CompactProductPreview = () => (
                 </div>
             ))}
         </div>
-    </div>
-);
+    </div>;
+};
 
 export function CommunityShowcaseHero() {
+    const { t } = useTranslation();
+
     return (
         <section className="relative overflow-hidden border-b border-[#e6dac8] bg-[#f7f1e7] pt-16 pb-6 text-[#211b16] sm:pt-24 sm:pb-8 xl:pt-20 xl:pb-6 2xl:pt-28 2xl:pb-10">
             <div className="pointer-events-none absolute inset-0 opacity-55 cv-warm-grid" />
@@ -403,26 +415,24 @@ export function CommunityShowcaseHero() {
                                 ))}
                             </div>
                             <div className="min-w-0">
-                                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#a97935]">Example user story</p>
+                                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#a97935]">{t('landing.community_showcase.hero.story_label')}</p>
                                 <p className="mt-1 text-xs font-bold leading-5 text-[#211b16] sm:text-sm">
-                                    “I saved the apply link, tailored my resume, and kept prep in one place.”
+                                    {t('landing.community_showcase.hero.story_quote')}
                                 </p>
                             </div>
                         </div>
 
                         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#a97935]">
-                            AI job-search workspace
+                            {t('landing.community_showcase.hero.eyebrow')}
                         </p>
 
                         <h1 className="mt-5 max-w-3xl text-4xl font-semibold leading-[0.96] tracking-tight text-[#211b16] sm:text-5xl xl:text-6xl 2xl:text-7xl">
-                            Save job links. Tailor stronger resumes faster. Apply with confidence.
+                            {t('landing.community_showcase.hero.title')}
                         </h1>
 
                         <div className="mt-5 max-w-2xl rounded-xl border border-[#e4d3bc] bg-[#fffaf1]/78 p-4 shadow-sm shadow-[#8b5a16]/5 sm:mt-7 sm:p-5">
                             <p className="text-base font-medium leading-7 text-[#665a4a] sm:text-[17px] sm:leading-8">
-                                CareerVivid helps job seekers save company job links, compare resume fit,
-                                tailor the application, and keep interview prep attached to each role. Fewer
-                                scattered tabs, fewer lost links, and a clearer next step.
+                                {t('landing.community_showcase.hero.body')}
                             </p>
                         </div>
 
@@ -431,21 +441,21 @@ export function CommunityShowcaseHero() {
                                 href="/signup"
                                 className="inline-flex min-h-[52px] items-center justify-center gap-3 rounded-xl bg-[#211b16] px-6 py-4 text-base font-semibold text-white shadow-xl shadow-[#8b5a16]/10 transition hover:-translate-y-0.5 hover:bg-[#3a2b20]"
                             >
-                                Start free <ArrowRight size={19} />
+                                {t('landing.community_showcase.hero.start_free')} <ArrowRight size={19} />
                             </a>
                             <a
                                 href="/job-tracker"
                                 className="inline-flex min-h-[52px] items-center justify-center gap-3 rounded-xl border border-[#d8c6ad] bg-[#fffaf1] px-6 py-4 text-base font-semibold text-[#211b16] shadow-sm transition hover:-translate-y-0.5 hover:border-[#bfa782]"
                             >
-                                View job tracker
+                                {t('landing.community_showcase.hero.view_tracker')}
                             </a>
                         </div>
 
                         <div className="mt-8 hidden gap-3 xl:grid xl:grid-cols-3">
-                            {trustSignals.map((signal) => (
+                            {trustSignalKeys.map((signal) => (
                                 <div key={signal} className="flex items-start gap-2 rounded-xl border border-[#e4d3bc] bg-[#fffaf1]/78 p-3 text-sm font-bold text-[#665a4a] shadow-sm">
                                     <CheckCircle2 size={17} className="mt-0.5 shrink-0 text-[#137245]" />
-                                    <span>{signal}</span>
+                                    <span>{t(`landing.community_showcase.trust.${signal}`)}</span>
                                 </div>
                             ))}
                         </div>

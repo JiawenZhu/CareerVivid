@@ -1,15 +1,6 @@
-import { GoogleGenAI } from "@google/genai";
 import { PortfolioData } from "../types/portfolio";
 import { trackUsage } from "../../../services/trackingService";
-
-const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || (window as any)?.ENV?.VITE_GOOGLE_API_KEY;
-
-if (!apiKey) {
-    console.warn("VITE_GOOGLE_API_KEY is not defined. AI Refinement may not work.");
-}
-
-const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
-const GEMINI_MODEL = 'gemini-1.5-flash';
+import { callGeminiProxy } from "../../../services/geminiService";
 
 const REFINEMENT_INSTRUCTION = `
 You are an expert Frontend Developer and UI/UX Designer.
@@ -42,10 +33,6 @@ export async function refinePortfolio(
     instruction: string,
     imageContext?: string
 ): Promise<PortfolioData> {
-    if (!ai) {
-        throw new Error("AI Client not initialized (Missing API Key)");
-    }
-
     try {
         let prompt = `
         CURRENT DATA:
@@ -62,8 +49,8 @@ export async function refinePortfolio(
         prompt += `\nReturn the updated JSON:`;
 
         const generate = async (modelName: string) => {
-            return await ai.models.generateContent({
-                model: modelName,
+            return await callGeminiProxy({
+                modelName,
                 contents: { parts: [{ text: prompt }] },
                 config: {
                     systemInstruction: REFINEMENT_INSTRUCTION,
@@ -74,7 +61,6 @@ export async function refinePortfolio(
 
         let response;
         const modelsToTry = [
-            'gemini-3.0-flash',     // Newest Flash (if available)
             'gemini-2.5-flash',     // Current Standard GA
             'gemini-2.5-pro',       // Current Pro GA
             'gemini-2.0-flash',     // Previous Stable
@@ -98,7 +84,7 @@ export async function refinePortfolio(
             throw new Error(`All Gemini models failed. Last error: ${lastError?.message || 'Unknown'}`);
         }
 
-        const tokenUsage = response.usageMetadata?.totalTokenCount || 0;
+        const tokenUsage = response.response?.usageMetadata?.totalTokenCount || 0;
         if (currentData.userId) {
             await trackUsage(currentData.userId, 'portfolio_refinement', { tokenUsage });
         }

@@ -14,6 +14,10 @@ import { useAIReview, AISuggestion } from '../../../contexts/AIReviewContext';
 import { ResumeData } from '../../../types';
 import { buildResumeWithReviewSuggestions } from '../../../utils/aiReviewSuggestions';
 import { calculateResumeScore } from '../../../utils/resumeScoreUtils';
+import {
+  getLocalizedReviewTagLabel,
+  getResumeReviewLanguageProfile,
+} from '../../../utils/aiReviewLanguage';
 
 interface AIReviewPanelProps {
   resume: ResumeData;
@@ -39,6 +43,15 @@ export const AIReviewPanel: React.FC<AIReviewPanelProps> = ({ resume, currentUse
 
   const [groupBy, setGroupBy] = useState<'section' | 'priority'>('section');
   const [scanProgress, setScanProgress] = useState(0);
+  const reviewLanguage = React.useMemo(() => getResumeReviewLanguageProfile(resume), [resume]);
+  const reviewUI = reviewLanguage.ui;
+  const previousReviewLanguageCodeRef = React.useRef(reviewLanguage.code);
+
+  React.useEffect(() => {
+    if (previousReviewLanguageCodeRef.current === reviewLanguage.code) return;
+    previousReviewLanguageCodeRef.current = reviewLanguage.code;
+    clearSuggestions();
+  }, [clearSuggestions, reviewLanguage.code]);
 
   // Fake scanning progress text to build excitement
   React.useEffect(() => {
@@ -60,11 +73,11 @@ export const AIReviewPanel: React.FC<AIReviewPanelProps> = ({ resume, currentUse
   };
 
   const getProgressLabel = (progress: number) => {
-    if (progress < 25) return 'Assessing ATS keyword densities...';
-    if (progress < 50) return 'Analyzing grammar and action verbs...';
-    if (progress < 75) return 'Evaluating achievement impact metrics...';
-    if (progress < 90) return 'Reviewing visual layout structure...';
-    return 'Polishing recommended edits...';
+    if (progress < 25) return reviewUI.progress[0];
+    if (progress < 50) return reviewUI.progress[1];
+    if (progress < 75) return reviewUI.progress[2];
+    if (progress < 90) return reviewUI.progress[3];
+    return reviewUI.progress[4];
   };
 
   // Grouping logic
@@ -72,16 +85,16 @@ export const AIReviewPanel: React.FC<AIReviewPanelProps> = ({ resume, currentUse
     const groups: Record<string, AISuggestion[]> = {};
 
     suggestions.forEach((s) => {
-      let key = 'Other';
+      let key = reviewUI.sections.other;
       if (groupBy === 'section') {
-        if (s.category === 'skills') key = 'Skills';
-        else if (s.category === 'experience') key = 'Work Experience';
-        else if (s.category === 'summary') key = 'Professional Summary';
-        else if (s.category === 'personalDetails') key = 'Personal Details';
+        if (s.category === 'skills') key = reviewUI.sections.skills;
+        else if (s.category === 'experience') key = reviewUI.sections.experience;
+        else if (s.category === 'summary') key = reviewUI.sections.summary;
+        else if (s.category === 'personalDetails') key = reviewUI.sections.personalDetails;
       } else {
-        if (s.priority === 'high') key = '🔴 High Impact';
-        else if (s.priority === 'medium') key = '🟡 Medium Impact';
-        else if (s.priority === 'low') key = '🟢 Low Impact';
+        if (s.priority === 'high') key = reviewUI.priorities.high;
+        else if (s.priority === 'medium') key = reviewUI.priorities.medium;
+        else if (s.priority === 'low') key = reviewUI.priorities.low;
       }
 
       if (!groups[key]) groups[key] = [];
@@ -126,12 +139,12 @@ export const AIReviewPanel: React.FC<AIReviewPanelProps> = ({ resume, currentUse
 
           <div className="space-y-2 max-w-sm">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-              {hasScanned ? 'No Actionable Edits Found' : 'Scan Resume with AI Review'}
+              {hasScanned ? reviewUI.noActionableEdits : reviewUI.scanWithAIReview}
             </h3>
             <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
               {hasScanned
-                ? `Your current resume score is ${currentScore}. CareerVivid did not find any verified edits that would improve this version.`
-                : 'Our advanced AI recruiter runs a deep-level assessment of spelling, ATS keyword densities, action verbs, and impact metrics.'}
+                ? reviewUI.noEditsBody(currentScore)
+                : reviewUI.scanBody}
             </p>
           </div>
 
@@ -139,15 +152,15 @@ export const AIReviewPanel: React.FC<AIReviewPanelProps> = ({ resume, currentUse
             <div className="w-full max-w-xs bg-gray-50 dark:bg-gray-900/50 rounded-xl p-3 border border-gray-100 dark:border-gray-800 space-y-2.5 text-left text-[11px] font-semibold text-gray-600 dark:text-gray-400">
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              <span>Fix typos & grammar ("Illustraotr" → "Illustrator")</span>
+              <span>{reviewUI.proofPoints[0]}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-              <span>Tailor skills & add core ATS keywords</span>
+              <span>{reviewUI.proofPoints[1]}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-              <span>Strengthen bullets & inject quantifiable metrics</span>
+              <span>{reviewUI.proofPoints[2]}</span>
             </div>
             </div>
           )}
@@ -157,7 +170,7 @@ export const AIReviewPanel: React.FC<AIReviewPanelProps> = ({ resume, currentUse
             className="w-full max-w-xs flex items-center justify-center gap-2 bg-gradient-to-r from-[#2b164f] to-indigo-800 hover:from-indigo-850 hover:to-[#2b164f] text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98]"
           >
             <Sparkles size={16} />
-            <span>{hasScanned ? 'Scan Again' : 'Scan Resume'}</span>
+            <span>{hasScanned ? reviewUI.scanAgain : reviewUI.scanResume}</span>
           </button>
         </div>
       )}
@@ -176,7 +189,7 @@ export const AIReviewPanel: React.FC<AIReviewPanelProps> = ({ resume, currentUse
 
           <div className="space-y-1.5 max-w-xs">
             <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider animate-pulse">
-              AI Recruiter Assessment
+              {reviewUI.assessmentLabel}
             </h4>
             <p className="text-xs text-gray-400 dark:text-gray-500 font-bold tracking-wide">
               {scanProgress}% — {getProgressLabel(scanProgress)}
@@ -198,19 +211,19 @@ export const AIReviewPanel: React.FC<AIReviewPanelProps> = ({ resume, currentUse
           {/* Filter Header */}
           <div className="flex items-center justify-between p-3 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/30 shrink-0">
             <div className="flex items-center gap-1">
-              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Group by:</span>
+              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">{reviewUI.groupBy}</span>
               <div className="flex bg-gray-200/60 dark:bg-gray-800 rounded-lg p-0.5 ml-1">
                 <button
                   onClick={() => setGroupBy('section')}
                   className={`text-[10px] font-bold px-2 py-1 rounded-md transition-all ${groupBy === 'section' ? 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                 >
-                  Section
+                  {reviewUI.section}
                 </button>
                 <button
                   onClick={() => setGroupBy('priority')}
                   className={`text-[10px] font-bold px-2 py-1 rounded-md transition-all ${groupBy === 'priority' ? 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                 >
-                  Priority
+                  {reviewUI.priority}
                 </button>
               </div>
             </div>
@@ -219,7 +232,7 @@ export const AIReviewPanel: React.FC<AIReviewPanelProps> = ({ resume, currentUse
               onClick={clearSuggestions}
               className="text-[10px] font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-wider"
             >
-              Clear Review
+              {reviewUI.clearReview}
             </button>
           </div>
 
@@ -231,7 +244,7 @@ export const AIReviewPanel: React.FC<AIReviewPanelProps> = ({ resume, currentUse
                 <div className="flex items-center gap-2 pt-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
                   <h4 className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">
-                    {groupTitle} ({list.length} Suggestions)
+                    {groupTitle} ({list.length} {reviewUI.suggestions})
                   </h4>
                 </div>
 
@@ -290,24 +303,24 @@ export const AIReviewPanel: React.FC<AIReviewPanelProps> = ({ resume, currentUse
                         <div className="pt-2 border-t border-gray-100 dark:border-gray-800 flex flex-wrap gap-1 text-[10px] leading-relaxed">
                           {s.type === 'delete' && (
                             <div className="flex items-center flex-wrap gap-1 font-bold text-red-500">
-                              <span>Remove:</span>
+                              <span>{reviewUI.remove}</span>
                               <span className="line-through decoration-red-500 decoration-2 text-red-600 dark:text-red-400">{s.originalText}</span>
                             </div>
                           )}
                           {s.type === 'add' && (
                             <div className="flex items-center flex-wrap gap-1 font-bold text-emerald-600 dark:text-emerald-400">
-                              <span>Add:</span>
+                              <span>{reviewUI.add}</span>
                               <span className="border-b-2 border-emerald-500/90 pb-[1px]">{s.suggestedText}</span>
                             </div>
                           )}
                           {s.type === 'replace' && (
                             <div className="flex flex-col gap-1 w-full font-bold">
                               <div className="flex items-center flex-wrap gap-1 text-red-500">
-                                <span className="opacity-60 text-[9px] uppercase tracking-wider w-8">Old:</span>
+                                <span className="opacity-60 text-[9px] uppercase tracking-wider w-10">{reviewUI.old}</span>
                                 <span className="line-through decoration-red-500 decoration-2 text-red-600 dark:text-red-400 font-medium">{s.originalText}</span>
                               </div>
                               <div className="flex items-center flex-wrap gap-1 text-emerald-600 dark:text-emerald-400">
-                                <span className="opacity-60 text-[9px] uppercase tracking-wider w-8">New:</span>
+                                <span className="opacity-60 text-[9px] uppercase tracking-wider w-10">{reviewUI.new}</span>
                                 <span className="border-b-2 border-emerald-500/90 pb-[1px] font-medium">{s.suggestedText}</span>
                               </div>
                             </div>
@@ -330,7 +343,7 @@ export const AIReviewPanel: React.FC<AIReviewPanelProps> = ({ resume, currentUse
                               }
                             `}
                           >
-                            {tag}
+                            {getLocalizedReviewTagLabel(tag, reviewLanguage)}
                           </span>
                         ))}
                       </div>
@@ -353,7 +366,7 @@ export const AIReviewPanel: React.FC<AIReviewPanelProps> = ({ resume, currentUse
                       ? 'bg-indigo-400 border-indigo-400 text-white'
                       : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900'
                 }`}
-                title={allSelected ? "Deselect All" : "Select All"}
+                title={allSelected ? reviewUI.deselectAll : reviewUI.selectAll}
               >
                 {allSelected && <Check size={10} className="stroke-[3]" />}
                 {someSelected && <span className="w-1.5 h-0.5 bg-white rounded-full" />}
@@ -361,10 +374,10 @@ export const AIReviewPanel: React.FC<AIReviewPanelProps> = ({ resume, currentUse
 
             <div className="flex flex-col">
                 <span className="text-[11px] font-bold text-gray-950 dark:text-white leading-none">
-                  {selectedSuggestionIds.size} Selected
+                  {selectedSuggestionIds.size} {reviewUI.selected}
                 </span>
                 <span className="text-[9px] text-gray-400 dark:text-gray-500 font-semibold mt-0.5">
-                  Score {currentScore} → {projectedScore}
+                  {reviewUI.score} {currentScore} → {projectedScore}
                 </span>
             </div>
             </div>
@@ -375,7 +388,7 @@ export const AIReviewPanel: React.FC<AIReviewPanelProps> = ({ resume, currentUse
                 disabled={selectedSuggestionIds.size === 0}
                 className="flex items-center justify-center gap-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 font-bold rounded-lg text-xs transition-colors active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Ignore
+                {reviewUI.ignore}
               </button>
               <button
                 onClick={() => applySelected(resume, onUpdate)}
@@ -383,7 +396,7 @@ export const AIReviewPanel: React.FC<AIReviewPanelProps> = ({ resume, currentUse
                 className="flex items-center justify-center gap-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs shadow-md transition-all active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Check size={12} className="stroke-[2.5]" />
-                <span>Apply</span>
+                <span>{reviewUI.apply}</span>
               </button>
             </div>
           </div>

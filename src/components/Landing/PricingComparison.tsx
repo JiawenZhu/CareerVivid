@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, Variants } from 'framer-motion';
 import { Check, X, Terminal, Zap } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { navigate } from '../../utils/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import { FREE_PLAN_CREDIT_LIMIT } from '../../config/creditCosts';
@@ -12,6 +13,7 @@ interface PricingComparisonProps {
 }
 
 export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpgrade, isLoading }) => {
+    const { t } = useTranslation();
     const { currentUser } = useAuth();
     const proPlan = SUBSCRIPTION_CATALOG.pro;
     const maxPlan = SUBSCRIPTION_CATALOG.max;
@@ -20,8 +22,8 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
     const isYearly = billingInterval === 'yearly';
     const proDisplayPrice = isYearly ? proPlan.annualMonthlyEquivalent : proPlan.monthlyPrice;
     const maxDisplayPrice = isYearly ? maxPlan.annualMonthlyEquivalent : maxPlan.monthlyPrice;
-    const proBillingCopy = isYearly ? `Billed yearly as $${proPlan.annualPrice}/year` : 'Cancel or change anytime';
-    const maxBillingCopy = isYearly ? `Billed yearly as $${maxPlan.annualPrice}/year` : 'Cancel or change anytime';
+    const proBillingCopy = isYearly ? t('pricing_comparison.billing.yearly', { price: proPlan.annualPrice }) : t('pricing_comparison.billing.cancel_anytime');
+    const maxBillingCopy = isYearly ? t('pricing_comparison.billing.yearly', { price: maxPlan.annualPrice }) : t('pricing_comparison.billing.cancel_anytime');
     const proPriceId = isYearly ? proPlan.annualPriceId : proPlan.monthlyPriceId;
 
     const handleUpgradeClick = () => {
@@ -56,32 +58,32 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
         enterprise: boolean | string;
     }> = [
         // CLI Agent
-        { category: '🤖 CLI AI Agent', name: '', free: '', pro: '', max: '', enterprise: '' },
-        { name: 'cv agent (Gemini Flash Lite, 0.5 cr/turn)', free: true, pro: true, max: true, enterprise: true },
-        { name: 'cv agent (Gemini 2.5 Flash, 1 cr/turn)', free: true, pro: true, max: true, enterprise: true },
-        { name: 'cv agent --pro (Gemini Pro, 2 cr/turn)', free: false, pro: true, max: true, enterprise: true },
-        { name: 'cv agent --jobs (job search & tracker)', free: true, pro: true, max: true, enterprise: true },
-        { name: 'cv agent --resume (resume tools)', free: true, pro: true, max: true, enterprise: true },
-        { name: 'BYO API Key (OpenAI / Claude / OpenRouter…)', free: true, pro: true, max: true, enterprise: true },
+        { category: t('pricing_comparison.features.categories.cli_agent'), name: '', free: '', pro: '', max: '', enterprise: '' },
+        { name: t('pricing_comparison.features.cli.flash_lite'), free: true, pro: true, max: true, enterprise: true },
+        { name: t('pricing_comparison.features.cli.flash'), free: true, pro: true, max: true, enterprise: true },
+        { name: t('pricing_comparison.features.cli.pro'), free: false, pro: true, max: true, enterprise: true },
+        { name: t('pricing_comparison.features.cli.jobs'), free: true, pro: true, max: true, enterprise: true },
+        { name: t('pricing_comparison.features.cli.resume'), free: true, pro: true, max: true, enterprise: true },
+        { name: t('pricing_comparison.features.cli.byo_key'), free: true, pro: true, max: true, enterprise: true },
         // Job & Resume AI
-        { category: '📄 Job & Resume AI', name: '', free: '', pro: '', max: '', enterprise: '' },
-        { name: 'AI Resume Tailor', free: '5 credits', pro: '5 credits', max: '5 credits', enterprise: '5 credits' },
-        { name: 'Job Search & Scoring', free: '1 credit', pro: '1 credit', max: '1 credit', enterprise: '1 credit' },
-        { name: 'Targeted Job Prep Notes', free: '10 credits', pro: '10 credits', max: '10 credits', enterprise: '10 credits' },
+        { category: t('pricing_comparison.features.categories.job_resume'), name: '', free: '', pro: '', max: '', enterprise: '' },
+        { name: t('pricing_comparison.features.job_resume.tailor'), free: t('pricing_comparison.values.credits', { count: 5 }), pro: t('pricing_comparison.values.credits', { count: 5 }), max: t('pricing_comparison.values.credits', { count: 5 }), enterprise: t('pricing_comparison.values.credits', { count: 5 }) },
+        { name: t('pricing_comparison.features.job_resume.scoring'), free: t('pricing_comparison.values.credit', { count: 1 }), pro: t('pricing_comparison.values.credit', { count: 1 }), max: t('pricing_comparison.values.credit', { count: 1 }), enterprise: t('pricing_comparison.values.credit', { count: 1 }) },
+        { name: t('pricing_comparison.features.job_resume.notes'), free: t('pricing_comparison.values.credits', { count: 10 }), pro: t('pricing_comparison.values.credits', { count: 10 }), max: t('pricing_comparison.values.credits', { count: 10 }), enterprise: t('pricing_comparison.values.credits', { count: 10 }) },
         // Developer Tools
-        { category: '🛠 Developer Tools', name: '', free: '', pro: '', max: '', enterprise: '' },
-        { name: 'CLI Publish (Markdown/Mermaid)', free: 'Free', pro: 'Free', max: 'Free', enterprise: 'Free' },
-        { name: 'ReactFlow UI Conversion', free: '5 credits', pro: '5 credits', max: '5 credits', enterprise: '5 credits' },
-        { name: 'Architecture Auto-Gen', free: '10 credits', pro: '10 credits', max: '10 credits', enterprise: '10 credits' },
-        { name: 'Living Documentation Sync', free: false, pro: true, max: true, enterprise: true },
+        { category: t('pricing_comparison.features.categories.developer_tools'), name: '', free: '', pro: '', max: '', enterprise: '' },
+        { name: t('pricing_comparison.features.developer.publish'), free: t('pricing_comparison.values.free'), pro: t('pricing_comparison.values.free'), max: t('pricing_comparison.values.free'), enterprise: t('pricing_comparison.values.free') },
+        { name: t('pricing_comparison.features.developer.reactflow'), free: t('pricing_comparison.values.credits', { count: 5 }), pro: t('pricing_comparison.values.credits', { count: 5 }), max: t('pricing_comparison.values.credits', { count: 5 }), enterprise: t('pricing_comparison.values.credits', { count: 5 }) },
+        { name: t('pricing_comparison.features.developer.architecture'), free: t('pricing_comparison.values.credits', { count: 10 }), pro: t('pricing_comparison.values.credits', { count: 10 }), max: t('pricing_comparison.values.credits', { count: 10 }), enterprise: t('pricing_comparison.values.credits', { count: 10 }) },
+        { name: t('pricing_comparison.features.developer.documentation'), free: false, pro: true, max: true, enterprise: true },
         // Interviews & Portfolio
-        { category: '🎤 Interviews & Portfolio', name: '', free: '', pro: '', max: '', enterprise: '' },
-        { name: 'Technical Voice Interviews', free: '15 credits', pro: '15 credits', max: '15 credits', enterprise: '15 credits' },
-        { name: 'Portfolio Review Analysis', free: '5 credits', pro: '5 credits', max: '5 credits', enterprise: '5 credits' },
+        { category: t('pricing_comparison.features.categories.interviews_portfolio'), name: '', free: '', pro: '', max: '', enterprise: '' },
+        { name: t('pricing_comparison.features.interviews.voice'), free: t('pricing_comparison.values.credits', { count: 15 }), pro: t('pricing_comparison.values.credits', { count: 15 }), max: t('pricing_comparison.values.credits', { count: 15 }), enterprise: t('pricing_comparison.values.credits', { count: 15 }) },
+        { name: t('pricing_comparison.features.interviews.portfolio'), free: t('pricing_comparison.values.credits', { count: 5 }), pro: t('pricing_comparison.values.credits', { count: 5 }), max: t('pricing_comparison.values.credits', { count: 5 }), enterprise: t('pricing_comparison.values.credits', { count: 5 }) },
         // Team
-        { category: '🏢 Team', name: '', free: '', pro: '', max: '', enterprise: '' },
-        { name: 'Private Team Workspaces', free: false, pro: false, max: false, enterprise: true },
-        { name: 'Advanced RBAC & SSO', free: false, pro: false, max: false, enterprise: true },
+        { category: t('pricing_comparison.features.categories.team'), name: '', free: '', pro: '', max: '', enterprise: '' },
+        { name: t('pricing_comparison.features.team.workspaces'), free: false, pro: false, max: false, enterprise: true },
+        { name: t('pricing_comparison.features.team.rbac_sso'), free: false, pro: false, max: false, enterprise: true },
     ];
 
     const containerVariants: Variants = {
@@ -104,7 +106,7 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="text-center mb-10">
                 <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 dark:text-white tracking-tight leading-tight">
-                    Choose your plan
+                    {t('pricing_comparison.title')}
                 </h2>
                 <div className="mt-6 inline-flex rounded-full bg-[#e9e1d6] dark:bg-gray-800 p-1 shadow-inner">
                     <button
@@ -117,7 +119,7 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                                 : 'text-[#766955] dark:text-gray-400 hover:text-[#211b16] dark:hover:text-white'
                         }`}
                     >
-                        Monthly
+                        {t('pricing_comparison.billing.monthly')}
                     </button>
                     <button
                         type="button"
@@ -129,7 +131,7 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                                 : 'text-[#766955] dark:text-gray-400 hover:text-[#211b16] dark:hover:text-white'
                         }`}
                     >
-                        Yearly
+                        {t('pricing_comparison.billing.yearly_toggle')}
                     </button>
                 </div>
             </div>
@@ -148,30 +150,30 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                     className="bg-white dark:bg-gray-900 border border-[#eadfce] dark:border-gray-800 rounded-[1.6rem] p-8 shadow-sm flex flex-col group hover:shadow-md transition-shadow"
                 >
                     <div className="mb-6">
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">Free</h3>
-                        <p className="text-sm text-gray-500 font-medium">Try CareerVivid today.</p>
+                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">{t('pricing_comparison.plans.free.name')}</h3>
+                        <p className="text-sm text-gray-500 font-medium">{t('pricing_comparison.plans.free.subtitle')}</p>
                     </div>
                     <div className="mb-8">
                         <div className="flex items-baseline gap-1.5">
                             <span className="text-sm font-semibold text-gray-900 dark:text-white">$</span>
                             <span className="text-5xl font-bold text-gray-900 dark:text-white">0</span>
-                            <span className="text-gray-500 text-xs font-semibold tracking-normal">USD / month</span>
+                            <span className="text-gray-500 text-xs font-semibold tracking-normal">{t('pricing_comparison.billing.usd_month')}</span>
                         </div>
                         <div className="text-xs text-emerald-700 font-semibold tracking-wider mt-3 uppercase bg-emerald-50 dark:bg-emerald-900/20 inline-flex items-center gap-1.5 px-3 py-1 rounded-full">
-                            <Zap size={12} /> {FREE_PLAN_CREDIT_LIMIT} AI credits / mo
+                            <Zap size={12} /> {t('pricing_comparison.credits.ai_month', { count: FREE_PLAN_CREDIT_LIMIT })}
                         </div>
                     </div>
                     <ul className="space-y-3.5 mb-8 flex-grow text-sm font-medium text-gray-600 dark:text-gray-400">
-                        <li className="flex items-start gap-3"><Terminal className="text-emerald-600 flex-shrink-0 mt-0.5" size={17} /><span>Core AI career workspace</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-0.5" size={18} /><span>Job search &amp; tracker</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-0.5" size={18} /><span>Gemini models included</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-0.5" size={18} /><span>CLI Publish is free</span></li>
+                        <li className="flex items-start gap-3"><Terminal className="text-emerald-600 flex-shrink-0 mt-0.5" size={17} /><span>{t('pricing_comparison.plans.free.feature_1')}</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-0.5" size={18} /><span>{t('pricing_comparison.plans.free.feature_2')}</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-0.5" size={18} /><span>{t('pricing_comparison.plans.free.feature_3')}</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-green-500 flex-shrink-0 mt-0.5" size={18} /><span>{t('pricing_comparison.plans.free.feature_4')}</span></li>
                     </ul>
                     <button
                         onClick={() => navigate('/signup')}
                         className="w-full py-4 rounded-full font-semibold border border-[#eadfce] dark:border-gray-800 text-gray-900 dark:text-white hover:border-[#d5c4aa] dark:hover:border-gray-700 hover:bg-[#fffaf1] dark:hover:bg-gray-800/50 transition-all"
                     >
-                        Get Started Free
+                        {t('pricing_comparison.plans.free.cta')}
                     </button>
                 </motion.div>
 
@@ -181,32 +183,32 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                     className="bg-white dark:bg-gray-900 border border-[#eadfce] dark:border-gray-800 rounded-[1.6rem] p-8 shadow-sm flex flex-col relative overflow-hidden group hover:shadow-md transition-shadow"
                 >
                     <div className="mb-6">
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">Pro</h3>
-                        <p className="text-sm text-gray-500 font-medium">For active job seekers.</p>
+                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">{t('pricing_comparison.plans.pro.name')}</h3>
+                        <p className="text-sm text-gray-500 font-medium">{t('pricing_comparison.plans.pro.subtitle')}</p>
                     </div>
                     <div className="mb-8">
                         <div className="flex items-baseline gap-1.5">
                             <span className="text-sm font-semibold text-gray-900 dark:text-white">$</span>
                             <span className="text-5xl font-bold text-gray-900 dark:text-white">{proDisplayPrice}</span>
-                            <span className="text-gray-500 text-xs font-semibold tracking-normal">USD / month</span>
+                            <span className="text-gray-500 text-xs font-semibold tracking-normal">{t('pricing_comparison.billing.usd_month')}</span>
                         </div>
                         <div className="text-xs text-[#625bd5] font-semibold tracking-wider mt-3 uppercase bg-[#f3f2ff] dark:bg-[#28264f] inline-flex items-center gap-1.5 px-3 py-1 rounded-full">
-                            <Zap size={12} /> {proPlan.creditLimit.toLocaleString()} AI credits / mo
+                            <Zap size={12} /> {t('pricing_comparison.credits.ai_month', { count: proPlan.creditLimit.toLocaleString() })}
                         </div>
                         <p className="text-xs text-gray-500 mt-3 font-medium">{proBillingCopy}</p>
                     </div>
                     <ul className="space-y-3.5 mb-8 flex-grow text-sm font-medium text-gray-600 dark:text-gray-400">
-                        <li className="flex items-start gap-3"><Check className="text-[#625bd5] flex-shrink-0 mt-0.5" size={18} /><span>Everything in Free</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-[#625bd5] flex-shrink-0 mt-0.5" size={18} /><span>Gemini Pro model access</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-[#625bd5] flex-shrink-0 mt-0.5" size={18} /><span>Resume tailoring and job prep</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-[#625bd5] flex-shrink-0 mt-0.5" size={18} /><span>Living Documentation Sync</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-[#625bd5] flex-shrink-0 mt-0.5" size={18} /><span>{t('pricing_comparison.plans.pro.feature_1')}</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-[#625bd5] flex-shrink-0 mt-0.5" size={18} /><span>{t('pricing_comparison.plans.pro.feature_2')}</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-[#625bd5] flex-shrink-0 mt-0.5" size={18} /><span>{t('pricing_comparison.plans.pro.feature_3')}</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-[#625bd5] flex-shrink-0 mt-0.5" size={18} /><span>{t('pricing_comparison.plans.pro.feature_4')}</span></li>
                     </ul>
                     <button
                         onClick={handleProClick}
                         disabled={!!isLoading}
                         className="w-full py-4 rounded-full font-semibold border border-[#eadfce] dark:border-gray-800 text-gray-900 dark:text-white hover:border-[#d5c4aa] dark:hover:border-gray-700 hover:bg-[#fffaf1] dark:hover:bg-gray-800/50 transition-all disabled:opacity-60"
                     >
-                        Start Pro
+                        {t('pricing_comparison.plans.pro.cta')}
                     </button>
                 </motion.div>
 
@@ -215,33 +217,33 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                     variants={itemVariants}
                     className="bg-[#fffaf1] dark:bg-gray-900 border border-[#e4c89f] dark:border-amber-800/40 rounded-[1.6rem] p-8 shadow-sm flex flex-col relative overflow-hidden group"
                 >
-                    <div className="absolute right-7 top-7 rounded-full bg-amber-100 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#a97935]">Power</div>
+                    <div className="absolute right-7 top-7 rounded-full bg-amber-100 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#a97935]">{t('pricing_comparison.plans.max.badge')}</div>
                     <div className="mb-6 relative z-10">
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">Max</h3>
-                        <p className="text-sm text-gray-500 font-medium">For heavy AI and job-search usage.</p>
+                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">{t('pricing_comparison.plans.max.name')}</h3>
+                        <p className="text-sm text-gray-500 font-medium">{t('pricing_comparison.plans.max.subtitle')}</p>
                     </div>
                     <div className="mb-8 relative z-10">
                         <div className="flex items-baseline gap-1.5">
                             <span className="text-sm font-semibold text-gray-900 dark:text-white">$</span>
                             <span className="text-5xl font-bold text-gray-900 dark:text-white">{maxDisplayPrice}</span>
-                            <span className="text-gray-500 text-xs font-semibold tracking-normal">USD / month</span>
+                            <span className="text-gray-500 text-xs font-semibold tracking-normal">{t('pricing_comparison.billing.usd_month')}</span>
                         </div>
                         <div className="text-xs text-[#a97935] font-semibold tracking-wider mt-3 uppercase bg-amber-100/80 dark:bg-amber-900/20 inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-amber-200 dark:border-amber-800/50">
-                            <Zap size={12} /> {maxPlan.creditLimit.toLocaleString()} AI credits / mo
+                            <Zap size={12} /> {t('pricing_comparison.credits.ai_month', { count: maxPlan.creditLimit.toLocaleString() })}
                         </div>
                         <p className="text-xs text-gray-500 mt-3 font-medium">{maxBillingCopy}</p>
                     </div>
                     <ul className="space-y-3.5 mb-8 flex-grow text-sm font-medium text-gray-600 dark:text-gray-400 relative z-10">
-                        <li className="flex items-start gap-3"><Check className="text-[#a97935] flex-shrink-0 mt-0.5" size={18} /><span>Everything in Pro</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-[#a97935] flex-shrink-0 mt-0.5" size={18} /><span>Private posts and advanced ReactFlow</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-[#a97935] flex-shrink-0 mt-0.5" size={18} /><span>4.5x more AI credits than Pro</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-[#a97935] flex-shrink-0 mt-0.5" size={18} /><span>Priority model access</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-[#a97935] flex-shrink-0 mt-0.5" size={18} /><span>{t('pricing_comparison.plans.max.feature_1')}</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-[#a97935] flex-shrink-0 mt-0.5" size={18} /><span>{t('pricing_comparison.plans.max.feature_2')}</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-[#a97935] flex-shrink-0 mt-0.5" size={18} /><span>{t('pricing_comparison.plans.max.feature_3')}</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-[#a97935] flex-shrink-0 mt-0.5" size={18} /><span>{t('pricing_comparison.plans.max.feature_4')}</span></li>
                     </ul>
                     <button
                         onClick={handleUpgradeClick}
                         className="w-full py-4 rounded-full font-semibold bg-[#09090b] text-white hover:bg-black transition-colors shadow-lg relative z-10"
                     >
-                        Get Max
+                        {t('pricing_comparison.plans.max.cta')}
                     </button>
                 </motion.div>
 
@@ -251,31 +253,31 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                     className="bg-[#211b16] dark:bg-black text-white rounded-[1.6rem] p-8 shadow-sm flex flex-col relative overflow-hidden border border-[#211b16]"
                 >
                     <div className="mb-6 relative z-10">
-                        <h3 className="text-xl font-semibold mb-1">Enterprise</h3>
-                        <p className="text-sm text-gray-300 font-medium">For teams and organizations.</p>
+                        <h3 className="text-xl font-semibold mb-1">{t('pricing_comparison.plans.enterprise.name')}</h3>
+                        <p className="text-sm text-gray-300 font-medium">{t('pricing_comparison.plans.enterprise.subtitle')}</p>
                     </div>
                     <div className="mb-8 relative z-10">
                         <div className="flex items-baseline gap-1.5">
                             <span className="text-sm font-semibold">$</span>
                             <span className="text-5xl font-bold">{enterprisePlan.monthlyPrice}</span>
-                            <span className="text-gray-300 text-xs font-semibold tracking-normal">USD / seat / month</span>
+                            <span className="text-gray-300 text-xs font-semibold tracking-normal">{t('pricing_comparison.billing.usd_seat_month')}</span>
                         </div>
                         <div className="text-xs text-amber-400 font-semibold tracking-wider mt-3 uppercase bg-amber-400/10 inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-amber-400/20">
-                            <Zap size={12} /> {enterprisePlan.creditLimit.toLocaleString()} pooled credits/seat
+                            <Zap size={12} /> {t('pricing_comparison.credits.pooled_per_seat', { count: enterprisePlan.creditLimit.toLocaleString() })}
                         </div>
-                        <p className="text-xs text-gray-300 mt-3 font-medium">{enterprisePlan.minimumSeats}-seat minimum, credits pool across all seats</p>
+                        <p className="text-xs text-gray-300 mt-3 font-medium">{t('pricing_comparison.billing.enterprise_minimum', { seats: enterprisePlan.minimumSeats })}</p>
                     </div>
                     <ul className="space-y-3.5 mb-8 flex-grow text-sm font-medium text-gray-300 relative z-10">
-                        <li className="flex items-start gap-3"><Check className="text-amber-400 flex-shrink-0 mt-0.5" size={18} /><span>Private Team Workspaces</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-amber-400 flex-shrink-0 mt-0.5" size={18} /><span>SSO &amp; SCIM provisioning</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-amber-400 flex-shrink-0 mt-0.5" size={18} /><span>Team RBAC &amp; audit logs</span></li>
-                        <li className="flex items-start gap-3"><Check className="text-amber-400 flex-shrink-0 mt-0.5" size={18} /><span>Pooled credits across org</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-amber-400 flex-shrink-0 mt-0.5" size={18} /><span>{t('pricing_comparison.plans.enterprise.feature_1')}</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-amber-400 flex-shrink-0 mt-0.5" size={18} /><span>{t('pricing_comparison.plans.enterprise.feature_2')}</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-amber-400 flex-shrink-0 mt-0.5" size={18} /><span>{t('pricing_comparison.plans.enterprise.feature_3')}</span></li>
+                        <li className="flex items-start gap-3"><Check className="text-amber-400 flex-shrink-0 mt-0.5" size={18} /><span>{t('pricing_comparison.plans.enterprise.feature_4')}</span></li>
                     </ul>
                     <button
                         onClick={handleContactSales}
                         className="w-full py-4 rounded-full font-semibold bg-white text-gray-900 hover:bg-gray-100 transition-colors relative z-10"
                     >
-                        Contact Sales
+                        {t('pricing_comparison.plans.enterprise.cta')}
                     </button>
                 </motion.div>
             </motion.div>
@@ -292,11 +294,11 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                     <table className="w-full text-left border-collapse min-w-[700px]">
                         <thead>
                             <tr className="bg-gray-50 dark:bg-gray-800/80 text-xs font-semibold uppercase tracking-wider text-gray-500">
-                                <th className="p-5 border-b border-gray-200 dark:border-gray-800">Capabilities</th>
-                                <th className="p-5 border-b border-gray-200 dark:border-gray-800 text-center w-36">Free</th>
-                                <th className="p-5 border-b border-gray-200 dark:border-gray-800 text-center w-36 text-[#625bd5] dark:text-[#a9a5ff]">Pro</th>
-                                <th className="p-5 border-b border-gray-200 dark:border-gray-800 text-center w-36 text-[#a97935] dark:text-[#f0c987]">Max</th>
-                                <th className="p-5 border-b border-gray-200 dark:border-gray-800 text-center w-36">Enterprise</th>
+                                <th className="p-5 border-b border-gray-200 dark:border-gray-800">{t('pricing_comparison.table.capabilities')}</th>
+                                <th className="p-5 border-b border-gray-200 dark:border-gray-800 text-center w-36">{t('pricing_comparison.plans.free.name')}</th>
+                                <th className="p-5 border-b border-gray-200 dark:border-gray-800 text-center w-36 text-[#625bd5] dark:text-[#a9a5ff]">{t('pricing_comparison.plans.pro.name')}</th>
+                                <th className="p-5 border-b border-gray-200 dark:border-gray-800 text-center w-36 text-[#a97935] dark:text-[#f0c987]">{t('pricing_comparison.plans.max.name')}</th>
+                                <th className="p-5 border-b border-gray-200 dark:border-gray-800 text-center w-36">{t('pricing_comparison.plans.enterprise.name')}</th>
                             </tr>
                         </thead>
                         <tbody className="text-sm">
@@ -335,7 +337,7 @@ export const PricingComparison: React.FC<PricingComparisonProps> = ({ onCloudUpg
                     </table>
                 </div>
                 <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-800 text-center text-xs text-gray-500 font-medium">
-                    ✨ All manual content creation (writing, editing, publishing) is always free and unlimited.
+                    {t('pricing_comparison.table.manual_free')}
                 </div>
             </motion.div>
         </div>

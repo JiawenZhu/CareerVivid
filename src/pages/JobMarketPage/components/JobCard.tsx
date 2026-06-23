@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { JobPosting } from '../../../types';
 import {
     Loader2, Building2, MapPin, DollarSign, Clock,
@@ -23,6 +24,8 @@ export const JobCard: React.FC<JobCardProps> = ({
     job, onSelect, onAddToTracker, onApply, onMockInterview, onDelete,
     isAdding, isAdded, isApplied, formatSalary, getTimeAgo
 }) => {
+    const { t } = useTranslation();
+
     return (
         <div
             onClick={() => onSelect(job)}
@@ -36,7 +39,7 @@ export const JobCard: React.FC<JobCardProps> = ({
                         onDelete(job.id || '', e);
                     }}
                     className="absolute top-2 left-2 p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                    title="Remove from results"
+                    title={t('job_market.card.remove_from_results')}
                 >
                     <Trash2 size={14} />
                 </button>
@@ -52,7 +55,7 @@ export const JobCard: React.FC<JobCardProps> = ({
                                 </h3>
                                 {job.isPartnerJob === true && (
                                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300">
-                                        Partner
+                                        {t('job_market.card.partner')}
                                     </span>
                                 )}
                             </div>
@@ -62,7 +65,7 @@ export const JobCard: React.FC<JobCardProps> = ({
                             </div>
                         </div>
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 capitalize">
-                            {job.employmentType || 'Full-time'}
+                            {job.employmentType || t('job_market.card.default_employment_type')}
                         </span>
                     </div>
 
@@ -77,7 +80,7 @@ export const JobCard: React.FC<JobCardProps> = ({
                         </div>
                         <div className="flex items-center gap-1.5">
                             <Clock className="w-4 h-4" />
-                            <span>Posted {getTimeAgo(job.publishedAt || job.createdAt)}</span>
+                            <span>{t('job_market.card.posted', { time: getTimeAgo(job.publishedAt || job.createdAt) })}</span>
                         </div>
                     </div>
 
@@ -102,12 +105,12 @@ export const JobCard: React.FC<JobCardProps> = ({
                         ) : isAdded ? (
                             <>
                                 <CheckCircle2 className="w-4 h-4" />
-                                Added
+                                {t('job_market.card.added')}
                             </>
                         ) : (
                             <>
                                 <PlusCircle className="w-4 h-4" />
-                                Add to Tracker
+                                {t('job_market.card.add_to_tracker')}
                             </>
                         )}
                     </button>
@@ -121,21 +124,21 @@ export const JobCard: React.FC<JobCardProps> = ({
                             }}
                             className="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors shadow-sm w-full"
                         >
-                            {isApplied ? 'Reapply' : 'Apply Now'}
+                            {isApplied ? t('job_market.card.reapply') : t('job_market.card.apply_now')}
                         </button>
                     ) : null}
 
                     <button
                         onClick={(e) => onMockInterview(job, e)}
                         className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium transition-colors shadow-sm"
-                        title="Start a mock interview for this job"
+                        title={t('job_market.card.mock_interview_title')}
                     >
                         <Mic className="w-4 h-4" />
-                        Mock Interview
+                        {t('job_market.card.mock_interview')}
                     </button>
                     {isApplied && (
                         <div className="flex items-center justify-center gap-1 text-xs text-green-600 font-medium">
-                            <CheckCircle2 size={12} /> Applied
+                            <CheckCircle2 size={12} /> {t('job_market.card.applied')}
                         </div>
                     )}
                 </div>

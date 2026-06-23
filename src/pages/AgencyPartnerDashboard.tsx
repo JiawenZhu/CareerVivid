@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft,
   BarChart3,
@@ -24,7 +25,6 @@ import {
   listenAgencyBranchesForOwner,
   listenAgencyPrepSessions,
 } from '../services/agencyPartnerService';
-import { agencyPrepStatusLabels } from '../utils/agencyPartnerUtils';
 import CandidateDetailDrawer from '../features/agency-partner/components/CandidateDetailDrawer';
 import PipelineFunnel from '../features/agency-partner/components/PipelineFunnel';
 import TimeSavedBadge from '../features/agency-partner/components/TimeSavedBadge';
@@ -47,6 +47,8 @@ const statusOrder: AgencyPrepSessionStatus[] = ['started', 'resume_imported', 'r
 
 const AgencyPartnerDashboard: React.FC = () => {
   const { currentUser, userProfile, isAdmin, logOut, loading } = useAuth();
+  const { t } = useTranslation();
+  const tAgency = (key: string, options?: Record<string, unknown>) => t(`agency_partner_dashboard.${key}`, options);
   const [branches, setBranches] = useState<AgencyBranchProfile[]>([]);
   const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null);
   const [sessions, setSessions] = useState<AgencyPrepSession[]>([]);
@@ -91,7 +93,7 @@ const AgencyPartnerDashboard: React.FC = () => {
           if (!branch) {
             setBranches([]);
             setSelectedBranchId(null);
-            setError('Agency branch was not found.');
+            setError(tAgency('errors.branch_not_found'));
             return;
           }
           setBranches([branch]);
@@ -101,7 +103,7 @@ const AgencyPartnerDashboard: React.FC = () => {
         .catch((err) => {
           if (cancelled) return;
           console.error('Failed to load agency branch:', err);
-          setError('Unable to load agency branch.');
+          setError(tAgency('errors.unable_to_load_branch'));
         })
         .finally(() => {
           if (!cancelled) setIsLoadingBranches(false);
@@ -126,7 +128,7 @@ const AgencyPartnerDashboard: React.FC = () => {
       setIsLoadingBranches(false);
     }, (err) => {
       console.error('Failed to load agency branches:', err);
-      setError('Unable to load agency branches.');
+      setError(tAgency('errors.unable_to_load_branches'));
       setIsLoadingBranches(false);
     });
 
@@ -145,7 +147,7 @@ const AgencyPartnerDashboard: React.FC = () => {
       setIsLoadingSessions(false);
     }, (err) => {
       console.error('Failed to load agency prep sessions:', err);
-      setError('Unable to load candidate prep sessions.');
+      setError(tAgency('errors.unable_to_load_sessions'));
       setIsLoadingSessions(false);
     });
 
@@ -282,18 +284,20 @@ const AgencyPartnerDashboard: React.FC = () => {
   };
 
   const tabs: Array<{ id: AgencyDashboardTab; label: string; icon: React.ElementType }> = [
-    { id: 'pipeline', label: 'Prep Pipeline', icon: Users },
-    { id: 'invite', label: 'Invite Link', icon: Link2 },
-    { id: 'reports', label: 'Ready Reports', icon: FileText },
-    { id: 'metrics', label: 'Pilot Metrics', icon: BarChart3 },
+    { id: 'pipeline', label: tAgency('tabs.prep_pipeline'), icon: Users },
+    { id: 'invite', label: tAgency('tabs.invite_link'), icon: Link2 },
+    { id: 'reports', label: tAgency('tabs.ready_reports'), icon: FileText },
+    { id: 'metrics', label: tAgency('tabs.pilot_metrics'), icon: BarChart3 },
   ];
+
+  const getPrepStatusLabel = (status: AgencyPrepSessionStatus) => tAgency(`status.${status}`);
 
   if (loading || isLoadingBranches) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f6f7fb] dark:bg-[#101214]">
         <div className="inline-flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-5 py-4 text-sm font-medium text-gray-700 shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300">
           <Loader2 className="h-5 w-5 animate-spin text-emerald-600" />
-          Loading agency pilot workspace...
+          {tAgency('loading')}
         </div>
       </div>
     );
@@ -310,8 +314,8 @@ const AgencyPartnerDashboard: React.FC = () => {
             </button>
             <span className="hidden h-5 w-px bg-gray-300 dark:bg-gray-700 sm:block" />
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">Agency Partner Pilot</p>
-              <p className="hidden text-xs text-gray-500 dark:text-gray-400 sm:block">Candidate prep links, readiness progress, and shared reports</p>
+              <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">{tAgency('header.title')}</p>
+              <p className="hidden text-xs text-gray-500 dark:text-gray-400 sm:block">{tAgency('header.subtitle')}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -319,14 +323,14 @@ const AgencyPartnerDashboard: React.FC = () => {
               onClick={() => navigate(isAdmin ? '/admin?tab=partners' : '/dashboard')}
               className="hidden rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-950 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white sm:inline-flex"
             >
-              {isAdmin ? 'Admin Partners' : 'Dashboard'}
+              {isAdmin ? tAgency('nav.admin_partners') : tAgency('nav.dashboard')}
             </button>
             <button
               onClick={logOut}
               className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-950 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
             >
               <LogOut size={15} />
-              Sign Out
+              {tAgency('nav.sign_out')}
             </button>
           </div>
         </div>
@@ -343,9 +347,9 @@ const AgencyPartnerDashboard: React.FC = () => {
           <div className="flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="font-bold">Admin agency view</p>
+                <p className="font-bold">{tAgency('admin_view.title')}</p>
                 <p className="mt-1 text-xs font-medium text-amber-800 dark:text-amber-300">
-                  You are viewing the agency dashboard with admin access. Branch owners only see their own branches.
+                  {tAgency('admin_view.description')}
                 </p>
               </div>
               <button
@@ -353,7 +357,7 @@ const AgencyPartnerDashboard: React.FC = () => {
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-amber-300 bg-white px-3 py-2 text-xs font-bold text-amber-900 transition hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-200 dark:hover:bg-amber-900/40"
               >
                 <ArrowLeft size={14} />
-                Back to partners
+                {tAgency('admin_view.back_to_partners')}
               </button>
             </div>
             <div className="border-t border-amber-200 pt-3 dark:border-amber-900/40">
@@ -369,9 +373,9 @@ const AgencyPartnerDashboard: React.FC = () => {
         {!selectedBranch ? (
           <section className="rounded-3xl border border-gray-200 bg-white p-8 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-emerald-600" />
-            <h1 className="text-2xl font-black text-gray-950 dark:text-white">No agency branch is connected yet</h1>
+            <h1 className="text-2xl font-black text-gray-950 dark:text-white">{tAgency('empty.no_branch_title')}</h1>
             <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-gray-600 dark:text-gray-300">
-              Approved agency applications automatically create a branch profile and invite link. If this account was approved manually, create the branch record in Firestore or approve the agency application from Admin.
+              {tAgency('empty.no_branch_description')}
             </p>
           </section>
         ) : (
@@ -384,7 +388,7 @@ const AgencyPartnerDashboard: React.FC = () => {
                     <div className="mb-4 flex flex-wrap items-center gap-2">
                       <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/40 dark:text-emerald-300">
                         <ShieldCheck size={14} />
-                        Zero-integration pilot
+                        {tAgency('hero.zero_integration_pilot')}
                       </div>
                       <button
                         type="button"
@@ -392,14 +396,14 @@ const AgencyPartnerDashboard: React.FC = () => {
                         className="inline-flex items-center gap-1.5 rounded-full border border-[#e4d3bc] bg-[#fdf5e8] hover:bg-[#fbe7c8] px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#8b5a16] shadow-sm transition hover:scale-[1.02] active:scale-[0.98] dark:border-[#5a4a36] dark:bg-[#3a2f26] dark:text-[#caa26c] cursor-pointer"
                       >
                         <BookOpen size={13} />
-                        Pilot Playbook
+                        {tAgency('hero.pilot_playbook')}
                       </button>
                     </div>
                     <h1 className="text-3xl font-black tracking-tight text-gray-950 dark:text-white sm:text-4xl">
                       {selectedBranch.branchName}
                     </h1>
                     <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-300">
-                      Track who started, who improved their resume, and who consented to share a readiness report. Full resume access stays candidate-controlled.
+                      {tAgency('hero.description')}
                     </p>
                   </div>
                   <div className="relative">
@@ -423,10 +427,10 @@ const AgencyPartnerDashboard: React.FC = () => {
 
                 <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    ['Candidates', sessions.length],
-                    ['Ready', statusCounts.ready || 0],
-                    ['Shared', sharedSessions.length],
-                    ['Avg score', averageLatestScore ?? '--'],
+                    [tAgency('stats.candidates'), sessions.length],
+                    [tAgency('stats.ready'), statusCounts.ready || 0],
+                    [tAgency('stats.shared'), sharedSessions.length],
+                    [tAgency('stats.avg_score'), averageLatestScore ?? '--'],
                   ].map(([label, value]) => (
                     <div key={label} className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-800 dark:bg-gray-950/50">
                       <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-500">{label}</p>
@@ -440,9 +444,9 @@ const AgencyPartnerDashboard: React.FC = () => {
                 <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
                   <Link2 size={20} />
                 </div>
-                <h2 className="text-lg font-black text-gray-950 dark:text-white">Branch invite link</h2>
+                <h2 className="text-lg font-black text-gray-950 dark:text-white">{tAgency('invite_card.title')}</h2>
                 <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
-                  Give this to applicants who need to clean up their resume before recruiter review.
+                  {tAgency('invite_card.description')}
                 </p>
                 <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs font-semibold text-gray-700 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300">
                   {inviteLink}
@@ -452,15 +456,15 @@ const AgencyPartnerDashboard: React.FC = () => {
                   className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gray-950 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
                 >
                   {copied ? <CheckCircle2 size={16} /> : <Copy size={16} />}
-                  {copied ? 'Copied' : 'Copy invite link'}
+                  {copied ? tAgency('invite_card.copied') : tAgency('invite_card.copy')}
                 </button>
 
                 {/* Seat Limit Progress Bar */}
                 <div className="mt-5 border-t border-gray-100 pt-4 dark:border-gray-800">
                   <div className="flex items-center justify-between text-xs font-semibold text-gray-500">
-                    <span>Pilot seat usage</span>
+                    <span>{tAgency('invite_card.seat_usage')}</span>
                     <span className="font-bold text-gray-900 dark:text-white">
-                      {sessions.length} / {selectedBranch.inviteLimit || 40} candidates
+                      {tAgency('invite_card.candidates_count', { current: sessions.length, limit: selectedBranch.inviteLimit || 40 })}
                     </span>
                   </div>
                   <div className="mt-2 h-2 w-full rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
@@ -502,7 +506,7 @@ const AgencyPartnerDashboard: React.FC = () => {
                 {isLoadingSessions ? (
                   <div className="flex items-center justify-center py-14 text-sm font-medium text-gray-500">
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Loading prep sessions...
+                    {tAgency('loading_sessions')}
                   </div>
                 ) : activeTab === 'pipeline' ? (
                   <div className="space-y-6">
@@ -547,7 +551,7 @@ const AgencyPartnerDashboard: React.FC = () => {
                           >
                             <div className="mb-3 flex items-center justify-between">
                               <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-                                {agencyPrepStatusLabels[status]}
+                                {getPrepStatusLabel(status)}
                               </h3>
                               <span className="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-[#211b16] shadow-sm dark:bg-[#1f1f1d] dark:text-[#f4f1e9]">
                                 {columnSessions.length}
@@ -563,12 +567,12 @@ const AgencyPartnerDashboard: React.FC = () => {
                                 >
                                   <div className="flex items-start justify-between gap-1">
                                     <p className="truncate text-sm font-bold text-gray-950 dark:text-white">
-                                      {session.candidateName || 'Candidate'}
+                                      {session.candidateName || tAgency('fallback.candidate')}
                                     </p>
                                     {isStaleCandidate(session, 3) && (
                                       <span
                                         className="h-2 w-2 shrink-0 rounded-full bg-amber-500 animate-pulse mt-1"
-                                        title="Inactive for 3+ days"
+                                        title={tAgency('candidate.inactive_title')}
                                       />
                                     )}
                                   </div>
@@ -597,7 +601,7 @@ const AgencyPartnerDashboard: React.FC = () => {
 
                                   <div className="mt-2 flex items-center justify-between">
                                     <p className="text-xs font-semibold text-[#6b6358] dark:text-[#aaa39a]">
-                                      Score: {session.latestScore ?? '—'}
+                                      {tAgency('candidate.score', { score: session.latestScore ?? '—' })}
                                       {typeof session.scoreDelta === 'number' && session.scoreDelta > 0 ? (
                                         <span className="ml-1.5 text-emerald-600 dark:text-emerald-300">
                                           +{session.scoreDelta}
@@ -609,7 +613,7 @@ const AgencyPartnerDashboard: React.FC = () => {
                               ))}
                               {columnSessions.length === 0 && (
                                 <p className="py-8 text-center text-xs italic text-gray-400 dark:text-gray-600">
-                                  No candidates.
+                                  {tAgency('empty.no_candidates')}
                                 </p>
                               )}
                             </div>
@@ -623,9 +627,9 @@ const AgencyPartnerDashboard: React.FC = () => {
                     <InviteByEmailForm branchId={selectedBranch.id} demo={selectedBranch.id === 'demo-champaign-agency-2026'} />
                     <PendingInvitesList invites={invites} sessions={sessions} isLoading={invitesLoading} />
                     <div className="rounded-2xl border border-[#e4d3bc] bg-[#fffaf1] p-5 dark:border-[#302e2a] dark:bg-[#1f1f1d]">
-                      <h3 className="text-sm font-bold text-[#211b16] dark:text-[#f4f1e9]">Recruiter script</h3>
+                      <h3 className="text-sm font-bold text-[#211b16] dark:text-[#f4f1e9]">{tAgency('recruiter_script.title')}</h3>
                       <p className="mt-2 text-sm leading-6 text-[#6b6358] dark:text-[#aaa39a]">
-                        We want to place you, but your resume needs to be cleaner before we send it to employers. Use this CareerVivid prep link, improve your score, download the final PDF, and share the readiness report when you are ready.
+                        {tAgency('recruiter_script.body')}
                       </p>
                     </div>
                   </div>
@@ -634,16 +638,16 @@ const AgencyPartnerDashboard: React.FC = () => {
                     <table className="w-full text-left text-sm">
                       <thead className="text-xs uppercase tracking-[0.12em] text-gray-500">
                         <tr>
-                          <th className="px-3 py-3">Candidate</th>
-                          <th className="px-3 py-3">Score</th>
-                          <th className="px-3 py-3">Report</th>
-                          <th className="px-3 py-3">Resume</th>
+                          <th className="px-3 py-3">{tAgency('reports.candidate')}</th>
+                          <th className="px-3 py-3">{tAgency('reports.score')}</th>
+                          <th className="px-3 py-3">{tAgency('reports.report')}</th>
+                          <th className="px-3 py-3">{tAgency('reports.resume')}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
                         {sharedSessions.length === 0 ? (
                           <tr>
-                            <td colSpan={4} className="px-3 py-10 text-center text-gray-500">No shared readiness reports yet.</td>
+                            <td colSpan={4} className="px-3 py-10 text-center text-gray-500">{tAgency('reports.empty')}</td>
                           </tr>
                         ) : sharedSessions.map(session => (
                           <tr key={session.id}>
@@ -658,7 +662,7 @@ const AgencyPartnerDashboard: React.FC = () => {
                               ) : null}
                             </td>
                             <td className="px-3 py-4 text-gray-600 dark:text-gray-300">
-                              {session.readinessReport?.summary || 'Readiness shared.'}
+                              {session.readinessReport?.summary || tAgency('reports.readiness_shared')}
                             </td>
                             <td className="px-3 py-4">
                               {session.resumeSharePath ? (
@@ -666,10 +670,10 @@ const AgencyPartnerDashboard: React.FC = () => {
                                   onClick={() => navigate(session.resumeSharePath || '/dashboard')}
                                   className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 transition hover:bg-gray-100 dark:border-gray-800 dark:text-gray-200 dark:hover:bg-gray-800"
                                 >
-                                  Open <ExternalLink size={13} />
+                                  {tAgency('reports.open')} <ExternalLink size={13} />
                                 </button>
                               ) : (
-                                <span className="text-xs text-gray-500">Not shared</span>
+                                <span className="text-xs text-gray-500">{tAgency('reports.not_shared')}</span>
                               )}
                             </td>
                           </tr>
@@ -683,14 +687,14 @@ const AgencyPartnerDashboard: React.FC = () => {
                       <TimeSavedBadge
                         variant="hero"
                         minutes={timeSaved.totalMinutes}
-                        caption={`across ${sessions.length} candidate${sessions.length === 1 ? '' : 's'}`}
+                        caption={tAgency(sessions.length === 1 ? 'metrics.time_saved_caption_one' : 'metrics.time_saved_caption_other', { count: sessions.length })}
                       />
                       <div className="rounded-2xl border border-[#e4d3bc] bg-white p-5 dark:border-[#302e2a] dark:bg-[#1f1f1d]">
-                        <p className="text-xs font-semibold text-[#6b6358] dark:text-[#aaa39a]">Shared reports</p>
+                        <p className="text-xs font-semibold text-[#6b6358] dark:text-[#aaa39a]">{tAgency('metrics.shared_reports')}</p>
                         <p className="mt-2 text-3xl font-bold text-[#211b16] dark:text-[#f4f1e9]">{sharedSessions.length}</p>
                       </div>
                       <div className="rounded-2xl border border-[#e4d3bc] bg-white p-5 dark:border-[#302e2a] dark:bg-[#1f1f1d]">
-                        <p className="text-xs font-semibold text-[#6b6358] dark:text-[#aaa39a]">Average score lift</p>
+                        <p className="text-xs font-semibold text-[#6b6358] dark:text-[#aaa39a]">{tAgency('metrics.average_score_lift')}</p>
                         <p className="mt-2 text-3xl font-bold text-emerald-700 dark:text-emerald-300">
                           {averageScoreLift !== null ? `+${averageScoreLift}` : '—'}
                         </p>
@@ -700,9 +704,9 @@ const AgencyPartnerDashboard: React.FC = () => {
                     <div className="rounded-2xl border border-[#e4d3bc] bg-white p-5 dark:border-[#302e2a] dark:bg-[#1f1f1d]">
                       <div className="mb-3 flex items-start justify-between gap-3">
                         <div>
-                          <h3 className="text-sm font-bold text-[#211b16] dark:text-[#f4f1e9]">Export pilot summary</h3>
+                          <h3 className="text-sm font-bold text-[#211b16] dark:text-[#f4f1e9]">{tAgency('metrics.export_title')}</h3>
                           <p className="text-xs text-[#6b6358] dark:text-[#aaa39a]">
-                            Share progress with branch managers — never includes resume content or notes.
+                            {tAgency('metrics.export_description')}
                           </p>
                         </div>
                       </div>

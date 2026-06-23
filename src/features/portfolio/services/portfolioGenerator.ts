@@ -1,15 +1,7 @@
 import { PortfolioData } from '../types/portfolio';
-import { GoogleGenAI } from "@google/genai";
 import { trackUsage } from '../../../services/trackingService';
 import { generateSafeUUID } from '../../../constants';
-
-const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || (window as any)?.ENV?.VITE_GOOGLE_API_KEY;
-
-if (!apiKey) {
-    console.warn("VITE_GOOGLE_API_KEY is not defined. Portfolio generation may not work.");
-}
-
-const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
+import { callGeminiProxy } from '../../../services/geminiService';
 
 const SYSTEM_INSTRUCTION = `
 You are an expert Portfolio Architect.
@@ -84,17 +76,13 @@ EXAMPLES:
 `;
 
 export const generatePortfolioFromPrompt = async (prompt: string, userId: string): Promise<PortfolioData> => {
-    // If no AI client, fall back to basic generation
-    if (!ai) {
-        console.warn('[Portfolio] No AI client, using fallback generation');
-        return generateFallbackPortfolio(prompt, userId);
-    }
-
     try {
-        console.log('[Portfolio] Generating with AI, prompt:', prompt);
+        if (import.meta.env.DEV) {
+            console.debug('[Portfolio] Generating with AI, prompt:', prompt);
+        }
 
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+        const response = await callGeminiProxy({
+            modelName: 'gemini-2.5-flash',
             contents: { parts: [{ text: `User request: "${prompt}". Generate a complete portfolio JSON following the schema exactly.` }] },
             config: {
                 systemInstruction: SYSTEM_INSTRUCTION,
@@ -102,14 +90,18 @@ export const generatePortfolioFromPrompt = async (prompt: string, userId: string
             },
         });
 
-        const tokenUsage = response.usageMetadata?.totalTokenCount || 0;
+        const tokenUsage = response.response?.usageMetadata?.totalTokenCount || 0;
         await trackUsage(userId, 'portfolio_generation', { tokenUsage });
 
         const text = response.text || "{}";
-        console.log('[Portfolio] Raw AI response:', text.substring(0, 200));
+        if (import.meta.env.DEV) {
+            console.debug('[Portfolio] Raw AI response:', text.substring(0, 200));
+        }
 
         const aiData = JSON.parse(text);
-        console.log('[Portfolio] AI generated data:', aiData);
+        if (import.meta.env.DEV) {
+            console.debug('[Portfolio] AI generated data:', aiData);
+        }
 
         const now = Date.now();
 
@@ -161,7 +153,9 @@ export const generatePortfolioFromPrompt = async (prompt: string, userId: string
             };
         }
 
-        console.log('[Portfolio] Final portfolio data:', portfolioData);
+        if (import.meta.env.DEV) {
+            console.debug('[Portfolio] Final portfolio data:', portfolioData);
+        }
         return portfolioData;
     } catch (error) {
         console.error('[Portfolio] AI generation error:', error);
@@ -240,4 +234,3 @@ function generateFallbackPortfolio(prompt: string, userId: string): PortfolioDat
 
     return baseData;
 }
-

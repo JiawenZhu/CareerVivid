@@ -15,6 +15,7 @@ import {
   X,
 } from 'lucide-react';
 import { InterviewStatus, TranscriptEntry } from '../../types';
+import { getFinalTranscriptTurns, getQuestionFlowStates } from '../../utils/interviewProgress';
 
 type StatusTone = 'green' | 'blue' | 'amber' | 'red' | 'gray';
 
@@ -62,68 +63,8 @@ const compactText = (value: string, maxLength = 220) => {
   return `${cleaned.slice(0, maxLength).trim()}...`;
 };
 
-const getFinalTurns = (transcript: TranscriptEntry[], speaker?: TranscriptEntry['speaker']) =>
-  transcript.filter(entry => entry.isFinal && (!speaker || entry.speaker === speaker));
-
 const getLatestFinalUserAnswer = (transcript: TranscriptEntry[]) =>
-  [...getFinalTurns(transcript, 'user')].reverse()[0]?.text || '';
-
-const normalizeQuestionText = (value: string) =>
-  value
-    .toLowerCase()
-    .replace(/[''"]/g, '')
-    .replace(/[^a-z0-9]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-
-const transcriptTurnIncludesQuestion = (turnText: string, question: string) => {
-  const normalizedTurn = normalizeQuestionText(turnText);
-  const normalizedQuestion = normalizeQuestionText(question);
-  if (!normalizedQuestion) return false;
-  if (normalizedTurn.includes(normalizedQuestion)) return true;
-
-  const words = normalizedQuestion.split(' ').filter(word => word.length > 2);
-  if (words.length < 5) return false;
-
-  const leadingPhrase = words.slice(0, Math.min(words.length, 8)).join(' ');
-  return normalizedTurn.includes(leadingPhrase);
-};
-
-type QuestionFlowState = 'covered' | 'current' | 'queued';
-
-const getQuestionFlowStates = (questions: string[], transcript: TranscriptEntry[]): QuestionFlowState[] => {
-  const finalTurns = getFinalTurns(transcript);
-  const askedTurnIndexes = new Map<number, number>();
-  let searchStart = 0;
-
-  questions.forEach((question, questionIndex) => {
-    const askedTurnIndex = finalTurns.findIndex((entry, turnIndex) =>
-      turnIndex >= searchStart &&
-      entry.speaker === 'ai' &&
-      transcriptTurnIncludesQuestion(entry.text, question),
-    );
-
-    if (askedTurnIndex >= 0) {
-      askedTurnIndexes.set(questionIndex, askedTurnIndex);
-      searchStart = askedTurnIndex + 1;
-    }
-  });
-
-  return questions.map((_, questionIndex) => {
-    const askedTurnIndex = askedTurnIndexes.get(questionIndex);
-    if (askedTurnIndex === undefined) return 'queued';
-
-    const nextAskedTurnIndex = askedTurnIndexes.get(questionIndex + 1);
-    const hasAnswerAfterQuestion = finalTurns.some((entry, turnIndex) =>
-      entry.speaker === 'user' &&
-      turnIndex > askedTurnIndex &&
-      (nextAskedTurnIndex === undefined || turnIndex < nextAskedTurnIndex),
-    );
-
-    if (hasAnswerAfterQuestion || nextAskedTurnIndex !== undefined) return 'covered';
-    return 'current';
-  });
-};
+  [...getFinalTranscriptTurns(transcript, 'user')].reverse()[0]?.text || '';
 
 const hasMetricSignal = (value: string) => /\b(\d+|percent|revenue|users|customers|hours|weeks|months|%|x)\b/i.test(value);
 
@@ -290,8 +231,8 @@ export const LiveObserverPanel: React.FC<{
   status: InterviewStatus;
   transcript: TranscriptEntry[];
 }> = ({ status, transcript }) => {
-  const userTurns = getFinalTurns(transcript, 'user');
-  const aiTurns = getFinalTurns(transcript, 'ai');
+  const userTurns = getFinalTranscriptTurns(transcript, 'user');
+  const aiTurns = getFinalTranscriptTurns(transcript, 'ai');
   const latestAnswer = getLatestFinalUserAnswer(transcript);
   const answerHasMetric = hasMetricSignal(latestAnswer);
   const answerHasImpact = hasImpactSignal(latestAnswer);
@@ -514,51 +455,86 @@ export const InterviewControls: React.FC<{
   hasAnalysisResult: boolean;
   isPreparingAgent?: boolean;
   isAgentPrepared?: boolean;
+  onClose: () => void;
   onStart: () => void;
   onEnd: () => void;
   onGetFeedback: () => void;
-}> = ({ status, hasTranscript, hasAnalysisResult, isPreparingAgent, isAgentPrepared, onStart, onEnd, onGetFeedback }) => (
-  <footer className="flex items-center justify-center border-t border-gray-200 bg-white px-5 py-4 dark:border-gray-800 dark:bg-gray-900 sm:justify-between">
-    <div className="hidden text-sm text-gray-500 dark:text-gray-400 sm:block">
-      {status === 'ended'
-        ? 'Session complete'
-        : status === 'idle' && isPreparingAgent
-          ? 'Agent warming in background'
-          : status === 'idle' && isAgentPrepared
-            ? 'Agent ready'
-            : status === 'idle' || status === 'error'
-              ? 'Ready to begin'
-              : 'Live interview in progress'}
-    </div>
-    <div className="flex flex-wrap justify-center gap-3">
-      {status !== 'idle' && status !== 'ended' && status !== 'error' && (
-        <button
-          type="button"
-          onClick={onEnd}
-          disabled={status === 'analyzing'}
-          className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-red-400 dark:focus:ring-offset-gray-900"
-        >
-          <StopCircle size={18} aria-hidden="true" /> End Interview
-        </button>
-      )}
-      {(status === 'idle' || status === 'error') && (
-        <button
-          type="button"
-          onClick={onStart}
-          className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
-        >
-          <Mic size={18} aria-hidden="true" /> Start Interview
-        </button>
-      )}
-      {status === 'ended' && hasTranscript && !hasAnalysisResult && (
-        <button
-          type="button"
-          onClick={onGetFeedback}
-          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
-        >
-          <BarChart size={18} aria-hidden="true" /> Get Feedback
-        </button>
-      )}
-    </div>
-  </footer>
-);
+}> = ({
+  status,
+  hasTranscript,
+  hasAnalysisResult,
+  isPreparingAgent,
+  isAgentPrepared,
+  onClose,
+  onStart,
+  onEnd,
+  onGetFeedback,
+}) => {
+  const isLive = status !== 'idle' && status !== 'ended' && status !== 'error';
+  const statusLabel = status === 'ended'
+    ? 'Session complete'
+    : status === 'idle' && isPreparingAgent
+      ? 'Agent warming in background'
+      : status === 'idle' && isAgentPrepared
+        ? 'Agent ready'
+        : status === 'idle' || status === 'error'
+          ? 'Ready to begin'
+          : 'Live interview in progress';
+  const actionCopy = status === 'ended'
+    ? 'Get feedback creates the report. Close returns to the interview list.'
+    : isLive
+      ? 'Save & close keeps a resumable draft. End interview stops this attempt.'
+      : 'Close returns to the interview list. Start interview begins a live microphone session.';
+
+  return (
+    <footer className="flex flex-col gap-3 border-t border-gray-200 bg-white px-5 py-4 dark:border-gray-800 dark:bg-gray-900 sm:flex-row sm:items-center sm:justify-between">
+      <div className="text-center sm:max-w-md sm:text-left">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">{statusLabel}</p>
+        <p className="mt-1 text-xs font-medium leading-relaxed text-gray-500 dark:text-gray-400">{actionCopy}</p>
+      </div>
+      <div className="flex flex-wrap justify-center gap-3">
+        {(status === 'idle' || status === 'error' || status === 'ended' || isLive) && (
+          <button
+            type="button"
+            onClick={onClose}
+            title={isLive ? 'Close this modal and keep a resumable draft.' : 'Close this modal and return to the interview list.'}
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus:ring-offset-gray-900"
+          >
+            <X size={18} aria-hidden="true" /> {isLive ? 'Save & close' : 'Close'}
+          </button>
+        )}
+        {status !== 'idle' && status !== 'ended' && status !== 'error' && (
+          <button
+            type="button"
+            onClick={onEnd}
+            title="Stop this attempt. You can request feedback from the captured transcript after it ends."
+            disabled={status === 'analyzing'}
+            className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-red-400 dark:focus:ring-offset-gray-900"
+          >
+            <StopCircle size={18} aria-hidden="true" /> End interview
+          </button>
+        )}
+        {(status === 'idle' || status === 'error') && (
+          <button
+            type="button"
+            onClick={onStart}
+            title="Start or restart the live microphone session."
+            className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+          >
+            <Mic size={18} aria-hidden="true" /> Start Interview
+          </button>
+        )}
+        {status === 'ended' && hasTranscript && !hasAnalysisResult && (
+          <button
+            type="button"
+            onClick={onGetFeedback}
+            title="Create a scored report from this attempt."
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+          >
+            <BarChart size={18} aria-hidden="true" /> Get Feedback
+          </button>
+        )}
+      </div>
+    </footer>
+  );
+};

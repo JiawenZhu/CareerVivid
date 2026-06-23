@@ -13,6 +13,11 @@ import { TranslationServiceClient } from "@google-cloud/translate";
 import { getAIClient } from "./utils/ai.js";
 import { GoogleAuth } from "google-auth-library";
 import { getPlanMonthlyLimit as resolvePlanMonthlyLimit } from "./utils/planLimits";
+import {
+  protectNaturalTranslationTerms,
+  restoreNaturalTranslationTerms,
+  TranslationMimeType,
+} from "./translationTermProtection";
 
 const corsHandler = secureCorsHandler;
 
@@ -693,10 +698,16 @@ export const translateText = functions.region('us-west1').https.onCall(async (da
     const location = 'global';
 
     // 4. Construct Request
+    const mimeType: TranslationMimeType = format === 'html' ? 'text/html' : 'text/plain';
+    const sourceContents = Array.isArray(content) ? content : [content];
+    const protectedContents = sourceContents.map((item) =>
+      protectNaturalTranslationTerms(String(item), mimeType)
+    );
+
     const request = {
       parent: `projects/${projectId}/locations/${location}`,
-      contents: Array.isArray(content) ? content : [content],
-      mimeType: format === 'html' ? 'text/html' : 'text/plain', // Crucial for bold/italics
+      contents: protectedContents.map((item) => item.content),
+      mimeType,
       sourceLanguageCode: 'en-US', // Assuming source is English
       targetLanguageCode: targetLanguage,
     };
@@ -706,7 +717,9 @@ export const translateText = functions.region('us-west1').https.onCall(async (da
 
     // 6. Return Results
     return {
-      translations: response.translations?.map(t => t.translatedText) || []
+      translations: response.translations?.map((t, index) =>
+        restoreNaturalTranslationTerms(t.translatedText || '', protectedContents[index])
+      ) || []
     };
 
   } catch (error: any) {

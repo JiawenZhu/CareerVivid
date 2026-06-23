@@ -107,7 +107,6 @@ const DeveloperSettings = React.lazy(() => import('./pages/DeveloperSettings'));
 const BillingDashboard = React.lazy(() => import('./pages/BillingDashboard'));
 const DndWorkspaceProvider = React.lazy(() => import('./components/DndWorkspaceProvider'));
 
-import { SUPPORTED_LANGUAGES } from './constants';
 // import i18n from './i18n'; // Used in navigation.ts
 
 
@@ -142,6 +141,16 @@ import { useNavigation } from './contexts/NavigationContext';
 import { useWorkspaceSync } from './hooks/useWorkspaceSync';
 import PWABadge from './components/PWABadge';
 import CreditCelebration from './components/CreditCelebration';
+import RouteErrorBoundary from './components/RouteErrorBoundary';
+import AutoPageLocalizer from './components/AutoPageLocalizer';
+
+const RouteSuspense = ({ routeKey, children }: { routeKey: string; children: React.ReactNode }) => (
+  <RouteErrorBoundary routeKey={routeKey}>
+    <Suspense fallback={<LoadingFallback />}>
+      {children}
+    </Suspense>
+  </RouteErrorBoundary>
+);
 
 const WorkspaceDataEffects: React.FC = () => {
   useGuestDataMigration();
@@ -215,9 +224,9 @@ const AppContent: React.FC = () => {
   if (path === '/pdf-preview') {
     return (
       <ThemeProvider>
-        <Suspense fallback={<LoadingFallback />}>
+        <RouteSuspense routeKey={path}>
           <PdfPreviewPage />
-        </Suspense>
+        </RouteSuspense>
       </ThemeProvider>
     );
   }
@@ -226,9 +235,9 @@ const AppContent: React.FC = () => {
   if (path.startsWith('/shared/')) {
     return (
       <ThemeProvider>
-        <Suspense fallback={<LoadingFallback />}>
+        <RouteSuspense routeKey={path}>
           <PublicResumePage />
-        </Suspense>
+        </RouteSuspense>
       </ThemeProvider>
     )
   }
@@ -237,9 +246,9 @@ const AppContent: React.FC = () => {
   if (path.startsWith('/jobs/') && path !== '/jobs/recommend') {
     return (
       <ThemeProvider>
-        <Suspense fallback={<LoadingFallback />}>
+        <RouteSuspense routeKey={path}>
           <PublicJobBoardPage />
-        </Suspense>
+        </RouteSuspense>
       </ThemeProvider>
     )
   }
@@ -256,9 +265,9 @@ const AppContent: React.FC = () => {
   if (isPublicPortfolioRoute) {
     return (
       <ThemeProvider>
-        <Suspense fallback={<LoadingFallback />}>
+        <RouteSuspense routeKey={path}>
           <PublicPortfolioPage />
-        </Suspense>
+        </RouteSuspense>
       </ThemeProvider>
     );
   }
@@ -287,11 +296,11 @@ const AppContent: React.FC = () => {
                 defaultTitle="CareerVivid Community | AI Career Workspace"
               />
               {communitySeo}
-              <Suspense fallback={<LoadingFallback />}>
+              <RouteSuspense routeKey={path}>
                 {path === '/community' && <CommunityDashboard />}
                 {path === '/community/guidelines' && <CommunityGuidelinesPage />}
                 {isCommunityPostRoute && <CommunityPostPage />}
-              </Suspense>
+              </RouteSuspense>
             </div>
           </NavigationProvider>
         </CartProvider>
@@ -310,10 +319,10 @@ const AppContent: React.FC = () => {
                 defaultTitle="CareerVivid | AI Job Search Workspace & Chrome Extension"
               />
               <SEOHelper isRobotsAllowed />
-              <Suspense fallback={<LoadingFallback />}>
+              <RouteSuspense routeKey={path}>
                 <ExtensionWelcomePage />
                 {currentUser && !loading && <ChatBot />}
-              </Suspense>
+              </RouteSuspense>
             </div>
           </NavigationProvider>
         </CartProvider>
@@ -336,9 +345,9 @@ const AppContent: React.FC = () => {
       const accessDenied = !!currentUser && !isAdmin;
       return (
         <ThemeProvider>
-          <Suspense fallback={<LoadingFallback />}>
+          <RouteSuspense routeKey={path}>
             <AdminLoginPage accessDenied={accessDenied} />
-          </Suspense>
+          </RouteSuspense>
         </ThemeProvider>
       );
     }
@@ -347,9 +356,9 @@ const AppContent: React.FC = () => {
       if (!isEmailVerified && currentUser.providerData[0]?.providerId === 'password') {
         return (
           <ThemeProvider>
-            <Suspense fallback={<LoadingFallback />}>
+            <RouteSuspense routeKey={path}>
               <VerifyEmailPage />
-            </Suspense>
+            </RouteSuspense>
           </ThemeProvider>
         );
       }
@@ -357,27 +366,27 @@ const AppContent: React.FC = () => {
       if (path === '/admin/strategy') {
         return (
           <ThemeProvider>
-            <Suspense fallback={<LoadingFallback />}>
+            <RouteSuspense routeKey={path}>
               <StrategyDashboard />
-            </Suspense>
+            </RouteSuspense>
           </ThemeProvider>
         );
       }
 
       return (
         <ThemeProvider>
-          <Suspense fallback={<LoadingFallback />}>
+          <RouteSuspense routeKey={path}>
             <AdminDashboardPage />
-          </Suspense>
+          </RouteSuspense>
         </ThemeProvider>
       );
     } else {
       // If not logged in or not an admin, show permission denied
       return (
         <ThemeProvider>
-          <Suspense fallback={<LoadingFallback />}>
+          <RouteSuspense routeKey={path}>
             <PermissionDeniedPage requiredRole="Administrator" message="You need administrator privileges to access this page." />
-          </Suspense>
+          </RouteSuspense>
         </ThemeProvider>
       );
     }
@@ -797,10 +806,10 @@ const AppContent: React.FC = () => {
                 '/extension-auth-complete',
               ].some(p => path.startsWith(p))}
             />
-            <Suspense fallback={<LoadingFallback />}>
+            <RouteSuspense routeKey={path}>
               {content}
               {showChatbot && <ChatBot />}
-            </Suspense>
+            </RouteSuspense>
           </div>
         </NavigationProvider>
       </CartProvider>
@@ -813,13 +822,17 @@ const App: React.FC = () => {
   if (isExt) {
     return (
       <ThemeProvider>
-        <ExtensionLayout />
+        <AutoPageLocalizer />
+        <RouteErrorBoundary routeKey="extension">
+          <ExtensionLayout />
+        </RouteErrorBoundary>
       </ThemeProvider>
     );
   }
 
   return (
     <>
+      <AutoPageLocalizer />
       <AppContent />
       <CreditCelebration />
       <PWABadge />

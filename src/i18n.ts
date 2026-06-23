@@ -4,28 +4,16 @@ import { initReactI18next } from 'react-i18next';
 import HttpBackend from 'i18next-http-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { SUPPORTED_LANGUAGES } from './constants';
+import { getInitialLanguagePreference } from './utils/languagePreference';
 
 const supportedCodes = SUPPORTED_LANGUAGES.map(l => l.code);
-
-// Helper to get language from URL path before i18n init
-const getLangFromPath = () => {
-  if (typeof window === 'undefined') return undefined;
-  const path = window.location.pathname;
-  const parts = path.split('/').filter(p => p);
-  if (parts.length > 0 && supportedCodes.includes(parts[0])) {
-    return parts[0];
-  }
-  // If no prefix found, we assume English (root path)
-  // This helps i18n init with 'en' immediately instead of waiting for fallback
-  return 'en';
-};
 
 i18n
   .use(HttpBackend)
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    lng: getLangFromPath(), // Prioritize URL path language
+    lng: getInitialLanguagePreference(),
     fallbackLng: 'en',
     supportedLngs: supportedCodes,
     load: 'languageOnly', // e.g. en-US -> en
@@ -39,8 +27,10 @@ i18n
     },
 
     detection: {
-      order: ['path', 'navigator', 'htmlTag'],
-      lookupFromPathIndex: 0
+      order: ['path', 'localStorage', 'navigator', 'htmlTag'],
+      lookupFromPathIndex: 0,
+      lookupLocalStorage: 'i18nextLng',
+      caches: ['localStorage'],
     },
 
     interpolation: {

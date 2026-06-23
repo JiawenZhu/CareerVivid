@@ -294,6 +294,16 @@ export interface InterviewAnalysis {
   transcript: TranscriptEntry[];
 }
 
+export interface InterviewSessionDraft {
+  status: 'in_progress' | 'ended_without_feedback';
+  transcript: TranscriptEntry[];
+  questions: string[];
+  questionIndex: number;
+  startedAt: number;
+  updatedAt: number;
+  endedAt?: number;
+}
+
 export interface PracticeHistoryEntry {
   id: string;
   job: Job;
@@ -302,6 +312,7 @@ export interface PracticeHistoryEntry {
   interviewHistory: InterviewAnalysis[];
   section?: string;
   transcript?: TranscriptEntry[];
+  activeInterviewDraft?: InterviewSessionDraft | null;
 }
 
 // --- Job Tracker Types ---

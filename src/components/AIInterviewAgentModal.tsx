@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import { Job, PracticeHistoryEntry } from '../types';
+import { InterviewSessionDraft, Job, PracticeHistoryEntry, TranscriptEntry } from '../types';
 import {
   AnalyzingPanel,
   EncounterBriefPanel,
@@ -26,6 +26,9 @@ interface AIInterviewAgentModalProps {
   jobCompany: string;
   onClose: () => void;
   isGuestMode?: boolean;
+  initialTranscript?: TranscriptEntry[];
+  resumeFromQuestionIndex?: number;
+  onDraftChange?: (draft: InterviewSessionDraft | null) => Promise<void> | void;
 }
 
 const AIInterviewAgentModal: React.FC<AIInterviewAgentModalProps> = (props) => {
@@ -133,6 +136,7 @@ const AIInterviewAgentModal: React.FC<AIInterviewAgentModalProps> = (props) => {
                 hasAnalysisResult={!!analysisResult}
                 isPreparingAgent={isPreparingAgent}
                 isAgentPrepared={isAgentPrepared}
+                onClose={handleClose}
                 onStart={startInterview}
                 onEnd={endInterview}
                 onGetFeedback={handleGetFeedback}

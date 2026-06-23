@@ -4,6 +4,11 @@ import { Globe, ChevronDown, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SUPPORTED_LANGUAGES } from '../constants';
 import { navigate } from '../utils/navigation';
+import {
+  buildLocalizedPath,
+  normalizeLanguageCode,
+  setStoredLanguagePreference,
+} from '../utils/languagePreference';
 
 const LanguageSelect: React.FC = () => {
   const { i18n } = useTranslation();
@@ -20,34 +25,19 @@ const LanguageSelect: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const currentLang = SUPPORTED_LANGUAGES.find(l => l.code === i18n.language) || SUPPORTED_LANGUAGES[0];
+  const currentCode = normalizeLanguageCode(i18n.resolvedLanguage || i18n.language) || 'en';
+  const currentLang = SUPPORTED_LANGUAGES.find(l => l.code === currentCode) || SUPPORTED_LANGUAGES[0];
 
   const handleLanguageChange = (code: string) => {
     setIsOpen(false);
-    // Change language in i18next
-    (i18n as any).changeLanguage(code);
+    const normalizedCode = setStoredLanguagePreference(code);
 
-    // Persist language preference across the platform
-    localStorage.setItem('i18nextLng', code);
+    (i18n as any).changeLanguage?.(normalizedCode);
 
-    // Update URL to include new language
-    const currentPath = window.location.pathname;
-
-    // Remove existing language prefix if present
-    const parts = currentPath.split('/').filter(p => p);
-    let newPath = currentPath;
-
-    if (parts.length > 0 && SUPPORTED_LANGUAGES.some(l => l.code === parts[0])) {
-      // Replace existing code
-      parts[0] = code;
-      newPath = '/' + parts.join('/');
-    } else {
-      // Prepend code
-      newPath = `/${code}${currentPath.startsWith('/') ? currentPath : '/' + currentPath}`;
-    }
-
-    // Normalize: remove double slashes
-    newPath = newPath.replace('//', '/');
+    const newPath = buildLocalizedPath(
+      `${window.location.pathname}${window.location.search}${window.location.hash}`,
+      normalizedCode,
+    );
 
     navigate(newPath);
   };
@@ -72,10 +62,10 @@ const LanguageSelect: React.FC = () => {
               onClick={() => handleLanguageChange(lang.code)}
               className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between group"
             >
-              <span className={`font-medium ${i18n.language === lang.code ? 'text-primary-600 dark:text-primary-400' : 'text-gray-700 dark:text-gray-200'}`}>
+              <span className={`font-medium ${currentCode === lang.code ? 'text-primary-600 dark:text-primary-400' : 'text-gray-700 dark:text-gray-200'}`}>
                 {lang.nativeName} <span className="text-gray-400 font-normal text-xs ml-1">({lang.name})</span>
               </span>
-              {i18n.language === lang.code && <Check size={14} className="text-primary-600 dark:text-primary-400" />}
+              {currentCode === lang.code && <Check size={14} className="text-primary-600 dark:text-primary-400" />}
             </button>
           ))}
         </div>

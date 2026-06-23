@@ -9,7 +9,7 @@ import { useAICreditCheck } from '../../hooks/useAICreditCheck';
 import { submitApplication, getApplicationsForUser } from '../../services/applicationService';
 import { JobPosting, WorkModel } from '../../types';
 import { navigate } from '../../utils/navigation';
-import { Loader2, Briefcase, X, FileText, Send, HelpCircle, LayoutDashboard, Search, MapPin, Building2, DollarSign, Clock, ExternalLink, PlusCircle, RefreshCw } from 'lucide-react';
+import { Loader2, Briefcase, X, FileText, Send, HelpCircle, LayoutDashboard, Search, MapPin, Building2, DollarSign, Clock, ExternalLink, PlusCircle, RefreshCw, Globe2, Lightbulb } from 'lucide-react';
 import { SmartDescription } from './components/SmartDescription';
 import { HighlightLegend } from './components/HighlightLegend';
 import { JobCard } from './components/JobCard';
@@ -308,9 +308,9 @@ const JobMarketPage: React.FC = () => {
         setSearchState({ phase: 'loading', criteria });
 
         if (bypassCache) {
-            setToastMessage("🚀 Bypassing cache. Forcing a fresh live search...");
+            setToastMessage(t('job_market.toast.bypass_cache'));
         } else {
-            setToastMessage("🔍 Searching the web for relevant matches...");
+            setToastMessage(t('job_market.toast.searching_web'));
         }
 
         try {
@@ -339,22 +339,22 @@ const JobMarketPage: React.FC = () => {
             );
 
             if (result.cached) {
-                setToastMessage("ℹ️ Loaded relevant matches from search cache.");
+                setToastMessage(t('job_market.toast.loaded_from_cache'));
             } else {
-                setToastMessage("✨ Fresh jobs fetched and cached successfully!");
+                setToastMessage(t('job_market.toast.fresh_jobs_cached'));
             }
 
             // Dynamic refresh of AI usage context
             refreshAIUsage().catch(err => console.warn("Failed to refresh AI credits:", err));
         } catch (error: any) {
             console.error("Google Job Search Failed", error);
-            const errorMessage = error?.message || 'Failed to search jobs. Please try again.';
+            const errorMessage = error?.message || t('job_market.errors.search_failed_retry');
             setSearchState({
                 phase: 'error',
                 criteria,
                 message: errorMessage
             });
-            setToastMessage(`❌ Search Error: ${errorMessage}`);
+            setToastMessage(t('job_market.toast.search_error', { message: errorMessage }));
         }
     };
 
@@ -470,7 +470,7 @@ const JobMarketPage: React.FC = () => {
             setAddedJobs(prev => new Set(prev).add(job.id));
         } catch (error) {
             console.error("Error adding to tracker:", error);
-            alert("Failed to add to tracker.");
+            alert(t('job_market.alerts.add_to_tracker_failed'));
         } finally {
             setAddingToTracker(null);
         }
@@ -499,7 +499,7 @@ const JobMarketPage: React.FC = () => {
         setIsSubmitting(true);
         try {
             await submitApplication(applyingJob.id, currentUser.uid, selectedResumeId);
-            alert("Application submitted successfully!");
+            alert(t('job_market.alerts.application_submitted'));
             setApplyingJob(null);
             setSelectedJob(null);
             if (applyingJob) {
@@ -507,7 +507,7 @@ const JobMarketPage: React.FC = () => {
             }
         } catch (error) {
             console.error("Error submitting application:", error);
-            alert("Failed to submit application. Please try again.");
+            alert(t('job_market.alerts.application_submit_failed'));
         }
     };
 
@@ -554,16 +554,16 @@ const JobMarketPage: React.FC = () => {
             navigate(`/interview-studio/${newJobId}`);
         } catch (error) {
             console.error("Error starting mock interview:", error);
-            alert("Failed to start mock interview. Please try again.");
+            alert(t('job_market.alerts.mock_interview_failed'));
         }
     };
 
     const formatSalary = (min?: number, max?: number, currency?: string) => {
-        if (!min && !max) return 'Competitive';
+        if (!min && !max) return t('job_market.salary.competitive');
         const curr = currency || '$';
         if (min && max) return `${curr}${min.toLocaleString()} - ${max.toLocaleString()}`;
         if (min) return `${curr}${min.toLocaleString()}+`;
-        return 'Competitive';
+        return t('job_market.salary.competitive');
     };
 
     const getTimeAgo = (date: any) => {
@@ -576,21 +576,23 @@ const JobMarketPage: React.FC = () => {
 
         const diffInSeconds = Math.floor((now.getTime() - posted.getTime()) / 1000);
 
-        if (diffInSeconds < 60) return 'Just now';
-        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-        if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+        if (diffInSeconds < 60) return t('job_market.time.just_now');
+        if (diffInSeconds < 3600) return t('job_market.time.minutes_ago', { count: Math.floor(diffInSeconds / 60) });
+        if (diffInSeconds < 86400) return t('job_market.time.hours_ago', { count: Math.floor(diffInSeconds / 3600) });
+        if (diffInSeconds < 604800) return t('job_market.time.days_ago', { count: Math.floor(diffInSeconds / 86400) });
         return posted.toLocaleDateString();
     };
 
     const renderSuggestions = () => {
-        const term = searchQuery.term.trim() || 'Software Engineer';
+        const broadTitle = 'Software Engineer';
+        const term = searchQuery.term.trim() || broadTitle;
         const loc = searchQuery.location.trim();
 
         return (
             <div className="mt-8 border-t border-gray-100 dark:border-gray-700 pt-6">
                 <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center justify-center gap-1.5">
-                    💡 Click a suggestion to search again:
+                    <Lightbulb size={15} className="text-amber-500" />
+                    {t('job_market.suggestions.heading')}
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
                     {loc && (
@@ -599,7 +601,8 @@ const JobMarketPage: React.FC = () => {
                             onClick={() => handleSuggestedSearch(term, 'Remote')}
                             className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded-xl text-xs font-semibold border border-indigo-100 dark:border-indigo-900/50 transition-all active:scale-95 cursor-pointer"
                         >
-                            <span>🌐 Search Remote / US Nationwide</span>
+                            <Globe2 size={14} />
+                            <span>{t('job_market.suggestions.search_remote')}</span>
                         </button>
                     )}
                     {loc && (
@@ -608,16 +611,18 @@ const JobMarketPage: React.FC = () => {
                             onClick={() => handleSuggestedSearch(term, '')}
                             className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded-xl text-xs font-semibold border border-indigo-100 dark:border-indigo-900/50 transition-all active:scale-95 cursor-pointer"
                         >
-                            <span>📍 Remove location constraint</span>
+                            <MapPin size={14} />
+                            <span>{t('job_market.suggestions.remove_location')}</span>
                         </button>
                     )}
-                    {term !== 'Software Engineer' && (
+                    {term !== broadTitle && (
                         <button
                             type="button"
-                            onClick={() => handleSuggestedSearch('Software Engineer', loc)}
+                            onClick={() => handleSuggestedSearch(broadTitle, loc)}
                             className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded-xl text-xs font-semibold border border-indigo-100 dark:border-indigo-900/50 transition-all active:scale-95 cursor-pointer"
                         >
-                            <span>🔍 Try broader title: "Software Engineer"</span>
+                            <Search size={14} />
+                            <span>{t('job_market.suggestions.try_broader_title', { title: broadTitle })}</span>
                         </button>
                     )}
                 </div>
@@ -633,13 +638,13 @@ const JobMarketPage: React.FC = () => {
                         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                             <div className="flex flex-col">
                                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight hidden md:block">
-                                    Job Market
+                                    {t('job_market.title')}
                                 </h1>
                                 {aiUsage && (
                                     <div className="mt-1 hidden md:block">
                                         <span className="px-2.5 py-0.5 rounded-full bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/40 dark:border-emerald-800/25 text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold inline-flex items-center gap-1.5 shadow-sm">
                                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
-                                            AI Credits remaining: <span className="font-extrabold text-emerald-800 dark:text-emerald-300">{getRemainingCreditsText()}</span>
+                                            {t('job_market.credits.remaining')}: <span className="font-extrabold text-emerald-800 dark:text-emerald-300">{getRemainingCreditsText()}</span>
                                         </span>
                                     </div>
                                 )}
@@ -693,14 +698,14 @@ const JobMarketPage: React.FC = () => {
                                                         ? 'text-indigo-500'
                                                         : 'text-gray-400 dark:text-gray-500'
                                                 }`}>
-                                                    What
+                                                    {t('job_market.search.what_label')}
                                                 </span>
                                                 <input
                                                     ref={termInputRef}
                                                     type="text"
                                                     autoComplete="off"
                                                     spellCheck={false}
-                                                    placeholder="Job title, keywords, or company"
+                                                    placeholder={t('job_market.search.term_placeholder')}
                                                     className="w-full bg-transparent border-0 outline-none ring-0 p-0 m-0 text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-0"
                                                     style={{ boxShadow: 'none' }}
                                                     value={searchQuery.term}
@@ -783,14 +788,14 @@ const JobMarketPage: React.FC = () => {
                                                         ? 'text-violet-500'
                                                         : 'text-gray-400 dark:text-gray-500'
                                                 }`}>
-                                                    Where
+                                                    {t('job_market.search.where_label')}
                                                 </span>
                                                 <input
                                                     ref={locationInputRef}
                                                     type="text"
                                                     autoComplete="off"
                                                     spellCheck={false}
-                                                    placeholder="City, state, or zip code"
+                                                    placeholder={t('job_market.search.location_placeholder')}
                                                     className="w-full bg-transparent border-0 outline-none ring-0 p-0 m-0 text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-0"
                                                     style={{ boxShadow: 'none' }}
                                                     value={searchQuery.location}
@@ -820,7 +825,7 @@ const JobMarketPage: React.FC = () => {
                                     `}>
                                         <div className="flex flex-col">
                                             <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-0.5">
-                                                Results
+                                                {t('job_market.search.results_label')}
                                             </span>
                                             <select
                                                 value={jobCount}
@@ -828,10 +833,10 @@ const JobMarketPage: React.FC = () => {
                                                 className="bg-transparent border-0 outline-none ring-0 p-0 m-0 text-sm font-bold text-gray-900 dark:text-white focus:outline-none focus:ring-0 cursor-pointer appearance-auto"
                                                 style={{ boxShadow: 'none' }}
                                             >
-                                                <option value={5}>5 jobs</option>
-                                                <option value={10}>10 jobs</option>
-                                                <option value={15}>15 jobs</option>
-                                                <option value={20}>20 jobs</option>
+                                                <option value={5}>{t('job_market.search.job_count', { count: 5 })}</option>
+                                                <option value={10}>{t('job_market.search.job_count', { count: 10 })}</option>
+                                                <option value={15}>{t('job_market.search.job_count', { count: 15 })}</option>
+                                                <option value={20}>{t('job_market.search.job_count', { count: 20 })}</option>
                                             </select>
                                         </div>
                                     </div>
@@ -859,7 +864,7 @@ const JobMarketPage: React.FC = () => {
                                             ) : (
                                                 <>
                                                     <Search size={16} />
-                                                    <span>Find Jobs</span>
+                                                    <span>{t('job_market.search.find_jobs')}</span>
                                                 </>
                                             )}
                                         </button>
@@ -872,11 +877,11 @@ const JobMarketPage: React.FC = () => {
                                         <div className="md:hidden">
                                             <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
                                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                                Credits: {getRemainingCreditsText()}
+                                                {t('job_market.credits.short_label')}: {getRemainingCreditsText()}
                                             </span>
                                         </div>
                                         <span className="ml-auto text-[11px] text-gray-400 dark:text-gray-500">
-                                            Cached searches are <span className="text-emerald-600 dark:text-emerald-400 font-bold">free</span> (1 credit for live)
+                                            {t('job_market.credits.cached_searches_are')} <span className="text-emerald-600 dark:text-emerald-400 font-bold">{t('job_market.credits.free')}</span> {t('job_market.credits.live_credit_hint')}
                                         </span>
                                     </div>
                                 )}
@@ -888,14 +893,14 @@ const JobMarketPage: React.FC = () => {
                                     onClick={handleRefresh}
                                     disabled={isSearching}
                                     className="p-3 text-gray-600 dark:text-gray-300 bg-gray-100/50 dark:bg-white/5 hover:bg-gray-200/80 dark:hover:bg-white/10 border border-gray-200/40 dark:border-white/5 rounded-full transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm hover:scale-105 active:scale-95"
-                                    title="Refresh Search"
+                                    title={t('job_market.actions.refresh_search')}
                                 >
                                     <RefreshCw className={`w-5 h-5 ${isSearching ? 'animate-spin' : ''}`} />
                                 </button>
                                 <button
                                     onClick={() => navigate('/dashboard')}
                                     className="p-3 text-gray-600 dark:text-gray-300 bg-gray-100/50 dark:bg-white/5 hover:bg-gray-200/80 dark:hover:bg-white/10 border border-gray-200/40 dark:border-white/5 rounded-full transition-all duration-300 shadow-sm hover:scale-105 active:scale-95"
-                                    title="Dashboard"
+                                    title={t('job_market.actions.dashboard')}
                                 >
                                     <LayoutDashboard className="w-5 h-5" />
                                 </button>
@@ -915,21 +920,21 @@ const JobMarketPage: React.FC = () => {
                         {searchState.phase === 'loading' ? (
                             <div className="flex flex-col items-center justify-center py-12 space-y-3">
                                 <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
-                                <p className="text-gray-500">Searching across the web...</p>
+                                <p className="text-gray-500">{t('job_market.loading.searching_across_web')}</p>
                             </div>
                         ) : searchState.phase === 'results' ? (
                             <div className="space-y-4">
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                     <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                                        <Search size={20} className="text-indigo-600" /> New Search Results
+                                        <Search size={20} className="text-indigo-600" /> {t('job_market.results.new_search_results')}
                                     </h2>
                                     {searchState.metadata && (searchState.metadata.cached || (searchState.metadata.creditDeducted ?? 1) < 1) && (
                                         <div className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-full text-xs font-medium border border-indigo-100 dark:border-indigo-900/50">
                                             <Clock size={14} className="animate-pulse" />
                                             <span>
                                                 {searchState.metadata.cached
-                                                    ? "🕐 Cached (up to 6h ago) · " 
-                                                    : `🕐 Hybrid Search (${Math.round((1 - (searchState.metadata.creditDeducted ?? 0)) * 100)}% from cache) · `}
+                                                    ? t('job_market.results.cached_label')
+                                                    : t('job_market.results.hybrid_label', { percent: Math.round((1 - (searchState.metadata.creditDeducted ?? 0)) * 100) })}
                                             </span>
                                             <button 
                                                 type="button"
@@ -937,7 +942,7 @@ const JobMarketPage: React.FC = () => {
                                                 disabled={isSearching}
                                                 className="underline hover:text-indigo-900 dark:hover:text-indigo-100 font-semibold cursor-pointer focus:outline-none flex items-center gap-0.5"
                                             >
-                                                Refresh for live results
+                                                {t('job_market.actions.refresh_live_results')}
                                                 <RefreshCw size={10} className={isSearching ? "animate-spin" : ""} />
                                             </button>
                                         </div>
@@ -947,9 +952,9 @@ const JobMarketPage: React.FC = () => {
                                     <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-xl p-4 flex gap-3 text-amber-800 dark:text-amber-300 text-sm">
                                         <span className="text-lg">⚠️</span>
                                         <div>
-                                            <p className="font-semibold">Limited results found</p>
+                                            <p className="font-semibold">{t('job_market.results.limited_title')}</p>
                                             <p className="mt-0.5 text-amber-700 dark:text-amber-400">
-                                                We only found {searchState.jobs.length} jobs in this city matching your search terms (fewer than the {searchState.metadata.requestedCount} requested). Try broadening your search terms or checking adjacent cities.
+                                                {t('job_market.results.limited_description', { found: searchState.jobs.length, requested: searchState.metadata.requestedCount })}
                                             </p>
                                         </div>
                                     </div>
@@ -982,10 +987,10 @@ const JobMarketPage: React.FC = () => {
                                             {isLoadingMore ? (
                                                 <>
                                                     <Loader2 className="w-4 h-4 animate-spin" />
-                                                    Loading...
+                                                    {t('job_market.loading.loading')}
                                                 </>
                                             ) : (
-                                                'Load More'
+                                                t('job_market.actions.load_more')
                                             )}
                                         </button>
                                     </div>
@@ -996,9 +1001,9 @@ const JobMarketPage: React.FC = () => {
                                 <div className="bg-gray-100 dark:bg-gray-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <Search className="w-8 h-8 text-gray-400" />
                                 </div>
-                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">No jobs found</h3>
+                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{t('job_market.empty.title')}</h3>
                                 <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-                                    We couldn't find any job matches for <span className="font-semibold">"{searchState.criteria.term}"</span> {searchState.criteria.location && <span>in <span className="font-semibold">"{searchState.criteria.location}"</span></span>}.
+                                    {t('job_market.empty.no_matches_for')} <span className="font-semibold">"{searchState.criteria.term}"</span> {searchState.criteria.location && <span>{t('job_market.empty.in_location')} <span className="font-semibold">"{searchState.criteria.location}"</span></span>}.
                                 </p>
                                 {renderSuggestions()}
                             </div>
@@ -1007,7 +1012,7 @@ const JobMarketPage: React.FC = () => {
                                 <div className="bg-red-50 dark:bg-red-950/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <X className="w-8 h-8 text-red-500" />
                                 </div>
-                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Search failed</h3>
+                                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{t('job_market.errors.search_failed_title')}</h3>
                                 <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-md mx-auto">{searchState.message}</p>
                             </div>
                         ) : null}
@@ -1015,7 +1020,7 @@ const JobMarketPage: React.FC = () => {
                         {searchState.phase === 'idle' && savedJobs.length > 0 && (
                             <div className="space-y-4">
                                 <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                                    <Clock size={20} className="text-indigo-600" /> Your Saved Search History
+                                    <Clock size={20} className="text-indigo-600" /> {t('job_market.sections.saved_search_history')}
                                 </h2>
                                 <div className="grid gap-4">
                                     {savedJobs.map((job) => (
@@ -1043,7 +1048,7 @@ const JobMarketPage: React.FC = () => {
                                 <h2 className={`text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 ${
                                     savedJobs.length > 0 ? 'border-t border-gray-200 dark:border-gray-700 pt-8' : ''
                                 }`}>
-                                    <Briefcase size={20} className="text-indigo-600" /> Featured Opportunities
+                                    <Briefcase size={20} className="text-indigo-600" /> {t('job_market.sections.featured_opportunities')}
                                 </h2>
                                 <div className="grid gap-4">
                                     {partnerJobs.map((job) => (
@@ -1103,13 +1108,13 @@ const JobMarketPage: React.FC = () => {
 
                             <div>
                                 <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">About the Role</h3>
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('job_market.details.about_role')}</h3>
                                     <button
                                         onClick={() => setShowLegend(true)}
                                         className="flex items-center gap-1 text-xs text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors"
                                     >
                                         <HelpCircle size={14} />
-                                        Highlight Guide
+                                        {t('job_market.details.highlight_guide')}
                                     </button>
                                 </div>
                                 <SmartDescription text={selectedJob.description} />
@@ -1120,19 +1125,19 @@ const JobMarketPage: React.FC = () => {
                                 <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg flex items-start gap-3">
                                     <ExternalLink className="w-5 h-5 text-indigo-600 mt-0.5 flex-shrink-0" />
                                     <div>
-                                        <h4 className="font-semibold text-indigo-900 dark:text-indigo-200">External Application</h4>
+                                        <h4 className="font-semibold text-indigo-900 dark:text-indigo-200">{t('job_market.details.external_application')}</h4>
                                         <p className="text-sm text-indigo-700 dark:text-indigo-300 mt-1">
-                                            This job is hosted on an external site. Click "Apply Externally" to proceed.
+                                            {t('job_market.details.external_application_description')}
                                         </p>
                                         <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-2">
-                                            AI search can make mistakes, so double-check it.{' '}
+                                            {t('job_market.details.ai_search_warning')}{' '}
                                             <a
                                                 href="https://careervivid.app/policy#privacy"
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="underline hover:text-indigo-800 dark:hover:text-indigo-200"
                                             >
-                                                Your privacy & careervivid
+                                                {t('job_market.details.privacy_link')}
                                             </a>
                                         </p>
                                     </div>
@@ -1142,7 +1147,7 @@ const JobMarketPage: React.FC = () => {
                             {
                                 selectedJob.responsibilities && selectedJob.responsibilities.length > 0 && (
                                     <div>
-                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Responsibilities</h3>
+                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">{t('job_market.details.responsibilities')}</h3>
                                         <ul className="list-disc list-inside space-y-2 text-gray-600 dark:text-gray-300">
                                             {selectedJob.responsibilities.map((item, idx) => (
                                                 <li key={idx}>{item}</li>
@@ -1161,14 +1166,14 @@ const JobMarketPage: React.FC = () => {
                                         className="px-5 py-2.5 rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 font-medium transition-colors flex items-center gap-2"
                                     >
                                         <PlusCircle size={16} />
-                                        Add Again
+                                        {t('job_market.actions.add_again')}
                                     </button>
                                     <button
                                         onClick={() => navigate('/job-tracker')}
                                         className="px-5 py-2.5 rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 font-medium transition-colors flex items-center gap-2"
                                     >
                                         <LayoutDashboard size={16} />
-                                        Go to Tracker
+                                        {t('job_market.actions.go_to_tracker')}
                                     </button>
                                 </>
                             ) : (
@@ -1177,7 +1182,7 @@ const JobMarketPage: React.FC = () => {
                                     className="px-5 py-2.5 rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 font-medium transition-colors flex items-center gap-2"
                                 >
                                     <PlusCircle size={16} />
-                                    Add to Tracker
+                                    {t('job_market.actions.add_to_tracker')}
                                 </button>
                             )}
 
@@ -1191,7 +1196,7 @@ const JobMarketPage: React.FC = () => {
                                             onClick={(e) => handleApplyClick(selectedJob, e)}
                                             className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold transition-colors flex items-center gap-2"
                                         >
-                                            {userApplications.has(selectedJob.id) ? 'Reapply' : 'Apply Now'}
+                                            {userApplications.has(selectedJob.id) ? t('job_market.actions.reapply') : t('job_market.actions.apply_now')}
                                         </button>
                                     );
                                 }
@@ -1204,7 +1209,7 @@ const JobMarketPage: React.FC = () => {
                                             rel="noopener noreferrer"
                                             className="px-6 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold transition-colors flex items-center gap-2"
                                         >
-                                            Apply Externally <ExternalLink size={16} />
+                                            {t('job_market.actions.apply_externally')} <ExternalLink size={16} />
                                         </a>
                                     );
                                 }
@@ -1222,7 +1227,7 @@ const JobMarketPage: React.FC = () => {
                     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
                         <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-lg shadow-2xl flex flex-col">
                             <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Apply to {applyingJob.companyName}</h2>
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('job_market.apply_modal.title', { company: applyingJob.companyName })}</h2>
                                 <button onClick={() => setApplyingJob(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
                                     <X className="w-5 h-5 text-gray-500" />
                                 </button>
@@ -1230,20 +1235,20 @@ const JobMarketPage: React.FC = () => {
 
                             <div className="p-6 space-y-6">
                                 <div>
-                                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Applying for</h3>
+                                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('job_market.apply_modal.applying_for')}</h3>
                                     <p className="text-lg font-semibold text-gray-900 dark:text-white">{applyingJob.jobTitle}</p>
                                 </div>
 
                                 <div>
-                                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Select Resume</h3>
+                                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{t('job_market.apply_modal.select_resume')}</h3>
                                     {resumes.length === 0 ? (
                                         <div className="text-center py-6 bg-gray-50 dark:bg-gray-900 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
-                                            <p className="text-gray-500 dark:text-gray-400 mb-3">No resumes found.</p>
+                                            <p className="text-gray-500 dark:text-gray-400 mb-3">{t('job_market.apply_modal.no_resumes_found')}</p>
                                             <button
                                                 onClick={() => navigate('/newresume')}
                                                 className="text-indigo-600 font-medium hover:underline text-sm"
                                             >
-                                                Create a resume first
+                                                {t('job_market.apply_modal.create_resume_first')}
                                             </button>
                                         </div>
                                     ) : (
@@ -1267,7 +1272,7 @@ const JobMarketPage: React.FC = () => {
                                                     <div className="flex-1">
                                                         <div className="font-medium text-gray-900 dark:text-white">{resume.title}</div>
                                                         <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                                            Last updated: {new Date(resume.updatedAt).toLocaleDateString()}
+                                                            {t('job_market.apply_modal.last_updated')}: {new Date(resume.updatedAt).toLocaleDateString()}
                                                         </div>
                                                     </div>
                                                     <FileText className={`w-5 h-5 ${selectedResumeId === resume.id ? 'text-indigo-600' : 'text-gray-400'}`} />
@@ -1283,7 +1288,7 @@ const JobMarketPage: React.FC = () => {
                                     onClick={() => setApplyingJob(null)}
                                     className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium"
                                 >
-                                    Cancel
+                                    {t('job_market.actions.cancel')}
                                 </button>
                                 <button
                                     onClick={handleSubmitApplication}
@@ -1293,12 +1298,12 @@ const JobMarketPage: React.FC = () => {
                                     {isSubmitting ? (
                                         <>
                                             <Loader2 className="w-4 h-4 animate-spin" />
-                                            Sending...
+                                            {t('job_market.apply_modal.sending')}
                                         </>
                                     ) : (
                                         <>
                                             <Send className="w-4 h-4" />
-                                            Submit Application
+                                            {t('job_market.apply_modal.submit_application')}
                                         </>
                                     )}
                                 </button>

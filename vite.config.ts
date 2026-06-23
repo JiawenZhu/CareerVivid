@@ -1,6 +1,5 @@
-import fs from 'fs';
 import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
@@ -14,9 +13,7 @@ const NEXT_SEO_NAVIGATION_DENYLIST = [
   new RegExp(`^/(?:${NEXT_SEO_LOCALES.join('|')})(?:/|$)`)
 ];
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, '.', '');
-  return {
+export default defineConfig({
     server: {
       port: 3001,
       host: '0.0.0.0'
@@ -26,22 +23,28 @@ export default defineConfig(({ mode }) => {
       VitePWA({
         registerType: 'autoUpdate',
         injectRegister: 'auto',
-        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+        includeAssets: [
+          'icons/icon16.png',
+          'icons/icon48.png',
+          'icons/icon128.png',
+          'icons/icon192.png',
+          'icons/icon512.png'
+        ],
         manifest: {
           name: 'CareerVivid',
           short_name: 'CareerVivid',
-          description: 'AI-Native Developer Portfolios & Vibe Coding Platform',
+          description: 'AI job-search workspace for saving roles, tailoring resumes, tracking applications, and practicing interviews.',
           theme_color: '#ffffff',
           background_color: '#ffffff',
           display: 'standalone',
           icons: [
             {
-              src: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Flogo_light_mode.png?alt=media&token=627ec9de-a950-41f7-9138-dd7a33518c55',
+              src: 'icons/icon192.png',
               sizes: '192x192',
               type: 'image/png'
             },
             {
-              src: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Flogo_light_mode.png?alt=media&token=627ec9de-a950-41f7-9138-dd7a33518c55',
+              src: 'icons/icon512.png',
               sizes: '512x512',
               type: 'image/png',
               purpose: 'any maskable'
@@ -103,8 +106,6 @@ export default defineConfig(({ mode }) => {
       })
     ],
     define: {
-      'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'process.env.IS_PREACT': JSON.stringify('true')
     },
     build: {
@@ -120,5 +121,4 @@ export default defineConfig(({ mode }) => {
         '@': path.resolve(__dirname, './src'),
       }
     }
-  };
 });

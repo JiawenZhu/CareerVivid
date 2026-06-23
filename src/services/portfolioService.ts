@@ -1,14 +1,7 @@
-import { GoogleGenAI } from "@google/genai";
 import { trackUsage } from './trackingService';
+import { callGeminiProxy } from './geminiService';
 
-const GEMINI_MODEL = 'gemini-3-flash';
-const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || (window as any)?.ENV?.VITE_GOOGLE_API_KEY;
-
-if (!apiKey) {
-    console.warn("VITE_GOOGLE_API_KEY is not defined. Portfolio generation may not work.");
-}
-
-const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
+const GEMINI_MODEL = 'gemini-2.5-flash';
 
 const SYSTEM_INSTRUCTION = `
 You are an expert Portfolio Architect. 
@@ -31,13 +24,9 @@ JSON SCHEMA:
 `;
 
 export async function generatePortfolio(userId: string, prompt: string): Promise<any> {
-    if (!ai) {
-        throw new Error("Portfolio generation service is not initialized. Missing API key.");
-    }
-
     try {
-        const response = await ai.models.generateContent({
-            model: GEMINI_MODEL,
+        const response = await callGeminiProxy({
+            modelName: GEMINI_MODEL,
             contents: { parts: [{ text: prompt }] },
             config: {
                 systemInstruction: SYSTEM_INSTRUCTION,
@@ -45,7 +34,7 @@ export async function generatePortfolio(userId: string, prompt: string): Promise
             },
         });
 
-        const tokenUsage = response.usageMetadata?.totalTokenCount || 0;
+        const tokenUsage = response.response?.usageMetadata?.totalTokenCount || 0;
         await trackUsage(userId, 'portfolio_generation', { tokenUsage });
 
         const text = response.text || "{}";

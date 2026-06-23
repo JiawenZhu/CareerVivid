@@ -18,10 +18,18 @@ import {
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import Logo from '../Logo';
+import { SUPPORTED_LANGUAGES } from '../../constants';
 import { useNavigation } from '../../contexts/NavigationContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { navigate } from '../../utils/navigation';
+import {
+    buildLocalizedPath,
+    getStoredLanguagePreference,
+    normalizeLanguageCode,
+    setStoredLanguagePreference,
+    stripLanguagePrefix,
+} from '../../utils/languagePreference';
 import AIUsageProgressBar from '../AIUsageProgressBar';
 import { getPlanDisplayName } from '../../config/subscriptionCatalog';
 import { useSidebarStore } from '../../store/useSidebarStore';
@@ -41,11 +49,18 @@ const generateDefaultNodes = (t: any): SidebarNode[] => {
 };
 
 const Sidebar: React.FC = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { toggleSidebarMode, sidebarMode, sidebarWidth, setSidebarWidth } = useNavigation();
     const { currentUser, userProfile, updateUserProfile, logOut, aiUsage, isPremium } = useAuth();
     const { theme, setTheme } = useTheme();
-    const currentPath = window.location.pathname;
+    const currentPath = stripLanguagePrefix(window.location.pathname);
+    const currentLanguageCode =
+        normalizeLanguageCode(i18n.resolvedLanguage || i18n.language) ||
+        getStoredLanguagePreference() ||
+        'en';
+    const currentLanguageLabel =
+        SUPPORTED_LANGUAGES.find((language) => language.code === currentLanguageCode)?.nativeName ||
+        currentLanguageCode.toUpperCase();
 
     const { updateResume, deleteResume } = useResumes();
     const { updatePortfolio, deletePortfolio } = usePortfolios();
@@ -149,6 +164,12 @@ const Sidebar: React.FC = () => {
         } catch (err) {
             console.error('Error saving preference to localStorage', err);
         }
+    };
+
+    const handleLanguageChange = (value: string) => {
+        const language = setStoredLanguagePreference(value);
+        i18n.changeLanguage?.(language);
+        navigate(buildLocalizedPath(`${window.location.pathname}${window.location.search}${window.location.hash}`, language));
     };
 
     const lastSavedNodesRef = useRef<string>('');
@@ -411,6 +432,24 @@ const Sidebar: React.FC = () => {
             <div className={`relative mt-auto shrink-0 border-t border-stone-200/70 dark:border-slate-800/70 ${isCollapsed ? 'px-2 py-3' : 'px-3 py-2.5'}`}>
                 {isCollapsed ? (
                     <div className="flex flex-col items-center gap-2">
+                        <div className="group relative h-11 w-11 shrink-0">
+                            <span className="pointer-events-none flex h-11 w-11 items-center justify-center rounded-2xl border border-stone-200 bg-white/75 text-[10px] font-extrabold uppercase text-slate-500 shadow-sm transition group-hover:border-stone-300 group-hover:bg-white group-hover:text-slate-950 group-focus-within:ring-2 group-focus-within:ring-indigo-200 dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-300 dark:group-hover:border-slate-700 dark:group-hover:text-slate-100 dark:group-focus-within:ring-indigo-900/60">
+                                {currentLanguageCode.toUpperCase()}
+                            </span>
+                            <select
+                                value={currentLanguageCode}
+                                onChange={(event) => handleLanguageChange(event.target.value)}
+                                title={t('resume_form.language', 'Language')}
+                                aria-label={t('resume_form.language', 'Language')}
+                                className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                            >
+                                {SUPPORTED_LANGUAGES.map((language) => (
+                                    <option key={language.code} value={language.code}>
+                                        {language.nativeName}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                         <button
                             type="button"
                             onClick={() => navigate('/profile')}
@@ -473,6 +512,30 @@ const Sidebar: React.FC = () => {
                             </button>
                         );
                     })}
+                </div>
+
+                <div className="mb-1.5 flex items-center justify-between gap-3 rounded-2xl border border-stone-200/70 bg-white/45 px-2.5 py-1.5 text-xs dark:border-slate-800/80 dark:bg-slate-950/30">
+                    <label htmlFor="sidebar-language-select" className="shrink-0 text-[10px] font-extrabold uppercase tracking-[0.18em] text-stone-500 dark:text-slate-400">
+                        {t('resume_form.language', 'Language')}
+                    </label>
+                    <div className="group relative h-7 w-[88px] shrink-0">
+                        <span className="pointer-events-none flex h-full w-full items-center justify-end rounded-lg border border-transparent bg-transparent px-2 text-right text-[11px] font-extrabold text-slate-700 outline-none transition group-hover:border-stone-200 group-hover:bg-white/70 group-focus-within:border-indigo-300 group-focus-within:bg-white group-focus-within:ring-2 group-focus-within:ring-indigo-100 dark:text-slate-200 dark:group-hover:border-slate-700 dark:group-hover:bg-slate-900/70 dark:group-focus-within:border-indigo-700 dark:group-focus-within:bg-slate-900 dark:group-focus-within:ring-indigo-950">
+                            <span className="truncate">{currentLanguageLabel}</span>
+                        </span>
+                        <select
+                            id="sidebar-language-select"
+                            aria-label={t('resume_form.language', 'Language')}
+                            value={currentLanguageCode}
+                            onChange={(event) => handleLanguageChange(event.target.value)}
+                            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                        >
+                            {SUPPORTED_LANGUAGES.map((language) => (
+                                <option key={language.code} value={language.code}>
+                                    {language.nativeName}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
                 {/* Theme Toggle */}

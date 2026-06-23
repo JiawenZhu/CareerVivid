@@ -85,8 +85,8 @@ const ResumeScoreTab: React.FC<ResumeScoreTabProps> = ({
         <div className="space-y-6 animate-fade-in pb-8">
             {/* Header description */}
             <div className="text-center mt-2">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">Resume Optimizer</h2>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Get instant analysis and direct feedback to perfect your resume score.</p>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{t('editor.resume_optimizer_title')}</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{t('editor.resume_optimizer_desc')}</p>
             </div>
 
             {/* SVG Circular Half-Gauge Score Meter */}
@@ -121,7 +121,7 @@ const ResumeScoreTab: React.FC<ResumeScoreTabProps> = ({
                             {overallScore}
                         </span>
                         <span className="text-[10px] uppercase font-bold tracking-widest text-gray-400 dark:text-gray-500 mt-1">
-                            resume score
+                            {t('editor.resume_score_label')}
                         </span>
                     </div>
                 </div>
@@ -142,7 +142,7 @@ const ResumeScoreTab: React.FC<ResumeScoreTabProps> = ({
                             ) : (
                                 <Plus size={18} className="text-gray-400" />
                             )}
-                            <span className="font-bold text-sm text-gray-900 dark:text-white">Section Completion</span>
+                            <span className="font-bold text-sm text-gray-900 dark:text-white">{t('editor.section_completion')}</span>
                         </div>
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-lg ${
                             completionScore >= 80 
@@ -158,7 +158,7 @@ const ResumeScoreTab: React.FC<ResumeScoreTabProps> = ({
                             
                             {/* Personal Info Checklist Group */}
                             <div>
-                                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Personal Info Section</h4>
+                                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{t('editor.personal_info_section')}</h4>
                                 <div className="space-y-2">
                                     {personalItems.map(item => (
                                         <div key={item.id} className="flex items-center justify-between py-1 border-b border-gray-100/50 dark:border-gray-800/50 last:border-0">
@@ -169,7 +169,7 @@ const ResumeScoreTab: React.FC<ResumeScoreTabProps> = ({
                                                     : 'bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-900/20'
                                             }`}>
                                                 {item.isOk ? <Check size={10} className="stroke-[3]" /> : null}
-                                                {item.isOk ? 'Ok' : 'Missing'}
+                                                {item.isOk ? t('editor.status_ok') : t('editor.status_missing')}
                                             </span>
                                         </div>
                                     ))}
@@ -178,7 +178,7 @@ const ResumeScoreTab: React.FC<ResumeScoreTabProps> = ({
 
                             {/* Resume Sections Checklist Group */}
                             <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
-                                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Resume Content Sections</h4>
+                                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{t('editor.resume_content_sections')}</h4>
                                 <div className="space-y-3">
                                     {[...workItems, ...eduItems, ...sumItems, ...skillItems].map(item => (
                                         <div key={item.id} className="space-y-1">
@@ -186,7 +186,7 @@ const ResumeScoreTab: React.FC<ResumeScoreTabProps> = ({
                                                 <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-1.5">
                                                     {item.label}
                                                     {item.id !== 'summary' && (
-                                                        <span title={`Essential section: ${item.label}`} className="cursor-help inline-flex items-center">
+                                                        <span title={t('editor.essential_section', { label: item.label })} className="cursor-help inline-flex items-center">
                                                             <HelpCircle size={12} className="text-gray-400" />
                                                         </span>
                                                     )}
@@ -197,7 +197,7 @@ const ResumeScoreTab: React.FC<ResumeScoreTabProps> = ({
                                                         : 'bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-900/20'
                                                 }`}>
                                                     {item.isOk ? <Check size={10} className="stroke-[3]" /> : null}
-                                                    {item.isOk ? 'Ok' : 'Missing'}
+                                                    {item.isOk ? t('editor.status_ok') : t('editor.status_missing')}
                                                 </span>
                                             </div>
                                             {!item.isOk && (
@@ -226,7 +226,7 @@ const ResumeScoreTab: React.FC<ResumeScoreTabProps> = ({
                             ) : (
                                 <Plus size={18} className="text-gray-400" />
                             )}
-                            <span className="font-bold text-sm text-gray-900 dark:text-white">Content Quality</span>
+                            <span className="font-bold text-sm text-gray-900 dark:text-white">{t('editor.content_quality')}</span>
                         </div>
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-lg ${
                             qualityScore >= 75 
@@ -258,7 +258,7 @@ const ResumeScoreTab: React.FC<ResumeScoreTabProps> = ({
                                                             className="inline-flex items-center gap-0.5 bg-primary-50 hover:bg-primary-100 dark:bg-primary-950/20 dark:hover:bg-primary-950/30 text-primary-600 dark:text-primary-400 font-bold px-2 py-0.5 rounded-lg text-[9px] border border-primary-200/20 shadow-sm transition-all duration-150 active:scale-95 cursor-pointer"
                                                         >
                                                             <Sparkles size={10} className="text-primary-500" />
-                                                            <span>Improve</span>
+                                                            <span>{t('editor.improve')}</span>
                                                         </button>
                                                     )}
                                                     <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md border ${
@@ -267,7 +267,7 @@ const ResumeScoreTab: React.FC<ResumeScoreTabProps> = ({
                                                             : 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/20'
                                                     }`}>
                                                         {item.isOk ? <Check size={10} className="stroke-[3]" /> : null}
-                                                        {item.isOk ? 'Great' : 'Needs Work'}
+                                                        {item.isOk ? t('editor.status_great') : t('editor.status_needs_work')}
                                                     </span>
                                                 </div>
                                             </div>
@@ -295,7 +295,7 @@ const ResumeScoreTab: React.FC<ResumeScoreTabProps> = ({
                             ) : (
                                 <Plus size={18} className="text-gray-400" />
                             )}
-                            <span className="font-bold text-sm text-gray-900 dark:text-white">Content Length</span>
+                            <span className="font-bold text-sm text-gray-900 dark:text-white">{t('editor.content_length')}</span>
                         </div>
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-lg ${
                             lengthScore >= 75 

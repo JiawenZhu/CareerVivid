@@ -434,7 +434,7 @@ const BillingDashboard: React.FC = () => {
                             <div className="flex flex-col gap-3 sm:flex-row">
                                 <input
                                     type="email"
-                                    placeholder="developer@company.com"
+                                    placeholder="teammate@example.com"
                                     value={newTeamMember}
                                     onChange={(event) => setNewTeamMember(event.target.value)}
                                     className="min-h-[46px] flex-1 rounded-2xl border border-[#e4d3bc] bg-[#fffaf1] px-4 text-sm font-semibold outline-none transition focus:border-[#625bd5] focus:ring-4 focus:ring-[#625bd5]/10 dark:border-[#3a332a] dark:bg-[#24221f]"

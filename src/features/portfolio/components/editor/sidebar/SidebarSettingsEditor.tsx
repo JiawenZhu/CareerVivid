@@ -1,5 +1,6 @@
 import React from 'react';
 import { FileText, Award, Store, Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { PortfolioData } from '../../../types/portfolio';
 import SidebarIntroEditor from './SidebarIntroEditor';
 
@@ -16,6 +17,9 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
     resumes,
     themeClasses
 }) => {
+    const { t } = useTranslation();
+    const tSidebar = (key: string) => t(`portfolio_editor.sidebar.${key}`);
+
     const handleToggleStore = (enabled: boolean) => {
         onUpdate({
             linkInBio: {
@@ -54,13 +58,13 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
             <div className={`p-4 rounded-lg border ${themeClasses.cardBg}`}>
                 <div className="flex items-center gap-2 mb-3">
                     <Store className="text-blue-500" size={20} />
-                    <h3 className={`font-semibold ${themeClasses.textMain}`}>Commerce Hub</h3>
+                    <h3 className={`font-semibold ${themeClasses.textMain}`}>{tSidebar('commerce.title')}</h3>
                 </div>
 
                 <div className="flex items-center justify-between">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Enable Storefront</label>
-                        <p className="text-xs text-gray-500">Sell products directly from your bio link.</p>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{tSidebar('commerce.enable_storefront')}</label>
+                        <p className="text-xs text-gray-500">{tSidebar('commerce.description')}</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                         <input
@@ -74,7 +78,7 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
                 </div>
 
                 <p className={`text-xs mt-3 ${themeClasses.textMuted}`}>
-                    Manage your products in the <a href="/commerce" target="_blank" className="text-blue-500 hover:underline">Commerce Dashboard</a>.
+                    {tSidebar('commerce.manage_prefix')} <a href="/commerce" target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">{tSidebar('commerce.dashboard_link')}</a>.
                 </p>
             </div>
 
@@ -82,16 +86,16 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
             <div className={`p-4 rounded-lg border ${themeClasses.cardBg}`}>
                 <div className="flex items-center gap-2 mb-3">
                     <Sparkles className="text-purple-500" size={20} />
-                    <h3 className={`font-semibold ${themeClasses.textMain}`}>Animation Hub</h3>
+                    <h3 className={`font-semibold ${themeClasses.textMain}`}>{tSidebar('animation.title')}</h3>
                 </div>
-                <p className="text-xs text-gray-500 mb-4">Enhance your page with interactive and ambient effects.</p>
+                <p className="text-xs text-gray-500 mb-4">{tSidebar('animation.description')}</p>
 
                 <div className="space-y-3">
                     {/* Confetti */}
                     <div className="flex items-center justify-between">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Celebration Confetti</label>
-                            <p className="text-[10px] text-gray-400">Bursts of confetti when links are clicked</p>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{tSidebar('animation.effects.confetti.title')}</label>
+                            <p className="text-[10px] text-gray-400">{tSidebar('animation.effects.confetti.description')}</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                             <input
@@ -107,8 +111,8 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
                     {/* Snow / Particles */}
                     <div className="flex items-center justify-between">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Snow & Particles</label>
-                            <p className="text-[10px] text-gray-400">Gentle falling particles overlay</p>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{tSidebar('animation.effects.particles.title')}</label>
+                            <p className="text-[10px] text-gray-400">{tSidebar('animation.effects.particles.description')}</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                             <input
@@ -124,8 +128,8 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
                     {/* Matrix Rain */}
                     <div className="flex items-center justify-between">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Matrix Rain</label>
-                            <p className="text-[10px] text-gray-400">Falling digital code effect</p>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{tSidebar('animation.effects.matrix.title')}</label>
+                            <p className="text-[10px] text-gray-400">{tSidebar('animation.effects.matrix.description')}</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                             <input
@@ -141,8 +145,8 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
                     {/* Gradient Blobs */}
                     <div className="flex items-center justify-between">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Ambient Blobs</label>
-                            <p className="text-[10px] text-gray-400">Floating colorful background orbs</p>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{tSidebar('animation.effects.blobs.title')}</label>
+                            <p className="text-[10px] text-gray-400">{tSidebar('animation.effects.blobs.description')}</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                             <input
@@ -158,8 +162,8 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
                     {/* Scanlines */}
                     <div className="flex items-center justify-between">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Retro Scanlines</label>
-                            <p className="text-[10px] text-gray-400">CRT monitor style overlay</p>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{tSidebar('animation.effects.scanlines.title')}</label>
+                            <p className="text-[10px] text-gray-400">{tSidebar('animation.effects.scanlines.description')}</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                             <input
@@ -175,8 +179,8 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
                     {/* Noise */}
                     <div className="flex items-center justify-between">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Film Noise</label>
-                            <p className="text-[10px] text-gray-400">Textured grain overlay</p>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{tSidebar('animation.effects.noise.title')}</label>
+                            <p className="text-[10px] text-gray-400">{tSidebar('animation.effects.noise.description')}</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                             <input
@@ -192,8 +196,8 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
                     {/* Cyber Grid */}
                     <div className="flex items-center justify-between">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Cyber Grid</label>
-                            <p className="text-[10px] text-gray-400">Retro 80s moving perspective grid</p>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{tSidebar('animation.effects.grid.title')}</label>
+                            <p className="text-[10px] text-gray-400">{tSidebar('animation.effects.grid.description')}</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                             <input
@@ -209,8 +213,8 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
                     {/* Fireflies */}
                     <div className="flex items-center justify-between">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Fireflies</label>
-                            <p className="text-[10px] text-gray-400">Gentle floating glowing orbs</p>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{tSidebar('animation.effects.fireflies.title')}</label>
+                            <p className="text-[10px] text-gray-400">{tSidebar('animation.effects.fireflies.description')}</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                             <input
@@ -226,8 +230,8 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
                     {/* Starfield */}
                     <div className="flex items-center justify-between">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Starfield</label>
-                            <p className="text-[10px] text-gray-400">Deep space twinkling stars</p>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{tSidebar('animation.effects.stars.title')}</label>
+                            <p className="text-[10px] text-gray-400">{tSidebar('animation.effects.stars.description')}</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                             <input
@@ -243,8 +247,8 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
                     {/* Liquid Waves */}
                     <div className="flex items-center justify-between">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Liquid Waves</label>
-                            <p className="text-[10px] text-gray-400">Abstract flowing fluid waves</p>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{tSidebar('animation.effects.waves.title')}</label>
+                            <p className="text-[10px] text-gray-400">{tSidebar('animation.effects.waves.description')}</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                             <input
@@ -263,18 +267,18 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
             <div className={`p-4 rounded-lg border ${themeClasses.cardBg}`}>
                 <div className="flex items-center gap-2 mb-3">
                     <FileText className="text-indigo-400" size={20} />
-                    <h3 className={`font-semibold ${themeClasses.textMain}`}>Attachments</h3>
+                    <h3 className={`font-semibold ${themeClasses.textMain}`}>{tSidebar('attachments.title')}</h3>
                 </div>
 
                 <div id="resume.selector">
-                    <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase">Attach Resume</label>
-                    <p className="text-xs text-gray-400 mb-2">Select a resume from your database to display as a download link on your portfolio.</p>
+                    <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase">{tSidebar('attachments.attach_resume')}</label>
+                    <p className="text-xs text-gray-400 mb-2">{tSidebar('attachments.description')}</p>
                     <select
                         value={portfolioData.attachedResumeId || ''}
                         onChange={(e) => onUpdate({ attachedResumeId: e.target.value })}
                         className={`w-full border rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500 transition-colors ${themeClasses.inputBg}`}
                     >
-                        <option value="">-- No Resume Attached --</option>
+                        <option value="">{tSidebar('attachments.no_resume')}</option>
                         {resumes.map(resume => (
                             <option key={resume.id} value={resume.id}>
                                 {resume.title}
@@ -288,13 +292,13 @@ const SidebarSettingsEditor: React.FC<SidebarSettingsEditorProps> = ({
             <div className={`p-4 rounded-lg border ${themeClasses.cardBg}`}>
                 <div className="flex items-center gap-2 mb-3">
                     <Award className="text-amber-400" size={20} />
-                    <h3 className={`font-semibold ${themeClasses.textMain}`}>Premium Branding</h3>
+                    <h3 className={`font-semibold ${themeClasses.textMain}`}>{tSidebar('branding.title')}</h3>
                 </div>
 
                 <div className="flex items-center justify-between">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Remove Branding</label>
-                        <p className="text-xs text-gray-500">Hide "Created with CareerVivid"</p>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{tSidebar('branding.remove')}</label>
+                        <p className="text-xs text-gray-500">{tSidebar('branding.description')}</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                         <input
