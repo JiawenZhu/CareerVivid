@@ -1,0 +1,391 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0B9A14D8FF652E694304FAFE /* PracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 907826C65F411F58A062421C /* PracticeView.swift */; };
+		100BBC88D2BB7F4F660E2C0B /* CaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B1FFDB992817C531445345 /* CaptureView.swift */; };
+		1F96ABB9F439128A9A5FC65C /* ResumePDFExport.swift in Sources */ = {isa = PBXBuildFile; fileRef = C87EA058013CB5B691E4D227 /* ResumePDFExport.swift */; };
+		38F3970BEF54203A067ECCCC /* ResumeCoachSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF46071415B828192726F25 /* ResumeCoachSession.swift */; };
+		3940DF499DDFCAD796C73478 /* CareerVividMobileMVPApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3420853062C88F09AC9227B /* CareerVividMobileMVPApp.swift */; };
+		5E998DEF22312D0C9FE9D0F2 /* CVFirebaseAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCB6F9ED19E2D5DD542EEF59 /* CVFirebaseAuth.swift */; };
+		5EBF7907F5AED4759FB16425 /* CareerVividMobileMVPView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B7F4BB5D048308558B079A6 /* CareerVividMobileMVPView.swift */; };
+		697B664E83641F7EB5A18090 /* ResumeEditorStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21F802E9D5C548F5874A98E0 /* ResumeEditorStore.swift */; };
+		69A982094382D7317065C0DA /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 861DBAD3DADD23EF3AF985AE /* DesignTokens.swift */; };
+		84CA8AFE270EF0356E1D4DBF /* WebsiteResumeModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FE7E6AF2868647495B91D10 /* WebsiteResumeModels.swift */; };
+		850AEC14D4845413D8F91ABF /* ResumeMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47C4EFAC83F0CBD52C22242D /* ResumeMapping.swift */; };
+		9BE5C78D3E250BAC34652C0C /* ResumeSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B834B9A258EFECE28DFEF2A /* ResumeSyncService.swift */; };
+		B618ED9849494EA9EAF646B3 /* ResumeCoachView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1BBBF632C42177BC22DC238 /* ResumeCoachView.swift */; };
+		C5271EB746E08312358A32AF /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F0D536B1234DABD6FE033EF /* Models.swift */; };
+		CD97BC4F1F5D8E8F6A30C5CB /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87CD03501E19F68498C64F30 /* Components.swift */; };
+		D031696CF82EA22585B87793 /* ResumeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B769AB01E86867AB044F692E /* ResumeView.swift */; };
+		E59E6B791CAB89A7BBCB67C6 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B8DF510F9AC95BB1AD1FDC8 /* TodayView.swift */; };
+		E1A2B3C4D5E6F7012345678A /* InterviewPracticeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A2B3C4D5E6F70123456789 /* InterviewPracticeService.swift */; };
+		E1A2B3C4D5E6F7012345678C /* LiveInterviewSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A2B3C4D5E6F7012345678B /* LiveInterviewSession.swift */; };
+		E2A2B3C4D5E6F7012345678A /* AuthSessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A2B3C4D5E6F70123456789 /* AuthSessionStore.swift */; };
+		E2A2B3C4D5E6F7012345678C /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A2B3C4D5E6F7012345678B /* AuthView.swift */; };
+		E3A2B3C4D5E6F7012345678A /* GoogleSignInService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3A2B3C4D5E6F70123456789 /* GoogleSignInService.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0B834B9A258EFECE28DFEF2A /* ResumeSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResumeSyncService.swift; sourceTree = "<group>"; };
+		21F802E9D5C548F5874A98E0 /* ResumeEditorStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResumeEditorStore.swift; sourceTree = "<group>"; };
+		3B8DF510F9AC95BB1AD1FDC8 /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
+		3CF46071415B828192726F25 /* ResumeCoachSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResumeCoachSession.swift; sourceTree = "<group>"; };
+		3FE7E6AF2868647495B91D10 /* WebsiteResumeModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsiteResumeModels.swift; sourceTree = "<group>"; };
+		47C4EFAC83F0CBD52C22242D /* ResumeMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResumeMapping.swift; sourceTree = "<group>"; };
+		7F0D536B1234DABD6FE033EF /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		861DBAD3DADD23EF3AF985AE /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
+		87CD03501E19F68498C64F30 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		8B7F4BB5D048308558B079A6 /* CareerVividMobileMVPView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareerVividMobileMVPView.swift; sourceTree = "<group>"; };
+		907826C65F411F58A062421C /* PracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeView.swift; sourceTree = "<group>"; };
+		921F3B47AED2339B97326A3A /* CareerVividMobileMVP.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = CareerVividMobileMVP.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B3420853062C88F09AC9227B /* CareerVividMobileMVPApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareerVividMobileMVPApp.swift; sourceTree = "<group>"; };
+		B769AB01E86867AB044F692E /* ResumeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResumeView.swift; sourceTree = "<group>"; };
+		C87EA058013CB5B691E4D227 /* ResumePDFExport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResumePDFExport.swift; sourceTree = "<group>"; };
+		D1BBBF632C42177BC22DC238 /* ResumeCoachView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResumeCoachView.swift; sourceTree = "<group>"; };
+		D5B1FFDB992817C531445345 /* CaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureView.swift; sourceTree = "<group>"; };
+		DCB6F9ED19E2D5DD542EEF59 /* CVFirebaseAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CVFirebaseAuth.swift; sourceTree = "<group>"; };
+		E1A2B3C4D5E6F70123456789 /* InterviewPracticeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterviewPracticeService.swift; sourceTree = "<group>"; };
+		E1A2B3C4D5E6F7012345678B /* LiveInterviewSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveInterviewSession.swift; sourceTree = "<group>"; };
+		E2A2B3C4D5E6F70123456789 /* AuthSessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSessionStore.swift; sourceTree = "<group>"; };
+		E2A2B3C4D5E6F7012345678B /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
+		E3A2B3C4D5E6F70123456789 /* GoogleSignInService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSignInService.swift; sourceTree = "<group>"; };
+		E3A2B3C4D5E6F7012345678B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		3ADCECBCC0D639DE2A5970BF /* App */ = {
+			isa = PBXGroup;
+			children = (
+				B3420853062C88F09AC9227B /* CareerVividMobileMVPApp.swift */,
+				E3A2B3C4D5E6F7012345678B /* Info.plist */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		96E0AD84FA3DB1EBD087BFBA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				921F3B47AED2339B97326A3A /* CareerVividMobileMVP.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A7E91D5B6154FCD4CE6133FB = {
+			isa = PBXGroup;
+			children = (
+				3ADCECBCC0D639DE2A5970BF /* App */,
+				B868EEE4E1F72BBD09F5E488 /* CareerVividMobileMVP */,
+				96E0AD84FA3DB1EBD087BFBA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B868EEE4E1F72BBD09F5E488 /* CareerVividMobileMVP */ = {
+			isa = PBXGroup;
+			children = (
+				E2A2B3C4D5E6F70123456789 /* AuthSessionStore.swift */,
+				E2A2B3C4D5E6F7012345678B /* AuthView.swift */,
+				D5B1FFDB992817C531445345 /* CaptureView.swift */,
+				8B7F4BB5D048308558B079A6 /* CareerVividMobileMVPView.swift */,
+				87CD03501E19F68498C64F30 /* Components.swift */,
+				DCB6F9ED19E2D5DD542EEF59 /* CVFirebaseAuth.swift */,
+				861DBAD3DADD23EF3AF985AE /* DesignTokens.swift */,
+				E3A2B3C4D5E6F70123456789 /* GoogleSignInService.swift */,
+				E1A2B3C4D5E6F70123456789 /* InterviewPracticeService.swift */,
+				E1A2B3C4D5E6F7012345678B /* LiveInterviewSession.swift */,
+				7F0D536B1234DABD6FE033EF /* Models.swift */,
+				907826C65F411F58A062421C /* PracticeView.swift */,
+				3CF46071415B828192726F25 /* ResumeCoachSession.swift */,
+				D1BBBF632C42177BC22DC238 /* ResumeCoachView.swift */,
+				21F802E9D5C548F5874A98E0 /* ResumeEditorStore.swift */,
+				47C4EFAC83F0CBD52C22242D /* ResumeMapping.swift */,
+				C87EA058013CB5B691E4D227 /* ResumePDFExport.swift */,
+				0B834B9A258EFECE28DFEF2A /* ResumeSyncService.swift */,
+				B769AB01E86867AB044F692E /* ResumeView.swift */,
+				3B8DF510F9AC95BB1AD1FDC8 /* TodayView.swift */,
+				3FE7E6AF2868647495B91D10 /* WebsiteResumeModels.swift */,
+			);
+			name = CareerVividMobileMVP;
+			path = Sources/CareerVividMobileMVP;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C8774E6AA1E9ACB5D4E553D9 /* CareerVividMobileMVP */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 79111FC6FDB7A873D7E808A7 /* Build configuration list for PBXNativeTarget "CareerVividMobileMVP" */;
+			buildPhases = (
+				2164A65D7CE27FD66E9E3034 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CareerVividMobileMVP;
+			packageProductDependencies = (
+			);
+			productName = CareerVividMobileMVP;
+			productReference = 921F3B47AED2339B97326A3A /* CareerVividMobileMVP.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		881E953B3C74F6FDA7E2FFE5 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = 5D3B262B0BFF6538A74C5E10 /* Build configuration list for PBXProject "CareerVividMobileMVP" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = A7E91D5B6154FCD4CE6133FB;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 96E0AD84FA3DB1EBD087BFBA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C8774E6AA1E9ACB5D4E553D9 /* CareerVividMobileMVP */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2164A65D7CE27FD66E9E3034 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E2A2B3C4D5E6F7012345678A /* AuthSessionStore.swift in Sources */,
+				E2A2B3C4D5E6F7012345678C /* AuthView.swift in Sources */,
+				5E998DEF22312D0C9FE9D0F2 /* CVFirebaseAuth.swift in Sources */,
+				100BBC88D2BB7F4F660E2C0B /* CaptureView.swift in Sources */,
+				3940DF499DDFCAD796C73478 /* CareerVividMobileMVPApp.swift in Sources */,
+				5EBF7907F5AED4759FB16425 /* CareerVividMobileMVPView.swift in Sources */,
+				CD97BC4F1F5D8E8F6A30C5CB /* Components.swift in Sources */,
+				69A982094382D7317065C0DA /* DesignTokens.swift in Sources */,
+				E3A2B3C4D5E6F7012345678A /* GoogleSignInService.swift in Sources */,
+				E1A2B3C4D5E6F7012345678A /* InterviewPracticeService.swift in Sources */,
+				E1A2B3C4D5E6F7012345678C /* LiveInterviewSession.swift in Sources */,
+				C5271EB746E08312358A32AF /* Models.swift in Sources */,
+				0B9A14D8FF652E694304FAFE /* PracticeView.swift in Sources */,
+				38F3970BEF54203A067ECCCC /* ResumeCoachSession.swift in Sources */,
+				B618ED9849494EA9EAF646B3 /* ResumeCoachView.swift in Sources */,
+				697B664E83641F7EB5A18090 /* ResumeEditorStore.swift in Sources */,
+				850AEC14D4845413D8F91ABF /* ResumeMapping.swift in Sources */,
+				1F96ABB9F439128A9A5FC65C /* ResumePDFExport.swift in Sources */,
+				9BE5C78D3E250BAC34652C0C /* ResumeSyncService.swift in Sources */,
+				D031696CF82EA22585B87793 /* ResumeView.swift in Sources */,
+				E59E6B791CAB89A7BBCB67C6 /* TodayView.swift in Sources */,
+				84CA8AFE270EF0356E1D4DBF /* WebsiteResumeModels.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		062B36FAD22086C5DAD81D11 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CareerVivid;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "CareerVivid uses the microphone to turn spoken resume notes into editable resume drafts.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "CareerVivid uses speech recognition to show your resume coach answers in real time.";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.careervivid.mobilemvp;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		332155D6C82BACD83A5FDD70 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CareerVivid;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "CareerVivid uses the microphone to turn spoken resume notes into editable resume drafts.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "CareerVivid uses speech recognition to show your resume coach answers in real time.";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.careervivid.mobilemvp;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		C9BCAC07E39656562934CAC0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		ECF5B11297598A0423693DDF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5D3B262B0BFF6538A74C5E10 /* Build configuration list for PBXProject "CareerVividMobileMVP" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ECF5B11297598A0423693DDF /* Debug */,
+				C9BCAC07E39656562934CAC0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		79111FC6FDB7A873D7E808A7 /* Build configuration list for PBXNativeTarget "CareerVividMobileMVP" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				332155D6C82BACD83A5FDD70 /* Debug */,
+				062B36FAD22086C5DAD81D11 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 881E953B3C74F6FDA7E2FFE5 /* Project object */;
+}
