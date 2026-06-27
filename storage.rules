@@ -1,12 +1,48 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+    function isStorageAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == 'evan@careervivid.app' ||
+        request.auth.token.email == 'evan@jastalk.com'
+      );
+    }
+
+    function isKnownClientApp(appKey) {
+      return appKey in [
+        'careervivid',
+        'createvivid',
+        'visa-interview-prep',
+        'green-card-interview-prep'
+      ];
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
     match /products/{merchantId}/{imageId} {
       allow read: if true;
       allow write: if request.auth != null && request.auth.uid == merchantId;
     }
-    match /{allPaths=**} {
-      allow read, write: if request.auth != null;
+
+    // App-specific storage. New mobile apps must use this namespace so files
+    // cannot be mixed across another user's app space.
+    match /apps/{appKey}/users/{userId}/{allPaths=**} {
+      allow read, write: if isKnownClientApp(appKey) && (isOwner(userId) || isStorageAdmin());
+    }
+
+    // App-owned templates/assets. Clients can read known app content; writes
+    // stay admin/server-only.
+    match /apps/{appKey}/content/{allPaths=**} {
+      allow read: if isKnownClientApp(appKey);
+      allow write: if isKnownClientApp(appKey) && isStorageAdmin();
+    }
+
+    // Preserve the previous authenticated fallback for existing storage paths,
+    // but exclude the new /apps namespace so app-specific isolation works.
+    match /{topLevel}/{allPaths=**} {
+      allow read, write: if request.auth != null && topLevel != 'apps';
     }
     // Allow public access to annotations
     match /annotations/{resumeId}/{fileName} {
