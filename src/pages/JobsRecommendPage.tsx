@@ -13,6 +13,7 @@ import {
     Heart,
     LayoutDashboard,
     MapPin,
+    PlusCircle,
     Search,
     ShieldCheck,
     Sparkles,
@@ -20,6 +21,7 @@ import {
     XCircle,
 } from 'lucide-react';
 import AppLayout from '../components/Layout/AppLayout';
+import AddJobModal from '../components/JobTracker/AddJobUrlModal';
 import { useJobTracker } from '../hooks/useJobTracker';
 import { usePortfolios } from '../hooks/usePortfolios';
 import { useResumes } from '../hooks/useResumes';
@@ -396,6 +398,7 @@ const JobsRecommendPage: React.FC = () => {
     const [scrapedJobs, setScrapedJobs] = useState<ScrapedRecommendedJob[]>([]);
     const [isLoadingScrapedJobs, setIsLoadingScrapedJobs] = useState(true);
     const [scrapedJobsError, setScrapedJobsError] = useState('');
+    const [isTargetJobModalOpen, setIsTargetJobModalOpen] = useState(false);
 
     const profileKeywords = useMemo(
         () => extractRecommendationProfileKeywords({ resumes, portfolios }),
@@ -440,6 +443,17 @@ const JobsRecommendPage: React.FC = () => {
             (job) => savedSeedJobIds.has(job.id)
         ).length,
         [recommendedFeedJobs, savedSeedJobIds]
+    );
+    const targetCompanies = useMemo(() => {
+        const companies = jobApplications
+            .filter((job) => job.jobDescription?.trim())
+            .map((job) => job.companyName?.trim())
+            .filter((company): company is string => Boolean(company));
+        return Array.from(new Set(companies)).slice(0, 6);
+    }, [jobApplications]);
+    const targetJobCount = useMemo(
+        () => jobApplications.filter((job) => job.jobDescription?.trim()).length,
+        [jobApplications]
     );
 
     useEffect(() => {
@@ -644,6 +658,59 @@ const JobsRecommendPage: React.FC = () => {
         }
     };
 
+    const handleTargetJobAdded = async (jobData: Omit<JobApplicationData, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => {
+        const jobTitle = jobData.jobTitle?.trim() || 'Target role';
+        const companyName = jobData.companyName?.trim() || 'Target company';
+        const descriptionSummary = summarizeDescription(
+            jobData.jobDescription,
+            'Pasted target job description saved in CareerVivid.'
+        );
+
+        setIsTargetJobModalOpen(false);
+        setApplyLinkMessage(null);
+
+        try {
+            await addJobApplication({
+                ...jobData,
+                jobTitle,
+                companyName,
+                applicationStatus: jobData.applicationStatus || 'To Apply',
+                priority: jobData.priority || 'High',
+                nextAction: jobData.nextAction && jobData.nextAction !== NO_NEXT_ACTION
+                    ? jobData.nextAction
+                    : `Tailor resume for ${companyName}`,
+                notes: jobData.notes?.trim()
+                    ? jobData.notes
+                    : [
+                        'Target job',
+                        'Added manually from a pasted job description.',
+                        `Target company: ${companyName}`,
+                        `Target role: ${jobTitle}`,
+                    ].join('\n'),
+                prep_RoleOverview: jobData.prep_RoleOverview?.trim()
+                    ? jobData.prep_RoleOverview
+                    : [
+                        `${jobTitle} at ${companyName}.`,
+                        jobData.location ? `Location: ${jobData.location}.` : '',
+                        descriptionSummary,
+                    ].filter(Boolean).join('\n\n'),
+            });
+            setActiveTab('saved');
+            setApplyLinkMessage({
+                tone: 'success',
+                text: `Saved ${companyName}'s ${jobTitle} as a target job.`,
+            });
+        } catch (error) {
+            console.error('[JobsRecommendPage] Unable to save target job:', error);
+            setApplyLinkMessage({
+                tone: 'error',
+                text: `Could not save ${companyName}'s target job. Try again from the job tracker.`,
+            });
+        } finally {
+            window.setTimeout(() => setApplyLinkMessage(null), 7000);
+        }
+    };
+
     const topScore = visibleJobs.length
         ? Math.max(...visibleJobs.map((job) => job.matchScore))
         : recommendedFeedJobs.length
@@ -694,6 +761,24 @@ const JobsRecommendPage: React.FC = () => {
                                 <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-stone-600 dark:text-slate-300">
                                     CareerVivid shows validated company and ATS jobs in Recommended, then keeps saved tracker roles in Saved and External.
                                 </p>
+                                <div className="mt-4 flex flex-wrap gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsTargetJobModalOpen(true)}
+                                        className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-3.5 py-2 text-sm font-black text-white shadow-sm transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100"
+                                    >
+                                        <PlusCircle size={16} />
+                                        Set target job
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => navigate('/job-tracker')}
+                                        className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white/75 px-3.5 py-2 text-sm font-bold text-stone-700 shadow-sm transition hover:border-stone-300 hover:text-slate-950 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-300 dark:hover:text-white"
+                                    >
+                                        <LayoutDashboard size={16} />
+                                        Open tracker
+                                    </button>
+                                </div>
                                 {(isLoadingScrapedJobs || scrapedJobsError) && (
                                     <p className="mt-2 text-xs font-bold text-amber-700 dark:text-amber-200">
                                         {isLoadingScrapedJobs ? 'Loading the latest scraped job feed...' : scrapedJobsError}
@@ -780,6 +865,14 @@ const JobsRecommendPage: React.FC = () => {
                                 <p className="mx-auto mt-2 max-w-xl text-sm font-medium leading-6 text-stone-600 dark:text-slate-300">
                                     {emptyStateCopy.description}
                                 </p>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsTargetJobModalOpen(true)}
+                                    className="mt-5 inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-2 text-sm font-black text-white shadow-sm transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100"
+                                >
+                                    <PlusCircle size={16} />
+                                    Paste target job
+                                </button>
                             </div>
                         )}
                         {visibleJobs.map((job) => {
@@ -901,15 +994,33 @@ const JobsRecommendPage: React.FC = () => {
                         <section className="rounded-3xl border border-stone-200 bg-white/80 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
                             <div className="flex items-center gap-2 text-sm font-black text-slate-950 dark:text-white">
                                 <Target size={18} className="text-indigo-500" />
-                                Saved filters
+                                Target companies
                             </div>
+                            <p className="mt-2 text-sm font-medium leading-6 text-stone-600 dark:text-slate-300">
+                                Paste a real job description for the company you want. CareerVivid saves it as the target role for tailoring and practice.
+                            </p>
+                            <button
+                                type="button"
+                                onClick={() => setIsTargetJobModalOpen(true)}
+                                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#7c6df2] px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#6757dc]"
+                            >
+                                <FileText size={16} />
+                                Paste job description
+                            </button>
                             <div className="mt-4 space-y-2">
-                                {['Full Stack + Frontend', 'Remote or hybrid', 'Mid level', 'Salary visible first'].map((filter) => (
-                                    <div key={filter} className="flex items-center justify-between rounded-2xl border border-stone-200 bg-[#fffaf1] px-3 py-2 text-xs font-bold text-stone-700 dark:border-slate-800 dark:bg-slate-950/50 dark:text-slate-300">
-                                        {filter}
-                                        <CheckCircle2 size={14} className="text-emerald-500" />
+                                {targetCompanies.length ? targetCompanies.map((company) => (
+                                    <div key={company} className="flex items-center justify-between rounded-2xl border border-stone-200 bg-[#fffaf1] px-3 py-2 text-xs font-bold text-stone-700 dark:border-slate-800 dark:bg-slate-950/50 dark:text-slate-300">
+                                        <span className="truncate">{company}</span>
+                                        <CheckCircle2 size={14} className="shrink-0 text-emerald-500" />
                                     </div>
-                                ))}
+                                )) : (
+                                    <div className="rounded-2xl border border-dashed border-stone-300 bg-[#fffaf1]/70 px-3 py-3 text-xs font-bold leading-5 text-stone-500 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-400">
+                                        Add your first target company by pasting a job description.
+                                    </div>
+                                )}
+                                <div className="rounded-2xl border border-stone-200 bg-stone-50 px-3 py-2 text-xs font-bold text-stone-600 dark:border-slate-800 dark:bg-slate-950/50 dark:text-slate-300">
+                                    {targetJobCount} target {targetJobCount === 1 ? 'job' : 'jobs'} with descriptions
+                                </div>
                             </div>
                         </section>
 
@@ -936,6 +1047,15 @@ const JobsRecommendPage: React.FC = () => {
                     </aside>
                 </main>
             </div>
+
+            {isTargetJobModalOpen && (
+                <AddJobModal
+                    onClose={() => setIsTargetJobModalOpen(false)}
+                    onJobAdded={(jobData) => {
+                        void handleTargetJobAdded(jobData);
+                    }}
+                />
+            )}
         </AppLayout>
     );
 };
