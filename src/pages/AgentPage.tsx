@@ -36,9 +36,9 @@ const changeBackgroundColorTool: Tool = {
 };
 
 export const AgentPage: React.FC = () => {
-  // In a real app, you would fetch this from your secure backend or user settings.
-  // For demonstration, we allow setting it from local storage or environment
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || localStorage.getItem('gemini_api_key') || '';
+  // This sandbox agent accepts only an explicit user-provided BYO key.
+  // Do not bundle production Gemini keys into the browser.
+  const apiKey = localStorage.getItem('gemini_api_key') || '';
 
   return (
     <div className="container mx-auto p-6 max-w-4xl h-[calc(100vh-100px)]">

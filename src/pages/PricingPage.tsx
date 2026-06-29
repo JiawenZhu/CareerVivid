@@ -62,15 +62,15 @@ const PricingPage: React.FC = () => {
             <main className="flex-grow pt-32 pb-24 overflow-hidden relative">
                 {/* Background glowing orb */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary-500/10 dark:bg-primary-600/10 blur-[120px] rounded-full point-events-none -z-10" />
-                
+
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, ease: "easeOut" }}
                         className="text-center max-w-4xl mx-auto"
                     >
-                        <motion.div 
+                        <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
@@ -82,7 +82,7 @@ const PricingPage: React.FC = () => {
                             </span>
                             AI Credit Plans — Free to get started
                         </motion.div>
-                        
+
                         <h1 className="text-5xl sm:text-7xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-[1.1]">
                             One AI credit system <br className="hidden sm:block" />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600">
@@ -96,7 +96,7 @@ const PricingPage: React.FC = () => {
                     </motion.div>
 
                     {error && (
-                        <motion.p 
+                        <motion.p
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                             className="mt-8 text-center text-red-500 bg-red-100 dark:bg-red-900/20 p-4 rounded-xl font-medium"
                         >
@@ -104,7 +104,7 @@ const PricingPage: React.FC = () => {
                         </motion.p>
                     )}
 
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 40 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, margin: "-100px" }}
@@ -117,7 +117,7 @@ const PricingPage: React.FC = () => {
                         />
 
                         <div className="mt-40">
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}

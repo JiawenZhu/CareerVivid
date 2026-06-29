@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, BookOpen, Link2, Tag, FileText, ShieldCheck } from 'lucide-react';
 
 interface RecruiterPlaybookDrawerProps {
@@ -8,6 +9,8 @@ interface RecruiterPlaybookDrawerProps {
 }
 
 const RecruiterPlaybookDrawer: React.FC<RecruiterPlaybookDrawerProps> = ({ isOpen, onClose, inviteLink }) => {
+  const { t } = useTranslation();
+  const tPlaybook = (key: string, options?: Record<string, unknown>) => t(`recruiter_playbook.${key}`, options);
   const [activeTab, setActiveTab] = useState<'flow' | 'privacy'>('flow');
 
   if (!isOpen) return null;
@@ -17,7 +20,7 @@ const RecruiterPlaybookDrawer: React.FC<RecruiterPlaybookDrawerProps> = ({ isOpe
       {/* Backdrop overlay (makes it incredibly easy to close by clicking left area) */}
       <button
         type="button"
-        aria-label="Close Playbook"
+        aria-label={tPlaybook('aria.close_playbook')}
         onClick={onClose}
         className="absolute inset-0 bg-[#211b16]/40 backdrop-blur-[1px]"
       />
@@ -25,7 +28,7 @@ const RecruiterPlaybookDrawer: React.FC<RecruiterPlaybookDrawerProps> = ({ isOpe
       {/* Drawer Panel - Made Extra Wide for Legibility in Demos */}
       <aside
         role="dialog"
-        aria-label="Recruiter Pilot Playbook"
+        aria-label={tPlaybook('aria.dialog')}
         className="absolute inset-y-0 right-0 flex w-full md:max-w-2xl lg:max-w-4xl xl:max-w-5xl flex-col border-l border-[#e4d3bc] bg-[#fffaf1] shadow-2xl transition-all duration-300 dark:border-[#302e2a] dark:bg-[#1f1f1d]"
       >
         {/* Header */}
@@ -37,17 +40,17 @@ const RecruiterPlaybookDrawer: React.FC<RecruiterPlaybookDrawerProps> = ({ isOpe
               </div>
               <div>
                 <h2 className="text-xl sm:text-2xl font-black tracking-tight text-[#211b16] dark:text-[#f4f1e9]">
-                  Recruiter Pilot Playbook
+                  {tPlaybook('header.title')}
                 </h2>
                 <p className="text-xs sm:text-sm font-bold text-[#8b5a16]/80 dark:text-[#caa26c]/80 uppercase tracking-wider mt-0.5">
-                  Recruiter Handoff Guide
+                  {tPlaybook('header.subtitle')}
                 </p>
               </div>
             </div>
             <button
               onClick={onClose}
               className="rounded-xl p-2.5 text-[#6b6358] transition hover:bg-[#e4d3bc]/35 hover:text-[#211b16] dark:text-[#aaa39a] dark:hover:bg-[#302e2a] dark:hover:text-[#f4f1e9]"
-              aria-label="Close Guide"
+              aria-label={tPlaybook('aria.close_guide')}
             >
               <X size={22} />
             </button>
@@ -56,8 +59,8 @@ const RecruiterPlaybookDrawer: React.FC<RecruiterPlaybookDrawerProps> = ({ isOpe
           {/* Navigation Tabs - Scaled Up */}
           <div className="mt-6 flex border-b border-[#e4d3bc]/50 dark:border-[#302e2a]/50">
             {[
-              { id: 'flow', label: '🚀 Recruiter Flow' },
-              { id: 'privacy', label: '🔒 Security & Privacy' },
+              { id: 'flow', label: tPlaybook('tabs.flow') },
+              { id: 'privacy', label: tPlaybook('tabs.privacy') },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -80,16 +83,16 @@ const RecruiterPlaybookDrawer: React.FC<RecruiterPlaybookDrawerProps> = ({ isOpe
             <div className="space-y-6">
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 dark:border-emerald-900/40 dark:bg-emerald-950/20">
                 <h4 className="text-xs sm:text-sm font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <ShieldCheck size={16} /> Zero-Integration Setup
+                  <ShieldCheck size={16} /> {tPlaybook('flow.zero_setup_title')}
                 </h4>
                 <p className="mt-1.5 text-xs sm:text-sm text-emerald-700 leading-relaxed dark:text-emerald-400">
-                  Welcome to your exclusive branch dashboard! Sitting right alongside your daily routine, this workspace is 100% active and requires zero IT software setup.
+                  {tPlaybook('flow.zero_setup_body')}
                 </p>
               </div>
 
               <div className="space-y-6">
                 <h3 className="text-base sm:text-lg font-black text-[#211b16] dark:text-[#f4f1e9]">
-                  Three Key Workflow Steps
+                  {tPlaybook('flow.steps_title')}
                 </h3>
 
                 {/* Step 1 */}
@@ -99,10 +102,10 @@ const RecruiterPlaybookDrawer: React.FC<RecruiterPlaybookDrawerProps> = ({ isOpe
                   </span>
                   <div>
                     <h4 className="text-sm sm:text-base font-black text-[#211b16] dark:text-[#f4f1e9] flex items-center gap-1.5">
-                      <Link2 size={16} className="text-[#8b5a16] dark:text-[#caa26c]" /> Copy & Share Invite Link
+                      <Link2 size={16} className="text-[#8b5a16] dark:text-[#caa26c]" /> {tPlaybook('flow.step1_title')}
                     </h4>
                     <p className="mt-1 text-xs sm:text-sm text-[#6b6358] leading-relaxed dark:text-[#aaa39a]">
-                      Copy your branch sharing link: <code className="bg-white border border-[#e4d3bc] px-2 py-0.5 rounded text-[11px] sm:text-xs select-all dark:bg-[#262522] dark:border-[#302e2a] font-bold text-[#8b5a16] dark:text-[#caa26c]">{inviteLink}</code> and send it directly to candidates during intake.
+                      {tPlaybook('flow.step1_prefix')} <code className="bg-white border border-[#e4d3bc] px-2 py-0.5 rounded text-[11px] sm:text-xs select-all dark:bg-[#262522] dark:border-[#302e2a] font-bold text-[#8b5a16] dark:text-[#caa26c]">{inviteLink}</code> {tPlaybook('flow.step1_suffix')}
                     </p>
                   </div>
                 </div>
@@ -114,10 +117,10 @@ const RecruiterPlaybookDrawer: React.FC<RecruiterPlaybookDrawerProps> = ({ isOpe
                   </span>
                   <div>
                     <h4 className="text-sm sm:text-base font-black text-[#211b16] dark:text-[#f4f1e9] flex items-center gap-1.5">
-                      <Tag size={16} className="text-[#8b5a16] dark:text-[#caa26c]" /> Track Pipeline & Tag Roles
+                      <Tag size={16} className="text-[#8b5a16] dark:text-[#caa26c]" /> {tPlaybook('flow.step2_title')}
                     </h4>
                     <p className="mt-1 text-xs sm:text-sm text-[#6b6358] leading-relaxed dark:text-[#aaa39a]">
-                      Use our custom filter pills above the candidate grid. Click on any candidate card to slide open their drawer, review their AI interview timelines, and quick-add popular roles instantly with one click.
+                      {tPlaybook('flow.step2_body')}
                     </p>
                   </div>
                 </div>
@@ -129,10 +132,10 @@ const RecruiterPlaybookDrawer: React.FC<RecruiterPlaybookDrawerProps> = ({ isOpe
                   </span>
                   <div>
                     <h4 className="text-sm sm:text-base font-black text-[#211b16] dark:text-[#f4f1e9] flex items-center gap-1.5">
-                      <FileText size={16} className="text-[#8b5a16] dark:text-[#caa26c]" /> Package Client Snapshot
+                      <FileText size={16} className="text-[#8b5a16] dark:text-[#caa26c]" /> {tPlaybook('flow.step3_title')}
                     </h4>
                     <p className="mt-1 text-xs sm:text-sm text-[#6b6358] leading-relaxed dark:text-[#aaa39a]">
-                      Click **Print Snapshot** inside any candidate's drawer to instantly generate a standardized submission sheet containing their optimized resume, mock interview lifts, and recruiter notes.
+                      {tPlaybook('flow.step3_body')}
                     </p>
                   </div>
                 </div>
@@ -145,36 +148,36 @@ const RecruiterPlaybookDrawer: React.FC<RecruiterPlaybookDrawerProps> = ({ isOpe
               {/* Security-First Benefit Cards */}
               <div className="space-y-4">
                 <h3 className="text-base sm:text-lg font-black text-[#211b16] dark:text-[#f4f1e9]">
-                  Security-First Recruiting Benefits
+                  {tPlaybook('privacy.benefits_title')}
                 </h3>
 
                 {/* Benefit 1 */}
                 <div className="rounded-2xl border border-[#e4d3bc] bg-white p-4.5 shadow-sm dark:border-[#302e2a] dark:bg-[#262522]">
                   <h4 className="text-sm sm:text-base font-black text-[#8b5a16] dark:text-[#caa26c] flex items-center gap-1.5">
-                    🛡️ "Self-Serve" Candidate Optimization
+                    {tPlaybook('privacy.benefit1_title')}
                   </h4>
                   <p className="mt-1.5 text-xs sm:text-sm text-[#6b6358] leading-relaxed dark:text-[#aaa39a]">
-                    Candidates use CareerVivid's AI reviewer to clean up their own formatting, improve their clarity, and input their standard role tags **before** the recruiter ever reviews them.
+                    {tPlaybook('privacy.benefit1_body')}
                   </p>
                 </div>
 
                 {/* Benefit 2 */}
                 <div className="rounded-2xl border border-[#e4d3bc] bg-white p-4.5 shadow-sm dark:border-[#302e2a] dark:bg-[#262522]">
                   <h4 className="text-sm sm:text-base font-black text-[#8b5a16] dark:text-[#caa26c] flex items-center gap-1.5">
-                    🔒 Automated Privacy Controls
+                    {tPlaybook('privacy.benefit2_title')}
                   </h4>
                   <p className="mt-1.5 text-xs sm:text-sm text-[#6b6358] leading-relaxed dark:text-[#aaa39a]">
-                    CareerVivid manages the privacy boundary automatically—keeping sensitive contact details secure until consent is given, and formatting them cleanly.
+                    {tPlaybook('privacy.benefit2_body')}
                   </p>
                 </div>
 
                 {/* Benefit 3 */}
                 <div className="rounded-2xl border border-[#e4d3bc] bg-white p-4.5 shadow-sm dark:border-[#302e2a] dark:bg-[#262522]">
                   <h4 className="text-sm sm:text-base font-black text-[#8b5a16] dark:text-[#caa26c] flex items-center gap-1.5">
-                    📦 1-Click Submission Packaging
+                    {tPlaybook('privacy.benefit3_title')}
                   </h4>
                   <p className="mt-1.5 text-xs sm:text-sm text-[#6b6358] leading-relaxed dark:text-[#aaa39a]">
-                    Instead of the recruiter manually typing write-ups and reformatting text in Word, the **1-Click Candidate Snapshot** instantly packages the optimized resume, recruiter notes, and mock interview score lift into a standardized, client-ready presentation.
+                    {tPlaybook('privacy.benefit3_body')}
                   </p>
                 </div>
               </div>
@@ -182,33 +185,33 @@ const RecruiterPlaybookDrawer: React.FC<RecruiterPlaybookDrawerProps> = ({ isOpe
               {/* Consent-First Pipeline Controls */}
               <div className="border-t border-[#e4d3bc]/50 pt-6 dark:border-[#302e2a]/50 space-y-4">
                 <h3 className="text-base sm:text-lg font-black text-[#211b16] dark:text-[#f4f1e9]">
-                  Consent-First Pipeline Controls
+                  {tPlaybook('privacy.controls_title')}
                 </h3>
 
                 <div className="rounded-xl border border-dashed border-[#e4d3bc] p-4.5 dark:border-[#302e2a]">
                   <h5 className="text-xs sm:text-sm font-bold text-[#211b16] dark:text-[#f4f1e9] uppercase tracking-wide">
-                    🔒 Phase 1: Locked Progress
+                    {tPlaybook('privacy.phase1_title')}
                   </h5>
                   <p className="mt-1.5 text-xs sm:text-sm text-[#6b6358] leading-relaxed dark:text-[#aaa39a]">
-                    While a candidate is actively practice-coaching or building their profile, their resume content and detailed answers remain fully secure and locked. Recruiters only see progress scores.
+                    {tPlaybook('privacy.phase1_body')}
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-dashed border-[#e4d3bc] p-4.5 dark:border-[#302e2a]">
                   <h5 className="text-xs sm:text-sm font-bold text-[#211b16] dark:text-[#f4f1e9] uppercase tracking-wide">
-                    ✅ Phase 2: Unlocked Handoff
+                    {tPlaybook('privacy.phase2_title')}
                   </h5>
                   <p className="mt-1.5 text-xs sm:text-sm text-[#6b6358] leading-relaxed dark:text-[#aaa39a]">
-                    Only when the candidate toggles their explicit **"Share Consent"** does the recruiter gain access to the optimized resume, internal timelines, and client snapshot packages.
+                    {tPlaybook('privacy.phase2_body')}
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-dashed border-[#e4d3bc] p-4.5 dark:border-[#302e2a]">
                   <h5 className="text-xs sm:text-sm font-bold text-[#211b16] dark:text-[#f4f1e9] uppercase tracking-wide">
-                    🔄 Revocation Rights
+                    {tPlaybook('privacy.revocation_title')}
                   </h5>
                   <p className="mt-1.5 text-xs sm:text-sm text-[#6b6358] leading-relaxed dark:text-[#aaa39a]">
-                    Candidates retain the power to revoke sharing consent at any time, ensuring complete compliance with standard data protection policies.
+                    {tPlaybook('privacy.revocation_body')}
                   </p>
                 </div>
               </div>
@@ -219,7 +222,7 @@ const RecruiterPlaybookDrawer: React.FC<RecruiterPlaybookDrawerProps> = ({ isOpe
         {/* Footer */}
         <footer className="border-t border-[#e4d3bc] bg-[#fffaf1] px-8 py-5 text-center dark:border-[#302e2a] dark:bg-[#1f1f1d]">
           <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#6b6358] dark:text-[#aaa39a]">
-            CareerVivid Agency Partner Pilot &bull; branch workspace
+            {tPlaybook('footer')}
           </p>
         </footer>
       </aside>

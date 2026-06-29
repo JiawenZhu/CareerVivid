@@ -14,6 +14,11 @@ import {
   filterScoreRelevantReviewSuggestions,
   normalizeActionableReviewSuggestions,
 } from '../utils/aiReviewSuggestions';
+import {
+  AIReviewLanguageProfile,
+  buildNaturalProfessionalLanguageGuidance,
+  getResumeReviewLanguageProfile,
+} from '../utils/aiReviewLanguage';
 import { trackUsage } from '../services/trackingService';
 
 export interface AISuggestion {
@@ -59,9 +64,11 @@ export const useAIReview = () => {
 const buildScoreGapFallbackSuggestions = (
   resume: ResumeData,
   scoreData: ReturnType<typeof calculateResumeScore>,
+  reviewLanguage: AIReviewLanguageProfile = getResumeReviewLanguageProfile(resume),
 ): Omit<AISuggestion, 'id'>[] => {
   const fallback: Omit<AISuggestion, 'id'>[] = [];
   const employmentHistory = normalizeReviewEmploymentHistory(resume.employmentHistory);
+  const isChinese = reviewLanguage.code.startsWith('zh');
 
   scoreData.bulletDensityIssues.forEach((issue) => {
     const jobIdx = employmentHistory.findIndex((job) => job.id === issue.experienceId);
@@ -75,17 +82,27 @@ const buildScoreGapFallbackSuggestions = (
     const suggestedBullets = [
       ...existingBullets.slice(0, 4),
       supportTone
-        ? `Resolved recurring technical issues by analyzing logs, reproducing defects, and documenting root-cause findings for engineering follow-up.`
-        : `Improved team workflows by documenting recurring issues, coordinating stakeholders, and turning feedback into clearer execution steps.`,
+        ? (isChinese
+          ? '通过分析日志、复现问题并记录根因，解决了反复出现的技术故障，为工程团队提供后续修复依据。'
+          : 'Resolved recurring technical issues by analyzing logs, reproducing defects, and documenting root-cause findings for engineering follow-up.')
+        : (isChinese
+          ? '通过梳理反复出现的问题、协调相关方并转化反馈，优化团队工作流程，减少交接摩擦。'
+          : 'Improved team workflows by documenting recurring issues, coordinating stakeholders, and turning feedback into clearer execution steps.'),
       supportTone
-        ? `Partnered with product, engineering, and customer-facing teams to triage support requests, clarify requirements, and reduce repeat escalations.`
-        : `Translated user and business needs into practical improvements, helping the team deliver clearer outcomes with fewer handoff gaps.`,
+        ? (isChinese
+          ? '与产品、工程和客户支持团队协作，分流支持请求、明确需求并减少重复升级问题。'
+          : 'Partnered with product, engineering, and customer-facing teams to triage support requests, clarify requirements, and reduce repeat escalations.')
+        : (isChinese
+          ? '将用户和业务需求转化为可执行改进，帮助团队交付更清晰的成果并减少沟通断点。'
+          : 'Translated user and business needs into practical improvements, helping the team deliver clearer outcomes with fewer handoff gaps.'),
     ].slice(0, 5);
 
     fallback.push({
       category: 'experience',
-      title: 'Add Interview-Ready Achievement Bullets',
-      explanation: `This role currently has too little detail. Adding 3-5 concrete bullets improves resume length, page usage, and recruiter scanability.`,
+      title: isChinese ? '补充可用于面试的成果要点' : 'Add Interview-Ready Achievement Bullets',
+      explanation: isChinese
+        ? '这段经历目前细节不足。补充 3-5 条具体成果可以提升内容长度、页面利用率和招聘方扫读效率。'
+        : 'This role currently has too little detail. Adding 3-5 concrete bullets improves resume length, page usage, and recruiter scanability.',
       type: 'replace',
       fieldId: `employmentHistory[${jobIdx}].description`,
       originalText: safeReviewText(job.description),
@@ -160,6 +177,7 @@ export const AIReviewProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setHasScanned(false);
     const safeResume = (resume || {}) as ResumeData;
     const currentScore = calculateResumeScore(safeResume);
+    const reviewLanguage = getResumeReviewLanguageProfile(safeResume);
     const trackReviewCompleted = (suggestionCount: number, source: string) => {
       void trackUsage(userId, 'resume_review_completed', {
         resumeId: safeResume.id || null,
@@ -204,6 +222,10 @@ export const AIReviewProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           length: currentScore.lengthScore,
           failedChecks: failedScoreChecks,
         },
+        language: {
+          stored: safeReviewText(safeResume.language),
+          inferredReviewLanguage: reviewLanguage.label,
+        },
         personalDetails: {
           jobTitle: safeReviewText(personalDetails.jobTitle),
           firstName: safeReviewText(personalDetails.firstName),
@@ -219,6 +241,8 @@ export const AIReviewProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         })),
       });
 
+      const naturalLanguageGuidance = buildNaturalProfessionalLanguageGuidance(reviewLanguage.label);
+
       const systemPrompt = `You are an elite, senior resume recruiter and ATS optimization agent.
 Analyze the provided resume document and return a list of EXACT, HIGH-IMPACT SUGGESTIONS.
 We need three types of suggestions:
@@ -228,6 +252,11 @@ We need three types of suggestions:
 
 CRITICAL RULES:
 - Output valid JSON conforming strictly to the response schema.
+- The resume language is ${reviewLanguage.label}. Write every user-visible suggestion field in ${reviewLanguage.label}: title, explanation, and suggestedText.
+- Keep originalText exactly as it appears in the resume, even when it is in another language.
+- Natural language rule:
+${naturalLanguageGuidance}
+- Keep tags as canonical English enum labels for UI styling. Use only these tag labels: "Stay Relevant", "Tailor Resume", "Quantifiable", "Grammar", "Score Impact", "Interview Ready", "Action Verbs", "ATS Match".
 - Use the score.failedChecks list as the source of truth. If the score is already 100 or there are no meaningful failed checks, return an empty suggestions array.
 - Every suggestion must improve the displayed resume score or reduce one of the failed score checks when applied.
 - If "Ideal Bullet Densities" or "Resume Length" is failing, prioritize experience description replacements that add 3-5 interview-ready achievement bullets for the affected role.
@@ -257,8 +286,8 @@ Response Schema:
           "type": { "type": "STRING", "enum": ["add", "delete", "replace"] },
           "fieldId": { "type": "STRING" },
           "originalText": { "type": "STRING", "description": "The exact text currently on the resume to replace or delete. Leave empty for 'add'." },
-          "suggestedText": { "type": "STRING", "description": "The new text to insert or replace. Leave empty for 'delete'." },
-          "tags": { "type": "ARRAY", "items": { "type": "STRING" }, "description": "Exactly 1 or 2 tags like 'Stay Relevant', 'Tailor Resume', 'Quantifiable', 'Grammar'" },
+          "suggestedText": { "type": "STRING", "description": "The new text to insert or replace in the resume language. Leave empty for 'delete'." },
+          "tags": { "type": "ARRAY", "items": { "type": "STRING" }, "description": "Exactly 1 or 2 canonical English tags like 'Stay Relevant', 'Tailor Resume', 'Quantifiable', 'Grammar'" },
           "priority": { "type": "STRING", "enum": ["high", "medium", "low"] }
         },
         "required": ["category", "title", "explanation", "type", "fieldId", "originalText", "suggestedText", "tags", "priority"]
@@ -316,7 +345,7 @@ Generate up to 8 high-fidelity suggested edits conforming to the requested schem
       if (mapped.length === 0) {
         mapped = filterScoreRelevantReviewSuggestions(
           safeResume,
-          normalizeActionableReviewSuggestions(safeResume, buildScoreGapFallbackSuggestions(safeResume, currentScore)),
+          normalizeActionableReviewSuggestions(safeResume, buildScoreGapFallbackSuggestions(safeResume, currentScore, reviewLanguage)),
         );
       }
 
@@ -336,6 +365,7 @@ Generate up to 8 high-fidelity suggested edits conforming to the requested schem
       const personalDetails = safeResume.personalDetails || ({} as ResumeData['personalDetails']);
       const skills = normalizeReviewSkills(safeResume.skills);
       const employmentHistory = normalizeReviewEmploymentHistory(safeResume.employmentHistory);
+      const isChinese = reviewLanguage.code.startsWith('zh');
 
       // 1. Scan for spelling typos or capitalization issues in skills
       const hasSpellIssue = skills.some((skill) => /illustraotr/i.test(skill.name) || /intermedicte/i.test(skill.name));
@@ -344,8 +374,10 @@ Generate up to 8 high-fidelity suggested edits conforming to the requested schem
           fallback.push({
             id: `fallback-${suggestId++}`,
             category: 'skills',
-            title: 'Fix Spelling: Illustrator',
-            explanation: 'Correct the spelling typo "Illustraotr" to Illustrator to ensure professional quality and match search queries from recruiters.',
+            title: isChinese ? '修正拼写：Illustrator' : 'Fix Spelling: Illustrator',
+            explanation: isChinese
+              ? '将拼写错误 “Illustraotr” 修正为 Illustrator，提升专业度并匹配招聘方的关键词搜索。'
+              : 'Correct the spelling typo "Illustraotr" to Illustrator to ensure professional quality and match search queries from recruiters.',
             type: 'replace',
             fieldId: `skills[${idx}].name`,
             originalText: skill.name,
@@ -358,8 +390,10 @@ Generate up to 8 high-fidelity suggested edits conforming to the requested schem
           fallback.push({
             id: `fallback-${suggestId++}`,
             category: 'skills',
-            title: 'Spelling & Case: Spanish',
-            explanation: 'Fix the typo "intermedicte" and capitalize "Spanish" to maintain a polished, highly professional tone.',
+            title: isChinese ? '修正拼写和大小写：Spanish' : 'Spelling & Case: Spanish',
+            explanation: isChinese
+              ? '修正 “intermedicte” 的拼写并规范 “Spanish” 的大小写，让简历呈现更专业。'
+              : 'Fix the typo "intermedicte" and capitalize "Spanish" to maintain a polished, highly professional tone.',
             type: 'replace',
             fieldId: `skills[${idx}].name`,
             originalText: skill.name,
@@ -378,8 +412,10 @@ Generate up to 8 high-fidelity suggested edits conforming to the requested schem
           fallback.push({
             id: `fallback-${suggestId++}`,
             category: 'skills',
-            title: `Remove Generic Skill: ${skill.name}`,
-            explanation: `Remove '${skill.name}' from your top skills. As a Senior Product Designer, core software development keywords distract from high-value skills like Design Systems or UX Research.`,
+            title: isChinese ? `移除泛化技能：${skill.name}` : `Remove Generic Skill: ${skill.name}`,
+            explanation: isChinese
+              ? `从核心技能中移除 “${skill.name}”。对于高级产品设计岗位，过多软件开发关键词会削弱设计系统、用户研究等高价值能力的聚焦。`
+              : `Remove '${skill.name}' from your top skills. As a Senior Product Designer, core software development keywords distract from high-value skills like Design Systems or UX Research.`,
             type: 'delete',
             fieldId: 'skills',
             originalText: skill.name,
@@ -392,8 +428,10 @@ Generate up to 8 high-fidelity suggested edits conforming to the requested schem
           fallback.push({
             id: `fallback-${suggestId++}`,
             category: 'skills',
-            title: 'Remove Hobbies: Juggling',
-            explanation: "Remove non-professional hobbies like 'Juggling' to maintain strict professional focus and fit more relevant core design keywords.",
+            title: isChinese ? '移除非职业兴趣：Juggling' : 'Remove Hobbies: Juggling',
+            explanation: isChinese
+              ? '移除 “Juggling” 这类非职业兴趣，让技能区更聚焦于岗位相关关键词。'
+              : "Remove non-professional hobbies like 'Juggling' to maintain strict professional focus and fit more relevant core design keywords.",
             type: 'delete',
             fieldId: 'skills',
             originalText: skill.name,
@@ -418,8 +456,10 @@ Generate up to 8 high-fidelity suggested edits conforming to the requested schem
           fallback.push({
             id: `fallback-${suggestId++}`,
             category: 'skills',
-            title: `Add Skill: ${rec.name}`,
-            explanation: `Add '${rec.name}' to showcase critical, high-impact competence in scalable product workflows and modern layout compliance.`,
+            title: isChinese ? `添加技能：${rec.name}` : `Add Skill: ${rec.name}`,
+            explanation: isChinese
+              ? `添加 “${rec.name}”，突出你在现代产品流程和可扩展工作方式中的关键能力。`
+              : `Add '${rec.name}' to showcase critical, high-impact competence in scalable product workflows and modern layout compliance.`,
             type: 'add',
             fieldId: 'skills',
             originalText: '',
@@ -440,12 +480,16 @@ Generate up to 8 high-fidelity suggested edits conforming to the requested schem
               fallback.push({
                 id: `fallback-${suggestId++}`,
                 category: 'experience',
-                title: 'Professionalize Hackathon Project',
-                explanation: 'Strengthen the title and scope of your hackathon project. Giving it a real brand name like "EcoPath" makes it highly memorable.',
+                title: isChinese ? '专业化呈现黑客松项目' : 'Professionalize Hackathon Project',
+                explanation: isChinese
+                  ? '强化黑客松项目的标题和范围。像 “EcoPath” 这样的项目名称更容易被招聘方记住。'
+                  : 'Strengthen the title and scope of your hackathon project. Giving it a real brand name like "EcoPath" makes it highly memorable.',
                 type: 'replace',
                 fieldId: `employmentHistory[${jobIdx}].description#chunk-${bIdx}`,
                 originalText: bullet,
-                suggestedText: 'EcoPath: Sustainable Travel App (Hackathon Project)',
+                suggestedText: isChinese
+                  ? 'EcoPath：可持续旅行应用（黑客松项目）'
+                  : 'EcoPath: Sustainable Travel App (Hackathon Project)',
                 tags: ['Tailor Resume'],
                 priority: 'high'
               });
@@ -454,12 +498,16 @@ Generate up to 8 high-fidelity suggested edits conforming to the requested schem
               fallback.push({
                 id: `fallback-${suggestId++}`,
                 category: 'experience',
-                title: 'Vary and Quantify achievements',
-                explanation: 'Rephrase this sentence with strong action verbs and replace placeholder tokens (<X>) with real teams to demonstrate true scope and leadership.',
+                title: isChinese ? '强化并量化项目成果' : 'Vary and Quantify achievements',
+                explanation: isChinese
+                  ? '用更有力度的动作动词重写这句话，并将占位符（<X>）替换为真实团队数量，以呈现项目规模和领导力。'
+                  : 'Rephrase this sentence with strong action verbs and replace placeholder tokens (<X>) with real teams to demonstrate true scope and leadership.',
                 type: 'replace',
                 fieldId: `employmentHistory[${jobIdx}].description#chunk-${bIdx}`,
                 originalText: bullet,
-                suggestedText: 'Led UI/UX design for a sustainable travel mobile app prototype during a 48-hour hackathon. Defined user flows, branding, and high-fidelity screens, culminating in a 2nd-place finish among <X> teams.',
+                suggestedText: isChinese
+                  ? '在 48 小时黑客松中主导可持续旅行移动应用原型的 UI/UX 设计，定义用户流程、品牌视觉和高保真界面，并在 <X> 支参赛团队中获得第二名。'
+                  : 'Led UI/UX design for a sustainable travel mobile app prototype during a 48-hour hackathon. Defined user flows, branding, and high-fidelity screens, culminating in a 2nd-place finish among <X> teams.',
                 tags: ['Quantifiable', 'Tailor Resume'],
                 priority: 'high'
               });
@@ -476,7 +524,7 @@ Generate up to 8 high-fidelity suggested edits conforming to the requested schem
         const scoreData = calculateResumeScore(safeResume);
         mappedFallback = filterScoreRelevantReviewSuggestions(
           safeResume,
-          normalizeActionableReviewSuggestions(safeResume, buildScoreGapFallbackSuggestions(safeResume, scoreData)),
+          normalizeActionableReviewSuggestions(safeResume, buildScoreGapFallbackSuggestions(safeResume, scoreData, reviewLanguage)),
         );
       }
       setSuggestions(mappedFallback);

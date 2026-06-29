@@ -2,6 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { HelmetProvider } from 'react-helmet-async';
 import App from './App';
+import VersionUpdateBoundary, {
+  isVersionMismatchError,
+  requestVersionRecovery,
+} from './components/VersionUpdateBoundary';
 import { AuthProvider } from './contexts/AuthContext';
 import './i18n'; // Initialize i18next
 import './index.css';
@@ -9,31 +13,39 @@ import { quietProductionConsole } from './utils/quietConsole';
 
 quietProductionConsole();
 
-// HANDLE DYNAMIC IMPORT ERRORS
-// Catches "Failed to fetch dynamically imported module" via unhandled promise rejections
+const isVersionedAssetUrl = (url: string | null | undefined) => {
+  if (!url) return false;
+  return /\/assets\/.+\.(?:js|css)$/.test(url) || /\/_next\/static\/.+\.(?:js|css)$/.test(url);
+};
+
+// Recover old browser sessions that try to load chunks from a previous deploy.
 window.addEventListener('unhandledrejection', (event) => {
-  const isChunkLoadError = event.reason?.message?.includes('Failed to fetch dynamically imported module') ||
-    event.reason?.message?.includes('Strict MIME type checking');
+  if (!isVersionMismatchError(event.reason)) return;
 
-  if (isChunkLoadError) {
-    const lastReload = sessionStorage.getItem('last_chunk_reload');
-    const now = Date.now();
-    if (!lastReload || now - parseInt(lastReload) > 10000) {
-      sessionStorage.setItem('last_chunk_reload', now.toString());
-      window.location.reload();
-    }
-  }
+  event.preventDefault();
+  void requestVersionRecovery('startup-dynamic-import');
 });
 
-// Catches Vite-specific preload errors
 window.addEventListener('vite:preloadError', (event) => {
-  const lastReload = sessionStorage.getItem('last_chunk_reload_vite');
-  const now = Date.now();
-  if (!lastReload || now - parseInt(lastReload) > 10000) {
-    sessionStorage.setItem('last_chunk_reload_vite', now.toString());
-    window.location.reload();
-  }
+  // Do not preventDefault here. Vite treats a prevented preload error as
+  // handled and resolves the lazy import to undefined, which crashes React.lazy
+  // with "Cannot read properties of undefined (reading 'default')".
+  void requestVersionRecovery('startup-vite-preload');
 });
+
+window.addEventListener('error', (event) => {
+  const target = event.target as HTMLScriptElement | HTMLLinkElement | null;
+  const assetUrl = target && 'src' in target ? target.src : target && 'href' in target ? target.href : null;
+
+  if (isVersionedAssetUrl(assetUrl)) {
+    void requestVersionRecovery('startup-asset-load');
+    return;
+  }
+
+  if (isVersionMismatchError(event.error || event.message)) {
+    void requestVersionRecovery('startup-runtime-error');
+  }
+}, true);
 
 // GLOBAL STORAGE QUOTA RECOVERY
 // Specifically handles QuotaExceededError which prevents login/SW registration
@@ -74,7 +86,9 @@ root.render(
   <React.StrictMode>
     <HelmetProvider>
       <AuthProvider>
-        <App />
+        <VersionUpdateBoundary>
+          <App />
+        </VersionUpdateBoundary>
       </AuthProvider>
     </HelmetProvider>
   </React.StrictMode>

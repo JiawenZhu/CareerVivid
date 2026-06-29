@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { PortfolioData, IntroAsset } from '../../../types/portfolio';
 import { Sparkles, Image as ImageIcon, Video, Gamepad2, Plus, X, Trash2, CheckCircle, GripVertical } from 'lucide-react';
 import { uploadImage } from '../../../../../services/storageService';
@@ -12,6 +13,8 @@ interface SidebarIntroEditorProps {
 }
 
 const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, onUpdate, themeClasses }) => {
+    const { t } = useTranslation();
+    const tIntro = (key: string, options?: Record<string, unknown>) => t(`portfolio_editor.intro.${key}`, options);
     const [isUploading, setIsUploading] = React.useState(false);
     const [isStockPhotoModalOpen, setIsStockPhotoModalOpen] = React.useState(false);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -19,7 +22,7 @@ const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, 
     // Initial Config (with auto-migration logic)
     const introConfig = portfolioData.linkInBio?.introPage || {
         enabled: false,
-        buttonText: 'Enter Site',
+        buttonText: tIntro('defaults.enter_site'),
         buttonStyle: 'outline',
         assets: [],
         activeAssetId: undefined
@@ -31,7 +34,7 @@ const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, 
             // Need to migrate
             const legacyAsset: IntroAsset = {
                 id: nanoid(),
-                label: 'Default Intro',
+                label: tIntro('defaults.default_intro'),
                 type: introConfig.type as any,
                 contentUrl: introConfig.contentUrl,
                 mobileContentUrl: introConfig.mobileContentUrl,
@@ -87,7 +90,7 @@ const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, 
     const handleCreateAsset = () => {
         const newAsset: IntroAsset = {
             id: nanoid(),
-            label: `New Content ${((introConfig.assets?.length || 0) + 1)}`,
+            label: tIntro('defaults.new_content', { number: ((introConfig.assets?.length || 0) + 1) }),
             type: 'image',
             objectFit: 'cover'
         };
@@ -128,24 +131,30 @@ const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, 
             }
         } catch (error) {
             console.error('Error uploading file:', error);
-            alert('Failed to upload file. Please try again.');
+            alert(tIntro('alerts.upload_failed'));
         } finally {
             setIsUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
         }
     };
 
+    const renderAssetTypeIcon = (type: IntroAsset['type']) => {
+        if (type === 'game') return <Gamepad2 size={20} />;
+        if (type === 'video') return <Video size={20} />;
+        return <ImageIcon size={20} />;
+    };
+
     return (
         <div className={`p-4 rounded-lg border ${themeClasses.cardBg}`}>
             <div className="flex items-center gap-2 mb-3">
                 <Sparkles className="text-pink-500" size={20} />
-                <h3 className={`font-semibold ${themeClasses.textMain}`}>Intro / Splash Page</h3>
+                <h3 className={`font-semibold ${themeClasses.textMain}`}>{tIntro('title')}</h3>
             </div>
 
             <div className="flex items-center justify-between mb-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Enable Intro Page</label>
-                    <p className="text-xs text-gray-500">Show a splash screen before your links.</p>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">{tIntro('enable_label')}</label>
+                    <p className="text-xs text-gray-500">{tIntro('enable_description')}</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -165,13 +174,13 @@ const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, 
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
                             <label className={`text-xs font-semibold uppercase tracking-wider ${themeClasses.textMuted}`}>
-                                Your Content
+                                {tIntro('content_library.title')}
                             </label>
                             <button
                                 onClick={handleCreateAsset}
                                 className="text-xs flex items-center gap-1 text-pink-600 font-bold hover:bg-pink-50 px-2 py-1 rounded transition-colors"
                             >
-                                <Plus size={14} /> New
+                                <Plus size={14} /> {tIntro('content_library.new')}
                             </button>
                         </div>
 
@@ -194,8 +203,7 @@ const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, 
                                         ${asset.type === 'game' ? 'bg-purple-100 text-purple-600' :
                                             asset.type === 'video' ? 'bg-blue-100 text-blue-600' : 'bg-orange-100 text-orange-600'}
                                     `}>
-                                        {asset.type === 'game' ? <Gamepad2 size={20} /> :
-                                            asset.type === 'video' ? <Video size={20} /> : <ImageIcon size={20} />}
+                                        {renderAssetTypeIcon(asset.type)}
                                     </div>
 
                                     {/* Label Input */}
@@ -211,14 +219,14 @@ const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, 
                                             className="bg-transparent text-sm font-semibold w-full focus:outline-none focus:border-b border-pink-300"
                                         />
                                         <div className="text-[10px] text-gray-400 truncate">
-                                            {asset.type === 'game' ? (asset.gameType || 'Custom') : (asset.contentUrl ? 'Has content' : 'Empty')}
+                                            {asset.type === 'game' ? (asset.gameType || tIntro('content_library.custom')) : (asset.contentUrl ? tIntro('content_library.has_content') : tIntro('content_library.empty'))}
                                         </div>
                                     </div>
 
                                     {/* Actions */}
                                     <div className="flex items-center gap-1">
                                         {asset.id === introConfig.activeAssetId && (
-                                            <span className="text-[10px] font-bold text-pink-600 bg-pink-100 px-2 py-0.5 rounded-full mr-2">Active</span>
+                                            <span className="text-[10px] font-bold text-pink-600 bg-pink-100 px-2 py-0.5 rounded-full mr-2">{tIntro('content_library.active')}</span>
                                         )}
                                         <button
                                             onClick={(e) => handleDeleteAsset(asset.id, e)}
@@ -236,7 +244,7 @@ const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, 
                             ))}
                             {(introConfig.assets?.length === 0) && (
                                 <div className="text-center py-4 text-xs text-gray-400 italic border rounded-lg border-dashed">
-                                    No content yet. Click "New" to start.
+                                    {tIntro('content_library.empty_state')}
                                 </div>
                             )}
                         </div>
@@ -249,13 +257,13 @@ const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, 
                             {/* Type Selector */}
                             <div className="space-y-3">
                                 <label className={`text-xs font-semibold uppercase tracking-wider ${themeClasses.textMuted}`}>
-                                    Editing: {activeAsset.label}
+                                    {tIntro('editing_label', { label: activeAsset.label })}
                                 </label>
                                 <div className="grid grid-cols-3 gap-2">
                                     {[
-                                        { id: 'image', icon: ImageIcon, label: 'Image' },
-                                        { id: 'video', icon: Video, label: 'Video' },
-                                        { id: 'game', icon: Gamepad2, label: 'Game' },
+                                        { id: 'image', icon: ImageIcon, label: tIntro('content_types.image') },
+                                        { id: 'video', icon: Video, label: tIntro('content_types.video') },
+                                        { id: 'game', icon: Gamepad2, label: tIntro('content_types.game') },
                                     ].map((type) => (
                                         <button
                                             key={type.id}
@@ -279,15 +287,15 @@ const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, 
                                     <div className="space-y-2">
                                         <div className="flex items-center justify-between">
                                             <label className={`text-xs font-semibold uppercase tracking-wider ${themeClasses.textMuted}`}>
-                                                Desktop / Default
+                                                {tIntro('asset.desktop')}
                                             </label>
                                             <select
                                                 value={activeAsset.objectFit || 'cover'}
                                                 onChange={(e) => handleAssetUpdate({ objectFit: e.target.value as any })}
                                                 className={`text-xs px-2 py-1 rounded border ${themeClasses.inputBg}`}
                                             >
-                                                <option value="cover">Fill Screen (Cover)</option>
-                                                <option value="contain">Fit Image (Contain)</option>
+                                                <option value="cover">{tIntro('asset.object_fit.cover')}</option>
+                                                <option value="contain">{tIntro('asset.object_fit.contain')}</option>
                                             </select>
                                         </div>
 
@@ -296,7 +304,7 @@ const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, 
                                                 {activeAsset.type === 'image' ? (
                                                     <img
                                                         src={activeAsset.contentUrl}
-                                                        alt="Desktop Intro"
+                                                        alt={tIntro('asset.desktop_alt')}
                                                         className="w-full h-full"
                                                         style={{ objectFit: activeAsset.objectFit || 'cover' }}
                                                     />
@@ -328,7 +336,7 @@ const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, 
                                                 >
                                                     <Plus size={24} className="text-gray-400 mb-2" />
                                                     <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                                                        {isUploading ? 'Uploading...' : 'Upload File'}
+                                                        {isUploading ? tIntro('asset.uploading') : tIntro('asset.upload_file')}
                                                     </span>
                                                     <input
                                                         ref={fileInputRef}
@@ -346,7 +354,7 @@ const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, 
                                                     >
                                                         <ImageIcon size={24} className="text-gray-400 mb-2" />
                                                         <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                                                            Stock Library
+                                                            {tIntro('asset.stock_library')}
                                                         </span>
                                                     </button>
                                                 )}
@@ -358,15 +366,15 @@ const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, 
                                     <div className="space-y-2 pt-4 border-t border-gray-100 dark:border-gray-800">
                                         <div className="flex items-center justify-between">
                                             <label className={`text-xs font-semibold uppercase tracking-wider ${themeClasses.textMuted}`}>
-                                                Mobile (Optional)
+                                                {tIntro('asset.mobile')}
                                             </label>
                                             <select
                                                 value={activeAsset.mobileObjectFit || 'cover'}
                                                 onChange={(e) => handleAssetUpdate({ mobileObjectFit: e.target.value as any })}
                                                 className={`text-xs px-2 py-1 rounded border ${themeClasses.inputBg}`}
                                             >
-                                                <option value="cover">Fill Screen (Cover)</option>
-                                                <option value="contain">Fit Image (Contain)</option>
+                                                <option value="cover">{tIntro('asset.object_fit.cover')}</option>
+                                                <option value="contain">{tIntro('asset.object_fit.contain')}</option>
                                             </select>
                                         </div>
 
@@ -375,7 +383,7 @@ const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, 
                                                 {activeAsset.type === 'image' ? (
                                                     <img
                                                         src={activeAsset.mobileContentUrl}
-                                                        alt="Mobile Intro"
+                                                        alt={tIntro('asset.mobile_alt')}
                                                         className="w-full h-full"
                                                         style={{ objectFit: activeAsset.mobileObjectFit || 'cover' }}
                                                     />
@@ -410,12 +418,12 @@ const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, 
                                             >
                                                 <Plus size={18} className="text-gray-400 mr-2" />
                                                 <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                                                    Upload Mobile Version (9:16)
+                                                    {tIntro('asset.upload_mobile')}
                                                 </span>
                                             </button>
                                         )}
                                         <p className="text-[10px] text-gray-400">
-                                            If not provided, the desktop version will be used.
+                                            {tIntro('asset.mobile_fallback')}
                                         </p>
                                     </div>
                                 </div>
@@ -425,26 +433,26 @@ const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, 
                             {activeAsset.type === 'game' && (
                                 <div className="space-y-3">
                                     <label className={`text-xs font-semibold uppercase tracking-wider ${themeClasses.textMuted}`}>
-                                        Select Game
+                                        {tIntro('game.select_game')}
                                     </label>
                                     <select
                                         value={activeAsset.gameType || 'bubble_pop'}
                                         onChange={(e) => handleAssetUpdate({ gameType: e.target.value as any })}
                                         className={`w-full px-3 py-2 border rounded-lg text-sm ${themeClasses.inputBg}`}
                                     >
-                                        <option value="bubble_pop">Bubble Pop</option>
-                                        <option value="quiz">Daily Tech Quiz</option>
-                                        <option value="piano_flow">Piano Flow</option>
-                                        <option value="custom">Custom Embed</option>
+                                        <option value="bubble_pop">{tIntro('game.options.bubble_pop')}</option>
+                                        <option value="quiz">{tIntro('game.options.quiz')}</option>
+                                        <option value="piano_flow">{tIntro('game.options.piano_flow')}</option>
+                                        <option value="custom">{tIntro('game.options.custom')}</option>
                                     </select>
 
                                     {activeAsset.gameType === 'custom' && (
                                         <div>
-                                            <label className="text-xs text-gray-500 block mb-1">Embed Code (Iframe)</label>
+                                            <label className="text-xs text-gray-500 block mb-1">{tIntro('game.embed_code')}</label>
                                             <textarea
                                                 value={activeAsset.embedCode || ''}
                                                 onChange={(e) => handleAssetUpdate({ embedCode: e.target.value })}
-                                                placeholder="<iframe src='...'></iframe>"
+                                                placeholder={tIntro('game.embed_placeholder')}
                                                 className={`w-full px-3 py-2 border rounded-lg text-sm font-mono h-24 ${themeClasses.inputBg}`}
                                             />
                                         </div>
@@ -458,10 +466,10 @@ const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, 
                     {/* Button Config (Shared/Global) */}
                     <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
                         <label className={`text-xs font-semibold uppercase tracking-wider ${themeClasses.textMuted}`}>
-                            Enter Button
+                            {tIntro('enter_button.title')}
                         </label>
                         <div>
-                            <label className="text-xs text-gray-500 block mb-1">Button Text</label>
+                            <label className="text-xs text-gray-500 block mb-1">{tIntro('enter_button.text_label')}</label>
                             <input
                                 type="text"
                                 value={introConfig.buttonText}
@@ -470,18 +478,22 @@ const SidebarIntroEditor: React.FC<SidebarIntroEditorProps> = ({ portfolioData, 
                             />
                         </div>
                         <div>
-                            <label className="text-xs text-gray-500 block mb-1">Button Style</label>
+                            <label className="text-xs text-gray-500 block mb-1">{tIntro('enter_button.style_label')}</label>
                             <div className="flex gap-2">
-                                {['outline', 'solid', 'glass'].map((style) => (
+                                {[
+                                    { id: 'outline', label: tIntro('button_styles.outline') },
+                                    { id: 'solid', label: tIntro('button_styles.solid') },
+                                    { id: 'glass', label: tIntro('button_styles.glass') },
+                                ].map((style) => (
                                     <button
-                                        key={style}
-                                        onClick={() => handleConfigUpdate({ buttonStyle: style as any })}
-                                        className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${introConfig.buttonStyle === style
+                                        key={style.id}
+                                        onClick={() => handleConfigUpdate({ buttonStyle: style.id as any })}
+                                        className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${introConfig.buttonStyle === style.id
                                             ? 'bg-pink-50 border-pink-200 text-pink-600 dark:bg-pink-900/30 dark:border-pink-800 dark:text-pink-400'
                                             : 'border-gray-200 dark:border-gray-700 text-gray-500 hover:border-gray-300'
                                             }`}
                                     >
-                                        {style.charAt(0).toUpperCase() + style.slice(1)}
+                                        {style.label}
                                     </button>
                                 ))}
                             </div>

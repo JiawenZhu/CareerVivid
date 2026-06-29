@@ -1,6 +1,21 @@
 import React from 'react';
-import { BarChart, Bot, Loader2, Mic, StopCircle, User, X } from 'lucide-react';
+import {
+  BarChart,
+  Bot,
+  Briefcase,
+  CheckCircle2,
+  Circle,
+  ClipboardList,
+  Loader2,
+  Mic,
+  Radio,
+  Sparkles,
+  StopCircle,
+  User,
+  X,
+} from 'lucide-react';
 import { InterviewStatus, TranscriptEntry } from '../../types';
+import { getFinalTranscriptTurns, getQuestionFlowStates } from '../../utils/interviewProgress';
 
 type StatusTone = 'green' | 'blue' | 'amber' | 'red' | 'gray';
 
@@ -42,6 +57,29 @@ const statusToneClasses: Record<StatusTone, {
   },
 };
 
+const compactText = (value: string, maxLength = 220) => {
+  const cleaned = value.replace(/\s+/g, ' ').trim();
+  if (cleaned.length <= maxLength) return cleaned;
+  return `${cleaned.slice(0, maxLength).trim()}...`;
+};
+
+const getLatestFinalUserAnswer = (transcript: TranscriptEntry[]) =>
+  [...getFinalTranscriptTurns(transcript, 'user')].reverse()[0]?.text || '';
+
+const hasMetricSignal = (value: string) => /\b(\d+|percent|revenue|users|customers|hours|weeks|months|%|x)\b/i.test(value);
+
+const hasImpactSignal = (value: string) => /\b(impact|result|improved|reduced|increased|launched|delivered|owned|led|built|shipped|collaborated)\b/i.test(value);
+
+const getLiveStatusCopy = (status: InterviewStatus) => {
+  if (status === 'listening') return 'Listening';
+  if (status === 'speaking') return 'Vivid speaking';
+  if (status === 'connecting') return 'Connecting';
+  if (status === 'analyzing') return 'Debriefing';
+  if (status === 'ended') return 'Ended';
+  if (status === 'error') return 'Needs attention';
+  return 'Ready';
+};
+
 const getStatusMeta = (
   status: InterviewStatus,
   preparation?: { isPreparingAgent?: boolean; isAgentPrepared?: boolean },
@@ -73,27 +111,208 @@ const getStatusMeta = (
 
 export const InterviewHeader: React.FC<{
   interviewPrompt: string;
+  jobTitle?: string;
+  jobCompany?: string;
   onClose: () => void;
-}> = ({ interviewPrompt, onClose }) => (
-  <header className="flex items-start justify-between gap-4 border-b border-gray-200 bg-white px-5 py-4 dark:border-gray-800 dark:bg-gray-900">
-    <div className="min-w-0">
-      <h2 id="ai-interview-modal-title" className="text-lg font-bold text-gray-950 dark:text-white">
-        AI Interview Agent
-      </h2>
-      <p id="ai-interview-modal-description" className="mt-1 max-w-2xl truncate text-sm text-gray-500 dark:text-gray-400">
-        Topic: {interviewPrompt}
-      </p>
+}> = ({ interviewPrompt, jobTitle, jobCompany, onClose }) => (
+  <header className="flex items-start justify-between gap-4 border-b border-[#e7d8c5] bg-[#fffaf1] px-4 py-4 dark:border-[#3b3730] dark:bg-[#24231f] sm:px-5">
+    <div className="min-w-0 space-y-2">
+      <div className="inline-flex items-center gap-2 rounded-full border border-[#e6d5bc] bg-white px-2.5 py-1 text-[11px] font-bold text-[#8a642f] dark:border-[#51483c] dark:bg-[#302e2a] dark:text-[#d6b57f]">
+        <Radio size={13} aria-hidden="true" />
+        Live interview encounter
+      </div>
+      <div>
+        <h2 id="ai-interview-modal-title" className="text-lg font-bold leading-tight text-[#211b16] dark:text-[#f4f1e9]">
+          {jobTitle || 'Mock interview'}
+        </h2>
+        <p id="ai-interview-modal-description" className="mt-1 max-w-3xl truncate text-sm text-[#665a4a] dark:text-[#aaa39a]">
+          {jobCompany && jobCompany !== 'Custom Practice' ? `${jobCompany} - ` : ''}{compactText(interviewPrompt, 160)}
+        </p>
+      </div>
     </div>
     <button
       type="button"
       onClick={onClose}
       aria-label="Close AI interview agent"
-      className="rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
+      className="rounded-full p-2 text-[#665a4a] transition-colors hover:bg-[#f0e3d2] hover:text-[#211b16] focus:outline-none focus:ring-2 focus:ring-[#8d88e6] dark:text-[#aaa39a] dark:hover:bg-[#302e2a] dark:hover:text-[#f4f1e9]"
     >
       <X size={20} aria-hidden="true" />
     </button>
   </header>
 );
+
+export const EncounterBriefPanel: React.FC<{
+  jobTitle: string;
+  jobCompany: string;
+  interviewPrompt: string;
+  questions: string[];
+}> = ({ jobTitle, jobCompany, interviewPrompt, questions }) => (
+  <aside className="space-y-3">
+    <section className="rounded-xl border border-[#e7d8c5] bg-white p-4 shadow-sm dark:border-[#3b3730] dark:bg-[#262522]">
+      <div className="flex items-center gap-2 text-[11px] font-bold text-[#9a6b2f] dark:text-[#d6b57f]">
+        <Briefcase size={14} aria-hidden="true" />
+        Role packet
+      </div>
+      <h3 className="mt-3 text-base font-bold leading-tight text-[#211b16] dark:text-[#f4f1e9]">{jobTitle || 'Mock interview'}</h3>
+      <p className="mt-1 text-xs font-semibold text-[#665a4a] dark:text-[#aaa39a]">{jobCompany || 'Custom Practice'}</p>
+      <p className="mt-3 text-xs leading-relaxed text-[#665a4a] dark:text-[#aaa39a]">{compactText(interviewPrompt)}</p>
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <div className="rounded-lg border border-[#efe1ce] bg-[#fffaf1] px-3 py-2 dark:border-[#3b3730] dark:bg-[#1f1f1d]">
+          <p className="text-[10px] font-bold text-[#9a6b2f] dark:text-[#d6b57f]">Questions</p>
+          <p className="text-lg font-bold text-[#211b16] dark:text-[#f4f1e9]">{questions.length}</p>
+        </div>
+        <div className="rounded-lg border border-[#ececf4] bg-[#f8f8fb] px-3 py-2 dark:border-[#3b3730] dark:bg-[#1f1f1d]">
+          <p className="text-[10px] font-bold text-[#625bd5] dark:text-[#a8a3ff]">Engine</p>
+          <p className="text-xs font-bold text-[#211b16] dark:text-[#f4f1e9]">Realtime</p>
+        </div>
+      </div>
+    </section>
+  </aside>
+);
+
+export const QuestionQueuePanel: React.FC<{
+  questions: string[];
+  transcript: TranscriptEntry[];
+}> = ({ questions, transcript }) => {
+  const questionFlowStates = getQuestionFlowStates(questions, transcript);
+  const coveredCount = questionFlowStates.filter(state => state === 'covered').length;
+
+  return (
+    <section className="rounded-xl border border-[#e7d8c5] bg-white p-4 shadow-sm dark:border-[#3b3730] dark:bg-[#262522]">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-[11px] font-bold text-[#9a6b2f] dark:text-[#d6b57f]">
+          <ClipboardList size={14} aria-hidden="true" />
+          Question flow
+        </div>
+        <span className="rounded-full bg-[#f3f2ff] px-2 py-0.5 text-[10px] font-bold text-[#625bd5] dark:bg-[#34314e] dark:text-[#b7b2ff]">
+          {coveredCount}/{questions.length || 0}
+        </span>
+      </div>
+      <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
+        {questions.length === 0 ? (
+          <p className="rounded-lg border border-dashed border-[#e6d5bc] bg-[#fffaf1] p-3 text-xs text-[#665a4a] dark:border-[#3b3730] dark:bg-[#1f1f1d] dark:text-[#aaa39a]">
+            Vivid will build the flow from the live prompt.
+          </p>
+        ) : questions.map((question, index) => {
+          const questionState = questionFlowStates[index] || 'queued';
+          const isDone = questionState === 'covered';
+          const isActive = questionState === 'current';
+
+          return (
+            <div
+              key={`${question}-${index}`}
+              className={`rounded-lg border p-3 transition-colors ${isActive
+                ? 'border-[#8d88e6] bg-[#f3f2ff] dark:border-[#7069dc] dark:bg-[#302f48]'
+                : isDone
+                  ? 'border-[#cfe8dc] bg-[#f4fbf7] dark:border-[#315443] dark:bg-[#1e2b26]'
+                  : 'border-[#efe1ce] bg-[#fffaf1] dark:border-[#3b3730] dark:bg-[#1f1f1d]'
+                }`}
+            >
+              <div className="mb-1.5 flex items-center gap-2">
+                {isDone ? (
+                  <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-300" aria-hidden="true" />
+                ) : (
+                  <Circle size={12} className={isActive ? 'text-[#625bd5]' : 'text-[#b79a72] dark:text-[#7c7063]'} aria-hidden="true" />
+                )}
+                <span className="text-[10px] font-bold text-[#665a4a] dark:text-[#aaa39a]">
+                  {isDone ? 'Covered' : isActive ? 'Current' : 'Queued'}
+                </span>
+              </div>
+              <p className="text-xs font-semibold leading-snug text-[#211b16] dark:text-[#f4f1e9]">{question}</p>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+};
+
+export const LiveObserverPanel: React.FC<{
+  status: InterviewStatus;
+  transcript: TranscriptEntry[];
+}> = ({ status, transcript }) => {
+  const userTurns = getFinalTranscriptTurns(transcript, 'user');
+  const aiTurns = getFinalTranscriptTurns(transcript, 'ai');
+  const latestAnswer = getLatestFinalUserAnswer(transcript);
+  const answerHasMetric = hasMetricSignal(latestAnswer);
+  const answerHasImpact = hasImpactSignal(latestAnswer);
+  const answerHasDepth = latestAnswer.length >= 160;
+  const signals = [
+    { label: 'Concrete metric', active: answerHasMetric },
+    { label: 'Impact language', active: answerHasImpact },
+    { label: 'Answer depth', active: answerHasDepth },
+  ];
+
+  return (
+    <aside className="space-y-3">
+      <section className="rounded-xl border border-[#e7d8c5] bg-white p-4 shadow-sm dark:border-[#3b3730] dark:bg-[#262522]">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-[11px] font-bold text-[#9a6b2f] dark:text-[#d6b57f]">
+            <Sparkles size={14} aria-hidden="true" />
+            Live observer
+          </div>
+          <span className="rounded-full bg-[#eef8f2] px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-[#213629] dark:text-emerald-300">
+            {getLiveStatusCopy(status)}
+          </span>
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="rounded-lg border border-[#efe1ce] bg-[#fffaf1] px-3 py-2 dark:border-[#3b3730] dark:bg-[#1f1f1d]">
+            <p className="text-[10px] font-bold text-[#9a6b2f] dark:text-[#d6b57f]">Your turns</p>
+            <p className="text-lg font-bold text-[#211b16] dark:text-[#f4f1e9]">{userTurns.length}</p>
+          </div>
+          <div className="rounded-lg border border-[#efe1ce] bg-[#fffaf1] px-3 py-2 dark:border-[#3b3730] dark:bg-[#1f1f1d]">
+            <p className="text-[10px] font-bold text-[#9a6b2f] dark:text-[#d6b57f]">Vivid turns</p>
+            <p className="text-lg font-bold text-[#211b16] dark:text-[#f4f1e9]">{aiTurns.length}</p>
+          </div>
+        </div>
+        <div className="mt-4 space-y-2">
+          {signals.map(signal => (
+            <div key={signal.label} className="flex items-center justify-between gap-3 rounded-lg border border-[#efe1ce] bg-[#fffaf1] px-3 py-2 dark:border-[#3b3730] dark:bg-[#1f1f1d]">
+              <span className="text-xs font-semibold text-[#211b16] dark:text-[#f4f1e9]">{signal.label}</span>
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${signal.active
+                ? 'bg-emerald-50 text-emerald-700 dark:bg-[#213629] dark:text-emerald-300'
+                : 'bg-[#f3f2ff] text-[#625bd5] dark:bg-[#34314e] dark:text-[#b7b2ff]'
+                }`}>
+                {signal.active ? 'Detected' : 'Watch'}
+              </span>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-[11px] leading-relaxed text-[#665a4a] dark:text-[#aaa39a]">
+          Final scoring still uses the saved transcript and full feedback report.
+        </p>
+      </section>
+    </aside>
+  );
+};
+
+export const SessionMapPanel: React.FC<{ status: InterviewStatus; hasTranscript: boolean }> = ({ status, hasTranscript }) => {
+  const steps = [
+    { label: 'Brief', active: status === 'idle' || status === 'connecting', done: status !== 'idle' && status !== 'connecting' },
+    { label: 'Live interview', active: status === 'listening' || status === 'speaking', done: status === 'ended' || status === 'analyzing' },
+    { label: 'Debrief', active: status === 'ended' || status === 'analyzing', done: false },
+  ];
+
+  return (
+    <section className="rounded-xl border border-[#e7d8c5] bg-white p-4 shadow-sm dark:border-[#3b3730] dark:bg-[#262522]">
+      <div className="mb-3 flex items-center gap-2 text-[11px] font-bold text-[#9a6b2f] dark:text-[#d6b57f]">
+        <BarChart size={14} aria-hidden="true" />
+        Session path
+      </div>
+      <div className="space-y-2">
+        {steps.map(step => (
+          <div key={step.label} className="flex items-center gap-2">
+            <span className={`h-2.5 w-2.5 rounded-full ${step.done ? 'bg-emerald-500' : step.active ? 'bg-[#625bd5]' : 'bg-[#d9c9b4] dark:bg-[#5a5147]'}`} />
+            <span className={`text-xs font-semibold ${step.active ? 'text-[#211b16] dark:text-[#f4f1e9]' : 'text-[#665a4a] dark:text-[#aaa39a]'}`}>{step.label}</span>
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 text-[11px] text-[#665a4a] dark:text-[#aaa39a]">
+        {hasTranscript ? 'Transcript is being captured.' : 'Start when ready.'}
+      </p>
+    </section>
+  );
+};
 
 const AudioActivityVisual: React.FC<{ status: InterviewStatus }> = ({ status }) => {
   const meta = getStatusMeta(status);
@@ -236,51 +455,86 @@ export const InterviewControls: React.FC<{
   hasAnalysisResult: boolean;
   isPreparingAgent?: boolean;
   isAgentPrepared?: boolean;
+  onClose: () => void;
   onStart: () => void;
   onEnd: () => void;
   onGetFeedback: () => void;
-}> = ({ status, hasTranscript, hasAnalysisResult, isPreparingAgent, isAgentPrepared, onStart, onEnd, onGetFeedback }) => (
-  <footer className="flex items-center justify-center border-t border-gray-200 bg-white px-5 py-4 dark:border-gray-800 dark:bg-gray-900 sm:justify-between">
-    <div className="hidden text-sm text-gray-500 dark:text-gray-400 sm:block">
-      {status === 'ended'
-        ? 'Session complete'
-        : status === 'idle' && isPreparingAgent
-          ? 'Agent warming in background'
-          : status === 'idle' && isAgentPrepared
-            ? 'Agent ready'
-            : status === 'idle' || status === 'error'
-              ? 'Ready to begin'
-              : 'Live interview in progress'}
-    </div>
-    <div className="flex flex-wrap justify-center gap-3">
-      {status !== 'idle' && status !== 'ended' && status !== 'error' && (
-        <button
-          type="button"
-          onClick={onEnd}
-          disabled={status === 'analyzing'}
-          className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-red-400 dark:focus:ring-offset-gray-900"
-        >
-          <StopCircle size={18} aria-hidden="true" /> End Interview
-        </button>
-      )}
-      {(status === 'idle' || status === 'error') && (
-        <button
-          type="button"
-          onClick={onStart}
-          className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
-        >
-          <Mic size={18} aria-hidden="true" /> Start Interview
-        </button>
-      )}
-      {status === 'ended' && hasTranscript && !hasAnalysisResult && (
-        <button
-          type="button"
-          onClick={onGetFeedback}
-          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
-        >
-          <BarChart size={18} aria-hidden="true" /> Get Feedback
-        </button>
-      )}
-    </div>
-  </footer>
-);
+}> = ({
+  status,
+  hasTranscript,
+  hasAnalysisResult,
+  isPreparingAgent,
+  isAgentPrepared,
+  onClose,
+  onStart,
+  onEnd,
+  onGetFeedback,
+}) => {
+  const isLive = status !== 'idle' && status !== 'ended' && status !== 'error';
+  const statusLabel = status === 'ended'
+    ? 'Session complete'
+    : status === 'idle' && isPreparingAgent
+      ? 'Agent warming in background'
+      : status === 'idle' && isAgentPrepared
+        ? 'Agent ready'
+        : status === 'idle' || status === 'error'
+          ? 'Ready to begin'
+          : 'Live interview in progress';
+  const actionCopy = status === 'ended'
+    ? 'Get feedback creates the report. Close returns to the interview list.'
+    : isLive
+      ? 'Save & close keeps a resumable draft. End interview stops this attempt.'
+      : 'Close returns to the interview list. Start interview begins a live microphone session.';
+
+  return (
+    <footer className="flex flex-col gap-3 border-t border-gray-200 bg-white px-5 py-4 dark:border-gray-800 dark:bg-gray-900 sm:flex-row sm:items-center sm:justify-between">
+      <div className="text-center sm:max-w-md sm:text-left">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">{statusLabel}</p>
+        <p className="mt-1 text-xs font-medium leading-relaxed text-gray-500 dark:text-gray-400">{actionCopy}</p>
+      </div>
+      <div className="flex flex-wrap justify-center gap-3">
+        {(status === 'idle' || status === 'error' || status === 'ended' || isLive) && (
+          <button
+            type="button"
+            onClick={onClose}
+            title={isLive ? 'Close this modal and keep a resumable draft.' : 'Close this modal and return to the interview list.'}
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:focus:ring-offset-gray-900"
+          >
+            <X size={18} aria-hidden="true" /> {isLive ? 'Save & close' : 'Close'}
+          </button>
+        )}
+        {status !== 'idle' && status !== 'ended' && status !== 'error' && (
+          <button
+            type="button"
+            onClick={onEnd}
+            title="Stop this attempt. You can request feedback from the captured transcript after it ends."
+            disabled={status === 'analyzing'}
+            className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-red-400 dark:focus:ring-offset-gray-900"
+          >
+            <StopCircle size={18} aria-hidden="true" /> End interview
+          </button>
+        )}
+        {(status === 'idle' || status === 'error') && (
+          <button
+            type="button"
+            onClick={onStart}
+            title="Start or restart the live microphone session."
+            className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+          >
+            <Mic size={18} aria-hidden="true" /> Start Interview
+          </button>
+        )}
+        {status === 'ended' && hasTranscript && !hasAnalysisResult && (
+          <button
+            type="button"
+            onClick={onGetFeedback}
+            title="Create a scored report from this attempt."
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+          >
+            <BarChart size={18} aria-hidden="true" /> Get Feedback
+          </button>
+        )}
+      </div>
+    </footer>
+  );
+};

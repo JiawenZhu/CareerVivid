@@ -6,6 +6,7 @@ import { useSidebarStore } from '../../store/useSidebarStore';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useNavigation } from '../../contexts/NavigationContext';
+import { LANGUAGE_STORAGE_KEY } from '../../utils/languagePreference';
 
 const { mockNavigate } = vi.hoisted(() => ({
     mockNavigate: vi.fn()
@@ -21,6 +22,7 @@ vi.mock('lucide-react', () => ({
     Briefcase: () => <div data-testid="icon-briefcase" />,
     PenTool: () => <div data-testid="icon-pentool" />,
     PanelLeftClose: () => <div data-testid="icon-panelleftclose" />,
+    PanelLeftOpen: () => <div data-testid="icon-panelleftopen" />,
     LogOut: () => <div data-testid="icon-logout" />,
     LogIn: () => <div data-testid="icon-login" />,
     Sun: () => <div data-testid="icon-sun" />,
@@ -162,7 +164,9 @@ describe('Sidebar Component - Sorting and Filtering UX', () => {
 
         (useNavigation as any).mockReturnValue({
             toggleNavPosition: vi.fn(),
+            toggleSidebarMode: vi.fn(),
             navPosition: 'side',
+            sidebarMode: 'expanded',
             sidebarWidth: 256,
             setSidebarWidth: vi.fn()
         });
@@ -316,5 +320,17 @@ describe('Sidebar Component - Sorting and Filtering UX', () => {
         expect(screen.queryByText('First Resume')).not.toBeInTheDocument();
         expect(screen.queryByText('Second Portfolio')).not.toBeInTheDocument();
         expect(screen.queryByText('Third Whiteboard')).not.toBeInTheDocument();
+    });
+
+    it('Test 8: Language selector persists the workspace language and navigates to the localized dashboard path', () => {
+        window.history.pushState({}, '', '/dashboard');
+
+        render(<Sidebar />);
+
+        const languageSelect = screen.getByLabelText('Language');
+        fireEvent.change(languageSelect, { target: { value: 'zh' } });
+
+        expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe('zh');
+        expect(mockNavigate).toHaveBeenCalledWith('/zh/dashboard');
     });
 });

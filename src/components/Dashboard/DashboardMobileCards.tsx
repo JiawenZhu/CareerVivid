@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
     BarChart3,
     Copy,
+    Clock,
     Edit3,
     ExternalLink,
     Eye,
@@ -52,6 +53,10 @@ export const MobileInterviewHistoryCard: React.FC<MobileInterviewHistoryCardProp
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const title = cleanLabel(entry.job.title);
     const practiceCount = entry.interviewHistory?.length || 0;
+    const draftQuestions = entry.activeInterviewDraft?.questions?.length ? entry.activeInterviewDraft.questions : entry.questions;
+    const hasResumableDraft = !!entry.activeInterviewDraft?.transcript?.length &&
+        !!draftQuestions?.length &&
+        entry.activeInterviewDraft.questionIndex < draftQuestions.length;
 
     const handlePracticeAgain = () => {
         sessionStorage.setItem('practiceJob', JSON.stringify(entry));
@@ -84,6 +89,11 @@ export const MobileInterviewHistoryCard: React.FC<MobileInterviewHistoryCardProp
                     <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
                         Last activity: {formatDate(entry.timestamp)}
                     </p>
+                    {hasResumableDraft && (
+                        <p className="mt-2 inline-flex rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
+                            Draft Q{Math.min((entry.activeInterviewDraft?.questionIndex ?? 0) + 1, draftQuestions?.length || 1)}/{draftQuestions?.length || 1}
+                        </p>
+                    )}
                 </div>
                 {practiceCount > 0 && (
                     <span className="shrink-0 rounded-full border border-indigo-100 bg-indigo-50 px-2 py-0.5 text-[11px] font-bold text-indigo-700 dark:border-indigo-900/50 dark:bg-indigo-950/40 dark:text-indigo-300">
@@ -106,7 +116,8 @@ export const MobileInterviewHistoryCard: React.FC<MobileInterviewHistoryCardProp
                     onClick={handlePracticeAgain}
                     className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-gray-100 px-3 text-xs font-bold text-gray-800 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700"
                 >
-                    <Sparkles size={15} /> Practice
+                    {hasResumableDraft ? <Clock size={15} /> : <Sparkles size={15} />}
+                    {hasResumableDraft ? 'Resume' : 'Practice'}
                 </button>
                 <button
                     type="button"

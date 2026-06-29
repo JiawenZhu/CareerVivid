@@ -69,7 +69,7 @@ const ChatBot: React.FC = () => {
         <>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="fixed bottom-6 right-6 bg-gradient-to-r from-primary-600 to-indigo-600 text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center hover:shadow-2xl hover:scale-105 transition-all z-40"
+                className="fixed bottom-6 right-6 bg-[#211b16] text-white w-14 h-14 rounded-full shadow-xl shadow-[#211b16]/20 flex items-center justify-center hover:bg-black hover:shadow-2xl hover:scale-105 transition-all z-40"
                 aria-label="Toggle Chat"
             >
                 {isOpen ? <X size={28} /> : <MessageSquare size={28} />}
@@ -78,13 +78,13 @@ const ChatBot: React.FC = () => {
             {isOpen && (
                 <div className="fixed bottom-24 right-4 sm:right-6 w-[90vw] sm:w-[380px] h-[600px] max-h-[75vh] bg-white dark:bg-gray-800 rounded-2xl shadow-2xl flex flex-col transition-all duration-300 origin-bottom-right border dark:border-gray-700 z-40 animate-in slide-in-from-bottom-5 fade-in">
                     {/* Header */}
-                    <header className="bg-gradient-to-r from-primary-600 to-indigo-600 text-white p-4 rounded-t-2xl flex items-center shadow-md">
+                    <header className="bg-[#211b16] text-white p-4 rounded-t-2xl flex items-center shadow-md">
                         <div className="bg-white/20 p-2 rounded-lg mr-3">
                             <Bot className="text-white" size={20} />
                         </div>
                         <div>
                             <h3 className="font-bold text-lg leading-tight">AI Assistant</h3>
-                            <p className="text-xs text-indigo-100 opacity-90">Instant support & AI help (Free)</p>
+                            <p className="text-xs text-[#e7d7c2] opacity-90">Instant support & AI help (Free)</p>
                         </div>
                     </header>
 
@@ -92,8 +92,8 @@ const ChatBot: React.FC = () => {
                     <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900/50 p-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
                         {messages.length === 0 && (
                             <div className="text-center mt-8 mb-6">
-                                <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <Sparkles className="text-indigo-600 dark:text-indigo-400" size={32} />
+                                <div className="w-16 h-16 bg-[#fff7eb] dark:bg-[#302a22] rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Sparkles className="text-[#a97935] dark:text-[#f0c987]" size={32} />
                                 </div>
                                 <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-1">How can I help you?</h4>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">Ask me anything or choose a topic below.</p>
@@ -104,7 +104,7 @@ const ChatBot: React.FC = () => {
                             {messages.map((msg, index) => (
                                 <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
                                     <div className={`max-w-[85%] px-4 py-3 rounded-2xl shadow-sm text-sm leading-relaxed ${msg.role === 'user'
-                                        ? 'bg-primary-600 text-white rounded-tr-none'
+                                        ? 'bg-[#211b16] text-white rounded-tr-none'
                                         : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-tl-none border border-gray-100 dark:border-gray-600'
                                         }`}>
                                         <p className="whitespace-pre-wrap">{msg.parts[0].text}</p>
@@ -115,9 +115,9 @@ const ChatBot: React.FC = () => {
                                 <div className="flex justify-start">
                                     <div className="bg-white dark:bg-gray-700 p-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 dark:border-gray-600">
                                         <div className="flex items-center space-x-1.5">
-                                            <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce"></span>
-                                            <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce delay-100"></span>
-                                            <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce delay-200"></span>
+                                            <span className="w-1.5 h-1.5 bg-[#a97935] rounded-full animate-bounce"></span>
+                                            <span className="w-1.5 h-1.5 bg-[#a97935] rounded-full animate-bounce delay-100"></span>
+                                            <span className="w-1.5 h-1.5 bg-[#a97935] rounded-full animate-bounce delay-200"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -142,7 +142,7 @@ const ChatBot: React.FC = () => {
                                                 }
                                                 handleFAQClick(faq);
                                             }}
-                                            className="text-left px-4 py-3 bg-white dark:bg-gray-800 hover:bg-indigo-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-200 transition-colors shadow-sm hover:shadow active:scale-[0.98]"
+                                            className="text-left px-4 py-3 bg-white dark:bg-gray-800 hover:bg-[#fff7eb] dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-200 transition-colors shadow-sm hover:shadow active:scale-[0.98]"
                                         >
                                             {faq.question}
                                         </button>
@@ -161,12 +161,12 @@ const ChatBot: React.FC = () => {
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                                 placeholder="Type a message..."
-                                className="w-full pl-4 pr-12 py-3 bg-gray-100 dark:bg-gray-900/50 border-transparent focus:bg-white dark:focus:bg-gray-900 border focus:border-indigo-500 rounded-xl text-sm focus:outline-none transition-all dark:text-white"
+                                className="w-full pl-4 pr-12 py-3 bg-gray-100 dark:bg-gray-900/50 border-transparent focus:bg-white dark:focus:bg-gray-900 border focus:border-[#a97935] rounded-xl text-sm focus:outline-none transition-all dark:text-white"
                             />
                             <button
                                 onClick={handleSend}
                                 disabled={isLoading || !input.trim()}
-                                className="absolute right-2 p-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:bg-gray-400 transition-colors shadow-sm"
+                                className="absolute right-2 p-2 bg-[#211b16] text-white rounded-lg hover:bg-black disabled:opacity-50 disabled:bg-gray-400 transition-colors shadow-sm"
                             >
                                 <Send size={16} />
                             </button>

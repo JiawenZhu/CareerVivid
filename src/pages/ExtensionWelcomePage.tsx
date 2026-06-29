@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useTranslation } from 'react-i18next';
 import {
     ArrowRight,
     Briefcase,
     Building2,
     Check,
+    ClipboardCheck,
     ExternalLink,
     FileText,
     LayoutDashboard,
@@ -40,6 +42,12 @@ type WelcomeJob = {
     sourceLabel: 'tracker' | 'saved';
 };
 
+type WelcomeFallbacks = {
+    savedRole: string;
+    companyNotSpecified: string;
+    locationNotSpecified: string;
+};
+
 const confettiPieces = [
     ['7%', '4%', '#ff5a3d', 'square', '0s', '5.8s'],
     ['16%', '11%', '#7c5cff', 'circle', '.3s', '6.2s'],
@@ -62,21 +70,21 @@ const cleanText = (value: string | undefined, fallback: string) => {
 
 const CHROME_WEB_STORE_URL = 'https://chromewebstore.google.com/detail/careervivid-auto-apply-ai/dmigeakdfokehlhigkhadglgoabceoag';
 
-const normalizeTrackerJob = (job: JobApplicationData): WelcomeJob => ({
+const normalizeTrackerJob = (job: JobApplicationData, fallbacks: WelcomeFallbacks): WelcomeJob => ({
     id: job.id,
-    title: cleanText(job.jobTitle, 'Saved role'),
-    company: cleanText(job.companyName, 'Company not specified'),
-    location: cleanText(job.location, 'Location not specified'),
+    title: cleanText(job.jobTitle, fallbacks.savedRole),
+    company: cleanText(job.companyName, fallbacks.companyNotSpecified),
+    location: cleanText(job.location, fallbacks.locationNotSpecified),
     description: cleanText(job.jobDescription || job.prep_RoleOverview, ''),
     sourceUrl: cleanText(job.jobPostURL || job.applicationURL, ''),
     sourceLabel: 'tracker',
 });
 
-const normalizeSavedJob = (job: JobPosting): WelcomeJob => ({
+const normalizeSavedJob = (job: JobPosting, fallbacks: WelcomeFallbacks): WelcomeJob => ({
     id: job.id,
-    title: cleanText(job.jobTitle, 'Saved role'),
-    company: cleanText(job.companyName, 'Company not specified'),
-    location: cleanText(job.location, 'Location not specified'),
+    title: cleanText(job.jobTitle, fallbacks.savedRole),
+    company: cleanText(job.companyName, fallbacks.companyNotSpecified),
+    location: cleanText(job.location, fallbacks.locationNotSpecified),
     description: cleanText(job.description, ''),
     sourceUrl: cleanText(job.externalUrl || job.applyUrl || (job as JobPosting & { url?: string }).url, ''),
     sourceLabel: 'saved',
@@ -121,7 +129,7 @@ const PacketActionCard = ({
     </button>
 );
 
-const WelcomeAnimation = ({ firstName }: { firstName: string }) => (
+const WelcomeAnimation = ({ firstName, welcomeLabel }: { firstName: string; welcomeLabel: string }) => (
     <div className="relative min-h-[360px] overflow-hidden px-6 py-12">
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
             {confettiPieces.map(([left, top, color, shape, delay, duration], index) => (
@@ -142,7 +150,7 @@ const WelcomeAnimation = ({ firstName }: { firstName: string }) => (
         </div>
         <div className="relative z-10 pt-10 sm:pt-14 select-none">
             <span className="text-2xl sm:text-3xl font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest leading-none drop-shadow-sm">
-                Welcome,
+                {welcomeLabel}
             </span>
             <h1 className="mt-2 text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black leading-none tracking-tighter text-[#8a5a12] dark:text-[#c5a059] transition-colors duration-200">
                 {firstName}!
@@ -152,6 +160,7 @@ const WelcomeAnimation = ({ firstName }: { firstName: string }) => (
 );
 
 const ExtensionWelcomePage: React.FC = () => {
+    const { t } = useTranslation();
     const { currentUser, userProfile } = useAuth();
     const { resumes, isLoading: isLoadingResumes } = useResumes();
     const { jobApplications, isLoading: isLoadingTracker } = useJobTracker();
@@ -159,9 +168,14 @@ const ExtensionWelcomePage: React.FC = () => {
     const [isLoadingSavedJobs, setIsLoadingSavedJobs] = useState(false);
     const [showPinGuide, setShowPinGuide] = useState(false);
 
-    const firstName = userProfile?.displayName?.split(' ')[0] || currentUser?.displayName?.split(' ')[0] || 'there';
+    const firstName = userProfile?.displayName?.split(' ')[0] || currentUser?.displayName?.split(' ')[0] || t('extension_welcome.fallback_first_name');
     const primaryResume = resumes[0];
     const hasResume = !isLoadingResumes && resumes.length > 0;
+    const jobFallbacks = useMemo<WelcomeFallbacks>(() => ({
+        savedRole: t('extension_welcome.fallbacks.saved_role'),
+        companyNotSpecified: t('extension_welcome.fallbacks.company_not_specified'),
+        locationNotSpecified: t('extension_welcome.fallbacks.location_not_specified'),
+    }), [t]);
 
     useEffect(() => {
         // Trigger a gorgeous welcome confetti explosion on page load
@@ -259,16 +273,16 @@ const ExtensionWelcomePage: React.FC = () => {
 
     const featuredJob = useMemo(() => {
         const trackerJob = jobApplications[0];
-        if (trackerJob) return normalizeTrackerJob(trackerJob);
+        if (trackerJob) return normalizeTrackerJob(trackerJob, jobFallbacks);
 
         const savedJob = savedJobs[0];
-        if (savedJob) return normalizeSavedJob(savedJob);
+        if (savedJob) return normalizeSavedJob(savedJob, jobFallbacks);
 
         return null;
-    }, [jobApplications, savedJobs]);
+    }, [jobApplications, jobFallbacks, savedJobs]);
 
     const isLoadingJobs = isLoadingTracker || isLoadingSavedJobs;
-    const packetLabel = featuredJob ? `${featuredJob.company} - ${featuredJob.title}` : 'Save a job to build your first packet';
+    const packetLabel = featuredJob ? `${featuredJob.company} - ${featuredJob.title}` : t('extension_welcome.packet.save_job_label');
 
     const storeTailorTransit = () => {
         if (!featuredJob) return;
@@ -308,7 +322,7 @@ const ExtensionWelcomePage: React.FC = () => {
         }
     };
 
-    const profileName = userProfile?.displayName || currentUser?.displayName || currentUser?.email || 'User';
+    const profileName = userProfile?.displayName || currentUser?.displayName || currentUser?.email || t('extension_welcome.profile.fallback_user');
     const profileInitials = profileName
         .split(' ')
         .filter(Boolean)
@@ -317,14 +331,47 @@ const ExtensionWelcomePage: React.FC = () => {
         .substring(0, 2)
         .toUpperCase();
 
+    const setupStatusItems = [
+        { label: t('extension_welcome.setup_status.base_resume_connected'), done: hasResume, pending: isLoadingResumes },
+        { label: t('extension_welcome.setup_status.saved_job_attached'), done: !!featuredJob, pending: isLoadingJobs },
+        { label: t('extension_welcome.setup_status.application_packet_ready'), done: !!featuredJob && hasResume, pending: isLoadingJobs || isLoadingResumes },
+    ];
+
+    const pinGuideSteps = [
+        {
+            step: 1,
+            icon: <Chrome size={18} />,
+            title: t('extension_welcome.pin_guide.step_extensions_title'),
+            desc: t('extension_welcome.pin_guide.step_extensions_desc'),
+        },
+        {
+            step: 2,
+            icon: <Pin size={18} />,
+            title: t('extension_welcome.pin_guide.step_pin_title'),
+            desc: t('extension_welcome.pin_guide.step_pin_desc'),
+        },
+        {
+            step: 3,
+            icon: <PanelRightOpen size={18} />,
+            title: t('extension_welcome.pin_guide.step_ready_title'),
+            desc: t('extension_welcome.pin_guide.step_ready_desc'),
+        },
+    ];
+
+    const renderSetupStatusIcon = (item: { pending: boolean; done: boolean }) => {
+        if (item.pending) return <Loader2 size={10} className="animate-spin" />;
+        if (item.done) return <Check size={10} />;
+        return <span aria-hidden="true">{t('extension_welcome.setup_status.pending_marker')}</span>;
+    };
+
     return (
         <>
         <Helmet titleTemplate="%s">
-            <title>CareerVivid Chrome Extension | Job Autofill & Application Tracker</title>
-            <meta name="description" content="Use the CareerVivid Chrome extension to save job postings, analyze resume fit, autofill applications, and keep browser work connected to your job tracker." />
+            <title>{t('extension_welcome.meta.title')}</title>
+            <meta name="description" content={t('extension_welcome.meta.description')} />
             <link rel="canonical" href="https://careervivid.app/extension-welcome" />
-            <meta property="og:title" content="CareerVivid Chrome Extension | Job Autofill & Application Tracker" />
-            <meta property="og:description" content="Save roles, analyze fit, autofill applications, and send job context into the CareerVivid workspace from Chrome." />
+            <meta property="og:title" content={t('extension_welcome.meta.title')} />
+            <meta property="og:description" content={t('extension_welcome.meta.og_description')} />
             <meta property="og:url" content="https://careervivid.app/extension-welcome" />
             <meta property="og:type" content="website" />
             <meta name="twitter:card" content="summary_large_image" />
@@ -336,28 +383,32 @@ const ExtensionWelcomePage: React.FC = () => {
                     <div className="flex-1">
                         <div className="flex items-center gap-3">
                             <Logo className="h-9 w-9" />
-                            <div>
-                                <p className="text-sm font-black text-slate-950 dark:text-slate-50">CareerVivid</p>
-                                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Job search workspace</p>
-                            </div>
+	                            <div>
+	                                <p className="text-sm font-black text-slate-950 dark:text-slate-50">CareerVivid</p>
+	                                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{t('extension_welcome.sidebar.subtitle')}</p>
+	                            </div>
                         </div>
 
                         {/* Navigation */}
                         <nav className="mt-8 space-y-6">
                             {/* Main options */}
                             <div className="space-y-1 text-sm font-bold text-slate-600 dark:text-slate-400">
-                                <button type="button" className="flex w-full items-center gap-3 rounded-md border border-indigo-200 dark:border-indigo-900/50 bg-indigo-50 dark:bg-indigo-950/30 px-3 py-2.5 text-left text-indigo-800 dark:text-indigo-300 transition">
-                                    <Sparkles size={17} />
-                                    Welcome
-                                </button>
-                                <button type="button" onClick={() => navigate('/job-market')} className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition">
-                                    <Briefcase size={17} />
-                                    Application Hub
-                                </button>
-                                <button type="button" onClick={() => navigate('/newresume')} className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition">
-                                    <FileText size={17} />
-                                    Resume Builder
-                                </button>
+	                                <button type="button" className="flex w-full items-center gap-3 rounded-md border border-indigo-200 dark:border-indigo-900/50 bg-indigo-50 dark:bg-indigo-950/30 px-3 py-2.5 text-left text-indigo-800 dark:text-indigo-300 transition">
+	                                    <Sparkles size={17} />
+	                                    {t('extension_welcome.nav.welcome')}
+	                                </button>
+	                                <button type="button" onClick={() => navigate('/onboarding')} className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition">
+	                                    <ClipboardCheck size={17} />
+	                                    {t('extension_welcome.nav.quick_start')}
+	                                </button>
+	                                <button type="button" onClick={() => navigate('/job-market')} className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition">
+	                                    <Briefcase size={17} />
+	                                    {t('extension_welcome.nav.application_hub')}
+	                                </button>
+	                                <button type="button" onClick={() => navigate('/newresume')} className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition">
+	                                    <FileText size={17} />
+	                                    {t('extension_welcome.nav.resume_builder')}
+	                                </button>
                             </div>
 
                             {/* Divider */}
@@ -365,17 +416,17 @@ const ExtensionWelcomePage: React.FC = () => {
 
                             {/* My Job Trackers */}
                             <div>
-                                <div className="flex items-center justify-between text-xs font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 px-1">
-                                    <span>My Job Trackers</span>
-                                    <button type="button" onClick={() => navigate('/job-tracker')} className="text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition p-0.5 rounded" title="Manage Trackers">
-                                        <Plus size={14} />
-                                    </button>
+	                                <div className="flex items-center justify-between text-xs font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 px-1">
+	                                    <span>{t('extension_welcome.sidebar.my_job_trackers')}</span>
+	                                    <button type="button" onClick={() => navigate('/job-tracker')} className="text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition p-0.5 rounded" title={t('extension_welcome.sidebar.manage_trackers')}>
+	                                        <Plus size={14} />
+	                                    </button>
                                 </div>
                                 <div className="mt-2 space-y-0.5">
-                                    <button type="button" onClick={() => navigate('/job-tracker')} className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition">
-                                        <Briefcase size={16} className="text-slate-400 dark:text-slate-500" />
-                                        <span className="truncate">Job Search 2026</span>
-                                    </button>
+	                                    <button type="button" onClick={() => navigate('/job-tracker')} className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition">
+	                                        <Briefcase size={16} className="text-slate-400 dark:text-slate-500" />
+	                                        <span className="truncate">{t('extension_welcome.sidebar.job_search_2026')}</span>
+	                                    </button>
                                 </div>
                             </div>
 
@@ -383,47 +434,43 @@ const ExtensionWelcomePage: React.FC = () => {
                             <div className="border-t border-slate-100 dark:border-slate-800" />
 
                             {/* Resources & Community */}
-                            <div>
-                                <div className="text-xs font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 px-1">
-                                    <span>Resources & Tools</span>
-                                </div>
+	                            <div>
+	                                <div className="text-xs font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 px-1">
+	                                    <span>{t('extension_welcome.sidebar.resources_tools')}</span>
+	                                </div>
                                 <div className="mt-2 space-y-0.5">
-                                    <button type="button" onClick={() => window.open(CHROME_WEB_STORE_URL, '_blank', 'noopener,noreferrer')} className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition">
-                                        <Chrome size={16} className="text-slate-400 dark:text-slate-500" />
-                                        <span className="flex-1">Chrome Extension</span>
-                                        <ExternalLink size={13} className="text-slate-300 dark:text-slate-600" />
-                                    </button>
-                                    <button type="button" disabled className="flex w-full cursor-not-allowed items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-bold text-slate-400 dark:text-slate-500">
-                                        <MessageSquare size={16} className="text-slate-400 dark:text-slate-500" />
-                                        <span className="flex-1">Reddit Community</span>
-                                        <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-300">
-                                            Soon
-                                        </span>
-                                    </button>
-                                    <button type="button" disabled className="flex w-full cursor-not-allowed items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-bold text-slate-400 dark:text-slate-500">
-                                        <MessageSquare size={16} className="text-slate-400 dark:text-slate-500" />
-                                        <span className="flex-1">Slack Community</span>
-                                        <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-300">
-                                            Soon
-                                        </span>
+	                                    <button type="button" onClick={() => window.open(CHROME_WEB_STORE_URL, '_blank', 'noopener,noreferrer')} className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition">
+	                                        <Chrome size={16} className="text-slate-400 dark:text-slate-500" />
+	                                        <span className="flex-1">{t('extension_welcome.sidebar.chrome_extension')}</span>
+	                                        <ExternalLink size={13} className="text-slate-300 dark:text-slate-600" />
+	                                    </button>
+	                                    <button type="button" disabled className="flex w-full cursor-not-allowed items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-bold text-slate-400 dark:text-slate-500">
+	                                        <MessageSquare size={16} className="text-slate-400 dark:text-slate-500" />
+	                                        <span className="flex-1">{t('extension_welcome.sidebar.reddit_community')}</span>
+	                                        <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-300">
+	                                            {t('extension_welcome.sidebar.soon')}
+	                                        </span>
+	                                    </button>
+	                                    <button type="button" disabled className="flex w-full cursor-not-allowed items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-bold text-slate-400 dark:text-slate-500">
+	                                        <MessageSquare size={16} className="text-slate-400 dark:text-slate-500" />
+	                                        <span className="flex-1">{t('extension_welcome.sidebar.slack_community')}</span>
+	                                        <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-300">
+	                                            {t('extension_welcome.sidebar.soon')}
+	                                        </span>
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Setup Status */}
-                            <div className="border-t border-slate-100 dark:border-slate-800 pt-5">
-                                <p className="text-xs font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 px-1">Setup Status</p>
-                                <div className="mt-3 space-y-2.5">
-                                    {[
-                                        { label: 'Base resume connected', done: hasResume, pending: isLoadingResumes },
-                                        { label: 'Saved job attached', done: !!featuredJob, pending: isLoadingJobs },
-                                        { label: 'Application packet ready', done: !!featuredJob && hasResume, pending: isLoadingJobs || isLoadingResumes },
-                                    ].map((item) => (
-                                        <div key={item.label} className="flex items-center gap-2.5 px-1">
+	                            {/* Setup Status */}
+	                            <div className="border-t border-slate-100 dark:border-slate-800 pt-5">
+	                                <p className="text-xs font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 px-1">{t('extension_welcome.setup_status.title')}</p>
+	                                <div className="mt-3 space-y-2.5">
+	                                    {setupStatusItems.map((item) => (
+	                                        <div key={item.label} className="flex items-center gap-2.5 px-1">
                                             <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
                                                 item.done ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/30' : 'bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900/30'
                                             }`}>
-                                                {item.pending ? <Loader2 size={10} className="animate-spin" /> : item.done ? <Check size={10} /> : '!'}
+	                                                {renderSetupStatusIcon(item)}
                                             </div>
                                             <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 truncate">{item.label}</span>
                                         </div>
@@ -437,20 +484,20 @@ const ExtensionWelcomePage: React.FC = () => {
                     <div className="mt-8 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-4">
                         {/* Pro Upgrade Box */}
                         <div className="rounded-xl border border-dashed border-indigo-200 dark:border-indigo-900/40 bg-indigo-50/40 dark:bg-indigo-950/10 p-4 transition duration-200 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/20 hover:border-indigo-300 dark:hover:border-indigo-800">
-                            <div className="flex items-center gap-1.5 text-indigo-950 dark:text-indigo-200">
-                                <Sparkles size={14} className="text-indigo-600 dark:text-indigo-400 animate-pulse animate-duration-1000" />
-                                <span className="text-sm font-black tracking-tight">CareerVivid Pro</span>
-                            </div>
-                            <p className="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400 leading-normal">
-                                Level up your job search and accelerate your career.
-                            </p>
+	                            <div className="flex items-center gap-1.5 text-indigo-950 dark:text-indigo-200">
+	                                <Sparkles size={14} className="text-indigo-600 dark:text-indigo-400 animate-pulse animate-duration-1000" />
+		                                <span className="text-sm font-black tracking-tight">{t('extension_welcome.pro.title')}</span>
+	                            </div>
+	                            <p className="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400 leading-normal">
+	                                {t('extension_welcome.pro.description')}
+	                            </p>
                             <button
                                 type="button"
                                 onClick={() => navigate('/subscription')}
                                 className="mt-3 w-full rounded-lg bg-[#fcc83b] hover:bg-[#eab308] text-slate-950 font-extrabold text-xs py-2 shadow-sm transition hover:shadow duration-200 cursor-pointer text-center active:scale-[0.98]"
-                            >
-                                Upgrade Now
-                            </button>
+	                            >
+	                                {t('extension_welcome.pro.upgrade_now')}
+	                            </button>
                         </div>
 
                         {/* Profile Row */}
@@ -463,17 +510,17 @@ const ExtensionWelcomePage: React.FC = () => {
                                     <p className="text-sm font-black text-slate-800 dark:text-slate-200 truncate capitalize leading-tight">
                                         {profileName.split('@')[0]}
                                     </p>
-                                    <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 truncate leading-none mt-0.5">
-                                        {userProfile?.plan === 'pro' || userProfile?.plan === 'premium' ? 'Pro Member' : 'Free Plan'}
-                                    </p>
+	                                    <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 truncate leading-none mt-0.5">
+	                                        {userProfile?.plan === 'pro' || userProfile?.plan === 'premium' ? t('extension_welcome.profile.pro_member') : t('extension_welcome.profile.free_plan')}
+	                                    </p>
                                 </div>
                             </div>
                             <button
                                 type="button"
-                                onClick={() => navigate('/profile')}
-                                className="text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition duration-150 p-2 rounded-full cursor-pointer"
-                                title="Settings"
-                            >
+	                                onClick={() => navigate('/profile')}
+	                                className="text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition duration-150 p-2 rounded-full cursor-pointer"
+	                                title={t('extension_welcome.profile.settings')}
+	                            >
                                 <Settings size={18} />
                             </button>
                         </div>
@@ -481,65 +528,46 @@ const ExtensionWelcomePage: React.FC = () => {
                 </aside>
 
                 <main className="px-5 py-5 sm:px-8 lg:px-10 dark:bg-slate-950 transition-colors duration-200">
-                    <div className="mb-4 flex items-center gap-2 text-sm font-bold text-slate-500 dark:text-slate-400">
-                        <span>Home</span>
-                        <span className="text-slate-300 dark:text-slate-700">/</span>
-                        <span className="text-indigo-700 dark:text-indigo-400">Welcome</span>
-                    </div>
+	                    <div className="mb-4 flex items-center gap-2 text-sm font-bold text-slate-500 dark:text-slate-400">
+	                        <span>{t('extension_welcome.breadcrumb.home')}</span>
+	                        <span className="text-slate-300 dark:text-slate-700">/</span>
+	                        <span className="text-indigo-700 dark:text-indigo-400">{t('extension_welcome.nav.welcome')}</span>
+	                    </div>
 
-                    <div className="grid min-h-[calc(100vh-76px)] items-center gap-8 xl:grid-cols-[minmax(320px,0.9fr)_minmax(520px,1.1fr)]">
-                        <section className="self-center">
-                            <WelcomeAnimation firstName={firstName} />
-                            <div className="max-w-md px-6 pb-8 text-slate-600 dark:text-slate-400">
-                                <p className="text-sm leading-6">
-                                    You are all set. Start by reviewing your first application packet. When you are done, continue to your job tools.
-                                </p>
-                                <ul className="mt-6 space-y-3 text-sm leading-6 text-slate-700 dark:text-slate-300">
-                                    <li><span className="font-extrabold text-slate-900 dark:text-slate-100">Base Resume:</span> the foundation for tailored resumes.</li>
-                                    <li><span className="font-extrabold text-slate-900 dark:text-slate-100">Resume Match:</span> compare your resume against a real saved job.</li>
-                                    <li><span className="font-extrabold text-slate-900 dark:text-slate-100">Job Tracker:</span> keep the role organized after saving it.</li>
-                                    <li><span className="font-extrabold text-slate-900 dark:text-slate-100">Cover Letter:</span> generate a letter from the same job context.</li>
-                                </ul>
-                            </div>
+	                    <div className="grid min-h-[calc(100vh-76px)] items-center gap-8 xl:grid-cols-[minmax(320px,0.9fr)_minmax(520px,1.1fr)]">
+	                        <section className="self-center">
+	                            <WelcomeAnimation firstName={firstName} welcomeLabel={t('extension_welcome.hero.welcome_label')} />
+	                            <div className="max-w-md px-6 pb-8 text-slate-600 dark:text-slate-400">
+	                                <p className="text-sm leading-6">
+	                                    {t('extension_welcome.hero.description')}
+	                                </p>
+	                                <ul className="mt-6 space-y-3 text-sm leading-6 text-slate-700 dark:text-slate-300">
+	                                    <li><span className="font-extrabold text-slate-900 dark:text-slate-100">{t('extension_welcome.hero.base_resume_label')}</span> {t('extension_welcome.hero.base_resume_desc')}</li>
+	                                    <li><span className="font-extrabold text-slate-900 dark:text-slate-100">{t('extension_welcome.hero.resume_match_label')}</span> {t('extension_welcome.hero.resume_match_desc')}</li>
+	                                    <li><span className="font-extrabold text-slate-900 dark:text-slate-100">{t('extension_welcome.hero.job_tracker_label')}</span> {t('extension_welcome.hero.job_tracker_desc')}</li>
+	                                    <li><span className="font-extrabold text-slate-900 dark:text-slate-100">{t('extension_welcome.hero.cover_letter_label')}</span> {t('extension_welcome.hero.cover_letter_desc')}</li>
+	                                </ul>
+	                            </div>
                         </section>
 
                         <section className="w-full max-w-2xl">
                             {showPinGuide ? (
                                 <>
-                                    <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-900/30 bg-emerald-50 dark:bg-emerald-950/20 px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400 shadow-sm">
-                                        <Check size={14} />
-                                        Extension connected
-                                    </div>
+	                                    <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-900/30 bg-emerald-50 dark:bg-emerald-950/20 px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400 shadow-sm">
+	                                        <Check size={14} />
+	                                        {t('extension_welcome.pin_guide.extension_connected')}
+	                                    </div>
 
-                                    <p className="mt-8 text-base font-bold text-indigo-700 dark:text-indigo-400">One last step</p>
-                                    <h2 className="mt-2 text-3xl font-black leading-tight tracking-tight text-slate-950 dark:text-slate-50 sm:text-4xl">
-                                        Pin CareerVivid to your toolbar
-                                    </h2>
-                                    <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-400">
-                                        Pinning keeps the extension one click away on every job page — no hunting through the extensions menu.
-                                    </p>
+	                                    <p className="mt-8 text-base font-bold text-indigo-700 dark:text-indigo-400">{t('extension_welcome.pin_guide.kicker')}</p>
+	                                    <h2 className="mt-2 text-3xl font-black leading-tight tracking-tight text-slate-950 dark:text-slate-50 sm:text-4xl">
+	                                        {t('extension_welcome.pin_guide.title')}
+	                                    </h2>
+	                                    <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-400">
+	                                        {t('extension_welcome.pin_guide.description')}
+	                                    </p>
 
-                                    <div className="mt-7 space-y-4">
-                                        {[
-                                            {
-                                                step: 1,
-                                                icon: <Chrome size={18} />,
-                                                title: 'Click the Extensions icon',
-                                                desc: 'Look for the puzzle piece 🧩 icon in the top-right corner of your Chrome toolbar.',
-                                            },
-                                            {
-                                                step: 2,
-                                                icon: <Pin size={18} />,
-                                                title: 'Pin CareerVivid',
-                                                desc: 'Find "CareerVivid" in the dropdown list and click the pin 📌 icon next to it.',
-                                            },
-                                            {
-                                                step: 3,
-                                                icon: <PanelRightOpen size={18} />,
-                                                title: "You're all set!",
-                                                desc: 'The CareerVivid icon now lives in your toolbar. Click it on any job posting to analyse, autofill, and track — instantly.',
-                                            },
-                                        ].map(({ step, icon, title, desc }) => (
+	                                    <div className="mt-7 space-y-4">
+	                                        {pinGuideSteps.map(({ step, icon, title, desc }) => (
                                             <div key={step} className="flex items-start gap-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm">
                                                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white text-sm font-black">
                                                     {step}
@@ -555,52 +583,52 @@ const ExtensionWelcomePage: React.FC = () => {
                                         ))}
                                     </div>
 
-                                    <div className="mt-5 rounded-lg border border-indigo-200 dark:border-indigo-900/30 bg-indigo-50 dark:bg-indigo-950/20 px-4 py-3 text-sm text-indigo-900 dark:text-indigo-200">
-                                        <span className="font-black">Pro Tip</span>
-                                        <span className="ml-2">Navigate to any job on LinkedIn, Indeed, or Greenhouse and click the CareerVivid icon to see it in action.</span>
-                                    </div>
+	                                    <div className="mt-5 rounded-lg border border-indigo-200 dark:border-indigo-900/30 bg-indigo-50 dark:bg-indigo-950/20 px-4 py-3 text-sm text-indigo-900 dark:text-indigo-200">
+	                                        <span className="font-black">{t('extension_welcome.common.pro_tip')}</span>
+	                                        <span className="ml-2">{t('extension_welcome.pin_guide.pro_tip')}</span>
+	                                    </div>
 
                                     <div className="mt-7 flex flex-wrap items-center justify-between gap-3">
                                         <button
                                             type="button"
                                             onClick={() => setShowPinGuide(false)}
                                             className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-400 transition hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                                        >
-                                            Back
-                                        </button>
+	                                        >
+	                                            {t('extension_welcome.actions.back')}
+	                                        </button>
                                         <button
                                             type="button"
                                             onClick={() => navigate('/dashboard')}
                                             className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-5 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700"
-                                        >
-                                            Go to Dashboard
-                                            <ArrowRight size={16} />
-                                        </button>
+	                                        >
+	                                            {t('extension_welcome.actions.go_to_dashboard')}
+	                                            <ArrowRight size={16} />
+	                                        </button>
                                     </div>
                                 </>
                             ) : (
                                 <>
-                                    <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 dark:border-indigo-900/30 bg-white dark:bg-slate-900 px-3 py-1 text-xs font-bold uppercase tracking-wide text-indigo-700 dark:text-indigo-300 shadow-sm">
-                                        <PanelRightOpen size={14} />
-                                        Chrome extension connected
-                                    </div>
+	                                    <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 dark:border-indigo-900/30 bg-white dark:bg-slate-900 px-3 py-1 text-xs font-bold uppercase tracking-wide text-indigo-700 dark:text-indigo-300 shadow-sm">
+	                                        <PanelRightOpen size={14} />
+	                                        {t('extension_welcome.packet.chrome_extension_connected')}
+	                                    </div>
 
                                     {isLoadingJobs ? (
-                                        <div className="mt-8 flex items-center gap-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 text-sm font-bold text-slate-600 dark:text-slate-400 shadow-sm">
-                                            <Loader2 size={18} className="animate-spin text-indigo-600 dark:text-indigo-400" />
-                                            Loading your saved job packet...
-                                        </div>
+	                                        <div className="mt-8 flex items-center gap-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 text-sm font-bold text-slate-600 dark:text-slate-400 shadow-sm">
+	                                            <Loader2 size={18} className="animate-spin text-indigo-600 dark:text-indigo-400" />
+	                                            {t('extension_welcome.packet.loading_saved_packet')}
+	                                        </div>
                                     ) : (
                                         <>
-                                            <p className="mt-8 text-base font-bold text-indigo-700 dark:text-indigo-400">First up: your custom application packet for</p>
-                                            <h2 className="mt-2 text-3xl font-black leading-tight tracking-tight text-slate-950 dark:text-slate-50 sm:text-4xl">
-                                                {featuredJob ? `${featuredJob.title} @ ${featuredJob.company}` : 'Your next saved job'}
-                                            </h2>
-                                            <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-400">
-                                                {featuredJob
-                                                    ? 'It includes actions for a tailored resume and cover letter using the job you saved to CareerVivid.'
-                                                    : 'Save a job from the extension or job market, and CareerVivid will attach it here as your first packet.'}
-                                            </p>
+	                                            <p className="mt-8 text-base font-bold text-indigo-700 dark:text-indigo-400">{t('extension_welcome.packet.kicker')}</p>
+	                                            <h2 className="mt-2 text-3xl font-black leading-tight tracking-tight text-slate-950 dark:text-slate-50 sm:text-4xl">
+	                                                {featuredJob ? t('extension_welcome.packet.job_heading', { title: featuredJob.title, company: featuredJob.company }) : t('extension_welcome.packet.next_saved_job')}
+	                                            </h2>
+	                                            <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-400">
+	                                                {featuredJob
+	                                                    ? t('extension_welcome.packet.with_job_description')
+	                                                    : t('extension_welcome.packet.empty_description')}
+	                                            </p>
 
                                             {featuredJob && (
                                                 <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold text-slate-500 dark:text-slate-400">
@@ -612,61 +640,69 @@ const ExtensionWelcomePage: React.FC = () => {
                                                         <MapPin size={13} />
                                                         {featuredJob.location}
                                                     </span>
-                                                    <span className="rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1 text-indigo-700 dark:text-indigo-300">
-                                                        {featuredJob.sourceLabel === 'tracker' ? 'From Job Tracker' : 'From Saved Jobs'}
-                                                    </span>
+	                                                    <span className="rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1 text-indigo-700 dark:text-indigo-300">
+	                                                        {featuredJob.sourceLabel === 'tracker' ? t('extension_welcome.packet.from_job_tracker') : t('extension_welcome.packet.from_saved_jobs')}
+	                                                    </span>
                                                 </div>
                                             )}
 
                                             <div className="mt-7 space-y-4">
-                                                <PacketActionCard
-                                                    icon={<FileText size={18} />}
-                                                    title="Job Tailored Resume"
-                                                    description={hasResume ? 'Open your resume with this saved job loaded into the AI tailoring flow.' : 'Create or import a base resume before tailoring it to this job.'}
-                                                    label={hasResume ? packetLabel : 'Base resume required'}
-                                                    onClick={openTailoredResume}
-                                                />
-                                                <PacketActionCard
-                                                    icon={<PenLine size={18} />}
-                                                    title="Cover Letter"
-                                                    description={hasResume ? 'Open the cover letter generator with the same saved job prefilled.' : 'Create or import a base resume before generating a cover letter.'}
-                                                    label={hasResume ? `Cover Letter - ${packetLabel}` : 'Base resume required'}
-                                                    onClick={openCoverLetter}
-                                                />
+	                                                <PacketActionCard
+	                                                    icon={<FileText size={18} />}
+	                                                    title={t('extension_welcome.packet.tailored_resume_title')}
+	                                                    description={hasResume ? t('extension_welcome.packet.tailored_resume_desc_ready') : t('extension_welcome.packet.tailored_resume_desc_missing')}
+	                                                    label={hasResume ? packetLabel : t('extension_welcome.packet.base_resume_required')}
+	                                                    onClick={openTailoredResume}
+	                                                />
+	                                                <PacketActionCard
+	                                                    icon={<PenLine size={18} />}
+	                                                    title={t('extension_welcome.packet.cover_letter_title')}
+	                                                    description={hasResume ? t('extension_welcome.packet.cover_letter_desc_ready') : t('extension_welcome.packet.cover_letter_desc_missing')}
+	                                                    label={hasResume ? t('extension_welcome.packet.cover_letter_label', { packetLabel }) : t('extension_welcome.packet.base_resume_required')}
+	                                                    onClick={openCoverLetter}
+	                                                />
                                             </div>
 
-                                            <div className="mt-5 rounded-lg border border-amber-300 dark:border-amber-900/20 bg-amber-50 dark:bg-amber-950/15 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
-                                                <span className="font-black">Pro Tip</span>
-                                                <span className="ml-2">Create more application packets from the Application Hub or save jobs from Chrome.</span>
-                                            </div>
+	                                            <div className="mt-5 rounded-lg border border-amber-300 dark:border-amber-900/20 bg-amber-50 dark:bg-amber-950/15 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
+	                                                <span className="font-black">{t('extension_welcome.common.pro_tip')}</span>
+	                                                <span className="ml-2">{t('extension_welcome.packet.pro_tip')}</span>
+	                                            </div>
 
                                             <div className="mt-7 flex flex-wrap items-center justify-between gap-3">
                                                 <button
                                                     type="button"
                                                     onClick={() => navigate('/dashboard')}
                                                     className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-400 transition hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                                                >
-                                                    Back
-                                                </button>
+	                                                >
+	                                                    {t('extension_welcome.actions.back')}
+	                                                </button>
                                                 <div className="flex flex-wrap gap-3">
                                                     {featuredJob?.sourceUrl && (
                                                         <button
                                                             type="button"
                                                             onClick={openSourceJob}
                                                             className="inline-flex items-center gap-2 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                                                        >
-                                                            Source job
-                                                            <ExternalLink size={15} />
-                                                        </button>
+	                                                        >
+	                                                            {t('extension_welcome.actions.source_job')}
+	                                                            <ExternalLink size={15} />
+	                                                        </button>
                                                     )}
                                                     <button
                                                         type="button"
                                                         onClick={() => setShowPinGuide(true)}
+                                                        className="inline-flex items-center gap-2 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-800/50"
+	                                                    >
+	                                                        {t('extension_welcome.actions.pin_guide')}
+	                                                        <Pin size={15} />
+	                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => navigate('/onboarding')}
                                                         className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-5 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700"
-                                                    >
-                                                        Continue
-                                                        <ArrowRight size={16} />
-                                                    </button>
+	                                                    >
+	                                                        {t('extension_welcome.actions.start_quick_setup')}
+	                                                        <ArrowRight size={16} />
+	                                                    </button>
                                                 </div>
                                             </div>
                                         </>

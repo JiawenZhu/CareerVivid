@@ -5,7 +5,7 @@ import { CAREER_PATHS, Industry } from '../data/careers';
 import { ArrowRight, Mic, Loader2, ChevronLeft, Clock, SlidersHorizontal, Sparkles, Trash2, BarChart3 } from 'lucide-react';
 import { generateInterviewQuestions } from '../services/geminiService';
 import { usePracticeHistory } from '../hooks/useJobHistory';
-import { Job, PracticeHistoryEntry, ResumeData } from '../types';
+import { InterviewSessionDraft, Job, PracticeHistoryEntry, ResumeData, TranscriptEntry } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { useResumes } from '../hooks/useResumes';
 import { db } from '../firebase';
@@ -76,6 +76,17 @@ const interviewModes: InterviewMode[] = ['Behavioral', 'Technical', 'Mixed', 'Sc
 const interviewDifficulties: InterviewDifficulty[] = ['Entry', 'Standard', 'Senior'];
 const interviewDurations: InterviewDuration[] = ['5 min', '15 min', '30 min'];
 
+const getResumableDraft = (entry: PracticeHistoryEntry): InterviewSessionDraft | null => {
+    const draft = entry.activeInterviewDraft;
+    const draftQuestions = draft?.questions?.length ? draft.questions : entry.questions;
+    if (!draft || !draft.transcript?.length || !draftQuestions?.length) return null;
+    if (draft.questionIndex >= draftQuestions.length) return null;
+    return { ...draft, questions: draftQuestions };
+};
+
+const getResumeQuestionLabel = (draft: InterviewSessionDraft) =>
+    `Q${Math.min(draft.questionIndex + 1, draft.questions.length)}/${draft.questions.length}`;
+
 interface InterviewStudioProps {
     jobId?: string;
 }
@@ -92,7 +103,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
     const [selectedIndustry, setSelectedIndustry] = useState<Industry | null>(null);
     const [placeholder, setPlaceholder] = useState('');
 
-    const { practiceHistory, addJob, isLoading: isLoadingHistory, deletePracticeHistory } = usePracticeHistory();
+    const { practiceHistory, addJob, isLoading: isLoadingHistory, deletePracticeHistory, saveInterviewDraft } = usePracticeHistory();
     const { resumes } = useResumes();
     const [isSyncingTransit, setIsSyncingTransit] = useState(false);
 
@@ -107,6 +118,8 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
         resumeContext: string;
         jobTitle: string;
         jobCompany: string;
+        initialTranscript?: TranscriptEntry[];
+        resumeFromQuestionIndex?: number;
     } | null>(null);
     const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
     const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
@@ -305,6 +318,43 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
         }
     };
 
+    // Starts a clean attempt and clears any saved draft for this role.
+    const handlePracticeAgainDirect = (jobEntry: PracticeHistoryEntry) => {
+        const jobData = {
+            title: jobEntry.job.title,
+            company: jobEntry.job.company || 'Custom Practice',
+            location: jobEntry.job.location,
+            description: jobEntry.job.description || jobEntry.job.title,
+            url: jobEntry.job.url,
+        };
+        handleStartInterview(jobData.description, jobData);
+    };
+
+    const handleResumeSessionDirect = (jobEntry: PracticeHistoryEntry) => {
+        const draft = getResumableDraft(jobEntry);
+        if (!draft) {
+            handlePracticeAgainDirect(jobEntry);
+            return;
+        }
+
+        const activeResume = resumes.find(r => r.isDefault) || resumes[0];
+        const resumeContext = activeResume ? formatResumeForContext(activeResume) : '';
+
+        void preloadAIInterviewAgentModal();
+        setInterviewState({
+            jobId: jobEntry.id,
+            prompt: jobEntry.job.description || jobEntry.job.title,
+            questions: draft.questions,
+            isFirstTime: false,
+            resumeContext,
+            jobTitle: jobEntry.job.title,
+            jobCompany: jobEntry.job.company || 'Custom Practice',
+            initialTranscript: draft.transcript,
+            resumeFromQuestionIndex: draft.questionIndex,
+        });
+        setIsInterviewModalOpen(true);
+    };
+
     // Handle "Practice Again" from Dashboard (other pages via sessionStorage)
     useEffect(() => {
         const practiceJobData = sessionStorage.getItem('practiceJob');
@@ -312,6 +362,10 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
             sessionStorage.removeItem('practiceJob');
             try {
                 const jobEntry: PracticeHistoryEntry = JSON.parse(practiceJobData);
+                if (getResumableDraft(jobEntry)) {
+                    handleResumeSessionDirect(jobEntry);
+                    return;
+                }
                 const jobData = {
                     title: jobEntry.job.title,
                     company: jobEntry.job.company || 'Custom Practice',
@@ -325,18 +379,6 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
             }
         }
     }, []);
-
-    // Handle "Practice Again" when already on InterviewStudio (direct, no navigation)
-    const handlePracticeAgainDirect = (jobEntry: PracticeHistoryEntry) => {
-        const jobData = {
-            title: jobEntry.job.title,
-            company: jobEntry.job.company || 'Custom Practice',
-            location: jobEntry.job.location,
-            description: jobEntry.job.description || jobEntry.job.title,
-            url: jobEntry.job.url,
-        };
-        handleStartInterview(jobData.description, jobData);
-    };
 
     const decodedJobId = jobId ? decodeURIComponent(jobId) : undefined;
 
@@ -371,15 +413,18 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
 
                 const activeResume = resumes.find(r => r.isDefault) || resumes[0];
                 const resumeContext = activeResume ? formatResumeForContext(activeResume) : '';
+                const draft = getResumableDraft(foundJob);
 
                 setInterviewState({
                     jobId: foundJob.id,
                     prompt: foundJob.job.description || foundJob.job.title,
-                    questions: foundJob.questions || [],
+                    questions: draft?.questions || foundJob.questions || [],
                     isFirstTime: false,
                     resumeContext,
                     jobTitle: foundJob.job.title,
                     jobCompany: foundJob.job.company || 'Custom Practice',
+                    initialTranscript: draft?.transcript,
+                    resumeFromQuestionIndex: draft?.questionIndex,
                 });
                 setHandledDeepLinkJobId(decodedJobId);
                 setIsInterviewModalOpen(true);
@@ -544,10 +589,11 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                 : practiceHistory.length > 0 ? (
                                     practiceHistory.map(entry => {
                                         const practiceCount = entry.interviewHistory?.length || 0;
+                                        const resumableDraft = getResumableDraft(entry);
                                         return (
                                             <article
                                                 key={entry.id}
-                                                className="rounded-lg border border-gray-200 bg-gray-50/80 p-3 dark:border-gray-700 dark:bg-gray-800/60"
+                                                className="flex min-h-[132px] flex-col rounded-lg border border-gray-200 bg-gray-50/80 p-3 dark:border-gray-700 dark:bg-gray-800/60"
                                             >
                                                 <div className="flex items-start justify-between gap-3">
                                                     <div className="min-w-0">
@@ -558,36 +604,67 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                                             {entry.job.company || 'Custom Practice'}
                                                         </p>
                                                     </div>
-                                                    {practiceCount > 0 && (
-                                                        <span className="shrink-0 rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-bold text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300">
-                                                            {practiceCount} {practiceCount === 1 ? 'practice' : 'practices'}
-                                                        </span>
+                                                    {(practiceCount > 0 || resumableDraft) && (
+                                                        <div className="flex shrink-0 flex-col items-end gap-1">
+                                                            {practiceCount > 0 && (
+                                                                <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-bold text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300">
+                                                                    {practiceCount} {practiceCount === 1 ? 'practice' : 'practices'}
+                                                                </span>
+                                                            )}
+                                                            {resumableDraft && (
+                                                                <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/25 dark:text-amber-200">
+                                                                    {getResumeQuestionLabel(resumableDraft)}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     )}
                                                 </div>
-                                                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                                    Last activity: {formatSessionDate(entry.timestamp)}
-                                                </p>
-                                                <div className="mt-3 flex flex-wrap items-center gap-2">
+                                                <div className="mt-2 flex h-5 min-w-0 items-center gap-1.5 text-xs">
+                                                    {resumableDraft && (
+                                                        <>
+                                                            <span className="shrink-0 rounded-full bg-amber-50 px-2 py-0.5 font-bold text-amber-800 ring-1 ring-amber-200 dark:bg-amber-950/25 dark:text-amber-200 dark:ring-amber-900/50">
+                                                                Saved draft
+                                                            </span>
+                                                            <span className="text-gray-300 dark:text-gray-600">·</span>
+                                                        </>
+                                                    )}
+                                                    <span className="truncate text-gray-500 dark:text-gray-400">
+                                                        Last activity: {formatSessionDate(entry.timestamp)}
+                                                    </span>
+                                                </div>
+                                                <div className="mt-auto flex flex-nowrap items-center gap-1.5 pt-3">
                                                     <button
                                                         type="button"
                                                         onClick={() => handleDeleteClick(entry.id)}
                                                         aria-label={`Delete ${entry.job.title}`}
-                                                        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
+                                                        className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
                                                     >
                                                         <Trash2 size={15} />
                                                     </button>
+                                                    {resumableDraft && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleResumeSessionDirect(entry)}
+                                                            aria-label="Resume session"
+                                                            className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md bg-amber-100 px-2.5 text-xs font-semibold text-amber-900 ring-1 ring-amber-200 hover:bg-amber-200 dark:bg-amber-950/40 dark:text-amber-200 dark:ring-amber-900/60 dark:hover:bg-amber-950/70"
+                                                        >
+                                                            <Clock size={14} /> Resume
+                                                        </button>
+                                                    )}
                                                     <button
                                                         type="button"
                                                         onClick={() => handlePracticeAgainDirect(entry)}
-                                                        className="inline-flex h-8 items-center gap-1.5 rounded-md bg-white px-2.5 text-xs font-semibold text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-200 dark:ring-gray-700 dark:hover:bg-gray-800"
+                                                        aria-label={resumableDraft ? 'Start over' : 'Practice Again'}
+                                                        className={`${resumableDraft ? 'w-8 justify-center px-0' : 'px-2.5'} inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md bg-white text-xs font-semibold text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-200 dark:ring-gray-700 dark:hover:bg-gray-800`}
                                                     >
-                                                        <Sparkles size={14} /> Practice Again
+                                                        <Sparkles size={14} />
+                                                        {!resumableDraft && 'Practice Again'}
                                                     </button>
                                                     <button
                                                         type="button"
                                                         onClick={() => setSelectedJobForReport(entry)}
                                                         disabled={!entry.interviewHistory || entry.interviewHistory.length === 0}
-                                                        className="inline-flex h-8 items-center gap-1.5 rounded-md bg-indigo-50 px-2.5 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-100 hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-indigo-950/40 dark:text-indigo-300 dark:ring-indigo-900/60 dark:hover:bg-indigo-950/70"
+                                                        className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md bg-indigo-50 px-2.5 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-100 hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-indigo-950/40 dark:text-indigo-300 dark:ring-indigo-900/60 dark:hover:bg-indigo-950/70"
                                                     >
                                                         <BarChart3 size={14} /> Report
                                                     </button>
@@ -682,6 +759,9 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                         resumeContext={interviewState.resumeContext}
                         jobTitle={interviewState.jobTitle}
                         jobCompany={interviewState.jobCompany}
+                        initialTranscript={interviewState.initialTranscript}
+                        resumeFromQuestionIndex={interviewState.resumeFromQuestionIndex}
+                        onDraftChange={(draft) => saveInterviewDraft(interviewState.jobId, draft)}
                         onClose={() => {
                             setIsInterviewModalOpen(false);
                             setInterviewState(null);

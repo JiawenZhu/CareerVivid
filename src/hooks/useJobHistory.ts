@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase';
 import { collection, query, onSnapshot, doc, setDoc, updateDoc, arrayUnion, serverTimestamp, orderBy, getDoc, deleteDoc, getDocs, writeBatch } from 'firebase/firestore';
-import { Job, PracticeHistoryEntry, InterviewAnalysis } from '../types';
+import { Job, PracticeHistoryEntry, InterviewAnalysis, InterviewSessionDraft } from '../types';
 
 // Creates a stable, URL-safe ID from the job title and company.
 const createJobId = (job: Omit<Job, 'id' | 'location' | 'description' | 'url'>): string => {
@@ -39,6 +39,7 @@ export const usePracticeHistory = () => {
                     interviewHistory: data.interviewHistory || [],
                     timestamp: data.timestamp?.toMillis() || Date.now(),
                     section: data.section || 'interviews', // Default to 'interviews'
+                    activeInterviewDraft: data.activeInterviewDraft || null,
                 } as PracticeHistoryEntry
             });
             setPracticeHistory(historyFromDb);
@@ -66,6 +67,7 @@ export const usePracticeHistory = () => {
                 job: jobWithId,
                 questions,
                 timestamp: serverTimestamp(),
+                activeInterviewDraft: null,
             });
         } else {
             // If it's new, create it with an empty interview history
@@ -75,6 +77,7 @@ export const usePracticeHistory = () => {
                 timestamp: serverTimestamp(),
                 interviewHistory: [],
                 section: 'interviews',
+                activeInterviewDraft: null,
             });
         }
         
@@ -93,9 +96,23 @@ export const usePracticeHistory = () => {
 
         await updateDoc(historyRef, {
             interviewHistory: arrayUnion(newAnalysis),
+            activeInterviewDraft: null,
             timestamp: serverTimestamp() // Also update the main timestamp for recency sorting
         });
         return newAnalysis;
+    }, [currentUser]);
+
+    const saveInterviewDraft = useCallback(async (jobId: string, draft: InterviewSessionDraft | null) => {
+        if (!currentUser) return;
+        try {
+            const historyRef = doc(db, 'users', currentUser.uid, 'practiceHistory', jobId);
+            await updateDoc(historyRef, {
+                activeInterviewDraft: draft,
+                timestamp: serverTimestamp(),
+            });
+        } catch (error) {
+            console.error("Error saving interview draft:", error);
+        }
     }, [currentUser]);
 
     const addCompletedPractice = useCallback(async (practiceData: PracticeHistoryEntry) => {
@@ -158,5 +175,5 @@ export const usePracticeHistory = () => {
     }, [currentUser]);
 
 
-    return { practiceHistory, isLoading, addJob, addAnalysisToJob, addCompletedPractice, deletePracticeHistory, deleteAllPracticeHistory, updatePracticeHistory };
+    return { practiceHistory, isLoading, addJob, addAnalysisToJob, addCompletedPractice, deletePracticeHistory, deleteAllPracticeHistory, updatePracticeHistory, saveInterviewDraft };
 };

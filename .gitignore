@@ -23,6 +23,11 @@ dist-ssr
 *.sln
 .sw?
 
+# Xcode local user state
+DerivedData/
+*.xcuserstate
+xcuserdata/
+
 
 # Firebase
 .firebase/
@@ -80,4 +85,3 @@ vectorlotto/
 
 # Community content MD
 community-content/
-

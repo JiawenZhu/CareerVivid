@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { navigate } from '../utils/navigation';
 import { Save, Eye, ArrowLeft, Plus, X } from 'lucide-react';
@@ -12,6 +13,8 @@ interface JobPostingEditorProps {
 
 const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
     const { currentUser, userProfile } = useAuth();
+    const { t } = useTranslation();
+    const tEditor = (key: string, options?: Record<string, unknown>) => t(`job_posting_editor.${key}`, options);
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
 
@@ -57,7 +60,7 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
             }
         } catch (error) {
             console.error('Error loading job:', error);
-            alert('Failed to load job posting');
+            alert(tEditor('errors.failed_to_load'));
         } finally {
             setLoading(false);
         }
@@ -88,7 +91,7 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
 
         // Validation
         if (!formData.jobTitle || !formData.companyName) {
-            alert('Please fill in required fields: Job Title and Company Name');
+            alert(tEditor('errors.required_fields'));
             return;
         }
 
@@ -121,20 +124,20 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
                 if (publish) {
                     await publishJobPosting(jobId);
                 }
-                alert('Job posting updated successfully!');
+                alert(tEditor('success.updated'));
             } else {
                 // Create new job
                 const newJobId = await createJobPosting(jobData);
                 if (publish) {
                     await publishJobPosting(newJobId);
                 }
-                alert('Job posting created successfully!');
+                alert(tEditor('success.created'));
                 navigate('/business-partner/dashboard');
             }
         } catch (error) {
             console.error('Error saving job:', error);
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            alert(`Failed to save job posting: ${errorMessage}`);
+            const errorMessage = error instanceof Error ? error.message : tEditor('errors.unknown_error');
+            alert(tEditor('errors.failed_to_save', { errorMessage }));
         } finally {
             setSaving(false);
         }
@@ -143,7 +146,7 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
-                <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+                <div className="text-gray-600 dark:text-gray-400">{tEditor('loading')}</div>
             </div>
         );
     }
@@ -173,7 +176,7 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
                                 className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
                             >
                                 <Save size={16} />
-                                {saving ? 'Saving...' : 'Save Draft'}
+                                {saving ? tEditor('actions.saving') : tEditor('actions.save_draft')}
                             </button>
                             <button
                                 onClick={() => handleSave(true)}
@@ -181,7 +184,7 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
                                 className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
                             >
                                 <Eye size={16} />
-                                Publish
+                                {tEditor('actions.publish')}
                             </button>
                         </div>
                     </div>
@@ -192,63 +195,63 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
             <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-8">
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">
-                        {jobId ? 'Edit Job Posting' : 'Create New Job Posting'}
+                        {jobId ? tEditor('title.edit') : tEditor('title.create')}
                     </h1>
 
                     {/* Basic Information */}
                     <section className="mb-8">
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Basic Information</h2>
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{tEditor('sections.basic_information')}</h2>
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Company Name <span className="text-red-500">*</span>
+                                    {tEditor('fields.company_name')} <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     value={formData.companyName}
                                     onChange={(e) => handleChange('companyName', e.target.value)}
                                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                                    placeholder="e.g., CareerVivid Inc."
+                                    placeholder={tEditor('placeholders.company_name')}
                                 />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Job Title <span className="text-red-500">*</span>
+                                    {tEditor('fields.job_title')} <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     value={formData.jobTitle}
                                     onChange={(e) => handleChange('jobTitle', e.target.value)}
                                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                                    placeholder="e.g., Senior Software Engineer"
+                                    placeholder={tEditor('placeholders.job_title')}
                                 />
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Department
+                                        {tEditor('fields.department')}
                                     </label>
                                     <input
                                         type="text"
                                         value={formData.department}
                                         onChange={(e) => handleChange('department', e.target.value)}
                                         className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                                        placeholder="e.g., Engineering"
+                                        placeholder={tEditor('placeholders.department')}
                                     />
                                 </div>
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Location
+                                        {tEditor('fields.location')}
                                     </label>
                                     <input
                                         type="text"
                                         value={formData.location}
                                         onChange={(e) => handleChange('location', e.target.value)}
                                         className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                                        placeholder="e.g., San Francisco, CA"
+                                        placeholder={tEditor('placeholders.location')}
                                     />
                                 </div>
                             </div>
@@ -256,32 +259,32 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Location Type
+                                        {tEditor('fields.location_type')}
                                     </label>
                                     <select
                                         value={formData.locationType}
                                         onChange={(e) => handleChange('locationType', e.target.value as JobLocationType)}
                                         className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-600 focus:border-transparent"
                                     >
-                                        <option value="remote">Remote</option>
-                                        <option value="hybrid">Hybrid</option>
-                                        <option value="onsite">On-site</option>
+                                        <option value="remote">{tEditor('options.location.remote')}</option>
+                                        <option value="hybrid">{tEditor('options.location.hybrid')}</option>
+                                        <option value="onsite">{tEditor('options.location.onsite')}</option>
                                     </select>
                                 </div>
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Employment Type
+                                        {tEditor('fields.employment_type')}
                                     </label>
                                     <select
                                         value={formData.employmentType}
                                         onChange={(e) => handleChange('employmentType', e.target.value as JobEmploymentType)}
                                         className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-600 focus:border-transparent"
                                     >
-                                        <option value="full-time">Full-time</option>
-                                        <option value="part-time">Part-time</option>
-                                        <option value="contract">Contract</option>
-                                        <option value="internship">Internship</option>
+                                        <option value="full-time">{tEditor('options.employment.full_time')}</option>
+                                        <option value="part-time">{tEditor('options.employment.part_time')}</option>
+                                        <option value="contract">{tEditor('options.employment.contract')}</option>
+                                        <option value="internship">{tEditor('options.employment.internship')}</option>
                                     </select>
                                 </div>
                             </div>
@@ -290,25 +293,25 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
 
                     {/* Job Description */}
                     <section className="mb-8">
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Job Description</h2>
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{tEditor('sections.job_description')}</h2>
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Description
+                                    {tEditor('fields.description')}
                                 </label>
                                 <textarea
                                     value={formData.description}
                                     onChange={(e) => handleChange('description', e.target.value)}
                                     rows={6}
                                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                                    placeholder="Provide a detailed description of the role..."
+                                    placeholder={tEditor('placeholders.description')}
                                 />
                             </div>
 
                             {/* Responsibilities */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Responsibilities
+                                    {tEditor('fields.responsibilities')}
                                 </label>
                                 {(formData.responsibilities || ['']).map((resp, index) => (
                                     <div key={index} className="flex gap-2 mb-2">
@@ -317,7 +320,7 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
                                             value={resp}
                                             onChange={(e) => handleArrayChange('responsibilities', index, e.target.value)}
                                             className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                                            placeholder="e.g., Design and implement new features"
+                                            placeholder={tEditor('placeholders.responsibility')}
                                         />
                                         {(formData.responsibilities || []).length > 1 && (
                                             <button
@@ -334,14 +337,14 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
                                     className="flex items-center gap-2 text-sm text-purple-600 hover:text-purple-700 mt-2"
                                 >
                                     <Plus size={16} />
-                                    Add Responsibility
+                                    {tEditor('actions.add_responsibility')}
                                 </button>
                             </div>
 
                             {/* Requirements */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Requirements
+                                    {tEditor('fields.requirements')}
                                 </label>
                                 {(formData.requirements || ['']).map((req, index) => (
                                     <div key={index} className="flex gap-2 mb-2">
@@ -350,7 +353,7 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
                                             value={req}
                                             onChange={(e) => handleArrayChange('requirements', index, e.target.value)}
                                             className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                                            placeholder="e.g., 5+ years of experience in React"
+                                            placeholder={tEditor('placeholders.requirement')}
                                         />
                                         {(formData.requirements || []).length > 1 && (
                                             <button
@@ -367,14 +370,14 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
                                     className="flex items-center gap-2 text-sm text-purple-600 hover:text-purple-700 mt-2"
                                 >
                                     <Plus size={16} />
-                                    Add Requirement
+                                    {tEditor('actions.add_requirement')}
                                 </button>
                             </div>
 
                             {/* Nice to Have */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Nice to Have (Optional)
+                                    {tEditor('fields.nice_to_have')}
                                 </label>
                                 {(formData.niceToHave || ['']).map((nice, index) => (
                                     <div key={index} className="flex gap-2 mb-2">
@@ -383,7 +386,7 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
                                             value={nice}
                                             onChange={(e) => handleArrayChange('niceToHave', index, e.target.value)}
                                             className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                                            placeholder="e.g., Experience with TypeScript"
+                                            placeholder={tEditor('placeholders.nice_to_have')}
                                         />
                                         {(formData.niceToHave || []).length > 1 && (
                                             <button
@@ -400,7 +403,7 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
                                     className="flex items-center gap-2 text-sm text-purple-600 hover:text-purple-700 mt-2"
                                 >
                                     <Plus size={16} />
-                                    Add Nice to Have
+                                    {tEditor('actions.add_nice_to_have')}
                                 </button>
                             </div>
                         </div>
@@ -408,12 +411,12 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
 
                     {/* Compensation */}
                     <section className="mb-8">
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Compensation & Benefits</h2>
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{tEditor('sections.compensation_benefits')}</h2>
                         <div className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Salary Min (Optional)
+                                        {tEditor('fields.salary_min')}
                                     </label>
                                     <input
                                         type="number"
@@ -426,7 +429,7 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Salary Max (Optional)
+                                        {tEditor('fields.salary_max')}
                                     </label>
                                     <input
                                         type="number"
@@ -439,7 +442,7 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Currency
+                                        {tEditor('fields.currency')}
                                     </label>
                                     <select
                                         value={formData.salaryCurrency}
@@ -457,7 +460,7 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
                             {/* Benefits */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Benefits
+                                    {tEditor('fields.benefits')}
                                 </label>
                                 {(formData.benefits || ['']).map((benefit, index) => (
                                     <div key={index} className="flex gap-2 mb-2">
@@ -466,7 +469,7 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
                                             value={benefit}
                                             onChange={(e) => handleArrayChange('benefits', index, e.target.value)}
                                             className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                                            placeholder="e.g., Health insurance, 401(k) matching"
+                                            placeholder={tEditor('placeholders.benefit')}
                                         />
                                         {(formData.benefits || []).length > 1 && (
                                             <button
@@ -483,7 +486,7 @@ const JobPostingEditor: React.FC<JobPostingEditorProps> = ({ jobId }) => {
                                     className="flex items-center gap-2 text-sm text-purple-600 hover:text-purple-700 mt-2"
                                 >
                                     <Plus size={16} />
-                                    Add Benefit
+                                    {tEditor('actions.add_benefit')}
                                 </button>
                             </div>
                         </div>

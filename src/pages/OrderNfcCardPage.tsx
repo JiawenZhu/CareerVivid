@@ -9,6 +9,7 @@ import { uploadImage } from '../services/storageService';
 
 const OrderNfcCardPage: React.FC = () => {
     const { t } = useTranslation();
+    const tOrder = (key: string, options?: Record<string, unknown>) => t(`nfc_order.${key}`, options);
     const { currentUser } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [selectedType, setSelectedType] = useState<'custom' | 'standard'>('custom');
@@ -30,13 +31,11 @@ const OrderNfcCardPage: React.FC = () => {
     const PRODUCTS = {
         custom: {
             id: 'price_1So67jRJNflGxv32TKsC7AbX',
-            price: 12.90,
-            label: 'Custom'
+            price: 12.90
         },
         standard: {
             id: 'price_1So6AtRJNflGxv32qHMPnhwz',
-            price: 9.89,
-            label: 'Standard'
+            price: 9.89
         }
     };
 
@@ -52,7 +51,7 @@ const OrderNfcCardPage: React.FC = () => {
         if (event.target.files && event.target.files[0]) {
             const file = event.target.files[0];
             if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                alert('File is too large. Please upload an image under 5MB.');
+                alert(tOrder('alerts.file_too_large'));
                 return;
             }
             setLogoFile(file);
@@ -70,7 +69,7 @@ const OrderNfcCardPage: React.FC = () => {
             const file = event.dataTransfer.files[0];
             if (file.type.startsWith('image/')) {
                 if (file.size > 5 * 1024 * 1024) {
-                    alert('File is too large. Please upload an image under 5MB.');
+                    alert(tOrder('alerts.file_too_large'));
                     return;
                 }
                 setLogoFile(file);
@@ -97,7 +96,7 @@ const OrderNfcCardPage: React.FC = () => {
         }
 
         if (selectedType === 'custom' && !logoFile) {
-            alert('Please upload a logo for your custom card.');
+            alert(tOrder('alerts.logo_required'));
             return;
         }
 
@@ -113,7 +112,7 @@ const OrderNfcCardPage: React.FC = () => {
                     logoUrl = await uploadImage(logoFile, path);
                 } catch (uploadError) {
                     console.error("Logo upload failed:", uploadError);
-                    alert("Failed to upload logo image. Please try again.");
+                    alert(tOrder('alerts.logo_upload_failed'));
                     setIsLoading(false);
                     return;
                 }
@@ -143,21 +142,21 @@ const OrderNfcCardPage: React.FC = () => {
                 window.location.href = result.data.url;
             } else {
                 console.error('No URL returned from checkout session creation');
-                alert('Something went wrong initiating checkout. Please try again.');
+                alert(tOrder('alerts.checkout_missing_url'));
             }
         } catch (error) {
             console.error('Checkout error:', error);
-            alert('Failed to start checkout. Please try again.');
+            alert(tOrder('alerts.checkout_failed'));
         } finally {
             setIsLoading(false);
         }
     };
 
     const steps = [
-        { number: 1, label: 'Design', active: true },
-        { number: 2, label: 'Shipping', active: false },
-        { number: 3, label: 'Confirmation', active: false },
-        { number: 4, label: 'Tap Tag Actions', active: false },
+        { number: 1, label: tOrder('steps.design'), active: true },
+        { number: 2, label: tOrder('steps.shipping'), active: false },
+        { number: 3, label: tOrder('steps.confirmation'), active: false },
+        { number: 4, label: tOrder('steps.tap_tag_actions'), active: false },
     ];
 
     return (
@@ -170,9 +169,9 @@ const OrderNfcCardPage: React.FC = () => {
                         className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
-                        <span>Back to Business Card</span>
+                        <span>{tOrder('header.back_to_business_card')}</span>
                     </button>
-                    <div className="font-semibold text-gray-900">Order NFC Card</div>
+                    <div className="font-semibold text-gray-900">{tOrder('header.title')}</div>
                     <div className="w-24"></div> {/* Spacer for centering */}
                 </div>
             </div>
@@ -201,7 +200,7 @@ const OrderNfcCardPage: React.FC = () => {
                     {/* Main Form - Left 2 columns */}
                     <div className="lg:col-span-2 space-y-8">
                         {/* Section Title */}
-                        <h2 className="text-3xl font-bold text-gray-900">Select Your Tap Tags</h2>
+                        <h2 className="text-3xl font-bold text-gray-900">{tOrder('select_title')}</h2>
 
                         {/* Product Cards */}
                         <div className="grid md:grid-cols-2 gap-4">
@@ -211,14 +210,14 @@ const OrderNfcCardPage: React.FC = () => {
                                 className={`p-6 rounded-xl border-2 text-left transition-all ${selectedType === 'custom' ? 'border-indigo-600 bg-indigo-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}
                             >
                                 <div className="w-16 h-16 bg-gray-900 rounded-full mb-4 flex items-center justify-center">
-                                    <span className="text-white text-xs font-bold">LOGO</span>
+                                    <span className="text-white text-xs font-bold">{tOrder('product.custom.badge')}</span>
                                 </div>
                                 <div className="flex justify-between items-start mb-2">
-                                    <h3 className="font-bold text-gray-900">Custom</h3>
-                                    <span className="font-semibold text-gray-900">${PRODUCTS.custom.price.toFixed(2)} ea.</span>
+                                    <h3 className="font-bold text-gray-900">{tOrder('product.custom.title')}</h3>
+                                    <span className="font-semibold text-gray-900">{tOrder('price_each', { price: PRODUCTS.custom.price.toFixed(2) })}</span>
                                 </div>
                                 <p className="text-sm text-gray-500">
-                                    A custom, 4-inch tap tag with your logo, and an optional QR code that ships in 5-7 weeks.
+                                    {tOrder('product.custom.description')}
                                 </p>
                             </button>
 
@@ -232,38 +231,38 @@ const OrderNfcCardPage: React.FC = () => {
                                 className={`p-6 rounded-xl border-2 text-left transition-all relative ${selectedType === 'standard' ? 'border-indigo-600 bg-indigo-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}
                             >
                                 <span className="absolute top-4 right-4 px-2 py-1 bg-indigo-600 text-white text-xs font-semibold rounded-full">
-                                    Ships Fast
+                                    {tOrder('product.standard.badge')}
                                 </span>
                                 <div className="w-16 h-16 bg-gray-400 rounded-full mb-4 flex items-center justify-center">
-                                    <span className="text-white text-xs">TAP</span>
+                                    <span className="text-white text-xs">{tOrder('product.standard.icon_label')}</span>
                                 </div>
                                 <div className="flex justify-between items-start mb-2">
-                                    <h3 className="font-bold text-gray-900">Standard</h3>
-                                    <span className="font-semibold text-gray-900">${PRODUCTS.standard.price.toFixed(2)} ea.</span>
+                                    <h3 className="font-bold text-gray-900">{tOrder('product.standard.title')}</h3>
+                                    <span className="font-semibold text-gray-900">{tOrder('price_each', { price: PRODUCTS.standard.price.toFixed(2) })}</span>
                                 </div>
                                 <p className="text-sm text-gray-500">
-                                    An unbranded, 3-inch tap tag that ships in 3-5 business days.
+                                    {tOrder('product.standard.description')}
                                 </p>
                             </button>
                         </div>
 
                         {/* Color Selection */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-3">Color</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-3">{tOrder('color.label')}</label>
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => setSelectedColor('black')}
                                     className={`px-4 py-2 rounded-lg border-2 flex items-center gap-2 ${selectedColor === 'black' ? 'border-indigo-600 bg-indigo-50' : 'border-gray-200'}`}
                                 >
                                     <span className="w-4 h-4 rounded-full bg-gray-900" />
-                                    <span className="text-sm font-medium">Black</span>
+                                    <span className="text-sm font-medium">{tOrder('color.black')}</span>
                                 </button>
                                 <button
                                     onClick={() => setSelectedColor('white')}
                                     className={`px-4 py-2 rounded-lg border-2 flex items-center gap-2 ${selectedColor === 'white' ? 'border-indigo-600 bg-indigo-50' : 'border-gray-200'}`}
                                 >
                                     <span className="w-4 h-4 rounded-full bg-white border border-gray-300" />
-                                    <span className="text-sm font-medium">White</span>
+                                    <span className="text-sm font-medium">{tOrder('color.white')}</span>
                                 </button>
                             </div>
                         </div>
@@ -271,7 +270,7 @@ const OrderNfcCardPage: React.FC = () => {
                         {/* Logo Upload */}
                         {selectedType === 'custom' && (
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-3">Logo</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-3">{tOrder('logo.label')}</label>
                                 <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-indigo-400 transition-colors cursor-pointer bg-white"
                                     onClick={() => fileInputRef.current?.click()}
                                     onDragOver={(e) => e.preventDefault()}
@@ -285,9 +284,10 @@ const OrderNfcCardPage: React.FC = () => {
                                     />
                                     {logoPreview ? (
                                         <div className="relative inline-block" onClick={(e) => e.stopPropagation()}>
-                                            <img src={logoPreview} alt="Logo Preview" className="h-32 object-contain mx-auto" />
+                                            <img src={logoPreview} alt={tOrder('logo.preview_alt')} className="h-32 object-contain mx-auto" />
                                             <button
                                                 onClick={removeLogo}
+                                                aria-label={tOrder('logo.remove')}
                                                 className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600"
                                             >
                                                 <X className="w-4 h-4" />
@@ -297,12 +297,12 @@ const OrderNfcCardPage: React.FC = () => {
                                     ) : (
                                         <>
                                             <Upload className="w-8 h-8 mx-auto mb-3 text-gray-400" />
-                                            <p className="text-gray-600">Drop a PNG logo here or click to upload</p>
+                                            <p className="text-gray-600">{tOrder('logo.drop_prompt')}</p>
                                         </>
                                     )}
                                 </div>
                                 <p className="text-xs text-gray-500 mt-2">
-                                    We recommend a black or white PNG logo with a transparent background.
+                                    {tOrder('logo.recommendation')}
                                 </p>
                             </div>
                         )}
@@ -318,8 +318,8 @@ const OrderNfcCardPage: React.FC = () => {
                                     <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${options.matchLogo ? 'left-7' : 'left-1'}`} />
                                 </button>
                                 <div>
-                                    <p className="font-medium text-gray-900">Match logo to tap tag color</p>
-                                    <p className="text-sm text-gray-500">We'll try to automatically match your logo to the tap tag color.</p>
+                                    <p className="font-medium text-gray-900">{tOrder('options.match_logo.title')}</p>
+                                    <p className="text-sm text-gray-500">{tOrder('options.match_logo.description')}</p>
                                 </div>
                             </div>
 
@@ -332,8 +332,8 @@ const OrderNfcCardPage: React.FC = () => {
                                     <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${options.includeQR ? 'left-7' : 'left-1'}`} />
                                 </button>
                                 <div>
-                                    <p className="font-medium text-gray-900">Include QR code</p>
-                                    <p className="text-sm text-gray-500">Adds a custom QR code to the tap tag that people can scan in addition to tapping.</p>
+                                    <p className="font-medium text-gray-900">{tOrder('options.include_qr.title')}</p>
+                                    <p className="text-sm text-gray-500">{tOrder('options.include_qr.description')}</p>
                                 </div>
                             </div>
 
@@ -346,8 +346,8 @@ const OrderNfcCardPage: React.FC = () => {
                                     <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${options.metalSurface ? 'left-7' : 'left-1'}`} />
                                 </button>
                                 <div>
-                                    <p className="font-medium text-gray-900">Works with metal surfaces</p>
-                                    <p className="text-sm text-gray-500">Allows your tap tags to work when attached to metal. Adds ${METAL_SURFACE_PRICE.toFixed(2)} per tag.</p>
+                                    <p className="font-medium text-gray-900">{tOrder('options.metal_surface.title')}</p>
+                                    <p className="text-sm text-gray-500">{tOrder('options.metal_surface.description', { price: METAL_SURFACE_PRICE.toFixed(2) })}</p>
                                 </div>
                             </div>
 
@@ -360,32 +360,32 @@ const OrderNfcCardPage: React.FC = () => {
                                     <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${options.iosAppClip ? 'left-7' : 'left-1'}`} />
                                 </button>
                                 <div>
-                                    <p className="font-medium text-gray-900">Enable app clip iOS experience</p>
-                                    <p className="text-sm text-gray-500">iPhone users receive a branded app clip pop-up.</p>
+                                    <p className="font-medium text-gray-900">{tOrder('options.ios_app_clip.title')}</p>
+                                    <p className="text-sm text-gray-500">{tOrder('options.ios_app_clip.description')}</p>
                                 </div>
                             </div>
                         </div>
 
                         {/* Quantity Section */}
                         <div>
-                            <h3 className="text-2xl font-bold text-gray-900 mb-2">How Many Tap Tags Do You Need?</h3>
-                            <p className="text-gray-500 mb-6">Order one batch or create multiple batches for different locations.</p>
+                            <h3 className="text-2xl font-bold text-gray-900 mb-2">{tOrder('quantity.title')}</h3>
+                            <p className="text-gray-500 mb-6">{tOrder('quantity.description')}</p>
 
                             <div className="grid md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Install location *</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">{tOrder('quantity.location_label')}</label>
                                     <div className="relative">
                                         <input
                                             type="text"
                                             value={location}
                                             onChange={(e) => setLocation(e.target.value)}
-                                            placeholder="e.g., Office Lobby"
+                                            placeholder={tOrder('quantity.location_placeholder')}
                                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                         />
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Quantity *</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">{tOrder('quantity.quantity_label')}</label>
                                     <input
                                         type="number"
                                         min={1}
@@ -401,7 +401,7 @@ const OrderNfcCardPage: React.FC = () => {
                         <div className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-xl shadow-sm">
                             <Info className="w-5 h-5 text-gray-500 flex-shrink-0" />
                             <p className="text-sm text-gray-600">
-                                You will customize the tap tag action after you complete your order.
+                                {tOrder('notice')}
                             </p>
                         </div>
                     </div>
@@ -411,11 +411,11 @@ const OrderNfcCardPage: React.FC = () => {
                         <div className="sticky top-8 space-y-6">
                             {/* Preview */}
                             <div className="text-center">
-                                <p className="text-xs text-gray-400 uppercase tracking-wider mb-4">Preview</p>
+                                <p className="text-xs text-gray-400 uppercase tracking-wider mb-4">{tOrder('summary.preview')}</p>
                                 <div className={`w-32 h-32 mx-auto rounded-full flex items-center justify-center shadow-xl transition-all ${selectedColor === 'black' ? 'bg-gray-900' : 'bg-white border-8 border-gray-100'}`}>
                                     <div className="text-center">
                                         <p className={`text-xs font-bold leading-tight ${selectedColor === 'black' ? 'text-white' : 'text-gray-900'}`}>
-                                            TAP<br />YOUR<br />PHONE<br />HERE
+                                            {tOrder('summary.preview_lines.line1')}<br />{tOrder('summary.preview_lines.line2')}<br />{tOrder('summary.preview_lines.line3')}<br />{tOrder('summary.preview_lines.line4')}
                                         </p>
                                     </div>
                                 </div>
@@ -423,33 +423,33 @@ const OrderNfcCardPage: React.FC = () => {
 
                             {/* Summary Card */}
                             <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                                <h3 className="font-bold text-gray-900 mb-4">Order Summary</h3>
+                                <h3 className="font-bold text-gray-900 mb-4">{tOrder('summary.title')}</h3>
                                 <div className="space-y-3 text-sm">
                                     <div className="flex justify-between">
-                                        <span className="text-gray-500">{selectedType === 'custom' ? 'Custom' : 'Standard'} Tags</span>
+                                        <span className="text-gray-500">{selectedType === 'custom' ? tOrder('summary.custom_tags') : tOrder('summary.standard_tags')}</span>
                                         <span className="font-medium">${PRODUCTS[selectedType].price.toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-gray-500">Quantity</span>
+                                        <span className="text-gray-500">{tOrder('summary.quantity')}</span>
                                         <span className="font-medium">{quantity}</span>
                                     </div>
                                     {options.metalSurface && (
                                         <div className="flex justify-between">
-                                            <span className="text-gray-500">Metal Surface Add-on</span>
+                                            <span className="text-gray-500">{tOrder('summary.metal_surface_add_on')}</span>
                                             <span className="font-medium">+${(METAL_SURFACE_PRICE * quantity).toFixed(2)}</span>
                                         </div>
                                     )}
                                     <div className="flex justify-between">
-                                        <span className="text-gray-500">Sales Tax</span>
+                                        <span className="text-gray-500">{tOrder('summary.sales_tax')}</span>
                                         <span className="font-medium">$0.00</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-gray-500">Shipping</span>
-                                        <span className="font-medium text-green-600">Free</span>
+                                        <span className="text-gray-500">{tOrder('summary.shipping')}</span>
+                                        <span className="font-medium text-green-600">{tOrder('summary.free')}</span>
                                     </div>
                                     <hr className="my-2" />
                                     <div className="flex justify-between text-lg">
-                                        <span className="font-bold text-gray-900">Total</span>
+                                        <span className="font-bold text-gray-900">{tOrder('summary.total')}</span>
                                         <span className="font-bold text-gray-900">${calculateTotal()}</span>
                                     </div>
                                 </div>
@@ -462,10 +462,10 @@ const OrderNfcCardPage: React.FC = () => {
                                     {isLoading ? (
                                         <>
                                             <Loader2 className="w-5 h-5 animate-spin" />
-                                            Processing...
+                                            {tOrder('summary.processing')}
                                         </>
                                     ) : (
-                                        'Next'
+                                        tOrder('summary.next')
                                     )}
                                 </button>
                             </div>

@@ -56,6 +56,14 @@ try {
     // Next.js static export outputs to 'out' directory by default when output: 'export' is set
     await $`cp -r next-app/out/* dist/nextjs/`
 
+    // Next static HTML references /_next/static/* absolute URLs.
+    // Mirror those hashed assets to the hosting root so they resolve without
+    // depending on rewrite capture behavior.
+    await $`rm -rf dist/_next`
+    if (existsSync('dist/nextjs/_next')) {
+        await $`cp -r dist/nextjs/_next dist/_next`
+    }
+
     console.log(chalk.green('\n✅ Build completed successfully!'))
 } catch (p) {
     console.error(chalk.red(`\n❌ Build failed with exit code: ${p?.exitCode ?? 'Unknown'}`))

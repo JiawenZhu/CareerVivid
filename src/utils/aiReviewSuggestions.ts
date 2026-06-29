@@ -9,6 +9,7 @@ import {
   safeReviewLower,
   safeReviewText,
 } from './aiReviewDataGuards';
+import { normalizeReviewTagLabel } from './aiReviewLanguage';
 
 const normalizeComparableText = (value: unknown): string =>
   safeReviewText(value)
@@ -151,7 +152,9 @@ export const normalizeActionableReviewSuggestions = (
       fieldId: safeReviewText(raw?.fieldId),
       originalText: safeReviewText(raw?.originalText),
       suggestedText: safeReviewText(raw?.suggestedText),
-      tags: safeReviewArray(raw?.tags).map((tag) => safeReviewText(tag)).filter(Boolean),
+      tags: safeReviewArray(raw?.tags)
+        .map((tag) => normalizeReviewTagLabel(safeReviewText(tag)))
+        .filter((tag): tag is string => Boolean(tag)),
       priority,
     } as AISuggestion;
 

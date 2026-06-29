@@ -5,6 +5,7 @@ import { useApplicationProfile } from '../../hooks/useApplicationProfile';
 import { useApplicationQueue } from '../../hooks/useApplicationQueue';
 import { prepareApplicationQueueItem } from '../../services/applyAgentService';
 import { navigate } from '../../utils/navigation';
+import { getJobLinkValidationErrorMessage, openVerifiedExternalJobLink } from '../../utils/verifiedJobLink';
 
 interface ApplyAgentPanelProps {
   applications: JobApplicationData[];
@@ -74,68 +75,99 @@ const QueueRow: React.FC<{
   isRefreshing: boolean;
   onReview: () => void;
   onRefresh: () => void;
-}> = ({ item, job, isRefreshing, onReview, onRefresh }) => (
-  <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm dark:border-gray-800 dark:bg-gray-950">
-    <div className="flex items-start justify-between gap-3">
-      <div className="min-w-0">
-        <h4 className="truncate text-sm font-bold text-gray-950 dark:text-gray-100">{item.jobTitle || 'Untitled job'}</h4>
-        <p className="truncate text-xs font-semibold text-gray-500 dark:text-gray-400">{item.companyName || 'Unknown company'}</p>
+}> = ({ item, job, isRefreshing, onReview, onRefresh }) => {
+  const [isOpening, setIsOpening] = useState(false);
+  const [linkError, setLinkError] = useState('');
+
+  const openApplyUrl = async () => {
+    if (!item.applyUrl || isOpening) return;
+    setIsOpening(true);
+    setLinkError('');
+    try {
+      const result = await openVerifiedExternalJobLink({
+        url: item.applyUrl,
+        title: item.jobTitle || job?.jobTitle || 'Untitled job',
+        company: item.companyName || job?.companyName || '',
+      });
+      if (!result.verified) {
+        setLinkError(`Opened saved link without verification. ${result.validationReason || 'CareerVivid could not complete the live check.'}`);
+      }
+    } catch (error) {
+      setLinkError(getJobLinkValidationErrorMessage(error));
+    } finally {
+      setIsOpening(false);
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm dark:border-gray-800 dark:bg-gray-950">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h4 className="truncate text-sm font-bold text-gray-950 dark:text-gray-100">{item.jobTitle || 'Untitled job'}</h4>
+          <p className="truncate text-xs font-semibold text-gray-500 dark:text-gray-400">{item.companyName || 'Unknown company'}</p>
+        </div>
+        <span className={`flex-shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ${STATUS_STYLES[item.status] || STATUS_STYLES.draft}`}>
+          {STATUS_LABELS[item.status] || item.status}
+        </span>
       </div>
-      <span className={`flex-shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ${STATUS_STYLES[item.status] || STATUS_STYLES.draft}`}>
-        {STATUS_LABELS[item.status] || item.status}
-      </span>
-    </div>
-    <p className="mt-2 text-[11px] font-semibold text-gray-500 dark:text-gray-400">
-      {STATUS_HELP[item.status] || 'Saved in the application queue.'}
-    </p>
-    {item.riskFlags.length > 0 && (
-      <ul className="mt-2 space-y-1">
-        {item.riskFlags.slice(0, 3).map(flag => (
-          <li key={flag} className="flex items-start gap-1.5 text-[11px] font-bold text-amber-600 dark:text-amber-300">
-            <AlertTriangle size={11} className="mt-0.5 flex-shrink-0" />
-            <span>{flag}</span>
-          </li>
-        ))}
-        {item.riskFlags.length > 3 && (
-          <li className="text-[11px] font-bold text-amber-600 dark:text-amber-300">
-            +{item.riskFlags.length - 3} more item(s)
-          </li>
-        )}
-      </ul>
-    )}
-    <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-bold text-gray-500 dark:text-gray-400">
-      {typeof item.matchScore === 'number' && <span>{item.matchScore}% match</span>}
-      {item.atsPlatform && <span>{item.atsPlatform}</span>}
-      <button
-        type="button"
-        onClick={onReview}
-        className="ml-auto inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 dark:text-primary-300"
-      >
-        Review job
-      </button>
-      {job && (
-        <button
-          type="button"
-          onClick={onRefresh}
-          disabled={isRefreshing}
-          className="inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-primary-300"
-        >
-          {isRefreshing ? <Loader2 size={11} className="animate-spin" /> : <RefreshCw size={11} />}
-          Re-check
-        </button>
+      <p className="mt-2 text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+        {STATUS_HELP[item.status] || 'Saved in the application queue.'}
+      </p>
+      {item.riskFlags.length > 0 && (
+        <ul className="mt-2 space-y-1">
+          {item.riskFlags.slice(0, 3).map(flag => (
+            <li key={flag} className="flex items-start gap-1.5 text-[11px] font-bold text-amber-600 dark:text-amber-300">
+              <AlertTriangle size={11} className="mt-0.5 flex-shrink-0" />
+              <span>{flag}</span>
+            </li>
+          ))}
+          {item.riskFlags.length > 3 && (
+            <li className="text-[11px] font-bold text-amber-600 dark:text-amber-300">
+              +{item.riskFlags.length - 3} more item(s)
+            </li>
+          )}
+        </ul>
       )}
-      {item.applyUrl && (
+      <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-bold text-gray-500 dark:text-gray-400">
+        {typeof item.matchScore === 'number' && <span>{item.matchScore}% match</span>}
+        {item.atsPlatform && <span>{item.atsPlatform}</span>}
         <button
           type="button"
-          onClick={() => window.open(item.applyUrl, '_blank', 'noopener,noreferrer')}
+          onClick={onReview}
           className="ml-auto inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 dark:text-primary-300"
         >
-          Open <ExternalLink size={11} />
+          Review job
         </button>
+        {job && (
+          <button
+            type="button"
+            onClick={onRefresh}
+            disabled={isRefreshing}
+            className="inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-primary-300"
+          >
+            {isRefreshing ? <Loader2 size={11} className="animate-spin" /> : <RefreshCw size={11} />}
+            Re-check
+          </button>
+        )}
+        {item.applyUrl && (
+          <button
+            type="button"
+            onClick={openApplyUrl}
+            disabled={isOpening}
+            className="ml-auto inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-primary-300"
+          >
+            {isOpening ? 'Checking' : 'Verify'} <ExternalLink size={11} />
+          </button>
+        )}
+      </div>
+      {linkError && (
+        <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1.5 text-[11px] font-semibold text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
+          {linkError}
+        </p>
       )}
     </div>
-  </div>
-);
+  );
+};
 
 export const ApplyAgentPanel: React.FC<ApplyAgentPanelProps> = ({ applications, resumes, onJobSelect }) => {
   const { profileWithDefaults, completionPercent } = useApplicationProfile();
@@ -247,7 +279,7 @@ export const ApplyAgentPanel: React.FC<ApplyAgentPanelProps> = ({ applications, 
                     item={item}
                     job={job}
                     isRefreshing={preparingJobId === item.jobId}
-                    onReview={() => job ? onJobSelect(job) : item.applyUrl && window.open(item.applyUrl, '_blank', 'noopener,noreferrer')}
+                    onReview={() => job ? onJobSelect(job) : undefined}
                     onRefresh={() => job && prepareJob(job)}
                   />
                 );

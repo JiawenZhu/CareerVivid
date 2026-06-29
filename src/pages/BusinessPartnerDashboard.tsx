@@ -1,4 +1,5 @@
 import React, { useState, useEffect, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { navigate } from '../utils/navigation';
 import { Plus, Edit2, Trash2, Eye, BarChart3, Briefcase, Users, Calendar, DollarSign, MapPin, Clock, Star, X, Check, FileText, CheckCircle, XCircle, Wand2, ArrowRight, ChevronUp, ChevronDown, Mail, Code2 } from 'lucide-react';
@@ -18,6 +19,8 @@ const EmbedWidgetGenerator = React.lazy(() => import('../components/hr/EmbedWidg
 
 const BusinessPartnerDashboard: React.FC = () => {
     const { currentUser, userProfile, logOut } = useAuth();
+    const { t } = useTranslation();
+    const tBusiness = (key: string, options?: Record<string, unknown>) => t(`business_partner_dashboard.${key}`, options);
     const referralLink = `https://careervivid.app/signup?ref=${userProfile?.referralCode || 'ERROR_NO_CODE'}`;
     const [activeTab, setActiveTab] = useState<'jobs' | 'pipeline' | 'applicants' | 'embed'>('jobs');
     const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null);
@@ -81,15 +84,15 @@ const BusinessPartnerDashboard: React.FC = () => {
                     const userDoc = await getDoc(doc(db, 'users', uid));
                     if (userDoc.exists()) {
                         const data = userDoc.data();
-                        names[uid] = data.displayName || data.email || 'Unknown User';
+                        names[uid] = data.displayName || data.email || tBusiness('fallback.unknown_user');
                         emails[uid] = data.email || '';
                     } else {
-                        names[uid] = 'Unknown User';
+                        names[uid] = tBusiness('fallback.unknown_user');
                         emails[uid] = '';
                     }
                 } catch (e) {
                     console.error("Error fetching user", uid, e);
-                    names[uid] = 'Error loading user';
+                    names[uid] = tBusiness('fallback.error_loading_user');
                     emails[uid] = '';
                 }
             }));
@@ -108,21 +111,21 @@ const BusinessPartnerDashboard: React.FC = () => {
 
         } catch (error) {
             console.error('Error loading dashboard data:', error);
-            setError(error instanceof Error ? error.message : 'Failed to load data');
+            setError(error instanceof Error ? error.message : tBusiness('errors.failed_to_load_data'));
         } finally {
             setLoading(false);
         }
     };
 
     const handleDeleteJob = async (jobId: string) => {
-        if (!confirm('Are you sure you want to delete this job posting?')) return;
+        if (!confirm(tBusiness('confirm.delete_job'))) return;
 
         try {
             await deleteJobPosting(jobId);
             setJobs(jobs.filter(j => j.id !== jobId));
         } catch (error) {
             console.error('Error deleting job:', error);
-            alert('Failed to delete job posting');
+            alert(tBusiness('errors.failed_to_delete_job'));
         }
     };
 
@@ -132,13 +135,13 @@ const BusinessPartnerDashboard: React.FC = () => {
             setJobs(jobs.map(j => j.id === jobId ? { ...j, status: 'published' as const } : j));
         } catch (error) {
             console.error('Error publishing job:', error);
-            alert('Failed to publish job');
+            alert(tBusiness('errors.failed_to_publish_job'));
         }
     };
 
     const handleViewResume = async (app: JobApplication) => {
         if (!app.resumeId) {
-            alert("No resume attached to this application.");
+            alert(tBusiness('errors.no_resume_attached'));
             return;
         }
 
@@ -150,17 +153,17 @@ const BusinessPartnerDashboard: React.FC = () => {
                 setSelectedResume({ id: resumeSnap.id, ...resumeSnap.data() } as ResumeData);
                 setViewingApp(app);
             } else {
-                alert("Resume not found (it might have been deleted by the user).");
+                alert(tBusiness('errors.resume_not_found'));
             }
         } catch (error) {
             console.error("Error fetching resume:", error);
-            alert("Failed to load resume. Ensure you have permissions.");
+            alert(tBusiness('errors.failed_to_load_resume'));
         }
     };
 
     const handleUpdateStatus = async (appId: string, newStatus: JobApplicationStatus) => {
         try {
-            await updateApplicationStatus(appId, newStatus, `Status updated to ${newStatus}`);
+            await updateApplicationStatus(appId, newStatus, tBusiness('activity.status_updated', { status: getStatusLabel(newStatus) }));
             setApplications(apps => apps.map(a => a.id === appId ? { ...a, status: newStatus } : a));
             if (viewingApp && viewingApp.id === appId) {
                 setViewingApp(prev => prev ? { ...prev, status: newStatus } : null);
@@ -168,7 +171,7 @@ const BusinessPartnerDashboard: React.FC = () => {
             setUpdatingStatusId(null);
         } catch (error) {
             console.error("Error updating status:", error);
-            alert("Failed to update status.");
+            alert(tBusiness('errors.failed_to_update_status'));
         }
     };
 
@@ -192,7 +195,7 @@ const BusinessPartnerDashboard: React.FC = () => {
 
         const job = jobs.find(j => j.id === viewingApp.jobPostingId);
         if (!job || !job.description) {
-            setAnalysisError("Job description not found.");
+            setAnalysisError(tBusiness('errors.job_description_not_found'));
             return;
         }
 
@@ -214,35 +217,30 @@ const BusinessPartnerDashboard: React.FC = () => {
 
         } catch (error) {
             console.error("Analysis Failed:", error);
-            setAnalysisError(error instanceof Error ? error.message : "Failed to analyze match.");
+            setAnalysisError(error instanceof Error ? error.message : tBusiness('errors.failed_to_analyze_match'));
         } finally {
             setIsAnalyzing(false);
         }
     };
 
     const formatDate = (timestamp: any) => {
-        if (!timestamp) return 'N/A';
+        if (!timestamp) return tBusiness('fallback.not_available');
         const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
         return date.toLocaleDateString();
     };
 
     // --- Action Handlers for Modal ---
     const handleSendEmail = (app: JobApplication) => {
-        const candidateName = applicantNames[app.applicantUserId] || 'Candidate';
+        const candidateName = applicantNames[app.applicantUserId] || tBusiness('fallback.candidate');
         const candidateEmail = applicantEmails[app.applicantUserId];
 
         if (!candidateEmail) {
-            alert('No email found for this candidate');
+            alert(tBusiness('errors.no_candidate_email'));
             return;
         }
 
-        const subject = encodeURIComponent('Interview Invitation');
-        const body = encodeURIComponent(
-            `Dear ${candidateName},\n\n` +
-            `We are pleased to invite you for an interview for the position you applied for.\n\n` +
-            `We look forward to speaking with you.\n\n` +
-            `Best regards`
-        );
+        const subject = encodeURIComponent(tBusiness('email.subject'));
+        const body = encodeURIComponent(tBusiness('email.body', { candidateName }));
 
         // Standard Gmail web interface
         const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(candidateEmail)}&su=${subject}&body=${body}`;
@@ -250,11 +248,11 @@ const BusinessPartnerDashboard: React.FC = () => {
     };
 
     const handleSchedule = (app: JobApplication) => {
-        const candidateName = applicantNames[app.applicantUserId] || 'Candidate';
+        const candidateName = applicantNames[app.applicantUserId] || tBusiness('fallback.candidate');
         const candidateEmail = applicantEmails[app.applicantUserId];
 
-        const title = encodeURIComponent(`Interview with ${candidateName}`);
-        const details = encodeURIComponent(`Interview for position. Candidate: ${candidateName}`);
+        const title = encodeURIComponent(tBusiness('calendar.title', { candidateName }));
+        const details = encodeURIComponent(tBusiness('calendar.details', { candidateName }));
         const attendee = candidateEmail ? `&add=${encodeURIComponent(candidateEmail)}` : '';
 
         const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}${attendee}`;
@@ -289,6 +287,12 @@ const BusinessPartnerDashboard: React.FC = () => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [selectedResume, viewingApp, applications]);
 
+    const getStatusLabel = (status: string) => {
+        const normalized = status.toLowerCase().replace(/\s+/g, '_');
+        return tBusiness(`status.${normalized}`, {
+            defaultValue: status.charAt(0).toUpperCase() + status.slice(1),
+        });
+    };
 
     const getStatusBadge = (status: string) => {
         const colors = {
@@ -307,7 +311,7 @@ const BusinessPartnerDashboard: React.FC = () => {
         const key = status.toLowerCase() as keyof typeof colors;
         return (
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[key] || colors.draft}`}>
-                {status.charAt(0).toUpperCase() + status.slice(1)}
+                {getStatusLabel(status)}
             </span>
         );
     };
@@ -315,7 +319,7 @@ const BusinessPartnerDashboard: React.FC = () => {
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
-                <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+                <div className="text-gray-600 dark:text-gray-400">{tBusiness('loading')}</div>
             </div>
         );
     }
@@ -332,20 +336,20 @@ const BusinessPartnerDashboard: React.FC = () => {
                                 <span className="text-xl font-bold text-gray-900 dark:text-white">CareerVivid</span>
                             </a>
                             <span className="text-gray-400">|</span>
-                            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Business Partner</h1>
+                            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">{tBusiness('title')}</h1>
                         </div>
                         <div className="flex items-center gap-4">
                             <button
                                 onClick={() => navigate('/')}
                                 className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                             >
-                                Dashboard
+                                {tBusiness('nav.dashboard')}
                             </button>
                             <button
                                 onClick={logOut}
                                 className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                             >
-                                Sign Out
+                                {tBusiness('nav.sign_out')}
                             </button>
                         </div>
                     </div>
@@ -359,7 +363,7 @@ const BusinessPartnerDashboard: React.FC = () => {
                     <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-800">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Total Jobs</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{tBusiness('stats.total_jobs')}</p>
                                 <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{jobs.length}</p>
                             </div>
                             <Briefcase className="w-10 h-10 text-purple-600" />
@@ -368,7 +372,7 @@ const BusinessPartnerDashboard: React.FC = () => {
                     <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-800">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Active Postings</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{tBusiness('stats.active_postings')}</p>
                                 <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
                                     {jobs.filter(j => j.status === 'published').length}
                                 </p>
@@ -379,7 +383,7 @@ const BusinessPartnerDashboard: React.FC = () => {
                     <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-800">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Total Applications</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{tBusiness('stats.total_applications')}</p>
                                 <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{applications.length}</p>
                             </div>
                             <Users className="w-10 h-10 text-blue-600" />
@@ -388,7 +392,7 @@ const BusinessPartnerDashboard: React.FC = () => {
                     <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-800">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Avg Applications/Job</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{tBusiness('stats.avg_applications_per_job')}</p>
                                 <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
                                     {jobs.length > 0 ? Math.round(applications.length / jobs.length) : 0}
                                 </p>
@@ -402,12 +406,12 @@ const BusinessPartnerDashboard: React.FC = () => {
                 {error && (
                     <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-8">
                         <div className="flex items-center gap-3">
-                            <div className="text-red-700 dark:text-red-300 font-medium">Error loading data</div>
+                            <div className="text-red-700 dark:text-red-300 font-medium">{tBusiness('errors.loading_data')}</div>
                         </div>
                         <p className="text-red-600 dark:text-red-400 text-sm mt-1">{error}</p>
                         {error.includes('index') && (
                             <p className="text-red-600 dark:text-red-400 text-sm mt-2 font-semibold">
-                                Developer Action Required: Check the browser console for the index creation link.
+                                {tBusiness('errors.index_action_required')}
                             </p>
                         )}
                     </div>
@@ -424,7 +428,7 @@ const BusinessPartnerDashboard: React.FC = () => {
                                     : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                                     }`}
                             >
-                                Job Management
+                                {tBusiness('tabs.job_management')}
                             </button>
                             <button
                                 onClick={() => setActiveTab('pipeline')}
@@ -433,7 +437,7 @@ const BusinessPartnerDashboard: React.FC = () => {
                                     : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                                     }`}
                             >
-                                Candidate Pipeline
+                                {tBusiness('tabs.candidate_pipeline')}
                             </button>
                             <button
                                 onClick={() => setActiveTab('applicants')}
@@ -442,7 +446,7 @@ const BusinessPartnerDashboard: React.FC = () => {
                                     : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                                     }`}
                             >
-                                Applicant List
+                                {tBusiness('tabs.applicant_list')}
                             </button>
                             <button
                                 onClick={() => setActiveTab('embed')}
@@ -452,7 +456,7 @@ const BusinessPartnerDashboard: React.FC = () => {
                                     }`}
                             >
                                 <Code2 size={16} className="inline mr-1" />
-                                Embed Widget
+                                {tBusiness('tabs.embed_widget')}
                             </button>
                         </nav>
                     </div>
@@ -467,7 +471,7 @@ const BusinessPartnerDashboard: React.FC = () => {
                                         className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                                     >
                                         <Plus size={20} />
-                                        Create New Job Posting
+                                        {tBusiness('actions.create_job')}
                                     </button>
                                 </div>
 
@@ -475,18 +479,18 @@ const BusinessPartnerDashboard: React.FC = () => {
                                 {jobs.length === 0 ? (
                                     <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                                         <Briefcase className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                                        <p>No job postings yet. Create your first job posting to get started!</p>
+                                        <p>{tBusiness('empty.no_jobs')}</p>
                                     </div>
                                 ) : (
                                     <div className="overflow-x-auto">
                                         <table className="w-full">
                                             <thead className="border-b border-gray-200 dark:border-gray-800">
                                                 <tr className="text-left text-sm text-gray-600 dark:text-gray-400">
-                                                    <th className="pb-3 font-medium">Job Title</th>
-                                                    <th className="pb-3 font-medium">Status</th>
-                                                    <th className="pb-3 font-medium">Applications</th>
-                                                    <th className="pb-3 font-medium">Posted Date</th>
-                                                    <th className="pb-3 font-medium text-right">Actions</th>
+                                                    <th className="pb-3 font-medium">{tBusiness('table.job_title')}</th>
+                                                    <th className="pb-3 font-medium">{tBusiness('table.status')}</th>
+                                                    <th className="pb-3 font-medium">{tBusiness('table.applications')}</th>
+                                                    <th className="pb-3 font-medium">{tBusiness('table.posted_date')}</th>
+                                                    <th className="pb-3 font-medium text-right">{tBusiness('table.actions')}</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
@@ -509,7 +513,7 @@ const BusinessPartnerDashboard: React.FC = () => {
                                                                     <button
                                                                         onClick={() => handlePublishJob(job.id)}
                                                                         className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors"
-                                                                        title="Publish"
+                                                                        title={tBusiness('actions.publish')}
                                                                     >
                                                                         <Eye size={16} />
                                                                     </button>
@@ -517,14 +521,14 @@ const BusinessPartnerDashboard: React.FC = () => {
                                                                 <button
                                                                     onClick={() => navigate(`/business-partner/jobs/${job.id}/edit`)}
                                                                     className="p-2 text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
-                                                                    title="Edit"
+                                                                    title={tBusiness('actions.edit')}
                                                                 >
                                                                     <Edit2 size={16} />
                                                                 </button>
                                                                 <button
                                                                     onClick={() => handleDeleteJob(job.id)}
                                                                     className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-                                                                    title="Delete"
+                                                                    title={tBusiness('actions.delete')}
                                                                 >
                                                                     <Trash2 size={16} />
                                                                 </button>
@@ -550,7 +554,7 @@ const BusinessPartnerDashboard: React.FC = () => {
                                             // Structure the data correctly
                                             const profileData: any = {
                                                 hrUserId: currentUser.uid,
-                                                companyName: jobs[0]?.companyName || 'My Company',
+                                                companyName: jobs[0]?.companyName || tBusiness('fallback.my_company'),
                                                 slug: updates.slug || jobs[0]?.companyName?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'company',
                                             };
 
@@ -569,7 +573,7 @@ const BusinessPartnerDashboard: React.FC = () => {
                                             await loadData();
                                         } catch (error) {
                                             console.error('Error saving profile:', error);
-                                            alert('Failed to save company profile. Please try again.');
+                                            alert(tBusiness('errors.failed_to_save_company_profile'));
                                         }
                                     }}
                                 />
@@ -580,7 +584,7 @@ const BusinessPartnerDashboard: React.FC = () => {
                                 {applications.length === 0 ? (
                                     <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                                         <Users className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                                        <p>No applications yet. Applications will appear in your pipeline once candidates apply.</p>
+                                        <p>{tBusiness('empty.no_pipeline_applications')}</p>
                                     </div>
                                 ) : (
                                     <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="animate-spin" /></div>}>
@@ -601,18 +605,18 @@ const BusinessPartnerDashboard: React.FC = () => {
                                 {applications.length === 0 ? (
                                     <div className="text-center py-12 text-gray-500 dark:text-gray-400">
                                         <Users className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                                        <p>No applications yet. Applications will appear here once candidates apply to your jobs.</p>
+                                        <p>{tBusiness('empty.no_applications')}</p>
                                     </div>
                                 ) : (
                                     <div className="overflow-x-auto">
                                         <table className="w-full">
                                             <thead className="border-b border-gray-200 dark:border-gray-800">
                                                 <tr className="text-left text-sm text-gray-600 dark:text-gray-400">
-                                                    <th className="pb-3 font-medium">Applicant</th>
-                                                    <th className="pb-3 font-medium">Applied To</th>
-                                                    <th className="pb-3 font-medium">Date Applied</th>
-                                                    <th className="pb-3 font-medium">Status</th>
-                                                    <th className="pb-3 font-medium text-right">Actions</th>
+                                                    <th className="pb-3 font-medium">{tBusiness('table.applicant')}</th>
+                                                    <th className="pb-3 font-medium">{tBusiness('table.applied_to')}</th>
+                                                    <th className="pb-3 font-medium">{tBusiness('table.date_applied')}</th>
+                                                    <th className="pb-3 font-medium">{tBusiness('table.status')}</th>
+                                                    <th className="pb-3 font-medium text-right">{tBusiness('table.actions')}</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
@@ -622,14 +626,14 @@ const BusinessPartnerDashboard: React.FC = () => {
                                                         <tr key={app.id} className="text-sm">
                                                             <td className="py-4">
                                                                 <div className="text-gray-900 dark:text-white font-medium">
-                                                                    {applicantNames[app.applicantUserId] || 'Loading...'}
+                                                                    {applicantNames[app.applicantUserId] || tBusiness('loading')}
                                                                 </div>
                                                                 <div className="text-gray-500 text-xs truncate max-w-[150px]" title={app.applicantUserId}>
                                                                     {app.applicantUserId}
                                                                 </div>
                                                             </td>
                                                             <td className="py-4 text-gray-600 dark:text-gray-400">
-                                                                {job?.jobTitle || 'Unknown Job'}
+                                                                {job?.jobTitle || tBusiness('fallback.unknown_job')}
                                                             </td>
                                                             <td className="py-4 text-gray-600 dark:text-gray-400">
                                                                 {formatDate(app.appliedAt)}
@@ -644,7 +648,7 @@ const BusinessPartnerDashboard: React.FC = () => {
                                                                         autoFocus
                                                                     >
                                                                         {['submitted', 'reviewing', 'shortlisted', 'interviewing', 'rejected', 'accepted'].map(s => (
-                                                                            <option key={s} value={s}>{s}</option>
+                                                                            <option key={s} value={s}>{getStatusLabel(s)}</option>
                                                                         ))}
                                                                     </select>
                                                                 ) : (
@@ -660,13 +664,13 @@ const BusinessPartnerDashboard: React.FC = () => {
                                                                         className="flex items-center gap-1 px-3 py-1 text-xs bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 rounded hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors"
                                                                     >
                                                                         <FileText size={14} />
-                                                                        View Resume
+                                                                        {tBusiness('actions.view_resume')}
                                                                     </button>
                                                                     <button
                                                                         onClick={() => setUpdatingStatusId(app.id)}
                                                                         className="px-3 py-1 text-xs bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                                                                     >
-                                                                        Update Status
+                                                                        {tBusiness('actions.update_status')}
                                                                     </button>
                                                                 </div>
                                                             </td>
@@ -690,10 +694,10 @@ const BusinessPartnerDashboard: React.FC = () => {
                         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
                             <div>
                                 <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                                    {applicantNames[viewingApp?.applicantUserId || '']}'s Resume
+                                    {tBusiness('modal.resume_title', { name: applicantNames[viewingApp?.applicantUserId || ''] || tBusiness('fallback.candidate') })}
                                 </h2>
                                 <p className="text-sm text-gray-500">
-                                    Applied for: {jobs.find(j => j.id === viewingApp?.jobPostingId)?.jobTitle}
+                                    {tBusiness('modal.applied_for', { jobTitle: jobs.find(j => j.id === viewingApp?.jobPostingId)?.jobTitle || tBusiness('fallback.unknown_job') })}
                                 </p>
                             </div>
                             <button onClick={() => { setSelectedResume(null); setViewingApp(null); }} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
@@ -708,8 +712,8 @@ const BusinessPartnerDashboard: React.FC = () => {
                                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                         <div className="flex-grow">
                                             <div className="flex justify-between font-semibold">
-                                                <span>{viewingApp.matchAnalysis.matchedKeywords.length} of {viewingApp.matchAnalysis.totalKeywords} keywords found</span>
-                                                <span className="text-lg">{Math.round(viewingApp.matchAnalysis.matchPercentage)}% Match</span>
+                                                <span>{tBusiness('analysis.keywords_found', { found: viewingApp.matchAnalysis.matchedKeywords.length, total: viewingApp.matchAnalysis.totalKeywords })}</span>
+                                                <span className="text-lg">{tBusiness('analysis.match_percent', { percent: Math.round(viewingApp.matchAnalysis.matchPercentage) })}</span>
                                             </div>
                                             <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2.5 mt-2">
                                                 <div className="bg-blue-500 h-2.5 rounded-full" style={{ width: `${viewingApp.matchAnalysis.matchPercentage}%` }}></div>
@@ -721,12 +725,12 @@ const BusinessPartnerDashboard: React.FC = () => {
                                                 disabled={isAnalyzing}
                                                 className="text-xs text-blue-600 hover:text-blue-800 underline disabled:opacity-50"
                                             >
-                                                {isAnalyzing ? 'Refreshing...' : 'Refresh Analysis'}
+                                                {isAnalyzing ? tBusiness('analysis.refreshing') : tBusiness('analysis.refresh')}
                                             </button>
                                             <button
                                                 onClick={() => setIsAnalysisExpanded(!isAnalysisExpanded)}
                                                 className="p-1.5 hover:bg-blue-200 dark:hover:bg-blue-800/50 rounded-full transition-colors text-blue-700 dark:text-blue-300"
-                                                title={isAnalysisExpanded ? "Collapse analysis" : "Expand analysis"}
+                                                title={isAnalysisExpanded ? tBusiness('analysis.collapse') : tBusiness('analysis.expand')}
                                             >
                                                 {isAnalysisExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                                             </button>
@@ -737,13 +741,13 @@ const BusinessPartnerDashboard: React.FC = () => {
                                             <p className="font-semibold mb-2">{viewingApp.matchAnalysis.summary}</p>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div>
-                                                    <h4 className="font-bold text-green-700 dark:text-green-400 flex items-center gap-1"><CheckCircle size={14} /> Matched Keywords</h4>
+                                                    <h4 className="font-bold text-green-700 dark:text-green-400 flex items-center gap-1"><CheckCircle size={14} /> {tBusiness('analysis.matched_keywords')}</h4>
                                                     <div className="flex flex-wrap gap-1 mt-1">
                                                         {viewingApp.matchAnalysis.matchedKeywords.map(k => <span key={k} className="bg-green-200/50 dark:bg-green-900/40 text-green-800 dark:text-green-300 text-xs px-2 py-0.5 rounded-md">{k}</span>)}
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <h4 className="font-bold text-yellow-700 dark:text-yellow-400 flex items-center gap-1"><XCircle size={14} /> Missing Keywords</h4>
+                                                    <h4 className="font-bold text-yellow-700 dark:text-yellow-400 flex items-center gap-1"><XCircle size={14} /> {tBusiness('analysis.missing_keywords')}</h4>
                                                     <div className="flex flex-wrap gap-1 mt-1">
                                                         {viewingApp.matchAnalysis.missingKeywords.map(k => <span key={k} className="bg-yellow-200/50 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300 text-xs px-2 py-0.5 rounded-md">{k}</span>)}
                                                     </div>
@@ -760,7 +764,7 @@ const BusinessPartnerDashboard: React.FC = () => {
                                         className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-70 transition-colors shadow-sm"
                                     >
                                         {isAnalyzing ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
-                                        {isAnalyzing ? "Analyzing Resume..." : "Analyze Match with AI"}
+                                        {isAnalyzing ? tBusiness('analysis.analyzing_resume') : tBusiness('analysis.analyze_with_ai')}
                                     </button>
                                     {analysisError && <p className="text-red-500 text-sm ml-4 self-center">{analysisError}</p>}
                                 </div>
@@ -781,25 +785,25 @@ const BusinessPartnerDashboard: React.FC = () => {
                                         onClick={() => { handleUpdateStatus(viewingApp.id, 'rejected'); setSelectedResume(null); }}
                                         className="px-4 py-2 border border-red-200 text-red-700 rounded-lg hover:bg-red-50"
                                     >
-                                        Reject
+                                        {tBusiness('actions.reject')}
                                     </button>
 
                                     <button
                                         onClick={() => handleSendEmail(viewingApp)}
                                         className="flex items-center gap-2 px-4 py-2 border border-blue-200 text-blue-700 rounded-lg hover:bg-blue-50 dark:border-blue-800 dark:text-blue-300 dark:hover:bg-blue-900/30 transition-colors"
-                                        title="Send Email via Gmail"
+                                        title={tBusiness('actions.send_email_via_gmail')}
                                     >
                                         <Mail size={18} />
-                                        Send Email
+                                        {tBusiness('actions.send_email')}
                                     </button>
 
                                     <button
                                         onClick={() => handleSchedule(viewingApp)}
                                         className="flex items-center gap-2 px-4 py-2 border border-orange-200 text-orange-700 rounded-lg hover:bg-orange-50 dark:border-orange-800 dark:text-orange-300 dark:hover:bg-orange-900/30 transition-colors"
-                                        title="Schedule Interview"
+                                        title={tBusiness('actions.schedule_interview')}
                                     >
                                         <Calendar size={18} />
-                                        Schedule
+                                        {tBusiness('actions.schedule')}
                                     </button>
                                     {(() => {
                                         // Dynamic Stage Calculation
@@ -816,7 +820,7 @@ const BusinessPartnerDashboard: React.FC = () => {
                                                     onClick={() => { handleUpdateStatus(viewingApp.id, nextStage.id as JobApplicationStatus); setSelectedResume(null); }}
                                                     className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                                                 >
-                                                    Move to {nextStage.name}
+                                                    {tBusiness('actions.move_to_stage', { stage: getStatusLabel(nextStage.id) })}
                                                 </button>
                                             );
                                         }

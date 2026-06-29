@@ -10,8 +10,6 @@
  */
 
 import type { AutoFillProfile, AutoFillWorkExperience, AutoFillEducation } from '../types/autofill.types';
-import type { ApplicationProfile } from '../types';
-import { resolveSensitiveApplicationAnswer } from '../utils/applicationProfile';
 
 type ProfileResolver = (profile: AutoFillProfile) => string;
 
@@ -164,14 +162,6 @@ export function mapFieldToValue(rawLabel: string, profile: AutoFillProfile): str
   // Guard: empty label matches everything via key.includes('') — return null instead
   if (!normalized) return null;
 
-  const sensitiveAnswer = resolveSensitiveApplicationAnswer(
-    rawLabel,
-    (profile.applicationProfile || null) as ApplicationProfile | null
-  );
-  if (sensitiveAnswer) {
-    return sensitiveAnswer.answer || null;
-  }
-
   // 1. Exact match
   if (FIELD_MAP[normalized]) {
     return FIELD_MAP[normalized](profile) || null;
@@ -183,13 +173,6 @@ export function mapFieldToValue(rawLabel: string, profile: AutoFillProfile): str
       const value = resolver(profile);
       return value || null;
     }
-  }
-
-  const plannedAnswer = profile.answerPlan?.answers?.find((answer) => (
-    normalizeLabel(answer.label) === normalized && answer.answer && answer.requiresUser !== true
-  ));
-  if (plannedAnswer?.answer) {
-    return plannedAnswer.answer;
   }
 
   return null;

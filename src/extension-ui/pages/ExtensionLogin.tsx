@@ -1,6 +1,17 @@
 import React from 'react';
-import { FileText, Mic, BarChart3 } from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
+import {
+    Briefcase,
+    Chrome,
+    LogIn,
+    Mic,
+    Monitor,
+    Moon,
+    Sparkles,
+    Sun,
+    UserPlus,
+    Wand2,
+} from 'lucide-react';
+import { Theme, useTheme } from '../../contexts/ThemeContext';
 import { getAppUrl } from '../../utils/extensionUtils';
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -9,9 +20,80 @@ import { getAppUrl } from '../../utils/extensionUtils';
 const LOGO_LIGHT = 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Flogo_light_mode.png?alt=media';
 const LOGO_DARK = 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Flogo_dark_mode.png?alt=media';
 
+const THEME_OPTIONS: Array<{ value: Theme; label: string; icon: React.ElementType }> = [
+    { value: 'system', label: 'Default', icon: Monitor },
+    { value: 'bright', label: 'Bright', icon: Sun },
+    { value: 'dark', label: 'Dark', icon: Moon },
+];
+
+const WORKSPACE_STEPS = [
+    {
+        title: 'Save jobs',
+        description: 'Keep roles organized with the job context attached.',
+        icon: Briefcase,
+        iconClassName: 'bg-[#eef0ff] text-[#625bd5] dark:bg-[#302f49] dark:text-[#b8b3ff]',
+    },
+    {
+        title: 'Tailor resume',
+        description: 'Open your resume with the active listing loaded.',
+        icon: Wand2,
+        iconClassName: 'bg-[#fbf2ff] text-[#8f3df0] dark:bg-[#302f49] dark:text-[#b8b3ff]',
+    },
+    {
+        title: 'Practice',
+        description: 'Build interview prep from the same job signal.',
+        icon: Mic,
+        iconClassName: 'bg-[#fff0f7] text-[#d95b92] dark:bg-[#3a2630] dark:text-[#ff9ac4]',
+    },
+];
+
+const ExtensionThemeMenu: React.FC = () => {
+    const { theme, setTheme } = useTheme();
+    const activeTheme = theme === 'light' ? 'system' : theme;
+    const CurrentIcon = THEME_OPTIONS.find((option) => option.value === activeTheme)?.icon || Monitor;
+
+    return (
+        <div className="relative group">
+            <button
+                type="button"
+                title="Theme"
+                aria-label="Theme"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#ececf4] bg-white text-slate-400 shadow-sm transition-colors hover:bg-[#f8f8fb] hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8d88e6] dark:border-[#3a3834] dark:bg-[#262522] dark:text-[#aaa39a] dark:hover:bg-[#302e2a] dark:hover:text-[#f4f1e9]"
+            >
+                <CurrentIcon size={16} />
+            </button>
+            <div className="pointer-events-none absolute right-0 top-full z-20 w-max translate-y-1 pt-2 opacity-0 transition-all group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100">
+                <div className="flex gap-1 rounded-2xl border border-[#ececf4] bg-white/95 p-1.5 shadow-[0_14px_28px_rgba(15,23,42,0.12)] backdrop-blur dark:border-[#3a3834] dark:bg-[#262522]/95 dark:shadow-[0_18px_34px_rgba(0,0,0,0.35)]">
+                    {THEME_OPTIONS.map((option) => {
+                        const Icon = option.icon;
+                        const isActive = activeTheme === option.value;
+
+                        return (
+                            <button
+                                key={option.value}
+                                type="button"
+                                onClick={() => setTheme(option.value)}
+                                className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8d88e6] ${
+                                    isActive
+                                        ? 'border-[#c8c7f4] bg-[#f3f2ff] text-[#625bd5] dark:border-[#4d4a73] dark:bg-[#302f49] dark:text-[#b8b3ff]'
+                                        : 'border-transparent text-slate-400 hover:border-[#ececf4] hover:bg-[#f8f8fb] hover:text-slate-700 dark:text-[#aaa39a] dark:hover:border-[#3a3834] dark:hover:bg-[#302e2a] dark:hover:text-[#f4f1e9]'
+                                }`}
+                                title={option.label}
+                                aria-label={`Use ${option.label} theme`}
+                            >
+                                <Icon size={15} />
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const ExtensionLogin: React.FC = () => {
-    const { theme } = useTheme();
-    const isDarkMode = theme === 'dark';
+    const { resolvedTheme } = useTheme();
+    const isDarkMode = resolvedTheme === 'dark';
     const logoSrc = isDarkMode ? LOGO_DARK : LOGO_LIGHT;
 
     const openWebPage = (path: string) => {
@@ -32,90 +114,109 @@ const ExtensionLogin: React.FC = () => {
     };
 
     return (
-        <div className={`min-h-[520px] w-[380px] flex flex-col ${isDarkMode ? 'bg-gray-900' : 'bg-gradient-to-b from-gray-50 to-white'}`}>
-            {/* Hero Section */}
-            <div className="flex-1 flex flex-col items-center justify-center px-8 py-10">
-                {/* Dynamic Logo */}
-                <div className="mb-6">
-                    <img
-                        src={logoSrc}
-                        alt="CareerVivid"
-                        className="h-12 w-auto object-contain"
-                        onError={(e) => {
-                            // Fallback to text if image fails
-                            e.currentTarget.style.display = 'none';
-                        }}
-                    />
+        <div className="flex h-full min-h-[520px] w-full flex-col overflow-hidden bg-[#f8f8fb] px-4 py-4 text-slate-950 dark:bg-[#1f1f1d] dark:text-[#f4f1e9]">
+            <header className="flex items-center justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl border border-[#ececf4] bg-white shadow-sm dark:border-[#3a3834] dark:bg-[#262522]">
+                        <img
+                            src={logoSrc}
+                            alt="CareerVivid"
+                            className="h-7 w-7 object-contain"
+                            onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                            }}
+                        />
+                    </div>
+                    <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-slate-950 dark:text-[#f4f1e9]">CareerVivid</p>
+                        <p className="text-[10px] font-semibold text-[#6b66d8] dark:text-[#b8b3ff]">Application workspace</p>
+                    </div>
                 </div>
+                <ExtensionThemeMenu />
+            </header>
 
-                <p className={`text-sm text-center mb-8 max-w-[260px] leading-relaxed ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    Your AI-powered career copilot. Create resumes, practice interviews, and land your dream job.
-                </p>
+            <main className="flex flex-1 flex-col justify-center gap-4 py-5">
+                <section className="rounded-[24px] border border-[#ececf4] bg-white p-4 shadow-[0_16px_34px_rgba(15,23,42,0.08)] dark:border-[#3a3834] dark:bg-[#262522] dark:shadow-none">
+                    <div className="inline-flex items-center gap-1.5 rounded-full border border-[#e4d3bc] bg-[#fffaf1] px-2.5 py-1 text-[10px] font-semibold text-[#8a6027] dark:border-[#4b4235] dark:bg-[#302e2a] dark:text-[#caa26c]">
+                        <Chrome size={12} />
+                        Chrome extension
+                    </div>
 
-                {/* Feature Pills - Updated Routes */}
-                <div className="flex flex-wrap justify-center gap-2 mb-8">
-                    <button
-                        onClick={() => openWebPage('/newresume')}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border shadow-sm text-xs font-medium transition-all ${isDarkMode
-                            ? 'bg-gray-800 border-gray-700 text-gray-300 hover:border-primary-500 hover:shadow-md'
-                            : 'bg-white border-gray-100 text-gray-600 hover:border-primary-200 hover:shadow-md'
-                            }`}
-                    >
-                        <FileText size={12} className="text-primary-500" />
-                        AI Resumes
-                    </button>
-                    <button
-                        onClick={() => openWebPage('/interview-studio')}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border shadow-sm text-xs font-medium transition-all ${isDarkMode
-                            ? 'bg-gray-800 border-gray-700 text-gray-300 hover:border-pink-500 hover:shadow-md'
-                            : 'bg-white border-gray-100 text-gray-600 hover:border-pink-200 hover:shadow-md'
-                            }`}
-                    >
-                        <Mic size={12} className="text-pink-500" />
-                        Mock Interviews
-                    </button>
-                    <button
-                        onClick={() => openWebPage('/job-tracker')}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border shadow-sm text-xs font-medium transition-all ${isDarkMode
-                            ? 'bg-gray-800 border-gray-700 text-gray-300 hover:border-purple-500 hover:shadow-md'
-                            : 'bg-white border-gray-100 text-gray-600 hover:border-purple-200 hover:shadow-md'
-                            }`}
-                    >
-                        <BarChart3 size={12} className="text-purple-500" />
-                        Career Pipeline
-                    </button>
-                </div>
+                    <div className="mt-4 space-y-2">
+                        <h1 className="text-[22px] font-bold leading-tight tracking-normal text-slate-950 dark:text-[#f4f1e9]">
+                            Sign in to CareerVivid
+                        </h1>
+                        <p className="text-sm leading-relaxed text-slate-500 dark:text-[#aaa39a]">
+                            Save jobs, tailor resumes, and practice interviews from one workspace.
+                        </p>
+                    </div>
 
-                {/* Auth Buttons */}
-                <div className="w-full max-w-[280px] space-y-3">
-                    <button
-                        onClick={() => openAuthPage('signin')}
-                        className={`w-full py-3 px-4 font-semibold rounded-xl shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] text-sm ${isDarkMode
-                            ? 'bg-white text-gray-900 hover:bg-gray-100'
-                            : 'bg-gray-900 text-white hover:bg-black shadow-gray-200'
-                            }`}
-                    >
-                        Sign In
-                    </button>
+                    <div className="mt-4 space-y-2">
+                        {WORKSPACE_STEPS.map((step) => {
+                            const Icon = step.icon;
 
-                    <button
-                        onClick={() => openAuthPage('signup')}
-                        className={`w-full py-3 px-4 font-semibold rounded-xl border transition-all text-sm ${isDarkMode
-                            ? 'bg-gray-800 text-gray-200 border-gray-700 hover:bg-gray-700'
-                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
-                            }`}
-                    >
-                        Create Free Account
-                    </button>
-                </div>
-            </div>
+                            return (
+                                <div
+                                    key={step.title}
+                                    className="flex items-start gap-3 rounded-2xl border border-[#ececf4] bg-[#fbfbfe] px-3 py-2.5 dark:border-[#3a3834] dark:bg-[#1f1f1d]"
+                                >
+                                    <span className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl ${step.iconClassName}`}>
+                                        <Icon size={14} />
+                                    </span>
+                                    <div className="min-w-0">
+                                        <p className="text-xs font-semibold text-slate-950 dark:text-[#f4f1e9]">{step.title}</p>
+                                        <p className="mt-0.5 text-[11px] leading-snug text-slate-500 dark:text-[#aaa39a]">
+                                            {step.description}
+                                        </p>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
 
-            {/* Footer */}
-            <div className={`px-8 py-4 text-center border-t ${isDarkMode ? 'border-gray-800' : 'border-gray-100'}`}>
-                <p className={`text-[10px] ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                    <div className="mt-4 space-y-2.5">
+                        <button
+                            onClick={() => openAuthPage('signin')}
+                            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#625bd5] px-4 py-3 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(98,91,213,0.18)] transition-colors hover:bg-[#5851c8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8d88e6] focus-visible:ring-offset-2 focus-visible:ring-offset-white active:translate-y-px dark:bg-[#8d88e6] dark:text-[#111827] dark:shadow-none dark:hover:bg-[#a19df0] dark:focus-visible:ring-offset-[#262522]"
+                        >
+                            <LogIn size={15} />
+                            Sign in
+                        </button>
+
+                        <button
+                            onClick={() => openAuthPage('signup')}
+                            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-[#ececf4] bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition-colors hover:border-[#d9d7fb] hover:bg-[#f8f8fb] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8d88e6] dark:border-[#3a3834] dark:bg-[#302e2a] dark:text-[#f4f1e9] dark:hover:border-[#4d4a73] dark:hover:bg-[#36332f]"
+                        >
+                            <UserPlus size={15} />
+                            Create account
+                        </button>
+                    </div>
+                </section>
+
+                <section className="rounded-[20px] border border-[#e6dac8] bg-[#fffaf1] p-3 dark:border-[#4b4235] dark:bg-[#262522]">
+                    <div className="flex items-start gap-2.5">
+                        <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-[#f3f2ff] text-[#625bd5] dark:bg-[#302f49] dark:text-[#b8b3ff]">
+                            <Sparkles size={14} />
+                        </span>
+                        <div>
+                            <p className="text-xs font-semibold text-[#211b16] dark:text-[#f4f1e9]">Job context stays ready</p>
+                            <p className="mt-0.5 text-[11px] leading-snug text-[#665a4a] dark:text-[#aaa39a]">
+                                Open a supported job page, then use the extension to carry that role into your tracker, resume, and interview prep.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <footer className="border-t border-[#ececf4] pt-3 text-center dark:border-[#3a3834]">
+                <button
+                    type="button"
+                    onClick={() => openWebPage('/terms')}
+                    className="text-[10px] font-medium text-slate-400 transition-colors hover:text-[#625bd5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8d88e6] dark:text-[#8e887f] dark:hover:text-[#b8b3ff]"
+                >
                     By continuing, you agree to our Terms of Service
-                </p>
-            </div>
+                </button>
+            </footer>
         </div>
     );
 };

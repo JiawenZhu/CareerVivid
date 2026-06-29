@@ -5,7 +5,6 @@ import { useWhiteboards } from '../hooks/useWhiteboards';
 import { ResumeData, PracticeHistoryEntry, JobApplicationData, Folder, WhiteboardData } from '../types';
 import { PortfolioData } from '../features/portfolio/types/portfolio';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigation } from '../contexts/NavigationContext';
 import { usePracticeHistory } from '../hooks/useJobHistory';
 import { useJobTracker } from '../hooks/useJobTracker';
 import { navigate } from '../utils/navigation';
@@ -39,7 +38,6 @@ const DEFAULT_SECTION_NAMES: Record<string, string> = {
 };
 
 export const useDashboard = () => {
-    const { navPosition, toggleNavPosition } = useNavigation();
     const dashboardTitle = useSidebarStore(state => state.getNodeTitle('/dashboard')) || 'Dashboard';
     const isDesktop = useMediaQuery('(min-width: 768px)');
     const { t } = useTranslation();
@@ -235,8 +233,6 @@ export const useDashboard = () => {
     };
 
     return {
-        navPosition,
-        toggleNavPosition,
         dashboardTitle,
         isDesktop,
         t,

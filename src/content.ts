@@ -14,6 +14,9 @@ import type { AutoFillProfile, AutoFillResult } from './types/autofill.types';
 
 const isLinkedIn = window.location.hostname === 'linkedin.com' || window.location.hostname.endsWith('.linkedin.com');
 const isIndeed = window.location.hostname === 'indeed.com' || window.location.hostname.endsWith('.indeed.com');
+const isHandshake = window.location.hostname === 'joinhandshake.com' || window.location.hostname.endsWith('.joinhandshake.com');
+const isBuiltIn = window.location.hostname === 'builtin.com' || window.location.hostname.endsWith('.builtin.com');
+const isAshby = window.location.hostname === 'ashbyhq.com' || window.location.hostname.endsWith('.ashbyhq.com');
 
 let extensionContextInvalidated = false;
 let isUserAuthenticated = false;
@@ -25,6 +28,13 @@ type CareerVividAuthPayload = {
   expirationTime?: number | null;
   apiKey?: string | null;
 };
+
+declare global {
+  interface Window {
+    __careerVividContentScriptBooted?: boolean;
+    __careerVividAuthSyncStarted?: boolean;
+  }
+}
 
 function sendRuntimeMessage<T = any>(
   message: any,
@@ -368,6 +378,212 @@ function injectStyles(): void {
 
 // ── Job Data Extraction ───────────────────────────────────────────────────────
 
+const VALID_JOB_DESCRIPTION_MIN_LENGTH = 80;
+
+function getElementText(selector: string, root: ParentNode = document): string {
+  const el = root.querySelector(selector);
+  if (!el) return '';
+  const text = el instanceof HTMLElement
+    ? (el.innerText || el.textContent || '')
+    : (el.textContent || '');
+  return text.replace(/\s+/g, ' ').trim();
+}
+
+function getFirstElementText(selectors: string[], root: ParentNode = document): string {
+  for (const selector of selectors) {
+    const text = getElementText(selector, root);
+    if (text) return text;
+  }
+  return '';
+}
+
+function cleanJobText(text: string): string {
+  return text
+    .replace(/\s+/g, ' ')
+    .replace(/\bwith verification\b/gi, '')
+    .replace(/\s+·\s+/g, ' · ')
+    .trim();
+}
+
+function extractSalaryFromText(...sources: Array<string | null | undefined>): string {
+  const text = cleanJobText(sources.filter(Boolean).join(' '));
+  const match = text.match(/\$[\d,.]+(?:\s?[Kk])?(?:\s*(?:-|–|to|and)\s*\$?[\d,.]+(?:\s?[Kk])?)?(?:\s*(?:\/|per\s*)\s*(?:yr|year|hr|hour|mo|month))?/i);
+  return match?.[0]?.trim() || '';
+}
+
+function getPageLines(root: ParentNode = document): string[] {
+  const text = ((root as HTMLElement).innerText || root.textContent || '').replace(/\r/g, '\n');
+  return text
+    .split('\n')
+    .map(line => cleanJobText(line))
+    .filter(Boolean);
+}
+
+function getLabeledLineValue(lines: string[], labels: string[]): string {
+  const normalizedLabels = labels.map(label => label.toLowerCase());
+  for (let index = 0; index < lines.length; index += 1) {
+    if (!normalizedLabels.includes(lines[index].toLowerCase())) continue;
+    const next = lines.slice(index + 1).find(line => !normalizedLabels.includes(line.toLowerCase()));
+    if (next) return next;
+  }
+  return '';
+}
+
+function getCompanyFromTitle(): string {
+  const titleMatch = document.title.match(/@\s*([^|–—-]+)(?:\s*[|–—-].*)?$/);
+  if (titleMatch?.[1]) return cleanJobText(titleMatch[1]);
+  return '';
+}
+
+function trimApplicationFormText(text: string): string {
+  const markers = [
+    /\bApplication\s+Autofill from resume\b/i,
+    /\bAutofill from resume\b/i,
+    /\bLegal Name\s*\*/i,
+    /\bSubmit Application\b/i,
+  ];
+  const firstMarker = markers
+    .map(pattern => {
+      const match = text.match(pattern);
+      return match?.index ?? -1;
+    })
+    .filter(index => index > 0)
+    .sort((a, b) => a - b)[0];
+
+  return firstMarker ? text.slice(0, firstMarker) : text;
+}
+
+function getLinkedInJobId(): string {
+  try {
+    const url = new URL(window.location.href);
+    const currentJobId = url.searchParams.get('currentJobId');
+    if (currentJobId) return currentJobId;
+    const match = url.pathname.match(/\/jobs\/view\/(\d+)/);
+    return match?.[1] || '';
+  } catch {
+    return '';
+  }
+}
+
+function getLinkedInTitleParts(): { title: string; company: string } {
+  const parts = document.title
+    .split('|')
+    .map(part => cleanJobText(part))
+    .filter(Boolean);
+
+  return {
+    title: parts[0] || '',
+    company: parts[1] && !/^linkedin$/i.test(parts[1]) ? parts[1] : '',
+  };
+}
+
+function findLinkedInDetailRoot(): ParentNode {
+  const stableRoot = document.querySelector('.jobs-search__job-details--container') ||
+    document.querySelector('.jobs-search__job-details') ||
+    document.querySelector('.jobs-details__main-content') ||
+    document.querySelector('[data-view-name="job-details"]') ||
+    document.querySelector('.job-view-layout') ||
+    document.querySelector('.scaffold-layout__detail') ||
+    document.querySelector('.jobs-search-results__details');
+
+  if (stableRoot) return stableRoot;
+
+  const clean = (value?: string | null) => cleanJobText(value || '');
+  const currentJobId = getLinkedInJobId();
+  const currentJobLink = currentJobId
+    ? document.querySelector(`a[href*="/jobs/view/${currentJobId}"]`)
+    : null;
+  const aboutNode = Array.from(document.querySelectorAll('h1,h2,h3,h4,span,div'))
+    .find(el => /^About the job$/i.test(clean(el.textContent)));
+
+  if (aboutNode) {
+    let current: Element | null = aboutNode;
+    let best: Element = aboutNode;
+
+    while (current?.parentElement && current.parentElement !== document.body) {
+      current = current.parentElement;
+      const text = clean(current instanceof HTMLElement ? current.innerText : current.textContent);
+      const containsAbout = /About the job/i.test(text);
+      const containsCurrentJob = currentJobLink ? current.contains(currentJobLink) : false;
+      const hasUsefulDescription = text.length > 700 && /requirements|what you'll do|job overview|qualifications|responsibilities/i.test(text);
+
+      if (containsAbout && (containsCurrentJob || hasUsefulDescription)) {
+        best = current;
+      }
+
+      if (containsCurrentJob && text.length > 1400) break;
+      if (text.length > 12000) break;
+    }
+
+    return best;
+  }
+
+  return currentJobLink?.parentElement || document;
+}
+
+function getLinkedInCurrentJobLinkText(): string {
+  const currentJobId = getLinkedInJobId();
+  if (!currentJobId) return '';
+
+  const link = document.querySelector(`a[href*="/jobs/view/${currentJobId}"]`);
+  return cleanJobText(link?.textContent || '');
+}
+
+function getLinkedInLocation(detailRoot: ParentNode): string {
+  const lines = [
+    ...getPageLines(detailRoot),
+    ...getPageLines(document),
+  ];
+  const titleParts = getLinkedInTitleParts();
+  const title = titleParts.title.toLowerCase();
+  const company = titleParts.company.toLowerCase();
+  const locationLine = lines.find(line => {
+    const normalized = line.toLowerCase();
+    if (!line || normalized === title || normalized === company) return false;
+    if (/reposted|clicked apply|promoted by hirer|responses managed/i.test(line)) {
+      return /remote|hybrid|on-site|on site|united states|,\s*[a-z]{2}\b/i.test(line);
+    }
+    return /remote|hybrid|on-site|on site|united states|,\s*[A-Z]{2}\b/.test(line);
+  });
+
+  if (!locationLine) return '';
+
+  return cleanJobText(
+    locationLine
+      .split(/·|Reposted|Promoted by hirer|Responses managed/i)[0]
+      .replace(/\b(Full-time|Part-time|Contract|Temporary|Internship)\b/gi, '')
+  );
+}
+
+function extractLinkedInDescription(detailRoot: ParentNode): string {
+  const directDescription = getFirstElementText([
+    '#job-details',
+    '.jobs-description__content',
+    '.jobs-box__html-content',
+    '.jobs-description-content__text',
+    '.jobs-description',
+    '.jobs-details__main-content',
+    '.jobs-search__job-details--container',
+    '[data-view-name="job-details"]',
+  ], detailRoot);
+
+  if (directDescription) return cleanJobText(directDescription);
+
+  const lines = getPageLines(detailRoot);
+  const aboutIndex = lines.findIndex(line => /^About the job$/i.test(line));
+  const sourceLines = aboutIndex >= 0 ? lines.slice(aboutIndex) : lines;
+  const stopIndex = sourceLines.findIndex((line, index) => index > 0 && (
+    /^About the company$/i.test(line) ||
+    /^Company photos$/i.test(line) ||
+    /^Job search faster with Premium/i.test(line) ||
+    /^LinkedIn Corporation/i.test(line) ||
+    /^Get job alerts/i.test(line)
+  ));
+  const descriptionLines = stopIndex > 0 ? sourceLines.slice(0, stopIndex) : sourceLines;
+
+  return cleanJobText(descriptionLines.join(' '));
+}
+
 function getCompanyFromPage(): string {
   // 1. Try og:site_name metadata
   const siteName = document.querySelector('meta[property="og:site_name"]')?.getAttribute('content');
@@ -395,25 +611,142 @@ function getCompanyFromPage(): string {
   return document.title || 'Unknown Company';
 }
 
-function extractJobData(): { title: string; company: string; location: string; description: string; url: string } | null {
+function extractJobData(): { title: string; company: string; location: string; description: string; salary?: string; url: string } | null {
   try {
     if (isCareerVividWebApp()) return null;
 
     if (isLinkedIn) {
-      const title = document.querySelector('.job-details-jobs-unified-top-card__job-title')?.textContent?.trim() ||
-        document.querySelector('.jobs-unified-top-card__job-title')?.textContent?.trim();
-      const company = document.querySelector('.job-details-jobs-unified-top-card__company-name')?.textContent?.trim() ||
-        document.querySelector('.jobs-unified-top-card__company-name')?.textContent?.trim();
-      const location = document.querySelector('.job-details-jobs-unified-top-card__primary-description-container')?.textContent?.trim() ||
-        document.querySelector('.jobs-unified-top-card__primary-description-container')?.textContent?.trim();
-      const description = document.querySelector('#job-details')?.textContent?.trim() || '';
-      if (title && company) return { title, company, location: location || '', description, url: window.location.href };
+      const detailRoot = findLinkedInDetailRoot();
+      const titleParts = getLinkedInTitleParts();
+      const title = getFirstElementText([
+        '.job-details-jobs-unified-top-card__job-title h1',
+        '.job-details-jobs-unified-top-card__job-title',
+        '.jobs-unified-top-card__job-title h1',
+        '.jobs-unified-top-card__job-title',
+        'h1 a[href*="/jobs/view/"]',
+        'h1',
+      ], detailRoot) || getLinkedInCurrentJobLinkText() || titleParts.title;
+      const company = getFirstElementText([
+        '.job-details-jobs-unified-top-card__company-name a',
+        '.job-details-jobs-unified-top-card__company-name',
+        '.jobs-unified-top-card__company-name a',
+        '.jobs-unified-top-card__company-name',
+        '.job-details-jobs-unified-top-card__primary-description-container a[href*="/company/"]',
+        '.jobs-unified-top-card__primary-description-container a[href*="/company/"]',
+        '.jobs-search__job-details--container a[href*="/company/"]',
+        'a[href*="/company/"]',
+      ], detailRoot) || titleParts.company;
+      const location = getFirstElementText([
+        '.job-details-jobs-unified-top-card__primary-description-container',
+        '.jobs-unified-top-card__primary-description-container',
+        '.job-details-jobs-unified-top-card__tertiary-description-container',
+        '.jobs-unified-top-card__tertiary-description-container',
+      ], detailRoot) || getLinkedInLocation(detailRoot);
+      const description = extractLinkedInDescription(detailRoot);
+      const salary = extractSalaryFromText(description, location, detailRoot.textContent || '');
+      if (title && (company || description)) {
+        return {
+          title: cleanJobText(title),
+          company: cleanJobText(company || getCompanyFromPage()),
+          location: cleanJobText(location || ''),
+          description: cleanJobText(description),
+          salary,
+          url: window.location.href,
+        };
+      }
     } else if (isIndeed) {
-      const title = document.querySelector('[data-testid="jobsearch-JobInfoHeader-title"]')?.textContent?.trim();
-      const company = document.querySelector('[data-testid="inlineHeader-companyName"]')?.textContent?.trim();
-      const location = document.querySelector('[data-testid="inlineHeader-companyLocation"]')?.textContent?.trim();
-      const description = document.querySelector('#jobDescriptionText')?.textContent?.trim() || '';
-      if (title && company) return { title, company, location: location || '', description, url: window.location.href };
+      const title = getFirstElementText([
+        '[data-testid="jobsearch-JobInfoHeader-title"]',
+        'h1[data-testid*="title"]',
+        'h1',
+      ]);
+      const company = getFirstElementText([
+        '[data-testid="inlineHeader-companyName"]',
+        '[data-company-name]',
+        'a[href*="/cmp/"]',
+      ]);
+      const location = getFirstElementText([
+        '[data-testid="inlineHeader-companyLocation"]',
+        '[data-testid*="location"]',
+      ]);
+      const description = getFirstElementText([
+        '#jobDescriptionText',
+        '[data-testid="jobsearch-JobComponent-description"]',
+        '[class*="jobsearch-JobComponent-description"]',
+      ]);
+      if (title && company) return { title, company, location: location || '', description, salary: extractSalaryFromText(description, location), url: window.location.href };
+    } else if (isHandshake) {
+      const title = getFirstElementText([
+        '[data-hook="posting-title"]',
+        '[data-testid*="posting-title"]',
+        'h1',
+      ]);
+      const company = getFirstElementText([
+        '[data-hook="employer-name"]',
+        '[data-testid*="employer"]',
+        'a[href*="/emp/"]',
+        '[class*="employer"]',
+      ]);
+      const location = getFirstElementText([
+        '[data-hook*="location"]',
+        '[class*="location"]',
+      ]);
+      const description = getFirstElementText([
+        '[data-hook="description"]',
+        '[data-testid*="description"]',
+        '[class*="description"]',
+        'main',
+      ]);
+      if (title && (company || description)) return { title: cleanJobText(title), company: cleanJobText(company || 'Handshake'), location: cleanJobText(location), description: cleanJobText(description), salary: extractSalaryFromText(description, location), url: window.location.href };
+    } else if (isBuiltIn) {
+      const title = getFirstElementText([
+        '[data-testid*="job-title"]',
+        '[class*="job-title"]',
+        'h1',
+      ]);
+      const company = getFirstElementText([
+        '[data-testid*="company"]',
+        'a[href*="/company/"]',
+        '[class*="company"]',
+      ]);
+      const location = getFirstElementText([
+        '[data-testid*="location"]',
+        '[class*="location"]',
+      ]);
+      const description = getFirstElementText([
+        '[data-testid*="description"]',
+        '[class*="description"]',
+        'main',
+      ]);
+      if (title && (company || description)) return { title: cleanJobText(title), company: cleanJobText(company || 'BuiltIn'), location: cleanJobText(location), description: cleanJobText(description), salary: extractSalaryFromText(description, location), url: window.location.href };
+    } else if (isAshby) {
+      const root = document.querySelector('main') || document.body || document;
+      const pageLines = getPageLines(root);
+      const pageText = cleanJobText(trimApplicationFormText(pageLines.join('\n')));
+      const title = getFirstElementText(['h1'], root) ||
+        cleanJobText(document.title.replace(/\s*@\s*.+$/, ''));
+      const company = getCompanyFromTitle() || getFirstElementText([
+        'a[href*="openai.com"]',
+        'a[href*="/company/"]',
+        'a[href^="https://"]',
+      ], root) || getCompanyFromPage();
+      const location = [
+        getLabeledLineValue(pageLines, ['Location']),
+        getLabeledLineValue(pageLines, ['Location Type']),
+      ].filter(Boolean).join(' · ');
+      const compensation = getLabeledLineValue(pageLines, ['Compensation']);
+      const description = pageText || getFirstElementText(['main', 'body'], root);
+
+      if (title && description) {
+        return {
+          title: cleanJobText(title),
+          company: cleanJobText(company || 'Ashby'),
+          location: cleanJobText(location),
+          description: cleanJobText(description),
+          salary: extractSalaryFromText(compensation, description),
+          url: window.location.href,
+        };
+      }
     } else {
       // Generic ATS extraction using Open Graph tags / page title
       let title = document.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
@@ -434,12 +767,36 @@ function extractJobData(): { title: string; company: string; location: string; d
         }
       }
 
-      if (title) return { title, company, location: '', description, url: window.location.href };
+      if (title) return { title, company, location: '', description, salary: extractSalaryFromText(description, title), url: window.location.href };
     }
   } catch (e) {
     console.error('[CareerVivid] Job extraction error:', e);
   }
   return null;
+}
+
+function hasValidJobDescription(job: ReturnType<typeof extractJobData>): boolean {
+  return Boolean(
+    job?.title?.trim() &&
+    job?.description?.trim() &&
+    job.description.trim().length >= VALID_JOB_DESCRIPTION_MIN_LENGTH
+  );
+}
+
+function verifyJobContext() {
+  const job = extractJobData();
+  const context = getATSContext();
+
+  return {
+    job,
+    context,
+    hasDetectedJob: hasValidJobDescription(job),
+    hasJobMetadata: Boolean(job?.title?.trim() || job?.company?.trim()),
+    jobBoard: isLinkedIn ? 'linkedin' : isIndeed ? 'indeed' : isHandshake ? 'handshake' : isBuiltIn ? 'builtin' : isAshby ? 'ashby' : null,
+    jobId: isLinkedIn ? getLinkedInJobId() : isAshby ? window.location.pathname : '',
+    pageUrl: window.location.href,
+    hostname: window.location.hostname,
+  };
 }
 
 // ── Toast Notifications ───────────────────────────────────────────────────────
@@ -934,11 +1291,20 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       break;
 
     case 'EXTRACT_JOB_DATA':
-      sendResponse({ job: extractJobData() });
+      sendResponse(verifyJobContext());
+      break;
+
+    case 'VERIFY_JOB_CONTEXT':
+      sendResponse(verifyJobContext());
       break;
 
     case 'GET_ATS_CONTEXT':
       sendResponse({ context: getATSContext() });
+      break;
+
+    case 'CAREERVIVID_TAB_NAVIGATION_CHANGED':
+      scheduleJobContextSync('background-navigation');
+      sendResponse({ success: true });
       break;
 
     case 'AUTH_STATE_CHANGED':
@@ -984,14 +1350,6 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
         // Relay result back to popup for the results panel
         sendRuntimeMessage({ type: 'FILL_COMPLETE', result });
-
-        if (profile.queueId) {
-          sendRuntimeMessage({
-            type: 'REPORT_APPLICATION_FILL_RESULT',
-            queueId: profile.queueId,
-            result,
-          });
-        }
 
         // Phase 2: Auto-log to job tracker (best-effort, no user action needed)
         if (result.filledCount > 0) {
@@ -1114,8 +1472,10 @@ function startCareerVividAuthSync(): void {
     isCareerVividWebApp();
 
   if (!isCareerVividSite) return;
+  if (window.__careerVividAuthSyncStarted) return;
+  window.__careerVividAuthSyncStarted = true;
 
-  console.log('[CareerVivid Extension] Main site detected. Starting IndexedDB auth sync.');
+  console.debug('[CareerVivid Extension] Main site detected. Starting IndexedDB auth sync.');
 
   let lastToken = '';
   let missedChecks = 0;
@@ -1254,35 +1614,6 @@ function parseFirebaseIndexedDbValue(value: any): any {
   }
 }
 
-function checkAuthStatus(callback?: () => void): void {
-  let resolved = false;
-
-  const timeout = setTimeout(() => {
-    if (!resolved) {
-      resolved = true;
-      console.warn('[CareerVivid] Auth check timed out after 500ms. Defaulting to unauthenticated state.');
-      isUserAuthenticated = false;
-      callback?.();
-    }
-  }, 500);
-
-  const sent = sendRuntimeMessage<{ isAuthenticated: boolean }>({ type: 'CHECK_AUTH_STATUS' }, (res) => {
-    if (!resolved) {
-      resolved = true;
-      clearTimeout(timeout);
-      isUserAuthenticated = res?.isAuthenticated === true;
-      callback?.();
-    }
-  });
-
-  if (!sent && !resolved) {
-    resolved = true;
-    clearTimeout(timeout);
-    isUserAuthenticated = false;
-    callback?.();
-  }
-}
-
 // ─── Resource-Safe DOM Injection Manager (5-Second Limit) ───────────────────
 
 let injectionObserver: MutationObserver | null = null;
@@ -1290,6 +1621,249 @@ let injectionTimeout: number | null = null;
 let lastKnownUrl = window.location.href;
 let rafPending = false;
 let lastInjectTime = 0;
+let contextObserver: MutationObserver | null = null;
+let contextDebounceTimer: number | null = null;
+let lastContextSignature = '';
+let trackerTransitBridgeStarted = false;
+
+const TRACKER_TRANSIT_STORAGE_KEY = 'pendingTrackerTransitPayload';
+
+type TrackerTransitPayload = {
+  source?: string;
+  transitId?: string;
+  createdAt?: string;
+  expiresAt?: number;
+  url?: string;
+  title?: string;
+  company?: string;
+  location?: string;
+  salary?: string;
+  fallbackDescription?: string;
+  stage?: string;
+  resumeId?: string;
+  resumeTitle?: string;
+};
+
+function isSupportedJobBoardPage(): boolean {
+  return isLinkedIn || isIndeed || isHandshake || isBuiltIn || isAshby;
+}
+
+function buildContextSignature(context: ReturnType<typeof verifyJobContext>): string {
+  return [
+    context.pageUrl,
+    context.jobId || '',
+    context.job?.title || '',
+    context.job?.company || '',
+    context.job?.description?.slice(0, 240) || '',
+    context.hasDetectedJob ? 'detected' : 'empty',
+  ].join('|');
+}
+
+function scheduleJobContextSync(reason = 'dom-mutation', announceLoading = true): void {
+  if (isCareerVividWebApp() || (!isSupportedJobBoardPage() && !getATSContext().isApplicationPage)) return;
+
+  if (announceLoading) {
+    sendRuntimeMessage({
+      type: 'JOB_CONTEXT_LOADING',
+      reason,
+      url: window.location.href,
+      title: document.title,
+    });
+  }
+
+  if (contextDebounceTimer) {
+    clearTimeout(contextDebounceTimer);
+  }
+
+  contextDebounceTimer = window.setTimeout(() => {
+    const context = verifyJobContext();
+    const signature = buildContextSignature(context);
+    const shouldPublish = signature !== lastContextSignature || reason.includes('navigation') || reason.includes('click') || announceLoading;
+    lastContextSignature = signature;
+
+    if (!shouldPublish) return;
+
+    sendRuntimeMessage({
+      type: 'JOB_CONTEXT_CHANGED',
+      ...context,
+      reason,
+      title: document.title,
+    });
+  }, reason.includes('click') ? 180 : 320);
+}
+
+function startJobContextObserver(): void {
+  if (contextObserver || isCareerVividWebApp() || !isSupportedJobBoardPage()) return;
+
+  document.addEventListener('click', (event) => {
+    const target = event.target as Element | null;
+    if (!target) return;
+
+    if (target.closest('a[href*="/jobs/view/"], [data-job-id], [data-occludable-job-id], .job-card-container, .jobs-search-results__list-item, [data-testid*="job"], [class*="job-card"]')) {
+      scheduleJobContextSync('job-item-click');
+      window.setTimeout(() => scheduleJobContextSync('job-item-click-settled', false), 900);
+    }
+  }, true);
+
+  contextObserver = new MutationObserver((mutations) => {
+    const hasRelevantChange = mutations.some((mutation) => {
+      const target = mutation.target as HTMLElement;
+      if (!target || target.closest?.('#cv-floating-root, #cv-sidebar-panel, #cv-toast')) return false;
+
+      const targetText = target.textContent || '';
+      if (
+        target.matches?.('#job-details, [data-view-name="job-details"], .jobs-search__job-details--container, .jobs-details__main-content, .jobs-description, main') ||
+        target.closest?.('#job-details, [data-view-name="job-details"], .jobs-search__job-details--container, .jobs-details__main-content, .jobs-description') ||
+        /about the job|job description|requirements|responsibilities|qualifications/i.test(targetText)
+      ) {
+        return true;
+      }
+
+      return Array.from(mutation.addedNodes).some((node) => {
+        if (!(node instanceof HTMLElement)) return false;
+        if (node.closest?.('#cv-floating-root, #cv-sidebar-panel, #cv-toast')) return false;
+        const text = node.textContent || '';
+        return /about the job|job description|requirements|responsibilities|qualifications/i.test(text) ||
+          Boolean(node.querySelector?.('#job-details, [data-view-name="job-details"], .jobs-search__job-details--container, .jobs-details__main-content, .jobs-description'));
+      });
+    });
+
+    if (hasRelevantChange) {
+      scheduleJobContextSync('job-detail-dom-mutation');
+    }
+  });
+
+  try {
+    contextObserver.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+    scheduleJobContextSync('observer-start', false);
+  } catch (e) {
+    console.warn('[CareerVivid] Failed to start job context observer:', e);
+  }
+}
+
+function isFreshTrackerTransitPayload(value: unknown): value is TrackerTransitPayload {
+  if (!value || typeof value !== 'object') return false;
+  const payload = value as TrackerTransitPayload;
+  if (payload.source !== 'extension_tracker') return false;
+  if (!payload.transitId || !payload.url) return false;
+  if (payload.expiresAt && payload.expiresAt < Date.now()) return false;
+  return Boolean(payload.title || payload.company || payload.fallbackDescription);
+}
+
+function writeTrackerTransitToPageSession(payload: TrackerTransitPayload): void {
+  const description = payload.fallbackDescription || '';
+  const transitId = payload.transitId || '';
+  const transitData = {
+    scrapeId: '',
+    localTransitId: transitId,
+    fallbackDescription: description,
+    url: payload.url || '',
+    title: payload.title || '',
+    company: payload.company || '',
+    location: payload.location || '',
+    salary: payload.salary || '',
+    stage: payload.stage || '',
+    resumeId: payload.resumeId || '',
+    resumeTitle: payload.resumeTitle || '',
+  };
+  const initialJobData = {
+    jobTitle: payload.title || '',
+    companyName: payload.company || '',
+    location: payload.location || '',
+    salaryRange: payload.salary || '',
+    jobPostURL: payload.url || '',
+    applicationURL: payload.url || '',
+    jobDescription: description,
+    stage: payload.stage || '',
+    resumeId: payload.resumeId || '',
+    resumeTitle: payload.resumeTitle || '',
+  };
+
+  try {
+    sessionStorage.setItem('transit_job_tracker', JSON.stringify(transitData));
+    sessionStorage.setItem('transit_job_tracker_data', JSON.stringify({
+      transitId,
+      description,
+      url: payload.url || '',
+      initialJobData,
+    }));
+    window.postMessage({
+      type: 'CAREERVIVID_EXTENSION_TRACKER_TRANSIT_READY',
+      transitId,
+    }, window.location.origin);
+
+    window.setTimeout(() => {
+      if (!transitId || !window.location.pathname.includes('/job-tracker')) return;
+
+      chrome.storage.local.get([TRACKER_TRANSIT_STORAGE_KEY], (stored: Record<string, unknown>) => {
+        const pending = stored[TRACKER_TRANSIT_STORAGE_KEY] as TrackerTransitPayload | undefined;
+        if (pending?.transitId !== transitId) return;
+
+        // Older deployed tracker pages clear the session payload after opening
+        // the modal but do not send an explicit acknowledgement.
+        if (!sessionStorage.getItem('transit_job_tracker')) {
+          chrome.storage.local.remove(TRACKER_TRANSIT_STORAGE_KEY);
+          return;
+        }
+
+        const reloadKey = `cv_tracker_transit_reload_${transitId}`;
+        if (!sessionStorage.getItem(reloadKey)) {
+          sessionStorage.setItem(reloadKey, '1');
+          window.location.reload();
+        }
+      });
+    }, 1200);
+  } catch (error) {
+    console.warn('[CareerVivid] Unable to publish tracker transit payload to page session.', error);
+  }
+}
+
+function publishPendingTrackerTransit(): void {
+  if (!isCareerVividWebApp() || extensionContextInvalidated) return;
+
+  chrome.storage.local.get([TRACKER_TRANSIT_STORAGE_KEY], (stored: Record<string, unknown>) => {
+    const payload = stored[TRACKER_TRANSIT_STORAGE_KEY];
+    if (!isFreshTrackerTransitPayload(payload)) {
+      const maybeExpired = payload as TrackerTransitPayload | undefined;
+      if (maybeExpired?.expiresAt && maybeExpired.expiresAt < Date.now()) {
+        chrome.storage.local.remove(TRACKER_TRANSIT_STORAGE_KEY);
+      }
+      return;
+    }
+
+    writeTrackerTransitToPageSession(payload);
+  });
+}
+
+function startTrackerTransitBridge(): void {
+  if (trackerTransitBridgeStarted || !isCareerVividWebApp()) return;
+  trackerTransitBridgeStarted = true;
+
+  publishPendingTrackerTransit();
+
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== 'local' || !changes[TRACKER_TRANSIT_STORAGE_KEY]) return;
+    publishPendingTrackerTransit();
+  });
+
+  window.addEventListener('message', (event) => {
+    if (event.source !== window) return;
+    if (event.data?.type !== 'CAREERVIVID_WEB_TRACKER_TRANSIT_CONSUMED') return;
+    const consumedTransitId = event.data?.transitId;
+    if (!consumedTransitId) return;
+
+    chrome.storage.local.get([TRACKER_TRANSIT_STORAGE_KEY], (stored: Record<string, unknown>) => {
+      const payload = stored[TRACKER_TRANSIT_STORAGE_KEY] as TrackerTransitPayload | undefined;
+      if (payload?.transitId === consumedTransitId) {
+        chrome.storage.local.remove(TRACKER_TRANSIT_STORAGE_KEY);
+      }
+    });
+  });
+}
 
 function throttledInject(): void {
   if (rafPending) return;
@@ -1370,6 +1944,7 @@ function setupSpaNavigationListener(): void {
       lastKnownUrl = window.location.href;
       console.debug('[CareerVivid] SPA URL transition detected. Re-triggering injection safety window.');
       startInjectionWindow();
+      scheduleJobContextSync('url-navigation');
     }
   };
 
@@ -1448,29 +2023,31 @@ async function silentPrefetch(): Promise<void> {
  */
 async function safeInit(): Promise<void> {
   try {
+    if (window.__careerVividContentScriptBooted) return;
+    window.__careerVividContentScriptBooted = true;
+
+    if (isCareerVividWebApp()) {
+      startCareerVividAuthSync();
+      startTrackerTransitBridge();
+      return;
+    }
+
+    const context = getATSContext();
+    const shouldRunJobTools = isSupportedJobBoardPage() || context.isApplicationPage || context.isJobListingPage;
+    if (!shouldRunJobTools) return;
+
     injectStyles();
+    startInjectionWindow();
+    setupSpaNavigationListener();
+    startJobContextObserver();
 
-    checkAuthStatus(async () => {
-      try {
-        startInjectionWindow();
-        setupSpaNavigationListener();
-
-        if (isCareerVividWebApp()) {
-          startCareerVividAuthSync();
-        }
-
-        const context = getATSContext();
-        if (context.isApplicationPage) {
-          setTimeout(() => {
-            silentPrefetch().catch(e => {
-              console.debug('[CareerVivid] Safe prefetch skipped:', e);
-            });
-          }, 1500);
-        }
-      } catch (innerError) {
-        console.error('[CareerVivid] Safe initialization callback failed:', innerError);
-      }
-    });
+    if (context.isApplicationPage) {
+      setTimeout(() => {
+        silentPrefetch().catch(e => {
+          console.debug('[CareerVivid] Safe prefetch skipped:', e);
+        });
+      }, 1500);
+    }
 
   } catch (outerError) {
     console.error('[CareerVivid] Unhandled content script boot error:', outerError);

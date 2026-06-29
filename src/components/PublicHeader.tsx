@@ -48,7 +48,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
         profileDisplayName: userProfile?.displayName,
         email: profileEmail,
         authDisplayName: currentUser?.displayName,
-        fallback: 'CareerVivid member',
+        fallback: t('nav.member_fallback'),
     });
     const profileInitial = (profileName || profileEmail || 'C').trim().charAt(0).toUpperCase();
     const profileDropdownClasses = isEditorial
@@ -57,6 +57,10 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
     const profileMenuItemClasses = isEditorial
         ? 'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-[#211b16] transition-colors hover:bg-[#f6ecd9] dark:text-[#f4f1e9] dark:hover:bg-[#302e2a]'
         : 'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-gray-800 transition-colors hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-800';
+    const productLabel = t('nav.product');
+    const pricingLabel = t('nav.pricing');
+    const resourcesLabel = t('nav.resources');
+    const useCasesLabel = t('nav.use_cases');
 
     const NavItem: React.FC<{ name: string; hasDropdown?: boolean; href?: string }> = ({ name, hasDropdown, href }) => {
         // Brutalist: Uppercase, bold, hover effect
@@ -94,15 +98,15 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
                             }`}>
 
                             {/* Product Dropdown */}
-                            {name === t('nav.product') && (
+                            {name === productLabel && (
                                 <>
                                     <a href="/newresume" className={`flex items-start gap-3 p-3 transition-colors group/item ${isBrutalist ? 'hover:bg-yellow-200 border-2 border-transparent hover:border-black' : dropdownItemClasses}`}>
                                         <div className={`p-2 ${isBrutalist ? 'bg-black text-white rounded-none' : isEditorial ? dropdownIconClasses : 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-md group-hover/item:bg-blue-100 dark:group-hover/item:bg-blue-900/50'}`}>
                                             <FileText size={18} strokeWidth={isBrutalist ? 3 : 2} />
                                         </div>
                                         <div>
-                                            <div className={`text-sm ${isBrutalist ? 'font-black text-black uppercase' : dropdownTitleClasses}`}>Resume Builder</div>
-                                            <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : dropdownDescriptionClasses}`}>AI-powered resume creation</p>
+                                            <div className={`text-sm ${isBrutalist ? 'font-black text-black uppercase' : dropdownTitleClasses}`}>{t('nav.resume_builder')}</div>
+                                            <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : dropdownDescriptionClasses}`}>{t('nav.resume_builder_desc')}</p>
                                         </div>
                                     </a>
                                     <a href="/portfolio" className={`flex items-start gap-3 p-3 transition-colors group/item ${isBrutalist ? 'hover:bg-purple-200 border-2 border-transparent hover:border-black' : dropdownItemClasses}`}>
@@ -110,8 +114,8 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
                                             <Briefcase size={18} strokeWidth={isBrutalist ? 3 : 2} />
                                         </div>
                                         <div>
-                                            <div className={`text-sm ${isBrutalist ? 'font-black text-black uppercase' : dropdownTitleClasses}`}>Portfolio Builder</div>
-                                            <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : dropdownDescriptionClasses}`}>Showcase your work</p>
+                                            <div className={`text-sm ${isBrutalist ? 'font-black text-black uppercase' : dropdownTitleClasses}`}>{t('nav.portfolio_builder')}</div>
+                                            <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : dropdownDescriptionClasses}`}>{t('nav.portfolio_builder_desc')}</p>
                                         </div>
                                     </a>
                                     <a href="/job-tracker" className={`flex items-start gap-3 p-3 transition-colors group/item ${isBrutalist ? 'hover:bg-green-200 border-2 border-transparent hover:border-black' : dropdownItemClasses}`}>
@@ -119,8 +123,8 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
                                             <Zap size={18} strokeWidth={isBrutalist ? 3 : 2} />
                                         </div>
                                         <div>
-                                            <div className={`text-sm ${isBrutalist ? 'font-black text-black uppercase' : dropdownTitleClasses}`}>Job Tracker</div>
-                                            <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : dropdownDescriptionClasses}`}>Organize applications</p>
+                                            <div className={`text-sm ${isBrutalist ? 'font-black text-black uppercase' : dropdownTitleClasses}`}>{t('nav.job_tracker')}</div>
+                                            <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : dropdownDescriptionClasses}`}>{t('nav.job_tracker_desc')}</p>
                                         </div>
                                     </a>
                                     <a href="/bio-links" className={`flex items-start gap-3 p-3 transition-colors group/item ${isBrutalist ? 'hover:bg-pink-200 border-2 border-transparent hover:border-black' : dropdownItemClasses}`}>
@@ -128,14 +132,14 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
                                             <LinkIcon size={18} strokeWidth={isBrutalist ? 3 : 2} />
                                         </div>
                                         <div>
-                                            <div className={`text-sm ${isBrutalist ? 'font-black text-black uppercase' : dropdownTitleClasses}`}>Bio Links</div>
-                                            <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : dropdownDescriptionClasses}`}>One link for everything</p>
+                                            <div className={`text-sm ${isBrutalist ? 'font-black text-black uppercase' : dropdownTitleClasses}`}>{t('nav.bio_links')}</div>
+                                            <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : dropdownDescriptionClasses}`}>{t('nav.bio_links_desc')}</p>
                                         </div>
                                     </a>
                                 </>
                             )}
 
-                            {name === 'Use Cases' && (
+                            {name === useCasesLabel && (
                                 <>
                                     <a href="/job-tracker" className={`flex items-start gap-3 p-3 transition-colors group/item ${isBrutalist ? 'hover:bg-yellow-200 border-2 border-transparent hover:border-black' : dropdownItemClasses}`}>
                                         <div className={`p-2 ${isBrutalist ? 'bg-black text-white rounded-none' : isEditorial ? dropdownIconClasses : 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-md group-hover/item:bg-blue-100 dark:group-hover/item:bg-blue-900/50'}`}>
@@ -158,21 +162,21 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
                                 </>
                             )}
 
-                            {name === t('nav.pricing') && (
+                            {name === pricingLabel && (
                                 <>
                                     <a href={isBrutalist ? "#pricing" : "/pricing"} className={`flex items-start gap-3 p-3 transition-colors group/item ${isBrutalist ? 'hover:bg-yellow-200 border-2 border-transparent hover:border-black' : dropdownItemClasses}`}>
                                         <div className={`p-2 ${isBrutalist ? 'bg-black text-white rounded-none' : isEditorial ? dropdownIconClasses : 'bg-orange-50 dark:bg-orange-900/30 text-orange-600 rounded-md group-hover/item:bg-orange-100 dark:group-hover/item:bg-orange-900/50'}`}>
                                             <Zap size={18} strokeWidth={isBrutalist ? 3 : 2} />
                                         </div>
                                         <div>
-                                            <div className={`text-sm ${isBrutalist ? 'font-black text-black uppercase' : dropdownTitleClasses}`}>App Subscription</div>
-                                            <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : dropdownDescriptionClasses}`}>Pro & Business Plans</p>
+                                            <div className={`text-sm ${isBrutalist ? 'font-black text-black uppercase' : dropdownTitleClasses}`}>{t('nav.app_subscription')}</div>
+                                            <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : dropdownDescriptionClasses}`}>{t('nav.app_subscription_desc')}</p>
                                         </div>
                                     </a>
                                 </>
                             )}
 
-                            {name === 'Resources' && (
+                            {name === resourcesLabel && (
                                 <>
                                     <a href="/blog" className={`flex items-start gap-3 p-3 transition-colors group/item ${isBrutalist ? 'hover:bg-green-200 border-2 border-transparent hover:border-black' : dropdownItemClasses}`}>
                                         <div className={`p-2 ${isBrutalist ? 'bg-black text-white rounded-none' : isEditorial ? dropdownIconClasses : 'bg-green-50 dark:bg-green-900/30 text-green-600 rounded-md group-hover/item:bg-green-100 dark:group-hover/item:bg-green-900/50'}`}>
@@ -189,8 +193,8 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
                                             <Terminal size={18} strokeWidth={isBrutalist ? 3 : 2} />
                                         </div>
                                         <div>
-                                            <div className={`text-sm ${isBrutalist ? 'font-black text-black uppercase' : dropdownTitleClasses}`}>Professional API</div>
-                                            <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : dropdownDescriptionClasses}`}>Developer documentation</p>
+                                            <div className={`text-sm ${isBrutalist ? 'font-black text-black uppercase' : dropdownTitleClasses}`}>{t('nav.professional_api')}</div>
+                                            <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : dropdownDescriptionClasses}`}>{t('nav.professional_api_desc')}</p>
                                         </div>
                                     </a>
                                     {/* Community Link */}
@@ -199,8 +203,8 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
                                             <Users size={18} strokeWidth={isBrutalist ? 3 : 2} />
                                         </div>
                                         <div>
-                                            <div className={`text-sm ${isBrutalist ? 'font-black text-black uppercase' : dropdownTitleClasses}`}>Community</div>
-                                            <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : dropdownDescriptionClasses}`}>Join the discussion</p>
+                                            <div className={`text-sm ${isBrutalist ? 'font-black text-black uppercase' : dropdownTitleClasses}`}>{t('nav.community')}</div>
+                                            <p className={`text-xs ${isBrutalist ? 'text-black font-bold' : dropdownDescriptionClasses}`}>{t('nav.community_discussion_desc')}</p>
                                         </div>
                                     </a>
                                 </>
@@ -235,17 +239,17 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
 
                     {/* Desktop Nav */}
                     <nav className="hidden md:flex items-center gap-8 h-full">
-                        {context !== 'bio-link' && <NavItem name={t('nav.product')} hasDropdown />}
-                        <NavItem name="Job Tracker" href="/job-tracker" />
-                        <NavItem name="Interview Coach" href="/interview-studio" />
-                        <NavItem name={t('nav.pricing')} hasDropdown />
-                        <NavItem name={t('nav.resources')} hasDropdown />
+                        {context !== 'bio-link' && <NavItem name={productLabel} hasDropdown />}
+                        <NavItem name={t('nav.job_tracker')} href="/job-tracker" />
+                        <NavItem name={t('nav.interview_coach')} href="/interview-studio" />
+                        <NavItem name={pricingLabel} hasDropdown />
+                        <NavItem name={resourcesLabel} hasDropdown />
                     </nav>
 
                     {/* Actions */}
                     <div className="flex items-center gap-3">
                         {!isBrutalist && (
-                            <button onClick={toggleTheme} className={`rounded-full p-2.5 transition-colors ${isEditorial ? 'text-[#8b6a3f] hover:bg-[#efe2cf] dark:text-[#aaa39a] dark:hover:bg-[#302e2a]' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`} aria-label="Toggle Theme">
+                            <button onClick={toggleTheme} className={`rounded-full p-2.5 transition-colors ${isEditorial ? 'text-[#8b6a3f] hover:bg-[#efe2cf] dark:text-[#aaa39a] dark:hover:bg-[#302e2a]' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`} aria-label={t('nav.toggle_theme')}>
                                 {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
                             </button>
                         )}
@@ -258,7 +262,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
                         {/* Desktop Auth Actions */}
                         <div className="hidden md:flex items-center gap-3">
                             {loading ? (
-                                <div className={`h-11 w-44 animate-pulse rounded-full ${isEditorial ? 'bg-[#eadbc5] dark:bg-[#302e2a]' : 'bg-gray-200 dark:bg-gray-800'}`} aria-label="Loading account state" />
+                                <div className={`h-11 w-44 animate-pulse rounded-full ${isEditorial ? 'bg-[#eadbc5] dark:bg-[#302e2a]' : 'bg-gray-200 dark:bg-gray-800'}`} aria-label={t('nav.loading_account_state')} />
                             ) : currentUser ? (
                                 <div className="relative">
                                     <button
@@ -271,7 +275,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
                                             : 'border-gray-200 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-800'
                                             }`}
                                         aria-expanded={isProfileOpen}
-                                        aria-label="Open profile menu"
+                                        aria-label={t('nav.open_profile_menu')}
                                     >
                                         <span className="flex min-w-0 items-center gap-2">
                                             {currentUser.photoURL ? (
@@ -298,11 +302,11 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
                                                 </div>
                                                 <a href="/dashboard" className={profileMenuItemClasses} onClick={() => setIsProfileOpen(false)}>
                                                     <LayoutDashboard size={17} />
-                                                    Dashboard
+                                                    {t('nav.dashboard')}
                                                 </a>
                                                 <a href="/profile" className={profileMenuItemClasses} onClick={() => setIsProfileOpen(false)}>
                                                     <Settings size={17} />
-                                                    Profile settings
+                                                    {t('nav.profile_settings')}
                                                 </a>
                                                 <button
                                                     type="button"
@@ -313,7 +317,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
                                                     className={`${profileMenuItemClasses} w-full`}
                                                 >
                                                     <LogOut size={17} />
-                                                    Sign out
+                                                    {t('nav.sign_out')}
                                                 </button>
                                             </div>
                                         </div>
@@ -343,7 +347,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
 
                         {/* Mobile Menu Button */}
                         <div className="md:hidden">
-                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className={`p-2 ${isBrutalist ? 'text-black border-2 border-black bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]' : isEditorial ? 'rounded-md text-[#665a4a] dark:text-[#aaa39a]' : 'rounded-md text-gray-600 dark:text-gray-300'}`}>
+                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className={`p-2 ${isBrutalist ? 'text-black border-2 border-black bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]' : isEditorial ? 'rounded-md text-[#665a4a] dark:text-[#aaa39a]' : 'rounded-md text-gray-600 dark:text-gray-300'}`} aria-label={isMenuOpen ? t('nav.close_menu') : t('nav.open_menu')}>
                                 {isMenuOpen ? <X size={24} strokeWidth={isBrutalist ? 3 : 2} /> : <Menu size={24} strokeWidth={isBrutalist ? 3 : 2} />}
                             </button>
                         </div>
@@ -363,7 +367,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
                         {/* 1. Auth Actions (Top Priority) */}
                         <div className={`flex flex-col gap-3 pb-4 ${isEditorial ? 'border-b border-[#e4d3bc] dark:border-[#37332d]' : 'border-b border-gray-100 dark:border-gray-800'}`}>
                             {loading ? (
-                                <div className={`h-24 w-full animate-pulse rounded-xl ${isEditorial ? 'bg-[#eadbc5] dark:bg-[#302e2a]' : 'bg-gray-200 dark:bg-gray-800'}`} aria-label="Loading account state" />
+                                <div className={`h-24 w-full animate-pulse rounded-xl ${isEditorial ? 'bg-[#eadbc5] dark:bg-[#302e2a]' : 'bg-gray-200 dark:bg-gray-800'}`} aria-label={t('nav.loading_account_state')} />
                             ) : currentUser ? (
                                 <>
                                     <div className={`flex items-center gap-3 rounded-xl border px-3 py-3 ${isEditorial ? 'border-[#d9c7ad] bg-[#f6ecd9] dark:border-[#37332d] dark:bg-[#302e2a]' : 'border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-800'}`}>
@@ -385,7 +389,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
                                             ? 'rounded-lg bg-[#211b16] text-white shadow-lg shadow-[#6b4b1f]/15 hover:bg-[#3a2b20] dark:bg-[#f4f1e9] dark:text-[#1f1f1d] dark:hover:bg-white'
                                         : 'bg-primary-600 text-white rounded-lg hover:bg-primary-700 shadow-lg'
                                         }`}>
-                                        Go to Dashboard
+                                        {t('nav.go_to_dashboard')}
                                     </a>
                                     <a href="/profile" onClick={() => setIsMenuOpen(false)} className={`w-full text-center py-3 font-semibold transition-all ${isBrutalist
                                         ? 'bg-white text-black border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] uppercase tracking-wide'
@@ -393,7 +397,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
                                             ? 'rounded-lg border border-[#d9c7ad] bg-[#fffaf1] text-[#211b16] hover:bg-[#f6ecd9] dark:border-[#37332d] dark:bg-[#262522] dark:text-[#f1eee7] dark:hover:bg-[#302e2a]'
                                         : 'text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800'
                                         }`}>
-                                        Profile settings
+                                        {t('nav.profile_settings')}
                                     </a>
                                     <button onClick={() => { logOut(); setIsMenuOpen(false); }} className={`w-full text-center py-3 font-semibold transition-all ${isBrutalist
                                         ? 'bg-white text-black border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] uppercase tracking-wide'
@@ -401,7 +405,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
                                             ? 'rounded-lg border border-[#d9c7ad] bg-[#fffaf1] text-[#211b16] hover:bg-[#f6ecd9] dark:border-[#37332d] dark:bg-[#262522] dark:text-[#f1eee7] dark:hover:bg-[#302e2a]'
                                         : 'text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800'
                                         }`}>
-                                        Sign Out
+                                        {t('nav.sign_out')}
                                     </button>
                                 </>
                             ) : (
@@ -431,23 +435,23 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
 
                             {/* Product Group */}
                             <div className={`pl-4 ${isBrutalist ? 'border-l-4 border-black ml-1 my-2 space-y-2' : mobileGroupClasses}`}>
-                                <p className={`text-xs uppercase tracking-wider mb-2 ${isBrutalist ? 'font-black text-gray-500' : mobileGroupLabelClasses}`}>Product</p>
-                                <a href="/job-tracker" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>Job Tracker</a>
-                                <a href="/newresume" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>AI Resume Builder</a>
-                                <a href="/interview-studio" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>Interview Coach</a>
-                                <a href="/extension-welcome" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>Chrome Extension</a>
+                                <p className={`text-xs uppercase tracking-wider mb-2 ${isBrutalist ? 'font-black text-gray-500' : mobileGroupLabelClasses}`}>{productLabel}</p>
+                                <a href="/job-tracker" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>{t('nav.job_tracker')}</a>
+                                <a href="/newresume" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>{t('nav.ai_resume_builder')}</a>
+                                <a href="/interview-studio" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>{t('nav.interview_coach')}</a>
+                                <a href="/extension-welcome" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>{t('nav.chrome_extension')}</a>
                             </div>
 
                             {/* Pricing Group */}
                             <div className={`pl-4 ${isBrutalist ? 'border-l-4 border-black ml-1 my-2 space-y-2' : mobileGroupClasses}`}>
                                 <p className={`text-xs uppercase tracking-wider mb-2 ${isBrutalist ? 'font-black text-gray-500' : mobileGroupLabelClasses}`}>{t('nav.pricing')}</p>
-                                <a href={isBrutalist ? "#pricing" : "/pricing"} onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>App Subscription</a>
+                                <a href={isBrutalist ? "#pricing" : "/pricing"} onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>{t('nav.app_subscription')}</a>
                             </div>
 
                             <div className={`pl-4 ${isBrutalist ? 'border-l-4 border-black ml-1 my-2 space-y-2' : mobileGroupClasses}`}>
-                                <p className={`text-xs uppercase tracking-wider mb-2 ${isBrutalist ? 'font-black text-gray-500' : mobileGroupLabelClasses}`}>Resources</p>
+                                <p className={`text-xs uppercase tracking-wider mb-2 ${isBrutalist ? 'font-black text-gray-500' : mobileGroupLabelClasses}`}>{resourcesLabel}</p>
                                 <a href="/blog" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>{t('nav.blog')}</a>
-                                <a href="/developers/api" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>Professional API</a>
+                                <a href="/developers/api" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>{t('nav.professional_api')}</a>
                                 <a href="/contact" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>{t('nav.contact')}</a>
                             </div>
                         </div>

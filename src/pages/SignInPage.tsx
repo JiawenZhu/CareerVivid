@@ -6,7 +6,7 @@ import {
 } from 'firebase/auth';
 import { auth, googleProvider, db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { Eye, EyeOff, ArrowLeft, Loader2, Mail, Lock, ChevronRight, Users } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft, Loader2, Mail, Lock, ChevronRight, Users, Briefcase, CheckCircle2, Chrome, FileText, PanelRightOpen, Sparkles } from 'lucide-react';
 import { trackUsage } from '../services/trackingService';
 import Logo from '../components/Logo';
 import { navigate } from '../utils/navigation';
@@ -218,13 +218,17 @@ const SignInPage: React.FC = () => {
     };
 
     const LoadingOverlay = () => (
-        <div className="fixed inset-0 bg-white/80 dark:bg-gray-950/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center text-center p-4 animate-fade-in">
-            <Loader2 className="w-16 h-16 text-primary-600 animate-spin mx-auto" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mt-6">{t('auth.please_wait')}</h1>
-            <div className="h-6 mt-2">
-                <p key={loadingMessageIndex} className="text-gray-600 dark:text-gray-400 animate-fade-in font-medium">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#f7f1e7]/90 p-4 text-center backdrop-blur-sm dark:bg-[#1f1f1d]/90">
+            <div className="w-full max-w-sm rounded-2xl border border-[#e4d3bc] bg-[#fffaf1] p-6 shadow-[0_20px_60px_rgba(80,55,28,0.12)] dark:border-[#37332d] dark:bg-[#262522]">
+                <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl border border-[#e4d3bc] bg-white text-[#8b5a16] dark:border-[#37332d] dark:bg-[#302e2a] dark:text-[#caa26c]">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                </div>
+                <h1 className="mt-4 text-lg font-bold text-[#211b16] dark:text-[#f4f1e9]">{t('auth.please_wait')}</h1>
+                <div className="mt-2 min-h-6">
+                    <p key={loadingMessageIndex} className="animate-fade-in text-sm font-semibold text-[#665a4a] dark:text-[#aaa39a]">
                     {cliPort && currentUser ? "Authorizing CLI and sending credentials..." : loadingMessages[loadingMessageIndex]}
                 </p>
+                </div>
             </div>
         </div>
     );
@@ -315,181 +319,246 @@ const SignInPage: React.FC = () => {
     }, []);
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-950 px-4 relative overflow-hidden font-sans">
-            {/* Abstract Background Elements */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none z-0">
-                <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary-400/20 rounded-full blur-3xl mix-blend-multiply dark:mix-blend-screen opacity-50"></div>
-                <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-purple-400/20 rounded-full blur-3xl mix-blend-multiply dark:mix-blend-screen opacity-50"></div>
-            </div>
-
+        <div className="cv-warm-page cv-warm-grid relative min-h-screen overflow-hidden px-4 py-6 font-sans sm:px-6 lg:px-8">
             {loading && <LoadingOverlay />}
 
-            <a
-                href="/"
-                className="absolute top-8 left-8 z-20 flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
-            >
-                <ArrowLeft size={18} />
-                {t('auth.back_home')}
-            </a>
-
-            <div className="w-full max-w-md relative z-10">
-                <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-800 p-8 sm:p-10">
-
-                    <div className="text-center mb-10">
-                        <Logo className="h-10 w-10 mx-auto mb-6" />
-                        {isBioLinkContext ? (
-                            <>
-                                <h2 className="text-3xl font-black text-black uppercase tracking-tighter">
-                                    Welcome Creator!
-                                </h2>
-                                <p className="mt-3 text-gray-600 font-medium">
-                                    Log in to manage your Bio-Link.
-                                </p>
-                            </>
-                        ) : (
-                            <>
-                                <h2 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-                                    {t('auth.welcome_back')}
-                                </h2>
-                                <p className="mt-3 text-gray-500 dark:text-gray-400">
-                                    {t('auth.enter_details')}
-                                </p>
-                            </>
-                        )}
+            <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-6xl flex-col">
+                <header className="flex items-center justify-between gap-4">
+                    <a
+                        href="/"
+                        className="inline-flex items-center gap-2 rounded-full border border-[#e4d3bc] bg-[#fffaf1]/85 px-3 py-2 text-xs font-bold text-[#665a4a] shadow-sm transition hover:border-[#caa26c] hover:text-[#211b16] focus:outline-none focus:ring-2 focus:ring-[#7069dc]/30 dark:border-[#37332d] dark:bg-[#262522]/85 dark:text-[#aaa39a] dark:hover:text-[#f4f1e9]"
+                    >
+                        <ArrowLeft size={15} />
+                        {t('auth.back_home')}
+                    </a>
+                    <div className="hidden items-center gap-2 rounded-full border border-[#e4d3bc] bg-[#fffaf1]/85 px-3 py-2 text-xs font-bold text-[#665a4a] shadow-sm dark:border-[#37332d] dark:bg-[#262522]/85 dark:text-[#aaa39a] sm:inline-flex">
+                        <Chrome size={14} className="text-[#625bd5] dark:text-[#8d88e6]" />
+                        Chrome extension ready
                     </div>
+                </header>
 
-                    <form className="space-y-5" onSubmit={handleSignIn}>
-                        <div>
-                            <label htmlFor="email" className="sr-only">{t('auth.email_label')}</label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <Mail className="h-5 w-5 text-gray-400" />
+                <main className="grid flex-1 items-center gap-8 py-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(420px,1fr)] lg:gap-12">
+                    <section className="order-2 hidden lg:block">
+                        <div className="max-w-xl">
+                            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#d9c7ad] bg-[#fffaf1] px-3 py-1.5 text-[11px] font-bold text-[#8b5a16] shadow-sm dark:border-[#37332d] dark:bg-[#262522] dark:text-[#caa26c]">
+                                <Sparkles size={13} />
+                                Job-search workspace
+                            </div>
+                            <h1 className="max-w-lg text-[32px] font-bold leading-tight text-[#211b16] dark:text-[#f4f1e9]">
+                                Keep every saved role, resume, and interview prep in one calm place.
+                            </h1>
+                            <p className="mt-4 max-w-lg text-sm font-medium leading-6 text-[#665a4a] dark:text-[#aaa39a]">
+                                Sign in to sync the Chrome extension with your CareerVivid dashboard. Save a job, tailor a resume, then practice from the same role context.
+                            </p>
+                        </div>
+
+                        <div className="mt-8 grid max-w-xl gap-3">
+                            <div className="rounded-2xl border border-[#e4d3bc] bg-[#fffaf1]/92 p-4 shadow-sm dark:border-[#37332d] dark:bg-[#262522]/92">
+                                <div className="flex items-start gap-3">
+                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#eef0ff] text-[#625bd5] dark:bg-[#302e2a] dark:text-[#8d88e6]">
+                                        <Briefcase size={18} />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <h2 className="text-sm font-bold text-[#211b16] dark:text-[#f4f1e9]">Application workspace</h2>
+                                            <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">Synced</span>
+                                        </div>
+                                        <p className="mt-1 text-xs font-semibold leading-5 text-[#665a4a] dark:text-[#aaa39a]">
+                                            Track active jobs with saved descriptions, deadlines, notes, and prep status.
+                                        </p>
+                                    </div>
                                 </div>
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    required
-                                    className="block w-full pl-11 pr-4 py-3.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-sm font-medium"
-                                    placeholder={t('auth.email_placeholder')}
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                />
+                            </div>
+
+                            <div className="grid gap-3 sm:grid-cols-2">
+                                <div className="rounded-2xl border border-[#e4d3bc] bg-white/90 p-4 shadow-sm dark:border-[#37332d] dark:bg-[#262522]/90">
+                                    <FileText size={18} className="text-[#a97935] dark:text-[#caa26c]" />
+                                    <h3 className="mt-3 text-sm font-bold text-[#211b16] dark:text-[#f4f1e9]">Tailor resume</h3>
+                                    <p className="mt-1 text-xs font-semibold leading-5 text-[#665a4a] dark:text-[#aaa39a]">Open your resume with the selected job already loaded.</p>
+                                </div>
+                                <div className="rounded-2xl border border-[#e4d3bc] bg-white/90 p-4 shadow-sm dark:border-[#37332d] dark:bg-[#262522]/90">
+                                    <PanelRightOpen size={18} className="text-[#625bd5] dark:text-[#8d88e6]" />
+                                    <h3 className="mt-3 text-sm font-bold text-[#211b16] dark:text-[#f4f1e9]">Practice interview</h3>
+                                    <p className="mt-1 text-xs font-semibold leading-5 text-[#665a4a] dark:text-[#aaa39a]">Use the job description to generate focused questions.</p>
+                                </div>
+                            </div>
+
+                            <div className="rounded-2xl border border-[#e4d3bc] bg-[#f9efe0]/80 p-4 dark:border-[#37332d] dark:bg-[#302e2a]/80">
+                                <div className="flex items-center gap-2 text-xs font-bold text-[#665a4a] dark:text-[#aaa39a]">
+                                    <CheckCircle2 size={15} className="text-emerald-600 dark:text-emerald-300" />
+                                    New extension installs keep the job context when you move between Chrome and CareerVivid.
+                                </div>
                             </div>
                         </div>
+                    </section>
 
-                        <div>
-                            <label htmlFor="password" className="sr-only">{t('auth.password_label')}</label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <Lock className="h-5 w-5 text-gray-400" />
+                    <section className="order-1 w-full max-w-md justify-self-center lg:justify-self-start">
+                        <div className="rounded-2xl border border-[#e4d3bc] bg-[#fffaf1]/95 p-6 shadow-[0_20px_70px_rgba(80,55,28,0.12)] backdrop-blur dark:border-[#37332d] dark:bg-[#262522]/95 sm:p-8">
+                            <div className="mb-7">
+                                <div className="mb-5 flex items-center gap-3">
+                                    <Logo className="h-10 w-10 shrink-0" />
+                                    <div>
+                                        <p className="text-xs font-bold text-[#a97935] dark:text-[#caa26c]">CareerVivid</p>
+                                        <p className="text-[11px] font-semibold text-[#665a4a] dark:text-[#aaa39a]">Job search workspace</p>
+                                    </div>
                                 </div>
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type={showPassword ? 'text' : 'password'}
-                                    required
-                                    className="block w-full pl-11 pr-11 py-3.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-sm font-medium"
-                                    placeholder={t('auth.password_placeholder')}
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-                                >
-                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center justify-end">
-                            <button type="button" onClick={handlePasswordReset} className="text-sm font-semibold text-primary-600 hover:text-primary-500 transition-colors">
-                                {t('auth.forgot_password')}
-                            </button>
-                        </div>
-
-                        {error && (
-                            <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 animate-slide-up">
-                                <p className="text-sm text-red-600 dark:text-red-400 text-center font-semibold mb-3">
-                                    {error}
-                                </p>
-                                {isMissingUser && (
-                                    <button
-                                        type="button"
-                                        onClick={() => navigate(`/signup?email=${encodeURIComponent(email)}`)}
-                                        className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 rounded-lg text-sm font-bold border border-red-200 dark:border-red-800/50 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all shadow-sm group"
-                                    >
-                                        Create a new account
-                                        <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
-                                    </button>
+                                {isBioLinkContext ? (
+                                    <>
+                                        <h2 className="text-2xl font-bold tracking-tight text-[#211b16] dark:text-[#f4f1e9]">
+                                            Welcome, creator
+                                        </h2>
+                                        <p className="mt-2 text-sm font-medium leading-6 text-[#665a4a] dark:text-[#aaa39a]">
+                                            Sign in to manage your Bio-Link workspace.
+                                        </p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <h2 className="text-2xl font-bold tracking-tight text-[#211b16] dark:text-[#f4f1e9]">
+                                            {t('auth.welcome_back')}
+                                        </h2>
+                                        <p className="mt-2 text-sm font-medium leading-6 text-[#665a4a] dark:text-[#aaa39a]">
+                                            Sign in to sync resumes, saved jobs, and interview prep.
+                                        </p>
+                                    </>
                                 )}
                             </div>
-                        )}
-                        {success && (
-                            <div className="p-3 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800">
-                                <p className="text-sm text-green-600 dark:text-green-400 text-center font-medium">{success}</p>
+
+                            <form className="space-y-4" onSubmit={handleSignIn}>
+                                <div>
+                                    <label htmlFor="email" className="mb-2 block text-xs font-bold text-[#665a4a] dark:text-[#aaa39a]">{t('auth.email_label')}</label>
+                                    <div className="relative">
+                                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                                            <Mail className="h-4 w-4 text-[#9a651f] dark:text-[#caa26c]" />
+                                        </div>
+                                        <input
+                                            id="email"
+                                            name="email"
+                                            type="email"
+                                            required
+                                            className="block h-12 w-full rounded-xl border border-[#e4d3bc] bg-white px-4 pl-10 text-sm font-semibold text-[#211b16] placeholder:text-[#9b8b79] transition focus:border-[#7069dc] focus:outline-none focus:ring-4 focus:ring-[#7069dc]/15 dark:border-[#37332d] dark:bg-[#1f1f1d] dark:text-[#f4f1e9] dark:placeholder:text-[#777069]"
+                                            placeholder={t('auth.email_placeholder')}
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div className="mb-2 flex items-center justify-between gap-3">
+                                        <label htmlFor="password" className="block text-xs font-bold text-[#665a4a] dark:text-[#aaa39a]">{t('auth.password_label')}</label>
+                                        <button type="button" onClick={handlePasswordReset} className="text-xs font-bold text-[#625bd5] transition hover:text-[#4e46bf] focus:outline-none focus:ring-2 focus:ring-[#7069dc]/30 dark:text-[#8d88e6]">
+                                            {t('auth.forgot_password')}
+                                        </button>
+                                    </div>
+                                    <div className="relative">
+                                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                                            <Lock className="h-4 w-4 text-[#9a651f] dark:text-[#caa26c]" />
+                                        </div>
+                                        <input
+                                            id="password"
+                                            name="password"
+                                            type={showPassword ? 'text' : 'password'}
+                                            required
+                                            className="block h-12 w-full rounded-xl border border-[#e4d3bc] bg-white px-4 pl-10 pr-11 text-sm font-semibold text-[#211b16] placeholder:text-[#9b8b79] transition focus:border-[#7069dc] focus:outline-none focus:ring-4 focus:ring-[#7069dc]/15 dark:border-[#37332d] dark:bg-[#1f1f1d] dark:text-[#f4f1e9] dark:placeholder:text-[#777069]"
+                                            placeholder={t('auth.password_placeholder')}
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-[#7d6e5e] transition hover:text-[#211b16] focus:outline-none focus:ring-2 focus:ring-[#7069dc]/30 dark:text-[#aaa39a] dark:hover:text-[#f4f1e9]"
+                                            aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                        >
+                                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {error && (
+                                    <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 dark:border-rose-900/60 dark:bg-rose-950/30">
+                                        <p className="text-sm font-semibold text-rose-700 dark:text-rose-300">
+                                            {error}
+                                        </p>
+                                        {isMissingUser && (
+                                            <button
+                                                type="button"
+                                                onClick={() => navigate(`/signup?email=${encodeURIComponent(email)}`)}
+                                                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-rose-200 bg-white px-4 py-2.5 text-sm font-bold text-rose-700 transition hover:bg-rose-100 dark:border-rose-900/60 dark:bg-[#262522] dark:text-rose-300 dark:hover:bg-rose-950/40"
+                                            >
+                                                Create a new account
+                                                <ChevronRight size={15} />
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                                {success && (
+                                    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-900/60 dark:bg-emerald-950/30">
+                                        <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">{success}</p>
+                                    </div>
+                                )}
+
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#5650c8] bg-[#625bd5] px-4 text-sm font-bold text-white shadow-sm transition hover:bg-[#5650c8] focus:outline-none focus:ring-4 focus:ring-[#7069dc]/25 disabled:cursor-not-allowed disabled:border-[#d7d0c5] disabled:bg-[#ece5da] disabled:text-[#9b8b79] dark:border-[#8d88e6] dark:bg-[#7069dc] dark:hover:bg-[#8079e4] dark:disabled:border-[#37332d] dark:disabled:bg-[#302e2a] dark:disabled:text-[#777069]"
+                                >
+                                    {loading ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
+                                    {t('auth.sign_in')}
+                                </button>
+                            </form>
+
+                            <div className="my-6 flex items-center gap-3">
+                                <div className="h-px flex-1 bg-[#e4d3bc] dark:bg-[#37332d]" aria-hidden="true"></div>
+                                <span className="text-xs font-bold text-[#7d6e5e] dark:text-[#aaa39a]">{t('auth.or_continue_with')}</span>
+                                <div className="h-px flex-1 bg-[#e4d3bc] dark:bg-[#37332d]" aria-hidden="true"></div>
                             </div>
-                        )}
 
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full flex justify-center py-3.5 px-4 border border-[#c7d2fe] rounded-xl shadow-lg shadow-indigo-100/70 text-sm font-bold text-[#211b4d] bg-[#EEF2FF] hover:bg-[#e0e7ff] hover:text-[#18083d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-400 disabled:bg-[#f5f7ff] disabled:text-slate-400 disabled:cursor-not-allowed transition-all transform hover:-translate-y-0.5 dark:border-primary-800 dark:bg-primary-600 dark:text-white dark:hover:bg-primary-500 dark:shadow-primary-900/20 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
-                        >
-                            {t('auth.sign_in')}
-                        </button>
-                    </form>
+                            <div className="space-y-3">
+                                {isBioLinkContext && (
+                                    <button
+                                        onClick={handleTikTokLogin}
+                                        disabled={loading}
+                                        className="inline-flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-[#e4d3bc] bg-white px-4 text-sm font-bold text-[#211b16] shadow-sm transition hover:border-[#d9c7ad] hover:bg-[#fffaf1] focus:outline-none focus:ring-4 focus:ring-[#7069dc]/15 disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#37332d] dark:bg-[#1f1f1d] dark:text-[#f4f1e9] dark:hover:bg-[#302e2a]"
+                                    >
+                                        <svg className="h-5 w-5 fill-current" viewBox="0 0 448 512"><path d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25V349.38A162.55 162.55 0 1 1 185 188.31V278.2a74.62 74.62 0 1 0 52.23 71.18V0l88 0a121.18 121.18 0 0 0 1.86 22.17h0A122.18 122.18 0 0 0 381 102.39a121.43 121.43 0 0 0 67 20.14z" /></svg>
+                                        Continue with TikTok
+                                    </button>
+                                )}
 
-                    <div className="my-8 relative">
-                        <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                            <div className="w-full border-t border-gray-200 dark:border-gray-800"></div>
-                        </div>
-                        <div className="relative flex justify-center text-sm">
-                            <span className="px-4 bg-white dark:bg-gray-900 text-gray-500 font-medium">{t('auth.or_continue_with')}</span>
-                        </div>
-                    </div>
-
-                    <div className="space-y-3">
-                        {/* Contextual TikTok Button */}
-                        {isBioLinkContext && (
-                            <button
-                                onClick={handleTikTokLogin}
-                                disabled={loading}
-                                className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-[#FE2C55] text-white text-sm font-black uppercase border-2 border-black hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
-                            >
-                                <svg className="w-5 h-5 fill-current" viewBox="0 0 448 512"><path d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25V349.38A162.55 162.55 0 1 1 185 188.31V278.2a74.62 74.62 0 1 0 52.23 71.18V0l88 0a121.18 121.18 0 0 0 1.86 22.17h0A122.18 122.18 0 0 0 381 102.39a121.43 121.43 0 0 0 67 20.14z" /></svg>
-                                Continue with TikTok
-                            </button>
-                        )}
-
-                        <button
-                            onClick={handleGoogleSignIn}
-                            disabled={loading}
-                            className="w-full flex items-center justify-center gap-3 py-3.5 px-4 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm bg-white dark:bg-gray-800 text-sm font-bold text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
-                        >
-                            <svg className="w-5 h-5" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 381.5 512 244 512 111.8 512 0 398.2 0 256S111.8 0 244 0c71.2 0 130.9 27.8 176.9 72.9l-63.1 61.3C294.3 93.6 270.3 80 244 80 158.4 80 90 148.2 90 233.9s68.4 153.9 154 153.9c75.5 0 120.9-42.3 124.9-97.9H244v-77.3h236.1c2.4 12.7 3.9 26.1 3.9 40.2z"></path></svg>
-                            {t('auth.google')}
-                        </button>
-                    </div>
-
-                    <div className="mt-8 pt-8 border-t border-gray-100 dark:border-gray-800 text-center">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 font-medium uppercase tracking-wider text-[10px]">
-                            Just exploring?
-                        </p>
-                        <a
-                            href="/community"
-                            className="inline-flex items-center gap-2.5 px-6 py-2.5 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 text-gray-900 dark:text-white rounded-2xl border border-gray-200 dark:border-gray-700 transition-all group shadow-sm hover:shadow-md"
-                        >
-                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400 group-hover:scale-110 transition-transform">
-                                <Users size={16} />
+                                <button
+                                    onClick={handleGoogleSignIn}
+                                    disabled={loading}
+                                    className="inline-flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-[#e4d3bc] bg-white px-4 text-sm font-bold text-[#211b16] shadow-sm transition hover:border-[#d9c7ad] hover:bg-[#fffaf1] focus:outline-none focus:ring-4 focus:ring-[#7069dc]/15 disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#37332d] dark:bg-[#1f1f1d] dark:text-[#f4f1e9] dark:hover:bg-[#302e2a]"
+                                >
+                                    <svg className="h-5 w-5" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 381.5 512 244 512 111.8 512 0 398.2 0 256S111.8 0 244 0c71.2 0 130.9 27.8 176.9 72.9l-63.1 61.3C294.3 93.6 270.3 80 244 80 158.4 80 90 148.2 90 233.9s68.4 153.9 154 153.9c75.5 0 120.9-42.3 124.9-97.9H244v-77.3h236.1c2.4 12.7 3.9 26.1 3.9 40.2z"></path></svg>
+                                    {t('auth.google')}
+                                </button>
                             </div>
-                            <span className="font-bold text-sm">Explore Community</span>
-                            <ChevronRight size={14} className="text-gray-400 group-hover:translate-x-0.5 transition-transform" />
-                        </a>
-                    </div>
-                </div>
+
+                            <div className="mt-6 flex flex-col gap-3 border-t border-[#e4d3bc] pt-5 text-center dark:border-[#37332d]">
+                                <p className="text-xs font-semibold text-[#665a4a] dark:text-[#aaa39a]">
+                                    New to CareerVivid?{' '}
+                                    <button
+                                        type="button"
+                                        onClick={() => navigate(email ? `/signup?email=${encodeURIComponent(email)}` : '/signup')}
+                                        className="font-bold text-[#625bd5] hover:text-[#4e46bf] dark:text-[#8d88e6]"
+                                    >
+                                        Create an account
+                                    </button>
+                                </p>
+                                <a
+                                    href="/community"
+                                    className="mx-auto inline-flex items-center gap-2 rounded-full border border-[#e4d3bc] bg-[#fffaf1] px-4 py-2 text-xs font-bold text-[#665a4a] transition hover:border-[#caa26c] hover:text-[#211b16] dark:border-[#37332d] dark:bg-[#302e2a] dark:text-[#aaa39a] dark:hover:text-[#f4f1e9]"
+                                >
+                                    <Users size={14} />
+                                    Explore community
+                                    <ChevronRight size={13} />
+                                </a>
+                            </div>
+                        </div>
+                    </section>
+                </main>
             </div>
         </div>
     );

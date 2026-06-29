@@ -61,24 +61,23 @@ export const HIGHLIGHT_PATTERNS: HighlightPattern[] = [
 
 export interface HighlightLegendItem {
     color: string;
-    label: string;
-    examples: string;
+    id: string;
 }
 
 export const HIGHLIGHT_LEGEND: HighlightLegendItem[] = [
-    { color: 'bg-green-100 dark:bg-green-900/30', label: 'Salary & Compensation', examples: '$120k, $80k-100k/yr, Competitive Salary' },
-    { color: 'bg-blue-100 dark:bg-blue-900/30', label: 'Benefits & Perks', examples: '401k, Health Insurance, Stock Options, PTO, Signing Bonus' },
-    { color: 'bg-teal-100 dark:bg-teal-900/30', label: 'Work Arrangement', examples: 'Remote, Hybrid, On-site, Work from Anywhere' },
-    { color: 'bg-orange-100 dark:bg-orange-900/30', label: 'Experience Level', examples: '5+ years, Senior, Entry-level, Manager, Director' },
-    { color: 'bg-purple-100 dark:bg-purple-900/30', label: 'Education & Certifications', examples: "Bachelor's, MBA, PhD, CPA, PMP, RN, Licensed" },
-    { color: 'bg-rose-100 dark:bg-rose-900/30', label: 'Programming & Software', examples: 'Python, JavaScript, Excel, AutoCAD, Photoshop' },
-    { color: 'bg-cyan-100 dark:bg-cyan-900/30', label: 'Frameworks, Tools & AI', examples: 'React, AWS, AI, Machine Learning, Jira' },
-    { color: 'bg-amber-100 dark:bg-amber-900/30', label: 'Soft Skills', examples: 'Leadership, Problem-solving, Communication, Bilingual' },
-    { color: 'bg-red-100 dark:bg-red-900/30', label: 'Urgency Keywords', examples: 'Hiring Immediately, ASAP, Now Hiring' },
-    { color: 'bg-indigo-100 dark:bg-indigo-900/30', label: 'Company Culture', examples: 'Diversity, Work-life Balance, Mentorship, Growth' },
-    { color: 'bg-emerald-100 dark:bg-emerald-900/30', label: 'Healthcare Industry', examples: 'Patient Care, ICU, HIPAA, EHR, Nursing' },
-    { color: 'bg-lime-100 dark:bg-lime-900/30', label: 'Finance Industry', examples: 'GAAP, Audit, Compliance, Risk, Investment' },
-    { color: 'bg-fuchsia-100 dark:bg-fuchsia-900/30', label: 'Creative & Marketing', examples: 'Branding, UX/UI, Content Marketing, SEO' },
-    { color: 'bg-sky-100 dark:bg-sky-900/30', label: 'Education Industry', examples: 'Curriculum, IEP, K-12, Tenure, LMS' },
-    { color: 'bg-stone-200 dark:bg-stone-800/50', label: 'Trades & Services', examples: 'Journeyman, HVAC, Electrician, OSHA, Blueprint' },
+    { color: 'bg-green-100 dark:bg-green-900/30', id: 'salary' },
+    { color: 'bg-blue-100 dark:bg-blue-900/30', id: 'benefits' },
+    { color: 'bg-teal-100 dark:bg-teal-900/30', id: 'work_arrangement' },
+    { color: 'bg-orange-100 dark:bg-orange-900/30', id: 'experience' },
+    { color: 'bg-purple-100 dark:bg-purple-900/30', id: 'education' },
+    { color: 'bg-rose-100 dark:bg-rose-900/30', id: 'programming' },
+    { color: 'bg-cyan-100 dark:bg-cyan-900/30', id: 'frameworks' },
+    { color: 'bg-amber-100 dark:bg-amber-900/30', id: 'soft_skills' },
+    { color: 'bg-red-100 dark:bg-red-900/30', id: 'urgency' },
+    { color: 'bg-indigo-100 dark:bg-indigo-900/30', id: 'culture' },
+    { color: 'bg-emerald-100 dark:bg-emerald-900/30', id: 'healthcare' },
+    { color: 'bg-lime-100 dark:bg-lime-900/30', id: 'finance' },
+    { color: 'bg-fuchsia-100 dark:bg-fuchsia-900/30', id: 'creative' },
+    { color: 'bg-sky-100 dark:bg-sky-900/30', id: 'education_industry' },
+    { color: 'bg-stone-200 dark:bg-stone-800/50', id: 'trades' },
 ];

@@ -12,7 +12,7 @@ const EnterpriseCalculator: React.FC = () => {
     const totalCredits = seats * CREDITS_PER_SEAT;
 
     return (
-        <motion.div 
+        <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
@@ -21,7 +21,7 @@ const EnterpriseCalculator: React.FC = () => {
         >
             {/* Background glow */}
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary-500/5 dark:bg-primary-500/10 blur-[100px] rounded-full point-events-none -z-10 group-hover:bg-primary-500/10 transition-colors duration-700" />
-            
+
             <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
                 <div className="flex-grow w-full">
                     <div className="flex items-center gap-4 mb-6">
@@ -61,7 +61,7 @@ const EnterpriseCalculator: React.FC = () => {
                     <div className="absolute top-0 right-0 p-8 opacity-10">
                         <Zap size={100} />
                     </div>
-                    
+
                     <div className="space-y-8 relative z-10">
                         <div>
                             <span className="text-xs font-bold text-gray-500 uppercase tracking-widest block mb-2">Total Monthly Cost</span>

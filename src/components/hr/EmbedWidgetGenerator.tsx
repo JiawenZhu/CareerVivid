@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Copy, Check, Code2, Eye, Palette, Settings, ExternalLink } from 'lucide-react';
 import { CompanyProfile, EmbedWidgetTheme, EmbedWidgetMode, EmbedFontFamily } from '../../types';
 
@@ -11,6 +12,8 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
     companyProfile,
     onSaveProfile,
 }) => {
+    const { t } = useTranslation();
+    const tEmbed = (key: string, options?: Record<string, unknown>) => t(`embed_widget_generator.${key}`, options);
     const [copied, setCopied] = useState(false);
     const [mode, setMode] = useState<EmbedWidgetMode>('inline');
     const [theme, setTheme] = useState<EmbedWidgetTheme>(companyProfile?.theme || 'minimalist');
@@ -28,19 +31,19 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
         // Slug must be lowercase alphanumeric with hyphens, no spaces
         const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
         if (!value) {
-            setSlugError('Slug cannot be empty');
+            setSlugError(tEmbed('validation.slug_empty'));
             return false;
         }
         if (value.length < 3) {
-            setSlugError('Slug must be at least 3 characters');
+            setSlugError(tEmbed('validation.slug_min'));
             return false;
         }
         if (value.length > 50) {
-            setSlugError('Slug must be less than 50 characters');
+            setSlugError(tEmbed('validation.slug_max'));
             return false;
         }
         if (!slugPattern.test(value)) {
-            setSlugError('Slug can only contain lowercase letters, numbers, and hyphens');
+            setSlugError(tEmbed('validation.slug_pattern'));
             return false;
         }
         setSlugError('');
@@ -88,14 +91,14 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
 
             if (!response.ok) {
                 const error = await response.json();
-                throw new Error(error.error || 'Failed to fetch jobs');
+                throw new Error(error.error || tEmbed('errors.failed_to_fetch_jobs'));
             }
 
             const jobs = await response.json();
             setPreviewJobs(jobs);
         } catch (error) {
             console.error('Preview fetch error:', error);
-            setPreviewError(error instanceof Error ? error.message : 'Failed to load jobs');
+            setPreviewError(error instanceof Error ? error.message : tEmbed('errors.failed_to_load_jobs'));
         } finally {
             setPreviewLoading(false);
         }
@@ -109,13 +112,13 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
     }, [activeTab, slug]);
 
     const themeOptions: { id: EmbedWidgetTheme; name: string; description: string }[] = [
-        { id: 'minimalist', name: 'Minimalist', description: 'Clean, light design' },
-        { id: 'executive', name: 'Executive', description: 'Dark, professional look' },
-        { id: 'creative', name: 'Creative (Neo Brutalism)', description: 'Bold colors & borders' },
+        { id: 'minimalist', name: tEmbed('themes.minimalist.name'), description: tEmbed('themes.minimalist.description') },
+        { id: 'executive', name: tEmbed('themes.executive.name'), description: tEmbed('themes.executive.description') },
+        { id: 'creative', name: tEmbed('themes.creative.name'), description: tEmbed('themes.creative.description') },
     ];
 
     const fontOptions: { id: EmbedFontFamily; name: string }[] = [
-        { id: 'system', name: 'System Default' },
+        { id: 'system', name: tEmbed('fonts.system_default') },
         { id: 'inter', name: 'Inter' },
         { id: 'roboto', name: 'Roboto' },
         { id: 'outfit', name: 'Outfit' },
@@ -125,9 +128,9 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
         <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
             {/* Header */}
             <div className="p-6 border-b border-gray-200 dark:border-gray-800">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Embed Job Widget</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">{tEmbed('header.title')}</h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    Add your job listings to any website with a simple code snippet.
+                    {tEmbed('header.description')}
                 </p>
             </div>
 
@@ -141,7 +144,7 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
                         }`}
                 >
                     <Code2 size={16} />
-                    Get Code
+                    {tEmbed('tabs.get_code')}
                 </button>
                 <button
                     onClick={() => setActiveTab('preview')}
@@ -151,7 +154,7 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
                         }`}
                 >
                     <Eye size={16} />
-                    Preview
+                    {tEmbed('tabs.preview')}
                 </button>
                 <button
                     onClick={() => setActiveTab('branding')}
@@ -161,7 +164,7 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
                         }`}
                 >
                     <Palette size={16} />
-                    Branding
+                    {tEmbed('tabs.branding')}
                 </button>
             </div>
 
@@ -173,20 +176,20 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
                         <div className="grid md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Display Mode
+                                    {tEmbed('fields.display_mode')}
                                 </label>
                                 <select
                                     value={mode}
                                     onChange={(e) => setMode(e.target.value as EmbedWidgetMode)}
                                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                                 >
-                                    <option value="inline">Inline (in-page list)</option>
-                                    <option value="floating">Floating (bottom-right widget)</option>
+                                    <option value="inline">{tEmbed('options.mode.inline')}</option>
+                                    <option value="floating">{tEmbed('options.mode.floating')}</option>
                                 </select>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Theme
+                                    {tEmbed('fields.theme')}
                                 </label>
                                 <select
                                     value={theme}
@@ -200,7 +203,7 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Max Jobs to Show
+                                    {tEmbed('fields.max_jobs')}
                                 </label>
                                 <input
                                     type="number"
@@ -213,7 +216,7 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Primary Color
+                                    {tEmbed('fields.primary_color')}
                                 </label>
                                 <div className="flex gap-2">
                                     <input
@@ -236,14 +239,14 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
                         <div>
                             <div className="flex items-center justify-between mb-2">
                                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Embed Code
+                                    {tEmbed('fields.embed_code')}
                                 </label>
                                 <button
                                     onClick={handleCopy}
                                     className="flex items-center gap-1 px-3 py-1.5 text-sm text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors"
                                 >
                                     {copied ? <Check size={14} /> : <Copy size={14} />}
-                                    {copied ? 'Copied!' : 'Copy Code'}
+                                    {copied ? tEmbed('actions.copied') : tEmbed('actions.copy_code')}
                                 </button>
                             </div>
                             <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
@@ -254,12 +257,12 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
                         {/* Instructions */}
                         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                             <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">
-                                How to Use
+                                {tEmbed('instructions.title')}
                             </h4>
                             <ol className="text-sm text-blue-700 dark:text-blue-300 space-y-1 list-decimal list-inside">
-                                <li>Copy the embed code above</li>
-                                <li>Paste it into your website&apos;s HTML where you want jobs to appear</li>
-                                <li>The widget will automatically load and display your published jobs</li>
+                                <li>{tEmbed('instructions.copy_code')}</li>
+                                <li>{tEmbed('instructions.paste_html')}</li>
+                                <li>{tEmbed('instructions.auto_load')}</li>
                             </ol>
                         </div>
                     </div>
@@ -269,14 +272,14 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
                             <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Live preview of your published jobs
+                                {tEmbed('preview.live_preview')}
                             </p>
                             <button
                                 onClick={fetchPreviewJobs}
                                 disabled={previewLoading}
                                 className="text-sm text-purple-600 hover:text-purple-700 disabled:opacity-50"
                             >
-                                {previewLoading ? 'Loading...' : 'Refresh'}
+                                {previewLoading ? tEmbed('preview.loading') : tEmbed('preview.refresh')}
                             </button>
                         </div>
                         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800 min-h-[300px]">
@@ -285,7 +288,7 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
                                 <div className="flex items-center justify-center py-12">
                                     <div className="text-center">
                                         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                                        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Loading jobs...</p>
+                                        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{tEmbed('preview.loading_jobs')}</p>
                                     </div>
                                 </div>
                             ) : previewError ? (
@@ -296,23 +299,23 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
                                             onClick={fetchPreviewJobs}
                                             className="mt-2 text-sm text-purple-600 hover:text-purple-700"
                                         >
-                                            Try Again
+                                            {tEmbed('preview.try_again')}
                                         </button>
                                     </div>
                                 </div>
                             ) : previewJobs.length === 0 ? (
                                 <div className="flex items-center justify-center py-12">
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">No jobs found for this company</p>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">{tEmbed('preview.no_jobs')}</p>
                                 </div>
                             ) : (
                                 <div className={`rounded-lg p-4 ${theme === 'executive' ? 'bg-gray-900' : 'bg-white'}`}>
                                     <div className="flex items-center justify-between mb-4">
                                         <span className={`font-semibold ${theme === 'executive' ? 'text-white' : 'text-gray-900'}`}>
-                                            Open Positions
+                                            {tEmbed('preview.open_positions')}
                                         </span>
                                         <span className={`text-xs px-2 py-1 rounded-full ${theme === 'executive' ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-600'
                                             }`}>
-                                            {previewJobs.length} opening{previewJobs.length !== 1 ? 's' : ''}
+                                            {tEmbed(previewJobs.length === 1 ? 'preview.opening_one' : 'preview.opening_other', { count: previewJobs.length })}
                                         </span>
                                     </div>
                                     <div className="space-y-3">
@@ -344,7 +347,7 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
                         <div className="grid md:grid-cols-2 gap-6">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Company Slug (URL)
+                                    {tEmbed('fields.company_slug')}
                                 </label>
                                 <div className="flex items-center gap-2">
                                     <span className="text-sm text-gray-500">careervivid.app/jobs/</span>
@@ -365,13 +368,13 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
                                     </p>
                                 ) : (
                                     <p className="text-xs text-gray-500 mt-1">
-                                        Only lowercase letters, numbers, and hyphens. Will auto-format as you type.
+                                        {tEmbed('help.slug')}
                                     </p>
                                 )}
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Font Family
+                                    {tEmbed('fields.font_family')}
                                 </label>
                                 <select
                                     value={fontFamily}
@@ -387,7 +390,7 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                                Theme Preset
+                                {tEmbed('fields.theme_preset')}
                             </label>
                             <div className="grid md:grid-cols-3 gap-4">
                                 {themeOptions.map((t) => (
@@ -419,7 +422,7 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
                                     : 'bg-purple-600 text-white hover:bg-purple-700'
                                     }`}
                             >
-                                Save Branding Settings
+                                {tEmbed('actions.save_branding')}
                             </button>
                         </div>
                     </div>
@@ -430,7 +433,7 @@ const EmbedWidgetGenerator: React.FC<EmbedWidgetGeneratorProps> = ({
             <div className="p-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 rounded-b-xl">
                 <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600 dark:text-gray-400">
-                        Your public job board:
+                        {tEmbed('public_board')}
                     </span>
                     <a
                         href={`https://careervivid.app/jobs/${slug}`}

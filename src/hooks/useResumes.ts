@@ -432,15 +432,10 @@ export const useResumes = (userIdOverride?: string | null) => {
         const resumeRef = doc(db, 'users', activeUid, 'resumes', id);
         try {
             await deleteDoc(resumeRef);
-            if (resumes.length === 1) {
-                navigate('/newresume');
-            } else {
-                navigate('/dashboard');
-            }
         } catch (error) {
             console.error("Error deleting resume:", error);
         }
-    }, [activeUid, resumes.length]);
+    }, [activeUid]);
 
     const duplicateResume = useCallback(async (id: string) => {
         if (!activeUid) return;

@@ -85,7 +85,7 @@ const BillingDashboard: React.FC = () => {
         <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950 font-sans selection:bg-primary-500/30 relative overflow-hidden">
             {/* Background glowing orb matching pricing page */}
             <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary-500/10 dark:bg-primary-600/10 blur-[120px] rounded-full pointer-events-none z-0" />
-            
+
             <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50 sticky top-0 z-10 transition-all duration-300">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                     <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-gray-900 dark:text-white hover:opacity-70 transition-all group">
@@ -105,7 +105,7 @@ const BillingDashboard: React.FC = () => {
             </header>
 
             <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative z-10">
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
@@ -212,7 +212,7 @@ const BillingDashboard: React.FC = () => {
                             <div className="relative overflow-hidden bg-gray-900 dark:bg-black rounded-3xl p-8 border border-gray-800 shadow-2xl group">
                                 <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 via-purple-500/10 to-pink-500/10 opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
                                 <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary-500/20 rounded-full blur-3xl group-hover:bg-primary-500/30 transition-colors duration-500" />
-                                
+
                                 <div className="relative z-10 text-white">
                                     <h3 className="text-2xl font-black mb-3 flex items-center gap-3 tracking-tight">
                                         <Zap className="text-yellow-400 fill-current drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]" size={28} />
@@ -237,17 +237,17 @@ const BillingDashboard: React.FC = () => {
                                 {plans.map(p => {
                                     // Treat legacy plans as 'pro' for the selection active state
                                     const isCurrentPlan = currentPlan === p.id || (p.id === 'pro' && ['premium', 'pro_monthly', 'pro_sprint'].includes(currentPlan));
-                                    
+
                                     return (
                                         <div key={p.id} className={`p-5 rounded-2xl border-2 transition-all duration-300 relative overflow-hidden group ${
-                                            isCurrentPlan 
-                                            ? 'border-primary-500 bg-primary-50/50 dark:bg-primary-900/10 shadow-md shadow-primary-500/10' 
+                                            isCurrentPlan
+                                            ? 'border-primary-500 bg-primary-50/50 dark:bg-primary-900/10 shadow-md shadow-primary-500/10'
                                             : 'border-gray-200/50 dark:border-gray-800/50 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer'
                                         }`}>
                                             {isCurrentPlan && (
                                                 <div className="absolute top-0 right-0 -mt-2 -mr-2 w-12 h-12 bg-primary-500/10 rounded-full blur-xl" />
                                             )}
-                                            
+
                                             <div className="flex justify-between items-start mb-3 relative z-10">
                                                 <span className="font-bold text-gray-900 dark:text-white text-lg tracking-tight">{p.name}</span>
                                                 <span className="text-sm font-black text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/40 px-2 py-1 rounded-md">{p.price}</span>
@@ -260,7 +260,7 @@ const BillingDashboard: React.FC = () => {
                                                     {p.minimumSeats}-seat minimum
                                                 </div>
                                             )}
-                                            
+
                                             {!isCurrentPlan && (
                                                 <button
                                                     onClick={() => handleUpgrade(p.priceId, p.id === 'enterprise' ? p.minimumSeats : 1)}

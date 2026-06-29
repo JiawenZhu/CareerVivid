@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink, Trash2, Sparkles, BarChart } from 'lucide-react';
+import { Clock, ExternalLink, Trash2, Sparkles, BarChart } from 'lucide-react';
 import { PracticeHistoryEntry } from '../../types';
 import { navigate } from '../../utils/navigation';
 import { useState } from 'react';
@@ -17,6 +17,13 @@ interface InterviewHistoryCardProps {
 }
 
 const InterviewHistoryCard: React.FC<InterviewHistoryCardProps> = ({ entry, onShowReport, onDelete, onDragStart, onPracticeAgain }) => {
+    const draftQuestions = entry.activeInterviewDraft?.questions?.length ? entry.activeInterviewDraft.questions : entry.questions;
+    const hasResumableDraft = !!entry.activeInterviewDraft?.transcript?.length &&
+        !!draftQuestions?.length &&
+        entry.activeInterviewDraft.questionIndex < draftQuestions.length;
+    const draftQuestionLabel = hasResumableDraft
+        ? `Q${Math.min((entry.activeInterviewDraft?.questionIndex ?? 0) + 1, draftQuestions?.length || 1)}/${draftQuestions?.length || 1}`
+        : null;
     const {
         isDeleteModalOpen,
         setIsDeleteModalOpen,
@@ -80,13 +87,32 @@ const InterviewHistoryCard: React.FC<InterviewHistoryCardProps> = ({ entry, onSh
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-gray-300 truncate">{entry.job.company}</p>
                 </div>
-                {entry.interviewHistory?.length > 0 && (
-                    <div className="bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400 text-[11px] font-bold px-2 py-0.5 rounded-full border border-indigo-100/50 dark:border-indigo-900/30 flex-shrink-0 flex items-center justify-center self-start">
-                        {entry.interviewHistory.length} practice{entry.interviewHistory.length > 1 ? 's' : ''}
+                {(entry.interviewHistory?.length > 0 || draftQuestionLabel) && (
+                    <div className="flex flex-shrink-0 flex-col items-end gap-1 self-start">
+                        {entry.interviewHistory?.length > 0 && (
+                            <div className="bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400 text-[11px] font-bold px-2 py-0.5 rounded-full border border-indigo-100/50 dark:border-indigo-900/30 flex items-center justify-center">
+                                {entry.interviewHistory.length} practice{entry.interviewHistory.length > 1 ? 's' : ''}
+                            </div>
+                        )}
+                        {draftQuestionLabel && (
+                            <div className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/25 dark:text-amber-200">
+                                {draftQuestionLabel}
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Last activity: {formatDate(entry.timestamp)}</p>
+            <div className="mb-4 flex h-5 min-w-0 items-center gap-1.5 text-xs">
+                {hasResumableDraft && (
+                    <>
+                        <span className="shrink-0 rounded-full bg-amber-50 px-2 py-0.5 font-bold text-amber-800 ring-1 ring-amber-200 dark:bg-amber-950/25 dark:text-amber-200 dark:ring-amber-900/50">
+                            Saved draft
+                        </span>
+                        <span className="text-gray-300 dark:text-gray-600">·</span>
+                    </>
+                )}
+                <span className="truncate text-gray-500 dark:text-gray-400">Last activity: {formatDate(entry.timestamp)}</span>
+            </div>
 
             <div className="mt-auto flex justify-between items-center">
                 <button
@@ -99,9 +125,11 @@ const InterviewHistoryCard: React.FC<InterviewHistoryCardProps> = ({ entry, onSh
                 <div className="flex gap-2">
                     <button
                         onClick={handlePracticeAgain}
+                        aria-label={hasResumableDraft ? 'Resume session' : 'Practice Again'}
                         className="flex items-center gap-2 text-sm font-semibold bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-2 rounded-lg transition-colors"
                     >
-                        <Sparkles size={16} /> Practice Again
+                        {hasResumableDraft ? <Clock size={16} /> : <Sparkles size={16} />}
+                        {hasResumableDraft ? 'Resume' : 'Practice Again'}
                     </button>
                     <button
                         onClick={() => onShowReport(entry)}

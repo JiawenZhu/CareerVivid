@@ -1,6 +1,10 @@
 import * as functions from 'firebase-functions/v1';
 import * as admin from 'firebase-admin';
 import { TranslationServiceClient } from '@google-cloud/translate';
+import {
+    protectNaturalTranslationTerms,
+    restoreNaturalTranslationTerms,
+} from './translationTermProtection';
 
 // --- Duplicate and Translate Resume Function ---
 export const duplicateAndTranslateResume = functions.region('us-west1').https.onCall(async (data, context) => {
@@ -142,16 +146,20 @@ export const duplicateAndTranslateResume = functions.region('us-west1').https.on
         const projectId = 'jastalk-firebase';
         const location = 'global';
 
+        const protectedTexts = textsToTranslate.map((text) => protectNaturalTranslationTerms(text, 'text/html'));
+
         const request = {
             parent: `projects/${projectId}/locations/${location}`,
-            contents: textsToTranslate,
+            contents: protectedTexts.map((item) => item.content),
             mimeType: 'text/html', // Preserve HTML formatting
             sourceLanguageCode: 'en-US',
             targetLanguageCode: targetLanguage,
         };
 
         const [response] = await translationClient.translateText(request);
-        const translations = response.translations?.map(t => t.translatedText) || [];
+        const translations = response.translations?.map((t, index) =>
+            restoreNaturalTranslationTerms(t.translatedText || '', protectedTexts[index])
+        ) || [];
 
         if (translations.length !== textsToTranslate.length) {
             throw new functions.https.HttpsError(

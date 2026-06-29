@@ -39,29 +39,11 @@
         ]
       },
       {
-        "source": "**/*.@(eot|otf|ttf|ttc|woff|font.css)",
-        "headers": [
-          {
-            "key": "Access-Control-Allow-Origin",
-            "value": "*"
-          }
-        ]
-      },
-      {
-        "source": "/assets/main.js",
+        "source": "/index.html",
         "headers": [
           {
             "key": "Cache-Control",
-            "value": "no-cache, no-store, must-revalidate"
-          }
-        ]
-      },
-      {
-        "source": "**/*.@(js|css)",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "no-cache, no-store, must-revalidate"
+            "value": "max-age=0, no-cache, no-store, must-revalidate"
           }
         ]
       },
@@ -70,16 +52,74 @@
         "headers": [
           {
             "key": "Cache-Control",
-            "value": "no-cache, no-store, must-revalidate"
+            "value": "max-age=0, no-cache, no-store, must-revalidate"
           }
         ]
       },
       {
-        "source": "/index.html",
+        "source": "/nextjs/**/*.html",
         "headers": [
           {
             "key": "Cache-Control",
-            "value": "no-cache, no-store, must-revalidate"
+            "value": "max-age=0, no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/sw.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=0, no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/manifest.webmanifest",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=0, no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/assets/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=0, no-cache, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/_next/static/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=31536000, immutable"
+          }
+        ]
+      },
+      {
+        "source": "/nextjs/_next/static/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=31536000, immutable"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(eot|otf|ttf|ttc|woff|woff2|font.css)",
+        "headers": [
+          {
+            "key": "Access-Control-Allow-Origin",
+            "value": "*"
+          },
+          {
+            "key": "Cache-Control",
+            "value": "max-age=31536000, immutable"
           }
         ]
       }
@@ -88,6 +128,11 @@
       {
         "source": "/sitemap.xml",
         "function": "generateSitemap",
+        "region": "us-west1"
+      },
+      {
+        "source": "/jobs/open/**",
+        "function": "openRecommendedJob",
         "region": "us-west1"
       },
       {
@@ -257,6 +302,11 @@
       {
         "source": "/api/public/resume/**",
         "function": "publicResumeApi",
+        "region": "us-west1"
+      },
+      {
+        "source": "/vapi-webhook",
+        "function": "vapiWebhook",
         "region": "us-west1"
       },
       {

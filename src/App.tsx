@@ -35,6 +35,7 @@ const SignInPage = React.lazy(() => import('./pages/SignInPage'));
 const SignUpPage = React.lazy(() => import('./pages/SignUpPage'));
 const ExtensionAuthCompletePage = React.lazy(() => import('./pages/ExtensionAuthCompletePage'));
 const ExtensionWelcomePage = React.lazy(() => import('./pages/ExtensionWelcomePage'));
+const OnboardingPage = React.lazy(() => import('./pages/OnboardingPage'));
 const LandingPage = React.lazy(() => import('./pages/LandingPage'));
 const TechLandingPage = React.lazy(() => import('./pages/TechLandingPage'));
 const PricingPage = React.lazy(() => import('./pages/PricingPage'));
@@ -106,7 +107,6 @@ const DeveloperSettings = React.lazy(() => import('./pages/DeveloperSettings'));
 const BillingDashboard = React.lazy(() => import('./pages/BillingDashboard'));
 const DndWorkspaceProvider = React.lazy(() => import('./components/DndWorkspaceProvider'));
 
-import { SUPPORTED_LANGUAGES } from './constants';
 // import i18n from './i18n'; // Used in navigation.ts
 
 
@@ -115,8 +115,14 @@ import { navigate, getPathFromUrl } from './utils/navigation';
 
 
 const LoadingFallback = () => (
-  <div className="flex h-screen flex-col items-center justify-center bg-[#f7f1e7] dark:bg-[#1f1f1d]">
-    <Loader2 className="h-12 w-12 animate-spin text-[#9a651f] dark:text-[#caa26c]" />
+  <div className="cv-warm-page cv-warm-grid flex h-screen flex-col items-center justify-center px-4 text-center">
+    <div className="rounded-2xl border border-[#e4d3bc] bg-[#fffaf1]/90 px-6 py-5 shadow-sm dark:border-[#37332d] dark:bg-[#262522]/90">
+      <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl border border-[#e4d3bc] bg-white text-[#9a651f] dark:border-[#37332d] dark:bg-[#302e2a] dark:text-[#caa26c]">
+        <Loader2 className="h-5 w-5 animate-spin" />
+      </div>
+      <p className="mt-3 text-sm font-bold text-[#211b16] dark:text-[#f4f1e9]">Preparing your CareerVivid workspace...</p>
+      <p className="mt-1 text-xs font-semibold text-[#665a4a] dark:text-[#aaa39a]">Loading your sign-in session.</p>
+    </div>
   </div>
 );
 
@@ -135,6 +141,16 @@ import { useNavigation } from './contexts/NavigationContext';
 import { useWorkspaceSync } from './hooks/useWorkspaceSync';
 import PWABadge from './components/PWABadge';
 import CreditCelebration from './components/CreditCelebration';
+import RouteErrorBoundary from './components/RouteErrorBoundary';
+import AutoPageLocalizer from './components/AutoPageLocalizer';
+
+const RouteSuspense = ({ routeKey, children }: { routeKey: string; children: React.ReactNode }) => (
+  <RouteErrorBoundary routeKey={routeKey}>
+    <Suspense fallback={<LoadingFallback />}>
+      {children}
+    </Suspense>
+  </RouteErrorBoundary>
+);
 
 const WorkspaceDataEffects: React.FC = () => {
   useGuestDataMigration();
@@ -208,9 +224,9 @@ const AppContent: React.FC = () => {
   if (path === '/pdf-preview') {
     return (
       <ThemeProvider>
-        <Suspense fallback={<LoadingFallback />}>
+        <RouteSuspense routeKey={path}>
           <PdfPreviewPage />
-        </Suspense>
+        </RouteSuspense>
       </ThemeProvider>
     );
   }
@@ -219,9 +235,9 @@ const AppContent: React.FC = () => {
   if (path.startsWith('/shared/')) {
     return (
       <ThemeProvider>
-        <Suspense fallback={<LoadingFallback />}>
+        <RouteSuspense routeKey={path}>
           <PublicResumePage />
-        </Suspense>
+        </RouteSuspense>
       </ThemeProvider>
     )
   }
@@ -230,9 +246,9 @@ const AppContent: React.FC = () => {
   if (path.startsWith('/jobs/') && path !== '/jobs/recommend') {
     return (
       <ThemeProvider>
-        <Suspense fallback={<LoadingFallback />}>
+        <RouteSuspense routeKey={path}>
           <PublicJobBoardPage />
-        </Suspense>
+        </RouteSuspense>
       </ThemeProvider>
     )
   }
@@ -249,9 +265,9 @@ const AppContent: React.FC = () => {
   if (isPublicPortfolioRoute) {
     return (
       <ThemeProvider>
-        <Suspense fallback={<LoadingFallback />}>
+        <RouteSuspense routeKey={path}>
           <PublicPortfolioPage />
-        </Suspense>
+        </RouteSuspense>
       </ThemeProvider>
     );
   }
@@ -280,11 +296,11 @@ const AppContent: React.FC = () => {
                 defaultTitle="CareerVivid Community | AI Career Workspace"
               />
               {communitySeo}
-              <Suspense fallback={<LoadingFallback />}>
+              <RouteSuspense routeKey={path}>
                 {path === '/community' && <CommunityDashboard />}
                 {path === '/community/guidelines' && <CommunityGuidelinesPage />}
                 {isCommunityPostRoute && <CommunityPostPage />}
-              </Suspense>
+              </RouteSuspense>
             </div>
           </NavigationProvider>
         </CartProvider>
@@ -303,10 +319,10 @@ const AppContent: React.FC = () => {
                 defaultTitle="CareerVivid | AI Job Search Workspace & Chrome Extension"
               />
               <SEOHelper isRobotsAllowed />
-              <Suspense fallback={<LoadingFallback />}>
+              <RouteSuspense routeKey={path}>
                 <ExtensionWelcomePage />
                 {currentUser && !loading && <ChatBot />}
-              </Suspense>
+              </RouteSuspense>
             </div>
           </NavigationProvider>
         </CartProvider>
@@ -329,9 +345,9 @@ const AppContent: React.FC = () => {
       const accessDenied = !!currentUser && !isAdmin;
       return (
         <ThemeProvider>
-          <Suspense fallback={<LoadingFallback />}>
+          <RouteSuspense routeKey={path}>
             <AdminLoginPage accessDenied={accessDenied} />
-          </Suspense>
+          </RouteSuspense>
         </ThemeProvider>
       );
     }
@@ -340,9 +356,9 @@ const AppContent: React.FC = () => {
       if (!isEmailVerified && currentUser.providerData[0]?.providerId === 'password') {
         return (
           <ThemeProvider>
-            <Suspense fallback={<LoadingFallback />}>
+            <RouteSuspense routeKey={path}>
               <VerifyEmailPage />
-            </Suspense>
+            </RouteSuspense>
           </ThemeProvider>
         );
       }
@@ -350,27 +366,27 @@ const AppContent: React.FC = () => {
       if (path === '/admin/strategy') {
         return (
           <ThemeProvider>
-            <Suspense fallback={<LoadingFallback />}>
+            <RouteSuspense routeKey={path}>
               <StrategyDashboard />
-            </Suspense>
+            </RouteSuspense>
           </ThemeProvider>
         );
       }
 
       return (
         <ThemeProvider>
-          <Suspense fallback={<LoadingFallback />}>
+          <RouteSuspense routeKey={path}>
             <AdminDashboardPage />
-          </Suspense>
+          </RouteSuspense>
         </ThemeProvider>
       );
     } else {
       // If not logged in or not an admin, show permission denied
       return (
         <ThemeProvider>
-          <Suspense fallback={<LoadingFallback />}>
+          <RouteSuspense routeKey={path}>
             <PermissionDeniedPage requiredRole="Administrator" message="You need administrator privileges to access this page." />
-          </Suspense>
+          </RouteSuspense>
         </ThemeProvider>
       );
     }
@@ -415,7 +431,7 @@ const AppContent: React.FC = () => {
     } else if (path === '/signup') {
       const params = new URLSearchParams(window.location.search);
       const redirect = params.get('redirect');
-      content = currentUser ? <AuthRedirect target={redirect ? decodeURIComponent(redirect) : '/dashboard'} /> : <SignUpPage />;
+      content = currentUser ? <AuthRedirect target={redirect ? decodeURIComponent(redirect) : '/onboarding'} /> : <SignUpPage />;
     } else if (path === '/auth') {
       if (currentUser) {
         content = <AuthRedirect target="/dashboard" />;
@@ -432,6 +448,14 @@ const AppContent: React.FC = () => {
       content = (
         <ProtectedRoute>
           <Dashboard />
+        </ProtectedRoute>
+      );
+    }
+
+    else if (path === '/onboarding' || path === '/quick-start') {
+      content = (
+        <ProtectedRoute>
+          <OnboardingPage />
         </ProtectedRoute>
       );
     }
@@ -762,6 +786,8 @@ const AppContent: React.FC = () => {
             <SEOHelper
               isRobotsAllowed={![
                 '/dashboard',
+                '/onboarding',
+                '/quick-start',
                 '/profile',
                 '/billing',
                 '/subscription',
@@ -780,10 +806,10 @@ const AppContent: React.FC = () => {
                 '/extension-auth-complete',
               ].some(p => path.startsWith(p))}
             />
-            <Suspense fallback={<LoadingFallback />}>
+            <RouteSuspense routeKey={path}>
               {content}
               {showChatbot && <ChatBot />}
-            </Suspense>
+            </RouteSuspense>
           </div>
         </NavigationProvider>
       </CartProvider>
@@ -796,13 +822,17 @@ const App: React.FC = () => {
   if (isExt) {
     return (
       <ThemeProvider>
-        <ExtensionLayout />
+        <AutoPageLocalizer />
+        <RouteErrorBoundary routeKey="extension">
+          <ExtensionLayout />
+        </RouteErrorBoundary>
       </ThemeProvider>
     );
   }
 
   return (
     <>
+      <AutoPageLocalizer />
       <AppContent />
       <CreditCelebration />
       <PWABadge />

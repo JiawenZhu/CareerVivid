@@ -262,8 +262,8 @@ server.tool(
 server.tool(
     "cv_jobs_hunt",
     [
-        "Search for jobs and score them against the user's resume using AI.",
-        "Returns scored job listings ranked by fit. Use this when the user asks to find jobs, search openings, or hunt for opportunities.",
+        "Search validated ATS job listings and score them against the user's resume.",
+        "Returns verified external job links ranked by fit. Use this when the user asks to find jobs, search openings, or hunt for opportunities.",
     ].join("\n"),
     {
         role: z.string().describe("Job title or role to search for. E.g. 'Senior TypeScript Engineer'."),
@@ -271,7 +271,7 @@ server.tool(
         count: z.number().int().min(1).max(25).optional()
             .describe("Number of results to return (default: 10)."),
         minScore: z.number().min(0).max(100).optional()
-            .describe("Minimum AI fit score 0-100. Only return jobs at or above this threshold."),
+            .describe("Minimum CareerVivid fit score 0-100. Only return jobs at or above this threshold."),
         targetOrgs: z.array(z.string()).optional()
             .describe("Preferred companies to prioritize. E.g. ['Stripe','Vercel','Linear']."),
         resumeContent: z.string().optional()
@@ -284,16 +284,19 @@ server.tool(
             if (!res.ok) return err(`❌ Job hunt failed: ${data.error}`);
 
             const jobs = data.jobs || [];
-            if (jobs.length === 0) return ok("No matching jobs found. Try broadening role or location.");
+            if (jobs.length === 0) {
+                return ok(data.message || "No verified matching jobs found. Try broadening role or location.");
+            }
 
             const lines = jobs.map((j: any, i: number) =>
                 `${i + 1}. [${j.scoreLabel} — ${j.score}/100] ${j.title} @ ${j.company}\n` +
                 `   📍 ${j.location || "Remote/Unknown"}${j.salary ? " | 💰 " + j.salary : ""}\n` +
-                `   🔗 ${j.url}\n` +
+                `   🔗 Verified apply link: ${j.finalUrl || j.url}\n` +
+                `   ✅ ${j.validationReason || "Validated by CareerVivid"}\n` +
                 `   📝 ${j.aiSummary}`
             ).join("\n\n");
 
-            return ok(`Found ${data.total} jobs (showing ${jobs.length}):\n\n${lines}`);
+            return ok(`Found ${data.total} verified jobs (showing ${jobs.length}):\n\n${lines}`);
         } catch (e: any) { return err(`❌ Error: ${e.message}`); }
     }
 );

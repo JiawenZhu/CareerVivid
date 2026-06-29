@@ -1,10 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-type NavPosition = 'top' | 'side';
+type NavPosition = 'side';
+type SidebarMode = 'expanded' | 'collapsed';
 
 interface NavigationContextType {
     navPosition: NavPosition;
     toggleNavPosition: () => void;
+    sidebarMode: SidebarMode;
+    toggleSidebarMode: () => void;
     sidebarWidth: number;
     setSidebarWidth: (width: number | ((prev: number) => number)) => void;
 }
@@ -13,12 +16,13 @@ const NavigationContext = createContext<NavigationContextType | undefined>(undef
 
 export const NavigationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [navPosition, setNavPosition] = useState<NavPosition>('side');
+    const [sidebarMode, setSidebarMode] = useState<SidebarMode>('expanded');
     const [sidebarWidth, setSidebarWidthState] = useState<number>(256);
 
     useEffect(() => {
-        const stored = localStorage.getItem('careervivid_nav_layout');
-        if (stored === 'top' || stored === 'side') {
-            setNavPosition(stored);
+        const storedMode = localStorage.getItem('careervivid_sidebar_mode');
+        if (storedMode === 'expanded' || storedMode === 'collapsed') {
+            setSidebarMode(storedMode);
         }
 
         const storedWidth = localStorage.getItem('careervivid_sidebar_width');
@@ -30,13 +34,20 @@ export const NavigationProvider: React.FC<{ children: ReactNode }> = ({ children
         }
     }, []);
 
+    useEffect(() => {
+        setNavPosition('side');
+        localStorage.setItem('careervivid_nav_layout', 'side');
+    }, []);
+
     const toggleNavPosition = () => {
-        setNavPosition(prev => {
-            const newPos = prev === 'top' ? 'side' : 'top';
-            localStorage.setItem('careervivid_nav_layout', newPos);
-            return newPos;
+        setSidebarMode(prev => {
+            const nextMode = prev === 'expanded' ? 'collapsed' : 'expanded';
+            localStorage.setItem('careervivid_sidebar_mode', nextMode);
+            return nextMode;
         });
     };
+
+    const toggleSidebarMode = toggleNavPosition;
 
     const setSidebarWidth = (value: number | ((prev: number) => number)) => {
         setSidebarWidthState(prev => {
@@ -48,7 +59,7 @@ export const NavigationProvider: React.FC<{ children: ReactNode }> = ({ children
     };
 
     return (
-        <NavigationContext.Provider value={{ navPosition, toggleNavPosition, sidebarWidth, setSidebarWidth }}>
+        <NavigationContext.Provider value={{ navPosition, toggleNavPosition, sidebarMode, toggleSidebarMode, sidebarWidth, setSidebarWidth }}>
             {children}
         </NavigationContext.Provider>
     );

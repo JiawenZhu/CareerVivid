@@ -10,12 +10,14 @@ const {
   mockDeletePracticeHistory,
   mockGenerateInterviewQuestions,
   mockCheckCredit,
+  mockSaveInterviewDraft,
   mockPracticeHistory,
 } = vi.hoisted(() => ({
   mockAddJob: vi.fn(),
   mockDeletePracticeHistory: vi.fn(),
   mockGenerateInterviewQuestions: vi.fn(),
   mockCheckCredit: vi.fn(),
+  mockSaveInterviewDraft: vi.fn(),
   mockPracticeHistory: [] as PracticeHistoryEntry[],
 }));
 
@@ -42,9 +44,19 @@ vi.mock('../components/Layout/AppLayout', () => ({
 }));
 
 vi.mock('../components/AIInterviewAgentModal', () => ({
-  default: ({ interviewPrompt }: { interviewPrompt: string }) => (
+  default: ({
+    interviewPrompt,
+    initialTranscript,
+    resumeFromQuestionIndex,
+  }: {
+    interviewPrompt: string;
+    initialTranscript?: { text: string }[];
+    resumeFromQuestionIndex?: number;
+  }) => (
     <div role="dialog" aria-label="AI Interview Agent">
       {interviewPrompt}
+      {initialTranscript?.[0]?.text && <span>{initialTranscript[0].text}</span>}
+      {resumeFromQuestionIndex !== undefined && <span>resume-index-{resumeFromQuestionIndex}</span>}
     </div>
   ),
 }));
@@ -78,6 +90,7 @@ vi.mock('../hooks/useJobHistory', () => ({
     addJob: mockAddJob,
     isLoading: false,
     deletePracticeHistory: mockDeletePracticeHistory,
+    saveInterviewDraft: mockSaveInterviewDraft,
   }),
 }));
 
@@ -102,6 +115,11 @@ vi.mock('../services/geminiService', () => ({
 
 vi.mock('../firebase', () => ({
   db: {},
+}));
+
+vi.mock('firebase/functions', () => ({
+  getFunctions: vi.fn(() => ({ app: 'firebase-functions' })),
+  httpsCallable: vi.fn(() => vi.fn().mockResolvedValue({ data: { prewarmed: true } })),
 }));
 
 vi.mock('firebase/firestore', () => ({
@@ -135,6 +153,34 @@ const sampleEntry: PracticeHistoryEntry = {
       transcript: [],
     },
   ],
+};
+
+const draftEntry: PracticeHistoryEntry = {
+  ...sampleEntry,
+  id: 'draft-history-1',
+  questions: ['Question one?', 'Question two?', 'Question three?'],
+  interviewHistory: [],
+  activeInterviewDraft: {
+    status: 'in_progress',
+    transcript: [
+      {
+        speaker: 'ai',
+        text: 'Question one?',
+        isFinal: true,
+        timestamp: Date.now() - 60000,
+      },
+      {
+        speaker: 'user',
+        text: 'I answered the first question.',
+        isFinal: true,
+        timestamp: Date.now() - 50000,
+      },
+    ],
+    questions: ['Question one?', 'Question two?', 'Question three?'],
+    questionIndex: 1,
+    startedAt: Date.now() - 60000,
+    updatedAt: Date.now() - 50000,
+  },
 };
 
 describe('InterviewStudio setup workspace', () => {
@@ -196,5 +242,19 @@ describe('InterviewStudio setup workspace', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
 
     await waitFor(() => expect(mockDeletePracticeHistory).toHaveBeenCalledWith('history-1'));
+  });
+
+  it('resumes an unfinished draft without generating a new practice set', async () => {
+    mockPracticeHistory.push(draftEntry);
+    render(<InterviewStudio />);
+
+    expect(screen.getByText('Saved draft')).toBeInTheDocument();
+    expect(screen.getByText('Q2/3')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /resume session/i }));
+
+    expect(await screen.findByText('I answered the first question.')).toBeInTheDocument();
+    expect(mockGenerateInterviewQuestions).not.toHaveBeenCalled();
+    expect(mockAddJob).not.toHaveBeenCalled();
   });
 });

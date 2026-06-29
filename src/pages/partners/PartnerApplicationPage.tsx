@@ -221,7 +221,7 @@ const PartnerApplicationPage: React.FC = () => {
                                     value={formData.email}
                                     onChange={e => setFormData({ ...formData, email: e.target.value })}
                                     className="w-full px-4 py-3 bg-[#fdf5e8] border border-[#e4d3bc] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#bfa782] text-[#211b16] placeholder-[#a8957f]"
-                                    placeholder="john@company.com"
+                                    placeholder="jane.doe@example.com"
                                 />
                             </div>
                         </div>

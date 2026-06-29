@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Type, AlignLeft, AlignCenter, Square, Circle, Box, Palette } from 'lucide-react';
 import { PortfolioData } from '../../types/portfolio';
 
@@ -17,16 +18,19 @@ const AppearanceControls: React.FC<AppearanceControlsProps> = ({
     editorTheme,
     variant = 'links' // Default to links to maintain backward compatibility if prop missing
 }) => {
+    const { t } = useTranslation();
+    const tAppearance = (key: string) => t(`portfolio_editor.appearance.${key}`);
+
     return (
         <div className={`pt-6 border-t ${themeClasses.sectionBorder} animate-fade-in`}>
             <div className="mb-4">
                 <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1">
-                    {variant === 'profile' ? 'Profile Appearance' : 'Buttons Appearance'}
+                    {variant === 'profile' ? tAppearance('profile_title') : tAppearance('buttons_title')}
                 </h3>
                 <p className="text-[10px] text-gray-400">
                     {variant === 'profile'
-                        ? 'Customize text styles for your headline and bio.'
-                        : 'Override button styles for your links.'}
+                        ? tAppearance('profile_description')
+                        : tAppearance('buttons_description')}
                 </p>
             </div>
 
@@ -37,7 +41,7 @@ const AppearanceControls: React.FC<AppearanceControlsProps> = ({
                         {/* Profile Font Family */}
                         <div>
                             <label className="block text-xs font-medium text-gray-400 mb-2 flex items-center gap-1.5">
-                                <Type size={12} /> Profile Font
+                                <Type size={12} /> {tAppearance('profile_font')}
                             </label>
                             <select
                                 value={portfolioData.linkInBio?.customStyle?.profileFontFamily || ''}
@@ -52,7 +56,7 @@ const AppearanceControls: React.FC<AppearanceControlsProps> = ({
                                 })}
                                 className={`w-full border rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500 ${themeClasses.inputBg}`}
                             >
-                                <option value="">Default (Theme)</option>
+                                <option value="">{tAppearance('default_theme')}</option>
                                 <option value="Inter">Inter</option>
                                 <option value="DM Sans">DM Sans</option>
                                 <option value="Roboto">Roboto</option>
@@ -65,12 +69,12 @@ const AppearanceControls: React.FC<AppearanceControlsProps> = ({
                         {/* Profile Text Colors */}
                         <div>
                             <label className="block text-xs font-medium text-gray-400 mb-2 flex items-center gap-1.5">
-                                <Palette size={12} /> Text Colors
+                                <Palette size={12} /> {tAppearance('text_colors')}
                             </label>
                             <div className="grid grid-cols-2 gap-3">
                                 {/* Headline Color */}
                                 <div className={`p-3 rounded-lg border ${themeClasses.cardBg}`}>
-                                    <span className={`block text-[10px] mb-2 uppercase tracking-wide opacity-70 ${themeClasses.textMain}`}>Headline</span>
+                                    <span className={`block text-[10px] mb-2 uppercase tracking-wide opacity-70 ${themeClasses.textMain}`}>{tAppearance('headline')}</span>
                                     <div className="flex items-center gap-2">
                                         <div className={`w-8 h-8 rounded-full border overflow-hidden ${editorTheme === 'dark' ? 'border-white/10' : 'border-gray-200'} relative`}>
                                             <input
@@ -95,7 +99,7 @@ const AppearanceControls: React.FC<AppearanceControlsProps> = ({
                                                 })}
                                                 className="text-[10px] text-red-400 hover:text-red-500 underline"
                                             >
-                                                Reset
+                                                {tAppearance('reset')}
                                             </button>
                                         )}
                                     </div>
@@ -103,7 +107,7 @@ const AppearanceControls: React.FC<AppearanceControlsProps> = ({
 
                                 {/* Body/Bio Color */}
                                 <div className={`p-3 rounded-lg border ${themeClasses.cardBg}`}>
-                                    <span className={`block text-[10px] mb-2 uppercase tracking-wide opacity-70 ${themeClasses.textMain}`}>Bio / Body</span>
+                                    <span className={`block text-[10px] mb-2 uppercase tracking-wide opacity-70 ${themeClasses.textMain}`}>{tAppearance('bio_body')}</span>
                                     <div className="flex items-center gap-2">
                                         <div className={`w-8 h-8 rounded-full border overflow-hidden ${editorTheme === 'dark' ? 'border-white/10' : 'border-gray-200'} relative`}>
                                             <input
@@ -128,7 +132,7 @@ const AppearanceControls: React.FC<AppearanceControlsProps> = ({
                                                 })}
                                                 className="text-[10px] text-red-400 hover:text-red-500 underline"
                                             >
-                                                Reset
+                                                {tAppearance('reset')}
                                             </button>
                                         )}
                                     </div>
@@ -145,7 +149,7 @@ const AppearanceControls: React.FC<AppearanceControlsProps> = ({
                         {/* 1. Font Family */}
                         <div>
                             <label className="block text-xs font-medium text-gray-400 mb-2 flex items-center gap-1.5">
-                                <Type size={12} /> Button Font
+                                <Type size={12} /> {tAppearance('button_font')}
                             </label>
                             <select
                                 value={portfolioData.linkInBio?.customStyle?.fontFamily || ''}
@@ -160,7 +164,7 @@ const AppearanceControls: React.FC<AppearanceControlsProps> = ({
                                 })}
                                 className={`w-full border rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500 ${themeClasses.inputBg}`}
                             >
-                                <option value="">Default (Theme)</option>
+                                <option value="">{tAppearance('default_theme')}</option>
                                 <option value="Inter">Inter</option>
                                 <option value="DM Sans">DM Sans</option>
                                 <option value="Roboto">Roboto</option>
@@ -173,13 +177,13 @@ const AppearanceControls: React.FC<AppearanceControlsProps> = ({
                         {/* 2. Button Shape */}
                         <div>
                             <label className="block text-xs font-medium text-gray-400 mb-2 flex items-center gap-1.5">
-                                <Box size={12} /> Button Shape
+                                <Box size={12} /> {tAppearance('button_shape')}
                             </label>
                             <div className="grid grid-cols-3 gap-2">
                                 {[
-                                    { id: 'pill', label: 'Pill', icon: <Circle size={14} className="scale-x-125" /> },
-                                    { id: 'rounded', label: 'Rounded', icon: <Box size={14} className="rounded-md" /> },
-                                    { id: 'sharp', label: 'Sharp', icon: <Square size={14} /> },
+                                    { id: 'pill', label: tAppearance('shape_pill'), icon: <Circle size={14} className="scale-x-125" /> },
+                                    { id: 'rounded', label: tAppearance('shape_rounded'), icon: <Box size={14} className="rounded-md" /> },
+                                    { id: 'sharp', label: tAppearance('shape_sharp'), icon: <Square size={14} /> },
                                 ].map(shape => (
                                     <button
                                         key={shape.id}
@@ -209,7 +213,7 @@ const AppearanceControls: React.FC<AppearanceControlsProps> = ({
                         {/* 3. Button Layout (Alignment) */}
                         <div>
                             <label className="block text-xs font-medium text-gray-400 mb-2 flex items-center gap-1.5">
-                                <AlignLeft size={12} /> Button Text Alignment
+                                <AlignLeft size={12} /> {tAppearance('button_text_alignment')}
                             </label>
                             <div className="grid grid-cols-2 gap-2">
                                 <button
@@ -226,7 +230,7 @@ const AppearanceControls: React.FC<AppearanceControlsProps> = ({
                                         }
                             `}
                                 >
-                                    <AlignCenter size={14} /> Center
+                                    <AlignCenter size={14} /> {tAppearance('align_center')}
                                 </button>
                                 <button
                                     onClick={() => onUpdate({
@@ -242,7 +246,7 @@ const AppearanceControls: React.FC<AppearanceControlsProps> = ({
                                         }
                             `}
                                 >
-                                    <AlignLeft size={14} /> Left
+                                    <AlignLeft size={14} /> {tAppearance('align_left')}
                                 </button>
                             </div>
                         </div>
@@ -250,11 +254,11 @@ const AppearanceControls: React.FC<AppearanceControlsProps> = ({
                         {/* 4. Custom Colors */}
                         <div>
                             <label className="block text-xs font-medium text-gray-400 mb-2 flex items-center gap-1.5">
-                                <Palette size={12} /> Custom Colors
+                                <Palette size={12} /> {tAppearance('custom_colors')}
                             </label>
                             <div className="grid grid-cols-2 gap-3">
                                 <div className={`p-3 rounded-lg border ${themeClasses.cardBg}`}>
-                                    <span className={`block text-[10px] mb-2 uppercase tracking-wide opacity-70 ${themeClasses.textMain}`}>Button Bg</span>
+                                    <span className={`block text-[10px] mb-2 uppercase tracking-wide opacity-70 ${themeClasses.textMain}`}>{tAppearance('button_bg')}</span>
                                     <div className="flex items-center gap-2">
                                         <div className={`w-8 h-8 rounded-full border overflow-hidden ${editorTheme === 'dark' ? 'border-white/10' : 'border-gray-200'} relative`}>
                                             <input
@@ -279,13 +283,13 @@ const AppearanceControls: React.FC<AppearanceControlsProps> = ({
                                                 })}
                                                 className="text-[10px] text-red-400 hover:text-red-500 underline"
                                             >
-                                                Reset
+                                                {tAppearance('reset')}
                                             </button>
                                         )}
                                     </div>
                                 </div>
                                 <div className={`p-3 rounded-lg border ${themeClasses.cardBg}`}>
-                                    <span className={`block text-[10px] mb-2 uppercase tracking-wide opacity-70 ${themeClasses.textMain}`}>Button Text</span>
+                                    <span className={`block text-[10px] mb-2 uppercase tracking-wide opacity-70 ${themeClasses.textMain}`}>{tAppearance('button_text')}</span>
                                     <div className="flex items-center gap-2">
                                         <div className={`w-8 h-8 rounded-full border overflow-hidden ${editorTheme === 'dark' ? 'border-white/10' : 'border-gray-200'} relative`}>
                                             <input
@@ -310,7 +314,7 @@ const AppearanceControls: React.FC<AppearanceControlsProps> = ({
                                                 })}
                                                 className="text-[10px] text-red-400 hover:text-red-500 underline"
                                             >
-                                                Reset
+                                                {tAppearance('reset')}
                                             </button>
                                         )}
                                     </div>

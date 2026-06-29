@@ -1,10 +1,14 @@
 import React, { Suspense, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import { Job, PracticeHistoryEntry } from '../types';
+import { InterviewSessionDraft, Job, PracticeHistoryEntry, TranscriptEntry } from '../types';
 import {
   AnalyzingPanel,
+  EncounterBriefPanel,
   InterviewControls,
   InterviewHeader,
+  LiveObserverPanel,
+  QuestionQueuePanel,
+  SessionMapPanel,
   StatusPanel,
   TranscriptLog,
 } from './aiInterviewAgent/AIInterviewAgentModalParts';
@@ -22,6 +26,9 @@ interface AIInterviewAgentModalProps {
   jobCompany: string;
   onClose: () => void;
   isGuestMode?: boolean;
+  initialTranscript?: TranscriptEntry[];
+  resumeFromQuestionIndex?: number;
+  onDraftChange?: (draft: InterviewSessionDraft | null) => Promise<void> | void;
 }
 
 const AIInterviewAgentModal: React.FC<AIInterviewAgentModalProps> = (props) => {
@@ -80,41 +87,68 @@ const AIInterviewAgentModal: React.FC<AIInterviewAgentModalProps> = (props) => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <div className="fixed inset-0 z-50 bg-[#171411]/70 p-2 backdrop-blur-sm sm:p-4">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="ai-interview-modal-title"
         aria-describedby="ai-interview-modal-description"
-        className="flex h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl dark:bg-gray-900"
+        className="mx-auto flex h-[calc(100vh-1rem)] w-full max-w-7xl flex-col overflow-hidden rounded-2xl border border-[#e7d8c5] bg-[#f7f1e7] shadow-2xl dark:border-[#3b3730] dark:bg-[#1f1f1d] sm:h-[calc(100vh-2rem)]"
       >
-        <InterviewHeader interviewPrompt={interviewPrompt} onClose={handleClose} />
-        <StatusPanel
-          status={status}
-          error={error}
-          isPreparingAgent={isPreparingAgent}
-          isAgentPrepared={isAgentPrepared}
+        <InterviewHeader
+          interviewPrompt={interviewPrompt}
+          jobTitle={jobTitle}
+          jobCompany={jobCompany}
+          onClose={handleClose}
         />
-        {status === 'analyzing' ? (
-          <AnalyzingPanel message={loadingMessage} />
-        ) : (
-          <TranscriptLog
-            transcript={transcript}
-            showGreetingPrompt={showGreetingPrompt}
-            error={error}
-            chatEndRef={chatEndRef}
-          />
-        )}
-        <InterviewControls
-          status={status}
-          hasTranscript={transcript.length > 0}
-          hasAnalysisResult={!!analysisResult}
-          isPreparingAgent={isPreparingAgent}
-          isAgentPrepared={isAgentPrepared}
-          onStart={startInterview}
-          onEnd={endInterview}
-          onGetFeedback={handleGetFeedback}
-        />
+        <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4">
+          <div className="grid min-h-full gap-3 lg:grid-cols-[280px_minmax(0,1fr)_280px] xl:grid-cols-[310px_minmax(0,1fr)_310px]">
+            <div className="space-y-3 lg:overflow-y-auto lg:pr-1">
+              <EncounterBriefPanel
+                jobTitle={jobTitle}
+                jobCompany={jobCompany}
+                interviewPrompt={interviewPrompt}
+                questions={questions}
+              />
+              <QuestionQueuePanel questions={questions} transcript={transcript} />
+            </div>
+
+            <main className="flex min-h-[620px] flex-col overflow-hidden rounded-xl border border-[#e7d8c5] bg-white shadow-sm dark:border-[#3b3730] dark:bg-[#262522] lg:min-h-0">
+              <StatusPanel
+                status={status}
+                error={error}
+                isPreparingAgent={isPreparingAgent}
+                isAgentPrepared={isAgentPrepared}
+              />
+              {status === 'analyzing' ? (
+                <AnalyzingPanel message={loadingMessage} />
+              ) : (
+                <TranscriptLog
+                  transcript={transcript}
+                  showGreetingPrompt={showGreetingPrompt}
+                  error={error}
+                  chatEndRef={chatEndRef}
+                />
+              )}
+              <InterviewControls
+                status={status}
+                hasTranscript={transcript.length > 0}
+                hasAnalysisResult={!!analysisResult}
+                isPreparingAgent={isPreparingAgent}
+                isAgentPrepared={isAgentPrepared}
+                onClose={handleClose}
+                onStart={startInterview}
+                onEnd={endInterview}
+                onGetFeedback={handleGetFeedback}
+              />
+            </main>
+
+            <div className="space-y-3 lg:overflow-y-auto lg:pl-1">
+              <LiveObserverPanel status={status} transcript={transcript} />
+              <SessionMapPanel status={status} hasTranscript={transcript.length > 0} />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

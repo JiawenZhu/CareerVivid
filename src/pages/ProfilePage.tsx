@@ -8,7 +8,6 @@ import { ArrowLeft, KeyRound, Trash2, Loader2, User as UserIcon, CreditCard } fr
 import { functions } from '../firebase';
 import { httpsCallable } from 'firebase/functions';
 import EmailPracticeSettings from '../components/EmailPracticeSettings';
-import ApplicationProfileSettings from '../components/ApplicationProfile/ApplicationProfileSettings';
 import { navigate } from '../utils/navigation';
 import { getEmailDisplayName, resolveUserDisplayName } from '../utils/userDisplayName';
 
@@ -272,8 +271,6 @@ const ProfilePage: React.FC = () => {
                             </p>
                         )}
                     </div>
-
-                    <ApplicationProfileSettings />
 
                     {/* Email Preferences Section */}
                     <EmailPracticeSettings />
