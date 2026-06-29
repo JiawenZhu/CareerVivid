@@ -1,4 +1,5 @@
 import Foundation
+import Security
 
 enum CVFirebaseAuthProvider: String, Sendable {
     case anonymous
@@ -30,10 +31,11 @@ actor CVFirebaseAuth {
     private  let apiKey       = "AIzaSyDoFoPoaPMi6HkqsA1vn6oDPokG9btVJ3g"
 
     // MARK: Persistence keys
-    private let udRefreshKey = "cv_fb_refresh_token"
+    private let keychainRefreshAccount = "cv_fb_refresh_token"
     private let udUIDKey     = "cv_fb_uid"
     private let udEmailKey   = "cv_fb_email"
     private let udProviderKey = "cv_fb_provider"
+    private let legacyUDRefreshKey = "cv_fb_refresh_token"
 
     // MARK: In-memory cache
     private var cachedUID:   String?
@@ -55,14 +57,14 @@ actor CVFirebaseAuth {
            exp > Date().addingTimeInterval(120) {       // 2-min buffer
             return (uid, token)
         }
-        if let refresh = UserDefaults.standard.string(forKey: udRefreshKey) {
+        if let refresh = storedRefreshToken() {
             return try await refreshIdToken(refresh)
         }
         return try await signInAnonymously()
     }
 
     func currentSession() async -> CVFirebaseSession? {
-        guard UserDefaults.standard.string(forKey: udRefreshKey) != nil else { return nil }
+        guard storedRefreshToken() != nil else { return nil }
         let uid = cachedUID ?? UserDefaults.standard.string(forKey: udUIDKey)
         guard let uid, !uid.isEmpty else { return nil }
         let provider = cachedProvider ?? storedProvider()
@@ -241,7 +243,7 @@ actor CVFirebaseAuth {
         cachedProvider = provider
         tokenExp    = Date().addingTimeInterval(expiresIn)
         UserDefaults.standard.set(uid,     forKey: udUIDKey)
-        UserDefaults.standard.set(refresh, forKey: udRefreshKey)
+        storeRefreshToken(refresh)
         UserDefaults.standard.set(provider.rawValue, forKey: udProviderKey)
         if let email {
             UserDefaults.standard.set(email, forKey: udEmailKey)
@@ -252,7 +254,8 @@ actor CVFirebaseAuth {
 
     private func clearCache() {
         cachedUID = nil; cachedToken = nil; cachedEmail = nil; cachedProvider = nil; tokenExp = nil
-        UserDefaults.standard.removeObject(forKey: udRefreshKey)
+        deleteRefreshToken()
+        UserDefaults.standard.removeObject(forKey: legacyUDRefreshKey)
         UserDefaults.standard.removeObject(forKey: udUIDKey)
         UserDefaults.standard.removeObject(forKey: udEmailKey)
         UserDefaults.standard.removeObject(forKey: udProviderKey)
@@ -261,6 +264,56 @@ actor CVFirebaseAuth {
     private func storedProvider() -> CVFirebaseAuthProvider {
         let value = UserDefaults.standard.string(forKey: udProviderKey)
         return CVFirebaseAuthProvider(rawValue: value ?? "") ?? .anonymous
+    }
+
+    private func storedRefreshToken() -> String? {
+        if let token = keychainRefreshToken() {
+            return token
+        }
+        guard let legacyToken = UserDefaults.standard.string(forKey: legacyUDRefreshKey) else {
+            return nil
+        }
+        storeRefreshToken(legacyToken)
+        UserDefaults.standard.removeObject(forKey: legacyUDRefreshKey)
+        return legacyToken
+    }
+
+    private func storeRefreshToken(_ token: String) {
+        guard let data = token.data(using: .utf8) else { return }
+        let query = refreshTokenKeychainQuery()
+        SecItemDelete(query as CFDictionary)
+
+        var attributes = query
+        attributes[kSecValueData as String] = data
+        attributes[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+        SecItemAdd(attributes as CFDictionary, nil)
+    }
+
+    private func keychainRefreshToken() -> String? {
+        var query = refreshTokenKeychainQuery()
+        query[kSecReturnData as String] = true
+        query[kSecMatchLimit as String] = kSecMatchLimitOne
+
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+        guard status == errSecSuccess,
+              let data = item as? Data,
+              let token = String(data: data, encoding: .utf8),
+              !token.isEmpty
+        else { return nil }
+        return token
+    }
+
+    private func deleteRefreshToken() {
+        SecItemDelete(refreshTokenKeychainQuery() as CFDictionary)
+    }
+
+    private func refreshTokenKeychainQuery() -> [String: Any] {
+        [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: Bundle.main.bundleIdentifier ?? "app.careervivid.mobilemvp",
+            kSecAttrAccount as String: keychainRefreshAccount
+        ]
     }
 
     private func validate(email: String, password: String) throws {
