@@ -8,13 +8,18 @@
 
 import * as admin from "firebase-admin";
 
-const db = admin.firestore();
-
 export const BRAND_LOGO_URL =
     "https://firebasestorage.googleapis.com/v0/b/careervivid-prod.appspot.com/o/brand%2Flogo-avatar.png?alt=media";
 
 export const DEFAULT_AVATAR =
     "https://ui-avatars.com/api/?name=Anonymous+Developer&background=3b82f6&color=fff";
+
+function getDb(): admin.firestore.Firestore {
+    if (!admin.apps.length) {
+        admin.initializeApp();
+    }
+    return admin.firestore();
+}
 
 // ── Auth resolution ───────────────────────────────────────────────────────────
 
@@ -35,7 +40,7 @@ export async function resolveAuth(req: any): Promise<{ uid: string } | null> {
     const apiKey: string = (req.headers["x-api-key"] || "").toString().trim();
     if (apiKey) {
         try {
-            const snap = await db
+            const snap = await getDb()
                 .collectionGroup("private")
                 .where("key", "==", apiKey)
                 .limit(1)
@@ -69,6 +74,8 @@ export interface UserProfile {
 }
 
 export async function getUserProfile(uid: string): Promise<UserProfile> {
+    const db = getDb();
+
     // Fetch user document + admin document in parallel
     const [userDoc, adminDoc] = await Promise.all([
         db.collection("users").doc(uid).get(),

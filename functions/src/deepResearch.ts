@@ -77,8 +77,7 @@ async function performDeepResearch(topic: string) {
         author: 'Deep Research AI',
         coverImage: '',
         status: 'Draft',
-        viewCount: 0,
-        audioGenerationStatus: 'not_started'
+        viewCount: 0
     };
 }
 

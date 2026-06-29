@@ -84,9 +84,9 @@ export { generateCoverLetter } from "./coverLetter";
 export { tailorResume } from "./tailorResume";
 export { exportToGoogleDocs } from "./googleDocs";
 export * from "./stitchCommerce";
-export * from "./tts";
 export * from "./deepResearch";
 export * from "./linkedin";
+export { mobileInterviewAnalyze, mobileInterviewLiveToken } from "./mobileInterview";
 export { injectCommunityMeta } from "./meta-injector";
 export { renderSeoContent } from "./seo/renderSeoContent";
 export { generateSitemap } from "./seo/generateSitemap";
@@ -114,6 +114,7 @@ export {
 export { editPortfolio } from "./editPortfolio";
 export { generateResumeCSS } from "./generateResumeCSS";
 export { messagingTrigger, getMessagingStats } from "./messaging";
+export { resumeCoachCreate, resumeCoachLiveToken } from "./resumeCoach";
 
 // Career-Ops AI Pipeline
 export { evaluateJob, generateLinkedInOutreach, generateDeepResearch, saveCareerProfile } from "./careerOps";

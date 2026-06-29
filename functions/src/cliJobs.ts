@@ -13,6 +13,7 @@ import { getAIClient } from "./utils/ai";
 import { secureCorsHandler } from "./utils/corsUtils.js";
 import { resolveAuth } from "./utils/authUtils.js";
 import { findValidatedScrapedJobMatches, type ValidatedScrapedJobMatch } from "./scrapedJobs";
+import { createResumeFromBaseContent } from "./resumeGeneration";
 
 if (!admin.apps.length) {
     admin.initializeApp();
@@ -496,34 +497,14 @@ export const cliResumeCreate = functions.region("us-west1").runWith({
         const { title = "CLI Generated Resume", baseContent } = req.body as { title?: string, baseContent: string };
         if (!baseContent) { res.status(400).json({ error: "baseContent is required to generate a resume." }); return; }
 
-        const prompt = `You are a professional resume writer.
-Convert the following free-form description or resume dump into a strictly structured JSON resume object.
-
-INPUT:
-${baseContent}
-
-OUTPUT MUST BE VALID JSON ONLY with this exact structure:
-{
-  "title": "${title}",
-  "personalDetails": { "firstName": "", "lastName": "", "jobTitle": "", "email": "", "city": "", "country": "" },
-  "sections": [ { "title": "Summary", "content": "Professional summary here..." } ],
-  "skills": [{"name": "Skill 1"}, {"name": "Skill 2"}],
-  "employmentHistory": [ { "jobTitle": "", "employer": "", "startDate": "YYYY-MM", "endDate": "YYYY-MM", "description": "Bullet points..." } ],
-  "education": [ { "degree": "", "school": "", "endDate": "YYYY" } ]
-}`;
-
         try {
-            const ai = getAIClient();
-            const response = await ai.models.generateContent({ model: "gemini-2.5-flash", contents: prompt });
-            const cleaned = (response.text || "").replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
-            const resumeData = JSON.parse(cleaned);
-
-            resumeData.updatedAt = FieldValue.serverTimestamp();
-            resumeData.createdAt = FieldValue.serverTimestamp();
-            if (!resumeData.title) resumeData.title = title;
-
-            const ref = await db.collection("users").doc(user.uid).collection("resumes").add(resumeData);
-            res.json({ success: true, resumeId: ref.id, message: "Resume generated successfully." });
+            const result = await createResumeFromBaseContent({
+                uid: user.uid,
+                title,
+                baseContent,
+                creationSource: "cli",
+            });
+            res.json({ success: true, resumeId: result.resumeId, message: "Resume generated successfully." });
         } catch (err: any) {
             console.error("[cliResumeCreate] Error:", err.message);
             res.status(500).json({ error: `Generation failed: ${err.message}` });

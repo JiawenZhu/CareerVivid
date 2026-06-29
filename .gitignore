@@ -27,6 +27,8 @@ dist-ssr
 DerivedData/
 *.xcuserstate
 xcuserdata/
+ios/**/.build/
+ios/**/.swiftpm/
 
 
 # Firebase
@@ -48,6 +50,9 @@ dist-ssr/
 dist-extension/
 build/
 .cache/
+output/
+.playwright-cli/
+experiments/
 
 # Environment Variables
 .env

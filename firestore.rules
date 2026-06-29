@@ -41,6 +41,40 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == userId;
     }
 
+    function isKnownClientApp(appKey) {
+      return appKey in [
+        'careervivid',
+        'createvivid',
+        'visa-interview-prep',
+        'green-card-interview-prep'
+      ];
+    }
+
+    function safeUserAppMembershipFields() {
+      return [
+        'appKey',
+        'userId',
+        'enabled',
+        'createdAt',
+        'updatedAt',
+        'lastActiveAt',
+        'locale',
+        'marketingChannel',
+        'onboardingComplete'
+      ];
+    }
+
+    function hasSafeUserAppMembership(userId, appKey) {
+      return isKnownClientApp(appKey) &&
+        request.resource.data.keys().hasOnly(safeUserAppMembershipFields()) &&
+        request.resource.data.get('appKey', appKey) == appKey &&
+        request.resource.data.get('userId', userId) == userId;
+    }
+
+    function canAccessAppUserSpace(appKey, userId) {
+      return isKnownClientApp(appKey) && (isUserOwner(userId) || isAdmin());
+    }
+
     function canReadUserRoot(userId) {
       return isUserOwner(userId) || isAdmin();
     }
@@ -184,6 +218,43 @@ service cloud.firestore {
 
     match /admin_audit_logs/{logId} {
       allow create, read: if isAdmin();
+    }
+
+    // ---------------------------------------------------------
+    // 📱 MULTI-APP DATA NAMESPACES
+    // ---------------------------------------------------------
+    // New mobile apps share Firebase Auth but keep all app-specific data
+    // inside apps/{appKey}. Old CareerVivid collections are intentionally
+    // untouched; new apps should not write into another user's app space.
+    match /userApps/{userId} {
+      allow read: if isUserOwner(userId) || isAdmin();
+      allow write: if isAdmin();
+
+      match /apps/{appKey} {
+        allow read: if isUserOwner(userId) || isAdmin();
+        allow create, update: if isUserOwner(userId) && hasSafeUserAppMembership(userId, appKey);
+        allow delete: if isUserOwner(userId) || isAdmin();
+      }
+    }
+
+    match /apps/{appKey} {
+      allow get, list: if isKnownClientApp(appKey) && isAdmin();
+      allow write: if isAdmin() && isKnownClientApp(appKey);
+
+      // Shared templates, localized questions, checklists, and other
+      // app-owned content. Clients may read known app content; writes stay
+      // admin/server-only.
+      match /content/{document=**} {
+        allow read: if isKnownClientApp(appKey);
+        allow write: if isAdmin() && isKnownClientApp(appKey);
+      }
+
+      // Private per-user app data. Users can create, read, update, and delete
+      // their own content inside this namespace, e.g.
+      // apps/visa-interview-prep/users/{uid}/practiceSessions.
+      match /users/{userId}/{document=**} {
+        allow read, create, update, delete: if canAccessAppUserSpace(appKey, userId);
+      }
     }
 
 
