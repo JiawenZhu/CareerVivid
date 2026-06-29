@@ -1,6 +1,6 @@
 import { doc, getDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase';
-import { FREE_PLAN_CREDIT_LIMIT, PRO_PLAN_CREDIT_LIMIT, PRO_MAX_PLAN_CREDIT_LIMIT, ENTERPRISE_PLAN_CREDIT_LIMIT } from '../config/creditCosts';
+import { FREE_PLAN_CREDIT_LIMIT, PRO_PLAN_CREDIT_LIMIT, PRO_MAX_PLAN_CREDIT_LIMIT, ENTERPRISE_PLAN_CREDIT_LIMIT, ENTERPRISE_MINIMUM_SEATS } from '../config/creditCosts';
 
 export interface AIUsageData {
     count: number;
@@ -14,7 +14,7 @@ const getExpectedLimit = (userData: any): number => {
 
     if (plan === 'pro' || plan === 'premium' || plan === 'pro_monthly' || plan === 'pro_sprint') expectedLimit = PRO_PLAN_CREDIT_LIMIT;
     else if (plan === 'max' || plan === 'pro_max') expectedLimit = PRO_MAX_PLAN_CREDIT_LIMIT;
-    else if (plan === 'enterprise') expectedLimit = (userData.seats || 1) * ENTERPRISE_PLAN_CREDIT_LIMIT;
+    else if (plan === 'enterprise') expectedLimit = Math.max(ENTERPRISE_MINIMUM_SEATS, userData.seats || 1) * ENTERPRISE_PLAN_CREDIT_LIMIT;
 
     const tokenCredits = userData.promotions?.tokenCredits || 0;
     return expectedLimit + tokenCredits;

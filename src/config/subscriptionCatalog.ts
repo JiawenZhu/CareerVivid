@@ -1,5 +1,4 @@
 import {
-    FREE_PLAN_CREDIT_LIMIT,
     ENTERPRISE_PLAN_CREDIT_LIMIT,
     ENTERPRISE_MINIMUM_SEATS,
     PRO_MAX_PLAN_CREDIT_LIMIT,
@@ -50,31 +49,3 @@ export const SUBSCRIPTION_CATALOG = {
 export type StandardPlanId = keyof typeof SUBSCRIPTION_CATALOG;
 
 export const formatCredits = (value: number) => value.toLocaleString();
-
-export type NormalizedPlanId = StandardPlanId | 'free';
-
-export const normalizePlanId = (plan?: string | null): NormalizedPlanId => {
-    if (plan === 'enterprise') return 'enterprise';
-    if (plan === 'max' || plan === 'pro_max') return 'max';
-    if (plan === 'pro' || plan === 'premium' || plan === 'pro_monthly' || plan === 'pro_sprint') return 'pro';
-    return 'free';
-};
-
-export const isLegacyPlan = (plan?: string | null) => (
-    plan === 'premium' || plan === 'pro_monthly' || plan === 'pro_sprint'
-);
-
-export const getPlanDisplayName = (plan?: string | null) => {
-    const normalizedPlan = normalizePlanId(plan);
-    if (normalizedPlan === 'free') return 'Free';
-    return SUBSCRIPTION_CATALOG[normalizedPlan].name;
-};
-
-export const getPlanCreditLimit = (plan?: string | null, seats = 1) => {
-    const normalizedPlan = normalizePlanId(plan);
-    if (normalizedPlan === 'free') return FREE_PLAN_CREDIT_LIMIT;
-    if (normalizedPlan === 'enterprise') {
-        return Math.max(ENTERPRISE_MINIMUM_SEATS, seats) * ENTERPRISE_PLAN_CREDIT_LIMIT;
-    }
-    return SUBSCRIPTION_CATALOG[normalizedPlan].creditLimit;
-};

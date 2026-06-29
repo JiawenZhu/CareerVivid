@@ -57,40 +57,74 @@ const PricingPage: React.FC = () => {
     };
 
     return (
-        <div className="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col font-sans selection:bg-amber-200/60">
+        <div className="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col font-sans selection:bg-primary-500/30">
             <PublicHeader />
             <main className="flex-grow pt-32 pb-24 overflow-hidden relative">
+                {/* Background glowing orb */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary-500/10 dark:bg-primary-600/10 blur-[120px] rounded-full point-events-none -z-10" />
+
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                        className="text-center max-w-4xl mx-auto"
+                    >
+                        <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.2, duration: 0.5 }}
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 dark:from-indigo-900/40 dark:to-purple-900/40 text-indigo-700 dark:text-indigo-300 px-5 py-2 rounded-full text-sm font-bold mb-8 shadow-sm border border-indigo-200/50 dark:border-indigo-800/50"
+                        >
+                            <span className="relative flex h-2.5 w-2.5">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-500"></span>
+                            </span>
+                            AI Credit Plans — Free to get started
+                        </motion.div>
+
+                        <h1 className="text-5xl sm:text-7xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-[1.1]">
+                            One AI credit system <br className="hidden sm:block" />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600">
+                                for your entire career
+                            </span>
+                        </h1>
+                        <p className="mt-8 text-xl sm:text-2xl text-gray-600 dark:text-gray-400 font-medium max-w-2xl mx-auto leading-relaxed">
+                            Power the CLI agent, resume tailoring, job search, voice interviews, and more —
+                            all from a single pool of AI credits that resets every month.
+                        </p>
+                    </motion.div>
+
                     {error && (
-                        <motion.p 
+                        <motion.p
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                            className="mb-8 text-center text-red-500 bg-red-100 dark:bg-red-900/20 p-4 rounded-xl font-medium"
+                            className="mt-8 text-center text-red-500 bg-red-100 dark:bg-red-900/20 p-4 rounded-xl font-medium"
                         >
                             {error}
                         </motion.p>
                     )}
 
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 40 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, margin: "-100px" }}
-                        transition={{ duration: 0.7 }}
-                        className="-mx-4 sm:mx-0"
+                        transition={{ duration: 0.7, delay: 0.2 }}
+                        className="mt-16 -mx-4 sm:mx-0"
                     >
                         <PricingComparison
-                            onCloudUpgrade={(priceId) => handleChoosePlan(priceId)}
+                            onCloudUpgrade={() => handleChoosePlan(SUBSCRIPTION_CATALOG.pro.monthlyPriceId)}
                             isLoading={loadingPriceId !== null}
                         />
 
                         <div className="mt-40">
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 className="text-center mb-16"
                             >
-                                <h2 className="text-3xl font-semibold text-gray-900 dark:text-white tracking-tight">Enterprise Team Usage</h2>
-                                <p className="text-base text-gray-600 dark:text-gray-400 mt-4 max-w-2xl mx-auto">
+                                <h2 className="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">Enterprise Team Usage</h2>
+                                <p className="text-xl text-gray-600 dark:text-gray-400 mt-4 max-w-2xl mx-auto">
                                     Pool AI credits across your entire team — {SUBSCRIPTION_CATALOG.enterprise.creditLimit.toLocaleString()} credits/seat at just ${SUBSCRIPTION_CATALOG.enterprise.monthlyPrice}/seat/month.
                                 </p>
                             </motion.div>

@@ -1,14 +1,20 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
+    Activity,
     ArrowRight,
+    Bot,
     Briefcase,
+    Clipboard,
     CheckCircle2,
     CircleDashed,
+    Code2,
     FileText,
     FolderOpen,
+    GraduationCap,
     History,
     Mic,
     Network,
+    Search,
     Sparkles,
     Target,
     type LucideIcon,
@@ -17,10 +23,11 @@ import type { JobApplicationData, PracticeHistoryEntry, ResumeData } from '../..
 import type { PortfolioData } from '../../features/portfolio/types/portfolio';
 import {
     buildCareerProfileGraph,
-    type CareerProfileGoalStep,
     type CareerProfileGraphNode,
     type CareerProfileGraphNodeId,
     type CareerProfileGraphTone,
+    type LearningToolId,
+    type SkillGapLearningMission,
 } from '../../utils/careerProfileGraph';
 import { navigate } from '../../utils/navigation';
 
@@ -91,6 +98,33 @@ const toneStyles: Record<CareerProfileGraphTone, {
     },
 };
 
+const learningToolStyles: Record<LearningToolId, {
+    icon: LucideIcon;
+    label: string;
+    className: string;
+}> = {
+    chatgpt: {
+        icon: Bot,
+        label: 'ChatGPT',
+        className: 'border-emerald-100 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-200',
+    },
+    gemini: {
+        icon: Search,
+        label: 'Gemini',
+        className: 'border-blue-100 bg-blue-50 text-blue-700 dark:border-blue-900/50 dark:bg-blue-950/30 dark:text-blue-200',
+    },
+    claudeCode: {
+        icon: Code2,
+        label: 'Claude Code',
+        className: 'border-violet-100 bg-violet-50 text-violet-700 dark:border-violet-900/50 dark:bg-violet-950/30 dark:text-violet-200',
+    },
+    proof: {
+        icon: GraduationCap,
+        label: 'Proof',
+        className: 'border-amber-100 bg-amber-50 text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200',
+    },
+};
+
 const SignalChip: React.FC<{ label: string; className: string }> = ({ label, className }) => (
     <span className={`inline-flex max-w-full items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-bold leading-none ${className}`}>
         <CheckCircle2 size={10} className="shrink-0" />
@@ -105,126 +139,122 @@ const EmptyChip: React.FC<{ label: string }> = ({ label }) => (
     </span>
 );
 
-const getReadinessState = (node: CareerProfileGraphNode) => {
-    if (node.progress >= 75) {
-        return {
-            label: 'Ready',
-            chip: 'border-emerald-100 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-200',
-            dot: 'bg-emerald-500',
-        };
-    }
+const LearningMissionCard: React.FC<{
+    mission: SkillGapLearningMission;
+    copied: boolean;
+    onCopy: (mission: SkillGapLearningMission) => void;
+}> = ({ mission, copied, onCopy }) => (
+    <article className="rounded-2xl border border-stone-200/80 bg-white/85 p-4 shadow-sm transition hover:border-stone-300 dark:border-slate-800/80 dark:bg-slate-950/55 dark:hover:border-slate-700">
+        <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500 dark:text-slate-400">
+                    Skill gap
+                </p>
+                <h3 className="mt-1 text-base font-extrabold text-slate-950 dark:text-white">
+                    {mission.skill}
+                </h3>
+                <p className="mt-1 text-sm leading-5 text-slate-600 dark:text-slate-300">
+                    {mission.reason}
+                </p>
+            </div>
+            <span className="shrink-0 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-stone-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+                {mission.demandCount}x
+            </span>
+        </div>
 
-    if (node.progress > 0) {
-        return {
-            label: 'In progress',
-            chip: 'border-amber-100 bg-amber-50 text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200',
-            dot: 'bg-amber-500',
-        };
-    }
+        <div className="mt-4 grid gap-2">
+            {mission.steps.map((step) => {
+                const style = learningToolStyles[step.tool];
+                const Icon = style.icon;
+                return (
+                    <div key={`${mission.id}-${step.tool}`} className={`rounded-xl border px-3 py-2 ${style.className}`}>
+                        <div className="flex items-center gap-2">
+                            <Icon size={14} className="shrink-0" />
+                            <span className="text-xs font-black">{style.label}</span>
+                            <span className="text-[10px] font-bold uppercase tracking-[0.12em] opacity-70">{step.label}</span>
+                        </div>
+                        <p className="mt-1 text-xs font-medium leading-5 opacity-90">
+                            {step.instruction}
+                        </p>
+                    </div>
+                );
+            })}
+        </div>
 
-    return {
-        label: 'Start',
-        chip: 'border-stone-200 bg-stone-50 text-stone-600 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-300',
-        dot: 'bg-stone-400 dark:bg-slate-500',
-    };
-};
+        <div className="mt-4 rounded-xl border border-stone-200 bg-stone-50/80 p-3 dark:border-slate-800 dark:bg-slate-900/70">
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-stone-500 dark:text-slate-400">
+                Proof outcome
+            </p>
+            <p className="mt-1 text-sm font-semibold leading-5 text-slate-700 dark:text-slate-200">
+                {mission.proofOutcome}
+            </p>
+        </div>
 
-const SignalMapTile: React.FC<{ node: CareerProfileGraphNode; isNext: boolean }> = ({ node, isNext }) => {
+        <div className="mt-4 flex flex-wrap gap-2">
+            <button
+                type="button"
+                onClick={() => onCopy(mission)}
+                className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:border-stone-300 hover:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-700"
+            >
+                <Clipboard size={14} />
+                {copied ? 'Prompt copied' : 'Copy AI prompt'}
+            </button>
+            <button
+                type="button"
+                onClick={() => navigate('/portfolio')}
+                className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-primary-700"
+            >
+                Add proof
+                <ArrowRight size={14} />
+            </button>
+        </div>
+    </article>
+);
+
+const GraphNodeCard: React.FC<{ node: CareerProfileGraphNode }> = ({ node }) => {
     const Icon = nodeIcons[node.id];
     const styles = toneStyles[node.tone];
-    const state = getReadinessState(node);
 
     return (
-        <button
-            type="button"
-            onClick={() => navigate(node.actionPath)}
-            className={`group min-h-[128px] rounded-2xl border bg-white/90 p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-white dark:bg-slate-950/55 dark:hover:bg-slate-950 ${isNext ? 'border-amber-300 ring-2 ring-amber-100 dark:border-amber-700 dark:ring-amber-900/30' : 'border-stone-200/80 dark:border-slate-800/80'} ${styles.border}`}
-            aria-label={`${node.label}: ${state.label}. ${node.actionLabel}`}
-        >
-            <div className="flex items-start justify-between gap-2">
-                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl ${styles.icon}`}>
-                    <Icon size={17} />
-                </span>
-                {isNext && (
-                    <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-black text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
-                        Next
+        <article className={`group flex min-h-[206px] flex-col rounded-2xl border border-stone-200/80 bg-white/85 p-4 shadow-sm transition dark:border-slate-800/80 dark:bg-slate-950/55 ${styles.border}`}>
+            <div className="flex items-start justify-between gap-3">
+                <div className="flex min-w-0 items-start gap-3">
+                    <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${styles.icon}`}>
+                        <Icon size={18} />
                     </span>
-                )}
-            </div>
-
-            <div className="mt-3 min-w-0">
-                <h3 className="truncate text-sm font-extrabold text-slate-950 dark:text-white">{node.label}</h3>
-                <div className="mt-2 flex items-center gap-1.5">
-                    <span className={`h-2 w-2 shrink-0 rounded-full ${state.dot}`} />
-                    <span className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-bold leading-none ${state.chip}`}>
-                        {state.label}
-                    </span>
+                    <div className="min-w-0">
+                        <h3 className="text-sm font-extrabold text-slate-950 dark:text-white">{node.label}</h3>
+                        <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
+                            {node.value}
+                        </p>
+                    </div>
                 </div>
+                <span className="text-xs font-black text-slate-500 dark:text-slate-400">{node.progress}%</span>
             </div>
 
-            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-stone-100 dark:bg-slate-900">
+            <p className="mt-4 line-clamp-2 min-h-[40px] text-sm leading-5 text-slate-600 dark:text-slate-300">
+                {node.detail}
+            </p>
+
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-stone-100 dark:bg-slate-900">
                 <div className={`h-full rounded-full ${styles.bar}`} style={{ width: `${node.progress}%` }} />
             </div>
-        </button>
-    );
-};
 
-const goalStepStyles: Record<CareerProfileGoalStep['status'], {
-    icon: string;
-    chip: string;
-    bar: string;
-    label: string;
-}> = {
-    ready: {
-        icon: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-200',
-        chip: 'border-emerald-100 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-200',
-        bar: 'bg-emerald-500',
-        label: 'Ready',
-    },
-    building: {
-        icon: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-200',
-        chip: 'border-amber-100 bg-amber-50 text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200',
-        bar: 'bg-amber-500',
-        label: 'Building',
-    },
-    start: {
-        icon: 'bg-stone-100 text-stone-600 dark:bg-slate-900 dark:text-slate-300',
-        chip: 'border-stone-200 bg-stone-50 text-stone-600 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-300',
-        bar: 'bg-stone-400 dark:bg-slate-500',
-        label: 'Start',
-    },
-};
-
-const GoalStepRow: React.FC<{ step: CareerProfileGoalStep }> = ({ step }) => {
-    const styles = goalStepStyles[step.status];
-    const Icon = step.status === 'ready' ? CheckCircle2 : CircleDashed;
-
-    return (
-        <button
-            type="button"
-            onClick={() => navigate(step.actionPath)}
-            className="group w-full rounded-xl border border-stone-200/80 bg-white/80 p-3 text-left transition hover:border-stone-300 hover:bg-white dark:border-slate-800/80 dark:bg-slate-950/50 dark:hover:border-slate-700"
-        >
-            <div className="flex items-start gap-3">
-                <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${styles.icon}`}>
-                    <Icon size={15} />
-                </span>
-                <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                            <p className="truncate text-sm font-extrabold text-slate-950 dark:text-white">{step.label}</p>
-                            <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-600 dark:text-slate-300">{step.detail}</p>
-                        </div>
-                        <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-bold leading-none ${styles.chip}`}>
-                            {step.score}%
-                        </span>
-                    </div>
-                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-stone-100 dark:bg-slate-900">
-                        <div className={`h-full rounded-full ${styles.bar}`} style={{ width: `${step.score}%` }} />
-                    </div>
-                </div>
+            <div className="mt-4 flex min-h-[28px] flex-wrap gap-1.5">
+                {node.tags.length > 0
+                    ? node.tags.map((tag) => <SignalChip key={tag} label={tag} className={styles.chip} />)
+                    : <EmptyChip label="Needs signal" />}
             </div>
-        </button>
+
+            <button
+                type="button"
+                onClick={() => navigate(node.actionPath)}
+                className="mt-auto inline-flex items-center justify-between rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-xs font-bold text-slate-700 transition hover:border-stone-300 hover:bg-white dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-700"
+            >
+                {node.actionLabel}
+                <ArrowRight size={14} className="transition group-hover:translate-x-0.5" />
+            </button>
+        </article>
     );
 };
 
@@ -240,9 +270,6 @@ const CareerProfileGraphCard: React.FC<CareerProfileGraphCardProps> = ({
         practiceHistory,
         jobApplications,
     }), [jobApplications, portfolios, practiceHistory, resumes]);
-    const readyCount = graph.nodes.filter((node) => node.progress >= 75).length;
-    const buildingCount = graph.nodes.filter((node) => node.progress > 0 && node.progress < 75).length;
-    const startCount = graph.nodes.filter((node) => node.progress === 0).length;
 
     return (
         <section className="mb-8" aria-labelledby="career-profile-graph-title">
@@ -250,13 +277,13 @@ const CareerProfileGraphCard: React.FC<CareerProfileGraphCardProps> = ({
                 <div>
                     <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-400">
                         <Network size={13} />
-                        Setup map
+                        Career profile graph
                     </div>
                     <h2 id="career-profile-graph-title" className="text-2xl font-extrabold tracking-tight text-slate-950 dark:text-white">
-                        Your job-search setup map
+                        Your career signals in one place
                     </h2>
                     <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-                        See which parts of CareerVivid are ready and what to set up next.
+                        Built from resumes, skills, goals, target roles, proof projects, interview practice, and job history.
                     </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -270,127 +297,144 @@ const CareerProfileGraphCard: React.FC<CareerProfileGraphCardProps> = ({
                     <button
                         type="button"
                         onClick={() => navigate(graph.nextBestStep.actionPath)}
-                        className="inline-flex max-w-full items-center gap-2 rounded-xl bg-primary-600 px-3.5 py-2 text-sm font-bold text-white shadow-soft transition hover:bg-primary-700"
+                        className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-3.5 py-2 text-sm font-bold text-white shadow-soft transition hover:bg-primary-700"
                     >
-                        <span className="truncate">Next: {graph.nextBestStep.actionLabel}</span>
+                        Improve next signal
                         <ArrowRight size={15} />
                     </button>
                 </div>
             </div>
 
-            <div className="rounded-2xl border border-stone-200/80 bg-stone-50/70 p-4 shadow-sm dark:border-slate-800/80 dark:bg-slate-900/35 sm:p-5">
-                <div className="grid items-start gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(340px,400px)]">
-                    <div className="grid gap-3">
-                        <div className="rounded-2xl border border-stone-200/80 bg-white/85 p-4 shadow-sm dark:border-slate-800/80 dark:bg-slate-950/55">
-                            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                                <div className="flex min-w-0 items-center gap-4">
-                                    <div
-                                        className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full p-1"
-                                        style={{ background: `conic-gradient(#625bd5 ${graph.completionScore * 3.6}deg, #e7e5e4 0deg)` }}
-                                        aria-label={`CareerVivid setup ${graph.completionScore}% ready`}
-                                    >
-                                        <div className="flex h-full w-full flex-col items-center justify-center rounded-full bg-white text-center dark:bg-slate-950">
-                                            <span className="text-2xl font-black text-slate-950 dark:text-white">{graph.completionScore}%</span>
-                                            <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">Ready</span>
-                                        </div>
-                                    </div>
-                                    <div className="min-w-0">
-                                        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500 dark:text-slate-400">
-                                            Connected items
-                                        </p>
-                                        <p className="mt-1 text-3xl font-black tracking-tight text-slate-950 dark:text-white">
-                                            {graph.signalCount}
-                                        </p>
-                                        <p className="mt-1 text-sm leading-5 text-slate-600 dark:text-slate-300">
-                                            Strongest area: <span className="font-bold text-slate-800 dark:text-slate-100">{graph.strongestSignal}</span>
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-3 gap-2 lg:w-[280px]">
-                                    <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 px-3 py-2 dark:border-emerald-900/50 dark:bg-emerald-950/25">
-                                        <p className="text-lg font-black leading-none text-emerald-700 dark:text-emerald-200">{readyCount}</p>
-                                        <p className="mt-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-200">Ready</p>
-                                    </div>
-                                    <div className="rounded-xl border border-amber-100 bg-amber-50/70 px-3 py-2 dark:border-amber-900/50 dark:bg-amber-950/25">
-                                        <p className="text-lg font-black leading-none text-amber-700 dark:text-amber-200">{buildingCount}</p>
-                                        <p className="mt-1 text-[10px] font-bold text-amber-700 dark:text-amber-200">Building</p>
-                                    </div>
-                                    <div className="rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 dark:border-slate-800 dark:bg-slate-900/80">
-                                        <p className="text-lg font-black leading-none text-stone-700 dark:text-slate-200">{startCount}</p>
-                                        <p className="mt-1 text-[10px] font-bold text-stone-600 dark:text-slate-300">Start</p>
-                                    </div>
-                                </div>
+            <div className="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
+                <aside className="rounded-2xl border border-stone-200/80 bg-white/85 p-5 shadow-sm dark:border-slate-800/80 dark:bg-slate-950/55">
+                    <div className="flex items-center gap-4">
+                        <div
+                            className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full p-1"
+                            style={{ background: `conic-gradient(#625bd5 ${graph.completionScore * 3.6}deg, #e7e5e4 0deg)` }}
+                            aria-label={`Profile graph ${graph.completionScore}% complete`}
+                        >
+                            <div className="flex h-full w-full flex-col items-center justify-center rounded-full bg-white text-center dark:bg-slate-950">
+                                <span className="text-2xl font-black text-slate-950 dark:text-white">{graph.completionScore}%</span>
+                                <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">Mapped</span>
                             </div>
                         </div>
-
-                        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-                            {graph.nodes.map((node) => (
-                                <SignalMapTile key={node.id} node={node} isNext={node.id === graph.nextBestStep.id} />
-                            ))}
+                        <div className="min-w-0">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500 dark:text-slate-400">
+                                Live signals
+                            </p>
+                            <p className="mt-1 text-3xl font-black tracking-tight text-slate-950 dark:text-white">
+                                {graph.signalCount}
+                            </p>
+                            <p className="mt-1 text-sm leading-5 text-slate-600 dark:text-slate-300">
+                                Strongest signal: <span className="font-bold text-slate-800 dark:text-slate-100">{graph.strongestSignal}</span>
+                            </p>
                         </div>
+                    </div>
 
-                        <div className="grid gap-3 md:grid-cols-2">
-                            <div className="rounded-2xl border border-emerald-100 bg-white/85 p-4 dark:border-emerald-900/40 dark:bg-slate-950/55">
-                                <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500 dark:text-slate-400">Skills CareerVivid can match</p>
-                                <div className="flex flex-wrap gap-1.5">
-                                    {graph.topSkills.length > 0
-                                        ? graph.topSkills.slice(0, 6).map((skill) => <SignalChip key={skill} label={skill} className={toneStyles.emerald.chip} />)
-                                        : <EmptyChip label="Add skills" />}
-                                </div>
-                            </div>
-                            <div className="rounded-2xl border border-violet-100 bg-white/85 p-4 dark:border-violet-900/40 dark:bg-slate-950/55">
-                                <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500 dark:text-slate-400">Roles CareerVivid can target</p>
-                                <div className="flex flex-wrap gap-1.5">
-                                    {graph.targetRoles.length > 0
-                                        ? graph.targetRoles.slice(0, 4).map((role) => <SignalChip key={role} label={role} className={toneStyles.violet.chip} />)
-                                        : <EmptyChip label="Find roles" />}
-                                </div>
+                    <div className="mt-5 rounded-2xl border border-amber-100 bg-amber-50/70 p-4 dark:border-amber-900/40 dark:bg-amber-950/20">
+                        <div className="flex items-start gap-3">
+                            <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white text-amber-700 dark:bg-slate-950/70 dark:text-amber-200">
+                                <Activity size={16} />
+                            </span>
+                            <div>
+                                <p className="text-sm font-extrabold text-slate-950 dark:text-white">
+                                    Next best step
+                                </p>
+                                <p className="mt-1 text-sm leading-5 text-slate-700 dark:text-slate-300">
+                                    Improve <span className="font-bold">{graph.nextBestStep.label.toLowerCase()}</span>: {graph.nextBestStep.detail}
+                                </p>
                             </div>
                         </div>
                     </div>
 
-                    <aside className="rounded-2xl border border-amber-100 bg-amber-50/70 p-4 shadow-sm dark:border-amber-900/40 dark:bg-amber-950/20">
-                        <div className="flex items-start justify-between gap-4">
-                            <div className="min-w-0">
-                                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-amber-700 dark:text-amber-200">
-                                    Target goal
-                                </p>
-                                <h3 className="mt-1 text-base font-extrabold text-slate-950 dark:text-white">
-                                    {graph.roleGoal.title}
-                                </h3>
-                                <p className="mt-2 text-sm leading-5 text-slate-700 dark:text-slate-300">
-                                    {graph.roleGoal.subtitle}
-                                </p>
-                            </div>
-                            <div
-                                className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full p-1"
-                                style={{ background: `conic-gradient(#d99b3d ${graph.roleGoal.readinessScore * 3.6}deg, #ede6da 0deg)` }}
-                                aria-label={`${graph.roleGoal.title} goal ${graph.roleGoal.readinessScore}% ready`}
-                            >
-                                <div className="flex h-full w-full flex-col items-center justify-center rounded-full bg-white text-center dark:bg-slate-950">
-                                    <span className="text-xl font-black text-slate-950 dark:text-white">{graph.roleGoal.readinessScore}%</span>
-                                    <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-500 dark:text-slate-400">{graph.roleGoal.readinessLabel}</span>
-                                </div>
+                    <div className="mt-5 space-y-4">
+                        <div>
+                            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500 dark:text-slate-400">Top skills</p>
+                            <div className="flex flex-wrap gap-1.5">
+                                {graph.topSkills.length > 0
+                                    ? graph.topSkills.slice(0, 6).map((skill) => <SignalChip key={skill} label={skill} className={toneStyles.emerald.chip} />)
+                                    : <EmptyChip label="Add skills" />}
                             </div>
                         </div>
-
-                        <div className="mt-4 grid gap-2">
-                            {graph.roleGoal.steps.map((step) => (
-                                <GoalStepRow key={step.id} step={step} />
-                            ))}
+                        <div>
+                            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500 dark:text-slate-400">Target roles</p>
+                            <div className="flex flex-wrap gap-1.5">
+                                {graph.targetRoles.length > 0
+                                    ? graph.targetRoles.slice(0, 4).map((role) => <SignalChip key={role} label={role} className={toneStyles.violet.chip} />)
+                                    : <EmptyChip label="Find roles" />}
+                            </div>
                         </div>
+                    </div>
+                </aside>
 
-                        <button
-                            type="button"
-                            onClick={() => navigate(graph.roleGoal.nextStep.actionPath)}
-                            className="mt-4 inline-flex w-full items-center justify-between rounded-xl bg-white px-3 py-2 text-sm font-bold text-slate-800 shadow-sm transition hover:bg-stone-50 dark:bg-slate-950/70 dark:text-slate-100 dark:hover:bg-slate-950"
-                        >
-                            {graph.roleGoal.nextStep.actionLabel}
-                            <ArrowRight size={15} />
-                        </button>
-                    </aside>
+                <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
+                    {graph.nodes.map((node) => (
+                        <GraphNodeCard key={node.id} node={node} />
+                    ))}
                 </div>
+            </div>
+        </section>
+    );
+};
+
+export const SkillGapLearningSection: React.FC<CareerProfileGraphCardProps> = ({
+    resumes,
+    portfolios,
+    practiceHistory,
+    jobApplications,
+}) => {
+    const [copiedMissionId, setCopiedMissionId] = useState<string | null>(null);
+    const graph = useMemo(() => buildCareerProfileGraph({
+        resumes,
+        portfolios,
+        practiceHistory,
+        jobApplications,
+    }), [jobApplications, portfolios, practiceHistory, resumes]);
+
+    const handleCopyMissionPrompt = async (mission: SkillGapLearningMission) => {
+        try {
+            await navigator.clipboard?.writeText(mission.prompt);
+            setCopiedMissionId(mission.id);
+            window.setTimeout(() => setCopiedMissionId(null), 1800);
+        } catch (error) {
+            console.warn('Could not copy learning prompt:', error);
+        }
+    };
+
+    return (
+        <section className="mt-8 rounded-2xl border border-stone-200/80 bg-stone-50/70 p-4 shadow-sm dark:border-slate-800/80 dark:bg-slate-900/35" aria-labelledby="skill-gap-learning-title">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-amber-100 bg-amber-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
+                        <GraduationCap size={13} />
+                        Close skill gaps
+                    </div>
+                    <h3 id="skill-gap-learning-title" className="text-xl font-extrabold tracking-tight text-slate-950 dark:text-white">
+                        Learn the skills that unlock stronger matches
+                    </h3>
+                    <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+                        Each mission turns a job-market gap into an AI-assisted learning path, then packages the result as resume, interview, and portfolio proof.
+                    </p>
+                </div>
+                <button
+                    type="button"
+                    onClick={() => navigate('/jobs/recommend')}
+                    className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-3.5 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+                >
+                    Refresh job gaps
+                    <ArrowRight size={15} />
+                </button>
+            </div>
+
+            <div className="mt-4 grid gap-3 lg:grid-cols-3">
+                {graph.learningMissions.map((mission) => (
+                    <LearningMissionCard
+                        key={mission.id}
+                        mission={mission}
+                        copied={copiedMissionId === mission.id}
+                        onCopy={handleCopyMissionPrompt}
+                    />
+                ))}
             </div>
         </section>
     );

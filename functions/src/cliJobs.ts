@@ -767,3 +767,31 @@ export const cliCoverLettersList = functions.region("us-west1").runWith({
         }
     });
 });
+
+// ──────────────────────────────────────────────────────────────────────────────
+// POST /cliJobsDelete
+// Body: { jobId: string }
+// ──────────────────────────────────────────────────────────────────────────────
+
+export const cliJobsDelete = functions.region("us-west1").runWith({
+    timeoutSeconds: 15,
+    memory: "256MB",
+}).https.onRequest(async (req, res) => {
+    corsHandler(req, res, async () => {
+        if (req.method !== "POST" && req.method !== "DELETE") { res.status(405).json({ error: "Method Not Allowed" }); return; }
+
+        const user = await resolveAuth(req);
+        if (!user) { res.status(401).json({ error: "Unauthorized." }); return; }
+
+        const { jobId } = req.body as { jobId: string };
+        if (!jobId) { res.status(400).json({ error: "jobId is required." }); return; }
+
+        try {
+            await db.collection("users").doc(user.uid).collection("jobTracker").doc(jobId).delete();
+            res.json({ success: true, message: "Job entry deleted successfully." });
+        } catch (err: any) {
+            console.error("[cliJobsDelete] Error:", err.message);
+            res.status(500).json({ error: `Delete failed: ${err.message}` });
+        }
+    });
+});

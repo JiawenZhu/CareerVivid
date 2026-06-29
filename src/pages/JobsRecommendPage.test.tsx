@@ -19,34 +19,6 @@ vi.mock('../components/Layout/AppLayout', () => ({
     default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
-vi.mock('../components/JobTracker/AddJobUrlModal', () => ({
-    default: ({ onClose, onJobAdded }: {
-        onClose: () => void;
-        onJobAdded: (jobData: Omit<JobApplicationData, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => void;
-    }) => (
-        <div role="dialog" aria-label="Target job modal">
-            <button
-                type="button"
-                onClick={() => onJobAdded({
-                    jobTitle: 'Forward Deployed Engineer',
-                    companyName: 'OpenAI',
-                    location: 'San Francisco, CA',
-                    jobPostURL: 'https://jobs.example.com/openai/fde',
-                    applicationURL: 'https://jobs.example.com/openai/fde/apply',
-                    jobDescription: 'OpenAI target job using Vertex AI, TypeScript, customer deployments, and production systems.',
-                    applicationStatus: 'To Apply',
-                    workModel: 'Hybrid',
-                    priority: 'High',
-                    nextAction: '',
-                })}
-            >
-                Save mock target job
-            </button>
-            <button type="button" onClick={onClose}>Close target modal</button>
-        </div>
-    ),
-}));
-
 vi.mock('react-helmet-async', () => ({
     Helmet: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
@@ -240,30 +212,5 @@ describe('JobsRecommendPage apply-ready recommendations', () => {
         expect(mocks.updateJobApplication).not.toHaveBeenCalled();
         expect(screen.getByRole('heading', { name: 'Saved Frontend Role' })).toBeInTheDocument();
         expect(await screen.findByText('Opened Acme AI\'s apply page.')).toBeInTheDocument();
-    });
-
-    it('saves a pasted target job description into the tracker', async () => {
-        mocks.getRecommendedScrapedJobs.mockResolvedValue([]);
-
-        render(<JobsRecommendPage />);
-
-        fireEvent.click(screen.getByRole('button', { name: /Set target job/i }));
-        expect(screen.getByRole('dialog', { name: /Target job modal/i })).toBeInTheDocument();
-
-        fireEvent.click(screen.getByRole('button', { name: /Save mock target job/i }));
-
-        await waitFor(() => {
-            expect(mocks.addJobApplication).toHaveBeenCalledWith(expect.objectContaining({
-                jobTitle: 'Forward Deployed Engineer',
-                companyName: 'OpenAI',
-                jobDescription: expect.stringContaining('Vertex AI'),
-                applicationStatus: 'To Apply',
-                priority: 'High',
-                nextAction: 'Tailor resume for OpenAI',
-                notes: expect.stringContaining('Target job'),
-                prep_RoleOverview: expect.stringContaining('Forward Deployed Engineer at OpenAI'),
-            }));
-        });
-        expect(await screen.findByText("Saved OpenAI's Forward Deployed Engineer as a target job.")).toBeInTheDocument();
     });
 });

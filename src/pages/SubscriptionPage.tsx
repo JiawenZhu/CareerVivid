@@ -7,7 +7,7 @@ import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebase';
 import { trackUsage } from '../services/trackingService';
 import { FREE_PLAN_CREDIT_LIMIT, PRO_PLAN_CREDIT_LIMIT, PRO_MAX_PLAN_CREDIT_LIMIT, ENTERPRISE_PLAN_CREDIT_LIMIT } from '../config/creditCosts';
-import { SUBSCRIPTION_CATALOG, formatCredits, getPlanCreditLimit, getPlanDisplayName, isLegacyPlan, normalizePlanId } from '../config/subscriptionCatalog';
+import { SUBSCRIPTION_CATALOG, formatCredits } from '../config/subscriptionCatalog';
 import ConfirmationModal from '../components/ConfirmationModal';
 import RetentionModal from '../components/RetentionModal';
 import CancellationFeedbackModal from '../components/CancellationFeedbackModal';
@@ -53,9 +53,7 @@ const SubscriptionPage: React.FC = () => {
 
     // If plan is expired, force current plan to be free for UI display logic
     const currentPlan = isExpired ? 'free' : (userProfile?.plan || 'free');
-    const normalizedPlan = normalizePlanId(currentPlan);
-    const activePlanName = getPlanDisplayName(currentPlan);
-    const activeCreditLimit = (userProfile?.aiUsage as any)?.monthlyLimit || getPlanCreditLimit(currentPlan, (userProfile as any)?.seats || 1);
+    const isLegacyPlan = ['premium', 'pro_monthly', 'pro_sprint'].includes(currentPlan as any);
 
     const resumeLimit = userProfile?.resumeLimit || 1;
     const subscriptionStatus = userProfile?.stripeSubscriptionStatus;
@@ -68,6 +66,7 @@ const SubscriptionPage: React.FC = () => {
 
     // View Mode State: 'career' (standard) or 'creator' (bio-links)
     const [viewMode, setViewMode] = useState<'career' | 'creator'>('career');
+    const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
 
     useEffect(() => {
         if (userProfile?.source === 'bio-link') {
@@ -109,16 +108,16 @@ const SubscriptionPage: React.FC = () => {
         {
             id: 'monthly', // All Access
             name: 'All-Access Bundle',
-            price: '$14.90',
-            originalPrice: '$29.80',
-            discount: '50% OFF',
+            price: `$${SUBSCRIPTION_CATALOG.pro.monthlyPrice}`,
+            originalPrice: null,
+            discount: null,
             period: '/month',
-            priceId: 'price_1ScLOaRJNflGxv32BwQnSBs0',
+            priceId: SUBSCRIPTION_CATALOG.pro.monthlyPriceId,
             features: [
                 "Create & Edit up to 15 Resumes",
                 "Create up to 8 Portfolio Websites",
                 t('subscription.features.all_templates'),
-                `${ENTERPRISE_PLAN_CREDIT_LIMIT} AI Credits/Month`,
+                `${PRO_PLAN_CREDIT_LIMIT} AI Credits/Month`,
                 t('subscription.features.ai_content'),
                 t('subscription.features.ai_photo'),
                 t('subscription.features.unlimited_downloads'),
@@ -139,19 +138,22 @@ const SubscriptionPage: React.FC = () => {
                 "Create 1 Portfolio Website",
                 t('subscription.features.all_templates'),
                 t('subscription.features.ai_content'),
-                `${FREE_PLAN_CREDIT_LIMIT} AI Credits/Month`,
+                `100 AI Credits/Month`,
                 t('subscription.features.image_exports')
             ],
-            current: normalizedPlan === 'free',
+            current: currentPlan === 'free' || !currentPlan,
         },
         {
             id: 'pro',
             name: 'Pro',
             price: `$${SUBSCRIPTION_CATALOG.pro.monthlyPrice}`,
+            annualPrice: `$${SUBSCRIPTION_CATALOG.pro.annualMonthlyEquivalent}`,
+            annualTotal: `$${SUBSCRIPTION_CATALOG.pro.annualPrice}/year`,
             originalPrice: null,
             discount: null,
             period: '/month',
             priceId: SUBSCRIPTION_CATALOG.pro.monthlyPriceId,
+            annualPriceId: SUBSCRIPTION_CATALOG.pro.annualPriceId,
             features: [
                 "Create & Edit Unlimited Resumes",
                 "Create up to 8 Portfolio Websites",
@@ -162,17 +164,20 @@ const SubscriptionPage: React.FC = () => {
                 t('subscription.features.ai_photo'),
                 t('subscription.features.unlimited_downloads')
             ],
-            current: normalizedPlan === 'pro',
+            current: ['pro', 'premium', 'pro_monthly', 'pro_sprint'].includes(currentPlan as any),
             popular: false,
         },
         {
             id: 'max',
             name: 'Max',
             price: `$${SUBSCRIPTION_CATALOG.max.monthlyPrice}`,
+            annualPrice: `$${SUBSCRIPTION_CATALOG.max.annualMonthlyEquivalent}`,
+            annualTotal: `$${SUBSCRIPTION_CATALOG.max.annualPrice}/year`,
             originalPrice: null,
             discount: null,
             period: '/month',
             priceId: SUBSCRIPTION_CATALOG.max.monthlyPriceId,
+            annualPriceId: SUBSCRIPTION_CATALOG.max.annualPriceId,
             features: [
                 "Create & Edit Unlimited Resumes",
                 "Create up to 8 Portfolio Websites",
@@ -183,7 +188,7 @@ const SubscriptionPage: React.FC = () => {
                 "Priority Support",
                 "Everything in Pro"
             ],
-            current: normalizedPlan === 'max',
+            current: (currentPlan as any) === 'max' || (currentPlan as any) === 'pro_max',
             popular: false,
         },
         {
@@ -198,18 +203,19 @@ const SubscriptionPage: React.FC = () => {
                 "Pooled Team Credits",
                 "Team Workspaces",
                 t('subscription.features.all_templates'),
-                `${formatCredits(SUBSCRIPTION_CATALOG.enterprise.creditLimit)} Credits per seat`,
+                `${ENTERPRISE_PLAN_CREDIT_LIMIT} Credits per seat`,
+                `${SUBSCRIPTION_CATALOG.enterprise.minimumSeats}-seat minimum`,
                 "Centralized Billing",
                 "Custom Solutions",
                 "Admin Dashboard",
                 "SLA Support"
             ],
-            current: normalizedPlan === 'enterprise',
+            current: (currentPlan as any) === 'enterprise',
             popular: true,
         },
     ];
 
-    const handleUpgrade = async (priceId: string | null) => {
+    const handleUpgrade = async (priceId: string | null, quantity = 1) => {
         if (!priceId || !currentUser) return;
 
         setIsLoading(true);
@@ -221,6 +227,7 @@ const SubscriptionPage: React.FC = () => {
             const createCheckoutSession = httpsCallable(functions, 'createCheckoutSession');
             const result: any = await createCheckoutSession({
                 priceId,
+                quantity,
                 successUrl: `${window.location.origin}/#/subscription?success=true`,
                 cancelUrl: `${window.location.origin}/#/subscription`,
             });
@@ -451,10 +458,11 @@ const SubscriptionPage: React.FC = () => {
                                         <h3 className="text-[11px] font-black tracking-widest text-[#9FA8B8] dark:text-gray-400 uppercase mb-3">ACTIVE PLAN</h3>
                                         
                                         <div className="text-[28px] font-extrabold text-[#6B4BF4] dark:text-indigo-400 mb-1 tracking-tight">
-                                            {activePlanName}
+                                            {pricingPlans.find((p: any) => p.current)?.name || t('subscription.plans.free')}
+                                            {isLegacyPlan ? ' (Legacy)' : ''}
                                         </div>
                                         <p className="text-sm text-[#9FA8B8] dark:text-gray-400 font-semibold italic">
-                                            {isLegacyPlan(currentPlan) ? 'Legacy billing, current credit rules' : 'Monthly subscription'}
+                                            {(userProfile as any)?.billingInterval === 'year' ? 'Annual Subscription' : 'Monthly Subscription'}
                                         </p>
                                     </div>
 
@@ -474,10 +482,15 @@ const SubscriptionPage: React.FC = () => {
                                         <div className="mt-1">
                                             <AIUsageProgressBar 
                                                 used={userProfile?.aiUsage?.count || 0}
-                                                limit={activeCreditLimit}
+                                                limit={currentPlan === 'pro'
+                                                    ? PRO_PLAN_CREDIT_LIMIT
+                                                    : currentPlan === 'max'
+                                                        ? PRO_MAX_PLAN_CREDIT_LIMIT
+                                                        : currentPlan === 'enterprise'
+                                                            ? Math.max(SUBSCRIPTION_CATALOG.enterprise.minimumSeats, userProfile?.seats || 1) * ENTERPRISE_PLAN_CREDIT_LIMIT
+                                                            : FREE_PLAN_CREDIT_LIMIT}
                                                 isPremium={currentPlan !== 'free'}
                                                 variant="compact"
-                                                planLabel={activePlanName}
                                             />
                                         </div>
                                     </div>
@@ -495,12 +508,12 @@ const SubscriptionPage: React.FC = () => {
                                         <h2 className="text-[28px] font-extrabold text-white tracking-tight">Upgrade to Enterprise</h2>
                                     </div>
                                     <p className="text-gray-300 max-w-[400px] text-[15px] font-medium leading-relaxed opacity-90">
-                                        Need shared capacity? Enterprise starts at <span className="text-white font-bold tracking-tight">{formatCredits(SUBSCRIPTION_CATALOG.enterprise.creditLimit)}</span> pooled credits per seat and ${SUBSCRIPTION_CATALOG.enterprise.monthlyPrice}/seat.
+                                        Need a team credit pool? Enterprise includes <span className="text-white font-bold tracking-tight">{formatCredits(ENTERPRISE_PLAN_CREDIT_LIMIT)}</span> credits per seat, SSO, and Private Workspaces from $12 per seat.
                                     </p>
                                 </div>
 
                                 <button 
-                                    onClick={() => handleUpgrade(SUBSCRIPTION_CATALOG.enterprise.monthlyPriceId)}
+                                    onClick={() => handleUpgrade(SUBSCRIPTION_CATALOG.enterprise.monthlyPriceId, SUBSCRIPTION_CATALOG.enterprise.minimumSeats)}
                                     className="bg-white text-gray-900 hover:bg-gray-100 font-bold py-3.5 px-8 rounded-2xl transition-colors shadow-md text-sm tracking-tight mt-2"
                                 >
                                     Explore Enterprise
@@ -515,10 +528,35 @@ const SubscriptionPage: React.FC = () => {
                             {/* Available Tiers Box */}
                             <div className="bg-white dark:bg-gray-900 rounded-[2rem] p-7 shadow-sm border border-gray-100 dark:border-gray-800">
                                 <h3 className="text-[11px] font-black tracking-widest text-[#9FA8B8] dark:text-gray-400 uppercase mb-5">AVAILABLE TIERS</h3>
+                                <div className="mb-5 inline-flex w-full rounded-xl bg-gray-100 dark:bg-gray-800 p-1">
+                                    {(['monthly', 'annual'] as const).map((cycle) => (
+                                        <button
+                                            key={cycle}
+                                            type="button"
+                                            onClick={() => setBillingCycle(cycle)}
+                                            className={`flex-1 rounded-lg px-3 py-2 text-xs font-black uppercase tracking-widest transition-colors ${
+                                                billingCycle === cycle
+                                                    ? 'bg-white text-blue-600 shadow-sm dark:bg-gray-950 dark:text-blue-400'
+                                                    : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
+                                            }`}
+                                        >
+                                            {cycle === 'monthly' ? 'Monthly' : 'Annual'}
+                                        </button>
+                                    ))}
+                                </div>
                                 
                                 <div className="flex flex-col gap-4">
                                     {pricingPlans.filter((p: any) => p.id !== 'free').map((plan: any) => {
                                         const isPro = plan.id === 'pro';
+                                        const isAnnualEligible = plan.id === 'pro' || plan.id === 'max';
+                                        const displayPrice = billingCycle === 'annual' && plan.annualPrice ? plan.annualPrice : plan.price;
+                                        const displayPeriod = billingCycle === 'annual' && plan.annualPrice ? '/mo billed yearly' : plan.period;
+                                        const checkoutPriceId = billingCycle === 'annual' && isAnnualEligible ? plan.annualPriceId : plan.priceId;
+                                        const credits = plan.id === 'max'
+                                            ? PRO_MAX_PLAN_CREDIT_LIMIT
+                                            : plan.id === 'pro'
+                                                ? PRO_PLAN_CREDIT_LIMIT
+                                                : SUBSCRIPTION_CATALOG.enterprise.minimumSeats * ENTERPRISE_PLAN_CREDIT_LIMIT;
                                         
                                         return (
                                         <div 
@@ -531,13 +569,19 @@ const SubscriptionPage: React.FC = () => {
                                         >
                                             <div className="flex justify-between items-center mb-4">
                                                 <h4 className="text-[22px] font-extrabold text-gray-900 dark:text-white tracking-tight">{plan.name}</h4>
-                                                <span className={`${plan.current ? 'text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/30 px-3 py-1 rounded-lg'} font-black text-lg tracking-tight`}>{plan.price}</span>
+                                                <span className={`${plan.current ? 'text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/30 px-3 py-1 rounded-lg'} font-black text-lg tracking-tight`}>
+                                                    {displayPrice}
+                                                    <span className="ml-1 text-[10px] font-bold text-gray-400">{displayPeriod}</span>
+                                                </span>
                                             </div>
                                             
                                             <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 font-bold text-[13px] mb-5 tracking-tight uppercase">
                                                 <Zap className="w-[14px] h-[14px] stroke-[2.5]" stroke={isPro ? "#4466FF" : "currentColor"} />
-                                                <span>{plan.id === 'enterprise' ? `${formatCredits(SUBSCRIPTION_CATALOG.enterprise.creditLimit)} CREDITS / SEAT` : `${formatCredits(plan.id === 'max' ? PRO_MAX_PLAN_CREDIT_LIMIT : PRO_PLAN_CREDIT_LIMIT)} CREDITS / MO`}</span>
+                                                <span>{formatCredits(credits)} CREDITS / MO</span>
                                             </div>
+                                            {billingCycle === 'annual' && plan.annualTotal && (
+                                                <p className="mb-4 text-xs font-semibold text-gray-400">Billed upfront as {plan.annualTotal}</p>
+                                            )}
 
                                             {plan.current ? (
                                                 <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 font-bold text-sm tracking-tight w-full py-2.5">
@@ -546,13 +590,13 @@ const SubscriptionPage: React.FC = () => {
                                                 </div>
                                             ) : (
                                                 <button
-                                                    onClick={() => plan.priceId && handleUpgrade(plan.priceId)}
-                                                    disabled={isLoading || !plan.priceId}
+                                                    onClick={() => checkoutPriceId && handleUpgrade(checkoutPriceId, plan.id === 'enterprise' ? SUBSCRIPTION_CATALOG.enterprise.minimumSeats : 1)}
+                                                    disabled={isLoading || !checkoutPriceId}
                                                     className={`w-full py-3 rounded-xl font-bold text-[13px] tracking-wide transition-all ${
                                                         'bg-[#1a1c23] hover:bg-black text-white dark:bg-gray-800 dark:hover:bg-gray-700 shadow-sm'
                                                     }`}
                                                 >
-                                                    SWITCH TO {plan.name.toUpperCase()}
+                                                    {checkoutPriceId ? `SWITCH TO ${plan.name.toUpperCase()}` : 'SET UP STRIPE PRICE'}
                                                 </button>
                                             )}
                                         </div>
