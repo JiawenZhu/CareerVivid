@@ -27,7 +27,9 @@ const structuredData = {
             '@id': 'https://careervivid.app/#organization',
             name: 'CareerVivid',
             url: 'https://careervivid.app/',
+            description: 'CareerVivid builds AI-powered tools for resumes, job tracking, interview prep, portfolios, and job application autofill.',
             logo: 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Flogo_light_mode.png?alt=media&token=627ec9de-a950-41f7-9138-dd7a33518c55',
+            sameAs: ['https://twitter.com/careervivid'],
         },
         {
             '@type': 'WebSite',
@@ -38,7 +40,7 @@ const structuredData = {
             publisher: { '@id': 'https://careervivid.app/#organization' },
         },
         {
-            '@type': 'WebApplication',
+            '@type': ['WebApplication', 'SoftwareApplication'],
             '@id': 'https://careervivid.app/#job-workspace',
             name: 'CareerVivid',
             alternateName: 'CareerVivid Job Search Workspace',
@@ -57,8 +59,56 @@ const structuredData = {
                 'Chrome extension job capture and autofill',
                 'Gemini-powered career workflows',
             ],
+            audience: [
+                { '@type': 'Audience', audienceType: 'students' },
+                { '@type': 'Audience', audienceType: 'new graduates' },
+                { '@type': 'Audience', audienceType: 'career changers' },
+                { '@type': 'Audience', audienceType: 'job seekers' },
+            ],
+            potentialAction: [
+                {
+                    '@type': 'RegisterAction',
+                    name: 'Start for free',
+                    target: 'https://careervivid.app/signup',
+                },
+                {
+                    '@type': 'UseAction',
+                    name: 'Build a resume',
+                    target: 'https://careervivid.app/newresume',
+                },
+            ],
             description: SEO_DESCRIPTION,
             publisher: { '@id': 'https://careervivid.app/#organization' },
+        },
+        {
+            '@type': 'FAQPage',
+            '@id': 'https://careervivid.app/#faq',
+            mainEntity: [
+                {
+                    '@type': 'Question',
+                    name: 'What is CareerVivid?',
+                    acceptedAnswer: {
+                        '@type': 'Answer',
+                        text: 'CareerVivid is your AI-powered co-pilot for the job search, bringing standout resumes, application tracking, interview prep, portfolios, and Chrome extension autofill into one account.',
+                    },
+                },
+                {
+                    '@type': 'Question',
+                    name: 'Who is CareerVivid built for?',
+                    acceptedAnswer: {
+                        '@type': 'Answer',
+                        text: 'CareerVivid is built for students, new graduates, career changers, and job seekers who want one place to build resumes, track applications, prepare for interviews, and move faster through the job search.',
+                    },
+                },
+                {
+                    '@type': 'Question',
+                    name: 'Can I start CareerVivid for free?',
+                    acceptedAnswer: {
+                        '@type': 'Answer',
+                        text: 'Yes. Job seekers can start CareerVivid for free and use the workspace to organize their job search before upgrading for advanced AI workflows.',
+                    },
+                },
+            ],
         },
         {
             '@type': 'BrowserApplication',
@@ -88,17 +138,25 @@ const LandingPage: React.FC = () => (
             <meta name="title" content={SEO_TITLE} />
             <meta name="description" content={SEO_DESCRIPTION} />
             <meta name="keywords" content={SEO_KEYWORDS} />
+            <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
             <link rel="canonical" href="https://careervivid.app/" />
             <meta property="og:type" content="website" />
             <meta property="og:url" content="https://careervivid.app/" />
             <meta property="og:site_name" content="CareerVivid" />
+            <meta property="og:locale" content="en_US" />
             <meta property="og:title" content={SEO_TITLE} />
             <meta property="og:description" content={SEO_DESCRIPTION} />
             <meta property="og:image" content={SEO_IMAGE} />
+            <meta property="og:image:alt" content="CareerVivid AI-powered job search workspace" />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="630" />
             <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:site" content="@careervivid" />
+            <meta name="twitter:creator" content="@careervivid" />
             <meta name="twitter:title" content={SEO_TITLE} />
             <meta name="twitter:description" content={SEO_DESCRIPTION} />
             <meta name="twitter:image" content={SEO_IMAGE} />
+            <meta name="twitter:image:alt" content="CareerVivid AI-powered job search workspace" />
             <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
         </Helmet>
         <PublicHeader variant="editorial" />

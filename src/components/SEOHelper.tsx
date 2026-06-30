@@ -61,6 +61,7 @@ const SEOHelper: React.FC<SEOProps> = ({
     // Fallbacks
     const defaultImage = 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Fog_image.png?alt=media';
     const finalImage = image || defaultImage;
+    const imageAlt = title ? `${title} preview` : 'CareerVivid AI-powered job search workspace';
 
     // Construct the structured data
     let structuredData: any = {
@@ -109,12 +110,20 @@ const SEOHelper: React.FC<SEOProps> = ({
                 {keywords && <meta name="keywords" content={keywords} />}
 
                 <link rel="canonical" href={canonicalUrl} />
+                <meta name="robots" content={isRobotsAllowed ? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' : 'noindex, nofollow'} />
                 <meta property="og:url" content={canonicalUrl} />
+                <meta property="og:type" content={schemaType === 'TechArticle' ? 'article' : 'website'} />
+                <meta property="og:site_name" content="CareerVivid" />
+                <meta property="og:locale" content="en_US" />
                 <meta property="og:image" content={finalImage} />
+                <meta property="og:image:alt" content={imageAlt} />
+                <meta property="og:image:width" content="1200" />
+                <meta property="og:image:height" content="630" />
                 <meta name="twitter:image" content={finalImage} />
+                <meta name="twitter:image:alt" content={imageAlt} />
                 <meta name="twitter:card" content="summary_large_image" />
-
-                {!isRobotsAllowed && <meta name="robots" content="noindex, nofollow" />}
+                <meta name="twitter:site" content="@careervivid" />
+                <meta name="twitter:creator" content="@careervivid" />
 
                 <script type="application/ld+json">
                     {JSON.stringify(structuredData)}

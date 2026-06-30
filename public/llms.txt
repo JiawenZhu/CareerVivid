@@ -1,0 +1,25 @@
+# CareerVivid
+
+CareerVivid is your AI-powered co-pilot for the job search. It helps job seekers build standout resumes, track applications, prepare for interviews, create portfolios, and autofill job forms in seconds.
+
+## Primary Pages
+
+- Homepage: https://careervivid.app/
+- Start for free: https://careervivid.app/signup
+- Chrome extension guide: https://careervivid.app/extension-welcome
+- Pricing: https://careervivid.app/pricing
+- Blog: https://careervivid.app/blog
+- Contact: https://careervivid.app/contact
+
+## What CareerVivid Does
+
+- AI resume builder and resume tailoring
+- Job application tracking
+- Resume match scoring against target roles
+- Mock interview preparation and feedback
+- Portfolio and whiteboard workspace
+- Chrome extension job capture and job application autofill
+
+## Audience
+
+CareerVivid is built for students, new graduates, career changers, and job seekers who want one place to manage the job search.

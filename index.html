@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
   <!-- Primary Meta Tags -->
-  <meta name="robots" content="index, follow">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   <title>CareerVivid | The AI That Gets You Hired</title>
   <meta name="title" content="CareerVivid | The AI That Gets You Hired">
   <meta name="description"
@@ -22,28 +22,34 @@
   <meta name="application-name" content="CareerVivid">
   <meta name="apple-mobile-web-app-title" content="CareerVivid">
   <meta name="category" content="AI job search, career management, Chrome extension">
+  <link rel="canonical" href="https://careervivid.app/">
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://careervivid.app/">
   <meta property="og:site_name" content="CareerVivid">
+  <meta property="og:locale" content="en_US">
   <meta property="og:title" content="CareerVivid | The AI That Gets You Hired">
   <meta property="og:description"
     content="CareerVivid is your AI-powered co-pilot for the job search — build standout resumes, track applications, prep for interviews, and autofill job forms in seconds. Your next job starts here.">
   <meta property="og:image"
     content="https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Fog_image.png?alt=media">
+  <meta property="og:image:alt" content="CareerVivid AI-powered job search workspace">
+  <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@careervivid">
+  <meta name="twitter:creator" content="@careervivid">
   <meta name="twitter:url" content="https://careervivid.app/">
   <meta name="twitter:title" content="CareerVivid | The AI That Gets You Hired">
   <meta name="twitter:description"
     content="CareerVivid is your AI-powered co-pilot for the job search — build standout resumes, track applications, prep for interviews, and autofill job forms in seconds. Your next job starts here.">
   <meta name="twitter:image"
     content="https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Fog_image.png?alt=media">
+  <meta name="twitter:image:alt" content="CareerVivid AI-powered job search workspace">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -69,11 +75,12 @@
         "name": "CareerVivid",
         "url": "https://careervivid.app",
         "sameAs": ["https://twitter.com/careervivid"],
-        "logo": "https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Flogo_light_mode.png?alt=media&token=627ec9de-a950-41f7-9138-dd7a33518c55"
+        "logo": "https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Flogo_light_mode.png?alt=media&token=627ec9de-a950-41f7-9138-dd7a33518c55",
+        "description": "CareerVivid builds AI-powered tools for resumes, job tracking, interview prep, portfolios, and job application autofill."
       },
       {
         "@context": "https://schema.org",
-        "@type": "WebApplication",
+        "@type": ["WebApplication", "SoftwareApplication"],
         "name": "CareerVivid",
         "alternateName": "CareerVivid Job Search Workspace",
         "operatingSystem": "Web",
@@ -90,6 +97,24 @@
           "Portfolio and whiteboard workspace",
           "Chrome extension job capture and autofill",
           "Gemini-powered career workflows"
+        ],
+        "audience": [
+          { "@type": "Audience", "audienceType": "students" },
+          { "@type": "Audience", "audienceType": "new graduates" },
+          { "@type": "Audience", "audienceType": "career changers" },
+          { "@type": "Audience", "audienceType": "job seekers" }
+        ],
+        "potentialAction": [
+          {
+            "@type": "RegisterAction",
+            "name": "Start for free",
+            "target": "https://careervivid.app/signup"
+          },
+          {
+            "@type": "UseAction",
+            "name": "Build a resume",
+            "target": "https://careervivid.app/newresume"
+          }
         ],
         "description": "CareerVivid is your AI-powered co-pilot for the job search — build standout resumes, track applications, prep for interviews, and autofill job forms in seconds. Your next job starts here.",
         "url": "https://careervivid.app"
@@ -121,6 +146,22 @@
             "acceptedAnswer": {
                "@type": "Answer",
                "text": "CareerVivid is your AI-powered co-pilot for the job search, bringing standout resumes, application tracking, interview prep, portfolios, and Chrome extension autofill into one account."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Who is CareerVivid built for?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "CareerVivid is built for students, new graduates, career changers, and job seekers who want one place to build resumes, track applications, prepare for interviews, and move faster through the job search."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I start CareerVivid for free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Job seekers can start CareerVivid for free and use the workspace to organize their job search before upgrading for advanced AI workflows."
             }
           },
           {
