@@ -316,7 +316,7 @@ const AppContent: React.FC = () => {
             <div className="min-h-screen bg-[#f7f1e7] text-[#211b16] dark:bg-[#1f1f1d] dark:text-[#f1eee7] font-sans">
               <Helmet
                 titleTemplate="%s | CareerVivid"
-                defaultTitle="CareerVivid | AI Job Search Workspace & Chrome Extension"
+                defaultTitle="CareerVivid | The AI That Gets You Hired"
               />
               <SEOHelper isRobotsAllowed />
               <RouteSuspense routeKey={path}>
@@ -781,7 +781,7 @@ const AppContent: React.FC = () => {
             {currentUser && <WorkspaceDataEffects />}
             <Helmet
               titleTemplate="%s | CareerVivid"
-              defaultTitle="CareerVivid | AI Job Search Workspace & Chrome Extension"
+              defaultTitle="CareerVivid | The AI That Gets You Hired"
             />
             <SEOHelper
               isRobotsAllowed={![

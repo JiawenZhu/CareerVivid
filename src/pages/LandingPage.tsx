@@ -14,8 +14,8 @@ import {
     WorkflowSection,
 } from '../components/Landing/LandingTrustSections';
 
-const SEO_TITLE = 'CareerVivid | AI Job Search Workspace & Chrome Extension';
-const SEO_DESCRIPTION = 'CareerVivid is an AI job-search workspace for resumes, job tracking, interview prep, portfolios, and Chrome extension autofill.';
+const SEO_TITLE = 'CareerVivid | The AI That Gets You Hired';
+const SEO_DESCRIPTION = 'CareerVivid is your AI-powered co-pilot for the job search — build standout resumes, track applications, prep for interviews, and autofill job forms in seconds. Your next job starts here.';
 const SEO_KEYWORDS = 'AI job search workspace, Chrome extension job autofill, AI resume builder, job tracker, resume match, interview coach, application tracker, ATS resume optimization';
 const SEO_IMAGE = 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Fog_image.png?alt=media';
 

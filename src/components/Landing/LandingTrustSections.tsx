@@ -358,7 +358,7 @@ export const TeamsAndTrustSection = () => (
                 </p>
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                     <button onClick={() => navigate('/signup')} className="inline-flex items-center justify-center gap-3 rounded-lg bg-[#211b16] px-6 py-4 font-semibold text-white shadow-lg shadow-[#6b4b1f]/15">
-                        Start free <ArrowRight size={18} />
+                        Start for free <ArrowRight size={18} />
                     </button>
                     <button onClick={() => navigate('/contact')} className="inline-flex items-center justify-center gap-3 rounded-lg border border-[#d8c6ad] bg-[#fffaf1] px-6 py-4 font-semibold text-[#211b16]">
                         Talk to us

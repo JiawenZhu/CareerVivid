@@ -544,7 +544,7 @@ const SignInPage: React.FC = () => {
                                         onClick={() => navigate(email ? `/signup?email=${encodeURIComponent(email)}` : '/signup')}
                                         className="font-bold text-[#625bd5] hover:text-[#4e46bf] dark:text-[#8d88e6]"
                                     >
-                                        Create an account
+                                        Start for free
                                     </button>
                                 </p>
                                 <a
