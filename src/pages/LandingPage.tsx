@@ -7,6 +7,7 @@ import {
     FAQSection,
     FinalCTA,
     DemoVideoSection,
+    PlatformAvailabilitySection,
     ProductIndex,
     ProofSection,
     TeamsAndTrustSection,
@@ -18,6 +19,7 @@ const SEO_TITLE = 'CareerVivid | The AI That Gets You Hired';
 const SEO_DESCRIPTION = 'CareerVivid is your AI-powered co-pilot for the job search — build standout resumes, track applications, prep for interviews, and autofill job forms in seconds. Your next job starts here.';
 const SEO_KEYWORDS = 'AI job search workspace, Chrome extension job autofill, AI resume builder, job tracker, resume match, interview coach, application tracker, ATS resume optimization';
 const SEO_IMAGE = 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Fog_image.png?alt=media';
+const CHROME_EXTENSION_URL = 'https://chromewebstore.google.com/detail/dmigeakdfokehlhigkhadglgoabceoag?utm_source=item-share-cb';
 
 const structuredData = {
     '@context': 'https://schema.org',
@@ -57,6 +59,8 @@ const structuredData = {
                 'Interview preparation and feedback',
                 'Portfolio and whiteboard workspace',
                 'Chrome extension job capture and autofill',
+                'iOS app coming soon',
+                'Android app coming soon',
                 'Gemini-powered career workflows',
             ],
             audience: [
@@ -75,6 +79,11 @@ const structuredData = {
                     '@type': 'UseAction',
                     name: 'Build a resume',
                     target: 'https://careervivid.app/newresume',
+                },
+                {
+                    '@type': 'DownloadAction',
+                    name: 'Install the Chrome extension',
+                    target: CHROME_EXTENSION_URL,
                 },
             ],
             description: SEO_DESCRIPTION,
@@ -108,6 +117,14 @@ const structuredData = {
                         text: 'Yes. Job seekers can start CareerVivid for free and use the workspace to organize their job search before upgrading for advanced AI workflows.',
                     },
                 },
+                {
+                    '@type': 'Question',
+                    name: 'Does CareerVivid have a Chrome extension and mobile apps?',
+                    acceptedAnswer: {
+                        '@type': 'Answer',
+                        text: 'CareerVivid has a Chrome extension for saving job postings, autofilling applications, and connecting browser work to the workspace. CareerVivid iOS and Android apps are coming soon.',
+                    },
+                },
             ],
         },
         {
@@ -126,6 +143,7 @@ const structuredData = {
                 'Send roles into the CareerVivid job tracker',
             ],
             description: 'The CareerVivid Chrome extension helps job seekers save roles, autofill applications, analyze job fit, and keep browser work connected to their CareerVivid workspace.',
+            downloadUrl: CHROME_EXTENSION_URL,
             publisher: { '@id': 'https://careervivid.app/#organization' },
         },
     ],
@@ -163,6 +181,7 @@ const LandingPage: React.FC = () => (
         <main>
             <CommunityShowcaseHero />
             <ProductIndex />
+            <PlatformAvailabilitySection />
             <DemoVideoSection />
             <UserStoriesSection />
             <ProofSection />

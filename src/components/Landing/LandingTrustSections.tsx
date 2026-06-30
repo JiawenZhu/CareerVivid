@@ -6,6 +6,7 @@ import {
     Building2,
     CheckCircle2,
     Chrome,
+    Clock3,
     ClipboardCheck,
     DollarSign,
     ExternalLink,
@@ -17,10 +18,13 @@ import {
     Search,
     ShieldCheck,
     Sparkles,
+    Smartphone,
     Users,
     Wand2,
 } from 'lucide-react';
 import { navigate } from '../../utils/navigation';
+
+const CHROME_EXTENSION_URL = 'https://chromewebstore.google.com/detail/dmigeakdfokehlhigkhadglgoabceoag?utm_source=item-share-cb';
 
 const featureTabs = [
     { label: 'Job Tracker', icon: Briefcase, href: '/job-tracker' },
@@ -30,6 +34,39 @@ const featureTabs = [
     { label: 'Resume Match', icon: Search, href: '/newresume' },
     { label: 'Interview Coach', icon: Mic, href: '/interview-studio' },
     { label: 'Career Pipeline', icon: LayoutDashboard, href: '/job-tracker' },
+];
+
+const platformCards = [
+    {
+        label: 'Available now',
+        title: 'Chrome extension',
+        copy: 'Save roles from job sites, keep the original apply link, and connect browser work back to your CareerVivid workspace.',
+        icon: Chrome,
+        action: 'Get the Chrome extension',
+        href: CHROME_EXTENSION_URL,
+        tone: 'bg-[#eef9f2] text-[#15803d] border-[#cfe8d5]',
+        external: true,
+    },
+    {
+        label: 'Coming soon',
+        title: 'iOS app',
+        copy: 'Manage resumes, interview prep, and job follow-ups from your iPhone when the mobile app is ready.',
+        icon: Smartphone,
+        action: 'iOS coming soon',
+        href: '/signup',
+        tone: 'bg-[#f3f2ff] text-[#625bd5] border-[#dfdcff]',
+        external: false,
+    },
+    {
+        label: 'Coming soon',
+        title: 'Android app',
+        copy: 'CareerVivid for Android is planned so job seekers can keep the same workspace on every device.',
+        icon: Smartphone,
+        action: 'Android coming soon',
+        href: '/signup',
+        tone: 'bg-[#fff3e4] text-[#a16207] border-[#ead8b3]',
+        external: false,
+    },
 ];
 
 const proofCards = [
@@ -158,6 +195,57 @@ export const ProductIndex = () => (
             ))}
         </div>
     </section>
+);
+
+export const PlatformAvailabilitySection = () => (
+    <PaperSection className="py-14 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-10 grid gap-5 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
+                <div>
+                    <p className="cv-warm-eyebrow">Apps and extension</p>
+                    <h2 className="mt-3 text-4xl font-semibold tracking-tight text-[#211b16] sm:text-5xl">
+                        Use CareerVivid where you apply.
+                    </h2>
+                </div>
+                <p className="text-base font-medium leading-7 text-[#665a4a]">
+                    Start with the Chrome extension today. iOS and Android apps are coming soon so the same job-search workspace can follow you from desktop to mobile.
+                </p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-3">
+                {platformCards.map(({ label, title, copy, icon: Icon, action, href, tone, external }) => (
+                    <article key={title} className="rounded-xl border border-[#e4d3bc] bg-[#fffaf1]/88 p-6 shadow-sm">
+                        <div className="flex items-start justify-between gap-4">
+                            <div className={`flex h-12 w-12 items-center justify-center rounded-xl border ${tone}`}>
+                                <Icon size={23} />
+                            </div>
+                            <span className={`rounded-full border px-3 py-1 text-xs font-bold ${tone}`}>{label}</span>
+                        </div>
+                        <h3 className="mt-6 text-xl font-semibold text-[#211b16]">{title}</h3>
+                        <p className="mt-3 text-sm font-medium leading-6 text-[#665a4a]">{copy}</p>
+                        {external ? (
+                            <a
+                                href={href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#211b16] px-4 py-3 text-sm font-semibold text-white shadow-sm"
+                            >
+                                {action} <ExternalLink size={15} />
+                            </a>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={() => navigate(href)}
+                                className="mt-6 inline-flex items-center gap-2 rounded-lg border border-[#d8c6ad] bg-[#fffaf1] px-4 py-3 text-sm font-semibold text-[#211b16]"
+                            >
+                                <Clock3 size={15} />
+                                {action}
+                            </button>
+                        )}
+                    </article>
+                ))}
+            </div>
+        </div>
+    </PaperSection>
 );
 
 export const DemoVideoSection = () => (

@@ -7,6 +7,7 @@ CareerVivid is your AI-powered co-pilot for the job search. It helps job seekers
 - Homepage: https://careervivid.app/
 - Start for free: https://careervivid.app/signup
 - Chrome extension guide: https://careervivid.app/extension-welcome
+- Chrome Web Store: https://chromewebstore.google.com/detail/dmigeakdfokehlhigkhadglgoabceoag?utm_source=item-share-cb
 - Pricing: https://careervivid.app/pricing
 - Blog: https://careervivid.app/blog
 - Contact: https://careervivid.app/contact
@@ -19,6 +20,8 @@ CareerVivid is your AI-powered co-pilot for the job search. It helps job seekers
 - Mock interview preparation and feedback
 - Portfolio and whiteboard workspace
 - Chrome extension job capture and job application autofill
+- iOS app: coming soon
+- Android app: coming soon
 
 ## Audience
 
