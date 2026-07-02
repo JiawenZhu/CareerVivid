@@ -13,6 +13,33 @@ import { quietProductionConsole } from './utils/quietConsole';
 
 quietProductionConsole();
 
+const isLocalDevHost = () => {
+  if (!import.meta.env.DEV || typeof window === 'undefined') return false;
+
+  return ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
+};
+
+const clearLocalDevRuntimeCaches = async () => {
+  if (!isLocalDevHost()) return;
+
+  const registrations = 'serviceWorker' in navigator
+    ? await navigator.serviceWorker.getRegistrations()
+    : [];
+  const cacheNames = 'caches' in window ? await window.caches.keys() : [];
+
+  await Promise.allSettled([
+    ...registrations.map((registration) => registration.unregister()),
+    ...cacheNames.map((cacheName) => window.caches.delete(cacheName)),
+  ]);
+
+  if ((registrations.length > 0 || cacheNames.length > 0) && !window.sessionStorage.getItem('cv-local-runtime-cache-cleared')) {
+    window.sessionStorage.setItem('cv-local-runtime-cache-cleared', '1');
+    window.location.reload();
+  }
+};
+
+void clearLocalDevRuntimeCaches();
+
 const isVersionedAssetUrl = (url: string | null | undefined) => {
   if (!url) return false;
   return /\/assets\/.+\.(?:js|css)$/.test(url) || /\/_next\/static\/.+\.(?:js|css)$/.test(url);

@@ -305,6 +305,11 @@
         "region": "us-west1"
       },
       {
+        "source": "/api/open-revenue",
+        "function": "getOpenRevenueStats",
+        "region": "us-west1"
+      },
+      {
         "source": "/vapi-webhook",
         "function": "vapiWebhook",
         "region": "us-west1"

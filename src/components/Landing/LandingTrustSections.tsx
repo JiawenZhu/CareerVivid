@@ -6,19 +6,26 @@ import {
     Building2,
     CheckCircle2,
     Chrome,
+    Clipboard,
     Clock3,
     ClipboardCheck,
+    Download,
     DollarSign,
     ExternalLink,
+    FileCheck2,
+    FileSearch,
     FileText,
+    Gauge,
     LayoutDashboard,
     Lock,
     Mic,
+    PenLine,
     PlayCircle,
     Search,
     ShieldCheck,
     Sparkles,
     Smartphone,
+    Upload,
     Users,
     Wand2,
 } from 'lucide-react';
@@ -29,6 +36,7 @@ const CHROME_EXTENSION_URL = 'https://chromewebstore.google.com/detail/dmigeakdf
 const featureTabs = [
     { label: 'Job Tracker', icon: Briefcase, href: '/job-tracker' },
     { label: 'AI Resume Builder', icon: FileText, href: '/newresume' },
+    { label: 'ATS Checker', icon: Gauge, href: '/newresume' },
     { label: 'Resume Tailor', icon: Wand2, href: '/newresume' },
     { label: 'Autofill Applications', icon: Chrome, href: '/extension-welcome' },
     { label: 'Resume Match', icon: Search, href: '/newresume' },
@@ -84,6 +92,93 @@ const proofCards = [
         icon: BadgeCheck,
         title: 'Application packet, not scattered tools',
         copy: 'Resume match, tailored notes, interview prep, and follow-up history live with the job so users know what to do next.',
+    },
+];
+
+const fastStartActions = [
+    {
+        icon: Upload,
+        title: 'Upload your resume',
+        copy: 'Start from a PDF or DOCX, then turn it into editable resume sections.',
+        action: 'Upload resume',
+        href: '/newresume',
+        tone: 'bg-[#f3f2ff] text-[#625bd5] border-[#dfdcff]',
+    },
+    {
+        icon: Clipboard,
+        title: 'Paste resume content',
+        copy: 'Drop in existing text and let CareerVivid structure it for tailoring.',
+        action: 'Paste resume',
+        href: '/newresume',
+        tone: 'bg-[#eef9f2] text-[#15803d] border-[#cfe8d5]',
+    },
+    {
+        icon: Chrome,
+        title: 'Save a job from Chrome',
+        copy: 'Capture the role, company, apply link, and prep context from the browser.',
+        action: 'Install extension',
+        href: CHROME_EXTENSION_URL,
+        tone: 'bg-[#fff3e4] text-[#a16207] border-[#ead8b3]',
+        external: true,
+    },
+];
+
+const readinessChecks = [
+    ['ATS keywords', 86, 'Keyword coverage from the target role', 'bg-[#625bd5]'],
+    ['Experience proof', 72, 'Specific projects and measurable outcomes', 'bg-[#15803d]'],
+    ['Interview readiness', 64, 'Practice prompts tied to the saved job', 'bg-[#d97706]'],
+];
+
+const resumeExamples = [
+    {
+        title: 'Software engineer resume',
+        copy: 'Show full-stack projects, system ownership, measurable impact, and interview-ready stories.',
+        tags: ['React', 'Node.js', 'Systems'],
+    },
+    {
+        title: 'New grad resume',
+        copy: 'Turn coursework, internships, hackathons, and campus work into credible proof.',
+        tags: ['Projects', 'Internships', 'Skills'],
+    },
+    {
+        title: 'Career changer resume',
+        copy: 'Connect transferable strengths to the target role without hiding the transition.',
+        tags: ['Story', 'Proof', 'Fit'],
+    },
+    {
+        title: 'Frontend developer resume',
+        copy: 'Highlight UI quality, accessibility, performance, and product collaboration.',
+        tags: ['UX', 'A11y', 'Performance'],
+    },
+];
+
+const pricingPreviewPlans = [
+    {
+        name: 'Free',
+        price: '$0',
+        copy: 'Start organizing jobs, resumes, and prep without a credit card.',
+        points: ['Basic workspace', 'Resume starter flow', 'Job tracker'],
+        action: 'Start free',
+        href: '/signup',
+        featured: false,
+    },
+    {
+        name: 'Pro',
+        price: 'AI credits',
+        copy: 'For active applicants who want deeper tailoring, practice, and Chrome-connected workflows.',
+        points: ['AI resume tailoring', 'Interview prep', 'Chrome workflow'],
+        action: 'See Pro',
+        href: '/pricing',
+        featured: true,
+    },
+    {
+        name: 'Teams',
+        price: 'Custom',
+        copy: 'For schools, career centers, and cohorts supporting many job seekers.',
+        points: ['Student dashboards', 'Credit allocation', 'Progress tracking'],
+        action: 'Talk to us',
+        href: '/contact',
+        featured: false,
     },
 ];
 
@@ -164,8 +259,20 @@ const faqs = [
         answer: 'No. The resume builder is one part of the workspace. CareerVivid also includes a job tracker, resume matching, interview prep, application notes, and Chrome extension workflows.',
     },
     {
+        question: 'Can CareerVivid check my resume against a job description?',
+        answer: 'Yes. CareerVivid is designed around job context: save or paste a role, compare your resume with that role, then improve keywords, proof, and interview stories from the same workspace.',
+    },
+    {
         question: 'Can CareerVivid help with direct applications?',
         answer: 'Yes. The workflow is built around saving the original job source and application link so users can apply directly and keep context attached to the role.',
+    },
+    {
+        question: 'Does CareerVivid have a Chrome extension?',
+        answer: 'Yes. The Chrome extension helps save job postings, keep apply links attached, and connect browser application work back to CareerVivid.',
+    },
+    {
+        question: 'Are iOS and Android apps available?',
+        answer: 'The web app and Chrome extension are available now. CareerVivid iOS and Android apps are planned and marked as coming soon.',
     },
     {
         question: 'Do I need my own AI API key?',
@@ -178,6 +285,55 @@ const PaperSection = ({ children, className = '' }: { children: React.ReactNode;
         <div className="pointer-events-none absolute inset-0 opacity-55 cv-warm-grid" />
         <div className="relative">{children}</div>
     </section>
+);
+
+export const FastStartSection = () => (
+    <PaperSection className="py-12 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="rounded-[24px] border border-[#e4d3bc] bg-[#fffaf1]/92 p-4 shadow-2xl shadow-[#8b5a16]/10 sm:p-6 lg:p-7">
+                <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+                    <div>
+                        <p className="cv-warm-eyebrow">Start from what you already have</p>
+                        <h2 className="mt-3 text-3xl font-semibold tracking-tight text-[#211b16] sm:text-4xl">
+                            Upload, paste, or capture a role. CareerVivid turns it into a job-search workspace.
+                        </h2>
+                        <p className="mt-4 text-base font-medium leading-7 text-[#665a4a]">
+                            The fastest path is concrete: start with your existing resume or save the job first, then tailor everything from that context.
+                        </p>
+                    </div>
+                    <div className="grid gap-3 md:grid-cols-3">
+                        {fastStartActions.map(({ icon: Icon, title, copy, action, href, tone, external }) => (
+                            <article key={title} className="rounded-2xl border border-[#e4d3bc] bg-white/82 p-4 shadow-sm">
+                                <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-xl border ${tone}`}>
+                                    <Icon size={22} />
+                                </div>
+                                <h3 className="text-lg font-semibold leading-tight text-[#211b16]">{title}</h3>
+                                <p className="mt-2 min-h-[72px] text-sm font-medium leading-6 text-[#665a4a]">{copy}</p>
+                                {external ? (
+                                    <a
+                                        href={href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#211b16] px-4 py-3 text-sm font-semibold text-white"
+                                    >
+                                        {action} <ExternalLink size={15} />
+                                    </a>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => navigate(href)}
+                                        className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#d8c6ad] bg-[#fffaf1] px-4 py-3 text-sm font-semibold text-[#211b16]"
+                                    >
+                                        {action} <ArrowRight size={15} />
+                                    </button>
+                                )}
+                            </article>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </PaperSection>
 );
 
 export const ProductIndex = () => (
@@ -305,6 +461,166 @@ export const DemoVideoSection = () => (
     </PaperSection>
 );
 
+export const ResumeReadinessSection = () => (
+    <PaperSection className="py-16 sm:py-24">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8">
+            <div className="rounded-[24px] border border-[#e4d3bc] bg-[#fffaf1]/92 p-5 shadow-2xl shadow-[#8b5a16]/10 sm:p-7">
+                <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[#eadbc5] pb-5">
+                    <div>
+                        <p className="cv-warm-eyebrow">Resume readiness</p>
+                        <h2 className="mt-3 text-3xl font-semibold tracking-tight text-[#211b16] sm:text-4xl">
+                            Show users what improves before they apply.
+                        </h2>
+                    </div>
+                    <div className="flex h-24 w-24 items-center justify-center rounded-full border-[10px] border-[#f0e5d5] border-t-[#625bd5] bg-white text-center shadow-sm">
+                        <div>
+                            <p className="text-3xl font-bold text-[#211b16]">75</p>
+                            <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#665a4a]">score</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="mt-6 space-y-4">
+                    {readinessChecks.map(([label, value, copy, tone]) => (
+                        <div key={label as string} className="rounded-2xl border border-[#eadbc5] bg-white/82 p-4">
+                            <div className="mb-3 flex items-center justify-between gap-3">
+                                <div>
+                                    <p className="text-base font-semibold text-[#211b16]">{label as string}</p>
+                                    <p className="mt-1 text-sm font-medium text-[#665a4a]">{copy as string}</p>
+                                </div>
+                                <span className="rounded-full bg-[#f3f2ff] px-3 py-1 text-sm font-bold text-[#625bd5]">{value as number}%</span>
+                            </div>
+                            <div className="h-2.5 overflow-hidden rounded-full bg-[#eee5d7]">
+                                <div className={`h-full rounded-full ${tone as string}`} style={{ width: `${value}%` }} />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#e4d3bc] bg-[#fffaf1]/88 px-3 py-2 text-xs font-bold text-[#8a6027] shadow-sm">
+                    <Gauge size={15} className="text-[#625bd5]" />
+                    ATS checker + interview prep
+                </div>
+                <h2 className="mt-4 text-4xl font-semibold tracking-tight text-[#211b16] sm:text-5xl">
+                    A resume score is useful only when it creates the next action.
+                </h2>
+                <p className="mt-5 text-lg font-medium leading-8 text-[#665a4a]">
+                    CareerVivid should not stop at a score. It should show missing keywords, proof gaps, and the interview prompts that help the user explain their strongest work.
+                </p>
+                <div className="mt-7 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                    {[
+                        [FileSearch, 'Scan the role', 'Extract the skills, evidence, and language the job description rewards.'],
+                        [PenLine, 'Rewrite with proof', 'Turn weak bullets into specific, measurable experience.'],
+                        [Mic, 'Practice the story', 'Use the same role context to rehearse interview answers.'],
+                    ].map(([Icon, title, copy]) => {
+                        const LucideIcon = Icon as typeof FileSearch;
+                        return (
+                            <article key={title as string} className="grid gap-4 rounded-2xl border border-[#e4d3bc] bg-[#fffaf1]/88 p-5 shadow-sm sm:grid-cols-[48px_1fr]">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#f2dfc2] text-[#8b5a16]">
+                                    <LucideIcon size={22} />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-[#211b16]">{title as string}</h3>
+                                    <p className="mt-2 text-sm font-medium leading-6 text-[#665a4a]">{copy as string}</p>
+                                </div>
+                            </article>
+                        );
+                    })}
+                </div>
+            </div>
+        </div>
+    </PaperSection>
+);
+
+export const ResumeExamplesSection = () => (
+    <PaperSection className="py-16 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-10 grid gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+                <div>
+                    <p className="cv-warm-eyebrow">Resume examples and templates</p>
+                    <h2 className="mt-3 text-4xl font-semibold tracking-tight text-[#211b16] sm:text-5xl">
+                        Give every job seeker a starting point that matches their story.
+                    </h2>
+                </div>
+                <p className="text-base font-medium leading-7 text-[#665a4a]">
+                    A strong resume tool should make the first draft feel less blank. CareerVivid pairs templates with job tracking, tailoring, and interview prep so each example leads to action.
+                </p>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-[0.82fr_1.18fr]">
+                <div className="rounded-[24px] border border-[#e4d3bc] bg-[#211b16] p-5 text-[#fffaf1] shadow-2xl shadow-[#8b5a16]/15">
+                    <div className="rounded-2xl border border-white/10 bg-[#fffaf1] p-5 text-[#211b16] shadow-sm">
+                        <div className="flex items-start justify-between gap-4 border-b border-[#eadbc5] pb-4">
+                            <div>
+                                <h3 className="text-2xl font-semibold">Jiawen Zhu</h3>
+                                <p className="mt-1 text-sm font-bold text-[#665a4a]">Frontend Engineer</p>
+                            </div>
+                            <span className="rounded-full bg-[#f3f2ff] px-3 py-1 text-xs font-bold text-[#625bd5]">ATS ready</span>
+                        </div>
+                        <div className="mt-5 grid gap-4 sm:grid-cols-[1.25fr_0.75fr]">
+                            <div className="space-y-4">
+                                {['Profile', 'Experience', 'Projects'].map((section, index) => (
+                                    <div key={section}>
+                                        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#a97935]">{section}</p>
+                                        <div className="mt-2 space-y-2">
+                                            <div className="h-2 rounded-full bg-[#d8c6ad]" style={{ width: `${index === 0 ? 92 : index === 1 ? 78 : 84}%` }} />
+                                            <div className="h-2 rounded-full bg-[#eadbc5]" style={{ width: `${index === 0 ? 74 : index === 1 ? 88 : 68}%` }} />
+                                            <div className="h-2 rounded-full bg-[#eadbc5]" style={{ width: `${index === 0 ? 58 : index === 1 ? 72 : 78}%` }} />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="space-y-4">
+                                {['Contact', 'Skills', 'Education'].map((section) => (
+                                    <div key={section}>
+                                        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#a97935]">{section}</p>
+                                        <div className="mt-2 h-2 rounded-full bg-[#d8c6ad]" />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                        {[
+                            [FileCheck2, 'Clean format'],
+                            [Search, 'Keyword match'],
+                            [Download, 'Export ready'],
+                        ].map(([Icon, label]) => {
+                            const LucideIcon = Icon as typeof FileCheck2;
+                            return (
+                                <div key={label as string} className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/8 px-3 py-3 text-sm font-semibold">
+                                    <LucideIcon size={17} className="text-[#d3a15e]" />
+                                    {label as string}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                    {resumeExamples.map(({ title, copy, tags }) => (
+                        <article key={title} className="rounded-2xl border border-[#e4d3bc] bg-[#fffaf1]/88 p-5 shadow-sm">
+                            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#f3f2ff] text-[#625bd5]">
+                                <FileText size={21} />
+                            </div>
+                            <h3 className="text-xl font-semibold text-[#211b16]">{title}</h3>
+                            <p className="mt-3 text-sm font-medium leading-6 text-[#665a4a]">{copy}</p>
+                            <div className="mt-5 flex flex-wrap gap-2">
+                                {tags.map((tag) => (
+                                    <span key={tag} className="rounded-full border border-[#eadbc5] bg-white/78 px-3 py-1 text-xs font-bold text-[#665a4a]">
+                                        {tag}
+                                    </span>
+                                ))}
+                            </div>
+                        </article>
+                    ))}
+                </div>
+            </div>
+        </div>
+    </PaperSection>
+);
+
 export const ProofSection = () => (
     <PaperSection className="py-16 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -315,7 +631,7 @@ export const ProofSection = () => (
                         A job-search workflow users can verify.
                     </h2>
                     <p className="mt-5 text-lg font-medium leading-8 text-[#665a4a]">
-                        CareerVivid should show exactly what it helps with: direct job links, resume fit, prep notes, and a clear next step for every application.
+                        CareerVivid keeps direct job links, resume fit, prep notes, and a clear next step visible for every application.
                     </p>
                 </div>
                 <div className="grid gap-4 md:grid-cols-3">
@@ -484,6 +800,66 @@ export const TeamsAndTrustSection = () => (
                     </article>
                 );
             })}
+        </div>
+    </PaperSection>
+);
+
+export const PricingPreviewSection = () => (
+    <PaperSection className="py-16 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-10 text-center">
+                <p className="cv-warm-eyebrow">Simple pricing</p>
+                <h2 className="mx-auto mt-3 max-w-3xl text-4xl font-semibold tracking-tight text-[#211b16] sm:text-5xl">
+                    Start free, then choose the AI help that matches your search.
+                </h2>
+                <p className="mx-auto mt-5 max-w-2xl text-base font-medium leading-7 text-[#665a4a]">
+                    Keep the entry point clear, then compare current plan details on the pricing page when advanced AI credits become useful.
+                </p>
+            </div>
+            <div className="grid gap-4 lg:grid-cols-3">
+                {pricingPreviewPlans.map(({ name, price, copy, points, action, href, featured }) => (
+                    <article
+                        key={name}
+                        className={`rounded-[22px] border p-6 shadow-sm ${
+                            featured
+                                ? 'border-[#625bd5] bg-[#f3f2ff]/90 shadow-[#625bd5]/10'
+                                : 'border-[#e4d3bc] bg-[#fffaf1]/88 shadow-[#8b5a16]/5'
+                        }`}
+                    >
+                        <div className="flex items-start justify-between gap-4">
+                            <div>
+                                <h3 className="text-2xl font-semibold text-[#211b16]">{name}</h3>
+                                <p className="mt-3 text-3xl font-semibold tracking-tight text-[#211b16] sm:text-4xl">{price}</p>
+                            </div>
+                            {featured && (
+                                <span className="rounded-full bg-[#625bd5] px-3 py-1 text-xs font-bold text-white">
+                                    Popular
+                                </span>
+                            )}
+                        </div>
+                        <p className="mt-4 min-h-[56px] text-sm font-medium leading-6 text-[#665a4a]">{copy}</p>
+                        <ul className="mt-6 space-y-3">
+                            {points.map((point) => (
+                                <li key={point} className="flex items-start gap-3 text-sm font-semibold text-[#211b16]">
+                                    <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-[#15803d]" />
+                                    {point}
+                                </li>
+                            ))}
+                        </ul>
+                        <button
+                            type="button"
+                            onClick={() => navigate(href)}
+                            className={`mt-7 inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-4 text-sm font-semibold ${
+                                featured
+                                    ? 'bg-[#625bd5] text-white shadow-lg shadow-[#625bd5]/18'
+                                    : 'border border-[#d8c6ad] bg-[#fffaf1] text-[#211b16]'
+                            }`}
+                        >
+                            {action} <ArrowRight size={16} />
+                        </button>
+                    </article>
+                ))}
+            </div>
         </div>
     </PaperSection>
 );

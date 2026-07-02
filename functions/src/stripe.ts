@@ -3,7 +3,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { defineSecret } from "firebase-functions/params";
 import Stripe from "stripe";
 import * as admin from "firebase-admin";
-import { generateCareerVividEmail } from "./emailTemplates";
+import { CareerVividEmailModule, generateCareerVividEmail, generateCareerVividModuleEmail } from "./emailTemplates";
 import { ENTERPRISE_MINIMUM_SEATS } from "./utils/planLimits";
 
 const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
@@ -60,6 +60,12 @@ const LEGACY_SUBSCRIPTION_PRICE_IDS = [
     PRICE_IDS.LEGACY_MAX_LIVE,
     PRICE_IDS.LEGACY_ENTERPRISE_LIVE,
 ];
+
+const cleanBillingFeedback = (value: unknown, maxLength: number) =>
+    typeof value === "string" ? value.trim().slice(0, maxLength) : "";
+
+const isPaidPlanLike = (plan?: string | null) =>
+    !!plan && !["free", "none", "trial"].includes(plan);
 
 function resolveSubscriptionPrice(priceId?: string | null): {
     plan: "pro" | "max" | "enterprise" | "pro_monthly";
@@ -431,33 +437,39 @@ export const cancelSubscription = onCall(
         }
 
         const userId = request.auth.uid;
-        const { cancellationReason, feedbackText } = request.data; // Capture feedback
+        const cancellationReason = cleanBillingFeedback(request.data?.cancellationReason, 160);
+        const feedbackText = cleanBillingFeedback(request.data?.feedbackText, 4000);
 
         try {
             const userDoc = await admin.firestore().collection("users").doc(userId).get();
             const userData = userDoc.data();
             let stripeSubscriptionId = userData?.stripeSubscriptionId;
             const stripeCustomerId = userData?.stripeCustomerId;
+            const userRef = admin.firestore().collection("users").doc(userId);
 
-            // Log Feedback if provided
-            if (cancellationReason) {
+            const recordCancellationFeedback = async (
+                status: "scheduled" | "fixed_state",
+                cancelAt?: number | null
+            ) => {
+                if (!cancellationReason && !feedbackText) return;
+
                 try {
-                    const feedbackMessage = {
-                        subject: `Subscription Cancelled: ${cancellationReason}`,
-                        name: userData?.displayName || userData?.email || `User ${userId}`,
-                        email: userData?.email || 'unknown@user.com',
-                        message: feedbackText || `Reason: ${cancellationReason} (No additional details provided)`,
-                        status: 'unread',
-                        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-                        type: 'cancellation_feedback',
-                        userId: userId
-                    };
-                    await admin.firestore().collection("contact_messages").add(feedbackMessage);
+                    await userRef.collection("billing_cancellation_feedback").add({
+                        reason: cancellationReason || null,
+                        feedbackText: feedbackText || null,
+                        status,
+                        cancelAt: cancelAt || null,
+                        plan: userData?.plan || null,
+                        subscriptionStatus: userData?.subscriptionStatus || userData?.stripeSubscriptionStatus || null,
+                        stripeSubscriptionId: stripeSubscriptionId || null,
+                        stripeCustomerId: stripeCustomerId || null,
+                        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                    });
                 } catch (logError) {
-                    console.error("Failed to log cancellation feedback:", logError);
-                    // Don't block cancellation if logging fails
+                    console.error("Failed to record cancellation feedback:", logError);
+                    // Do not block cancellation if internal feedback logging fails.
                 }
-            }
+            };
 
             const stripe = new Stripe(stripeSecretKey.value(), {
                 apiVersion: "2026-02-25.clover",
@@ -468,12 +480,15 @@ export const cancelSubscription = onCall(
                 console.log(`No subscription ID for user ${userId}, searching via customer ${stripeCustomerId}...`);
                 const subscriptions = await stripe.subscriptions.list({
                     customer: stripeCustomerId,
-                    status: 'active',
-                    limit: 1
+                    status: 'all',
+                    limit: 10
                 });
+                const cancellableSubscription = subscriptions.data.find((subscription) =>
+                    ["active", "trialing", "past_due", "unpaid"].includes(subscription.status)
+                );
 
-                if (subscriptions.data.length > 0) {
-                    stripeSubscriptionId = subscriptions.data[0].id;
+                if (cancellableSubscription) {
+                    stripeSubscriptionId = cancellableSubscription.id;
                     console.log(`Found active subscription ${stripeSubscriptionId} for user ${userId}`);
 
                     // Self-repair: Save this ID back to Firestore
@@ -487,33 +502,85 @@ export const cancelSubscription = onCall(
                 // If still no ID, we really can't cancel anything.
                 // But if the user THINKS they are active (in Firestore), we should fix their state 
                 // so they aren't stuck in "Active" limbo forever.
-                if (userData?.subscriptionStatus === 'active') {
-                    console.warn(`User ${userId} has 'active' status but no Stripe subscription found. Resetting to free.`);
-                    await admin.firestore().collection("users").doc(userId).update({
+                const localSubscriptionStatus = userData?.subscriptionStatus || userData?.stripeSubscriptionStatus;
+                if (
+                    localSubscriptionStatus === 'active' ||
+                    localSubscriptionStatus === 'active_canceling' ||
+                    isPaidPlanLike(userData?.plan)
+                ) {
+                    console.warn(`User ${userId} has paid local state but no Stripe subscription found. Resetting to free.`);
+                    await userRef.update({
                         subscriptionStatus: 'canceled',
+                        stripeSubscriptionStatus: 'canceled',
                         plan: 'free',
                         resumeLimit: 1,
-                        promotions: { isPremium: false }
+                        promotions: { isPremium: false },
+                        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
                     });
-                    return { status: "fixed_state", message: "Subscription not found in Stripe. local status updated." };
+                    await recordCancellationFeedback("fixed_state", null);
+                    return { status: "fixed_state", message: "Subscription not found in Stripe. Local status updated to Free." };
                 }
 
                 throw new HttpsError("not-found", "No active subscription found to cancel.");
             }
 
-            // Update subscription to cancel at period end
-            const subscription = await stripe.subscriptions.update(stripeSubscriptionId, {
-                cancel_at_period_end: true,
-            });
+            const localSubscriptionStatus = userData?.subscriptionStatus || userData?.stripeSubscriptionStatus;
+            const resetPaidLocalState = async () => {
+                console.warn(`User ${userId} has paid local state but no cancellable Stripe subscription. Resetting to free.`);
+                await userRef.update({
+                    subscriptionStatus: 'canceled',
+                    stripeSubscriptionStatus: 'canceled',
+                    plan: 'free',
+                    resumeLimit: 1,
+                    promotions: { isPremium: false },
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                });
+                await recordCancellationFeedback("fixed_state", null);
+                return { status: "fixed_state", message: "No cancellable Stripe subscription was found. Local status updated to Free." };
+            };
+
+            const hasPaidLocalState =
+                localSubscriptionStatus === 'active' ||
+                localSubscriptionStatus === 'active_canceling' ||
+                isPaidPlanLike(userData?.plan);
+
+            let subscription: Stripe.Subscription;
+            try {
+                const currentSubscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+                if (!["active", "trialing", "past_due", "unpaid"].includes(currentSubscription.status)) {
+                    if (hasPaidLocalState) {
+                        return await resetPaidLocalState();
+                    }
+
+                    throw new HttpsError("failed-precondition", "Subscription is not active.");
+                }
+
+                // Update subscription to cancel at period end
+                subscription = await stripe.subscriptions.update(stripeSubscriptionId, {
+                    cancel_at_period_end: true,
+                });
+            } catch (stripeError: any) {
+                if (
+                    hasPaidLocalState &&
+                    (stripeError?.code === "resource_missing" || /No such subscription/i.test(stripeError?.message || ""))
+                ) {
+                    return await resetPaidLocalState();
+                }
+
+                throw stripeError;
+            }
 
             // Update Firestore immediately to reflect key status
             await admin.firestore().collection("users").doc(userId).set(
                 {
                     subscriptionStatus: "active_canceling", // Indicates active but will cancel
+                    stripeSubscriptionStatus: "active_canceling",
                     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
                 },
                 { merge: true }
             );
+
+            await recordCancellationFeedback("scheduled", subscription.cancel_at);
 
             // Send cancellation confirmation email with win-back CTA
             const cancelDate = subscription.cancel_at
@@ -522,11 +589,16 @@ export const cancelSubscription = onCall(
                 })
                 : "your next billing date";
 
-            await sendCancellationConfirmationEmail(
-                userData?.email,
-                userData?.displayName || "there",
-                cancelDate
-            );
+            try {
+                await sendCancellationConfirmationEmail(
+                    userData?.email,
+                    userData?.displayName || "there",
+                    cancelDate
+                );
+            } catch (emailError) {
+                console.error(`Cancellation email could not be queued for user ${userId}:`, emailError);
+                // Stripe cancellation has already succeeded; do not report the whole request as failed.
+            }
 
             return {
                 status: "success",
@@ -762,6 +834,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 
     const updateData: admin.firestore.UpdateData<admin.firestore.DocumentData> = {
         subscriptionStatus: firestoreStatus as any,
+        stripeSubscriptionStatus: firestoreStatus as any,
         stripeSubscriptionId: subscription.id,
         stripePriceId: subscriptionPriceId || null,
         promotions: {
@@ -815,6 +888,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     await userDoc.ref.set(
         {
             subscriptionStatus: "canceled",
+            stripeSubscriptionStatus: "canceled",
             resumeLimit: 1, // Revert to free tier
             plan: "free",
             promotions: {
@@ -965,48 +1039,103 @@ async function sendPaymentFailedEmail(
  * Send cancellation confirmation email with win-back CTA
  */
 async function sendCancellationConfirmationEmail(
-    userEmail: string,
+    userEmail: string | undefined,
     userName: string,
     accessEndDate: string
 ): Promise<void> {
+    const normalizedEmail = typeof userEmail === "string" ? userEmail.trim() : "";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+        console.warn("Skipping cancellation confirmation email because the user email is missing or invalid.");
+        return;
+    }
+
     const mailRef = admin.firestore().collection("mail").doc();
     const APP_URL = "https://careervivid.app";
+    const modules: CareerVividEmailModule[] = [
+        {
+            type: "hero",
+            eyebrow: "Billing update",
+            title: "Your paid plan is scheduled to end",
+            subtitle: `Your premium access remains active until ${accessEndDate}. After that, your account returns to the Free plan automatically.`,
+            variant: "milestone",
+            visual: {
+                kind: "mockup",
+                background: "warm",
+                mockup: {
+                    badge: "Subscription status",
+                    title: "Cancellation scheduled",
+                    subtitle: "You keep paid access through the current billing period.",
+                    metrics: [
+                        { value: "Active", label: "Until", helper: accessEndDate },
+                        { value: "Free", label: "Next plan", helper: "100 credits / mo" },
+                    ],
+                    rows: [
+                        {
+                            label: "Now",
+                            title: "Paid tools stay available",
+                            meta: "Resume tailoring, saved workflows, and premium credits continue through the billing period.",
+                            status: "success",
+                        },
+                        {
+                            label: "Later",
+                            title: "Account returns to Free",
+                            meta: "Your workspace remains available with the Free plan credit allowance.",
+                            status: "warning",
+                        },
+                    ],
+                },
+            },
+        },
+        {
+            type: "body",
+            paragraphs: [
+                "Your subscription cancellation request has been received.",
+                "Nothing else is required. You can keep using your paid features until the date shown above, and your saved CareerVivid workspace will remain available after the plan changes.",
+            ],
+        },
+        {
+            type: "status",
+            title: "What happens next",
+            body: "At the end of the current billing period, your paid plan stops renewing and your account moves back to Free.",
+            status: "warning",
+            rows: [
+                { label: "Premium access through", value: accessEndDate },
+                { label: "Next plan", value: "Free" },
+                { label: "Free credits", value: "100 / month" },
+            ],
+        },
+        {
+            type: "cta",
+            primary: { text: "Manage subscription", url: `${APP_URL}/subscription` },
+            secondary: { text: "Open dashboard", url: `${APP_URL}/dashboard` },
+            helper: "Changed your mind? You can choose a paid plan again from the subscription page.",
+        },
+    ];
 
-    const emailHtml = generateCareerVividEmail({
-        title: "Your subscription is canceled",
-        userName: userName,
-        eyebrow: "Subscription notice",
+    const emailHtml = generateCareerVividModuleEmail({
+        title: "Your paid plan is scheduled to end",
+        userName,
         preheader: `Your premium access remains active until ${accessEndDate}.`,
-        messageLines: [
-            "Your subscription cancellation has been confirmed.",
-            "You can keep using premium features until the access end date below. After that, your account will move back to the free plan."
-        ],
-        boxContent: {
-            title: "Access details",
-            type: "warning",
-            lines: [
-                "<strong>Your premium access will remain active until:</strong>",
-                `<span style="font-size: 18px; font-weight: bold;">${accessEndDate}</span>`,
-                "You can resubscribe any time if you want to restore premium access later."
-            ]
-        },
-        mainButton: {
-            text: "View plans",
-            url: `${APP_URL}/subscription`
-        },
-        footerText: "You can continue using CareerVivid on the free plan after premium access ends."
+        modules,
+        footerText: "You are receiving this required billing notification because your CareerVivid subscription was changed.",
     });
 
     await mailRef.set({
-        to: userEmail,
+        to: normalizedEmail,
         message: {
-            subject: `Your subscription has been canceled`,
+            subject: `Your CareerVivid plan is scheduled to end`,
             html: emailHtml,
-            text: `Hi ${userName},\n\nYour subscription cancellation has been confirmed.\n\nYour premium access will remain active until: ${accessEndDate}\n\nAfter this date, your account will revert to the free plan.\n\nChanged your mind? Resubscribe at: ${APP_URL}/subscription\n\nThank you for being a part of CareerVivid.\n\nThe CareerVivid Team`
+            text: `Hi ${userName},\n\nYour CareerVivid paid plan is scheduled to end.\n\nPremium access remains active until: ${accessEndDate}\n\nAfter that date, your account moves back to the Free plan with 100 credits per month. Your saved workspace remains available.\n\nManage subscription: ${APP_URL}/subscription\nOpen dashboard: ${APP_URL}/dashboard\n\nThe CareerVivid Team`
         },
+        metadata: {
+            category: "billing",
+            required: true,
+            template: "subscription_cancellation_scheduled",
+        },
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    console.log(`Cancellation confirmation email queued for ${userEmail}`);
+    console.log(`Cancellation confirmation email queued for ${normalizedEmail}`);
 }
 
 /**

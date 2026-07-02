@@ -37,6 +37,7 @@ const ExtensionAuthCompletePage = React.lazy(() => import('./pages/ExtensionAuth
 const ExtensionWelcomePage = React.lazy(() => import('./pages/ExtensionWelcomePage'));
 const OnboardingPage = React.lazy(() => import('./pages/OnboardingPage'));
 const LandingPage = React.lazy(() => import('./pages/LandingPage'));
+const OpenRevenuePage = React.lazy(() => import('./pages/OpenRevenuePage'));
 const TechLandingPage = React.lazy(() => import('./pages/TechLandingPage'));
 const PricingPage = React.lazy(() => import('./pages/PricingPage'));
 const AdminLoginPage = React.lazy(() => import('./pages/admin/AdminLoginPage'));
@@ -710,6 +711,7 @@ const AppContent: React.FC = () => {
 
     // Pages that are definitely public
     else if (path === '/pricing') { content = <PricingPage />; }
+    else if (path === '/open') { content = <OpenRevenuePage />; }
     else if (path === '/demo') { content = <NotFoundPage />; }
     else if (path === '/contact') { content = <ContactPage />; }
     else if (path === '/services') { content = <ServicesPage />; }

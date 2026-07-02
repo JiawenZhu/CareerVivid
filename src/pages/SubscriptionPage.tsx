@@ -82,18 +82,8 @@ const SubscriptionPage: React.FC = () => {
             originalPrice: null,
             discount: null,
             period: '/month',
-            priceId: 'price_1Sr2UlRJNflGxv32C4XhlnUf', // Monthly
-            priceIdYearly: 'price_1Sr2UlRJNflGxv329NwShWqX', // Yearly - handling logic needs update if we want toggle
-            // For now, let's map it to the monthly one and assumes logic handles it or we show both. 
-            // The user request said: "Render only the Bio-Links pricing cards... and the All-in-One Bundle"
-            // The existing UI supports a toggle? No, the existing UI in SubscriptionPage shows cards. 
-            // Let's look at how `pricingPlans` is used. It renders cards. 
-            // The existing `monthly` plan has `priceId`. 
-            // I should likely add a toggle for monthly/yearly in SubscriptionPage or just show Monthly for now as primary.
-            // However, the requested IDs are: price_1Sr2UlRJNflGxv32C4XhlnUf (Monthly?), price_1Sr2UlRJNflGxv329NwShWqX (Yearly?).
-            // Let's stick to Monthly display for consistency with existing "Pro Monthly" card style, or add the toggle logic?
-            // Existing page has `billingCycle` state? No. 
-            // I will implement "Bio-Link Pro" (Monthly) and "All-Access" (Monthly).
+            priceId: 'price_1Sr2UlRJNflGxv32C4XhlnUf',
+            priceIdYearly: 'price_1Sr2UlRJNflGxv329NwShWqX',
             features: [
                 '50 AI Credits / month',
                 'Unlimited Bio-Link Portfolios',
@@ -434,12 +424,8 @@ const SubscriptionPage: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="max-w-6xl mx-auto px-4">
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                            {/* Left Column (Main Info & Enterprise) */}
-                        <div className="lg:col-span-12 xl:col-span-8 flex flex-col gap-6">
-                            
-                            {/* Billing & Plan Box */}
+                    <div className="max-w-7xl mx-auto px-4">
+                        <div className="grid grid-cols-1 xl:grid-cols-[1.08fr_0.92fr] gap-6">
                             <div className="bg-white dark:bg-gray-900 rounded-[2rem] p-8 md:p-10 shadow-sm border border-gray-100 dark:border-gray-800">
                                 <div className="flex items-center gap-5 mb-10">
                                     <div className="w-16 h-16 bg-[#6B4BF4] rounded-2xl flex items-center justify-center text-white shadow-md flex-shrink-0">
@@ -452,11 +438,10 @@ const SubscriptionPage: React.FC = () => {
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {/* Active Plan Card */}
                                     <div className="bg-gray-50/80 dark:bg-gray-800/50 rounded-2xl p-6 relative overflow-hidden border border-gray-100/80 dark:border-gray-700">
                                         <Shield className="absolute -right-4 top-1 w-28 h-28 text-gray-200 dark:text-gray-700 opacity-30 stroke-[1.5] pointer-events-none" />
                                         <h3 className="text-[11px] font-black tracking-widest text-[#9FA8B8] dark:text-gray-400 uppercase mb-3">ACTIVE PLAN</h3>
-                                        
+
                                         <div className="text-[28px] font-extrabold text-[#6B4BF4] dark:text-indigo-400 mb-1 tracking-tight">
                                             {pricingPlans.find((p: any) => p.current)?.name || t('subscription.plans.free')}
                                             {isLegacyPlan ? ' (Legacy)' : ''}
@@ -466,21 +451,19 @@ const SubscriptionPage: React.FC = () => {
                                         </p>
                                     </div>
 
-                                    {/* AI Credit Usage Card */}
                                     <div className="bg-gray-50/80 dark:bg-gray-800/50 rounded-2xl p-6 relative border border-gray-100/80 dark:border-gray-700">
                                         <div className="flex justify-between items-center mb-5">
                                             <h3 className="text-[11px] font-black tracking-widest text-[#9FA8B8] dark:text-gray-400 uppercase">AI CREDIT USAGE</h3>
                                             <div className="w-2 h-2 bg-[#2ECC71] rounded-full shadow-[0_0_8px_rgba(46,204,113,0.6)]"></div>
                                         </div>
-                                        
+
                                         <div className="flex items-center gap-2 mb-3">
                                             <Sparkles className="w-4 h-4 text-[#4466FF]" />
                                             <span className="font-bold text-sm text-gray-900 dark:text-white tracking-tight">CareerVivid AI Credits</span>
                                         </div>
-                                        
-                                        {/* Using built in progress bar with a wrapper and passing exact config to match screenshot */}
+
                                         <div className="mt-1">
-                                            <AIUsageProgressBar 
+                                            <AIUsageProgressBar
                                                 used={userProfile?.aiUsage?.count || 0}
                                                 limit={currentPlan === 'pro'
                                                     ? PRO_PLAN_CREDIT_LIMIT
@@ -497,44 +480,45 @@ const SubscriptionPage: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Upgrade to Enterprise Box */}
-                            <div className="bg-[#242131] rounded-[2rem] p-8 md:p-10 relative overflow-hidden flex flex-col justify-center items-start gap-6 border border-gray-800/50 shadow-[0_8px_30px_rgb(0,0,0,0.08)] mt-2">
-                                {/* Decor */}
+                            <div className="bg-[#242131] rounded-[2rem] p-8 md:p-10 relative overflow-hidden flex flex-col justify-between items-start gap-8 border border-gray-800/50 shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
                                 <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/5 filter blur-[100px] rounded-full pointer-events-none"></div>
-                                
+
                                 <div>
                                     <div className="flex items-center gap-3 mb-4">
-                                        <div className="text-yellow-400 text-[28px]">⚡</div>
+                                        <div className="w-11 h-11 rounded-2xl bg-amber-300/10 text-amber-300 flex items-center justify-center">
+                                            <Zap className="w-5 h-5" />
+                                        </div>
                                         <h2 className="text-[28px] font-extrabold text-white tracking-tight">Upgrade to Enterprise</h2>
                                     </div>
-                                    <p className="text-gray-300 max-w-[400px] text-[15px] font-medium leading-relaxed opacity-90">
+                                    <p className="text-gray-300 max-w-[460px] text-[15px] font-medium leading-relaxed opacity-90">
                                         Need a team credit pool? Enterprise includes <span className="text-white font-bold tracking-tight">{formatCredits(ENTERPRISE_PLAN_CREDIT_LIMIT)}</span> credits per seat, SSO, and Private Workspaces from $12 per seat.
                                     </p>
                                 </div>
 
-                                <button 
+                                <button
                                     onClick={() => handleUpgrade(SUBSCRIPTION_CATALOG.enterprise.monthlyPriceId, SUBSCRIPTION_CATALOG.enterprise.minimumSeats)}
-                                    className="bg-white text-gray-900 hover:bg-gray-100 font-bold py-3.5 px-8 rounded-2xl transition-colors shadow-md text-sm tracking-tight mt-2"
+                                    className="bg-white text-gray-900 hover:bg-gray-100 font-bold py-3.5 px-8 rounded-2xl transition-colors shadow-md text-sm tracking-tight"
                                 >
                                     Explore Enterprise
                                 </button>
                             </div>
-
                         </div>
 
-                        {/* Right Column (Tiers & Invariants) */}
-                        <div className="lg:col-span-12 xl:col-span-4 flex flex-col gap-6">
-                            
-                            {/* Available Tiers Box */}
-                            <div className="bg-white dark:bg-gray-900 rounded-[2rem] p-7 shadow-sm border border-gray-100 dark:border-gray-800">
-                                <h3 className="text-[11px] font-black tracking-widest text-[#9FA8B8] dark:text-gray-400 uppercase mb-5">AVAILABLE TIERS</h3>
-                                <div className="mb-5 inline-flex w-full rounded-xl bg-gray-100 dark:bg-gray-800 p-1">
+                        <div className="mt-8 bg-white dark:bg-gray-900 rounded-[2rem] p-6 md:p-8 shadow-sm border border-gray-100 dark:border-gray-800">
+                            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between mb-6">
+                                <div>
+                                    <h3 className="text-[11px] font-black tracking-widest text-[#9FA8B8] dark:text-gray-400 uppercase mb-2">AVAILABLE TIERS</h3>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 font-semibold">Switch between monthly and annual billing, then choose the plan that matches your search.</p>
+                                </div>
+
+                                <div className="inline-flex rounded-2xl bg-gray-100 dark:bg-gray-800 p-1">
                                     {(['monthly', 'annual'] as const).map((cycle) => (
                                         <button
                                             key={cycle}
                                             type="button"
+                                            aria-pressed={billingCycle === cycle}
                                             onClick={() => setBillingCycle(cycle)}
-                                            className={`flex-1 rounded-lg px-3 py-2 text-xs font-black uppercase tracking-widest transition-colors ${
+                                            className={`min-w-[112px] rounded-xl px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-colors ${
                                                 billingCycle === cycle
                                                     ? 'bg-white text-blue-600 shadow-sm dark:bg-gray-950 dark:text-blue-400'
                                                     : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
@@ -544,90 +528,120 @@ const SubscriptionPage: React.FC = () => {
                                         </button>
                                     ))}
                                 </div>
-                                
-                                <div className="flex flex-col gap-4">
-                                    {pricingPlans.filter((p: any) => p.id !== 'free').map((plan: any) => {
-                                        const isPro = plan.id === 'pro';
-                                        const isAnnualEligible = plan.id === 'pro' || plan.id === 'max';
-                                        const displayPrice = billingCycle === 'annual' && plan.annualPrice ? plan.annualPrice : plan.price;
-                                        const displayPeriod = billingCycle === 'annual' && plan.annualPrice ? '/mo billed yearly' : plan.period;
-                                        const checkoutPriceId = billingCycle === 'annual' && isAnnualEligible ? plan.annualPriceId : plan.priceId;
-                                        const credits = plan.id === 'max'
-                                            ? PRO_MAX_PLAN_CREDIT_LIMIT
-                                            : plan.id === 'pro'
-                                                ? PRO_PLAN_CREDIT_LIMIT
-                                                : SUBSCRIPTION_CATALOG.enterprise.minimumSeats * ENTERPRISE_PLAN_CREDIT_LIMIT;
-                                        
-                                        return (
-                                        <div 
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                                {pricingPlans.filter((p: any) => p.id !== 'free').map((plan: any) => {
+                                    const isPro = plan.id === 'pro';
+                                    const isMax = plan.id === 'max';
+                                    const isEnterprise = plan.id === 'enterprise';
+                                    const isAnnualEligible = isPro || isMax;
+                                    const displayPrice = billingCycle === 'annual' && plan.annualPrice ? plan.annualPrice : plan.price;
+                                    const displayPeriod = billingCycle === 'annual' && plan.annualPrice ? '/mo billed yearly' : plan.period;
+                                    const checkoutPriceId = billingCycle === 'annual' && isAnnualEligible ? plan.annualPriceId : plan.priceId;
+                                    const credits = isMax
+                                        ? PRO_MAX_PLAN_CREDIT_LIMIT
+                                        : isPro
+                                            ? PRO_PLAN_CREDIT_LIMIT
+                                            : SUBSCRIPTION_CATALOG.enterprise.minimumSeats * ENTERPRISE_PLAN_CREDIT_LIMIT;
+                                    const accentClasses = plan.current
+                                        ? 'border-[1.5px] border-blue-500 bg-blue-50/40 dark:bg-blue-900/10 shadow-[0_4px_20px_rgba(59,130,246,0.06)]'
+                                        : isMax
+                                            ? 'border border-amber-200 bg-amber-50/50 dark:border-amber-800/40 dark:bg-amber-900/10'
+                                            : isEnterprise
+                                                ? 'border border-gray-200 bg-gray-950 text-white dark:border-gray-700 dark:bg-gray-950'
+                                                : 'border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm';
+                                    const titleClasses = isEnterprise ? 'text-white' : 'text-gray-900 dark:text-white';
+                                    const mutedClasses = isEnterprise ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400';
+
+                                    return (
+                                        <div
                                             key={plan.id}
-                                            className={`rounded-[1.25rem] p-5 transition-all ${
-                                                plan.current 
-                                                    ? 'border-[1.5px] border-blue-500 bg-blue-50/30 dark:bg-blue-900/10 shadow-[0_4px_20px_rgba(59,130,246,0.06)]' 
-                                                    : 'border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm'
-                                            }`}
+                                            className={`rounded-[1.5rem] p-6 transition-all flex flex-col min-h-[280px] ${accentClasses}`}
                                         >
-                                            <div className="flex justify-between items-center mb-4">
-                                                <h4 className="text-[22px] font-extrabold text-gray-900 dark:text-white tracking-tight">{plan.name}</h4>
-                                                <span className={`${plan.current ? 'text-blue-600 dark:text-blue-400' : 'text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/30 px-3 py-1 rounded-lg'} font-black text-lg tracking-tight`}>
-                                                    {displayPrice}
-                                                    <span className="ml-1 text-[10px] font-bold text-gray-400">{displayPeriod}</span>
-                                                </span>
+                                            <div className="flex items-start justify-between gap-4 mb-6">
+                                                <div>
+                                                    <h4 className={`text-[24px] font-extrabold tracking-tight ${titleClasses}`}>{plan.name}</h4>
+                                                    {plan.current && (
+                                                        <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-blue-600 dark:bg-blue-900/30 dark:text-blue-300">
+                                                            <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                                            Current plan
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="text-right">
+                                                    <div className={`text-[34px] font-black tracking-tight ${titleClasses}`}>{displayPrice}</div>
+                                                    <div className={`text-[11px] font-bold ${mutedClasses}`}>{displayPeriod}</div>
+                                                </div>
                                             </div>
-                                            
-                                            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 font-bold text-[13px] mb-5 tracking-tight uppercase">
-                                                <Zap className="w-[14px] h-[14px] stroke-[2.5]" stroke={isPro ? "#4466FF" : "currentColor"} />
-                                                <span>{formatCredits(credits)} CREDITS / MO</span>
+
+                                            <div className={`flex items-center gap-2 font-black text-[12px] mb-4 tracking-widest uppercase ${isEnterprise ? 'text-amber-300' : isMax ? 'text-amber-700 dark:text-amber-300' : 'text-blue-600 dark:text-blue-400'}`}>
+                                                <Zap className="w-[14px] h-[14px] stroke-[2.5]" />
+                                                <span>{formatCredits(credits)} {isEnterprise ? 'POOLED CREDITS / MO' : 'CREDITS / MO'}</span>
                                             </div>
+
                                             {billingCycle === 'annual' && plan.annualTotal && (
-                                                <p className="mb-4 text-xs font-semibold text-gray-400">Billed upfront as {plan.annualTotal}</p>
+                                                <p className={`mb-4 text-xs font-semibold ${mutedClasses}`}>Billed upfront as {plan.annualTotal}</p>
+                                            )}
+                                            {isEnterprise && (
+                                                <p className="mb-4 text-xs font-semibold text-gray-400">{SUBSCRIPTION_CATALOG.enterprise.minimumSeats}-seat minimum, credits pool across all seats.</p>
                                             )}
 
+                                            <ul className={`space-y-3 mb-6 flex-1 text-sm font-semibold ${mutedClasses}`}>
+                                                {plan.features.slice(0, 4).map((feature: string) => (
+                                                    <li key={feature} className="flex items-start gap-2">
+                                                        <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 stroke-[3] ${isEnterprise ? 'text-amber-300' : 'text-[#2ECC71]'}`} />
+                                                        <span>{feature}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+
                                             {plan.current ? (
-                                                <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 font-bold text-sm tracking-tight w-full py-2.5">
+                                                <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 font-bold text-sm tracking-tight w-full py-3">
                                                     <Check className="w-[18px] h-[18px] stroke-[3]" />
-                                                    CURRENT PLAN
+                                                    Current plan
                                                 </div>
                                             ) : (
                                                 <button
-                                                    onClick={() => checkoutPriceId && handleUpgrade(checkoutPriceId, plan.id === 'enterprise' ? SUBSCRIPTION_CATALOG.enterprise.minimumSeats : 1)}
+                                                    onClick={() => checkoutPriceId && handleUpgrade(checkoutPriceId, isEnterprise ? SUBSCRIPTION_CATALOG.enterprise.minimumSeats : 1)}
                                                     disabled={isLoading || !checkoutPriceId}
-                                                    className={`w-full py-3 rounded-xl font-bold text-[13px] tracking-wide transition-all ${
-                                                        'bg-[#1a1c23] hover:bg-black text-white dark:bg-gray-800 dark:hover:bg-gray-700 shadow-sm'
-                                                    }`}
+                                                    className={`w-full py-3.5 rounded-xl font-bold text-[13px] tracking-wide transition-all ${
+                                                        isEnterprise
+                                                            ? 'bg-white hover:bg-gray-100 text-gray-950 shadow-sm'
+                                                            : 'bg-[#1a1c23] hover:bg-black text-white dark:bg-gray-800 dark:hover:bg-gray-700 shadow-sm'
+                                                    } disabled:opacity-60`}
                                                 >
-                                                    {checkoutPriceId ? `SWITCH TO ${plan.name.toUpperCase()}` : 'SET UP STRIPE PRICE'}
+                                                    {checkoutPriceId ? `Switch to ${plan.name}` : 'Set up Stripe price'}
                                                 </button>
                                             )}
                                         </div>
-                                    )})}
-                                </div>
+                                    );
+                                })}
                             </div>
+                        </div>
 
-                            {/* Usage Invariants Box */}
-                            <div className="bg-white dark:bg-gray-900 rounded-[2rem] p-7 shadow-sm border border-gray-100 dark:border-gray-800 mt-2">
-                                <div className="flex items-center gap-4 mb-6">
+                        <div className="mt-8 bg-white dark:bg-gray-900 rounded-[2rem] p-6 md:p-7 shadow-sm border border-gray-100 dark:border-gray-800">
+                            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                                <div className="flex items-center gap-4">
                                     <div className="w-10 h-10 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-300 border border-gray-100 dark:border-gray-700">
                                         <Database className="w-[18px] h-[18px] stroke-[2]" />
                                     </div>
                                     <h4 className="font-extrabold text-[15px] text-gray-900 dark:text-white tracking-tight">Usage Invariants</h4>
                                 </div>
-                                
-                                <ul className="space-y-4">
+
+                                <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 md:max-w-3xl">
                                     <li className="flex items-start gap-3">
                                         <Check className="w-[18px] h-[18px] text-[#2ECC71] flex-shrink-0 mt-0.5 stroke-[3]" />
                                         <span className="text-[13px] text-gray-500 dark:text-gray-400 font-semibold leading-relaxed">Credits reset on the 1st of every month automatically.</span>
                                     </li>
-                                    <li className="flex items-start gap-3 mt-4">
+                                    <li className="flex items-start gap-3">
                                         <Check className="w-[18px] h-[18px] text-[#2ECC71] flex-shrink-0 mt-0.5 stroke-[3]" />
                                         <span className="text-[13px] text-gray-500 dark:text-gray-400 font-semibold leading-relaxed">Enterprise seats contribute to a shared pool.</span>
                                     </li>
                                 </ul>
                             </div>
-
                         </div>
                     </div>
-                </div>
 
                 {/* Retention Modal Flow */}
                 <RetentionModal

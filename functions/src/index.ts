@@ -121,6 +121,7 @@ export { evaluateJob, generateLinkedInOutreach, generateDeepResearch, saveCareer
 
 // Auto-Apply: AI answer generation for Chrome Extension
 export { generateApplyAnswers } from "./generateApplyAnswers";
+export { getOpenRevenueStats } from "./openRevenue";
 export {
   prepareApplicationQueueItem,
   resolveApplicationAnswers,

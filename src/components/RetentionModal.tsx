@@ -1,5 +1,5 @@
 import React from 'react';
-import { Gift, AlertCircle, Percent, ArrowRight } from 'lucide-react';
+import { ArrowRight, Gift, Percent, Sparkles } from 'lucide-react';
 
 interface RetentionModalProps {
     isOpen: boolean;
@@ -12,93 +12,92 @@ interface RetentionModalProps {
 const RetentionModal: React.FC<RetentionModalProps> = ({ isOpen, step, onAccept, onDecline, isLoading = false }) => {
     if (!isOpen) return null;
 
-    const isStep10 = step === 'offer_10';
+    const isFirstOffer = step === 'offer_10';
+    const content = isFirstOffer
+        ? {
+            eyebrow: 'Before you cancel',
+            title: 'Keep your plan with 10% off.',
+            body: 'You keep your current AI-credit capacity, saved workflows, and paid tools while we reduce the next three billing cycles.',
+            badge: '10% off for 3 months',
+            accept: 'Apply 10% discount',
+            decline: 'No thanks, continue',
+            icon: Percent,
+            tone: 'text-[#625bd5] bg-[#eef0ff]',
+        }
+        : {
+            eyebrow: 'Final retention offer',
+            title: 'Take 20% off instead.',
+            body: 'This is the strongest discount available before you move back to Free. Your account stays active and your cancellation request stops.',
+            badge: '20% off for 3 months',
+            accept: 'Apply 20% discount',
+            decline: 'Continue to cancellation reason',
+            icon: Gift,
+            tone: 'text-[#9a651f] bg-[#fff4cc]',
+        };
 
-    // Content Configuration
-    const content = isStep10 ? {
-        title: "Wait! Before you go...",
-        subtitle: "We'd love to keep you as a Pro member.",
-        offerTitle: "Get 10% OFF for 3 Months",
-        offerDescription: "Stay with us and we'll lower your bill. Keep access to unlimited AI credits and resume templates.",
-        newPrice: "$13.41",
-        oldPrice: "$14.90",
-        saveBadge: "Save $4.50 total",
-        acceptBtn: "Claim 10% Discount",
-        declineBtn: "No thanks, I still want to cancel",
-        icon: <Percent className="w-8 h-8 text-primary-600" />,
-        bg: "bg-primary-50 dark:bg-primary-900/20"
-    } : {
-        title: "Last Chance Offer",
-        subtitle: "We really don't want to see you go.",
-        offerTitle: "Get 20% OFF for 3 Months",
-        offerDescription: "This is our best offer. Don't lose your locked-in rate and data.",
-        newPrice: "$11.92",
-        oldPrice: "$14.90",
-        saveBadge: "Save $9.00 total",
-        acceptBtn: "Claim 20% Discount",
-        declineBtn: "I understand, cancel my subscription",
-        icon: <Gift className="w-8 h-8 text-rose-600" />,
-        bg: "bg-rose-50 dark:bg-rose-900/20"
-    };
+    const Icon = content.icon;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 min-w-[320px]">
-            {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
-            />
-
-            <div className="relative bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200">
-                {/* Header Image / Icon Area */}
-                <div className={`${content.bg} p-8 flex flex-col items-center justify-center text-center border-b border-gray-100 dark:border-gray-700`}>
-                    <div className="bg-white dark:bg-gray-800 p-4 rounded-full shadow-lg mb-4 ring-4 ring-white/50 dark:ring-gray-700/50">
-                        {content.icon}
+        <div className="fixed inset-0 z-50 flex min-w-[320px] items-center justify-center px-4 py-6">
+            <div className="absolute inset-0 bg-[#211b16]/50 backdrop-blur-sm" />
+            <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-[#e4d3bc] bg-white shadow-2xl dark:border-[#37332d] dark:bg-[#1f1f1d]">
+                <div className="border-b border-[#eee3d2] bg-[#fffaf1] p-6 dark:border-[#37332d] dark:bg-[#262522]">
+                    <div className="flex items-start gap-4">
+                        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${content.tone} dark:bg-[#302e2a]`}>
+                            <Icon size={22} />
+                        </div>
+                        <div>
+                            <p className="text-xs font-black uppercase tracking-[0.16em] text-[#a97935] dark:text-[#caa26c]">
+                                {content.eyebrow}
+                            </p>
+                            <h2 className="mt-2 text-2xl font-black tracking-tight text-[#211b16] dark:text-[#f4f1e9]">
+                                {content.title}
+                            </h2>
+                            <p className="mt-3 text-sm font-semibold leading-6 text-[#665a4a] dark:text-[#aaa39a]">
+                                {content.body}
+                            </p>
+                        </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{content.title}</h3>
-                    <p className="text-gray-600 dark:text-gray-300">{content.subtitle}</p>
                 </div>
 
-                {/* Offer Details */}
-                <div className="p-8">
-                    <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl border border-gray-200 dark:border-gray-600 mb-6">
-                        <div>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">New Monthly Price</p>
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-2xl font-bold text-gray-900 dark:text-white">{content.newPrice}</span>
-                                <span className="text-sm text-gray-400 line-through">{content.oldPrice}</span>
+                <div className="p-6">
+                    <div className="rounded-2xl border border-[#e9e1d6] bg-[#fffaf1] p-4 dark:border-[#37332d] dark:bg-[#262522]">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#625bd5] shadow-sm dark:bg-[#1f1f1d] dark:text-[#8d88e6]">
+                                    <Sparkles size={18} />
+                                </div>
+                                <div>
+                                    <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#7d6e5e] dark:text-[#aaa39a]">
+                                        Retention discount
+                                    </p>
+                                    <p className="mt-1 text-sm font-black text-[#211b16] dark:text-[#f4f1e9]">{content.badge}</p>
+                                </div>
                             </div>
-                        </div>
-                        <div className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">
-                            {content.saveBadge}
+                            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-black uppercase tracking-[0.08em] text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300">
+                                No plan reset
+                            </span>
                         </div>
                     </div>
 
-                    <h4 className="font-bold text-gray-900 dark:text-white text-lg mb-2">{content.offerTitle}</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-8">
-                        {content.offerDescription}
-                    </p>
-
-                    <div className="space-y-3">
+                    <div className="mt-6 space-y-3">
                         <button
+                            type="button"
                             onClick={onAccept}
                             disabled={isLoading}
-                            className={`w-full py-3.5 rounded-xl font-bold text-white shadow-lg shadow-primary-500/20 transform transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 ${isStep10 ? 'bg-primary-600 hover:bg-primary-700' : 'bg-rose-600 hover:bg-rose-700'
-                                }`}
+                            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#211b16] px-4 py-3.5 text-sm font-black text-white transition hover:bg-[#3a2b20] disabled:cursor-wait disabled:opacity-70 dark:bg-[#f4f1e9] dark:text-[#211b16]"
                         >
-                            {isLoading ? 'applying discount...' : (
-                                <>
-                                    {content.acceptBtn}
-                                    <ArrowRight className="w-5 h-5" />
-                                </>
-                            )}
+                            {isLoading ? 'Applying...' : content.accept}
+                            {!isLoading && <ArrowRight size={16} />}
                         </button>
 
                         <button
+                            type="button"
                             onClick={onDecline}
                             disabled={isLoading}
-                            className="w-full py-3 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+                            className="inline-flex w-full items-center justify-center rounded-xl border border-[#d8c6ad] bg-white px-4 py-3 text-sm font-black text-[#211b16] transition hover:bg-[#fffaf1] disabled:opacity-60 dark:border-[#37332d] dark:bg-[#262522] dark:text-[#f4f1e9] dark:hover:bg-[#302e2a]"
                         >
-                            {content.declineBtn}
+                            {content.decline}
                         </button>
                     </div>
                 </div>

@@ -7,9 +7,13 @@ import {
     FAQSection,
     FinalCTA,
     DemoVideoSection,
+    FastStartSection,
     PlatformAvailabilitySection,
+    PricingPreviewSection,
     ProductIndex,
     ProofSection,
+    ResumeExamplesSection,
+    ResumeReadinessSection,
     TeamsAndTrustSection,
     UserStoriesSection,
     WorkflowSection,
@@ -17,7 +21,7 @@ import {
 
 const SEO_TITLE = 'CareerVivid | The AI That Gets You Hired';
 const SEO_DESCRIPTION = 'CareerVivid is your AI-powered co-pilot for the job search — build standout resumes, track applications, prep for interviews, and autofill job forms in seconds. Your next job starts here.';
-const SEO_KEYWORDS = 'AI job search workspace, Chrome extension job autofill, AI resume builder, job tracker, resume match, interview coach, application tracker, ATS resume optimization';
+const SEO_KEYWORDS = 'AI job search workspace, Chrome extension job autofill, AI resume builder, ATS resume checker, resume templates, job tracker, resume match, interview coach, application tracker, ATS resume optimization';
 const SEO_IMAGE = 'https://firebasestorage.googleapis.com/v0/b/jastalk-firebase.firebasestorage.app/o/public%2Flogo_assets%2Fog_image.png?alt=media';
 const CHROME_EXTENSION_URL = 'https://chromewebstore.google.com/detail/dmigeakdfokehlhigkhadglgoabceoag?utm_source=item-share-cb';
 
@@ -54,6 +58,9 @@ const structuredData = {
             offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD', name: 'CareerVivid Free' },
             featureList: [
                 'AI resume builder and tailoring',
+                'Resume upload and paste-to-start workflow',
+                'ATS resume checker and readiness score',
+                'Role-specific resume templates and examples',
                 'Job application tracker',
                 'Resume match scoring',
                 'Interview preparation and feedback',
@@ -119,6 +126,14 @@ const structuredData = {
                 },
                 {
                     '@type': 'Question',
+                    name: 'Can CareerVivid check my resume for ATS fit?',
+                    acceptedAnswer: {
+                        '@type': 'Answer',
+                        text: 'CareerVivid is designed to compare a resume with a target role, surface missing proof, and help job seekers improve resume fit before applying.',
+                    },
+                },
+                {
+                    '@type': 'Question',
                     name: 'Does CareerVivid have a Chrome extension and mobile apps?',
                     acceptedAnswer: {
                         '@type': 'Answer',
@@ -180,13 +195,17 @@ const LandingPage: React.FC = () => (
         <PublicHeader variant="editorial" />
         <main>
             <CommunityShowcaseHero />
+            <FastStartSection />
             <ProductIndex />
             <PlatformAvailabilitySection />
             <DemoVideoSection />
+            <ResumeReadinessSection />
+            <ResumeExamplesSection />
             <UserStoriesSection />
             <ProofSection />
             <WorkflowSection />
             <TeamsAndTrustSection />
+            <PricingPreviewSection />
             <FAQSection />
             <FinalCTA />
         </main>

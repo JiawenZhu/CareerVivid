@@ -1,4 +1,5 @@
 import * as functions from "firebase-functions/v1";
+import { onRequest as onRequestV2 } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import { GoogleAuth } from "google-auth-library";
 
@@ -305,10 +306,11 @@ export const mobileInterviewLiveToken = functions.region("us-west1").runWith({
     });
 });
 
-export const mobileInterviewAnalyze = functions.region("us-west1").runWith({
+export const mobileInterviewAnalyze = onRequestV2({
+    region: "us-west1",
     timeoutSeconds: 120,
-    memory: "1GB",
-}).https.onRequest(async (req, res) => {
+    memory: "1GiB",
+}, async (req, res) => {
     corsHandler(req, res, async () => {
         if (req.method === "OPTIONS") {
             res.status(204).send("");
