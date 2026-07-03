@@ -1,7 +1,7 @@
 import React, { Suspense, useRef, useState } from 'react';
 import { Excalidraw, exportToBlob } from '@excalidraw/excalidraw';
 import '@excalidraw/excalidraw/index.css';
-import { ClipboardList, Loader2, Send, Swords, X } from 'lucide-react';
+import { CheckCircle2, ClipboardList, Lightbulb, Loader2, Send, Swords, X } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { analyzeSystemDesignDiagram } from '../../services/geminiService';
 import { InterviewAnalysis } from '../../types';
@@ -101,11 +101,11 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
 
     return (
         <div className="fixed inset-0 z-50 flex flex-col bg-[#171411]/70 p-2 backdrop-blur-sm sm:p-4">
-            <div className="mx-auto flex h-full w-full max-w-7xl flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-900">
+            <div className="mx-auto flex h-full w-full max-w-7xl flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_24px_70px_rgba(17,24,39,0.24)] dark:border-gray-700 dark:bg-gray-900">
                 {/* Header */}
                 <header className="flex shrink-0 items-center justify-between gap-3 border-b border-gray-200 px-4 py-3 dark:border-gray-800">
                     <div className="flex min-w-0 items-center gap-2">
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-white">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#dfe2ff] bg-[#eef0ff] text-[#625bd5] shadow-sm dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]">
                             <Swords size={16} />
                         </span>
                         <div className="min-w-0">
@@ -118,7 +118,7 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
                             type="button"
                             onClick={handleSubmit}
                             disabled={isSubmitting}
-                            className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-indigo-600 px-3.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#dfe2ff] bg-[#eef0ff] px-3.5 text-xs font-semibold text-[#4f46c6] shadow-sm transition-colors hover:bg-[#e6e8ff] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff] dark:hover:bg-[#312d6b]"
                         >
                             {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                             {isSubmitting ? 'Reviewing…' : 'Submit for review'}
@@ -143,27 +143,37 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
                 {/* Body: brief + canvas */}
                 <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
                     {/* Brief panel */}
-                    <aside className="shrink-0 overflow-y-auto border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/60 lg:w-72 lg:border-b-0 lg:border-r">
-                        <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">
+                    <aside className="shrink-0 overflow-y-auto border-b border-gray-200 bg-[#fbfbfe] p-4 dark:border-gray-800 dark:bg-gray-900/60 lg:w-72 lg:border-b-0 lg:border-r">
+                        <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-[#625bd5] dark:text-[#9b96ef]">
                             <ClipboardList size={13} /> Design brief
                         </div>
                         <p className="mt-2 text-sm font-semibold text-gray-900 dark:text-gray-100">{brief.challenge}</p>
                         <p className="mt-4 text-[11px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">Requirements</p>
                         <ul className="mt-1.5 space-y-1.5">
-                            {brief.requirements.map((req) => (
-                                <li key={req} className="flex gap-1.5 text-xs text-gray-600 dark:text-gray-300">
-                                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-gray-400" />
+                            {brief.requirements.map((req, reqIndex) => (
+                                <li key={req} className="flex gap-2 text-xs text-gray-600 dark:text-gray-300">
+                                    <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-md bg-[#f3f2ff] text-[10px] font-extrabold text-[#625bd5] ring-1 ring-[#dfe2ff] dark:bg-[#312d6b]/50 dark:text-[#b8b4ff] dark:ring-[#625bd5]/40">
+                                        {reqIndex + 1}
+                                    </span>
                                     {req}
                                 </li>
                             ))}
                         </ul>
-                        <p className="mt-4 rounded-lg bg-white p-2.5 text-[11px] leading-relaxed text-gray-500 ring-1 ring-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700">
-                            Tip: label your boxes (clients, services, databases, caches, queues) and draw arrows for data flow. The AI grades clarity, coverage, and scalability.
+                        <div className="mt-4 rounded-lg border border-gray-200 bg-white p-3 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                            <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-[#a97935] dark:text-amber-300">
+                                <Lightbulb size={13} /> Drawing tip
+                            </p>
+                            <p className="mt-1.5 text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
+                                Label your boxes (clients, services, databases, caches, queues) and draw arrows for data flow. The AI grades clarity, coverage, and scalability.
+                            </p>
+                        </div>
+                        <p className="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-gray-400 dark:text-gray-500">
+                            <CheckCircle2 size={13} className="text-[#15803d] dark:text-emerald-300" /> Pass this stage by covering the core requirements.
                         </p>
                     </aside>
 
                     {/* Excalidraw canvas */}
-                    <div className="relative min-h-[380px] flex-1">
+                    <div className="relative min-h-[380px] flex-1 bg-white">
                         <Excalidraw
                             excalidrawAPI={(api: any) => { excalidrawAPIRef.current = api; }}
                             theme={resolvedTheme === 'dark' ? 'dark' : 'light'}

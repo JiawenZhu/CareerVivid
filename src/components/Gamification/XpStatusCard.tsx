@@ -18,8 +18,8 @@ const XpStatusCard: React.FC<XpStatusCardProps> = ({ variant = 'expanded', onCli
 
     const streakCount = progress.streak.current;
     const flameTone = isStreakActiveToday
-        ? 'text-amber-500'
-        : 'text-slate-300 dark:text-slate-600';
+        ? 'text-[#d97706]'
+        : 'text-gray-300 dark:text-gray-600';
 
     if (variant === 'collapsed') {
         return (
@@ -28,14 +28,14 @@ const XpStatusCard: React.FC<XpStatusCardProps> = ({ variant = 'expanded', onCli
                 onClick={onClick}
                 title={`Level ${levelInfo.level} · ${streakCount}-day streak`}
                 aria-label={`Level ${levelInfo.level}, ${streakCount} day streak`}
-                className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-stone-200 bg-white/75 text-[11px] font-extrabold text-indigo-700 shadow-sm transition hover:border-stone-300 hover:bg-white dark:border-slate-800 dark:bg-slate-900/70 dark:text-indigo-300 dark:hover:border-slate-700"
+                className="relative flex h-11 w-11 items-center justify-center rounded-xl border border-[#dfe2ff] bg-[#fbfbff] text-[11px] font-extrabold text-[#625bd5] shadow-sm transition hover:border-[#c9ccff] hover:bg-[#f3f2ff] dark:border-[#625bd5]/40 dark:bg-[#252244]/70 dark:text-[#c9ccff] dark:hover:border-[#8d88e6]"
             >
                 <span className="flex items-center gap-0.5">
                     <Zap size={11} className="shrink-0" />
                     {levelInfo.level}
                 </span>
                 {streakCount > 0 && (
-                    <span className={`absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full border border-stone-200 bg-white text-[8px] font-bold dark:border-slate-700 dark:bg-slate-900 ${flameTone}`}>
+                    <span className={`absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full border border-gray-200 bg-white px-1 text-[8px] font-bold dark:border-gray-700 dark:bg-gray-900 ${flameTone}`}>
                         {streakCount}
                     </span>
                 )}
@@ -48,11 +48,11 @@ const XpStatusCard: React.FC<XpStatusCardProps> = ({ variant = 'expanded', onCli
             type="button"
             onClick={onClick}
             aria-label={`Level ${levelInfo.level}, ${levelInfo.currentLevelXp} of ${levelInfo.nextLevelXp} XP, ${streakCount} day streak`}
-            className="mb-2 w-full rounded-2xl border border-stone-200/80 bg-white/65 px-3 py-2 text-left shadow-sm transition hover:border-stone-300 hover:bg-white dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-slate-700"
+            className="mb-2 w-full rounded-xl border border-[#dfe2ff] bg-[#fbfbff] px-3 py-2 text-left shadow-sm transition hover:border-[#c9ccff] hover:bg-[#f3f2ff] hover:shadow-[0_8px_24px_rgba(98,91,213,0.06)] dark:border-[#625bd5]/40 dark:bg-[#252244]/70 dark:hover:border-[#8d88e6]"
         >
             <div className="flex items-center justify-between gap-2">
-                <span className="flex items-center gap-1.5 text-[11px] font-extrabold text-slate-700 dark:text-slate-200">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-md bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300">
+                <span className="flex items-center gap-1.5 text-[11px] font-extrabold text-gray-900 dark:text-gray-100">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-md bg-[#eef0ff] text-[#625bd5] ring-1 ring-[#dfe2ff] dark:bg-[#312d6b]/50 dark:text-[#b8b4ff] dark:ring-[#625bd5]/40">
                         <Zap size={11} />
                     </span>
                     Level {levelInfo.level}
@@ -62,13 +62,13 @@ const XpStatusCard: React.FC<XpStatusCardProps> = ({ variant = 'expanded', onCli
                     {streakCount}
                 </span>
             </div>
-            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-stone-200/80 dark:bg-slate-800">
+            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#ececff] dark:bg-gray-800">
                 <div
-                    className="h-full rounded-full bg-indigo-500 transition-[width] duration-500 dark:bg-indigo-400"
+                    className="h-full rounded-full bg-[#a9a5f5] transition-[width] duration-500 dark:bg-[#9b96ef]"
                     style={{ width: `${Math.max(levelInfo.progress * 100, 2)}%` }}
                 />
             </div>
-            <p className="mt-1 text-[10px] font-semibold tabular-nums text-slate-400 dark:text-slate-500">
+            <p className="mt-1 text-[10px] font-semibold tabular-nums text-gray-400 dark:text-gray-500">
                 {levelInfo.currentLevelXp} / {levelInfo.nextLevelXp} XP to level {levelInfo.level + 1}
             </p>
         </button>

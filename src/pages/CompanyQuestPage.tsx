@@ -257,7 +257,7 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                     <button
                         type="button"
                         onClick={() => navigate('/interview-studio')}
-                        className="mt-6 inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
+                        className="mt-6 inline-flex items-center gap-2 rounded-lg border border-[#dfe2ff] bg-[#eef0ff] px-4 py-2 text-sm font-semibold text-[#4f46c6] hover:bg-[#e6e8ff] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff] dark:hover:bg-[#312d6b]"
                     >
                         <ArrowLeft size={16} /> Back to Interview Studio
                     </button>
@@ -282,7 +282,7 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                     <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0">
                             <div className="flex items-center gap-2">
-                                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-sm">
+                                <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#dfe2ff] bg-[#eef0ff] text-[#625bd5] shadow-sm dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]">
                                     <Swords size={17} />
                                 </span>
                                 <h1 className="truncate text-xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
@@ -310,9 +310,9 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                                 </span>
                             )}
                         </div>
-                        <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+                        <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-[#f3f2ff] dark:bg-gray-800">
                             <div
-                                className="h-full rounded-full bg-indigo-500 transition-[width] duration-500 dark:bg-indigo-400"
+                                className="h-full rounded-full bg-[#a9a5f5] transition-[width] duration-500 dark:bg-[#9b96ef]"
                                 style={{ width: `${stages.length ? (clearedCount / stages.length) * 100 : 0}%` }}
                             />
                         </div>
@@ -340,7 +340,7 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                                 className={`rounded-xl border p-4 transition-colors ${state === 'cleared'
                                     ? 'border-emerald-200 bg-emerald-50/50 dark:border-emerald-900/60 dark:bg-emerald-950/20'
                                     : state === 'unlocked'
-                                        ? 'border-indigo-200 bg-white shadow-sm dark:border-indigo-800 dark:bg-gray-900'
+                                        ? 'border-[#dfe2ff] bg-[#fbfbff] shadow-sm dark:border-[#625bd5]/40 dark:bg-gray-900'
                                         : 'border-gray-200 bg-gray-50 opacity-70 dark:border-gray-800 dark:bg-gray-900/40'
                                     }`}
                             >
@@ -348,7 +348,7 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                                     <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${state === 'cleared'
                                         ? 'bg-emerald-500 text-white'
                                         : state === 'unlocked'
-                                            ? 'bg-indigo-600 text-white'
+                                            ? 'border border-[#dfe2ff] bg-[#eef0ff] text-[#625bd5] shadow-[0_0_0_4px_rgba(243,242,255,0.95)] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]'
                                             : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
                                         }`}>
                                         {stageIcon(state, index)}
@@ -377,7 +377,7 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                                                 disabled={isStarting || startingStageId !== null}
                                                 className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${state === 'cleared'
                                                     ? 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800'
-                                                    : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                                                    : 'border border-[#dfe2ff] bg-[#eef0ff] text-[#4f46c6] hover:bg-[#e6e8ff] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff] dark:hover:bg-[#312d6b]'
                                                     }`}
                                             >
                                                 {isStarting
