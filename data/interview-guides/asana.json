@@ -1,0 +1,71 @@
+{
+  "company": "Asana",
+  "slug": "asana",
+  "url": "https://www.techinterview.org/companies/asana",
+  "scrapedAt": "2026-07-02T07:20:18.450Z",
+  "interviewStages": [
+    "System design (1 round): work-management-flavored prompts. \"Design the permissions model for a workspace with 100K users and custom roles.\" \"Design a notification system that delivers relevant updates without overwhelming users.\" \"Design the real-time sync layer for collaborative project editing.\"",
+    "Behavioral / values round: Asana's values (Mission, Do Great Things Fast, Be Real with Yourself and Others, Co-creation, Give and Take Responsibility, Reject False Dichotomies, Mindfulness, Heartitude) come up in specific question phrasings.",
+    "Hiring manager (1 round): past projects, team fit, career trajectory."
+  ],
+  "codingTopics": [
+    "Model a state system with transitions (task with status, dependencies, rollup logic for parent / child completion)",
+    "Incremental computation (given a base computation and a change to inputs, update only the minimum necessary outputs)",
+    "Streaming / event processing (compute project statistics from an audit log)",
+    "Tree / graph traversal with practical twists (task dependency DAG execution, subtask rollup, cycle detection in project hierarchies)",
+    "Applied OO design (permission model, custom-field type system, recurring-task engine)"
+  ],
+  "systemDesignTopics": [
+    "\"Design the permissions model supporting teams, projects, custom roles, and inherited access.\"",
+    "\"Design a notification system that prevents overwhelm: per-user preferences, relevance scoring, delivery digests.\"",
+    "\"Design the real-time collaborative editing layer for a project view with 50 concurrent viewers.\"",
+    "\"Design the recurring-task engine that schedules millions of recurring tasks efficiently across timezones.\""
+  ],
+  "behavioralTopics": [
+    "Reject False Dichotomies: \"Tell me about a time you were told you had to choose between two things and found a third option.\"",
+    "Be Real: \"Describe a situation where you gave or received direct feedback that felt uncomfortable.\"",
+    "Co-creation: \"Tell me about a project where the outcome was better because of co-creation with others.\"",
+    "Mindfulness: \"Describe a time you noticed a pattern in yourself or a team that required conscious change.\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need to know Luna or their specific reactive framework?",
+      "How does the Facebook-origin heritage show up in interviews?",
+      "Is Hack / PHP really used?",
+      "How has the rightsizing affected culture?",
+      "What's the AI Studio career opportunity like?"
+    ]
+  },
+  "difficulty": 7.5,
+  "tips": [
+    "Use Asana for a real project. Build something &mdash; a side-project plan, a wedding plan, a reading list with due dates. Feel the product.",
+    "Read about reactive data frameworks. Even 30 minutes on Recoil or Incremental gives you vocabulary.",
+    "Practice invariant reasoning. \"What can never be true in this data model?\" is a distinctive Asana interview mode.",
+    "Prepare values stories. Especially Reject False Dichotomies &mdash; this one surprises candidates who haven't thought about it.",
+    "Engage with UX in design answers. \"This affects user experience by&#8230;\" is a phrase interviewers appreciate.",
+    "Asana engineering blog (Luna, work graph, real-time architecture, AI Studio posts)",
+    "The original Asana \"Work Graph\" engineering blog post",
+    "Facebook engineering blog posts on Relay and Flow (same heritage as Luna)",
+    "Designing Data-Intensive Applications (Kleppmann)",
+    "Asana's public company pages on values and culture",
+    "LeetCode medium set with focus on trees, graphs, and DAG problems"
+  ],
+  "compensation": [
+    "IC3 / Software Engineer: $175k&ndash;$220k base, $120k&ndash;$210k equity/yr, 10% bonus. Total: ~$275k&ndash;$420k / year.",
+    "IC4 / Senior Software Engineer: $225k&ndash;$285k base, $220k&ndash;$400k equity/yr. Total: ~$380k&ndash;$600k / year.",
+    "IC5 / Staff Engineer: $290k&ndash;$355k base, $400k&ndash;$700k equity/yr. Total: ~$600k&ndash;$900k / year.",
+    "The technical depth is higher than people expect from a \"project management\" company. Luna, work graph, and real-time sync are genuinely novel engineering.",
+    "The values are operational, not marketing. \"Reject False Dichotomies\" shows up in daily conversations.",
+    "The Facebook-origin engineering heritage shapes the interview style &mdash; expect clean code, clear naming, and invariant reasoning over clever algorithms.",
+    "AI Studio is a real strategic bet and growing fast.",
+    "Treating the data modeling round as a generic ER-diagram exercise. Engage with operations and invariants.",
+    "Values answers that feel rehearsed or buzzword-heavy.",
+    "Not understanding the product. Use Asana seriously before interviewing.",
+    "Ignoring UX considerations in system design. Asana's culture treats user experience as engineering-relevant."
+  ],
+  "rawSummary": "Asana Interview Guide 2026: Work Graph, Reactive Data, Luna Framework, and AI Studio\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 23, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 23, 2026 · techinterview.org\n\n⏱ 9 min read\n\nAsana\nasana.com ↗\n\nAsana Interview Process: Complete 2026 Guide\n\nOverview\n\nAsana is the work-management platform behind projects, goals, workflows, and the AI-driven work orchestration product line introduced with Asana AI Studio in 2024. Founded 2008 by Facebook cofounder Dustin Moskovitz and Justin Rosenstein, public since 2020, ~1,500 employees in 2026 after multiple rightsizing rounds. The product has a reputation for technical sophistication rooted in its founders' Facebook-era engineering pedigree: the backend runs a custom reactive data framework called Luna that recomputes derived state incrementally as underlying data changes, similar in spirit to Facebook's Relay + Flow model. Headquartered in SF with hubs in Dublin, Vancouver, and Sydney; remote hiring across specific timezones. Interviews reflect this technical culture &mdash; emphasis on data model reasoning, reactive / incremental thinking, and clean OO / functional design.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Asana, team interest. The company triages among product engineering, infrastructure, platform, AI (Asana AI Studio), and data science / ML. Cultural fit is probed early &mdash; the Asana culture is known for conscious leadership, clarity-of-priority practices (Pyramid of Clarity), and an explicit focus on sustainability.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. Languages: TypeScript and Python for product and platform; Java for some infrastructure; Hack / PHP historically for the legacy server (being actively migrated). Problems are applied &mdash; model a small state system, implement an incremental data transformation, process a structured event stream.\n\nTake-home (some senior / staff roles): 4&ndash;6 hours on a realistic engineering problem. Write-up quality and test coverage matter significantly.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied round often focused on data modeling or incremental computation. Asana's Luna framework shapes how interviewers think about state &mdash; candidates who reason fluently about derived state and invalidation have an edge.\n\n- System design (1 round): work-management-flavored prompts. \"Design the permissions model for a workspace with 100K users and custom roles.\" \"Design a notification system that delivers relevant updates without overwhelming users.\" \"Design the real-time sync layer for collaborative project editing.\"\n\n- Domain / data modeling round (1 round): distinctive to Asana. The interviewer presents a product scenario and asks you to model the underlying data and the operations on it. \"Model a task with dependencies, assignees, custom fields, and a rule that auto-completes parent tasks when all children finish.\"\n\n- Behavioral / values round: Asana's values (Mission, Do Great Things Fast, Be Real with Yourself and Others, Co-creation, Give and Take Responsibility, Reject False Dichotomies, Mindfulness, Heartitude) come up in specific question phrasings.\n\n- Hiring manager (1 round): past projects, team fit, career trajectory.\n\nTechnical Focus Areas\n\nCoding: TypeScript / Python idiomatic code, functional / immutable style where appropriate, clean state modeling, test discipline. For the fewer Hack / PHP-involved roles: typed PHP, strict mode, modern idioms.\n\nReactive / incremental data: Luna-style reactive systems care about derived state, invalidation, push vs pull propagation, batching, and correctness under concurrent modifications. Candidates with Relay, Recoil, MobX, or similar backgrounds adapt fastest; functional-reactive-programming (FRP) exposure is valuable.\n\nSystem design: multi-tenant permissions at scale, real-time collaboration (OT / CRDT family), notification systems with relevance ranking, search (Elasticsearch / custom), graph data models (tasks, dependencies, subtasks as implicit graphs).\n\nFrontend: React / TypeScript at scale, state management with reactive patterns, performance optimization for long lists and complex project views, accessibility for a productivity app.\n\nAI / Asana AI Studio: agent orchestration for work-management scenarios, RAG over project context, evaluation in enterprise contexts, prompt engineering for structured outputs (task triage, project summaries, status updates).\n\nData infrastructure: OLTP / OLAP separation, event sourcing for audit and recovery, cross-region data residency for enterprise customers.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is medium-hard. Comparable to Meta E5 &mdash; which makes sense given the Facebook-origin engineering culture. Interviewers care about clarity, correctness, and readable code more than clever algorithms.\n\nTypical problem shapes:\n\n- Model"
+}

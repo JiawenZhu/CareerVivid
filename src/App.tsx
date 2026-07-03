@@ -28,6 +28,7 @@ const WhiteboardEditor = React.lazy(() => import('./pages/WhiteboardEditor'));
 const AgentPage = React.lazy(() => import('./pages/AgentPage'));
 const GenerationHub = React.lazy(() => import('./pages/GenerationHub')); // Protected
 const InterviewStudio = lazyWithPreload(() => import('./pages/InterviewStudio')); // Protected
+const CompanyQuestPage = React.lazy(() => import('./pages/CompanyQuestPage')); // Protected
 const ProfilePage = React.lazy(() => import('./pages/ProfilePage')); // Protected
 const ChatBot = React.lazy(() => import('./components/ChatBot'));
 const AuthPage = React.lazy(() => import('./pages/AuthPage'));
@@ -498,6 +499,16 @@ const AppContent: React.FC = () => {
       content = (
         <ProtectedRoute>
           <InterviewStudio jobId={jobId} />
+        </ProtectedRoute>
+      );
+    }
+
+    // Company Quest (gamified company interview loop)
+    else if (path.startsWith('/quest/')) {
+      const slug = path.split('/')[2];
+      content = (
+        <ProtectedRoute>
+          <CompanyQuestPage slug={slug} />
         </ProtectedRoute>
       );
     }

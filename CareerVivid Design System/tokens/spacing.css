@@ -1,0 +1,35 @@
+/* CareerVivid spacing, radius, and border tokens. */
+
+:root {
+  /* Spacing scale */
+  --cv-space-1: 4px;
+  --cv-space-2: 8px;
+  --cv-space-3: 12px;
+  --cv-space-4: 16px;
+  --cv-space-5: 20px;
+  --cv-space-6: 24px;
+  --cv-space-8: 32px;
+  --cv-space-10: 40px;
+  --cv-space-12: 48px;
+  --cv-space-16: 64px;
+
+  /* Radius */
+  --cv-radius-control-sm: 6px;
+  --cv-radius-control: 8px;
+  --cv-radius-card: 12px;
+  --cv-radius-card-lg: 16px;
+  --cv-radius-input: 16px;       /* large search fields */
+  --cv-radius-extension: 20px;   /* extension action cards: 16-20px */
+  --cv-radius-modal: 20px;       /* modals: 18-24px */
+  --cv-radius-pill: 999px;
+
+  /* Borders */
+  --cv-border-w: 1px;
+  --cv-border-w-focus: 2px;
+
+  /* Layout */
+  --cv-container-public: 1200px;   /* public pages 1120-1280px */
+  --cv-grid-size: 64px;            /* warm grid background-size */
+  --cv-card-grid-min: 260px;
+  --cv-pipeline-col-min: 244px;
+}

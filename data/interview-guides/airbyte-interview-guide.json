@@ -1,0 +1,27 @@
+{
+  "company": "Airbyte",
+  "slug": "airbyte-interview-guide",
+  "url": "https://www.techinterview.org/companies/airbyte-interview-guide",
+  "scrapedAt": "2026-07-02T07:19:55.475Z",
+  "interviewStages": [
+    "Behavioral: OSS empathy, ownership, fast-moving startup"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Airbyte remote-friendly?",
+      "How does Airbyte compare to Fivetran or Stitch?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Airbyte Interview Guide (2026): Open-Source Data Integration\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nAirbyte\nairbyte.com ↗\n\nAirbyte is the open-source data-integration leader — 350+ connectors, used by 40,000+ teams. Y Combinator alum, Series B. The interview emphasizes connector-platform engineering, data-pipeline reliability, and the unique challenges of running thousands of third-party integrations.\n\nProcess\n\nRecruiter screen → take-home or coding phone (Java, Python, or Kotlin) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 2–4 weeks.\n\nWhat they actually ask\n\n- Design a connector framework (Airbyte protocol) supporting many sources/destinations\n\n- Design a sync orchestrator with incremental, full-refresh, and CDC modes\n\n- Design a sandbox for running untrusted connector code safely\n\n- Coding: medium DSA, often with API/parser framing\n\n- Behavioral: OSS empathy, ownership, fast-moving startup\n\nLevels and comp (2026)\n\n- SE: $155K–$210K total\n\n- Senior SE: $215K–$290K total\n\n- Staff: $295K–$405K total\n\nPrep priorities\n\n- Be fluent in Java/Kotlin (platform), Python (CDK / connectors), and TypeScript (UI)\n\n- Understand ETL/ELT patterns, schema evolution, CDC (Debezium-style)\n\n- Brush up on Kubernetes job orchestration and Temporal workflows\n\nFrequently Asked Questions\n\nIs Airbyte remote-friendly?\n\nFully distributed since founding. Most engineers remote across the Americas and Europe.\n\nHow does Airbyte compare to Fivetran or Stitch?\n\nFivetran is the closed-source enterprise leader. Stitch is the legacy mid-market option (now part of Talend/Qlik). Airbyte is OSS with self-host plus Cloud. Comp is mid-tier OSS infrastructure with strong equity upside.\n\nWhat is the engineering culture?\n\nOSS-first, ship-focused, async. Strong written-first culture and customer-facing engineering.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Airbyte? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow Level Design: Ride-Hailing Dispatch System⏱ 10 min readPrice Alert System Low-Level Design⏱ 5 min readJelly Beans⏱ 3 min read"
+}

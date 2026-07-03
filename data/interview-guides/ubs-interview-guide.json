@@ -1,0 +1,45 @@
+{
+  "company": "UBS",
+  "slug": "ubs-interview-guide",
+  "url": "https://www.techinterview.org/companies/ubs-interview-guide",
+  "scrapedAt": "2026-07-02T07:18:49.747Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — practical engineering with banking flavor",
+    "System design (1 round) — financial systems at bank scale",
+    "Domain depth (1 round) — depends on role: distributed systems, ML, risk, integration",
+    "Behavioral (1 round) — collaboration, ambiguity, banking domain interest"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "How is the CS integration affecting engineers?",
+      "What's working on UBS Neo actually like?",
+      "Should I work in Zurich or London?",
+      "How does the wealth management focus shape engineering?",
+      "Is UBS a good place for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad SWE (London): £55k–£90k total comp first year",
+    "New-grad SWE (Zurich): CHF 90k–130k total comp first year",
+    "Mid-level (4–7 years, London): £90k–£200k",
+    "Mid-level (Zurich): CHF 130k–280k",
+    "Senior (8+ years, AVP / VP): £150k–£350k London / CHF 180k–400k Zurich",
+    "Director / Senior VP: £300k–£600k / CHF 350k–800k",
+    "Managing Director: £600k–£1.5M+ / CHF 700k–CHF 2M+",
+    "The CS integration is more substantial than candidates expect — multi-year project, real engineering complexity, ongoing through 2027+.",
+    "The wealth management focus shapes engineering investment — advisor desktops and client portals are core, distinct from typical investment bank tech.",
+    "The Swiss culture is meaningfully different from London / NYC — risk-conservative, consensus-driven, slower-paced, longer-term-oriented.",
+    "Compensation in Zurich is nominally lower than London but net comp often comparable or better given Swiss tax structure.",
+    "The Azure cloud migration is real but proceeding at deliberate pace; engineers should expect both legacy and modern projects."
+  ],
+  "rawSummary": "UBS Interview Guide 2026: Post-Credit-Suisse Era, Largest Wealth Manager, Swiss Banking\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 30, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- UBS Interview Guide 2026: Post-Credit-Suisse Era, Largest Wealth Manager Globally, Swiss Banking Engineering\n\n- What UBS Does\n\n- Roles UBS Hires For\n\n- UBS Interview Process\n\n- What UBS Tests For\n\n- Compensation\n\n- Working at UBS\n\n- UBS vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 30, 2026 · techinterview.org\n\n⏱ 7 min read\n\nUBS\nubs.com ↗\n\nUBS Interview Guide 2026: Post-Credit-Suisse Era, Largest Wealth Manager Globally, Swiss Banking Engineering\n\nUBS (NYSE: UBS, SIX: UBSG) is the largest wealth manager globally and now Switzerland's only major bank after the 2023 emergency acquisition of Credit Suisse. The post-acquisition integration has been the dominant story of 2023–2026 — combining two giants with overlapping businesses, conflicting cultures, and substantial regulatory scrutiny. The hiring process reflects a bank in extended integration: opportunity-rich for engineers wanting to work on consolidation projects, complex for engineers wanting clean career paths. This guide covers what UBS does, the engineering tracks, the interview process, and what makes UBS hiring distinctive in 2026.\n\nWhat UBS Does\n\nUBS operates across four primary business divisions (post-Credit Suisse integration):\n\n- Global Wealth Management: the largest in the world by AUM (~$5.6T as of 2025). High-net-worth and ultra-high-net-worth client services across Americas, EMEA, and APAC. Largest revenue contributor.\n\n- Personal & Corporate Banking: Swiss retail banking, SME banking, mortgage and lending. The Swiss-domestic core of the firm.\n\n- Investment Bank: equities, fixed income, FX, capital markets, M&A. Restructured during integration; certain Credit Suisse activities (some prime brokerage, some structured products) wound down or sold.\n\n- Asset Management: active and passive asset management for institutional and retail clients.\n\nMajor technology platforms:\n\n- UBS Neo: the institutional client electronic trading and analytics platform. Comparable to Goldman's Marquee. Substantial engineering investment.\n\n- Wealth management platforms: client portals, advisor desktops, portfolio management — all undergoing post-CS integration as duplicated systems consolidate.\n\n- Risk and quant infrastructure: internal risk management, model validation, regulatory reporting. Substantial work given the regulatory scrutiny on UBS post-CS acquisition.\n\n- Cloud migration (Azure-led): active migration to Microsoft Azure under multi-year strategic agreement.\n\nDistinctive features:\n\n- Credit Suisse acquisition (March 2023, completed May 2024): emergency acquisition driven by Swiss regulators after Credit Suisse's collapse. Created the world's largest wealth manager but also the most complex integration in modern banking history. Engineers in many areas work on consolidation projects.\n\n- Swiss headquartered: Zurich-based culture. Distinct from London / NYC / Frankfurt peers. Swiss banking conservatism shapes risk culture; Swiss tax / regulatory environment shapes operations.\n\n- Wealth management primacy: wealth management is ~50%+ of revenue. Engineering investment reflects this — substantial wealth management technology, advisor desktops, client portals.\n\n- Public company: NYSE: UBS and SIX: UBSG; substantial scrutiny especially around integration milestones.\n\n- Sergio Ermotti's return: Ermotti returned as CEO in April 2023 specifically to lead the Credit Suisse integration. His leadership style is decisive but consensus-oriented; cultural fit considerations differ from US bank cultures.\n\nRoles UBS Hires For\n\nSoftware engineer (UBS Neo / Markets)\n\nBuilds the Neo platform — institutional electronic trading, research distribution, analytics. Java heavy; some C++ in performance-critical components. Substantial engineering organization across London, Zurich, NYC, Krakow, Pune.\n\nSoftware engineer (Wealth Management technology)\n\nBuilds advisor desktops, client portals, portfolio management tools. Major area given wealth management's revenue share. Java + Python heavy; React + TypeScript on frontend.\n\nSoftware engineer (Personal & Corporate Banking)\n\nSwiss retail banking systems, mobile apps, payments. Distinct from international wealth management; Swiss-specific engineering culture and language requirements.\n\nQuantitative analyst / strats\n\nMarkets quants — pricing models, risk analytics, structuring support. Real quant work. Smaller-scale than Goldman / Morgan Stanley but real franchise.\n\nRisk / regulatory engineer\n\nSubstantial work given post-CS regulatory scrutiny. Stress testing, capital adequacy modeling, regulatory reporting all expanded.\n\nCloud / infrastructure engineer (Azure)\n\nActive Azure migration. Substantial cloud engineering investment; multi-cloud architecture under development.\n\nIntegration engineer (post-CS)\n"
+}

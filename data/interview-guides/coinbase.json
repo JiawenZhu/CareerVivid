@@ -1,0 +1,72 @@
+{
+  "company": "Coinbase",
+  "slug": "coinbase",
+  "url": "https://www.techinterview.org/companies/coinbase",
+  "scrapedAt": "2026-07-02T07:17:11.795Z",
+  "interviewStages": [
+    "System design (1 round): crypto-exchange flavored prompts. \"Design the limit-order book matching engine handling 100K orders/sec.\" \"Design the settlement system that reconciles on-exchange trades with on-chain transactions across 20 blockchains.\" \"Design a self-custody wallet service that manages keys across millions of users.\"",
+    "Behavioral / hiring manager: past projects, comfort with regulatory complexity, handling extreme market-stress events (exchanges get tested during crypto crashes)."
+  ],
+  "codingTopics": [
+    "Limit-order book implementation with matching semantics",
+    "Idempotent transaction processor handling blockchain reorganizations",
+    "Balance accounting with multi-currency / multi-decimal support",
+    "Event stream aggregation (compute rolling trade statistics)",
+    "Classic algorithm problems (graphs, trees, DP) with practical crypto / trading twists (shortest path with gas costs, tree of transaction dependencies)"
+  ],
+  "systemDesignTopics": [
+    "\"Design the matching engine for limit orders supporting 100K orders/sec with fairness guarantees.\"",
+    "\"Design a settlement system reconciling centralized-exchange trades with on-chain activity across 20 blockchains.\"",
+    "\"Design the deposit / withdrawal pipeline handling blockchain reorgs, failed transactions, and MEV front-running.\"",
+    "\"Design a self-custody key management system for 100M+ keys using MPC.\""
+  ],
+  "behavioralTopics": [
+    "Mission alignment: \"Why Coinbase specifically, and why crypto in 2026?\"",
+    "High-stakes reliability: \"Tell me about a time you owned an incident where money or user funds were at risk.\"",
+    "Regulatory awareness: \"Have you worked in regulated environments? How did compliance shape your engineering?\"",
+    "Cycles: \"How do you think about working at a company with crypto-market-cycle volatility?\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need crypto / blockchain background to get hired?",
+      "Is Coinbase safe as a company given crypto volatility?",
+      "How does Coinbase compare to other crypto / fintech companies on interviews?",
+      "What's the on-call like?",
+      "Is the remote-first policy really supported?"
+    ]
+  },
+  "difficulty": 7.5,
+  "tips": [
+    "Use Coinbase products. Retail app, Advanced, maybe try Base. Form opinions about the UX.",
+    "Read the Base docs. Understand rollup mechanics even for non-on-chain roles; it signals currency.",
+    "Know exchange primitives. Order types, matching, settlement, fat-finger protection &mdash; these are vocabulary for system design.",
+    "Have an honest take on crypto. Cheerleading lands badly; dismissiveness lands worse; engaged skepticism is ideal.",
+    "Prep compliance-awareness stories. \"I worked in a regulated environment and here's what I learned\" carries weight.",
+    "Coinbase engineering blog (on-chain engineering, Base, exchange infrastructure)",
+    "Trading and Exchanges: Market Microstructure for Practitioners by Larry Harris",
+    "Mastering Ethereum by Antonopoulos & Wood (conceptual blockchain foundations)",
+    "OP Stack documentation and L2Beat resources",
+    "The Go Programming Language by Donovan & Kernighan",
+    "Chainalysis and Elliptic public reports for compliance context",
+    "Kraken &mdash; US-based exchange, derivatives focus",
+    "Circle, Ripple, Chainalysis &mdash; stablecoin issuer, payment network, blockchain analytics"
+  ],
+  "compensation": [
+    "IC4 / Software Engineer: $170k&ndash;$215k base, $150k&ndash;$280k equity/yr, 10% bonus. Total: ~$280k&ndash;$430k / year.",
+    "IC5 / Senior Software Engineer: $220k&ndash;$285k base, $300k&ndash;$550k equity/yr. Total: ~$400k&ndash;$600k / year.",
+    "IC6 / Staff Engineer: $285k&ndash;$355k base, $600k&ndash;$1.2M equity/yr. Total: ~$550k&ndash;$900k / year.",
+    "Remote-first actually works &mdash; no HQ, timezone-overlap expectations are genuine.",
+    "Base is a significant engineering investment, not just a product line; the on-chain engineering there is real.",
+    "Regulatory / compliance work is engineering-intensive; SDE roles interact with legal and compliance regularly.",
+    "The mission-focused culture means political discussion is explicitly not a workplace norm; candidates seeking activist workplaces should understand this.",
+    "Hand-waving on blockchain fundamentals when applying for on-chain roles. \"I've used MetaMask\" is not expertise.",
+    "Treating compliance / KYC as non-engineering. At Coinbase, regulations shape system design.",
+    "No engagement with crypto volatility realities. The industry has cycles; candidates hoping for continuous growth should temper expectations.",
+    "Weak Go coding. The stack is Go-heavy; idiomatic fluency matters."
+  ],
+  "rawSummary": "Coinbase Interview Guide 2026: Crypto Exchange Engineering, Matching Engine, Base L2, and Custody\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 23, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Coinbase Interview Process: Complete 2026 Guide\n\n- Frequently Asked Questions\n\n- Crypto and Stablecoin Players\n\nUpdated May 2, 2026 · techinterview.org\n\n⏱ 9 min read\n\nCoinbase\ncoinbase.com ↗\n\nCoinbase Interview Process: Complete 2026 Guide\n\nOverview\n\nCoinbase is the publicly-traded cryptocurrency exchange and Web3 infrastructure company behind the retail trading app, Coinbase Advanced, institutional Prime, the Base L2 network, and a growing suite of stablecoin and on-chain services. Founded 2012 by Brian Armstrong and Fred Ehrsam, direct-listed on Nasdaq in April 2021, ~3,700 employees in 2026 after multiple rightsizing cycles through the 2022 crypto winter. The company pivoted to being \"remote-first\" in 2020 (and again confirmed the policy after debates); no single HQ exists today. Engineering is distributed globally with concentrations in the US, Ireland, Singapore, and India. The product spans custodied retail trading, institutional-grade OTC and prime services, and on-chain infrastructure including Base (an Ethereum L2 built on the OP Stack). Interviews reflect a mix of traditional fintech rigor, exchange-specific infrastructure challenges, and novel on-chain engineering demands.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Coinbase, team preference. Significant product-surface variation: retail exchange backend, trading engine, institutional prime, on-chain / Base infrastructure, data / ML (fraud, risk, KYC), mobile (iOS / Android), security, custody, and SRE. Recruiters triage carefully since team specifics vary.\n\nTechnical phone screen (60 min): one coding problem, medium-hard difficulty. Go dominates most backend; Python for data / ML; Swift / Kotlin for mobile; Solidity / Rust for on-chain / Base work. Problems vary by team &mdash; trading-engine focused on ordering and concurrency, on-chain focused on state transitions and cryptographic primitives, retail focused on applied idempotency and financial-correctness.\n\nTake-home (some senior / staff roles): 4&ndash;6 hour project. Historically involves a realistic exchange or trading problem &mdash; implement a limit-order book, build a settlement reconciler, write a small on-chain event listener.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): algorithms + applied round. The applied round often covers exchange-mechanic primitives: order-matching engine, balance accounting, event-sourced transaction processing.\n\n- System design (1 round): crypto-exchange flavored prompts. \"Design the limit-order book matching engine handling 100K orders/sec.\" \"Design the settlement system that reconciles on-exchange trades with on-chain transactions across 20 blockchains.\" \"Design a self-custody wallet service that manages keys across millions of users.\"\n\n- Domain deep-dive (1 round): blockchain fundamentals, cryptographic primitives, or trading-exchange internals depending on role. For on-chain teams: understanding of EVM, rollup mechanics, MEV, and smart-contract security. For trading: market microstructure, order types, and cross-venue arbitrage. For custody: HSM / MPC schemes, key-management architecture.\n\n- Behavioral / hiring manager: past projects, comfort with regulatory complexity, handling extreme market-stress events (exchanges get tested during crypto crashes).\n\n- Mission / values round: Coinbase's \"10 cultural tenets\" (clear communication, efficient execution, continuous learning, championship team, etc.) come up specifically; the mission-focused culture (economic freedom) is screened for.\n\nTechnical Focus Areas\n\nCoding: Go idioms (context propagation, channels, graceful shutdown), idempotency under at-least-once delivery, state machines for order / deposit / withdrawal lifecycle, event-sourced accounting.\n\nTrading engine: limit-order book data structures (price-level linked lists, sorted red-black trees for price levels), order-matching algorithms (price-time priority, pro-rata), fat-finger checks, self-trade prevention, circuit breakers, market-data dissemination.\n\nOn-chain / Base: EVM semantics, gas accounting, rollup architectures (optimistic vs ZK, Coinbase's Base is OP Stack optimistic), MEV and mempool considerations, smart-contract security patterns (reentrancy, integer overflow, access control), cross-chain bridges, oracle integration.\n\nCustody: HSM architectures, multi-party computation (MPC) for key management, cold vs warm vs hot wallet trade-offs, withdrawal approval workflows, insurance and loss mitigation.\n\nFinancial correctness: double-entry accounting adapted for crypto (which has more degrees of freedom than fiat), idempotency under network / blockchain re-organizations, precision handling (crypto has 18+ decimals), cross-venue reconciliation.\n\nSecurity & compliance: KYC / AML programs, Travel R"
+}

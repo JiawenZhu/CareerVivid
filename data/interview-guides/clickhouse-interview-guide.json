@@ -1,0 +1,25 @@
+{
+  "company": "ClickHouse",
+  "slug": "clickhouse-interview-guide",
+  "url": "https://www.techinterview.org/companies/clickhouse-interview-guide",
+  "scrapedAt": "2026-07-02T07:21:08.922Z",
+  "interviewStages": [],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I have to know C++ to interview at ClickHouse?",
+      "Is ClickHouse remote-friendly?",
+      "How does ClickHouse compare to Snowflake or Databricks?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "ClickHouse Interview Guide (2026): Analytical Database Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nClickHouse\nclickhouse.com ↗\n\nClickHouse Inc. is the company behind the open-source columnar OLAP database that has become the de facto standard for real-time analytics — Cloudflare, Uber, eBay, and most ad-tech runs on it. The interview is C++-heavy and rewards engineers who genuinely care about cache lines, SIMD, and microsecond-level performance.\n\nProcess\n\nRecruiter screen → 60-minute technical phone (C++ + DSA) → onsite loop of 5 rounds: 2 coding (often involving low-level performance), 1 system design (always database internals), 1 past-project deep dive, 1 behavioral. Cycle: 3–5 weeks. Bar is high.\n\nWhat they actually ask\n\n- Design a columnar storage engine with vectorized execution\n\n- Implement a hash table optimized for analytical queries\n\n- Design a distributed query engine with shard-aware planning\n\n- Coding: C++ template metaprogramming, SIMD intrinsics, cache-aware algorithms\n\n- Past-project deep dive: must demonstrate genuine performance work\n\nLevels and comp (2026)\n\n- SE II: $200K–$250K total\n\n- Senior SE: $280K–$380K\n\n- Staff: $420K–$560K\n\n- Principal: $600K–$800K\n\nPrep priorities\n\n- Be deeply fluent in modern C++ (C++17 and later, templates, RAII, move semantics)\n\n- Read the ClickHouse codebase — yes, parts of it. Understand the storage format and query execution\n\n- Brush up on database internals: query planning, vectorized execution, columnar formats (Parquet, ORC)\n\nFrequently Asked Questions\n\nDo I have to know C++ to interview at ClickHouse?\n\nFor the core engine, yes. Cloud platform roles accept Go and Python, but the bar for systems engineers is C++.\n\nIs ClickHouse remote-friendly?\n\nDistributed-first across Europe and US. The engineering team has historical concentration in the EU.\n\nHow does ClickHouse compare to Snowflake or Databricks?\n\nSmaller team, deeper systems work, lower comp than peak Snowflake/Databricks but with significant equity upside post-funding.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for ClickHouse? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow Level Design: Paxos Consensus Protocol⏱ 6 min readMulti-Factor Authentication Low-Level Design: TOTP, SMS OTP, Backup Codes, and Replay Prevention⏱ 10 min readLow-Level Design: Loyalty and Rewards System — Points, Tiers, and Redemption⏱ 7 min read"
+}

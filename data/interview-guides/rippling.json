@@ -1,0 +1,73 @@
+{
+  "company": "Rippling",
+  "slug": "rippling",
+  "url": "https://www.techinterview.org/companies/rippling",
+  "scrapedAt": "2026-07-02T07:25:57.845Z",
+  "interviewStages": [
+    "System design (1 round): enterprise multi-tenant prompts with the Employee-Graph twist. \"Design the Employee Graph supporting cross-module queries with strict access control.\" \"Design global payroll execution for 1M employees across 100+ countries.\" \"Design the IT-automation system executing workflows when HR events fire (onboarding, termination).\"",
+    "Hiring manager (1 round): team fit, customer empathy, ambition."
+  ],
+  "codingTopics": [
+    "OO / data modeling: design entities and operations for a specific HR / IT / finance scenario (benefit plan hierarchy, approval chain, device-assignment workflow)",
+    "Event-driven workflow: given an event, determine downstream actions with proper ordering and failure handling",
+    "Integration-API design: build a client for a hypothetical third-party system with retries, rate limiting, webhook reliability",
+    "Rule-engine evaluation: given conditions and actions, implement correct policy evaluation",
+    "Classic algorithm problems (graphs, trees, DP) with workforce-system twists"
+  ],
+  "systemDesignTopics": [
+    "\"Design the Employee Graph supporting unified queries across HR, IT, and finance modules with strict access controls.\"",
+    "\"Design global payroll execution for 1M employees across jurisdictions with regulatory compliance.\"",
+    "\"Design the cross-module workflow engine that terminates IT access and recovers devices when HR terminates an employee.\"",
+    "\"Design the spend-management system with custom policy rules per customer and real-time card authorization.\"",
+    "\"What's your take on the Employee-Graph / compound-software architectural bet?\"",
+    "\"Compare Rippling's unified approach to best-of-breed stacks (Workday + Okta + Ramp). Where does each win?\"",
+    "\"Describe a time you pushed for architectural cohesion over short-term delivery.\""
+  ],
+  "behavioralTopics": [
+    "Ambition: \"Tell me about the most ambitious project you've contributed to.\"",
+    "Customer empathy: \"Describe understanding a workforce-management user's problem deeply.\"",
+    "Ownership: \"Tell me about a project you owned end-to-end.\"",
+    "Pace: \"How do you operate at a company with high growth and broad scope?\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "How does Rippling compare to Workday on interviews?",
+      "What is \"compound software\" and why does it matter?",
+      "How is the culture at Rippling?",
+      "What's the IPO outlook?",
+      "Is the Bangalore engineering office really important?"
+    ]
+  },
+  "difficulty": 7,
+  "tips": [
+    "Read Parker Conrad's essays. \"Compound Startup\" and adjacent pieces frame the company thesis.",
+    "Engage with the Employee-Graph architecture. Have a view &mdash; pro, con, nuanced &mdash; on unified data models for workforce management.",
+    "Know workforce-management domain basics. HR, IT, finance intersections; people-data modeling.",
+    "Prepare ambition stories. Concrete examples of scale / impact / ownership.",
+    "Ask about cross-module collaboration. The architecture requires it; signals you understand the reality.",
+    "Rippling engineering blog and product announcements",
+    "Parker Conrad's essays on \"Compound Startup\" and company strategy",
+    "Designing Data-Intensive Applications (Kleppmann)",
+    "Django documentation and patterns for Python-heavy roles",
+    "Workday, ADP, Paychex product documentation for domain context",
+    "Rippling itself if your company uses it &mdash; form an opinion as a user"
+  ],
+  "compensation": [
+    "Software Engineer: $170k&ndash;$215k base, $120k&ndash;$250k equity (4 years), modest bonus. Total: ~$260k&ndash;$430k / year.",
+    "Senior Software Engineer: $225k&ndash;$285k base, $280k&ndash;$520k equity. Total: ~$380k&ndash;$600k / year.",
+    "Staff Engineer: $290k&ndash;$360k base, $550k&ndash;$1M equity. Total: ~$520k&ndash;$850k / year.",
+    "The ambition is real. Rippling genuinely targets workforce-management category leadership against Workday + best-of-breed stacks.",
+    "The Employee-Graph architecture creates both competitive advantage and real engineering complexity.",
+    "Parker Conrad's visibility is high; founder presence shapes decisions at every level.",
+    "The Bangalore engineering office is substantial, not a cost-optimized outpost.",
+    "Dismissing the compound-software thesis without engaging with it.",
+    "Weak data-modeling skills when the Employee Graph is the architectural center.",
+    "Ignoring multi-tenant / compliance concerns in system design.",
+    "Low ambition signals. The company hires for high-output mindset."
+  ],
+  "rawSummary": "Rippling Interview Guide 2026: Unified Workforce Platform, Employee Graph, Compound Software, and Global Payroll\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 24, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 24, 2026 · techinterview.org\n\n⏱ 8 min read\n\nRippling\nrippling.com ↗\n\nRippling Interview Process: Complete 2026 Guide\n\nOverview\n\nRippling is the unified workforce-management platform combining HR (payroll, benefits, onboarding, time), IT (device management, app provisioning, identity, SSO), and Finance (corporate cards, expense, bill pay, spend management) into a single product built on what the company calls the Employee Graph. Founded 2016 by Parker Conrad (previously co-founder / CEO of Zenefits) and Prasanna Sankar, private with a 2024 valuation north of $13B. ~3,500 employees in 2026, concentrated in San Francisco with engineering hubs in Bangalore and New York. The product's strategic positioning: rather than building individual apps that integrate with competitors, Rippling's architectural bet is a single unified data model (the Employee Graph) that all products share, enabling cross-module automation (terminate an employee once, and HR / IT / finance all execute appropriate workflows). Engineering is Python / Django heavy for backend, TypeScript / React for frontend, with extensive custom infrastructure to support the monolith-serves-multiple-products architecture. Interviews reflect the reality of a fast-growing, ambitious enterprise SaaS company &mdash; serious rigor, high scope expectations, and distinctive engineering culture.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Rippling, team interest. The product surface is wide: core HR / payroll, benefits, time, IT (identity, device management), finance (cards, expense), global payroll (post-acquisitions), and AI / automation features. Team fit matters significantly.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. Python for backend; TypeScript for frontend. Problems tend to be applied &mdash; model an approval workflow, handle a payroll calculation, process a compliance-driven data transformation.\n\nTake-home (some senior / staff roles): 4&ndash;6 hours on a realistic engineering problem.\n\nOnsite / virtual onsite (5&ndash;6 rounds):\n\n- Coding (2 rounds): one algorithms round, one applied round. The applied round often involves OO / domain-modeling problems &mdash; model benefit enrollment, payroll tax calculation, or approval routing.\n\n- System design (1 round): enterprise multi-tenant prompts with the Employee-Graph twist. \"Design the Employee Graph supporting cross-module queries with strict access control.\" \"Design global payroll execution for 1M employees across 100+ countries.\" \"Design the IT-automation system executing workflows when HR events fire (onboarding, termination).\"\n\n- Domain round (1 round): deeper discussion of the target product area (HR, IT, or finance) and how you'd solve specific real problems.\n\n- Values / craft round: Parker Conrad's vision emphasizes a specific architectural bet (compound software on the Employee Graph); engineers are expected to engage with it thoughtfully.\n\n- Hiring manager (1 round): team fit, customer empathy, ambition.\n\nTechnical Focus Areas\n\nCoding: Python fluency with Django patterns (ORMs, migrations, admin, testing with pytest), TypeScript / React for frontend. Clean OO design and data modeling matter.\n\nEmployee Graph data modeling: the architectural distinctive. A unified schema for all people-related data (employees, contractors, org hierarchies, benefits enrollments, devices, cards, policies) used across HR, IT, and finance products. Understanding how to model people-related state while preserving cross-module consistency matters.\n\nWorkflow automation: event-driven cross-module workflows (HR termination triggers IT access revocation, device recovery, card cancellation, benefit COBRA notices). Understanding how to design event-sourced workflows with proper compensating actions matters.\n\nGlobal payroll: multi-country tax calculation, regulatory compliance across jurisdictions, currency handling, payroll-run orchestration at scale. For payroll-team roles, domain depth is valued.\n\nIT identity / device management: SCIM for user provisioning, SSO protocols (SAML, OIDC), MDM (mobile device management), software-provisioning APIs across 500+ integrated apps. For IT-team roles, enterprise-identity domain matters.\n\nFinance primitives: card issuing, spend controls, bill pay orchestration, integration with accounting (NetSuite, QuickBooks). For finance-team roles, fintech-adjacent expertise helps.\n\nMulti-tenant architecture: supporting ~30K+ customer organizations with data isolation, per-customer customization, and compliance (SOC 2, HIPAA where relevant, GDPR, jurisdiction-specific payroll laws).\n\nAI / automation: Rippling has been investing in AI features (automation suggestions, data analysis, policy-assistance). For AI-team roles, production LLM experience "
+}

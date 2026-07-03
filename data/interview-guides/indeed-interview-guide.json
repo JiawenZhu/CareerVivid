@@ -1,0 +1,27 @@
+{
+  "company": "Indeed",
+  "slug": "indeed-interview-guide",
+  "url": "https://www.techinterview.org/companies/indeed-interview-guide",
+  "scrapedAt": "2026-07-02T07:23:28.247Z",
+  "interviewStages": [
+    "Behavioral: customer focus, ownership, working at scale"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Indeed remote-friendly?",
+      "How does Indeed compare to LinkedIn or ZipRecruiter?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Indeed Interview Guide (2026): Job Search Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nIndeed\nindeed.com ↗\n\nIndeed is the largest job search platform globally — 350M+ unique monthly visitors, 250M+ resumes. Owned by Recruit Holdings. The interview is search-and-recommendation-heavy with strong emphasis on indexing billions of job postings and matching them to job seekers.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 4–6 weeks.\n\nWhat they actually ask\n\n- Design a search ranking system for job postings\n\n- Design resume-to-job matching with ML embeddings\n\n- Design fraud detection for fake job postings\n\n- Coding: medium DSA, often with search or graph framing\n\n- Behavioral: customer focus, ownership, working at scale\n\nLevels and comp (2026)\n\n- SE II: $145K–$180K total\n\n- Senior SE: $215K–$285K\n\n- Staff: $310K–$410K\n\n- Principal: $430K–$570K\n\nPrep priorities\n\n- Be fluent in Java (legacy core) and Python (ML/data)\n\n- Understand search and ranking systems\n\n- Brush up on ML for recommendations and ranking\n\nFrequently Asked Questions\n\nIs Indeed remote-friendly?\n\nHybrid in Austin (HQ), Tokyo, others. Many engineering roles fully remote within US.\n\nHow does Indeed compare to LinkedIn or ZipRecruiter?\n\nIndeed wins on search volume and breadth. LinkedIn is professional network + jobs. ZipRecruiter is the smaller competitor. Indeed pays competitively; below LinkedIn at senior+.\n\nWhat is the engineering culture?\n\nMature, methodical, data-driven. Strong testing and deploy discipline given the scale.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Indeed? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSubscription Manager Low-Level Design: Plan Lifecycle, Renewal, Proration, and Dunning⏱ 5 min readLow Level Design: Database Transaction Isolation Levels⏱ 6 min readSearch Autocomplete System Low-Level Design⏱ 9 min read"
+}

@@ -1,0 +1,27 @@
+{
+  "company": "Substack",
+  "slug": "substack-interview-guide",
+  "url": "https://www.techinterview.org/companies/substack-interview-guide",
+  "scrapedAt": "2026-07-02T07:26:47.062Z",
+  "interviewStages": [
+    "Behavioral: customer focus, working with two-sided marketplace"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Substack remote-friendly?",
+      "How does Substack compare to Beehiiv or Ghost?",
+      "What is the engineering bar?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Substack Interview Guide (2026): Newsletter Platform Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nSubstack\nsubstack.com ↗\n\nSubstack is the dominant subscription newsletter platform — millions of free and paid subscribers across thousands of writers. The interview emphasizes content delivery, payment processing, recommendation algorithms, and the unique two-sided marketplace dynamics.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a newsletter delivery pipeline that scales to 10M+ subscribers per send\n\n- Design Substack Notes (short-form social feed)\n\n- Design recommendation algorithm to surface new writers to readers\n\n- Coding: medium DSA, often with feed or graph framing\n\n- Behavioral: customer focus, working with two-sided marketplace\n\nLevels and comp (2026)\n\n- SE II: $170K–$210K total\n\n- Senior SE: $245K–$325K\n\n- Staff: $350K–$460K\n\n- Principal: $490K–$640K\n\nPrep priorities\n\n- Be fluent in TypeScript/Node.js (frontend + backend)\n\n- Understand email delivery, deliverability, and engagement metrics\n\n- Brush up on payments / subscriptions (Stripe Billing patterns)\n\nFrequently Asked Questions\n\nIs Substack remote-friendly?\n\nDistributed-first. Hubs in San Francisco and remote across US. Quarterly off-sites.\n\nHow does Substack compare to Beehiiv or Ghost?\n\nSubstack has the largest creator brand. Beehiiv is feature-rich and growing fast. Ghost is open-source-friendly. Substack pays competitively at senior+.\n\nWhat is the engineering bar?\n\nHigh. Small team (~70 engineers) handling massive scale. Strong written communication culture.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Substack? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextReturns Management System Low-Level Design: RMA Workflow, Inspection, and Restocking⏱ 5 min readLow Level Design: Bloom Filters — Design and Applications⏱ 3 min readSystem Design: Design GitHub — Code Hosting, Git Internals, Pull Requests, CI/CD, Code Review, Repository Scaling⏱ 7 min read"
+}

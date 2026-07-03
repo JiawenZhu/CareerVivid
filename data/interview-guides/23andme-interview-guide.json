@@ -1,0 +1,54 @@
+{
+  "company": "23andMe",
+  "slug": "23andme-interview-guide",
+  "url": "https://www.techinterview.org/companies/23andme-interview-guide",
+  "scrapedAt": "2026-07-02T07:19:50.605Z",
+  "interviewStages": [
+    "Recruiter screen.",
+    "Hiring manager screen.",
+    "Technical phone screen (60 min).",
+    "Virtual onsite (4 rounds).",
+    "1 system design round",
+    "1 behavioral round, sometimes including questions about adapting to organizational changes",
+    "Hiring committee review.",
+    "Standard LeetCode mediums",
+    "Genomics pipelines: imputation, ancestry inference, GWAS, polygenic scoring",
+    "Privacy-preserving data practices: differential privacy, secure multi-party computation, PII handling at scale",
+    "For consumer-facing engineering: large-scale React applications, mobile considerations",
+    "For ML-track: applying ML to genomic and phenotypic data, evaluation of clinical-grade predictions"
+  ],
+  "codingTopics": [
+    "Compute polygenic risk scores at scale. Given a million genotyped customers and a PRS model with thousands of weighted SNPs, compute scores efficiently. Discuss vectorization with NumPy/PyTorch, how to handle missing genotypes, and how to roll out new score versions without recomputing everything.",
+    "Implement an ancestry inference pipeline. Local ancestry inference (which segments of a chromosome come from which population). Discuss reference panels, the role of statistical models like Hidden Markov Models, and the tension between resolution and confidence.",
+    "Design a relative-finder. Identify likely cousins/half-siblings/etc among the user base by detecting shared chromosomal segments (IBD — identity by descent). Discuss the privacy implications and how the matching is opt-in.",
+    "Differential privacy applied to research releases: epsilon budget, the privacy-utility trade-off, and why clinical conclusions can still be drawn from properly noised aggregate data.",
+    "Multi-party computation for cross-database queries: how research collaborations work without raw data sharing.",
+    "The 2023 data breach context: what changed in 23andMe's privacy posture (credential stuffing detection, opt-in defaults for relative-finder, audit logging). Engineering questions sometimes reference specific lessons from that incident.",
+    "React/Next.js for the customer-facing genome browser: how to render arbitrary chromosome regions efficiently, how to handle very large data sets in the browser without freezing the UI.",
+    "Mobile considerations: the iOS/Android apps for accessing reports, how to balance offline access against the need to gate access on session validity.",
+    "A/B testing on health-information features: ethical constraints (you cannot A/B test the accuracy of a health report), regulatory constraints (FDA views some changes as device modifications).",
+    "Tempus AI &mdash; precision medicine and genomics"
+  ],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Is 23andMe a stable employer in 2026?",
+      "Do I need genomics background?",
+      "What is the privacy posture?",
+      "What happened in the restructuring?"
+    ],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": []
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "Mid: $140–180K base + bonus → $160–200K total",
+    "Senior: $180–240K base + bonus → $210–280K total",
+    "Staff: $240–300K base → $270–340K total"
+  ],
+  "rawSummary": "23andMe Interview Guide (2026): Process, Questions, Compensation\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 2, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- The post-restructuring context\n\n- Interview process\n\n- Common technical questions\n\n- Compensation (2026 estimates)\n\n- Sample interview questions in depth\n\n- The post-restructuring landscape\n\n- What survives is the data moat\n\n- Frequently Asked Questions\n\n- Adjacent Healthcare Tech\n\nUpdated May 3, 2026 · techinterview.org\n\n⏱ 4 min read\n\n23andMe\n23andme.com ↗\n\n23andMe Interview Guide\n\nCompany overview: 23andMe is a direct-to-consumer genetic testing company that pioneered the consumer genomics market, offering ancestry and health-related genetic reports. Sunnyvale, California headquartered. The company underwent significant financial restructuring in 2024–2025, including bankruptcy proceedings and reorganization; engineering hiring has been reduced from peak years but is ongoing for selected roles in the surviving entity. Hiring candidates should verify the company's current state given the recent corporate changes.\n\nThe post-restructuring context\n\nThrough the 2010s, 23andMe was a high-flying consumer biotech with peak hiring across genomics, ML, drug discovery (in partnership with major pharma), and consumer product engineering. The 2024–2025 restructuring included substantial layoffs, divestitures, and a refocus on the core consumer genomics business plus a smaller research arm. As of 2026, engineering hiring is selective and focused on maintaining the core platform; the explosive-growth era is over. Candidates should verify role stability and company runway as part of evaluating an offer.\n\nInterview process\n\nTimeline: 4–6 weeks.\n\n- Recruiter screen.\n\n- Hiring manager screen.\n\n- Technical phone screen (60 min).\n\n- Virtual onsite (4 rounds).\n\n1–2 coding rounds (medium difficulty)\n\n- 1 system design round\n\n- 1 behavioral round, sometimes including questions about adapting to organizational changes\n\n- Hiring committee review.\n\nCommon technical questions\n\n- Standard LeetCode mediums\n\n- Genomics pipelines: imputation, ancestry inference, GWAS, polygenic scoring\n\n- Privacy-preserving data practices: differential privacy, secure multi-party computation, PII handling at scale\n\n- For consumer-facing engineering: large-scale React applications, mobile considerations\n\n- For ML-track: applying ML to genomic and phenotypic data, evaluation of clinical-grade predictions\n\nCompensation (2026 estimates)\n\nCompensation is below pre-restructuring levels. New offers are cash-heavy with limited equity given the restructured cap table.\n\n- Mid: $140–180K base + bonus → $160–200K total\n\n- Senior: $180–240K base + bonus → $210–280K total\n\n- Staff: $240–300K base → $270–340K total\n\nSample interview questions in depth\n\nCoding (Python / Go)\n\n- Compute polygenic risk scores at scale. Given a million genotyped customers and a PRS model with thousands of weighted SNPs, compute scores efficiently. Discuss vectorization with NumPy/PyTorch, how to handle missing genotypes, and how to roll out new score versions without recomputing everything.\n\n- Implement an ancestry inference pipeline. Local ancestry inference (which segments of a chromosome come from which population). Discuss reference panels, the role of statistical models like Hidden Markov Models, and the tension between resolution and confidence.\n\n- Design a relative-finder. Identify likely cousins/half-siblings/etc among the user base by detecting shared chromosomal segments (IBD — identity by descent). Discuss the privacy implications and how the matching is opt-in.\n\nPrivacy-preserving practices (senior+)\n\n- Differential privacy applied to research releases: epsilon budget, the privacy-utility trade-off, and why clinical conclusions can still be drawn from properly noised aggregate data.\n\n- Multi-party computation for cross-database queries: how research collaborations work without raw data sharing.\n\n- The 2023 data breach context: what changed in 23andMe's privacy posture (credential stuffing detection, opt-in defaults for relative-finder, audit logging). Engineering questions sometimes reference specific lessons from that incident.\n\nConsumer product engineering\n\n- React/Next.js for the customer-facing genome browser: how to render arbitrary chromosome regions efficiently, how to handle very large data sets in the browser without freezing the UI.\n\n- Mobile considerations: the iOS/Android apps for accessing reports, how to balance offline access against the need to gate access on session validity.\n\n- A/B testing on health-information features: ethical constraints (you cannot A/B test the accuracy of a health report), regulatory constraints (FDA views some changes as device modifications).\n\nThe post-restructuring landscape\n\n23andMe's 2024-2025 financial restructuring reduced the company's scale significantly. The remaining engineering organization is leaner, more focused on the consumer genomics core, and operates with t"
+}

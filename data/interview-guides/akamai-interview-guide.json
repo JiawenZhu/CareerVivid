@@ -1,0 +1,27 @@
+{
+  "company": "Akamai",
+  "slug": "akamai-interview-guide",
+  "url": "https://www.techinterview.org/companies/akamai-interview-guide",
+  "scrapedAt": "2026-07-02T07:20:00.619Z",
+  "interviewStages": [
+    "Behavioral: ownership, working with enterprise customers, deep technical work"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Akamai remote-friendly?",
+      "How does Akamai compare to Cloudflare or Fastly?",
+      "Is the engineering culture stale?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Akamai Interview Guide (2026): CDN and Edge Computing\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nAkamai\nakamai.com ↗\n\nAkamai is the original CDN — running the largest distributed edge network on the internet for 25+ years. Now expanding into edge compute (after acquiring Linode) and security. The interview is networking-heavy and rewards engineers with serious systems chops.\n\nProcess\n\nRecruiter screen → 60-minute technical phone (DSA + networking trivia) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 4–6 weeks.\n\nWhat they actually ask\n\n- Design a global CDN with origin shielding and cache invalidation\n\n- Design BGP routing strategies for global edge presence\n\n- Design DDoS mitigation at the edge\n\n- Coding: medium-hard DSA, often with networking flavor\n\n- Behavioral: ownership, working with enterprise customers, deep technical work\n\nLevels and comp (2026)\n\n- SE II: $140K–$170K total\n\n- Senior SE: $200K–$260K\n\n- Staff: $280K–$370K\n\n- Principal: $400K–$520K\n\nAkamai comp lags newer cloud companies; benefits and stability are strong.\n\nPrep priorities\n\n- Be fluent in C and at least one modern language (Go, Rust)\n\n- Understand networking deep: TCP, BGP, DNS, anycast\n\n- Read about Akamai's engineering history and recent edge compute moves\n\nFrequently Asked Questions\n\nIs Akamai remote-friendly?\n\nHybrid in Cambridge MA, Bangalore, Krakow. Some engineering roles remote within US.\n\nHow does Akamai compare to Cloudflare or Fastly?\n\nAkamai is the largest by network footprint; Cloudflare wins on developer experience; Fastly wins on edge programmability. Akamai pays below both on compensation.\n\nIs the engineering culture stale?\n\nMature and engineering-rigorous. Less fashionable than newer companies but solid technical work for those who care about real networking problems.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Akamai? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow Level Design: Live Video Streaming Platform⏱ 8 min readLow Level Design: Platform Engineering and Internal Developer Platform⏱ 4 min readLow-Level Design: Hotel Management System — Room Booking, Check-In, and Billing⏱ 8 min read"
+}

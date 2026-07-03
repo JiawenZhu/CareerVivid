@@ -500,6 +500,362 @@
         "resume_prep": "Resume 和 interview prep 放在一起",
         "chrome_extension": "Chrome Extension workflow"
       }
+    },
+    "public": {
+      "fast_start": {
+        "eyebrow": "从已有内容开始",
+        "title": "上传、粘贴简历，或保存一个职位。CareerVivid 会把它变成求职工作区。",
+        "copy": "最快的方式很具体：先使用现有简历，或先保存目标职位，再基于同一个上下文定制材料。",
+        "actions": {
+          "upload": {
+            "title": "上传简历",
+            "copy": "从 PDF 或 DOCX 开始，然后转换成可编辑的简历章节。",
+            "action": "上传简历"
+          },
+          "paste": {
+            "title": "粘贴简历内容",
+            "copy": "粘贴已有文本，让 CareerVivid 为定制流程整理成结构化内容。",
+            "action": "粘贴简历"
+          },
+          "chrome": {
+            "title": "从 Chrome 保存职位",
+            "copy": "从浏览器捕获职位、公司、申请链接和准备上下文。",
+            "action": "安装扩展程序"
+          }
+        }
+      },
+      "product_index": {
+        "job_tracker": "工作追踪器",
+        "resume_builder": "AI 简历生成器",
+        "ats_checker": "ATS 检查器",
+        "resume_tailor": "简历定制",
+        "autofill": "自动填写申请",
+        "resume_match": "简历匹配",
+        "interview_coach": "面试教练",
+        "career_pipeline": "职业发展路径"
+      },
+      "platform": {
+        "eyebrow": "应用和扩展程序",
+        "title": "在你申请职位的地方使用 CareerVivid。",
+        "copy": "现在可以先使用 Chrome 扩展程序。iOS 和 Android 应用即将推出，让同一个求职工作区从桌面延伸到移动端。",
+        "cards": {
+          "chrome": {
+            "label": "现在可用",
+            "title": "Chrome 扩展程序",
+            "copy": "从招聘网站保存职位，保留原始申请链接，并把浏览器里的工作连接回 CareerVivid 工作区。",
+            "action": "获取 Chrome 扩展程序"
+          },
+          "ios": {
+            "label": "即将推出",
+            "title": "iOS 应用",
+            "copy": "移动应用准备好后，你可以在 iPhone 上管理简历、面试准备和职位跟进。",
+            "action": "iOS 即将推出"
+          },
+          "android": {
+            "label": "即将推出",
+            "title": "Android 应用",
+            "copy": "CareerVivid Android 版正在规划中，让求职者可以在每台设备上使用同一个工作区。",
+            "action": "Android 即将推出"
+          }
+        }
+      },
+      "demo": {
+        "eyebrow": "产品概览",
+        "title": "查看 Chrome 到工作区流程的实际操作。",
+        "copy": "了解 CareerVivid 如何将保存的职位、简历定制和面试准备整合到一个应用工作区中。",
+        "window_label": "CareerVivid 演示",
+        "steps": {
+          "capture": {
+            "label": "捕获",
+            "copy": "从 Chrome 保存职位。"
+          },
+          "tailor": {
+            "label": "定制",
+            "copy": "把这份工作加入你的简历上下文。"
+          },
+          "practice": {
+            "label": "练习",
+            "copy": "基于相同上下文进行准备。"
+          }
+        }
+      },
+      "readiness": {
+        "eyebrow": "简历准备度",
+        "title": "在申请前展示哪些内容正在变得更好。",
+        "score": "分数",
+        "side_eyebrow": "ATS 检查 + 面试准备",
+        "side_title": "简历分数只有能带来下一步行动时才有价值。",
+        "side_copy": "CareerVivid 不应该停留在分数上。它应该显示缺失关键词、证明差距，以及帮助用户讲清楚强项的面试提示。",
+        "checks": {
+          "ats_keywords": {
+            "label": "ATS 关键词",
+            "copy": "目标职位中的关键词覆盖度"
+          },
+          "experience_proof": {
+            "label": "经验证明",
+            "copy": "具体项目和可衡量结果"
+          },
+          "interview_readiness": {
+            "label": "面试准备度",
+            "copy": "与保存职位绑定的练习提示"
+          }
+        },
+        "actions": {
+          "scan": {
+            "title": "扫描职位",
+            "copy": "提取职位描述重视的技能、证据和表达方式。"
+          },
+          "rewrite": {
+            "title": "用证明改写",
+            "copy": "把薄弱经历改写成具体、可衡量的经验。"
+          },
+          "practice": {
+            "title": "练习讲述",
+            "copy": "使用同一个职位上下文排练面试回答。"
+          }
+        }
+      },
+      "resume_examples": {
+        "eyebrow": "简历示例和模板",
+        "title": "给每位求职者一个符合自己故事的起点。",
+        "copy": "好的简历工具应该减少第一稿的空白感。CareerVivid 将模板与职位追踪、定制和面试准备结合，让每个示例都能导向行动。",
+        "preview_role": "前端工程师",
+        "ats_ready": "ATS 就绪",
+        "preview_sections": {
+          "profile": "个人简介",
+          "experience": "经历",
+          "projects": "项目",
+          "contact": "联系方式",
+          "skills": "技能",
+          "education": "教育"
+        },
+        "preview_badges": {
+          "clean_format": "格式清晰",
+          "keyword_match": "关键词匹配",
+          "export_ready": "可导出"
+        },
+        "cards": {
+          "software_engineer": {
+            "title": "软件工程师简历",
+            "copy": "展示全栈项目、系统 ownership、可衡量影响和可用于面试的故事。",
+            "tags": [
+              "React",
+              "Node.js",
+              "系统"
+            ]
+          },
+          "new_grad": {
+            "title": "应届生简历",
+            "copy": "把课程、实习、黑客松和校园经历转化为可信证明。",
+            "tags": [
+              "项目",
+              "实习",
+              "技能"
+            ]
+          },
+          "career_changer": {
+            "title": "转行简历",
+            "copy": "把可迁移能力连接到目标职位，而不是掩盖转型过程。",
+            "tags": [
+              "故事",
+              "证明",
+              "匹配"
+            ]
+          },
+          "frontend_developer": {
+            "title": "前端开发者简历",
+            "copy": "突出 UI 质量、可访问性、性能和产品协作。",
+            "tags": [
+              "UX",
+              "可访问性",
+              "性能"
+            ]
+          }
+        }
+      },
+      "user_stories": {
+        "eyebrow": "用户故事",
+        "title": "围绕求职者反复经历的时刻而设计。",
+        "copy": "这些示例故事卡片展示 CareerVivid 旨在解决的目标用户问题，同时我们仍在收集公开客户评价。",
+        "summary_title": "求职者故事示例",
+        "summary_copy": "示例人物，而非虚假评论。",
+        "story_label": "示例故事",
+        "cards": {
+          "maya": {
+            "role": "转行求职者",
+            "name": "Maya，产品分析师",
+            "quote": "我需要知道今天哪些申请值得定制简历，而不是又收集一份职位列表。",
+            "outcome": "带有匹配差距和下一步的优先级职位卡片。"
+          },
+          "alex": {
+            "role": "应届毕业生",
+            "name": "Alex，计算机新毕业生",
+            "quote": "我想要一个地方保存每个职位的备注、准备问题和原始申请链接，免得忘记当初为什么保存它。",
+            "outcome": "把浏览器里的申请上下文保存到一个工作区。"
+          },
+          "jordan": {
+            "role": "忙碌申请者",
+            "name": "Jordan，全栈工程师",
+            "quote": "我需要一个可重复流程：找到职位、定制简历、直接申请，然后跟进。",
+            "outcome": "职位追踪、简历定制和面试准备连接在一起。"
+          }
+        }
+      },
+      "proof": {
+        "eyebrow": "为什么它让人感觉可信",
+        "title": "用户可以验证的求职工作流程。",
+        "copy": "CareerVivid 让每个申请的直接链接、简历匹配、准备笔记和清晰下一步保持可见。",
+        "cards": {
+          "direct_links": {
+            "title": "直接申请链接保持绑定",
+            "copy": "保存原始公司招聘页面、申请 URL、来源和下一步，而不是丢在浏览器历史记录里。"
+          },
+          "salary_context": {
+            "title": "薪资和级别上下文就绪",
+            "copy": "当有获批合作伙伴数据时，CareerVivid 旨在把目标职位与薪酬和级别上下文配对。"
+          },
+          "application_packet": {
+            "title": "申请包，而不是分散工具",
+            "copy": "简历匹配、定制笔记、面试准备和跟进记录与职位绑定，让用户知道下一步做什么。"
+          }
+        }
+      },
+      "workflow": {
+        "eyebrow": "申请流程",
+        "title": "从隐藏的职位链接到准备好的申请。",
+        "action": "打开职位追踪器",
+        "steps": {
+          "capture": {
+            "title": "找到或捕获职位",
+            "copy": "从网页保存职位，保留直接申请 URL，并添加公司、地点、截止日期、备注和状态。"
+          },
+          "fit": {
+            "title": "了解匹配度",
+            "copy": "将简历与职位对比，查看缺失证明，并判断这份工作是否值得定制。"
+          },
+          "tailor": {
+            "title": "定制并申请",
+            "copy": "创建针对职位的简历改进，保留申请页面，并推进职位流程。"
+          },
+          "prepare": {
+            "title": "为下一次沟通做准备",
+            "copy": "基于保存的精确职位上下文生成面试准备、笔记和跟进提醒。"
+          }
+        }
+      },
+      "teams_trust": {
+        "eyebrow": "信任源于清晰",
+        "title": "一个工作区。每份申请都有清晰上下文。",
+        "copy": "CareerVivid 应该像可靠的工作台，而不是夸张承诺机器。",
+        "primary_action": "免费开始",
+        "secondary_action": "联系我们",
+        "notes": {
+          "plain_claims": {
+            "title": "朴素承诺",
+            "copy": "CareerVivid 将信任建立在可见的产品流程上，而不是夸大的 AI 承诺。"
+          },
+          "private_workspace": {
+            "title": "私人工作区",
+            "copy": "保存的职位、简历、准备笔记和申请上下文都留在用户账号和产品流程中。"
+          },
+          "repeated_use": {
+            "title": "为重复使用而设计",
+            "copy": "这个应用适合每天搜索、申请、跟进和改进材料的节奏。"
+          }
+        },
+        "feature_cards": {
+          "career_center": {
+            "title": "职业中心仪表盘",
+            "copy": "当 CareerVivid 被一组学生或学员使用时，可邀请学生、分配积分并监控进度。"
+          },
+          "application_context": {
+            "title": "申请上下文",
+            "copy": "把职位、公司、地点、链接、日期、备注和准备内容集中在一个地方。"
+          },
+          "gemini_assistance": {
+            "title": "Gemini 提供的辅助",
+            "copy": "根据用户保存的上下文生成有针对性的准备和简历建议。"
+          }
+        }
+      },
+      "pricing": {
+        "eyebrow": "简单定价",
+        "title": "从免费开始，再选择适合你搜索强度的 AI 帮助。",
+        "copy": "先保持清晰入口；当需要更高级 AI 积分时，再到价格页比较当前计划。",
+        "popular": "热门",
+        "plans": {
+          "free": {
+            "name": "免费",
+            "price": "$0",
+            "copy": "无需信用卡，即可开始整理职位、简历和准备内容。",
+            "points": [
+              "基础工作区",
+              "简历起步流程",
+              "职位追踪器"
+            ],
+            "action": "免费开始"
+          },
+          "pro": {
+            "name": "专业版",
+            "price": "AI 积分",
+            "copy": "适合想要更深入定制、练习和 Chrome 工作流的活跃申请者。",
+            "points": [
+              "AI 简历定制",
+              "面试准备",
+              "Chrome 工作流"
+            ],
+            "action": "查看专业版"
+          },
+          "teams": {
+            "name": "团队",
+            "price": "定制",
+            "copy": "适合支持大量求职者的学校、职业中心和训练营。",
+            "points": [
+              "学生仪表盘",
+              "积分分配",
+              "进度追踪"
+            ],
+            "action": "联系我们"
+          }
+        }
+      },
+      "faq": {
+        "eyebrow": "FAQ",
+        "title": "开始前的问题",
+        "items": {
+          "resume_builder": {
+            "question": "CareerVivid 只是简历生成器吗？",
+            "answer": "不是。简历生成器只是工作区的一部分。CareerVivid 还包括职位追踪器、简历匹配、面试准备、申请笔记和 Chrome 扩展工作流。"
+          },
+          "resume_check": {
+            "question": "CareerVivid 可以根据职位描述检查我的简历吗？",
+            "answer": "可以。CareerVivid 围绕职位上下文设计：保存或粘贴职位，对比简历，然后从同一个工作区改进关键词、证明和面试故事。"
+          },
+          "direct_applications": {
+            "question": "CareerVivid 能帮助直接申请吗？",
+            "answer": "可以。这个流程围绕保存原始职位来源和申请链接设计，让用户可以直接申请并保留职位上下文。"
+          },
+          "chrome_extension": {
+            "question": "CareerVivid 有 Chrome 扩展程序吗？",
+            "answer": "有。Chrome 扩展程序可以帮助保存职位、保留申请链接，并把浏览器里的申请工作连接回 CareerVivid。"
+          },
+          "mobile_apps": {
+            "question": "iOS 和 Android 应用可用了吗？",
+            "answer": "Web 应用和 Chrome 扩展程序现在可用。CareerVivid iOS 和 Android 应用正在规划中，并标记为即将推出。"
+          },
+          "api_key": {
+            "question": "我需要自己的 AI API key 吗？",
+            "answer": "托管版不需要。CareerVivid 通过应用提供托管的 Gemini 功能。自行部署的开发者可以配置自己的 Firebase 和 Gemini 设置。"
+          }
+        }
+      },
+      "final_cta": {
+        "eyebrow": "随时准备迎接下一次申请",
+        "title": "为整个求职过程创建一个工作区。",
+        "copy": "完善简历，保存职位，准备面试，并保持下一步可见。",
+        "primary_action": "免费注册",
+        "secondary_action": "联系支持"
+      }
     }
   },
   "pricing": {

@@ -1,0 +1,37 @@
+{
+  "company": "Google",
+  "slug": "google",
+  "url": "https://www.techinterview.org/companies/google",
+  "scrapedAt": "2026-07-02T07:12:53.190Z",
+  "interviewStages": [
+    "Coding Interviews (2-3 rounds): Expect medium to hard LeetCode-style problems focusing on arrays, strings, trees, graphs, dynamic programming, and recursion.",
+    "System Design (1 round): For senior positions, you'll design scalable systems like a URL shortener, messaging service, or search engine.",
+    "Behavioral/Googleyness (1 round): Questions about your past experiences, teamwork, and how you align with Google's culture."
+  ],
+  "codingTopics": [
+    "Arrays and Strings: Two-pointer techniques, sliding window, string manipulation",
+    "Trees and Graphs: BFS, DFS, tree traversals, shortest path algorithms",
+    "Dynamic Programming: Knapsack, longest common subsequence, matrix chain multiplication",
+    "Sorting and Searching: Binary search variations, merge sort, quicksort",
+    "Hash Tables: Frequency counting, anagram detection, caching strategies"
+  ],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": []
+  },
+  "difficulty": null,
+  "tips": [
+    "Master the Fundamentals: Focus heavily on data structures and algorithms. Practice 150-200 LeetCode problems, emphasizing medium difficulty.",
+    "Study System Design: Read \"Designing Data-Intensive Applications\" and practice designing real systems. Focus on scalability, reliability, and distributed systems.",
+    "Practice Coding on Google Docs: Google uses plain text editors, so practice without IDE features like autocomplete.",
+    "Communicate Clearly: Think out loud during interviews. Explain your approach before coding.",
+    "Know Your Resume: Be ready to discuss any project or technology listed in depth."
+  ],
+  "compensation": null,
+  "rawSummary": "Google\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  February 1, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated February 1, 2026 · techinterview.org\n\n⏱ 1 min read\n\nGoogle\ngoogle.com ↗\n\nInterview Process Overview\n\nGoogle's interview process is known for being rigorous and comprehensive. The company emphasizes problem-solving abilities, coding skills, and system design knowledge. Expect multiple rounds focused on data structures, algorithms, and scalability.\n\nWhat to Expect\n\nPhone Screen (1-2 rounds): You'll have one or two phone interviews with a Google engineer. These typically last 45 minutes and focus on coding and problem-solving. You'll use a shared Google Doc to write code in real-time.\n\nOnsite Interviews (4-5 rounds): If you pass the phone screens, you'll be invited to onsite interviews (or virtual equivalents). These include:\n\n- Coding Interviews (2-3 rounds): Expect medium to hard LeetCode-style problems focusing on arrays, strings, trees, graphs, dynamic programming, and recursion.\n\n- System Design (1 round): For senior positions, you'll design scalable systems like a URL shortener, messaging service, or search engine.\n\n- Behavioral/Googleyness (1 round): Questions about your past experiences, teamwork, and how you align with Google's culture.\n\nCommon Question Topics\n\n- Arrays and Strings: Two-pointer techniques, sliding window, string manipulation\n\n- Trees and Graphs: BFS, DFS, tree traversals, shortest path algorithms\n\n- Dynamic Programming: Knapsack, longest common subsequence, matrix chain multiplication\n\n- Sorting and Searching: Binary search variations, merge sort, quicksort\n\n- Hash Tables: Frequency counting, anagram detection, caching strategies\n\nPreparation Tips\n\n- Master the Fundamentals: Focus heavily on data structures and algorithms. Practice 150-200 LeetCode problems, emphasizing medium difficulty.\n\n- Study System Design: Read \"Designing Data-Intensive Applications\" and practice designing real systems. Focus on scalability, reliability, and distributed systems.\n\n- Practice Coding on Google Docs: Google uses plain text editors, so practice without IDE features like autocomplete.\n\n- Communicate Clearly: Think out loud during interviews. Explain your approach before coding.\n\n- Know Your Resume: Be ready to discuss any project or technology listed in depth.\n\nInterview Culture\n\nGoogle values intellectual humility and collaboration. Interviewers want to see how you approach problems, not just the final solution. Don't be afraid to ask clarifying questions or discuss trade-offs in your approach.\n\nLast Updated: February 2026\n\nSimilar company guides\n\nServiceNowinterview guideSAPinterview guideCiscointerview guideOracleinterview guideAdobeinterview guideSalesforceinterview guide\n\nPrepping for Google? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSnowflake Interview Guide 2026: Cloud Data Warehouse, Query Engines, and Distributed SQL⏱ 7 min readSnap Interview Guide⏱ 18 min readAnthropic Interview Guide 2026: Claude, AI Safety Research, and Engineering at the Frontier⏱ 8 min read"
+}

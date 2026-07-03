@@ -1,0 +1,27 @@
+{
+  "company": "Suno",
+  "slug": "suno-interview-guide",
+  "url": "https://www.techinterview.org/companies/suno-interview-guide",
+  "scrapedAt": "2026-07-02T07:16:07.728Z",
+  "interviewStages": [
+    "Behavioral: ownership, taste, fast-moving creative startup"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Suno remote-friendly?",
+      "How does Suno compare to Udio or Stable Audio?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Suno Interview Guide (2026): AI Music Generation\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nSuno\nsuno.ai ↗\n\nSuno is a leading AI music generation platform — full songs from a text prompt, including vocals, instrumentation, and lyrics. Series B in 2024. The interview emphasizes generative-audio model engineering, real-time inference, and the unique product engineering of a creative-tools platform.\n\nProcess\n\nRecruiter screen → 60-minute coding (Python preferred for ML, TypeScript for product) → onsite virtual: 2 coding, 1 ML system design, 1 craft deep-dive, 1 behavioral. ML-research candidates get a research deep-dive. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a streaming music-generation API with chunked output\n\n- Design a multi-tenant inference platform optimized for audio models\n\n- Design an audio fingerprinting system for similarity / IP protection\n\n- Coding: medium-hard DSA, often audio or pipeline framing\n\n- Behavioral: ownership, taste, fast-moving creative startup\n\nLevels and comp (2026)\n\n- SE: $190K–$260K total (cash + meaningful equity)\n\n- Senior SE: $270K–$370K total\n\n- Staff / ML Research: $385K–$580K+ total at top of band\n\nPrep priorities\n\n- Be fluent in Python (research/serving), C++/CUDA helpful for inference roles\n\n- Understand audio model architectures (diffusion in latent audio space, autoregressive token models)\n\n- Brush up on streaming inference, audio codecs (Encodec, SoundStream), and DSP basics\n\nFrequently Asked Questions\n\nIs Suno remote-friendly?\n\nHubs in Cambridge MA (HQ) and remote across US. Many engineering and research roles remote.\n\nHow does Suno compare to Udio or Stable Audio?\n\nSuno is the most consumer-facing with broad genre coverage. Udio (founded by ex-Google DeepMind) is a close competitor. Stable Audio is open-weights. Suno pays competitively for AI startups.\n\nWhat is the engineering culture?\n\nSmall, technically dense, taste-driven, fast-shipping. Strong music-domain knowledge among the team.\n\nSimilar company guides\n\nReka AIinterview guideSakana AIinterview guideBlack Forest Labsinterview guideHippocratic AIinterview guideRunwayinterview guidePika Labsinterview guide\n\nPrepping for Suno? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow Level Design: Bike and Scooter Sharing System⏱ 10 min readHard River Crossing⏱ 3 min readElastic Interview Guide (2026): Process, Questions, Compensation⏱ 3 min read"
+}

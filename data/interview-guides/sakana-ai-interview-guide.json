@@ -1,0 +1,27 @@
+{
+  "company": "Sakana AI",
+  "slug": "sakana-ai-interview-guide",
+  "url": "https://www.techinterview.org/companies/sakana-ai-interview-guide",
+  "scrapedAt": "2026-07-02T07:14:28.493Z",
+  "interviewStages": [
+    "Behavioral: ownership, taste, cross-cultural collaboration"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Sakana remote-friendly?",
+      "How does Sakana compare to other AI labs?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Sakana AI Interview Guide (2026): Japan's AI Research Lab\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nSakana AI\nsakana.ai ↗\n\nSakana AI is a Tokyo-based AI research lab — co-founded by David Ha and Llion Jones (one of the original Transformer authors). Distinguishes itself with nature-inspired ML approaches (evolutionary optimization, model merging). Series B in 2024 with backing from NEA and others. The interview emphasizes deep ML research, novel architectures, and the unique cross-cultural research environment.\n\nProcess\n\nRecruiter screen → 60-minute coding (Python with PyTorch fluency) → onsite virtual: 2 coding/ML, 1 ML system design or research deep-dive, 1 paper discussion, 1 behavioral. Cycle: 4–6 weeks.\n\nWhat they actually ask\n\n- Design a model-merging pipeline (e.g., evolutionary optimization for merge weights)\n\n- Design a distributed training setup for novel architectures\n\n- Explain a paper you have read recently and what surprised you\n\n- Coding: medium-hard DSA, often ML-flavored\n\n- Behavioral: ownership, taste, cross-cultural collaboration\n\nLevels and comp (2026)\n\n- SE: ¥18M–¥28M total in Tokyo (cash + equity); $200K–$280K equivalent for non-Japan offers\n\n- Senior SE / Research Eng: ¥28M–¥45M total; $280K–$420K US-equivalent\n\n- Staff / Senior Researcher: ¥45M–¥70M+ total; $450K–$700K+ US-equivalent\n\nPrep priorities\n\n- Be fluent in Python and PyTorch; reading research papers should feel routine\n\n- Understand evolutionary optimization, model merging, and architecture search\n\n- Brush up on Transformer foundations and current trends\n\nFrequently Asked Questions\n\nIs Sakana remote-friendly?\n\nHub in Tokyo. Some senior+ remote within Japan / APAC. US-based hires possible at higher levels.\n\nHow does Sakana compare to other AI labs?\n\nSakana stands out for research originality and Japanese / English bilingual culture. Smaller than US frontier labs; more research-focused than product. Comp lower than US frontier-lab top of band but very strong for Japan-based ML roles.\n\nWhat is the engineering culture?\n\nResearch-engineering blended; calm; creativity-prized. Strong taste for unconventional approaches.\n\nSimilar company guides\n\nReka AIinterview guideBlack Forest Labsinterview guideHippocratic AIinterview guideRunwayinterview guidePika Labsinterview guideSunointerview guide\n\nPrepping for Sakana AI? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextConfluent Interview Guide (2026): Process, Questions, Compensation⏱ 3 min readUnity Interview Guide 2026: Cross-Platform Engine, Post-Runtime-Fee, Muse AI, Restructured Platform⏱ 7 min readNotification Preferences System Low-Level Design⏱ 5 min read"
+}

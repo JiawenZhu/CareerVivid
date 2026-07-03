@@ -1,0 +1,76 @@
+{
+  "company": "D. E. Shaw",
+  "slug": "de-shaw",
+  "url": "https://www.techinterview.org/companies/de-shaw",
+  "scrapedAt": "2026-07-02T07:17:14.406Z",
+  "interviewStages": [
+    "System design (for senior SWE): trading-system architecture, data pipelines, modeling platforms, low-latency components.",
+    "Behavioral / fit (1 round): intellectual interests, why D. E. Shaw, how you operate."
+  ],
+  "codingTopics": [
+    "Implement a specific data structure with tight performance requirements",
+    "Algorithm problems (graphs, dynamic programming, intervals) at LeetCode hard difficulty",
+    "Process structured data with bounded memory or strict latency requirements",
+    "Numerical computation with attention to floating-point edge cases",
+    "\"Tell me about your thesis.\" (2 min summary)",
+    "\"Why did you choose that approach over X?\" (5 min on alternatives)",
+    "\"What did you find surprising?\" (5 min on unexpected results)",
+    "\"What's the limitation of your method?\" (10 min on weaknesses, follow-up extensions)",
+    "\"How does this connect to [adjacent area]?\" (10 min on broader context)"
+  ],
+  "systemDesignTopics": [],
+  "behavioralTopics": [
+    "\"What's a topic outside your professional area you've recently spent time learning?\"",
+    "\"Walk me through how you decided to apply to D. E. Shaw.\"",
+    "\"What's a book or paper you've recommended to others recently?\"",
+    "\"What do you think is the most underrated problem in your field?\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "How does D. E. Shaw compare to Two Sigma and Citadel?",
+      "Do I need a PhD for D. E. Shaw quant analyst roles?",
+      "How does the firm think about new product areas (crypto, venture)?",
+      "What's D. E. Shaw Research?",
+      "Is the work-life balance reasonable?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [
+    "Engage with the academic culture. Read founder David Shaw's papers if relevant; the firm respects academic engagement.",
+    "Prepare background deep-dives carefully. Practice with someone who'll push you for 30 minutes on a single project.",
+    "Show intellectual breadth. Have an authentic outside-of-work intellectual interest; this isn't theater.",
+    "Avoid prop-firm-style answers. Less gamesmanship, more careful reasoning.",
+    "Be specific about why D. E. Shaw vs Two Sigma vs Citadel. Generic \"top quant fund\" answers don't fit.",
+    "A Practical Guide to Quantitative Finance Interviews by Xinfeng Zhou for general quant prep",
+    "Casella & Berger Statistical Inference for QA / QR-track statistics rigor",
+    "Time Series Analysis by Box, Jenkins, Reinsel",
+    "Heard on the Street by Crack for brainteasers (less central than at prop firms but still useful)",
+    "D. E. Shaw's published research (limited but exists) for cultural context",
+    "Discussions with anyone who's interviewed there recently &mdash; the firm's specific style is best understood from people who've experienced it"
+  ],
+  "compensation": [
+    "New-grad SWE / junior QA: $200K&ndash;$280K base, $50K&ndash;$150K signing, $100K&ndash;$300K performance bonus year 1. Total Year 1: $350K&ndash;$700K.",
+    "Mid-career (3&ndash;5 years): $250K&ndash;$340K base, performance bonuses $200K&ndash;$700K. Total $500K&ndash;$1.1M.",
+    "Senior QR with proven track record: $350K&ndash;$500K base, performance bonuses $1M&ndash;$5M+. Total $1.5M&ndash;$5M+.",
+    "Established researchers / portfolio managers: $5M&ndash;$15M+ in good firm years.",
+    "Academic / research-oriented: the founder's background as a CS professor shapes the culture. Reading groups, internal research seminars, support for academic engagement.",
+    "Intellectually rigorous: the firm values careful thinking over confident assertions. Acknowledged uncertainty is rewarded; bluffing is detected and penalized.",
+    "Privacy-oriented: the firm is famously low-key publicly, less branded than Two Sigma or Citadel. Employees rarely make public technical statements.",
+    "Office-first: NYC, London, Hyderabad &mdash; in-person collaboration is the norm. Limited remote work.",
+    "Hour expectations: reasonable for a hedge fund &mdash; intense around launches and incidents but typically 9-to-7 ish at the median.",
+    "Genuine interdisciplinary breadth: the firm has spawned research adjacent to physics, biology (D. E. Shaw Research is a separate biology-focused entity), CS, and finance. Cross-domain conversation is common.",
+    "The firm is older than most current quant brands but maintains a specifically quiet public profile.",
+    "The interview process is more academic than at prop trading firms &mdash; less mental-math-test, more research-discussion.",
+    "The intellectual breadth filter is real; narrow specialists with no outside interests often don't make it through.",
+    "Compensation for proven QRs can match the highest-paying firms in the industry.",
+    "Approaching D. E. Shaw with prop-firm interview prep (mental math, fast brainteasers). The bar is different.",
+    "Underestimating the background deep-dive. Be ready for 30 minutes on any single project on your resume.",
+    "Generic intellectual-curiosity claims without concrete substance.",
+    "Confusing D. E. Shaw the hedge fund with D. E. Shaw Research (biology-focused entity); they're related but distinct."
+  ],
+  "rawSummary": "D. E. Shaw Interview Guide 2026: Quant Hedge Fund, Academic Culture, Background Deep-Dive\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 25, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 25, 2026 · techinterview.org\n\n⏱ 9 min read\n\nD. E. Shaw\ndeshaw.com ↗\n\nD. E. Shaw Interview Process: Complete 2026 Guide\n\nOverview\n\nD. E. Shaw & Co. is the multi-strategy quantitative investment firm founded 1988 by David E. Shaw, computer-science professor turned hedge fund manager. Headquartered in New York with offices in London, Hong Kong, and Hyderabad. ~2,200 employees in 2026. Assets under management above $60B across systematic, fundamental, and venture strategies. D. E. Shaw is among the oldest and most influential quant funds &mdash; predating Two Sigma and Citadel as a quant-research-driven shop &mdash; and has produced an unusually high number of founders of subsequent firms (Jeff Bezos worked there; the founders of Two Sigma came from D. E. Shaw). The firm is distinguished by its scientific-research culture, broad investment scope (systematic strategies + fundamental + venture + crypto), and a famously rigorous interview process that screens for both quantitative depth and intellectual range. Interviews emphasize academic-style problem solving more than gamesmanship; the typical candidate has a strong math, physics, or CS background, often with a PhD.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why D. E. Shaw, target role (quantitative analyst, software developer, technology lead, fundamental research, etc.). The firm has many sub-organizations and recruiters route candidates carefully.\n\nTechnical phone screen (60 min): probability and / or coding depending on role. Quantitative-analyst-track focuses on probability, statistics, and mathematical reasoning; software-track focuses on coding fundamentals.\n\nTake-home assignment (some senior roles): 4&ndash;8 hour modeling or coding exercise. Focus on quality of reasoning and code, not just correctness.\n\nOnsite (or virtual onsite, 5&ndash;7 rounds):\n\n- Probability / quantitative reasoning (1&ndash;2 rounds): brainteasers, expected value, conditional probability, deeper statistical reasoning depending on role. Difficulty ramps up substantially compared to the phone screen.\n\n- Coding (1&ndash;2 rounds for SWE-track): algorithms and applied programming. Difficulty comparable to top FAANG. Languages: Python, Java, C++ depending on role.\n\n- Statistics / modeling (for QR-track): regression, time-series, hypothesis testing, experimental design at academic depth. Often involves working through a problem with the interviewer rather than presenting a memorized solution.\n\n- System design (for senior SWE): trading-system architecture, data pipelines, modeling platforms, low-latency components.\n\n- Background / research deep-dive: walk through a project, paper, or area you know well. Interviewers probe depth aggressively and follow tangents to test breadth.\n\n- Behavioral / fit (1 round): intellectual interests, why D. E. Shaw, how you operate.\n\nTechnical Focus Areas\n\nFor Quantitative Analysts / Researchers:\n\n- Probability and statistics at PhD-prep level: rigorous treatment of regression, hypothesis testing, multivariate distributions, time-series analysis\n\n- Mathematical maturity: ability to reason carefully about distributions, transformations, asymptotic behavior, convergence\n\n- Time-series methods: ARMA / GARCH, cointegration, regime detection, volatility modeling\n\n- Modeling discipline: backtesting, evaluation, look-ahead bias, survivorship bias, multiple-hypothesis testing\n\n- Asset class fluency: equities, futures, fixed income, FX, options, increasingly crypto\n\nFor Software Developers:\n\n- Strong CS fundamentals: algorithms, data structures, system design at top FAANG depth\n\n- Distributed systems: data pipelines, research platforms, compute orchestration\n\n- Trading-system engineering: order management, risk aggregation, execution algorithms\n\n- Languages: Python, Java, C++ dominant. Some niche stacks for specific systems\n\nCross-track: background-research depth, mathematical communication, and intellectual breadth. D. E. Shaw values candidates who can engage thoughtfully across domains, not just narrow specialists.\n\nProbability / Quantitative Round\n\nSample problems escalate from phone-screen difficulty to research-adjacent puzzles:\n\n- \"You have N coins; one is biased, N-1 are fair. You flip each twice. The biased coin has probability p of heads. How would you identify it?\" Tests Bayesian reasoning and experimental design.\n\n- \"Given a process where Xn+1 = aXn + εn with εn iid normal, derive properties.\" Time-series with rigorous notation.\n\n- \"Two stocks have correlation 0.6. Compute the variance of an equally-weighted portfolio.\" Standard but tested with rigor on assumptions.\n\n- \"What's the expected number of cycles in a random permutation of N elements?\" Combinatorial structure problems.\n\nStrong candidates: rigorous notation, careful conditioning, awareness "
+}

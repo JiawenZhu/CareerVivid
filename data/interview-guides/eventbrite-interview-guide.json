@@ -1,0 +1,27 @@
+{
+  "company": "Eventbrite",
+  "slug": "eventbrite-interview-guide",
+  "url": "https://www.techinterview.org/companies/eventbrite-interview-guide",
+  "scrapedAt": "2026-07-02T07:22:26.721Z",
+  "interviewStages": [
+    "Behavioral: customer focus, ownership, working with event organizers"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Eventbrite remote-friendly?",
+      "How does Eventbrite compare to Ticketmaster or SeatGeek?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Eventbrite Interview Guide (2026): Event Ticketing Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nEventbrite\neventbrite.com ↗\n\nEventbrite is the dominant self-service event ticketing platform — used by millions of event organizers globally. The interview is e-commerce-flavored with focus on inventory management, ticket fraud prevention, and the realities of bursty demand (popular event drops sell out in minutes).\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design ticket inventory with strong consistency under burst load\n\n- Design a queue/waiting room for high-demand event launches\n\n- Design fraud detection for ticket reselling and bot purchases\n\n- Coding: medium DSA, often with concurrency framing\n\n- Behavioral: customer focus, ownership, working with event organizers\n\nLevels and comp (2026)\n\n- SE II: $135K–$170K total\n\n- Senior SE: $200K–$260K\n\n- Staff: $290K–$380K\n\n- Principal: $400K–$520K\n\nPrep priorities\n\n- Be fluent in Python (legacy) and TypeScript/Node (newer services)\n\n- Understand inventory management with optimistic vs pessimistic locking\n\n- Brush up on payment processing and fraud patterns\n\nFrequently Asked Questions\n\nIs Eventbrite remote-friendly?\n\nYes. \"Virtual-first\" since 2020. Distributed across US and EU.\n\nHow does Eventbrite compare to Ticketmaster or SeatGeek?\n\nEventbrite owns self-service / smaller-events. Ticketmaster dominates major venues. SeatGeek is consumer-resale focused. Eventbrite pays mid-tier; not a high-comp leader.\n\nWhat is the engineering culture?\n\nDistributed-friendly, pragmatic, calm pace. Less competitive than peak-IPO; stable engineering org.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Eventbrite? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextCode Review System Low-Level Design: Diff Engine, Inline Comments, and Review State Machine⏱ 6 min readCoding Interview: Interval and Sweep Line Patterns — Meeting Rooms, Skyline Problem, Event Processing⏱ 7 min readOutreach Interview Guide (2026): Sales Engagement Platform⏱ 1 min read"
+}

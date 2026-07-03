@@ -1,0 +1,27 @@
+{
+  "company": "Capital One",
+  "slug": "capital-one-interview-guide",
+  "url": "https://www.techinterview.org/companies/capital-one-interview-guide",
+  "scrapedAt": "2026-07-02T07:16:52.357Z",
+  "interviewStages": [
+    "Behavioral: collaboration, customer focus, navigating regulated environment"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Capital One remote-friendly?",
+      "How does Capital One compare to Goldman Sachs or JP Morgan?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Capital One Interview Guide (2026): FinTech and Banking\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nCapital One\ncapitalone.com ↗\n\nCapital One is the most tech-forward of major US banks — runs entirely on AWS, has been a public AWS reference customer for years. Engineers number in the tens of thousands. The interview is unusually rigorous for a bank; comp is competitive with mid-tier tech.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium-hard) → onsite virtual: 2–3 coding, 1 system design, 1 behavioral. Cycle: 4–6 weeks.\n\nWhat they actually ask\n\n- Design a real-time fraud detection system for credit-card transactions\n\n- Design a customer-tier loan origination system with credit modeling\n\n- Design payment processing at billion-transaction scale\n\n- Coding: medium-hard DSA — Capital One is famous for asking real algorithms questions\n\n- Behavioral: collaboration, customer focus, navigating regulated environment\n\nLevels and comp (2026)\n\n- Associate (new grad): $145K–$170K total\n\n- Senior Associate: $200K–$260K\n\n- Principal Associate: $290K–$380K\n\n- Distinguished Engineer: $450K–$600K\n\nPrep priorities\n\n- Be fluent in Java (the bulk of the codebase) or Python (newer ML services)\n\n- Understand AWS deeply — Capital One runs on AWS at scale\n\n- Brush up on regulated-banking patterns: SOX, GLBA, OCC requirements\n\n- Practice DSA — interview is famously DSA-heavy compared to other banks\n\nFrequently Asked Questions\n\nIs Capital One remote-friendly?\n\nHybrid in McLean VA (HQ), Richmond, NYC, San Francisco, Plano. Most engineering roles are 3-day-in-office.\n\nHow does Capital One compare to Goldman Sachs or JP Morgan?\n\nCapital One is more tech-culture. GS and JPM pay more for top engineers. Capital One has strongest engineering brand among traditional US banks.\n\nWhat is the engineering culture?\n\nTech-forward for a bank. Strong AWS investment. DevOps-friendly. Less startup-fast than tech-native companies but more rigorous than legacy banks.\n\nSimilar company guides\n\nAmerican Expressinterview guideMarqetainterview guideWiseinterview guideKlarnainterview guideCartainterview guideAdyeninterview guide\n\nPrepping for Capital One? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSystem Design: ML Training and Serving Pipeline — Feature Store, Training, and Inference at Scale (2025)⏱ 6 min readURL Shortener System Low-Level Design⏱ 7 min readTwo-Factor Authentication Backup Codes Low-Level Design: Generation, Storage, and Recovery⏱ 7 min read"
+}

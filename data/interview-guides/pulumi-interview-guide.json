@@ -1,0 +1,27 @@
+{
+  "company": "Pulumi",
+  "slug": "pulumi-interview-guide",
+  "url": "https://www.techinterview.org/companies/pulumi-interview-guide",
+  "scrapedAt": "2026-07-02T07:25:29.496Z",
+  "interviewStages": [
+    "Behavioral: open-source mindset, written communication, pragmatic decision-making"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Pulumi fully remote?",
+      "How does Pulumi compare to Terraform?",
+      "Do I need IaC experience to interview?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Pulumi Interview Guide (2026): Infrastructure as Code Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nPulumi\npulumi.com ↗\n\nPulumi is the modern alternative to Terraform — write infrastructure in real programming languages (TypeScript, Python, Go, C#) instead of HCL. The interview is unique among IaC companies for its emphasis on language-internals work, since the platform compiles user code into a state machine that talks to cloud APIs.\n\nProcess\n\nRecruiter screen → 60-minute coding pair (often Go) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a state engine for declarative infrastructure changes (plan / preview / apply)\n\n- Design a multi-language SDK that surfaces a consistent API across TypeScript, Python, Go, and Java\n\n- Design dependency-aware resource ordering (DAG construction and execution)\n\n- Coding: practical Go problems, often involving graph traversal or state machines\n\n- Behavioral: open-source mindset, written communication, pragmatic decision-making\n\nLevels and comp (2026)\n\n- SE II: $170K–$210K total\n\n- Senior SE: $240K–$310K\n\n- Staff: $340K–$450K\n\n- Principal: $470K–$610K\n\nPrep priorities\n\n- Be fluent in Go and at least one Pulumi language (TypeScript or Python)\n\n- Understand cloud provider APIs and IaC fundamentals (drift, state, idempotency)\n\n- Read the Pulumi engineering blog and OSS codebase\n\nFrequently Asked Questions\n\nIs Pulumi fully remote?\n\nYes. Distributed across US and EU. Hubs in Seattle and Brno are optional.\n\nHow does Pulumi compare to Terraform?\n\nPulumi uses real programming languages with type checking, IDEs, and reuse. Terraform is HCL-only but has broader adoption. Pulumi is winning new accounts; Terraform dominates legacy.\n\nDo I need IaC experience to interview?\n\nStrongly preferred. At minimum, work through Pulumi tutorials and deploy something to AWS/GCP/Azure with it.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Pulumi? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow Level Design: Multi-Region Architecture⏱ 4 min readSystem Design Interview: Design a Cloud File Storage System (Dropbox/Google Drive)⏱ 6 min readDesign Instagram Mobile: Feed, Stories, and the Photo Pipeline⏱ 2 min read"
+}

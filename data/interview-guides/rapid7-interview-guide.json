@@ -1,0 +1,27 @@
+{
+  "company": "Rapid7",
+  "slug": "rapid7-interview-guide",
+  "url": "https://www.techinterview.org/companies/rapid7-interview-guide",
+  "scrapedAt": "2026-07-02T07:25:34.707Z",
+  "interviewStages": [
+    "Behavioral: customer empathy, ownership, working with security domain"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Rapid7 remote-friendly?",
+      "How does Rapid7 compare to Tenable or Qualys?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Rapid7 Interview Guide (2026): Cloud Security Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nRapid7\nrapid7.com ↗\n\nRapid7 is a public security company specializing in vulnerability management (InsightVM), SIEM (InsightIDR), and cloud-security posture (InsightCloudSec, formerly DivvyCloud). The interview emphasizes large-scale event processing, vulnerability data modeling, and the unique challenges of running detection across customer environments.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a vulnerability scanner that handles millions of assets\n\n- Design a SIEM ingestion pipeline at hundreds of thousands of events/sec\n\n- Design cloud-posture monitoring across AWS/Azure/GCP\n\n- Coding: medium DSA, often with parsing or graph framing\n\n- Behavioral: customer empathy, ownership, working with security domain\n\nLevels and comp (2026)\n\n- SE II: $145K–$180K total\n\n- Senior SE: $205K–$270K\n\n- Staff: $290K–$385K\n\n- Principal: $410K–$550K\n\nPrep priorities\n\n- Be fluent in Java, Go, or Python (split across product lines)\n\n- Understand vulnerability data (CVE, CVSS, CPE) and detection rule engines\n\n- Brush up on cloud-native security and IaC scanning\n\nFrequently Asked Questions\n\nIs Rapid7 remote-friendly?\n\nHybrid in Boston (HQ), Belfast, Prague, Austin. Many engineering roles fully remote within US.\n\nHow does Rapid7 compare to Tenable or Qualys?\n\nTenable is the vuln-management leader, Qualys is the legacy enterprise tool, Rapid7 has the broadest product surface (vuln + SIEM + cloud). Comp is mid-tier security; below FAANG.\n\nWhat is the engineering culture?\n\nMature, customer-driven, calmer pace post-2023 reorgs. Strong work-life balance.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Rapid7? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextAI Agents in Production: Architecture and Failure Modes⏱ 3 min readData Quality Service Low-Level Design: Rule Validation, Anomaly Detection, and Lineage Tracking⏱ 5 min readGaming Leaderboard System Low-Level Design⏱ 8 min read"
+}

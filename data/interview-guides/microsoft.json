@@ -1,0 +1,41 @@
+{
+  "company": "Microsoft",
+  "slug": "microsoft",
+  "url": "https://www.techinterview.org/companies/microsoft",
+  "scrapedAt": "2026-07-02T07:12:58.359Z",
+  "interviewStages": [
+    "Coding Rounds (2-3): Algorithm and data structure problems. Microsoft favors medium difficulty with focus on working solutions. Topics include arrays, strings, trees, graphs, and dynamic programming.",
+    "System Design (1 round): For mid-level and senior roles. Design scalable systems like cloud storage, messaging platforms, or collaborative tools. Consider Azure services and Microsoft stack.",
+    "Behavioral/PM Round (1 round): Discussion of past projects, collaboration experiences, and how you handle challenges. Microsoft values growth mindset and continuous learning.",
+    "As Appropriate (AA) Round: Final round with senior leader who has hiring authority. Mix of technical and behavioral questions. This round only happens if the team wants to make an offer."
+  ],
+  "codingTopics": [
+    "Arrays/Strings: Two pointers, sliding window, string manipulation",
+    "Trees/Graphs: BFS, DFS, binary trees, graph traversal",
+    "Dynamic Programming: Classic DP problems, optimization",
+    "Sorting/Searching: Binary search, merge sort, quicksort",
+    "System Design: Cloud architecture, distributed systems, microservices",
+    "Azure Services: Understanding of cloud platforms (bonus, not required)"
+  ],
+  "systemDesignTopics": [],
+  "behavioralTopics": [
+    "Activision Blizzard &mdash; part of Microsoft Gaming since 2023"
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": []
+  },
+  "difficulty": null,
+  "tips": [
+    "Demonstrate Growth Mindset: Show examples of learning from failures and continuous improvement. This is core to Microsoft culture.",
+    "Practice LeetCode Medium Problems: Focus on 100-150 problems covering major data structures and algorithms.",
+    "Study System Design: Understand cloud architecture patterns, scalability, and reliability. Familiarity with Azure is helpful but not required.",
+    "Prepare STAR Stories: Have examples of collaboration, overcoming challenges, and driving impact.",
+    "Research the Team: Microsoft has diverse products. Show genuine interest in the specific team's domain."
+  ],
+  "compensation": null,
+  "rawSummary": "Microsoft\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  February 1, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated May 2, 2026 · techinterview.org\n\n⏱ 2 min read\n\nMicrosoft\nmicrosoft.com ↗\n\nInterview Process Overview\n\nMicrosoft's interview process emphasizes problem-solving, collaboration, and growth mindset. The company values technical excellence combined with the ability to work across teams and learn continuously.\n\nWhat to Expect\n\nRecruiter Screen: 30-minute call about your background, interest in Microsoft products, and role alignment. Discuss compensation and timeline.\n\nTechnical Phone Screen (1 round): 1-hour coding interview with a Microsoft engineer. One or two medium-difficulty algorithmic problems using a shared code editor.\n\nOnsite Loop (4-5 rounds):\n\n- Coding Rounds (2-3): Algorithm and data structure problems. Microsoft favors medium difficulty with focus on working solutions. Topics include arrays, strings, trees, graphs, and dynamic programming.\n\n- System Design (1 round): For mid-level and senior roles. Design scalable systems like cloud storage, messaging platforms, or collaborative tools. Consider Azure services and Microsoft stack.\n\n- Behavioral/PM Round (1 round): Discussion of past projects, collaboration experiences, and how you handle challenges. Microsoft values growth mindset and continuous learning.\n\n- As Appropriate (AA) Round: Final round with senior leader who has hiring authority. Mix of technical and behavioral questions. This round only happens if the team wants to make an offer.\n\nCommon Question Topics\n\n- Arrays/Strings: Two pointers, sliding window, string manipulation\n\n- Trees/Graphs: BFS, DFS, binary trees, graph traversal\n\n- Dynamic Programming: Classic DP problems, optimization\n\n- Sorting/Searching: Binary search, merge sort, quicksort\n\n- System Design: Cloud architecture, distributed systems, microservices\n\n- Azure Services: Understanding of cloud platforms (bonus, not required)\n\nPreparation Tips\n\n- Demonstrate Growth Mindset: Show examples of learning from failures and continuous improvement. This is core to Microsoft culture.\n\n- Practice LeetCode Medium Problems: Focus on 100-150 problems covering major data structures and algorithms.\n\n- Study System Design: Understand cloud architecture patterns, scalability, and reliability. Familiarity with Azure is helpful but not required.\n\n- Prepare STAR Stories: Have examples of collaboration, overcoming challenges, and driving impact.\n\n- Research the Team: Microsoft has diverse products. Show genuine interest in the specific team's domain.\n\nInterview Culture\n\nMicrosoft values collaboration, inclusivity, and learning. The company has evolved from its competitive past to embrace growth mindset and teamwork. Demonstrate curiosity, humility, and ability to work across organizational boundaries.\n\nLast Updated: February 2026\n\nAdjacent Microsoft Engineering Tracks\n\n- Activision Blizzard &mdash; part of Microsoft Gaming since 2023\n\nSimilar company guides\n\nServiceNowinterview guideSAPinterview guideCiscointerview guideOracleinterview guideAdobeinterview guideSalesforceinterview guide\n\nPrepping for Microsoft? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextNetflix⏱ 1 min readGalaxy Digital Interview Guide 2026: Institutional Crypto, Trading + Asset Management + Mining + IB⏱ 8 min readAsana Interview Guide 2026: Work Graph, Reactive Data, Luna Framework, and AI Studio⏱ 9 min read"
+}

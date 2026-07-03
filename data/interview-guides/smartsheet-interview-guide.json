@@ -1,0 +1,27 @@
+{
+  "company": "Smartsheet",
+  "slug": "smartsheet-interview-guide",
+  "url": "https://www.techinterview.org/companies/smartsheet-interview-guide",
+  "scrapedAt": "2026-07-02T07:26:24.152Z",
+  "interviewStages": [
+    "Behavioral: customer focus, navigating ambiguity, collaboration"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Smartsheet remote-friendly?",
+      "How does Smartsheet compare to Asana or Monday.com?",
+      "Is Smartsheet a \"real\" tech company?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Smartsheet Interview Guide (2026): Work Management Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nSmartsheet\nsmartsheet.com ↗\n\nSmartsheet is the spreadsheet-meets-project-management platform used by 90% of the Fortune 100. The interview emphasizes large-scale spreadsheet rendering, formula evaluation, and the engineering challenges of a product where customers can build their own apps with no-code tools.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (medium DSA) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a real-time collaborative spreadsheet supporting 10K+ rows\n\n- Design a formula engine with circular dependency detection and lazy evaluation\n\n- Design a workflow automation system (when X happens, do Y)\n\n- Coding: medium DSA, often graph or expression-tree problems\n\n- Behavioral: customer focus, navigating ambiguity, collaboration\n\nLevels and comp (2026)\n\n- SE II: $145K–$180K total\n\n- Senior SE: $210K–$280K\n\n- Staff: $300K–$390K\n\n- Principal: $420K–$550K\n\nPrep priorities\n\n- Be fluent in Java (backend) and TypeScript/React (frontend)\n\n- Understand expression evaluation, AST traversal, and dependency graphs\n\n- Read about virtualized rendering for large grids\n\nFrequently Asked Questions\n\nIs Smartsheet remote-friendly?\n\nHybrid in Bellevue (HQ), Boston, Edinburgh, and others. Many engineering roles fully remote within US.\n\nHow does Smartsheet compare to Asana or Monday.com?\n\nSmartsheet has the strongest enterprise position; Asana is more widely adopted in tech; Monday is design-forward and SMB-friendly. Comp is similar.\n\nIs Smartsheet a \"real\" tech company?\n\nYes. Public, growing, and engineering-driven. The product looks unsexy but the underlying systems (formula engine, real-time sync, large-grid rendering) are genuinely difficult.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Smartsheet? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextRLHF and Post-Training Interview Topics: A 2026 Specialist Track⏱ 3 min readCaption Service Low-Level Design: Timed Text Generation, Multi-Language Support, and Sync Correction⏱ 6 min readSystem Design: CDN Architecture — Edge Caching, PoP, Anycast, Cache Invalidation, Origin Shield, Cloudflare, Fastly⏱ 7 min read"
+}

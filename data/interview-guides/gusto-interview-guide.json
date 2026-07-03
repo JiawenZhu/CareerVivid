@@ -1,0 +1,25 @@
+{
+  "company": "Gusto",
+  "slug": "gusto-interview-guide",
+  "url": "https://www.techinterview.org/companies/gusto-interview-guide",
+  "scrapedAt": "2026-07-02T07:17:37.494Z",
+  "interviewStages": [],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Does Gusto require Ruby on Rails experience?",
+      "How does Gusto compare to Square or Brex on pay?",
+      "Is the interview process accommodating for parents or non-traditional candidates?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Gusto Interview Guide (2026): Payroll and HR Tech Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nGusto\ngusto.com ↗\n\nGusto runs payroll for over 300K small businesses — calculating taxes across 50 states, processing direct deposits, handling benefits, and integrating with hundreds of third-party systems. The interview is regulatory-heavy and emphasizes correctness over cleverness. You cannot afford to get someone's paycheck wrong.\n\nProcess\n\nRecruiter screen → 45–60 minute coding phone (medium DSA, often with a financial twist) → onsite virtual: 2 coding (one pair programming, one DSA), 1 system design, 1 behavioral, 1 craft (deep dive on past work). Senior+ candidates get an additional architecture round. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a payroll calculation engine with multi-state tax rules\n\n- Design a system that handles direct deposit reversals and ACH returns\n\n- Design audit logging for financial transactions (immutable, queryable)\n\n- Coding: medium DSA, often with money/decimal correctness focus\n\n- Pair programming: practical refactoring or feature build, ~60 minutes\n\nLevels and comp (2026)\n\n- SE I: $150K–$180K total\n\n- SE II: $190K–$240K\n\n- Senior SE: $260K–$340K\n\n- Staff: $360K–$470K\n\nPrep priorities\n\n- Brush up on decimal arithmetic, rounding, and the dangers of floats for money\n\n- Read about ACH, NACHA rules, and how payroll moves money\n\n- Be ready to discuss compliance, regulatory edge cases, and how to test financial logic\n\nFrequently Asked Questions\n\nDoes Gusto require Ruby on Rails experience?\n\nThe codebase is Rails-heavy, but they hire generalists. You can interview in any language for coding rounds, but expect Rails familiarity questions for backend roles.\n\nHow does Gusto compare to Square or Brex on pay?\n\nSlightly below Square; comparable to Brex at senior levels. Equity has cooled from peak 2021 valuation but RSU grants are still meaningful.\n\nIs the interview process accommodating for parents or non-traditional candidates?\n\nYes. Gusto has a strong reputation for flexibility, return-to-work programs, and accommodating interview schedules.\n\nSimilar company guides\n\nAmerican Expressinterview guideCapital Oneinterview guideMarqetainterview guideWiseinterview guideKlarnainterview guideCartainterview guide\n\nPrepping for Gusto? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextForm Builder Low-Level Design: Dynamic Schema, Conditional Logic, and Submission Pipeline⏱ 5 min readInterval DP and Advanced Dynamic Programming: Burst Balloons, State Machine, Tree DP⏱ 6 min readDivide and Conquer Interview Patterns: Merge Sort, Quick Select, Master Theorem⏱ 7 min read"
+}

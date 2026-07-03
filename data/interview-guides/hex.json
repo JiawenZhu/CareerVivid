@@ -1,0 +1,79 @@
+{
+  "company": "Hex",
+  "slug": "hex",
+  "url": "https://www.techinterview.org/companies/hex",
+  "scrapedAt": "2026-07-02T07:23:15.957Z",
+  "interviewStages": [
+    "System design (1 round): data-platform prompts. \"Design the notebook compute runtime isolating customer Python / SQL executions securely.\" \"Design the collaborative-editor sync for cells across 10 concurrent editors.\" \"Design the Magic AI system using warehouse metadata + LLMs for query suggestions with citation.\"",
+    "Behavioral / hiring manager: past projects, customer empathy for analysts / data scientists, craft orientation."
+  ],
+  "codingTopics": [
+    "Cell dependency graph: implement topological evaluation of cells with data-flow between them",
+    "Streaming result handler: process SQL results as they arrive with proper pagination / virtualization",
+    "Collaborative editing primitive: handle concurrent cell inserts / deletes / edits with conflict resolution",
+    "Query parser: extract references to other cells or data-warehouse tables from a SQL or Python cell",
+    "Classic algorithm problems (trees, graphs, DP) with notebook-applied twists"
+  ],
+  "systemDesignTopics": [
+    "\"Design the notebook compute runtime securely isolating customer Python / SQL executions.\"",
+    "\"Design the collaborative-editor sync for notebooks with 10+ concurrent editors and cell-level locking.\"",
+    "\"Design Magic AI: LLM-powered SQL generation grounded in the user's warehouse metadata.\"",
+    "\"Design the apps publishing system turning notebooks into interactive dashboards with parameter controls.\"",
+    "Discuss React performance at notebook scale with potentially thousands of cells.",
+    "Walk through how you'd implement cell-level reactivity with proper React updates.",
+    "Reason about CodeMirror integration for code-cell editing.",
+    "Describe state management for complex notebook + app state.",
+    "Explain approaches for handling large data-result display without DOM slowness.",
+    "\"What makes a data analyst's workflow smooth vs painful? How does Hex help or hurt?\"",
+    "\"Describe a time you worked closely with an analyst or data scientist. What did you learn?\"",
+    "\"How do you think about AI in analytics &mdash; where does it help, where is it dangerous?\"",
+    "\"Compare Hex's approach to Jupyter notebooks or Databricks notebooks. What's the same, what's different?\""
+  ],
+  "behavioralTopics": [
+    "Customer empathy: \"Tell me about deeply understanding a user's workflow and changing what you built as a result.\"",
+    "Craft: \"Describe a project where you pushed for higher quality despite deadline pressure.\"",
+    "Collaboration: \"How do you work effectively with design, product, and data stakeholders?\"",
+    "Growth: \"What are you hoping to learn or build in the next few years?\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need data-engineering background to get hired?",
+      "How does Hex compare to Databricks notebooks or Jupyter?",
+      "What's the Magic AI product opportunity like?",
+      "Is the company growing sustainably?",
+      "Is remote work supported?"
+    ]
+  },
+  "difficulty": 7.5,
+  "tips": [
+    "Use Hex for a real project. Free tier is sufficient. Connect a real dataset, build a notebook, publish as an app.",
+    "Know the competitive landscape. Jupyter, Databricks, Mode, Observable, Deepnote &mdash; have informed views.",
+    "Prepare data-team empathy stories. Even if you haven't worked on data teams, having thought about their workflows helps.",
+    "Engage with Magic AI critically. Where does it work well? Where does it fail? Having specific views helps.",
+    "Demonstrate craft orientation. The culture values quality; behavioral stories should reflect this.",
+    "Hex engineering blog (posts on notebook architecture, Magic AI, collaborative editing)",
+    "Hex's public documentation and product tour",
+    "Jupyter notebook internals documentation for comparison context",
+    "Python Data Science Handbook by Jake VanderPlas (free online)",
+    "Designing Data-Intensive Applications (Kleppmann)",
+    "Hex itself &mdash; build a real project in the free tier before interviewing"
+  ],
+  "compensation": [
+    "Software Engineer: $180k&ndash;$225k base, $150k&ndash;$280k equity (4 years), modest bonus. Total: ~$280k&ndash;$440k / year.",
+    "Senior Software Engineer: $230k&ndash;$290k base, $300k&ndash;$550k equity. Total: ~$380k&ndash;$600k / year.",
+    "Staff Engineer: $295k&ndash;$360k base, $600k&ndash;$1.1M equity. Total: ~$550k&ndash;$870k / year.",
+    "The engineering depth across frontend, compute runtime, and data integrations is substantial for company size.",
+    "The customer base (data teams at tech-forward companies) means engineers get close-to-customer feedback loops.",
+    "Magic AI is real engineering investment with production-grade evaluation, not a marketing tack-on.",
+    "The Palantir engineering heritage shows in how the team thinks about customer depth and product craft.",
+    "Not having used Hex. Authentic product knowledge matters.",
+    "Dismissing notebooks as \"just Jupyter.\" The collaborative-editor and compute-runtime work is real engineering.",
+    "Weak opinions about analytics-team workflows.",
+    "Ignoring security / isolation in system-design for compute-team roles."
+  ],
+  "rawSummary": "Hex Interview Guide 2026: Collaborative Data Notebooks, Python / SQL Runtime, and Magic AI\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 24, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 24, 2026 · techinterview.org\n\n⏱ 8 min read\n\nHex\nhex.tech ↗\n\nHex Interview Process: Complete 2026 Guide\n\nOverview\n\nHex is the collaborative data-science and analytics platform combining notebooks, SQL, Python, visualizations, and apps into a single workspace used by data teams at companies like Reddit, Loom, Notion, Clubhouse historically, and many others. Founded 2019 by Barry McCardel, Glen Takahashi, and Caitlin Colgrove (previously at Palantir), private with a Series B in 2022 and continued growth with Magic AI features through 2024&ndash;2025. ~150 employees in 2026, concentrated in San Francisco with growing New York and remote presence. The product's distinctive technical position: a React-based collaborative notebook that runs Python and SQL against customer warehouses (Snowflake, BigQuery, Databricks, Postgres, etc.), with an app layer letting analysts publish interactive dashboards from their analyses. Engineering stack is TypeScript / React on the client, Python / Node / Rust on backend services, with a custom compute runtime for executing Python and SQL notebook cells. Interviews reflect a reality spanning data-engineering, collaborative-editor, and ML-adjacent product work.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Hex, team preference. The product is surface-wide: notebook / editor (frontend heavy), compute / kernel (Python / SQL execution), data-warehouse integrations, Magic AI (LLM-powered analytics assistance), apps platform, and infrastructure. Triage matters.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. TypeScript dominant on client; Python / Node for backend; Rust for performance-critical compute. Problems tilt applied &mdash; implement a data-processing primitive, model a notebook state, handle a streaming SQL result.\n\nTake-home (many senior / staff roles): 4&ndash;6 hours on a realistic engineering problem, often involving building a small collaborative notebook component or extending a data-processing tool.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied round. The applied round often involves notebook / data-platform primitives &mdash; cell-dependency graph evaluation, SQL-result pagination, collaborative-edit conflict resolution.\n\n- System design (1 round): data-platform prompts. \"Design the notebook compute runtime isolating customer Python / SQL executions securely.\" \"Design the collaborative-editor sync for cells across 10 concurrent editors.\" \"Design the Magic AI system using warehouse metadata + LLMs for query suggestions with citation.\"\n\n- Frontend / craft deep-dive (frontend roles): React at notebook scale, TypeScript patterns for complex UIs, state management for deep notebook state, real-time collaboration.\n\n- Data / analytics product round: engagement with data-team workflows, analytics vs ML distinction, the data-science user experience.\n\n- Behavioral / hiring manager: past projects, customer empathy for analysts / data scientists, craft orientation.\n\nTechnical Focus Areas\n\nCoding: TypeScript fluency (strict mode, generics, discriminated unions), Python for compute-team work, Rust for performance-critical runtime, clean data modeling.\n\nNotebook compute: Python kernel execution with customer-code isolation, resource limits (CPU / memory per cell), interrupt handling, streaming output, package-dependency management, SQL dialect translation across warehouse types.\n\nReactive / dependency-aware evaluation: cells have dependencies (cell B reads from cell A's output); changes propagate. Understanding topological sort, incremental evaluation, and dependency-tracking patterns matters for compute-team work.\n\nCollaborative editing: real-time collaboration on notebooks with multiple simultaneous editors, CRDT or OT for conflict resolution, presence awareness, cursor / selection sharing.\n\nSQL / data-warehouse integration: connector architecture for Snowflake, BigQuery, Databricks, Postgres, Redshift; query execution against customer warehouses; result materialization; authentication (OAuth, service accounts) across providers.\n\nMagic AI: LLM-powered query suggestions grounded in the user's data schema, column descriptions, and query history. RAG over warehouse metadata, prompt engineering for SQL generation, evaluation methodology for analytics AI.\n\nApps platform: publish notebooks as interactive apps, parameter handling, permission management, embedding in other tools.\n\nFrontend / editor: React at notebook scale, CodeMirror for code cells, rich visualization integration, deep-state management.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is medium-hard. Comparable to Notion or Linear &mdash; below Google L5 on pure algorithms, higher on applied / product-scenario r"
+}

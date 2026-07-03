@@ -1,0 +1,67 @@
+{
+  "company": "Jane Street",
+  "slug": "jane-street",
+  "url": "https://www.techinterview.org/companies/jane-street",
+  "scrapedAt": "2026-07-02T07:17:45.349Z",
+  "interviewStages": [
+    "Coding round: applied problem in a language of your choice (OCaml welcomed; Python, C++, Java accepted). Often involves implementing a small data structure or simulation. Less about leetcode-style algorithms, more about clear thinking and code quality.",
+    "Behavioral / culture round (1 round): conversation about past projects, problem-solving approach, fit with Jane Street's intellectual culture. Less STAR-format than typical FAANG; more discussion-style."
+  ],
+  "codingTopics": [
+    "Implement a simple order book with insert / cancel / match operations",
+    "Compute a moving average / running statistic efficiently",
+    "Parse a simple structured input (financial data feed, log format)",
+    "Implement a card game or board game's rules and a simple AI",
+    "Simulate a random walk or stochastic process"
+  ],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is the mental-math test really the gatekeeper?",
+      "Do I need to know OCaml to get a Jane Street job?",
+      "How does Jane Street compare to Citadel Securities or HRT for new grads?",
+      "Is the work-life balance reasonable?",
+      "What's the partnership structure like?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [
+    "Mental math practice is non-negotiable. If you do nothing else, do this daily for 8 weeks.",
+    "Think out loud during interviews. Interviewers are evaluating your reasoning as much as your answers; silent computation hurts you even if you reach the right answer.",
+    "In trading games, anchor and update. Don't paralyze trying to compute the perfect initial price; pick a reasonable anchor based on intuition and refine as info arrives.",
+    "For the OCaml-curious: spending 1&ndash;2 weekends with Real World OCaml gives you enough familiarity to discuss it confidently in interviews. You won't write OCaml in interviews, but signaling interest helps.",
+    "Read at least one Jane Street Tech Talk. The most accessible are the entry-level OCaml content and the market-making explainers.",
+    "Zetamac (arithmetic.zetamac.com) &mdash; daily mental math practice",
+    "Heard on the Street: Quantitative Questions from Wall Street Job Interviews by Timothy Crack &mdash; canonical brainteaser collection",
+    "A Practical Guide to Quantitative Finance Interviews by Xinfeng Zhou &mdash; comprehensive quant interview prep",
+    "Jane Street Tech Talks (signalsandthreads.com / janestreet.com/tech-talks) &mdash; firm engineering writing",
+    "Jane Street Puzzles archive &mdash; public monthly puzzle competition that mirrors interview problem style",
+    "Real World OCaml (free online) &mdash; if you want to engage with the OCaml-curious angle"
+  ],
+  "compensation": [
+    "New-grad SWE / Trader (Year 1): ~$175K&ndash;$225K base, $100K&ndash;$200K signing bonus, $100K&ndash;$300K performance bonus depending on role and firm year. Year-1 total typically $400K&ndash;$650K.",
+    "Experienced (3&ndash;5 years): $250K&ndash;$350K base, large performance bonuses scaling with role. Total compensation typically $700K&ndash;$1.5M.",
+    "Senior (5&ndash;10 years): $300K&ndash;$450K base, performance bonuses can exceed $1M for strong years. Total $1M&ndash;$3M+.",
+    "Senior trader / senior researcher with established track record: can reach $5M&ndash;$10M+ in strong years.",
+    "Card-game adjacent: poker, Magic: the Gathering, and Set are common around the office; many engineers play competitively. The company hosts internal Magic tournaments and supports gaming culture.",
+    "Intellectually serious: reading groups, technical talks, math discussions in lunchrooms. Engineers regularly publish technical writing on the Jane Street Tech Talks blog and YouTube channel.",
+    "Hour expectations: trader and trading-adjacent seats can be intense; software-engineering seats typically have more reasonable hours but vary by team. Not Wall-Street-investment-bank brutal, not Silicon-Valley-startup intense, somewhere in between.",
+    "Office-first: in-person presence at NYC, London, Hong Kong, Singapore offices is the norm. Limited remote work for senior employees only.",
+    "Dress: business casual. Less formal than banks, more formal than tech.",
+    "The mental-math test really is decisive. Strong CS resume + weak mental math = no offer.",
+    "The interview process is structured around quantitative thinking, not coding heroics. A weak coder who's strong on probability and trading games can pass.",
+    "OCaml is the production stack. New hires from non-OCaml backgrounds learn it on the job; this is normalized.",
+    "Compensation is among the highest in the industry but bonus-weighted. A bad firm year can mean significantly lower comp than the high-end of the bands.",
+    "The culture rewards being interesting outside of work &mdash; reading widely, playing games, having opinions on math / science / history. \"Generic high-output professional\" doesn't fit as well as it does at FAANG.",
+    "Skipping mental-math practice. The single most common cause of Jane Street rejection.",
+    "Memorizing brainteaser answers without learning the underlying frameworks. Interviewers vary problems specifically to detect rote learning.",
+    "Treating the trading game as a math problem. It's a market-making exercise; communication, calibrated risk, and dynamic updating matter as much as arithmetic.",
+    "Showing up without having read at least one Jane Street Tech Talk or knowing their basic positioning. Visible disinterest in the firm signals weak fit."
+  ],
+  "rawSummary": "Jane Street Interview Guide 2026: Mental Math Test, Probability Brainteasers, Trading Games, and OCaml\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 25, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Jane Street Interview Process: Complete 2026 Guide\n\n- Frequently Asked Questions\n\n- How Compensation Works at Jane Street and How to Read the Offer\n\nUpdated June 30, 2026 · techinterview.org\n\n⏱ 12 min read\n\nJane Street\njanestreet.com ↗\n\nTL;DR &mdash; Jane Street screens traders and software engineers with a timed mental math test, probability and game-theory brainteasers, and interactive trading games rather than the LeetCode-style rounds common at big tech firms. Expect fast arithmetic under pressure, expected-value reasoning, and questions that probe how you bet and update on incomplete information. OCaml matters mainly for software engineering roles, where you should be ready to read and reason about functional code.\n\nJane Street Interview Process: Complete 2026 Guide\n\nOverview\n\nJane Street is the New York-based proprietary quantitative trading firm trading bonds, ETFs, options, equities, and cryptocurrencies across 200+ exchanges globally. Founded 2000, fully employee-owned, ~3,000 employees in 2026 distributed across New York (HQ), London, Hong Kong, Singapore, and Amsterdam. Among quant trading firms, Jane Street is distinguished by: (1) the OCaml-everywhere stack, (2) the famously rigorous mental-math and probability interview process, (3) a card-game-focused intern programming culture (poker, Magic: the Gathering, Set), (4) unusual openness about engineering practices through Jane Street Tech Talks and the OCaml Industrial Users Group. Compensation is among the highest in the industry, with new-grad packages reaching $400K&ndash;$650K total in 2025&ndash;2026 between base, sign-on, and first-year bonus. The interview process is brutal but transparent &mdash; if you can't pass the mental-math test, no other strength matters.\n\nInterview Structure\n\nRecruiter screen + mental-math test (30 min): Jane Street starts with a 60-question, 8-minute timed mental-math test. Multiplication, division, percentages, decimals. The pass bar is roughly 70&ndash;80% correct depending on role and recruiting cycle. Below the bar, the process ends here regardless of resume strength. This is the single most important hurdle to prepare for.\n\nPhone interview (60 min): probability and brainteaser problems with live thinking-out-loud. Expect 3&ndash;5 problems ranging from classic puzzles (coin flips, dice, cards) to more involved expected-value or game-theory questions. Interviewers are looking for clear reasoning more than memorized answers; they'll vary problems if they suspect rote knowledge.\n\nOnsite (or virtual onsite, 4&ndash;6 rounds):\n\n- Probability / brainteasers (1&ndash;2 rounds): harder versions of the phone interview problems. Random walks, stopping times, multi-stage games, conditional probability puzzles, expected-value reasoning under constraints.\n\n- Coding round: applied problem in a language of your choice (OCaml welcomed; Python, C++, Java accepted). Often involves implementing a small data structure or simulation. Less about leetcode-style algorithms, more about clear thinking and code quality.\n\n- Trading game / market-making round (most candidates): the interviewer plays a market or runs a betting game. Candidates make markets (bid / offer pairs), update based on new information, and manage P&L. Tests fair-value reasoning, dynamic adjustment, and willingness to take calibrated risk.\n\n- Behavioral / culture round (1 round): conversation about past projects, problem-solving approach, fit with Jane Street's intellectual culture. Less STAR-format than typical FAANG; more discussion-style.\n\n- Manager / fit round (1 round): conversation with a hiring manager about specific team, day-to-day work, and mutual fit.\n\nThe Mental-Math Test in Detail\n\nJane Street's mental-math test is the gatekeeper. Format:\n\n- ~60 questions, 8 minutes (variants exist; recent format is similar)\n\n- No calculator, no scratch paper\n\n- Mix of multiplication (e.g., 47 × 8), division, percentage calculations, decimal arithmetic, fraction comparison\n\n- Questions range from simple single-digit to harder two-digit-by-two-digit multiplication and percentage-of-total computations\n\n- Pass threshold varies by role and year, generally 70&ndash;85% correct\n\nHow to prepare: the answer is consistent across every quant prep guide ever written: practice with timed drills daily. Free tools like Zetamac (arithmetic.zetamac.com) and Trading Interview's mental math practice are designed exactly for this. Daily practice for 4&ndash;8 weeks before interviewing gets most people from \"barely passing\" to \"comfortably above bar.\" Do not skip this. Candidates with PhDs in math but no practice routinely fail this test.\n\nProbability and Brainteasers\n\nCommon problem categories:\n\n- Coin flip variants: \"I flip a coin until I get two heads in a row. What's the expected "
+}

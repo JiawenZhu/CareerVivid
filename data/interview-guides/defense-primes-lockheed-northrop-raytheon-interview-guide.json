@@ -1,0 +1,48 @@
+{
+  "company": "Defense Primes",
+  "slug": "defense-primes-lockheed-northrop-raytheon-interview-guide",
+  "url": "https://www.techinterview.org/companies/defense-primes-lockheed-northrop-raytheon-interview-guide",
+  "scrapedAt": "2026-07-02T07:19:28.058Z",
+  "interviewStages": [
+    "Recruiter screen. Background, role fit, citizenship, clearance status if any.",
+    "Hiring manager interview. Past projects, motivation for defense work.",
+    "Technical interview (1–3 rounds). Coding, embedded systems, signal processing, or domain-specific topics depending on role.",
+    "Panel interview with senior engineers and team members.",
+    "Conditional offer pending clearance.",
+    "Background investigation and clearance adjudication.",
+    "Start date — often months after offer.",
+    "C and C++ for embedded systems: deterministic execution, real-time constraints, fault tolerance",
+    "Standard data structures and algorithms (less hard than FAANG; correctness emphasized over optimization)",
+    "Signal processing fundamentals for radar / EW / SIGINT roles: FFT, matched filtering, Kalman filters",
+    "For software engineering roles: model-based systems engineering, requirement traceability, MISRA C / coding standards",
+    "Domain-specific knowledge: aerospace, missile systems, space systems, cyber operations, depending on role"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Can I get hired without a clearance?",
+      "How long does clearance take?",
+      "Is the work intellectually demanding?",
+      "How does work-life balance compare to tech?",
+      "How do I choose between the major primes?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "Mid-level engineer: $110–150K base + 10–15% bonus → $125–175K total",
+    "Senior engineer: $150–200K base + bonus → $170–230K total",
+    "Staff / Senior Staff: $200–270K base + bonus → $220–310K total",
+    "Principal: $270–350K base + bonus → $300–400K total",
+    "SpaceX &mdash; reusable rockets",
+    "Blue Origin &mdash; reusable rockets and lunar",
+    "Anduril &mdash; autonomous defense systems"
+  ],
+  "rawSummary": "Defense Primes Interview Guide (2026): Lockheed Martin, Northrop Grumman, Raytheon (RTX)\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 2, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- What makes defense-prime interviews different\n\n- Interview process\n\n- Common technical questions\n\n- The clearance reality\n\n- Compensation (2026 estimates)\n\n- Frequently Asked Questions\n\n- Adjacent Aerospace and Defense\n\nUpdated May 2, 2026 · techinterview.org\n\n⏱ 3 min read\n\nDefense Primes\nlockheedmartin.com ↗\n\nDefense Primes Interview Guide\n\nCompanies: The major US defense primes — Lockheed Martin, Northrop Grumman, Raytheon Technologies (RTX, formerly Raytheon and now part of the merged Raytheon-Pratt-Whitney-Collins entity), General Dynamics, Boeing Defense, and L3Harris — share enough in their hiring practices that this guide covers them collectively. The largest engineering employers among these are Lockheed Martin (HQ Bethesda MD; major sites in Fort Worth, Sunnyvale, Denver, Marietta GA), Northrop Grumman (HQ Falls Church VA; Redondo Beach for space, Baltimore for aeronautics), and RTX (HQ Arlington VA; major sites in Tucson, Tewksbury MA, El Segundo).\n\nWhat makes defense-prime interviews different\n\nThree structural factors distinguish defense-prime hiring from typical tech-industry hiring:\n\n- Security clearance requirements. Most engineering roles require a Secret or Top Secret clearance, sometimes with SCI access. New candidates are often hired conditional on obtaining a clearance. The clearance process can take 6–18 months for an initial Secret, longer for TS/SCI.\n\n- US citizenship requirement. Most cleared roles require US citizenship. Some unclassified work allows green card holders, but the cleared majority does not.\n\n- Slower hiring pace. Defense primes have multi-step approval processes; from offer to start can be 3–6 months given the clearance pipeline.\n\nBeyond these structural factors, the technical interview itself is generally less LeetCode-intensive than tech-industry interviews. Defense primes care more about systems-engineering depth, embedded / real-time programming, and domain knowledge than about competitive-programming-style algorithms.\n\nInterview process\n\nTimeline: 8–16 weeks from application to offer (longer if including the clearance pipeline).\n\n- Recruiter screen. Background, role fit, citizenship, clearance status if any.\n\n- Hiring manager interview. Past projects, motivation for defense work.\n\n- Technical interview (1–3 rounds). Coding, embedded systems, signal processing, or domain-specific topics depending on role.\n\n- Panel interview with senior engineers and team members.\n\n- Conditional offer pending clearance.\n\n- Background investigation and clearance adjudication.\n\n- Start date — often months after offer.\n\nCommon technical questions\n\n- C and C++ for embedded systems: deterministic execution, real-time constraints, fault tolerance\n\n- Standard data structures and algorithms (less hard than FAANG; correctness emphasized over optimization)\n\n- Signal processing fundamentals for radar / EW / SIGINT roles: FFT, matched filtering, Kalman filters\n\n- For software engineering roles: model-based systems engineering, requirement traceability, MISRA C / coding standards\n\n- Domain-specific knowledge: aerospace, missile systems, space systems, cyber operations, depending on role\n\nThe clearance reality\n\nEngineers working at defense primes frequently mention that the clearance process is the most consequential part of the experience. Once you have an active TS or TS/SCI clearance, your career options expand significantly across the defense and intelligence community. Conversely, candidates whose backgrounds make clearance difficult — extensive foreign contacts, certain financial issues, dual citizenship in some countries — are filtered out before technical interviews.\n\nHolding an active clearance is itself a significant compensation factor; cleared engineers command meaningful salary premiums over uncleared peers in the broader engineering market.\n\nCompensation (2026 estimates)\n\n- Mid-level engineer: $110–150K base + 10–15% bonus → $125–175K total\n\n- Senior engineer: $150–200K base + bonus → $170–230K total\n\n- Staff / Senior Staff: $200–270K base + bonus → $220–310K total\n\n- Principal: $270–350K base + bonus → $300–400K total\n\nDefense primes pay below FAANG but with significant compensating factors: stable employment, defined-benefit elements in some cases, strong work-life balance, and the clearance premium. Total comp is generally 30–50% below FAANG at equivalent levels.\n\nFrequently Asked Questions\n\nCan I get hired without a clearance?\n\nYes, for some unclassified roles. For most engineering roles you will be hired conditional on obtaining a clearance, with the clearance process running in parallel with onboarding.\n\nHow long does clearance take?\n\nInitial Secret: 3–6 months typical; faster with the rebranded Trusted Workforce 2.0. Top Secret: 6–18 months. TS/SCI with poly: 12–24 months. Existing clearan"
+}

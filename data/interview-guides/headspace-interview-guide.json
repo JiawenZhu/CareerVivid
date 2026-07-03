@@ -1,0 +1,27 @@
+{
+  "company": "Headspace",
+  "slug": "headspace-interview-guide",
+  "url": "https://www.techinterview.org/companies/headspace-interview-guide",
+  "scrapedAt": "2026-07-02T07:23:11.204Z",
+  "interviewStages": [
+    "Behavioral: mission-driven (mental wellness), customer focus"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Headspace remote-friendly?",
+      "How does Headspace compare to Calm?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Headspace Interview Guide (2026): Mental Health and Meditation\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nHeadspace\nheadspace.com ↗\n\nHeadspace is one of the leading mental health and meditation platforms — merged with Ginger to form Headspace Health in 2021. The interview emphasizes audio content delivery, B2B/B2C platform integration, and the unique mission of mental wellness at scale.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design audio content delivery with offline downloads\n\n- Design enterprise (B2B) integration for employer-sponsored access\n\n- Design member journey personalization\n\n- Coding: medium DSA, often with mobile or content framing\n\n- Behavioral: mission-driven (mental wellness), customer focus\n\nLevels and comp (2026)\n\n- SE II: $150K–$185K total\n\n- Senior SE: $215K–$285K\n\n- Staff: $310K–$410K\n\n- Principal: $430K–$570K\n\nPrep priorities\n\n- Be fluent in Swift / Kotlin (mobile) and Node.js (backend)\n\n- Understand audio streaming and offline caching\n\n- Brush up on enterprise SSO and member management\n\nFrequently Asked Questions\n\nIs Headspace remote-friendly?\n\nDistributed across Santa Monica (HQ), San Francisco, London. Many engineering roles fully remote within US.\n\nHow does Headspace compare to Calm?\n\nCalm has slightly larger consumer base. Headspace has stronger B2B/clinical positioning. Comp is comparable.\n\nWhat is the engineering culture?\n\nMission-driven, calm pace, strong work-life balance. Mental health awareness pervades the culture.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Headspace? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextWebSockets in Production: Scaling, Auth, and Reconnect⏱ 2 min readLow Level Design: ML Training Pipeline⏱ 9 min readRecommendation System: Low-Level Design⏱ 6 min read"
+}

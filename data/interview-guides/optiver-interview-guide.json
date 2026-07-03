@@ -1,0 +1,35 @@
+{
+  "company": "Optiver",
+  "slug": "optiver-interview-guide",
+  "url": "https://www.techinterview.org/companies/optiver-interview-guide",
+  "scrapedAt": "2026-07-02T07:18:15.833Z",
+  "interviewStages": [
+    "\"I'm thinking of a number between 1 and 100. Make a market on it.\"",
+    "\"I'll roll three dice. Make a market on the sum.\"",
+    "\"What's E[max(X, Y)] where X, Y are independent Uniform(0, 1)?\"",
+    "A live trading game (multi-round simulation where candidates quote markets, trade against each other, and manage positions in real time)",
+    "Multiple in-person interviews with senior traders",
+    "Behavioral / culture-fit conversations",
+    "Sometimes a presentation or case discussion"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "How hard is the 80-in-8 test?",
+      "Do I need a finance background to interview at Optiver?",
+      "What's the trading game like?",
+      "Where does Optiver hire? Is it different by office?",
+      "How does Optiver compare to working at a hedge fund?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Optiver Interview Guide: Options Market Making, Probability & Trading Speed\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 25, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Optiver Interview Guide: Options Market Making, Probability, and Trading Speed\n\n- What Optiver Does\n\n- Roles Optiver Hires For\n\n- Optiver Interview Process\n\n- What Optiver Tests For\n\n- Preparation Strategy\n\n- Optiver vs Other Market-Making Firms\n\n- Compensation\n\n- Frequently Asked Questions\n\nUpdated April 25, 2026 · techinterview.org\n\n⏱ 7 min read\n\nOptiver\noptiver.com ↗\n\nOptiver Interview Guide: Options Market Making, Probability, and Trading Speed\n\nOptiver is one of the world's leading proprietary options market makers. Founded in Amsterdam in 1986, the firm has grown into a multi-thousand-person global trading operation with offices in Amsterdam, Chicago, London, Sydney, Singapore, Mumbai, and Shanghai. For quant-trading candidates, Optiver is one of the most coveted destinations &mdash; high compensation, strong intellectual culture, and a clear focus on options market making at scale. This guide covers what Optiver's interview looks like, how to prepare for each round, and how candidates win seats.\n\nWhat Optiver Does\n\nOptiver is a proprietary trading firm specializing in options market making across global exchanges. Unlike a hedge fund, Optiver doesn't manage client money &mdash; it trades its own capital, providing liquidity (continuously quoting bid and offer prices) on listed options and related instruments. Profit comes from capturing bid-ask spreads while managing the various risks options exposure creates: directional, volatility, time-decay, and correlation.\n\nThe firm is famous for its trading-floor culture: traders sit in open-floor configurations, quote markets in real time, and constantly recalibrate prices as market conditions move. Speed of thought &mdash; both numerical and strategic &mdash; is core to the work, and the interview process is built to identify candidates who can perform under that kind of pressure.\n\nRoles Optiver Hires For\n\nTrader (graduate program)\n\nThe flagship role. New graduates enter a structured trader-training program (Optiver's \"Class\") in Amsterdam, Chicago, or Sydney. After several months of trading simulation, mock markets, and options theory, they're placed on a trading desk and start quoting markets on live products. Pay is high; the interview process is correspondingly rigorous.\n\nQuant Researcher\n\nBuilds trading models, signals, and pricing infrastructure for the trading desks. More math/programming heavy than the trader role; PhD-track candidates frequently end up here.\n\nSoftware Engineer\n\nBuilds and maintains the trading systems &mdash; order entry, exchange connectivity, risk infrastructure, market-data pipelines. Optiver's trading systems run at microsecond latency; SWE work is heavy on C++, low-level performance, and reliability under load.\n\nInternships\n\nOptiver runs internship programs for trading, quant research, and SWE roles, typically targeting students one year before graduation. Conversion to full-time is high for strong performers.\n\nOptiver Interview Process\n\nThe trader-track interview is the most distinctive and is what most quant-finance candidates associate with the firm.\n\nRound 1: Online assessment\n\nOptiver's \"80 in 8\" test is famous: 80 mental-arithmetic questions in 8 minutes. Questions involve fractions, decimals, percentages, multi-step arithmetic. Most candidates score 30&ndash;50; strong candidates score 60+. Practicing mental math is essential &mdash; this is a screening filter, and weak performance ends the process here.\n\nSome candidates also see a short logic / sequencing test in this stage.\n\nRound 2: First interview (phone or video)\n\nBehavioral questions, motivation for trading, motivation for Optiver specifically, and probability brain teasers. The interviewer is often a recent-graduate trader or quant. Expect 2&ndash;4 brainteasers (coin flips, dice, expected value problems) plus discussion of your background.\n\nRound 3: Technical interview (probability and market making)\n\nDeeper probability problems, mental-math drills, and a market-making round where the interviewer sets up an unknown quantity and you quote two-sided markets while they trade against you. Examples:\n\n- \"I'm thinking of a number between 1 and 100. Make a market on it.\"\n\n- \"I'll roll three dice. Make a market on the sum.\"\n\n- \"What's E[max(X, Y)] where X, Y are independent Uniform(0, 1)?\"\n\nRound 4: Trading game / Optiver Day\n\nTop candidates are flown to Optiver's office (Amsterdam, Chicago, or Sydney depending on which entity is hiring) for a full day. The day includes:\n\n- A live trading game (multi-round simulation where candidates quote markets, trade against each other, and manage positions in real time)\n\n- Multiple in-person interviews with senior traders\n\n- Behavioral / culture-fit conversations\n\n- Sometimes a presentation or case discussion\n\nThe trading game is the most distinctive piece"
+}

@@ -1,0 +1,75 @@
+{
+  "company": "Postman",
+  "slug": "postman",
+  "url": "https://www.techinterview.org/companies/postman",
+  "scrapedAt": "2026-07-02T07:25:24.328Z",
+  "interviewStages": [
+    "System design (1 round): API-tooling prompts. \"Design the cloud-sync system keeping collections and environments consistent across users and devices.\" \"Design the monitoring service executing API checks globally with freshness guarantees.\" \"Design Postbot AI with grounding in the user's collections and OpenAPI specs.\"",
+    "Behavioral / hiring manager: past projects, developer empathy, working across Bangalore-SF timezones."
+  ],
+  "codingTopics": [
+    "Implement a request builder with variable substitution, authentication handling, and header composition",
+    "Parse / validate an OpenAPI schema and generate test cases from it",
+    "Handle streaming API responses (SSE, WebSocket) with proper backpressure and error handling",
+    "Mocking engine: given a schema, generate realistic mock responses with proper content-type handling",
+    "Classic algorithm problems (trees, graphs) with API-tooling twists (dependency resolution in API test chains)"
+  ],
+  "systemDesignTopics": [
+    "\"Design the cloud-sync system keeping collections consistent across devices with conflict resolution.\"",
+    "\"Design the monitoring service executing API checks globally with bounded latency and cost.\"",
+    "\"Design Postbot AI with grounding in user collections, with prompt-engineering for test generation.\"",
+    "\"Design the enterprise API governance system enforcing custom linting rules at scale.\"",
+    "Walk through what happens during a typical HTTP request-response cycle.",
+    "Discuss OAuth 2.0 flows and when you'd use each variant.",
+    "Reason about the trade-offs of gRPC vs REST vs GraphQL for specific use cases.",
+    "Describe how you'd implement reliable monitoring for a customer API that occasionally rate-limits you.",
+    "Explain OpenAPI schema composition and the trade-offs of $ref, allOf, oneOf, anyOf."
+  ],
+  "behavioralTopics": [
+    "Developer empathy: \"Describe a time you deeply understood a developer's workflow.\"",
+    "Cross-timezone collaboration: \"How do you work effectively across Bangalore and SF?\"",
+    "Domain curiosity: \"What have you built or learned about APIs outside of assigned work?\"",
+    "Customer focus: \"Tell me about a time you engaged with a Postman customer directly.\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Postman really engineering-heavy given the \"simple tool\" reputation?",
+      "How important is Bangalore vs SF?",
+      "What's Postman Flows?",
+      "What's Postbot AI like?",
+      "Is remote work supported?"
+    ]
+  },
+  "difficulty": 6.5,
+  "tips": [
+    "Use modern Postman deeply. Collections, environments, Flows, Postbot, monitors, mock servers &mdash; explore the full product.",
+    "Read OpenAPI 3.1 spec. Not cover-to-cover, but skim meaningfully.",
+    "Know OAuth flows. Authorization code, PKCE, client credentials &mdash; table-stakes.",
+    "Prepare cross-timezone stories. Bangalore-SF collaboration is daily reality.",
+    "Demonstrate API curiosity. Side projects involving APIs, protocols, or developer tools help.",
+    "Postman engineering blog and product-update posts",
+    "OpenAPI 3.1 specification",
+    "OAuth 2.0 and OIDC specifications (or reader-friendly summaries)",
+    "Designing Web APIs by Jin, Sahni, Shevat for API design context",
+    "HTTP RFCs (7230-7237 for HTTP/1.1, 9110-9112 for HTTP/1.1 updated)",
+    "Postman itself &mdash; build something real with collections, Flows, Postbot"
+  ],
+  "compensation": [
+    "Software Engineer (US): $170k&ndash;$215k base, $120k&ndash;$230k equity (4 years), modest bonus. Total: ~$260k&ndash;$410k / year.",
+    "Senior Software Engineer: $220k&ndash;$280k base, $250k&ndash;$460k equity. Total: ~$350k&ndash;$550k / year.",
+    "Staff Engineer: $285k&ndash;$345k base, $500k&ndash;$900k equity. Total: ~$500k&ndash;$790k / year.",
+    "The Bangalore engineering office has first-class product ownership, not cost-optimized tasks.",
+    "The product surface is far broader than the \"API request client\" people remember from early Postman &mdash; now spans full API lifecycle.",
+    "Postbot AI and AI-assisted features represent meaningful investment, not marketing.",
+    "Engineering bar is higher than candidates expect given the \"tooling company\" perception.",
+    "Shallow HTTP / API protocol knowledge. Postman is an API tool; depth matters.",
+    "Weak OAuth understanding for platform roles.",
+    "Treating Bangalore engineering as secondary.",
+    "Not having used the modern Postman product (many developers still associate it with 2015-era features)."
+  ],
+  "rawSummary": "Postman Interview Guide 2026: API Development Platform, Cloud Sync, Flows, and Postbot AI\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 24, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 24, 2026 · techinterview.org\n\n⏱ 8 min read\n\nPostman\npostman.com ↗\n\nPostman Interview Process: Complete 2026 Guide\n\nOverview\n\nPostman is the API development and collaboration platform used by ~30M developers and 500K organizations globally to design, test, document, monitor, and manage APIs throughout their lifecycle. Founded 2014 by Abhinav Asthana, Abhijit Kane, and Ankit Sobti in Bangalore, Postman has grown into the dominant API-development tooling company with a 2022 valuation of $5.6B and continued market leadership through 2025. ~800 employees in 2026, distributed across San Francisco, Bangalore (original HQ, still a major engineering hub), New York, and remote hires. The product spans the free Postman client (desktop + web) that most developers recognize, plus enterprise features (team collections, API governance, mocking, documentation, testing, monitoring, Postman Flows for API orchestration, Postbot AI assistant). Engineering stack is Node.js / TypeScript dominant, with some Go for infrastructure and React for the client UI. Interviews reflect the reality of a mature developer-platform company &mdash; strong engineering discipline, deep API-protocol awareness, and customer-developer empathy.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Postman, team interest. The product surface is wide: desktop client, web client, cloud sync / collaboration, monitoring / mocking infrastructure, Postman Flows (visual workflow builder), API governance for enterprise, Postbot AI, Postman Network (public API discovery).\n\nTechnical phone screen (60 min): one coding problem, medium-hard. TypeScript / Node.js dominant; Go for some services; React for frontend. Problems tilt applied &mdash; implement a request-response primitive, parse / validate an OpenAPI spec, handle streaming test execution.\n\nTake-home (some senior / staff roles): 4&ndash;6 hours on a realistic engineering problem, typically involving API-tooling primitives.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied round involving API / HTTP primitives.\n\n- System design (1 round): API-tooling prompts. \"Design the cloud-sync system keeping collections and environments consistent across users and devices.\" \"Design the monitoring service executing API checks globally with freshness guarantees.\" \"Design Postbot AI with grounding in the user's collections and OpenAPI specs.\"\n\n- Domain / API deep-dive (1 round): HTTP protocol depth, OpenAPI specification, testing strategies, authentication protocols (OAuth, JWT, API keys), streaming (SSE, WebSocket, gRPC). Genuinely deep for platform-team candidates.\n\n- Behavioral / hiring manager: past projects, developer empathy, working across Bangalore-SF timezones.\n\nTechnical Focus Areas\n\nCoding: TypeScript / Node.js fluency (async patterns, streams, modern idioms), React for frontend, Go for some infrastructure work. Clean API design matters given the developer-tooling focus.\n\nHTTP and API protocols: HTTP/1.1, HTTP/2, HTTP/3 semantics; request / response lifecycle; headers, content negotiation, caching, redirects, timeouts. WebSocket, Server-Sent Events, gRPC, GraphQL &mdash; Postman supports all of these, so platform engineers need fluency.\n\nOpenAPI and API specification: OpenAPI 3.x spec (schemas, paths, components, security schemes), JSON Schema for validation, API governance and linting (Spectral, custom rules), Postman Collection format. API-design-first workflows.\n\nAuthentication protocols: OAuth 2.0 and OIDC (authorization code, client credentials, implicit, device flow, PKCE), API keys, JWT handling, AWS signature-based auth, mutual TLS. Postman must support many authentication patterns for its users' APIs.\n\nCloud-sync architecture: collections, environments, variables, and workspaces must sync across devices and team members. Operational transforms or CRDTs for concurrent editing; conflict resolution; offline support in desktop client.\n\nMonitoring / testing infrastructure: executing API requests at scale across global locations, scheduling checks, aggregating results, alerting. Multi-region deployment, rate-limiting respect for customer APIs being monitored.\n\nPostbot AI: AI assistant helping developers write tests, debug requests, generate documentation, and explain API behavior. For AI-team roles, production LLM integration in developer-tooling contexts matters.\n\nEnterprise features: SSO, SCIM, audit logging, role-based access control, API governance policies, private API networks.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is medium-hard. Comparable to mid-tier public SaaS on applied problems &mdash; below Google L5 on pure algorithms, with solid expectations on realistic API-handling edge cases.\n\nTypical problem shape"
+}

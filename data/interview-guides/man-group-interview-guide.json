@@ -1,0 +1,43 @@
+{
+  "company": "Man Group",
+  "slug": "man-group-interview-guide",
+  "url": "https://www.techinterview.org/companies/man-group-interview-guide",
+  "scrapedAt": "2026-07-02T07:18:01.559Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — Python primary; algorithms with practical engineering flavor",
+    "Probability / statistics (1 round for research) — Bayesian reasoning, regression, time series",
+    "Research deep-dive (1 round for research) — discuss your past work, defend methodology",
+    "Domain depth (1 round) — depends on role: distributed systems, ML, market microstructure, risk",
+    "Behavioral / cultural fit (1 round) — collaboration, intellectual humility, fit with Man culture"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "What's working at AHL actually like?",
+      "How is the Oxford-Man Institute relevant for engineers?",
+      "What's Arctic and why does it matter?",
+      "How does Man Group compare to UK competitors (Marshall Wace, Lansdowne)?",
+      "Is Man Group a good place for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad QR / SWE: £80k–£180k total comp first year (London market)",
+    "Mid-level (4–7 years): £180k–£450k",
+    "Senior (8+ years): £400k–£1.2M",
+    "Senior researcher / Principal: £1M–£3M+",
+    "The 1783 founding date is real — Man Group's heritage is genuinely centuries-old, distinct from US hedge fund peers.",
+    "The Oxford-Man Institute is substantive academic partnership, not just marketing — engineers in research roles can engage with Oxford academics.",
+    "The Arctic time-series database is open-source and used widely outside Man — engineers contribute to a public-facing project.",
+    "The London-NYC tax differential is real; engineers calibrating offers should compute net comp carefully.",
+    "The collaborative (not pod-shop) culture differs substantially from Citadel / Millennium dynamics — better fit for some engineers, worse for others."
+  ],
+  "rawSummary": "Man Group Interview Guide 2026: Largest Listed Hedge Fund, AHL Systematic Trading, London Quant\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 30, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Man Group Interview Guide 2026: Largest Listed Hedge Fund Globally, AHL Systematic Trading, GLG Discretionary, London-Headquartered Quant\n\n- What Man Group Does\n\n- Roles Man Group Hires For\n\n- Man Group Interview Process\n\n- What Man Group Tests For\n\n- Compensation\n\n- Working at Man Group\n\n- Man Group vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 30, 2026 · techinterview.org\n\n⏱ 7 min read\n\nMan Group\nman.com ↗\n\nMan Group Interview Guide 2026: Largest Listed Hedge Fund Globally, AHL Systematic Trading, GLG Discretionary, London-Headquartered Quant\n\nMan Group (LSE: EMG) is the largest publicly-listed hedge fund manager globally (~$175B AUM in 2026), the parent of AHL — one of the longest-running systematic trading platforms in the industry — and one of the most distinctive UK financial firms. Founded as a sugar brokerage in 1783, Man transformed into a hedge fund powerhouse through the 1980s-2000s. The hiring process reflects the firm's hybrid identity: established asset management roots combined with quant-trading sophistication. This guide covers what Man does, the engineering tracks, the interview process, and what makes Man Group hiring distinctive in 2026.\n\nWhat Man Group Does\n\nMan Group operates four investment management businesses:\n\n- Man AHL: the systematic trading flagship. Trend-following, momentum, statistical arbitrage strategies running across global futures, FX, equities, fixed income. AHL has one of the longest live track records of any systematic CTA (founded 1987). Most engineering / quant hiring is in or adjacent to AHL.\n\n- Man Numeric: quantitative equity. Boston-based research; long-short equity strategies driven by factor models. Acquired by Man in 2014.\n\n- Man GLG: discretionary fundamental investment management. Equity long-short, credit, emerging markets. Less algorithmic; more traditional analyst-driven.\n\n- Man FRM: fund-of-funds and customized solutions for institutional clients.\n\nDistinctive features:\n\n- AHL's longevity: 1987 founding gives AHL one of the longest live track records of any systematic strategy. The historical performance database includes regime changes (1990s emerging markets crisis, 2008 financial crisis, 2020 COVID, etc.) that newer firms simply lack data for.\n\n- UK-listed PLC: Man Group is publicly traded on London Stock Exchange. Compensation includes a stock component for senior employees; corporate governance is more transparent than US private hedge funds.\n\n- Academic engagement: Man has substantial relationships with academic institutions (Oxford-Man Institute of Quantitative Finance is the most visible). Research output is published; engineers and researchers participate in academic conferences.\n\n- London headquartered: distinct from US-headquartered hedge fund peers (Citadel, Two Sigma, DE Shaw). UK-based culture; FCA-regulated.\n\n- Centuries-old institution: founded 1783 as ED&F Man sugar brokerage. The cultural heritage is genuinely long; firm reputation includes both establishment respectability and hedge fund modernization.\n\nRoles Man Group Hires For\n\nQuantitative researcher (AHL / Numeric)\n\nDevelops trading strategies, factor models, ML signals. AHL focus: systematic trend-following, momentum, statistical arbitrage. Numeric focus: equity factor research. PhD-friendly though MS candidates considered. Substantial recent hiring as Man invests in ML-driven strategy expansion.\n\nSoftware engineer (trading systems / AHL)\n\nBuilds the AHL trading infrastructure — order management, execution, risk systems, data pipelines. Python heavy; some C++ for performance-critical components. Substantial engineering organization in London.\n\nSoftware engineer (research platform)\n\nBuilds the research environments and backtesting platforms used by quant researchers. Python and Java; substantial data engineering work given AHL's large historical datasets.\n\nData engineer\n\nPipeline engineering for the substantial market data, alternative data, and signal feature stores AHL uses. AHL's data stores include decades of futures and FX tick data.\n\nML engineer / research engineer\n\nBridge between quant research and production. ML model deployment, feature engineering, monitoring. Growing area as AHL expands ML investment.\n\nRisk engineer\n\nReal-time risk monitoring, stress testing, regulatory reporting. Substantial work given AHL's multi-asset trading footprint.\n\nOperations / portfolio engineer\n\nTrade allocation, reconciliation, settlement support. Hybrid of operations and engineering.\n\nMan Group Interview Process\n\nRound 1: Recruiter screen\n\n30 minutes. Background, motivation, role fit. Recruiters often probe specifically on systematic trading interest and academic engagement.\n\nRound 2: Take-home or technical phone screen\n\nFor research roles: a t"
+}

@@ -1,0 +1,42 @@
+{
+  "company": "Wintermute",
+  "slug": "wintermute-interview-guide",
+  "url": "https://www.techinterview.org/companies/wintermute-interview-guide",
+  "scrapedAt": "2026-07-02T07:19:03.290Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — algorithms, often with crypto / market data flavor",
+    "System design (1 round) — multi-venue trading systems, latency-critical architectures",
+    "Domain depth (1 round) — depends on role: trading, market microstructure, blockchain / DeFi, risk",
+    "Behavioral / cultural fit (1 round) — collaboration, comfort with crypto market chaos, risk-taking"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "How real is the post-2022-hack security investment?",
+      "Should I work at Wintermute or a traditional HFT firm doing crypto?",
+      "How does crypto market making differ from traditional?",
+      "What's the DeFi market making team like?",
+      "Is Wintermute a good place for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad trader / SWE: £100k–£250k total comp first year",
+    "Mid-level (4–7 years): £200k–£600k",
+    "Senior (8+ years): £500k–£2M+",
+    "Senior trader / Principal: £1M–£10M+ in good years; substantial variance",
+    "The HFT-style culture is more rigorous than candidates expect from \"crypto\"; latency optimization, formal risk management, statistical research depth all real.",
+    "The DeFi / on-chain engineering is a distinct specialty within Wintermute; the engineering challenges of MEV-aware market making are unique.",
+    "The post-2022-hack security culture is genuine; engineers describe meaningful changes to wallet management and operational security.",
+    "The London base affects lifestyle calculations — UK tax, UK work-life norms, less aggressive than NYC crypto firms.",
+    "The 24/7 markets reality is real; engineers should expect on-call rotations and occasional weekend events."
+  ],
+  "rawSummary": "Wintermute Interview Guide 2026: Crypto Market Making at Scale, London-Headquartered, OTC and Options\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 30, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Wintermute Interview Guide 2026: Crypto Market Making at Scale, London-Headquartered Algorithmic Trading, OTC Desk and Options Market Making\n\n- What Wintermute Does\n\n- Roles Wintermute Hires For\n\n- Wintermute Interview Process\n\n- What Wintermute Tests For\n\n- Compensation\n\n- Working at Wintermute\n\n- Wintermute vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 30, 2026 · techinterview.org\n\n⏱ 8 min read\n\nWintermute\nwintermute.com ↗\n\nWintermute Interview Guide 2026: Crypto Market Making at Scale, London-Headquartered Algorithmic Trading, OTC Desk and Options Market Making\n\nWintermute is one of the largest cryptocurrency market makers globally and the most prominent London-headquartered crypto-trading firm. Founded in 2017 by Evgeny Gaevoy (former head of European ETF trading at Optiver) and Yoann Turpin, Wintermute has grown from a single-asset spot crypto market maker to a multi-product algorithmic trading firm spanning spot, derivatives, options, OTC, and crypto-native DeFi. The firm has handled hundreds of billions of dollars in trading volume across major centralized exchanges (Binance, Coinbase, OKX, Bybit) and on-chain venues. The hiring process is rigorous and reflects the firm's HFT-style culture applied to crypto. This guide covers what Wintermute does, the engineering tracks, the interview process, and what makes Wintermute hiring distinctive in 2026.\n\nWhat Wintermute Does\n\nWintermute operates as a quantitative crypto market maker:\n\n- Spot market making: the original business — providing liquidity in BTC, ETH, and hundreds of altcoin pairs across major centralized exchanges (Binance, Coinbase, OKX, Bybit, Kraken, etc.).\n\n- Derivatives market making: perpetual futures, dated futures, options on major crypto exchanges (Deribit, OKX, Binance derivatives).\n\n- Options market making: growing area; Wintermute is one of the largest crypto options market makers alongside firms like Galaxy and Susquehanna.\n\n- OTC desk: bilateral trading with institutional clients (hedge funds, family offices, exchanges, miners). Quote-driven; settled bilaterally. Substantial revenue contributor.\n\n- DeFi market making: on-chain liquidity provision on Uniswap, Curve, and other DEXs. Distinctive among crypto market makers; combines market making with on-chain engineering.\n\n- Treasury / token services: liquidity provision and treasury management for crypto projects launching tokens. Growing area as projects increasingly want professional market making at launch.\n\nDistinctive features:\n\n- Multi-venue, multi-product: Wintermute operates across more crypto venues than most peers. The engineering complexity of integrating dozens of exchanges (each with different APIs, latency characteristics, rate limits) is substantial.\n\n- HFT-style culture in crypto: the founders' Optiver / traditional HFT background shapes the firm's operations. Latency optimization, statistical signal extraction, formalized risk management — all uncommon at crypto-native firms.\n\n- September 2022 hack recovery: Wintermute experienced a $160M hack of its DeFi-related accounts in September 2022 (Profanity vanity address vulnerability). The firm absorbed the loss without insolvency, demonstrating capital strength. Engineering culture post-hack emphasizes security rigor.\n\n- London headquartered: distinct from US-based crypto firms (Galaxy, Cumberland) and Asian crypto firms. UK-based culture; FCA-regulated where applicable.\n\n- Privately held: no external investors disclosed publicly; bootstrap-style growth with profitable operations.\n\nRoles Wintermute Hires For\n\nQuantitative trader / strategist\n\nDevelops and operates trading strategies across spot, derivatives, options. Smaller team than at traditional HFT firms but high-impact roles. Background often from traditional HFT (Optiver, Citadel Securities, IMC) or from crypto-native trading.\n\nSoftware engineer (low-latency / trading systems)\n\nBuilds the core trading infrastructure — exchange connectivity, order management, risk systems, execution. C++ heavy; some Rust adoption. Performance-critical work given crypto's sometimes-chaotic exchange APIs.\n\nSoftware engineer (DeFi / blockchain)\n\nBuilds on-chain market making infrastructure — smart contract interaction, MEV protection, multi-chain operations (Ethereum, Solana, BSC, Arbitrum, etc.). Smaller team; specialized.\n\nQuantitative researcher\n\nStatistical research, ML for signal extraction, market microstructure analysis applied to crypto. Smaller team than at top traditional quant funds but real research work.\n\nRisk engineer\n\nReal-time risk monitoring, exposure management, cross-venue risk aggregation. Crypto introduces unique risks — exchange counterparty risk, blockchain settlement risk, liquidity gaps.\n\nOTC trader / sales\n\n"
+}

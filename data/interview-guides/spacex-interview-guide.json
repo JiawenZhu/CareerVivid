@@ -1,0 +1,54 @@
+{
+  "company": "SpaceX",
+  "slug": "spacex-interview-guide",
+  "url": "https://www.techinterview.org/companies/spacex-interview-guide",
+  "scrapedAt": "2026-07-02T07:19:42.946Z",
+  "interviewStages": [
+    "Recruiter screen (30 min). Background, role fit, citizenship status (ITAR-relevant).",
+    "Technical screen (60–90 min). One coding problem in C++ for embedded/avionics roles, more language-flexible for Starlink and ground systems. Often includes hardware-flavored questions for real-time roles.",
+    "Hiring manager interview. Past projects, why SpaceX, ability to work in a high-intensity environment.",
+    "Onsite (5–7 rounds, full day).",
+    "1–2 systems / architecture rounds (real-time considerations, embedded constraints)",
+    "1 domain-knowledge round (depending on role: aerospace fundamentals, networking for Starlink, manufacturing systems, etc.)",
+    "1 behavioral / culture-fit round (intense work environment alignment)",
+    "Final interview with senior leadership for some roles, sometimes including Elon Musk himself for very senior positions historically.",
+    "C++ systems-level coding: memory management, RAII, smart pointers, real-time constraints",
+    "Embedded considerations for avionics: deterministic execution time, watchdog timers, fault tolerance",
+    "Distributed systems for Starlink: consistent hashing, leader election, satellite-to-ground link management",
+    "Real-time scheduling: priority inversion, rate-monotonic scheduling, deadline analysis",
+    "Standard algorithmic problems: graphs (especially network routing for Starlink), trees, dynamic programming"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is US citizenship required?",
+      "How intense is the work?",
+      "How does SpaceX compensation compare to FAANG?",
+      "Is Elon Musk involved in interviews?",
+      "What programming language should I prepare?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [
+    "Technical: 8–12 weeks of preparation. For avionics roles: deep C++ practice, real-time systems concepts. For Starlink: standard FAANG-style LeetCode + system design.",
+    "Domain: read about rocket flight phases, basic orbital mechanics if interviewing for mission systems; networking fundamentals for Starlink",
+    "Behavioral: prepare stories about high-intensity projects, ownership of difficult problems, working through ambiguity",
+    "ITAR awareness: understand that US citizenship or permanent residency is required for many roles",
+    "Blue Origin &mdash; reusable rockets, lunar lander",
+    "Anduril &mdash; autonomous defense systems",
+    "Defense Primes (Lockheed, Northrop, RTX) &mdash; traditional defense engineering"
+  ],
+  "compensation": [
+    "Junior: $130–170K base + $40–80K stock + bonus → $200–270K total",
+    "Mid: $170–220K base + $80–150K stock → $280–400K total",
+    "Senior: $220–280K base + $150–280K stock → $400–600K total",
+    "Staff: $280–360K base + $300–500K stock → $600–900K total"
+  ],
+  "rawSummary": "SpaceX Interview Guide (2026): Process, Questions, Compensation\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 2, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Interview process\n\n- Common technical questions\n\n- The Starlink track vs the avionics track\n\n- The work-intensity question\n\n- Compensation (2026 estimates, Hawthorne)\n\n- Preparation\n\n- Frequently Asked Questions\n\n- Adjacent Aerospace and Defense\n\nUpdated May 2, 2026 · techinterview.org\n\n⏱ 3 min read\n\nSpaceX\nspacex.com ↗\n\nSpaceX Interview Guide\n\nCompany overview: SpaceX designs, manufactures, and launches rockets and spacecraft. Headquartered in Hawthorne, California, with major facilities at Starbase (Boca Chica, Texas) and Cape Canaveral. Engineering domains include avionics flight software, ground systems, mission control, manufacturing automation, Starlink (satellite constellation, the largest software employer at SpaceX), and the human spaceflight programs (Crew Dragon, Starship). The hiring bar is famously high; the work pace is famously intense.\n\nInterview process\n\nTimeline: 4–8 weeks. Move quickly for strong candidates; can be slower for security-sensitive roles requiring background checks (US citizenship/permanent residency required for many positions due to ITAR regulations).\n\n- Recruiter screen (30 min). Background, role fit, citizenship status (ITAR-relevant).\n\n- Technical screen (60–90 min). One coding problem in C++ for embedded/avionics roles, more language-flexible for Starlink and ground systems. Often includes hardware-flavored questions for real-time roles.\n\n- Hiring manager interview. Past projects, why SpaceX, ability to work in a high-intensity environment.\n\n- Onsite (5–7 rounds, full day).\n\n2–3 coding rounds (medium-to-hard, often C++ for avionics)\n\n- 1–2 systems / architecture rounds (real-time considerations, embedded constraints)\n\n- 1 domain-knowledge round (depending on role: aerospace fundamentals, networking for Starlink, manufacturing systems, etc.)\n\n- 1 behavioral / culture-fit round (intense work environment alignment)\n\n- Final interview with senior leadership for some roles, sometimes including Elon Musk himself for very senior positions historically.\n\nCommon technical questions\n\n- C++ systems-level coding: memory management, RAII, smart pointers, real-time constraints\n\n- Embedded considerations for avionics: deterministic execution time, watchdog timers, fault tolerance\n\n- Distributed systems for Starlink: consistent hashing, leader election, satellite-to-ground link management\n\n- Real-time scheduling: priority inversion, rate-monotonic scheduling, deadline analysis\n\n- Standard algorithmic problems: graphs (especially network routing for Starlink), trees, dynamic programming\n\nThe Starlink track vs the avionics track\n\nSpaceX's interview style varies significantly by team. Starlink (the largest software employer) interviews look more like FAANG cloud-and-distributed-systems interviews, with substantial system design content and Python/Go/Rust as common languages. Avionics flight software interviews are deeply C++ focused, with embedded constraints (limited memory, deterministic execution, no dynamic allocation in hot paths) being central. Knowing which track you are interviewing for changes the preparation significantly.\n\nThe work-intensity question\n\nSpaceX is known for an extremely demanding work culture — long hours, weekend work during launch campaigns, high expectations on individual ownership. The behavioral round explicitly tests alignment with this. A candidate who emphasizes work-life balance or asks about flexible hours during the interview is often filtered out at this stage. Candidates who are pulled by the mission and accept the intensity are heavily favored.\n\nCompensation (2026 estimates, Hawthorne)\n\n- Junior: $130–170K base + $40–80K stock + bonus → $200–270K total\n\n- Mid: $170–220K base + $80–150K stock → $280–400K total\n\n- Senior: $220–280K base + $150–280K stock → $400–600K total\n\n- Staff: $280–360K base + $300–500K stock → $600–900K total\n\nSpaceX is private; stock is in the form of pre-IPO shares with periodic tender offers (typically annually). The actual cash-equivalent value of the stock has appreciated significantly over the years for long-tenured employees. Compensation generally below FAANG cash but with substantial equity upside.\n\nPreparation\n\n- Technical: 8–12 weeks of preparation. For avionics roles: deep C++ practice, real-time systems concepts. For Starlink: standard FAANG-style LeetCode + system design.\n\n- Domain: read about rocket flight phases, basic orbital mechanics if interviewing for mission systems; networking fundamentals for Starlink\n\n- Behavioral: prepare stories about high-intensity projects, ownership of difficult problems, working through ambiguity\n\n- ITAR awareness: understand that US citizenship or permanent residency is required for many roles\n\nFrequently Asked Questions\n\nIs US citizenship required?\n\nFor many roles, yes — ITAR (International Traffic in Arms Regulations)"
+}

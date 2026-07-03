@@ -1,0 +1,103 @@
+{
+  "company": "Reddit",
+  "slug": "reddit-interview",
+  "url": "https://www.techinterview.org/companies/reddit-interview",
+  "scrapedAt": "2026-07-02T07:25:37.397Z",
+  "interviewStages": [
+    "Recruiter call to discuss background",
+    "System Design (Very Important)"
+  ],
+  "codingTopics": [
+    "Tree traversal algorithm",
+    "Discussion of time/space complexity",
+    "How to optimize for Reddit's use case (millions of comments)",
+    "Database schema design",
+    "Pattern detection algorithms",
+    "Statistical analysis",
+    "Handling large datasets efficiently",
+    "Practical tradeoffs (false positives vs false negatives)"
+  ],
+  "systemDesignTopics": [
+    "Data Model:",
+    "Denormalization for performance",
+    "Score calculation",
+    "Scale:",
+    "Caching layer (Redis)",
+    "Queue for async processing",
+    "Consistency:",
+    "How to handle conflicts",
+    "Vote fraud prevention",
+    "Performance:",
+    "Caching strategies",
+    "CDN usage"
+  ],
+  "behavioralTopics": [
+    "Passion for the product: Actually use Reddit, have opinions",
+    "User focus: Care about the community",
+    "Pragmatism: Ship features, don't overengineer",
+    "Collaboration: Work well with product/design",
+    "\"Tell me about a time you disagreed with a product decision.\"",
+    "\"How do you handle technical debt?\"",
+    "\"Describe a feature you shipped that users loved.\"",
+    "\"What would you improve about Reddit?\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [
+      "Eventual consistency acceptable?"
+    ],
+    "values": [],
+    "other": []
+  },
+  "difficulty": 9,
+  "tips": [
+    "100+ leetcode problems (focus on medium)",
+    "Emphasize trees, graphs, hash tables",
+    "Practice live coding – they'll watch you think",
+    "Write clean, commented code",
+    "Study Reddit's architecture (tech talks, blog posts)",
+    "Understand caching patterns deeply",
+    "Learn about database sharding",
+    "Practice designing social features",
+    "Use Reddit daily, note what works/doesn't",
+    "Prepare STAR stories",
+    "Think about scale problems",
+    "Have thoughtful product opinions",
+    "Actually use Reddit: Browse different subreddits, notice patterns, have opinions",
+    "Focus on scale: Every answer should consider \"what if 10M users?\"",
+    "Know caching: Redis comes up a lot in system design",
+    "Write clean code: They care about code quality",
+    "Be pragmatic: They want builders, not perfectionists",
+    "Ask good questions: About team, tech stack, roadmap",
+    "Reddit Engineering Blog (redditblog.com)",
+    "System Design Primer (GitHub)",
+    "Grokking the System Design Interview",
+    "Leetcode premium (for Reddit-specific questions)",
+    "Redis documentation (seriously, know Redis)"
+  ],
+  "compensation": [
+    "New grad: $140-160K base + $40-60K stock",
+    "Mid-level (3-5 YOE): $160-200K base + $60-100K stock",
+    "Senior (5-8 YOE): $200-260K base + $100-200K stock",
+    "Staff+: $280-400K+ total comp",
+    "Smart, passionate engineers",
+    "Interesting technical challenges at scale",
+    "Product people actually care about users",
+    "Remote-friendly (really!)",
+    "Good work-life balance (45 hours/week typical)",
+    "Lots of legacy code (site is 18+ years old)",
+    "Some tech debt",
+    "Not as much $$ as FAANG",
+    "Post-IPO pressure to grow revenue",
+    "Technical rigor: Harder than I expected for a \"social media\" company",
+    "Scale focus: Every question had a scale component",
+    "Python everywhere: They really care about Python skills",
+    "Product involvement: Engineers have strong product opinions",
+    "Ask about on-call rotation (can be heavy for some teams)",
+    "Ask about technical debt (varies by team)",
+    "Ask about team stability (some teams have higher turnover)",
+    "Ask about roadmap (post-IPO priorities shifting)"
+  ],
+  "rawSummary": "Reddit Interview\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  February 1, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated February 1, 2026 · techinterview.org\n\n⏱ 5 min read\n\nReddit\nreddit.com ↗\n\nReddit Interview Process: Complete 2026 Guide\n\nInterviewed at Reddit in early 2024 for a backend engineer role. The process was surprisingly rigorous for a company of their size. Here's everything you need to know.\n\nOverview\n\nReddit is at an interesting phase – post-IPO, scaling rapidly, but still maintaining that startup-ish culture. The interview reflects this: expect FAANG-level technical rigor but with more emphasis on practical engineering and less on obscure algorithms.\n\nThey care a lot about handling scale – Reddit gets billions of pageviews monthly – and about building features that millions of users actually love.\n\nInterview Structure\n\nInitial Screen (30 minutes):\n\n- Recruiter call to discuss background\n\n- Talk about why Reddit\n\n- Salary expectations\n\n- Timeline and logistics\n\nTechnical Phone Screen (45-60 minutes):\n\n- 1-2 coding problems\n\n- Live coding in CoderPad\n\n- Medium leetcode difficulty\n\n- Some discussion about your experience\n\nMy phone screen: Implement a rate limiter, then discuss how I'd deploy it at Reddit scale. Good indicator of their focus.\n\nVirtual Onsite (4 hours):\n\n- 2 coding rounds (45 min each)\n\n- 1 system design round (60 min)\n\n- 1 behavioral/culture fit round (30 min)\n\n- 15 min break between rounds\n\nTechnical Focus Areas\n\n1. Data Structures & Algorithms (Core)\n\nMedium to hard leetcode:\n\n- Trees and graphs (BFS, DFS)\n\n- Hash tables and sets\n\n- String manipulation\n\n- Some DP (not super heavy)\n\n- Sliding window, two pointers\n\nThey want efficient solutions. Brute force won't cut it.\n\n2. System Design (Very Important)\n\nExpect Reddit-scale problems:\n\n- Design a voting system (upvotes/downvotes)\n\n- Design a comment tree structure\n\n- Design a feed generation system\n\n- Design a notification service\n\n- Caching strategies at massive scale\n\nFocus on:\n\n- Handling millions of concurrent users\n\n- Data consistency vs availability tradeoffs\n\n- Caching strategies (Redis heavily used at Reddit)\n\n- Database sharding and replication\n\n3. Python/Backend Skills\n\nReddit is heavily Python-based (though they're adding more Go):\n\n- Strong Python knowledge expected\n\n- Web frameworks (Flask/Django)\n\n- REST API design\n\n- Database optimization\n\n- Caching patterns\n\nCoding Interview Details\n\nRound 1 – Data Structures:\n\nProblem I got: \"Implement a comment tree where you can efficiently fetch all child comments of a given comment.\"\n\nThey wanted:\n\n- Tree traversal algorithm\n\n- Discussion of time/space complexity\n\n- How to optimize for Reddit's use case (millions of comments)\n\n- Database schema design\n\nRound 2 – Algorithms:\n\nProblem: \"Given user voting history, detect vote manipulation (bots).\"\n\nRequired:\n\n- Pattern detection algorithms\n\n- Statistical analysis\n\n- Handling large datasets efficiently\n\n- Practical tradeoffs (false positives vs false negatives)\n\nThis is typical Reddit – real problems they actually face.\n\nSystem Design Interview\n\nQuestion: \"Design Reddit's voting system to handle 10 million votes per minute.\"\n\nKey areas to cover:\n\n- Data Model:\n\nHow to store votes\n\n- Denormalization for performance\n\n- Score calculation\n\n- Scale:\n\nDatabase sharding strategy\n\n- Caching layer (Redis)\n\n- Queue for async processing\n\n- Consistency:\n\nEventual consistency acceptable?\n\n- How to handle conflicts\n\n- Vote fraud prevention\n\n- Performance:\n\nRead vs write optimization\n\n- Caching strategies\n\n- CDN usage\n\nThe interviewer pushed hard on specifics – \"How exactly would you shard? What happens if a shard goes down? How do you ensure vote counts are accurate?\"\n\nBehavioral Interview\n\nReddit has a strong engineering culture. They look for:\n\n- Passion for the product: Actually use Reddit, have opinions\n\n- User focus: Care about the community\n\n- Pragmatism: Ship features, don't overengineer\n\n- Collaboration: Work well with product/design\n\nQuestions I got:\n\n- \"Tell me about a time you disagreed with a product decision.\"\n\n- \"How do you handle technical debt?\"\n\n- \"Describe a feature you shipped that users loved.\"\n\n- \"What would you improve about Reddit?\"\n\nThat last one is important – have real, thoughtful suggestions ready.\n\nPreparation Strategy\n\nFor Coding (3-4 weeks):\n\n- 100+ leetcode problems (focus on medium)\n\n- Emphasize trees, graphs, hash tables\n\n- Practice live coding – they'll watch you think\n\n- Write clean, commented code\n\nFor System Design (2-3 weeks):\n\n- Study Reddit's architecture (tech talks, blog posts)\n\n- Understand caching patterns deeply\n\n- Learn about database sharding\n\n- Practice designing social features\n\nFor Behavioral (1 week):\n\n- Use Reddit daily, note what works/doesn't\n\n- Prepare STAR stories\n\n- Think about scale problems\n\n- Have thoughtful product opinions\n\nDifficulty: 7.5/10\n\nComparable to mid-tier FAANG. Easier than Google/Meta (9/10), harder than most Series B startups (6/10).\n\nThe coding is standard leetcode medium. "
+}

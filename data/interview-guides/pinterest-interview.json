@@ -1,0 +1,96 @@
+{
+  "company": "Pinterest",
+  "slug": "pinterest-interview",
+  "url": "https://www.techinterview.org/companies/pinterest-interview",
+  "scrapedAt": "2026-07-02T07:25:16.791Z",
+  "interviewStages": [
+    "System Design (Very Important)"
+  ],
+  "codingTopics": [
+    "Graph representation (Pins as nodes, similarity as edges)",
+    "Connected components algorithm",
+    "Time/space complexity analysis",
+    "Discussion of how to define \"similarity\"",
+    "Data structure design",
+    "Efficient similarity calculation",
+    "Caching considerations",
+    "API design"
+  ],
+  "systemDesignTopics": [
+    "Data Model:",
+    "Followers, interests, engagement",
+    "Relationships between entities",
+    "Feed Generation:",
+    "Ranking algorithm",
+    "Personalization based on user interests",
+    "Diversity and freshness",
+    "Scale:",
+    "Billions of Pins",
+    "Real-time updates",
+    "Caching strategies",
+    "Infrastructure:",
+    "Database sharding",
+    "Message queues for async processing",
+    "A/B testing infrastructure"
+  ],
+  "behavioralTopics": [
+    "User focus: Making Pinners happy",
+    "Data-driven: A/B test everything",
+    "Collaboration: Cross-functional teams",
+    "Impact: Shipping features that move metrics",
+    "\"Tell me about a time you used data to make a decision.\"",
+    "\"Describe a feature you shipped that didn't work as expected.\"",
+    "\"How do you prioritize when there are competing demands?\"",
+    "\"What would you build if you joined Pinterest?\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Have product ideas: What would you build at Pinterest?"
+    ]
+  },
+  "difficulty": 9,
+  "tips": [
+    "100-150 leetcode problems (mix of medium/hard)",
+    "Focus on graphs, trees, hash tables",
+    "Practice explaining your thought process",
+    "Write clean, commented code",
+    "Study feed/timeline systems (Twitter, Instagram, Facebook)",
+    "Learn about recommendation systems",
+    "Understand image storage and CDNs",
+    "Practice designing Pinterest-like features",
+    "Use Pinterest daily, note what works/doesn't",
+    "Think about features you'd build",
+    "Prepare STAR stories showing data-driven thinking",
+    "Have opinions about product direction",
+    "Actually use Pinterest: Browse, save Pins, understand the product",
+    "Study recommendation systems: Comes up a lot in design rounds",
+    "Practice medium/hard leetcode: They test similar difficulty to Meta",
+    "Think about images at scale: Storage, CDN, optimization",
+    "Be data-driven: Show you make decisions based on metrics",
+    "Pinterest Engineering Blog (medium.com/pinterest-engineering)",
+    "System Design Interview book (by Alex Xu)",
+    "Leetcode premium (for Pinterest-tagged questions)",
+    "Designing Data-Intensive Applications (Martin Kleppmann)"
+  ],
+  "compensation": [
+    "New grad: $150-170K base + $50-80K stock",
+    "Mid-level (3-5 YOE): $170-210K base + $80-140K stock",
+    "Senior (5-8 YOE): $210-280K base + $140-240K stock",
+    "Staff+: $300-450K+ total comp",
+    "Interesting ML/computer vision problems",
+    "Positive, collaborative culture",
+    "Good work-life balance (45-50 hours/week)",
+    "Beautiful office (San Francisco)",
+    "Product people love the product",
+    "Remote-friendly post-COVID",
+    "Slower growth than a few years ago",
+    "Some concern about long-term competitiveness",
+    "Not as much money as top-tier FAANG",
+    "Ad-driven revenue model (like most social)"
+  ],
+  "rawSummary": "Pinterest Interview\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  February 1, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated February 1, 2026 · techinterview.org\n\n⏱ 4 min read\n\nPinterest\npinterest.com ↗\n\nPinterest Interview Process: Complete 2026 Guide\n\nInterviewed at Pinterest in summer 2023 for a backend engineer position. Got to final round but didn't get the offer. Here's everything I learned about their process.\n\nOverview\n\nPinterest is at an interesting scale – 400+ million monthly users but not quite FAANG-sized. The interview reflects this: rigorous technical bar similar to mid-tier FAANG, with emphasis on practical engineering and building features users love.\n\nThey care deeply about visual search, recommendations, and serving content at scale. If you're into ML, computer vision, or recommendation systems, Pinterest is fascinating.\n\nInterview Structure\n\nRecruiter Screen (30 minutes):\n\n- Background and experience\n\n- Why Pinterest?\n\n- Timeline and logistics\n\n- Compensation expectations\n\nTechnical Phone Screen (45-60 minutes):\n\n- 1-2 coding problems\n\n- CoderPad or similar platform\n\n- Medium difficulty\n\n- Some discussion of your past work\n\nMy phone screen: Design a rate limiter (implementation + API). Then discussed scaling considerations.\n\nVirtual Onsite (4-5 hours):\n\n- 2 coding rounds (45 min each)\n\n- 1 system design round (60 min)\n\n- 1 behavioral/culture fit round (30 min)\n\n- 15 min breaks between rounds\n\nTechnical Focus Areas\n\n1. Data Structures & Algorithms (Core)\n\nExpect medium to hard leetcode:\n\n- Trees and graphs (BFS, DFS)\n\n- Hash tables and sets\n\n- Heaps and priority queues\n\n- Two pointers, sliding window\n\n- Some dynamic programming\n\nSimilar difficulty to Meta/Google for equivalent levels.\n\n2. System Design (Very Important)\n\nPinterest-specific problems come up:\n\n- Design a feed system (Pins feed)\n\n- Design image storage and retrieval\n\n- Design a recommendation engine\n\n- Design search functionality\n\n- Design analytics pipeline\n\nFocus on:\n\n- Handling millions of images\n\n- Real-time vs batch processing\n\n- Personalization at scale\n\n- CDN and caching strategies\n\n3. Backend Engineering\n\nStrong backend skills expected:\n\n- API design\n\n- Database design (SQL + NoSQL)\n\n- Caching strategies\n\n- Message queues\n\n- Microservices architecture\n\n4. Python/Java Skills\n\nPinterest uses Python and Java heavily:\n\n- Strong Python or Java proficiency\n\n- Understanding of frameworks (Flask, Django, Spring)\n\n- Code quality and best practices\n\nCoding Interview Details\n\nRound 1 – Algorithms:\n\nProblem I got: \"Given a list of Pins (images) that a user has saved, find groups of similar Pins.\"\n\nThis was about clustering/grouping. They wanted:\n\n- Graph representation (Pins as nodes, similarity as edges)\n\n- Connected components algorithm\n\n- Time/space complexity analysis\n\n- Discussion of how to define \"similarity\"\n\nVery Pinterest-specific flavor.\n\nRound 2 – Implementation:\n\nProblem: \"Implement a simplified version of Pinterest's 'Related Pins' feature.\"\n\nRequired:\n\n- Data structure design\n\n- Efficient similarity calculation\n\n- Caching considerations\n\n- API design\n\nMore about practical engineering than pure algorithms.\n\nSystem Design Interview\n\nQuestion: \"Design Pinterest's home feed system that shows personalized Pins to users.\"\n\nKey areas to cover:\n\n- Data Model:\n\nUsers, Pins, Boards\n\n- Followers, interests, engagement\n\n- Relationships between entities\n\n- Feed Generation:\n\nCandidate generation (which Pins to consider)\n\n- Ranking algorithm\n\n- Personalization based on user interests\n\n- Diversity and freshness\n\n- Scale:\n\n400M+ users\n\n- Billions of Pins\n\n- Real-time updates\n\n- Caching strategies\n\n- Infrastructure:\n\nCDN for images\n\n- Database sharding\n\n- Message queues for async processing\n\n- A/B testing infrastructure\n\nThe interviewer pushed on ML aspects – \"How would you incorporate machine learning? How do you handle cold start for new users?\"\n\nBehavioral Interview\n\nPinterest culture emphasizes:\n\n- User focus: Making Pinners happy\n\n- Data-driven: A/B test everything\n\n- Collaboration: Cross-functional teams\n\n- Impact: Shipping features that move metrics\n\nQuestions I got:\n\n- \"Tell me about a time you used data to make a decision.\"\n\n- \"Describe a feature you shipped that didn't work as expected.\"\n\n- \"How do you prioritize when there are competing demands?\"\n\n- \"What would you build if you joined Pinterest?\"\n\nThat last question matters – have a thoughtful answer ready.\n\nPreparation Strategy\n\nFor Coding (4-6 weeks):\n\n- 100-150 leetcode problems (mix of medium/hard)\n\n- Focus on graphs, trees, hash tables\n\n- Practice explaining your thought process\n\n- Write clean, commented code\n\nFor System Design (3-4 weeks):\n\n- Study feed/timeline systems (Twitter, Instagram, Facebook)\n\n- Learn about recommendation systems\n\n- Understand image storage and CDNs\n\n- Practice designing Pinterest-like features\n\nFor Behavioral (1-2 weeks):\n\n- Use Pinterest daily, note what works/doesn't\n\n- Think about features you'd build\n\n- Prepare STAR stories showing data-driven t"
+}

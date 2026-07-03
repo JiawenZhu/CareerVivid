@@ -1,0 +1,27 @@
+{
+  "company": "Pika Labs",
+  "slug": "pika-labs-interview-guide",
+  "url": "https://www.techinterview.org/companies/pika-labs-interview-guide",
+  "scrapedAt": "2026-07-02T07:14:11.154Z",
+  "interviewStages": [
+    "Behavioral: ownership, taste, fast-moving creative startup"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Pika Labs remote-friendly?",
+      "How does Pika compare to Runway or Sora-derived products?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Pika Labs Interview Guide (2026): AI Video Generation\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nPika Labs\npika.art ↗\n\nPika Labs is a leading AI video-generation platform — text-to-video, image-to-video, and creative video editing tools. Series B in 2024. The interview emphasizes generative-video model engineering, the heaviest inference workload of any media type, and the consumer creative-tools product surface.\n\nProcess\n\nRecruiter screen → 60-minute coding (Python with ML fluency) → onsite virtual: 2 coding/ML, 1 ML system design, 1 craft deep-dive, 1 behavioral. ML-research candidates get a research deep-dive. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a video generation pipeline with frame coherence\n\n- Design a GPU-tier system for variable-length video inference\n\n- Design a creative editing tool that combines generation with editing\n\n- Coding: medium-hard DSA, often video or pipeline framing\n\n- Behavioral: ownership, taste, fast-moving creative startup\n\nLevels and comp (2026)\n\n- SE: $190K–$260K total (cash + meaningful equity)\n\n- Senior SE: $270K–$370K total\n\n- Staff / ML Research: $385K–$580K+ total\n\nPrep priorities\n\n- Be fluent in Python (research / serving), C++/CUDA helpful for inference\n\n- Understand video diffusion (latent video diffusion, motion modeling)\n\n- Brush up on temporal consistency, attention variants for video, and video codecs (HEVC, VP9, AV1)\n\nFrequently Asked Questions\n\nIs Pika Labs remote-friendly?\n\nHubs in San Francisco and remote across US. Many roles remote.\n\nHow does Pika compare to Runway or Sora-derived products?\n\nRunway is the established creative-tools brand. Sora (OpenAI) is the highest-quality but limited access. Pika is the consumer-friendly alternative with strong product polish. Comp competitive in AI startup tier.\n\nWhat is the engineering culture?\n\nSmall, technically dense, fast-shipping. Strong creative-product orientation; engineers expected to use the product daily.\n\nSimilar company guides\n\nReka AIinterview guideSakana AIinterview guideBlack Forest Labsinterview guideHippocratic AIinterview guideRunwayinterview guideSunointerview guide\n\nPrepping for Pika Labs? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLate-Career Founders: When to Build a Startup After 50⏱ 4 min readToken Refresh Low-Level Design: OAuth Refresh Tokens, Rotation, and Theft Detection⏱ 8 min readSystem Design Interview: Design Dropbox / Google Drive (Cloud Storage)⏱ 9 min read"
+}

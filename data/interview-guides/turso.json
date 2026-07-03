@@ -1,0 +1,76 @@
+{
+  "company": "Turso",
+  "slug": "turso",
+  "url": "https://www.techinterview.org/companies/turso",
+  "scrapedAt": "2026-07-02T07:16:15.491Z",
+  "interviewStages": [
+    "System design (1 round): database-platform prompts. \"Design the SQLite edge-replication system with global sub-100ms write propagation.\" \"Design the embedded-replica pattern letting applications read locally with eventual consistency.\" \"Design the vector-search extension for libSQL with HNSW indexing.\"",
+    "Behavioral / hiring manager: past projects, remote-work effectiveness, database-systems passion, small-team comfort."
+  ],
+  "codingTopics": [
+    "Implement a simple WAL primitive (append-only log with recovery semantics)",
+    "Parse SQLite page format (B-tree leaf or interior page)",
+    "Design a replication-stream consumer handling out-of-order arrivals",
+    "Embedded-replica sync: given local writes and remote updates, produce merged state",
+    "Classic algorithm problems (trees, graphs, intervals) with database-applied twists"
+  ],
+  "systemDesignTopics": [
+    "\"Design the edge-replication system with globally-distributed read replicas and a primary for writes.\"",
+    "\"Design the embedded-replica sync protocol for applications with intermittent connectivity.\"",
+    "\"Design the vector-search integration inside libSQL with HNSW indexes and hybrid lexical-vector queries.\"",
+    "\"Design the multi-tenant management layer supporting thousands of customer databases across edge locations.\"",
+    "Walk through SQLite's WAL mode and how it enables concurrent readers with a single writer.",
+    "Discuss libSQL's replication approach and the trade-offs vs upstream SQLite.",
+    "Explain the challenges of adding vector search to a SQLite-adjacent database engine.",
+    "Describe how Turso's multi-region architecture handles regional failures."
+  ],
+  "behavioralTopics": [
+    "Systems-engineering passion: \"What drew you to database systems or infrastructure?\"",
+    "Small-team comfort: \"How do you operate when owning broad scope with limited team size?\"",
+    "Remote effectiveness: \"Describe your practices for effective async collaboration.\"",
+    "Customer empathy: \"Tell me about engaging with a developer's database problem.\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [
+      "Reason about embedded-replica semantics &mdash; when do applications see stale data, how do you bound staleness?"
+    ],
+    "values": [],
+    "other": [
+      "Is SQLite really production-ready for serious workloads?",
+      "How does Turso compare to Cloudflare D1 or Fly.io?",
+      "What's the embedded-replica pattern, and why does it matter?",
+      "What's the AI / vector search direction?",
+      "Is the company stable given its small size?"
+    ]
+  },
+  "difficulty": 7.5,
+  "tips": [
+    "Use Turso for a real project. The free tier is sufficient for experimentation with embedded replicas and edge deployment.",
+    "Read SQLite documentation. WAL mode, transactions, B-tree implementation &mdash; vocabulary for interviews.",
+    "Engage with the libSQL source. Open-source on GitHub; skimming key files is feasible.",
+    "Know the embedded-replica pattern. It's the distinctive product feature; understanding it signals preparation.",
+    "Prepare for remote-work-effectiveness discussion. Specific practices win over generic claims.",
+    "Turso engineering blog and technical deep-dives",
+    "libSQL GitHub repository (open-source; review meaningful code)",
+    "SQLite official documentation (especially WAL mode and architecture)",
+    "Database Internals by Alex Petrov",
+    "Glauber Costa's writings and talks (ScyllaDB and Turso-era)",
+    "Turso free tier &mdash; deploy a small project with embedded replicas"
+  ],
+  "compensation": [
+    "Software Engineer (US): $170k&ndash;$215k base, $120k&ndash;$230k equity (4 years), modest bonus. Total: ~$260k&ndash;$410k / year.",
+    "Senior Software Engineer: $220k&ndash;$280k base, $250k&ndash;$480k equity. Total: ~$350k&ndash;$550k / year.",
+    "Staff Engineer: $285k&ndash;$345k base, $500k&ndash;$900k equity. Total: ~$500k&ndash;$790k / year.",
+    "The engineering depth per headcount is significant. 60 people building production-grade distributed SQLite is substantial.",
+    "SQLite is more production-ready for serious workloads than many developers realize &mdash; Turso's thesis is well-founded.",
+    "The embedded-replica pattern is a genuine architectural innovation enabling sub-ms local reads.",
+    "Glauber Costa and team are real database engineers with industry credibility.",
+    "Dismissing SQLite as \"not a real database.\" It powers meaningful production systems.",
+    "Weak Rust fluency for core-platform roles.",
+    "Not using Turso before interviewing.",
+    "Generic database answers ignoring SQLite's specific characteristics."
+  ],
+  "rawSummary": "Turso Interview Guide 2026: SQLite-For-Production, libSQL, Embedded Replicas, and Edge Deployment\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 24, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 24, 2026 · techinterview.org\n\n⏱ 8 min read\n\nTurso\nturso.com ↗\n\nTurso Interview Process: Complete 2026 Guide\n\nOverview\n\nTurso is the SQLite-for-production company offering distributed SQLite via libSQL (their open-source fork of SQLite), edge-replicated databases, embedded-replicas in applications, and increasingly AI-adjacent vector / embedding features inside SQLite. Founded 2021 by Glauber Costa, Pekka Enberg, and others (previously at ScyllaDB and Datastax), private with a Series A in 2023 and continued growth into 2025. ~60 employees in 2026, deliberately small relative to ambition. Remote-first with engineers distributed globally. The technical bet: SQLite is production-ready for serious workloads when combined with the right infrastructure &mdash; replication, edge deployment, branching-like features, and embedded-replica patterns that let applications read locally with sub-millisecond latency while writes replicate globally. Engineering stack is Rust for libSQL and core infrastructure, TypeScript for platform API and dashboard, with a focus on clean systems engineering. Interviews reflect the systems-engineering-serious culture &mdash; expect real Rust fluency for core-platform roles, genuine database engineering, and thoughtful engagement with SQLite's distinctive characteristics.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Turso, team interest. The engineering surface is compact: libSQL core (Rust), replication / edge infrastructure (Rust / Go), platform API and dashboard (TypeScript), client SDKs (multi-language), and AI-adjacent features (vector search in SQLite).\n\nTechnical phone screen (60 min): one coding problem, medium-hard. Rust for core work; TypeScript for platform; Python for tooling. Problems tilt systems-y &mdash; implement a WAL primitive, parse a structured format, handle streaming replication.\n\nTake-home (many senior / staff roles): 4&ndash;8 hours on a realistic database-systems problem.\n\nOnsite / virtual onsite (3&ndash;5 rounds, compact):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied systems round.\n\n- System design (1 round): database-platform prompts. \"Design the SQLite edge-replication system with global sub-100ms write propagation.\" \"Design the embedded-replica pattern letting applications read locally with eventual consistency.\" \"Design the vector-search extension for libSQL with HNSW indexing.\"\n\n- Database / systems deep-dive (1 round): SQLite internals, libSQL differences from upstream SQLite, replication semantics, WAL-based concurrency, Rust systems programming.\n\n- Behavioral / hiring manager: past projects, remote-work effectiveness, database-systems passion, small-team comfort.\n\nTechnical Focus Areas\n\nCoding: Rust fluency for core libSQL work (ownership, async with tokio, FFI boundaries for SQLite integration). TypeScript for platform and dashboard work. Clean code with systems-engineering discipline.\n\nSQLite internals: B-tree storage, page format, write-ahead logging (WAL) mode, transactions, journaling, in-memory vs file-backed databases, the SQLite API surface. SQLite's implementation simplicity is both its strength and a source of engineering challenges when adapting it for distributed production use.\n\nlibSQL vs SQLite: Turso's libSQL is a fork of SQLite with extensions for replication, encryption, and eventually vector search. Understanding what libSQL changes and why (replication-friendly changes, API additions, backward-compat considerations) matters for core-platform roles.\n\nReplication: WAL-based replication with primary / replica semantics, consensus-adjacent decisions for write ordering, eventual vs causal consistency choices, embedded-replica sync protocols.\n\nEdge deployment: globally distributed database nodes with proximity-aware read routing, write forwarding to a primary, managed deployment across AWS / GCP / Azure regions. Understanding the trade-offs of active-active vs primary-replica topologies.\n\nEmbedded replicas: Turso's distinctive pattern &mdash; applications hold a local SQLite database that continuously syncs from the cloud-hosted primary, enabling sub-millisecond local reads. Understanding the sync protocol, local storage strategy, and conflict-resolution trade-offs matters.\n\nVector / AI features: libSQL is adding vector-search capabilities. For AI-product roles, understanding HNSW / IVF indexing, embedding storage, and query-planner integration for hybrid search matters.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is medium-hard for core-database roles &mdash; comparable to other small database-platform companies. Platform / client-SDK roles are medium.\n\nTypical problem shapes:\n\n- Implement a simple WAL primitive (append-only log with recovery semantics)\n\n- Parse SQLite page form"
+}

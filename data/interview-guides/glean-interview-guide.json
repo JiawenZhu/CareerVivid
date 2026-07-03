@@ -1,0 +1,60 @@
+{
+  "company": "Glean",
+  "slug": "glean-interview-guide",
+  "url": "https://www.techinterview.org/companies/glean-interview-guide",
+  "scrapedAt": "2026-07-02T07:13:39.172Z",
+  "interviewStages": [
+    "Recruiter screen.",
+    "Hiring manager screen (45 min). Past projects, role fit, Glean-specific motivation.",
+    "Technical phone screen (60 min). Coding plus brief design discussion.",
+    "Virtual onsite (4–5 rounds).",
+    "1 system design round (often retrieval / search-architecture flavored)",
+    "1 ML / RAG round for ML-engineering-track positions",
+    "1 behavioral / culture round",
+    "Founder or executive interview for senior+ roles.",
+    "Standard LeetCode mediums and hards (Python or Java common)",
+    "Search architecture: inverted indexes, ranking, query understanding, federated search",
+    "RAG (retrieval-augmented generation): chunking strategies, embedding models, reranking, evaluation",
+    "Multi-tenancy: data isolation across customer organizations, permission-aware search",
+    "For senior+: how to handle index updates from many SaaS sources with varying APIs and rate limits"
+  ],
+  "codingTopics": [
+    "Build a federated search index. Glean indexes content from many SaaS apps (Slack, Drive, Confluence, Jira, Salesforce, etc.). Discuss how to handle different rate limits, authentication models, schemas, and incremental update granularity per source.",
+    "Implement permission-aware retrieval. Search results must respect what the user can actually access in source systems. Discuss two architectures: (1) replicate ACLs into your search index and check at query time, (2) use source-system live permission checks at retrieval time. Trade-offs of each.",
+    "Design hybrid search. Combine BM25 keyword scoring with dense-embedding semantic similarity. Discuss reranking, query rewriting, and when each strategy dominates (short factual queries vs long natural-language questions).",
+    "Chunking strategies: fixed-size vs semantic vs hierarchical. Why naive fixed-size chunking underperforms in enterprise contexts where document structure matters.",
+    "Embedding model selection and update strategy: how to roll out a new embedding model when the existing index has billions of vectors. Backfill cost, query-time fallback, and the role of embedding adapters.",
+    "Evaluating RAG quality at scale: faithfulness, relevance, recall. The tension between automated metrics and customer-perceived quality. Glean's approach to feedback loops.",
+    "Tenant isolation in vector stores: per-tenant indices vs shared index with metadata filtering. The cost-vs-isolation trade-off.",
+    "Per-customer embedding models: how to support customers who want their own fine-tuned models without exploding infrastructure cost.",
+    "SSO and SCIM provisioning: handling identity at enterprise scale, mapping source-system identities to Glean's internal user model.",
+    "The difference between BM25 and dense retrieval — when each wins, why neither is sufficient alone.",
+    "Click-through learning-to-rank — how production search engines use behavioral signals to improve ranking, and the cold-start problem for new content.",
+    "Query understanding — disambiguation, reformulation, intent classification. Why \"Q3 sales numbers\" might be a question, a request for a chart, or a navigation query depending on the user's recent activity."
+  ],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need ML expertise?",
+      "How does Glean compare to other enterprise AI startups?",
+      "Is the hiring bar really high?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "Mid: $180–230K base + significant equity + bonus → $300–450K total",
+    "Senior: $230–290K base + significant equity → $450–650K total",
+    "Staff: $290–370K base + substantial equity → $650K–950K total",
+    "Hugging Face &mdash; open-source ML hub",
+    "Weights & Biases &mdash; ML experiment tracking",
+    "Harvey &mdash; legal vertical AI",
+    "Character.AI &mdash; consumer AI"
+  ],
+  "rawSummary": "Glean Interview Guide (2026): Process, Questions, Compensation\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 2, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Interview process\n\n- Common technical questions\n\n- The enterprise-search depth round\n\n- Compensation (2026 estimates, Palo Alto)\n\n- Sample interview questions in depth\n\n- The enterprise-search domain depth\n\n- Why Glean is hiring aggressively\n\n- Compensation\n\n- Frequently Asked Questions\n\n- Adjacent AI / ML Tooling Companies\n\nUpdated May 3, 2026 · techinterview.org\n\n⏱ 4 min read\n\nGlean\nglean.com ↗\n\nGlean Interview Guide\n\nCompany overview: Glean provides enterprise AI search and assistant capabilities, indexing across a company's SaaS apps (Slack, Google Workspace, Microsoft 365, Confluence, Jira, etc.) and providing LLM-powered search and chat over the resulting corpus. Founded in 2019 by ex-Google engineers; Palo Alto headquarters with engineering across Palo Alto and Bangalore. One of the highest-valued AI-native enterprise startups; has been on a steep growth curve since 2023.\n\nInterview process\n\nTimeline: 3–5 weeks. Generally fast. Glean is known for a high hiring bar and clean process.\n\n- Recruiter screen.\n\n- Hiring manager screen (45 min). Past projects, role fit, Glean-specific motivation.\n\n- Technical phone screen (60 min). Coding plus brief design discussion.\n\n- Virtual onsite (4–5 rounds).\n\n2 coding rounds (mediums dominant; some hards at senior level)\n\n- 1 system design round (often retrieval / search-architecture flavored)\n\n- 1 ML / RAG round for ML-engineering-track positions\n\n- 1 behavioral / culture round\n\n- Founder or executive interview for senior+ roles.\n\nCommon technical questions\n\n- Standard LeetCode mediums and hards (Python or Java common)\n\n- Search architecture: inverted indexes, ranking, query understanding, federated search\n\n- RAG (retrieval-augmented generation): chunking strategies, embedding models, reranking, evaluation\n\n- Multi-tenancy: data isolation across customer organizations, permission-aware search\n\n- For senior+: how to handle index updates from many SaaS sources with varying APIs and rate limits\n\nThe enterprise-search depth round\n\nSenior+ candidates face a depth round on enterprise search architecture. Topics: how does Glean handle permission-aware search (results must respect what the user can actually access in source systems); how do you keep an index fresh when source systems have variable API quality; how do you handle the cold-start problem for new customers; how do you balance precision and recall for queries that include both keyword and semantic intent. Candidates without IR background often struggle here; the search-domain depth is the differentiator.\n\nCompensation (2026 estimates, Palo Alto)\n\n- Mid: $180–230K base + significant equity + bonus → $300–450K total\n\n- Senior: $230–290K base + significant equity → $450–650K total\n\n- Staff: $290–370K base + substantial equity → $650K–950K total\n\nGlean is private with strong recent funding rounds; equity has appreciated significantly. Compensation is competitive with or better than tier-2 AI labs.\n\nSample interview questions in depth\n\nCoding (Python / Java)\n\n- Build a federated search index. Glean indexes content from many SaaS apps (Slack, Drive, Confluence, Jira, Salesforce, etc.). Discuss how to handle different rate limits, authentication models, schemas, and incremental update granularity per source.\n\n- Implement permission-aware retrieval. Search results must respect what the user can actually access in source systems. Discuss two architectures: (1) replicate ACLs into your search index and check at query time, (2) use source-system live permission checks at retrieval time. Trade-offs of each.\n\n- Design hybrid search. Combine BM25 keyword scoring with dense-embedding semantic similarity. Discuss reranking, query rewriting, and when each strategy dominates (short factual queries vs long natural-language questions).\n\nRAG architecture (senior+)\n\n- Chunking strategies: fixed-size vs semantic vs hierarchical. Why naive fixed-size chunking underperforms in enterprise contexts where document structure matters.\n\n- Embedding model selection and update strategy: how to roll out a new embedding model when the existing index has billions of vectors. Backfill cost, query-time fallback, and the role of embedding adapters.\n\n- Evaluating RAG quality at scale: faithfulness, relevance, recall. The tension between automated metrics and customer-perceived quality. Glean's approach to feedback loops.\n\nMulti-tenant enterprise architecture\n\n- Tenant isolation in vector stores: per-tenant indices vs shared index with metadata filtering. The cost-vs-isolation trade-off.\n\n- Per-customer embedding models: how to support customers who want their own fine-tuned models without exploding infrastructure cost.\n\n- SSO and SCIM provisioning: handling identity at enterprise scale, mapping source-system identities to Glean's internal user model.\n\nThe enterprise-search domain depth\n\nGlea"
+}

@@ -1,0 +1,27 @@
+{
+  "company": "Klarna",
+  "slug": "klarna-interview-guide",
+  "url": "https://www.techinterview.org/companies/klarna-interview-guide",
+  "scrapedAt": "2026-07-02T07:17:52.973Z",
+  "interviewStages": [
+    "Behavioral: customer focus, regulatory-aware engineering"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Klarna remote-friendly?",
+      "How does Klarna compare to Affirm or Afterpay?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Klarna Interview Guide (2026): Buy Now, Pay Later Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nKlarna\nklarna.com ↗\n\nKlarna is one of the largest buy-now-pay-later platforms globally — used by 150K+ merchants and 150M+ consumers. The interview emphasizes payments, fraud detection, and risk assessment at high transaction volume.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 4–6 weeks.\n\nWhat they actually ask\n\n- Design a BNPL approval flow with sub-200ms credit decisions\n\n- Design an installment scheduling and payment-collection system\n\n- Design fraud detection at checkout\n\n- Coding: medium DSA, often with financial-correctness framing\n\n- Behavioral: customer focus, regulatory-aware engineering\n\nLevels and comp (2026)\n\n- SE II: SEK 850K–1.1M total (Stockholm); $145K–$185K (US)\n\n- Senior SE: SEK 1.2M–1.6M / $215K–$285K\n\n- Staff: SEK 1.8M–2.4M / $310K–$410K\n\n- Principal: SEK 2.6M+ / $430K–$570K\n\nPrep priorities\n\n- Be fluent in Java or Kotlin (the bulk of the codebase)\n\n- Understand payments protocols, ACH, card networks, and fraud patterns\n\n- Brush up on regulatory framework: PSD2, FCA rules, US BNPL regs\n\nFrequently Asked Questions\n\nIs Klarna remote-friendly?\n\nHybrid in Stockholm (HQ), Berlin, NYC, London. Many engineering roles fully remote within EU.\n\nHow does Klarna compare to Affirm or Afterpay?\n\nKlarna is the global leader; Affirm dominates US; Afterpay (now Block) is Australia-strong. Klarna pays competitively; Stockholm comp lags US peers due to cost of living differences.\n\nWhat is the engineering culture?\n\nSwedish engineering culture: pragmatic, collaborative, calm pace. Strong work-life balance.\n\nSimilar company guides\n\nAmerican Expressinterview guideCapital Oneinterview guideMarqetainterview guideWiseinterview guideCartainterview guideAdyeninterview guide\n\nPrepping for Klarna? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextHopper Interview Guide (2026): Travel App Engineering⏱ 1 min readBrowser Rendering Pipeline: Frontend Interview Deep Dive⏱ 5 min readSystem Design Interview: Design a Feature Flag System⏱ 5 min read"
+}

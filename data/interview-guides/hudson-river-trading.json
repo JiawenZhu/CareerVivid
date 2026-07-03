@@ -1,0 +1,78 @@
+{
+  "company": "Hudson River Trading",
+  "slug": "hudson-river-trading",
+  "url": "https://www.techinterview.org/companies/hudson-river-trading",
+  "scrapedAt": "2026-07-02T07:17:40.059Z",
+  "interviewStages": [
+    "Coding rounds (2&ndash;3): the heaviest interview component. Expect competitive-programming-style problems, sometimes including hard graph algorithms, dynamic programming, or computational-geometry-adjacent questions. Difficulty exceeds typical FAANG SWE rounds.",
+    "Behavioral / fit (1 round): conversation about background, why HRT specifically, how you operate technically. Less STAR-format than typical FAANG; more discussion-style."
+  ],
+  "codingTopics": [
+    "Graph problems with non-obvious approach (shortest path with constraints, max-flow variants, min-cost matching)",
+    "Hard dynamic programming with state compression or non-obvious transitions",
+    "Implement a specific data structure with tight performance requirements (custom hash map, memory-pool allocator, ring buffer with specific concurrency semantics)",
+    "Computational-geometry problems (convex hull, line intersection, point-in-polygon optimizations)",
+    "Numerical / parsing problems with floating-point or integer-overflow edge cases",
+    "Walk through what happens when a packet arrives at a network card and how it reaches your trading code in a kernel-bypass setup.",
+    "Describe how you'd design a market-data parser to maintain microsecond-level latency under heavy load.",
+    "Explain how cache coherence affects cross-core communication and what you'd do to minimize cost.",
+    "Expected-value problems (multi-stage games, conditional expectations)",
+    "Probability fundamentals (Bayesian reasoning, conditional probability)",
+    "Market-making framing for some problems (fair-value reasoning, dynamic pricing under uncertainty)",
+    "Statistics intuition (regression, hypothesis testing at conceptual level)"
+  ],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Discuss lock-free data structures &mdash; when do they help, what are the costs, what's the difference from wait-free?",
+      "Reason about memory ordering: what does C++'s memory_order_acquire actually guarantee on x86 vs ARM?"
+    ],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is HRT's coding bar really higher than FAANG?",
+      "How does HRT compare to Jane Street and Citadel Securities for new grads?",
+      "Do I need FPGA experience for HRT?",
+      "What's the work-life balance reality?",
+      "How does HRT compare to Jump Trading?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [
+    "Treat the coding bar as the central filter. If you can't solve hard competitive-programming problems cleanly, no other strength compensates.",
+    "Understand low-latency systems beyond surface. Cache effects, memory ordering, NUMA, lock-free patterns &mdash; these distinguish strong candidates.",
+    "Show clean C++. RAII, move semantics, no raw new/delete, sensible ownership models.",
+    "Be specific in past-project discussion. Generic \"I worked on a high-performance system\" loses to \"I optimized this specific data structure to reduce L1 cache misses by 40%, here's the measurement methodology.\"",
+    "Prepare directly for the systems round. Don't let it sneak up on you assuming general SWE skills cover it.",
+    "Codeforces, USACO, ICPC archives for competitive-programming-level problems",
+    "Effective Modern C++ by Scott Meyers",
+    "What Every Programmer Should Know About Memory by Ulrich Drepper (free online)",
+    "The Linux Programming Interface by Michael Kerrisk for systems-call-level depth",
+    "DPDK documentation and example code",
+    "HRT's engineering blog and public technical writing (limited but exists)",
+    "Heard on the Street by Crack for the probability round"
+  ],
+  "compensation": [
+    "New-grad SWE: $200K&ndash;$250K base, $100K&ndash;$200K signing bonus, $100K&ndash;$300K performance bonus year 1. Total Year 1: $400K&ndash;$700K.",
+    "Mid-career SWE (3&ndash;5 years): $275K&ndash;$375K base, performance bonuses $300K&ndash;$1M. Total $700K&ndash;$1.5M.",
+    "Senior SWE / specialist (5&ndash;10 years): $375K&ndash;$500K base, performance bonuses $1M&ndash;$3M+. Total $1.5M&ndash;$4M+.",
+    "Lead / staff engineers with established track record: can reach $5M&ndash;$10M+ in strong firm years.",
+    "Engineering-respected: SWEs are first-class. The firm's competitive advantage is technology; engineers are treated as such. Less of the \"trader-supremacy\" dynamic seen at some prop firms.",
+    "Quieter brand: HRT does less public marketing than Jane Street or Citadel. The firm prefers to compete in markets rather than in recruiting press.",
+    "Technical depth valued: reading groups, technical talks, deep specialization in narrow areas (someone might own networking infrastructure for years and become the world expert in it).",
+    "Hour expectations: reasonable for a prop firm. Engineering-track hours are typically 9-to-7 ish at the median; trader-adjacent hours are more intense around market events.",
+    "Office-first: in-person at NYC, London, Singapore is the norm. Remote is uncommon for engineering roles.",
+    "Less gamesmanship culture: compared to Jane Street's card games or SIG's poker culture, HRT's culture is more straightforwardly technical.",
+    "The coding bar is genuinely the highest among prop firms &mdash; competitive-programming-level difficulty.",
+    "The low-latency systems work is real frontier engineering &mdash; FPGA acceleration, custom protocols, hardware time-stamping. Not just \"fast software.\"",
+    "The firm is engineering-led and quieter about it than Jane Street; technology is the moat.",
+    "Compensation is competitive with Jane Street and Citadel Securities while the firm is less publicly visible.",
+    "Underpreparing on algorithmic / competitive-programming difficulty. HRT's coding bar exceeds typical FAANG.",
+    "Treating C++ as optional. Production work is heavily C++; superficial C++ knowledge underperforms.",
+    "Ignoring low-latency systems for engineering-track roles. The systems round is a real filter.",
+    "Generic FAANG behavioral answers. HRT prefers technical-depth-focused conversations."
+  ],
+  "rawSummary": "Hudson River Trading Interview Guide 2026: HFT Engineering, Low-Latency Systems, and Competitive Coding\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 25, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Hudson River Trading Interview Process: Complete 2026 Guide\n\n- Frequently Asked Questions\n\n- How Compensation Works Here and How to Read the Offer\n\nUpdated June 30, 2026 · techinterview.org\n\n⏱ 11 min read\n\nHudson River Trading\nhudsonrivertrading.com ↗\n\nHudson River Trading Interview Process: Complete 2026 Guide\n\nOverview\n\nHudson River Trading (HRT) is the high-frequency trading firm focused on automated trading across global equities, options, futures, FX, and increasingly fixed income and cryptocurrencies. Founded 2002 by Jason Carroll, Suhas Daftuar, Alex Morcos, and Geoff Bercow, HRT is privately held and headquartered in Manhattan with offices in London, Singapore, Boulder, and Austin. ~900 employees in 2026, of whom ~600 are engineers. The firm trades roughly 5% of US equity volume and is among the largest market makers in many global venues. HRT is distinguished from Jane Street and Citadel Securities by the engineering-heavy culture (technology is the product more visibly than at trader-led firms), genuine focus on ultra-low-latency systems (FPGA acceleration, kernel bypass networking, custom hardware), and a quieter, less public-facing brand. Compensation is among the highest in the industry, with new-grad packages reaching $400K&ndash;$700K and senior compensation routinely exceeding $2M.\n\nInterview Structure\n\nRecruiter screen + technical assessment (45 min): HRT typically uses HackerRank or a similar platform for an initial coding assessment. The bar is high &mdash; problems target competitive-programming difficulty (LeetCode hard equivalents), and pass rate is roughly 30%.\n\nTechnical phone screen (60 min): coding problem with shared editor, plus discussion of approach. Expect medium-hard algorithmic difficulty plus follow-up questions probing edge cases and complexity.\n\nOnsite (or virtual onsite, 4&ndash;6 rounds):\n\n- Coding rounds (2&ndash;3): the heaviest interview component. Expect competitive-programming-style problems, sometimes including hard graph algorithms, dynamic programming, or computational-geometry-adjacent questions. Difficulty exceeds typical FAANG SWE rounds.\n\n- Systems / low-latency round (1): for SWE-track candidates, distinct round on systems engineering. Topics include kernel bypass networking, lock-free data structures, CPU cache effects, NUMA awareness, FPGA-adjacent thinking, time-stamping at nanosecond resolution.\n\n- Probability / quant round (1): brainteaser questions, expected-value problems, market-related quantitative reasoning. Less central than at Jane Street but still real.\n\n- Project / system design (for senior candidates): deep discussion of past systems work, plus design of a low-latency component or trading-adjacent system.\n\n- Behavioral / fit (1 round): conversation about background, why HRT specifically, how you operate technically. Less STAR-format than typical FAANG; more discussion-style.\n\nTechnical Focus Areas\n\nCoding: C++ is dominant. Some Python for tooling and analysis; some Rust. Strong C++ fluency &mdash; modern features, RAII, move semantics, template metaprogramming at relevant depth, performance awareness &mdash; is essential for production roles. Algorithmic depth is comparable to top competitive programmers.\n\nLow-latency systems: kernel bypass networking (DPDK, Solarflare, Mellanox / NVIDIA ConnectX), CPU pinning and isolation, lock-free / wait-free data structures, memory-ordering semantics, hugepages, NUMA-aware allocation, custom networking protocols, FPGA acceleration for hottest paths, hardware time-stamping at sub-microsecond resolution.\n\nHardware-aware engineering: CPU cache hierarchies (L1/L2/L3, cache lines, false sharing), branch prediction, SIMD vectorization, instruction-level parallelism, memory-bandwidth limits.\n\nMarket microstructure: order types, exchange-specific protocols (NASDAQ ITCH/OUCH, NYSE Pillar, options-exchange specifics), market data feeds (SIP, direct feeds), order routing, regulatory framework (Reg NMS, MiFID II for European trading).\n\nAlgorithmic depth: graph algorithms, computational geometry where applicable, advanced data structures (segment trees, persistent data structures, suffix automata for some signals work). HRT's coding bar genuinely tests competitive-programming-level skill.\n\nProbability and statistics: standard quant interview material at intermediate depth. Less central than at hedge funds or pure-quant firms but still tested.\n\nCoding Round Details\n\nTwo to three coding rounds at onsite, 60 minutes each. Difficulty is hard &mdash; comparable to the toughest LeetCode hard problems or competitive programming contest medium difficulty. C++ is preferred but Python accepted for some rounds.\n\nTypical problem shapes:\n\n- Graph problems with non-obvious approach (shortest path with constraints, max-flow var"
+}

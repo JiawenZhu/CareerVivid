@@ -1,0 +1,25 @@
+{
+  "company": "Grafana Labs",
+  "slug": "grafana-labs-interview-guide",
+  "url": "https://www.techinterview.org/companies/grafana-labs-interview-guide",
+  "scrapedAt": "2026-07-02T07:22:58.465Z",
+  "interviewStages": [],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Grafana Labs really fully remote?",
+      "Do I need observability experience?",
+      "How does Grafana Labs compare to Datadog?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Grafana Labs Interview Guide (2026): Observability Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nGrafana Labs\ngrafana.com ↗\n\nGrafana Labs builds the LGTM stack — Loki (logs), Grafana (visualization), Tempo (traces), Mimir (metrics). The company is fully remote, deeply open-source, and the interview process reflects that: practical, async-friendly, and skeptical of pure LeetCode theatrics.\n\nProcess\n\nRecruiter screen → 60-minute technical phone (often pair-coding on a small task) → onsite virtual loop: 1 coding (pair, often Go), 1 system design (always observability-flavored), 1 craft deep-dive, 1 behavioral, 1 hiring manager. Cycle: 3–5 weeks (slow because everyone is distributed).\n\nWhat they actually ask\n\n- Design a time-series database with horizontal scaling and 99.9% query SLA\n\n- Design a distributed log aggregation system handling 100TB/day ingestion\n\n- Design a metrics query engine with PromQL-style language and pushdown optimization\n\n- Coding: practical problems in Go — parsers, queues, simple state machines\n\n- Open source contribution review: be ready to walk through any past OSS work\n\nLevels and comp (2026)\n\n- SE II: $160K–$200K total\n\n- Senior SE: $230K–$300K\n\n- Staff: $330K–$430K\n\n- Principal: $450K–$580K\n\nPrep priorities\n\n- Be fluent in Go — it is the lingua franca of the LGTM stack\n\n- Understand columnar storage, time-series compression, and Prometheus internals\n\n- Demonstrate genuine OSS engagement — issues, PRs, blog posts all count\n\nFrequently Asked Questions\n\nIs Grafana Labs really fully remote?\n\nYes. Hubs in NYC, London, Stockholm, Sydney exist but are optional. 600+ employees in 50+ countries.\n\nDo I need observability experience?\n\nNot strictly. They hire generalists who are excited to learn. Curiosity about Prometheus or having read their docs goes a long way.\n\nHow does Grafana Labs compare to Datadog?\n\nDatadog pays more cash but is closed-source SaaS. Grafana is OSS-first, more remote-friendly, and has strong \"build in public\" culture.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Grafana Labs? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSystem Design: Design IoT Platform — Device Management, Telemetry Ingestion, MQTT, Edge Computing, Digital Twin⏱ 6 min readDiscount Engine Low-Level Design: Rule Evaluation, Promotion Stacking, and Price Calculation⏱ 5 min readInterval and Scheduling Interview Patterns (2025)⏱ 5 min read"
+}

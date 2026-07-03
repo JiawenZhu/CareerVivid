@@ -1,0 +1,62 @@
+/* CareerVivid base styles + signature utility classes (ported from src/index.css). */
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--cv-bg-public);
+  color: var(--cv-text-heading);
+  font-family: var(--cv-font-body);
+  margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--cv-text-heading);
+  font-family: var(--cv-font-heading);
+  letter-spacing: 0;
+}
+
+/* ---- Signature warm-public classes (verbatim from index.css) ---- */
+
+.cv-warm-page {
+  min-height: 100vh;
+  background-color: var(--cv-bg-public);
+  color: var(--cv-text-heading);
+}
+
+.cv-warm-grid {
+  background-image:
+    linear-gradient(to right, var(--cv-grid-line-v) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--cv-grid-line-h) 1px, transparent 1px);
+  background-size: var(--cv-grid-size) var(--cv-grid-size);
+}
+
+.cv-warm-card {
+  border: 1px solid var(--cv-border-warm);
+  border-radius: 0.75rem;
+  background-color: var(--cv-surface-warm-card);
+  box-shadow: var(--cv-shadow-warm-card);
+}
+
+.cv-warm-eyebrow {
+  color: var(--cv-text-eyebrow);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.cv-warm-heading {
+  color: var(--cv-text-heading);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.cv-warm-body {
+  color: var(--cv-text-body);
+  font-weight: 500;
+  line-height: 2rem;
+}

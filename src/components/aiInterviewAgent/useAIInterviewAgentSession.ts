@@ -134,6 +134,8 @@ export interface UseAIInterviewAgentSessionParams {
   initialTranscript?: TranscriptEntry[];
   resumeFromQuestionIndex?: number;
   onDraftChange?: (draft: InterviewSessionDraft | null) => Promise<void> | void;
+  /** Called after an analysis is generated and saved (signed-in users only). */
+  onAnalysisComplete?: (analysis: InterviewAnalysis) => void;
 }
 
 export const useAIInterviewAgentSession = ({
@@ -149,6 +151,7 @@ export const useAIInterviewAgentSession = ({
   initialTranscript = [],
   resumeFromQuestionIndex = 0,
   onDraftChange,
+  onAnalysisComplete,
 }: UseAIInterviewAgentSessionParams) => {
   const { currentUser } = useAuth();
   const { addAnalysisToJob } = usePracticeHistory();
@@ -427,6 +430,11 @@ export const useAIInterviewAgentSession = ({
         const fullAnalysis = await addAnalysisToJob(jobId, { ...analysisData, transcript });
         await onDraftChange?.(null);
         setAnalysisResult(fullAnalysis);
+        try {
+          onAnalysisComplete?.(fullAnalysis);
+        } catch (callbackError) {
+          console.error('onAnalysisComplete callback failed:', callbackError);
+        }
       } else {
         throw new Error('Cannot save feedback without being logged in.');
       }
@@ -438,7 +446,7 @@ export const useAIInterviewAgentSession = ({
         setStatus('ended');
       }
     }
-  }, [currentUser, transcript, interviewPrompt, isGuestMode, jobTitle, jobCompany, questions, addAnalysisToJob, jobId, onDraftChange]);
+  }, [currentUser, transcript, interviewPrompt, isGuestMode, jobTitle, jobCompany, questions, addAnalysisToJob, jobId, onDraftChange, onAnalysisComplete]);
 
   const handleInactivity = useCallback(() => {
     const currentStatus = latestStatusRef.current;
@@ -578,11 +586,20 @@ export const useAIInterviewAgentSession = ({
           ? 'Begin with the exact sentence: "Hello, I\'m Vivid, your AI interviewer." Do not introduce yourself as "with Jobs", "with Custom Practice", or with any category/source label. Then give a polished introduction summarizing the company background if a specific company is available, the role overview and key responsibilities, and any relevant industry or mission context gleaned from the job description. After the introduction, politely ask: "Do you have any questions before we begin the interview?" Wait for a brief acknowledgement before proceeding.'
           : 'Start by greeting the candidate briefly. Do not introduce yourself as "with Jobs", "with Custom Practice", or with any category/source label. Then ask the first question from the list without waiting for the candidate to speak first.';
 
-      let systemInstruction = `You are Vivid, an expert AI interviewer. If the candidate asks your name, you MUST say "My name is Vivid." Do not say Gemini or any other name. ${companyContext} Your task is to conduct a short, focused interview. ${openingInstruction} Proceed through the list of questions. You may ask one or two relevant follow-up questions if the candidate’s response invites it.
+      let systemInstruction = `You are Vivid, an expert AI interviewer. If the candidate asks your name, you MUST say "My name is Vivid." Do not say Gemini or any other name. ${companyContext} Your task is to conduct a short, focused, realistic interview. ${openingInstruction}
 
-After the final question and the candidate’s answer, provide a brief wrap-up before ending:
+**How to interview well (behave like a real, sharp interviewer):**
+- Ask ONE question at a time, then stop and listen. Never read out the whole list or stack multiple questions together.
+- Briefly acknowledge each answer in a few words before moving on ("Got it." / "Makes sense.") — warm but efficient, not effusive.
+- When an answer is vague, generic, or missing substance, ask a natural follow-up that pushes for specifics: a concrete example, a number, a trade-off, or "what exactly did YOU do?". Do not accept buzzwords at face value. Limit to one or two follow-ups per question, then move on.
+- If the candidate is genuinely stuck, offer a small nudge or rephrase once, then continue — do not turn it into a lecture.
+- Never answer the question for the candidate, never coach them on the ideal answer mid-interview, and never reveal how you are scoring them. You are the interviewer, not the coach.
+- Keep your own turns short and conversational — this is a spoken interview, not an essay. Do not monologue.
+- Stay in the persona and difficulty implied by the role and company throughout.
 
-Give a concise 2-3 sentence summary of the candidate’s overall performance.
+Work through the list of questions in order, using follow-ups as above. After the final question and the candidate's answer, wrap up:
+
+Give a concise 2-3 sentence summary of the candidate's overall performance.
 Provide 2-3 short, personalized tips for improvement.
 Then say: "You can view a full feedback report by clicking Get Feedback.".
 Finally, append the exact text token <END_INTERVIEW> to your text output only (do not speak this token).

@@ -1,0 +1,27 @@
+{
+  "company": "Coda",
+  "slug": "coda-interview-guide",
+  "url": "https://www.techinterview.org/companies/coda-interview-guide",
+  "scrapedAt": "2026-07-02T07:21:20.788Z",
+  "interviewStages": [
+    "Behavioral: customer focus, written communication, calm engineering"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Coda remote-friendly?",
+      "How does Coda compare to Notion or Airtable?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Coda Interview Guide (2026): Document Collaboration Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nCoda\ncoda.io ↗\n\nCoda is the document collaboration platform that combines docs, spreadsheets, and apps — competing with Notion, Airtable, and Google Workspace. The interview emphasizes complex data modeling, real-time collaboration, and the unique formula engine that powers Coda's flexibility.\n\nProcess\n\nRecruiter screen → 60-minute coding pair → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a flexible doc-table-app data model\n\n- Design a formula engine with cross-document references\n\n- Design real-time collaboration with rich data structures\n\n- Coding: medium DSA, often with graph or expression-tree framing\n\n- Behavioral: customer focus, written communication, calm engineering\n\nLevels and comp (2026)\n\n- SE II: $170K–$210K total\n\n- Senior SE: $250K–$330K\n\n- Staff: $360K–$480K\n\n- Principal: $490K–$650K\n\nPrep priorities\n\n- Be fluent in TypeScript (frontend + backend)\n\n- Understand collaborative document patterns (CRDT, OT)\n\n- Brush up on expression evaluation and formula engines\n\nFrequently Asked Questions\n\nIs Coda remote-friendly?\n\nDistributed-first. Hubs in San Francisco and Bellevue. Most engineering roles fully remote within US.\n\nHow does Coda compare to Notion or Airtable?\n\nNotion has the largest brand. Coda has more powerful formula and app-building. Airtable specializes in data tables. Coda pays competitively with mid-tier SaaS.\n\nWhat is the engineering culture?\n\nCalm, technically deep, written-communication-heavy. Strong fit for engineers who like complex systems and writing.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Coda? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextOOD Interview Patterns: LRU Cache, Parking Lot & Elevator System⏱ 5 min readUpside down years⏱ 1 min readAI Lab vs FAANG Interview: A 2026 Comparison⏱ 4 min read"
+}

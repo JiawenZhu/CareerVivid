@@ -31,6 +31,7 @@ import {
     stripLanguagePrefix,
 } from '../../utils/languagePreference';
 import AIUsageProgressBar from '../AIUsageProgressBar';
+import XpStatusCard from '../Gamification/XpStatusCard';
 import { getPlanDisplayName } from '../../config/subscriptionCatalog';
 import { useSidebarStore } from '../../store/useSidebarStore';
 import { SidebarNode } from '../../types';
@@ -432,6 +433,7 @@ const Sidebar: React.FC = () => {
             <div className={`relative mt-auto shrink-0 border-t border-stone-200/70 dark:border-slate-800/70 ${isCollapsed ? 'px-2 py-3' : 'px-3 py-2.5'}`}>
                 {isCollapsed ? (
                     <div className="flex flex-col items-center gap-2">
+                        <XpStatusCard variant="collapsed" onClick={() => navigate('/interview-studio')} />
                         <div className="group relative h-11 w-11 shrink-0">
                             <span className="pointer-events-none flex h-11 w-11 items-center justify-center rounded-2xl border border-stone-200 bg-white/75 text-[10px] font-extrabold uppercase text-slate-500 shadow-sm transition group-hover:border-stone-300 group-hover:bg-white group-hover:text-slate-950 group-focus-within:ring-2 group-focus-within:ring-indigo-200 dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-300 dark:group-hover:border-slate-700 dark:group-hover:text-slate-100 dark:group-focus-within:ring-indigo-900/60">
                                 {currentLanguageCode.toUpperCase()}
@@ -491,6 +493,8 @@ const Sidebar: React.FC = () => {
                         })}
                     </div>
                 </div>
+
+                <XpStatusCard onClick={() => navigate('/interview-studio')} />
 
                 {aiUsage && (
                     <div className="mb-2 cursor-pointer rounded-2xl border border-stone-200/80 bg-white/65 px-3 py-2 shadow-sm transition hover:border-stone-300 hover:bg-white dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-slate-700" onClick={() => navigate('/subscription')}>

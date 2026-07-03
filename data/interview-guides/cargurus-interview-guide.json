@@ -1,0 +1,27 @@
+{
+  "company": "CarGurus",
+  "slug": "cargurus-interview-guide",
+  "url": "https://www.techinterview.org/companies/cargurus-interview-guide",
+  "scrapedAt": "2026-07-02T07:20:55.473Z",
+  "interviewStages": [
+    "Behavioral: customer focus, ownership, working with marketplace dynamics"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is CarGurus remote-friendly?",
+      "How does CarGurus compare to Cars.com or Autotrader?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "CarGurus Interview Guide (2026): Auto Marketplace Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nCarGurus\ncargurus.com ↗\n\nCarGurus is the largest US auto marketplace — connects car shoppers with dealers via deal ratings, search, and pricing tools. Public since 2017. The interview emphasizes search ranking, pricing models, and the unique scale of automotive listings (millions of cars, daily updates).\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design an automotive search engine with deal-rating ML\n\n- Design dealer inventory ingestion and freshness tracking\n\n- Design pricing transparency models\n\n- Coding: medium DSA, often with search or graph framing\n\n- Behavioral: customer focus, ownership, working with marketplace dynamics\n\nLevels and comp (2026)\n\n- SE II: $140K–$175K total\n\n- Senior SE: $205K–$270K\n\n- Staff: $295K–$385K\n\n- Principal: $410K–$540K\n\nPrep priorities\n\n- Be fluent in Java or Scala (the bulk of the codebase)\n\n- Understand search ranking and ML for pricing\n\n- Brush up on automotive industry data flows\n\nFrequently Asked Questions\n\nIs CarGurus remote-friendly?\n\nHybrid in Cambridge MA (HQ), Detroit, others. Many engineering roles fully remote within US.\n\nHow does CarGurus compare to Cars.com or Autotrader?\n\nCarGurus has the strongest deal-rating brand. Cars.com is the legacy player. Autotrader (Cox) competes on listings. CarGurus pays mid-tier; below FAANG.\n\nWhat is the engineering culture?\n\nMature, customer-driven, calmer pace. Strong work-life balance.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for CarGurus? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSystem Design Interview: Design a Hotel Reservation System⏱ 5 min readCurrency Converter Service Low-Level Design⏱ 6 min readInterviewing for AI Robotics Companies 2026: Figure, 1X, Boston Dynamics⏱ 3 min read"
+}

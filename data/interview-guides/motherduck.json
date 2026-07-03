@@ -1,0 +1,75 @@
+{
+  "company": "MotherDuck",
+  "slug": "motherduck",
+  "url": "https://www.techinterview.org/companies/motherduck",
+  "scrapedAt": "2026-07-02T07:14:02.950Z",
+  "interviewStages": [
+    "System design (1 round): analytics-platform prompts. \"Design the hybrid-execution query planner deciding client vs cloud execution for each operation.\" \"Design the data-sharing mechanism between DuckDB clients and MotherDuck cloud.\" \"Design the text-to-SQL pipeline with MotherDuck AI grounded in the user's schema.\"",
+    "Behavioral / hiring manager: past projects, small-team fit, database-systems passion."
+  ],
+  "codingTopics": [
+    "Parse and evaluate a SQL-like expression tree with typing rules",
+    "Implement a columnar operation (hash aggregation, sort, filter) with vectorization",
+    "Query routing: given a query, determine optimal execution location",
+    "Data-format conversion (Parquet read / Arrow interop)",
+    "Classic algorithm problems (trees, graphs, DP) with database-applied twists"
+  ],
+  "systemDesignTopics": [
+    "\"Design the hybrid-execution query planner deciding what operations run client-side vs cloud-side.\"",
+    "\"Design data-sharing between local DuckDB clients and MotherDuck cloud with consistency guarantees.\"",
+    "\"Design the extension-distribution system letting community-authored extensions load safely.\"",
+    "\"Design MotherDuck AI's text-to-SQL pipeline with schema-grounded prompts and evaluation.\"",
+    "Walk through DuckDB's vectorized execution model.",
+    "Discuss columnar compression schemes and their trade-offs.",
+    "Reason about hybrid-execution decisions for specific query shapes (TPC-H-like queries).",
+    "Explain how predicate pushdown interacts with partition pruning.",
+    "Describe what happens when a DuckDB query exceeds single-node memory."
+  ],
+  "behavioralTopics": [
+    "Small-team comfort: \"How do you operate when owning broad scope with limited infrastructure?\"",
+    "Database-engineering passion: \"What drew you to database systems specifically?\"",
+    "Pragmatic shipping: \"Describe a trade-off between theoretical correctness and practical shipping.\"",
+    "Customer empathy: \"Tell me about engaging with a data-analyst or application-developer user.\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "What's the \"Big Data is Dead\" thesis?",
+      "Is DuckDB the same as MotherDuck?",
+      "How does MotherDuck compare to Snowflake / BigQuery on interviews?",
+      "What's the opportunity in DuckDB contributions?",
+      "Is remote work supported?"
+    ]
+  },
+  "difficulty": 7.5,
+  "tips": [
+    "Use DuckDB seriously. Run analytical queries on real data. Understand the performance characteristics.",
+    "Try MotherDuck's free tier. Understand the hybrid-execution product experience.",
+    "Read Jordan Tigani's writings. \"Big Data is Dead\" and related essays frame the company thesis.",
+    "Engage with database-systems literature. Columnar execution, vectorization, query optimization &mdash; foundational vocabulary.",
+    "Be authentic about database-systems interest. This isn't a company that rewards generalist thinking alone.",
+    "MotherDuck engineering blog and Jordan Tigani's essays",
+    "DuckDB architecture documentation and academic papers (the DuckDB team has published several)",
+    "Database Internals by Alex Petrov",
+    "The Red Book (Readings in Database Systems) for database-systems literature",
+    "DuckDB itself &mdash; install locally, run queries on Parquet / CSV, try the Python API",
+    "MotherDuck free tier for hybrid-execution experience"
+  ],
+  "compensation": [
+    "Software Engineer: $180k&ndash;$225k base, $150k&ndash;$280k equity (4 years), modest bonus. Total: ~$280k&ndash;$440k / year.",
+    "Senior Software Engineer: $230k&ndash;$290k base, $300k&ndash;$550k equity. Total: ~$380k&ndash;$600k / year.",
+    "Staff Engineer: $295k&ndash;$360k base, $600k&ndash;$1.1M equity. Total: ~$550k&ndash;$870k / year.",
+    "The database-engineering depth is substantial for company size. The team includes real database experts.",
+    "DuckDB itself is a significant open-source project that MotherDuck contributes to and benefits from.",
+    "The hybrid-execution thesis (most workloads fit on a laptop) is a genuine technical-strategic bet.",
+    "AI / text-to-SQL features are shipping but the company remains grounded in analytical-database engineering.",
+    "Weak database / SQL knowledge for core-DB roles.",
+    "Treating MotherDuck as \"Snowflake but smaller.\" The architecture is genuinely different.",
+    "Dismissing the \"single-machine is enough\" thesis without engaging with it.",
+    "Not having used DuckDB for real analytical work."
+  ],
+  "rawSummary": "MotherDuck Interview Guide 2026: DuckDB-Based Serverless Analytics, Hybrid Execution, and Jordan Tigani Heritage\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 24, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 24, 2026 · techinterview.org\n\n⏱ 7 min read\n\nMotherDuck\nmotherduck.com ↗\n\nMotherDuck Interview Process: Complete 2026 Guide\n\nOverview\n\nMotherDuck is the serverless data-warehouse company built on DuckDB &mdash; the open-source analytical database that runs embedded in applications and laptops alongside traditional server-side execution. Founded 2022 by Jordan Tigani (ex-Google BigQuery founding engineer and The Big Data Problem author) and Tino Tereshko (ex-Firebolt, Google BigQuery), private with a Series B in 2024. ~90 employees in 2026, deliberately small relative to product scope. Headquartered in Seattle with distributed engineering across the US and Europe. MotherDuck's distinctive technical position: hybrid execution between DuckDB running on the user's laptop / application and MotherDuck's cloud service, with the query optimizer deciding where to run each operation. This architecture addresses the observation that most analytical workloads fit on a single modern machine, while cloud execution handles the rare cases that don't. Engineering stack is C++ / Rust for DuckDB core, Go / TypeScript for cloud orchestration, Python / SQL for the data-processing layer. Interviews reflect the database-systems heritage of the founders &mdash; genuine depth expected, pragmatic engineering culture.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why MotherDuck, team interest. The engineering surface is compact: DuckDB core / extensions contribution, MotherDuck cloud platform, hybrid-execution query optimizer, developer experience (SDK, CLI, web console), and AI-adjacent features (MotherDuck AI / text-to-SQL). The small team size means broader scope per engineer.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. C++ for DuckDB-core contributions; Go / Rust for cloud platform; TypeScript for web; Python for data. Problems tilt systems-y &mdash; parse a SQL expression, implement a columnar operation, build a small query-plan node.\n\nTake-home (many senior / staff roles): 4&ndash;8 hours on a realistic systems or database-engineering problem.\n\nOnsite / virtual onsite (3&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied database / systems round.\n\n- System design (1 round): analytics-platform prompts. \"Design the hybrid-execution query planner deciding client vs cloud execution for each operation.\" \"Design the data-sharing mechanism between DuckDB clients and MotherDuck cloud.\" \"Design the text-to-SQL pipeline with MotherDuck AI grounded in the user's schema.\"\n\n- Database / systems deep-dive (1 round): DuckDB internals, columnar execution, vectorized processing, OLAP vs OLTP, extension ecosystem. Genuinely deep for core-DB roles.\n\n- Behavioral / hiring manager: past projects, small-team fit, database-systems passion.\n\nTechnical Focus Areas\n\nCoding: C++ for DuckDB-core (modern C++17/20, template depth for the vector / type system); Go / Rust for cloud platform; TypeScript for front-of-platform; Python / SQL for analytics pipelines.\n\nDuckDB internals: vectorized columnar execution, type system (logical types, physical types, chunking), query optimization (Cascades-adjacent rules), extension mechanism, CSV / Parquet / JSON / Arrow integration, in-memory and single-node execution model, recent work on larger-than-memory processing.\n\nHybrid execution: MotherDuck's core differentiation. Understanding how the optimizer decides operations' execution location, how data flows between client and cloud, consistency trade-offs, and performance implications is central.\n\nColumnar / analytical databases: vectorized execution, compression schemes (RLE, dictionary, bit-packing), predicate pushdown, projection pushdown, partition pruning, zone maps.\n\nCloud platform: multi-tenant orchestration, storage for MotherDuck-hosted data, compute isolation, cost-aware execution, billing / metering per query execution.\n\nData-source integration: Parquet, Arrow, Iceberg, Delta Lake, live-query integrations with Snowflake, BigQuery, Postgres. The philosophy is \"meet users where their data is.\"\n\nMotherDuck AI: text-to-SQL grounded in user schemas, query explanation, anomaly surfacing. Practical applied AI rather than frontier research.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is medium-hard for core-database roles, medium for platform roles. Comparable to Snowflake / DuckDB open-source contribution standards.\n\nTypical problem shapes:\n\n- Parse and evaluate a SQL-like expression tree with typing rules\n\n- Implement a columnar operation (hash aggregation, sort, filter) with vectorization\n\n- Query routing: given a query, determine optimal execution location\n\n- Data-format conversion (Parquet read / Arrow interop)\n\n- Classic algorithm problems (trees, graphs,"
+}

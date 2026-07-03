@@ -1,0 +1,27 @@
+{
+  "company": "DuckDB Labs",
+  "slug": "duckdb-labs-interview-guide",
+  "url": "https://www.techinterview.org/companies/duckdb-labs-interview-guide",
+  "scrapedAt": "2026-07-02T07:22:09.719Z",
+  "interviewStages": [
+    "Behavioral: ownership, deep technical taste, OSS-and-research culture"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is DuckDB Labs remote-friendly?",
+      "How does DuckDB compare to ClickHouse, SQLite, or PostgreSQL?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "DuckDB Labs Interview Guide (2026): Embedded Analytical Database\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nDuckDB Labs\nduckdblabs.com ↗\n\nDuckDB Labs is the company behind DuckDB — the embedded analytical database that runs in-process, across SQL, Python, R, and the browser. Spun out from CWI Amsterdam research. MotherDuck is the affiliated cloud product. The interview emphasizes deep database systems engineering, vectorized execution, and the unique elegance of an embedded analytical engine.\n\nProcess\n\nRecruiter screen → 60-minute coding (C++ for engine, Python for tools) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 4–6 weeks; very high technical bar.\n\nWhat they actually ask\n\n- Design a vectorized columnar execution engine\n\n- Design an embeddable database that has zero external dependencies\n\n- Design WebAssembly compilation of an analytical engine for browser execution\n\n- Coding: medium-hard DSA, often C++ systems-flavored\n\n- Behavioral: ownership, deep technical taste, OSS-and-research culture\n\nLevels and comp (2026)\n\n- SE: €110K–€160K (Netherlands base) plus equity; US offers $185K–$245K total\n\n- Senior SE: €160K–€220K NL; $260K–$355K US\n\n- Staff: €220K–€320K NL; $365K–$485K US\n\nPrep priorities\n\n- Be fluent in C++ (the engine) and SQL deeply\n\n- Understand vectorized execution, query optimization, and modern columnar engines (Velox, Apache Arrow)\n\n- Brush up on WebAssembly, embeddable database design, and Apache Parquet\n\nFrequently Asked Questions\n\nIs DuckDB Labs remote-friendly?\n\nHubs in Amsterdam (HQ) and remote across EU. Some senior+ remote within US.\n\nHow does DuckDB compare to ClickHouse, SQLite, or PostgreSQL?\n\nSQLite is OLTP-focused embedded. ClickHouse is server-based columnar. PostgreSQL is general-purpose OLTP. DuckDB is OLAP-focused embedded — runs in-process for analytical workloads. Strong fit for data-engineering, notebooks, and edge analytics. Comp lower than US-only AI labs but with strong research and OSS brand.\n\nWhat is the engineering culture?\n\nResearch-engineering blended (CWI heritage); calm, technically deep. Strong OSS contributor ethos.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideSingleStoreinterview guideOrca Securityinterview guide\n\nPrepping for DuckDB Labs? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextVersion Control System Low-Level Design: Object Store, Branching Model, and Merge Algorithm⏱ 6 min readEngineering Manager Resume Guide: Team Outcomes, Hiring, Why Yours Looks Different⏱ 7 min readDocument Signing Service Low-Level Design: Signature Workflow, PDF Embedding, and Audit Trail⏱ 5 min read"
+}

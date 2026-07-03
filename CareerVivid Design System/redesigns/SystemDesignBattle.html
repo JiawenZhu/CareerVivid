@@ -1,0 +1,129 @@
+<!-- @dsCard group="Redesigns" viewport="1200x760" name="System Design Battle" subtitle="Whiteboard modal — brand purple header + refined brief panel" -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SystemDesignBattle — redesign</title>
+<link rel="stylesheet" href="../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="lucide-icons.js"></script>
+<style>body { margin: 0; background: #171411; }</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const P = '#625bd5', PH = '#514ac5', PRING = '#dfe2ff', PTINT = '#f3f2ff';
+
+function Ic({ name, size = 16, sw = 2, style }) {
+  return <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" style={style}
+    dangerouslySetInnerHTML={{ __html: window.CV_LUCIDE[name] || '' }} />;
+}
+
+const briefRequirements = [
+  'Support 100M daily active users searching in under 200ms',
+  'Index new documents within 5 minutes of publication',
+  'Rank results by relevance and freshness',
+  'Stay available through a full region outage',
+];
+
+const canvasTools = ['mouse-pointer', 'hand', 'square', 'diamond', 'circle', 'arrow-right', 'minus', 'pen-tool', 'type', 'eraser'];
+
+function SubmitButton() {
+  const [h, setH] = React.useState(false);
+  return (
+    <button type="button" onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
+      style={{ display: 'inline-flex', alignItems: 'center', gap: 6, height: 36, padding: '0 14px', borderRadius: 8,
+        border: 'none', background: h ? PH : P, color: '#fff', fontFamily: 'var(--cv-font-body)', fontSize: 12,
+        fontWeight: 700, cursor: 'pointer', boxShadow: '0 1px 2px rgba(16,24,40,0.05)', transition: 'background 120ms cubic-bezier(0.2,0,0,1)' }}>
+      <Ic name="send" size={14} /> Submit for review
+    </button>
+  );
+}
+
+function Modal() {
+  return (
+    <div style={{ position: 'fixed', inset: 0, display: 'flex', padding: 16, background: 'rgba(23, 20, 17, 0.7)', backdropFilter: 'blur(4px)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', width: '100%', maxWidth: 1280, margin: '0 auto', background: '#fff', border: '1px solid var(--cv-border-product)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 24px 70px rgba(17,24,39,0.24)', fontFamily: 'var(--cv-font-body)' }}>
+
+        <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '12px 16px', borderBottom: '1px solid var(--cv-border-subtle)', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, flexShrink: 0, borderRadius: 10, background: P, color: '#fff' }}>
+              <Ic name="swords" size={16} />
+            </span>
+            <div style={{ minWidth: 0 }}>
+              <h2 style={{ margin: 0, fontFamily: 'var(--cv-font-body)', fontSize: 14, fontWeight: 700, color: 'var(--cv-neutral-900)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Google · System design</h2>
+              <p style={{ margin: 0, fontSize: 12, fontWeight: 500, color: 'var(--cv-neutral-500)' }}>Draw your architecture, then submit for AI review</p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, borderRadius: 999, padding: '4px 10px', fontSize: 11, fontWeight: 700, background: PTINT, color: P, border: `1px solid ${PRING}` }}>
+              <Ic name="clock" size={12} /> 32:10
+            </span>
+            <SubmitButton />
+            <button type="button" aria-label="Close" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: 8, border: 'none', background: 'transparent', color: 'var(--cv-neutral-400)', cursor: 'pointer' }}>
+              <Ic name="x" size={18} />
+            </button>
+          </div>
+        </header>
+
+        <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
+          <aside style={{ width: 296, flexShrink: 0, overflowY: 'auto', padding: 18, background: 'var(--cv-neutral-25)', borderRight: '1px solid var(--cv-border-subtle)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: P }}>
+              <Ic name="clipboard-list" size={13} /> Design brief
+            </div>
+            <p style={{ margin: '10px 0 0', fontSize: 14, fontWeight: 700, lineHeight: 1.45, color: 'var(--cv-neutral-900)' }}>
+              Design Google-scale web search: crawling, indexing, and serving results.
+            </p>
+            <p style={{ margin: '18px 0 0', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--cv-neutral-400)' }}>Requirements</p>
+            <ol style={{ margin: '8px 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {briefRequirements.map((req, i) => (
+                <li key={req} style={{ display: 'flex', gap: 9, listStyle: 'none' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 18, height: 18, flexShrink: 0, marginTop: 1, borderRadius: 6, background: PTINT, color: P, fontSize: 10, fontWeight: 800 }}>{i + 1}</span>
+                  <span style={{ fontSize: 12, fontWeight: 500, lineHeight: 1.5, color: 'var(--cv-neutral-600)' }}>{req}</span>
+                </li>
+              ))}
+            </ol>
+            <div style={{ marginTop: 18, padding: 12, borderRadius: 10, background: '#fff', border: '1px solid var(--cv-border-product)', boxShadow: 'var(--cv-shadow-card)' }}>
+              <p style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--cv-amber-600)' }}>
+                <Ic name="sparkles" size={12} /> Tip
+              </p>
+              <p style={{ margin: '6px 0 0', fontSize: 11, fontWeight: 500, lineHeight: 1.6, color: 'var(--cv-neutral-500)' }}>
+                Label your boxes — clients, services, databases, caches, queues — and draw arrows for data flow. The AI grades clarity, coverage, and scalability.
+              </p>
+            </div>
+            <p style={{ margin: '14px 0 0', display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: 'var(--cv-neutral-400)' }}>
+              <Ic name="check-circle-2" size={13} style={{ color: 'var(--cv-success-600)' }} /> Pass ≥ 75 to clear this stage
+            </p>
+          </aside>
+
+          <div style={{ position: 'relative', flex: 1, minWidth: 0, background: '#ffffff', backgroundImage: 'radial-gradient(var(--cv-neutral-200) 1px, transparent 1px)', backgroundSize: '22px 22px' }}>
+            <div style={{ position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 2, padding: 4, borderRadius: 10, background: '#fff', border: '1px solid var(--cv-border-subtle)', boxShadow: '0 8px 18px rgba(15,23,42,0.06)' }}>
+              {canvasTools.map((tool, i) => (
+                <span key={tool} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 7, background: i === 2 ? PTINT : 'transparent', color: i === 2 ? P : 'var(--cv-neutral-500)' }}>
+                  <Ic name={tool} size={15} />
+                </span>
+              ))}
+            </div>
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ textAlign: 'center' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, borderRadius: 14, background: PTINT, color: P }}>
+                  <Ic name="pen-tool" size={20} />
+                </span>
+                <p style={{ margin: '10px 0 0', fontSize: 13, fontWeight: 700, color: 'var(--cv-neutral-700)' }}>Excalidraw canvas</p>
+                <p style={{ margin: '3px 0 0', fontSize: 11, fontWeight: 500, color: 'var(--cv-neutral-400)' }}>Existing whiteboard engine — unchanged, restyled chrome only</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Modal />);
+</script>
+</body>
+</html>

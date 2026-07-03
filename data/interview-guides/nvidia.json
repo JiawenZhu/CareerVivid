@@ -1,0 +1,65 @@
+{
+  "company": "Nvidia",
+  "slug": "nvidia",
+  "url": "https://www.techinterview.org/companies/nvidia",
+  "scrapedAt": "2026-07-02T07:19:33.128Z",
+  "interviewStages": [
+    "Technical deep-dive (1&ndash;2 rounds): role-specific depth. GPU architecture candidates get memory hierarchy, warp execution, occupancy, register pressure. CUDA kernel engineers get parallel algorithms, shared memory usage, warp-level primitives, Tensor Core utilization. Distributed training engineers get NCCL collectives, ZeRO / FSDP / pipeline parallelism, gradient compression. ML research engineers get model architecture, scaling laws, evaluation methodology.",
+    "System design (1 round, for platform / infrastructure roles): training / inference infrastructure prompts. \"Design a scheduler for 10K GPUs running 1000 heterogeneous training jobs.\" \"Design an inference-serving system with sub-100ms tail latency on Blackwell GPUs.\"",
+    "Behavioral / hiring manager: past projects, ownership, ability to work in a large cross-functional organization."
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [
+    "\"Design a scheduler for 10K GPUs running 1000 heterogeneous training jobs.\"",
+    "\"Design an inference-serving system handling 100K QPS with strict p99 latency on H100 GPUs.\"",
+    "\"Design the storage layer for a training cluster with 100TB of active datasets and checkpoint write amplification.\"",
+    "\"Design a GPU-observability system tracking utilization, ECC errors, and thermal throttling across 20K GPUs.\""
+  ],
+  "behavioralTopics": [
+    "Technical ownership: \"Describe a system or kernel you owned end-to-end.\"",
+    "Cross-functional: \"Tell me about a project requiring coordination across hardware, software, and systems teams.\"",
+    "Shipping under AI-boom pace: \"How do you manage high-velocity product cycles while maintaining quality?\"",
+    "Mentorship / team effectiveness: \"Describe how you've raised the bar for engineers around you.\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need CUDA experience to get hired?",
+      "How important is the technical deep-dive round?",
+      "Is compensation really that high?",
+      "What's the culture like under Jensen?",
+      "How does Nvidia compare to AMD or Google on hardware-adjacent roles?"
+    ]
+  },
+  "difficulty": 8.5,
+  "tips": [
+    "Pick your team carefully. CUDA / kernel / architecture roles are a different universe from application engineering. Target what matches your depth.",
+    "Read the architecture whitepapers. Hopper and Blackwell whitepapers are public and rich; signal preparation by referencing specifics.",
+    "Implement a kernel from scratch. For CUDA roles, a weekend implementing tiled GEMM or attention gives you talking points.",
+    "Know the scaling-laws papers. For research-engineering, this is table-stakes vocabulary.",
+    "Engage with the AI strategic context. \"CUDA moat\" and \"why Nvidia\" aren't just marketing; have a technical view.",
+    "CUDA Programming Guide and Best Practices Guide (Nvidia developer docs)",
+    "Hopper (H100) and Blackwell (B100/B200) architecture whitepapers",
+    "Programming Massively Parallel Processors by Hwu, Kirk, Hajj (canonical CUDA textbook)",
+    "NCCL, TensorRT, and CUTLASS documentation",
+    "The attention / scaling laws / distributed training papers (Attention Is All You Need, GPT-3, PaLM, Chinchilla, Megatron-LM)",
+    "The Art of Multiprocessor Programming (Herlihy, Shavit) for concurrency fundamentals"
+  ],
+  "compensation": [
+    "SWE3 / Software Engineer: $170k&ndash;$215k base, $200k&ndash;$400k equity/yr (given NVDA stock performance), bonus 10&ndash;15%. Total: ~$400k&ndash;$650k / year at current stock prices.",
+    "SWE4 / Senior Software Engineer: $220k&ndash;$290k base, $500k&ndash;$1.2M equity/yr. Total: ~$750k&ndash;$1.5M / year.",
+    "SWE5 / Principal Engineer: $290k&ndash;$370k base, $1M&ndash;$3M+ equity/yr. Total: ~$1.3M&ndash;$3.5M+ / year.",
+    "The comp is genuinely top-of-market post the 2023&ndash;2025 stock run.",
+    "Specialty depth matters more than generalist breadth. Know your area cold.",
+    "The organization is flat by design. IC engineers have real autonomy and consequential scope.",
+    "Hardware-software co-design is real, not marketing. Engineers regularly cross these boundaries.",
+    "Surface-level CUDA knowledge when applying for kernel roles. \"I've used PyTorch GPU tensors\" is not CUDA experience.",
+    "Trying to interview across multiple specialty areas. Pick one and go deep.",
+    "Not engaging with hardware characteristics in kernel / architecture interviews.",
+    "Underestimating the pace. Candidates used to mature public-company rhythms can be surprised."
+  ],
+  "rawSummary": "Nvidia Interview Guide 2026: GPU Architecture, CUDA Kernels, Distributed Training, and the AI Boom\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 23, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 23, 2026 · techinterview.org\n\n⏱ 9 min read\n\nNvidia\nnvidia.com ↗\n\nNvidia Interview Process: Complete 2026 Guide\n\nOverview\n\nNvidia is the world's most valuable semiconductor and AI infrastructure company, with its GPUs powering the bulk of frontier AI training and inference. Founded 1993, went public 1999, ~34,000 employees in 2026 after aggressive hiring through the AI boom. The company spans GPU architecture (Blackwell, Rubin), CUDA and AI libraries (cuDNN, TensorRT, NCCL), data-center infrastructure (DGX, NVLink, Spectrum-X, ConnectX), self-driving (Drive), robotics (Isaac), and increasingly software platforms (NIMs, AI Enterprise, DGX Cloud). Headquartered in Santa Clara with major engineering presence in San Jose, Austin, Seattle, Bangalore, Tel Aviv, Taiwan, and Shanghai. Interviews are technical and varied &mdash; GPU architecture teams, CUDA kernel engineers, distributed-training researchers, and AI-product engineers all have distinctive loops. The common thread is serious technical depth.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Nvidia, team preference. Nvidia's org sprawl is immense; triage into the right team matters. Major categories: GPU architecture, CUDA / compiler / libraries, deep learning frameworks, infrastructure (cluster management, networking, storage), applied research, automotive / robotics, software platforms (AI Enterprise, NIMs), and Omniverse.\n\nTechnical phone screen (60 min): one coding problem. Difficulty varies by team &mdash; CUDA and kernel roles get lower-level problems (memory hierarchies, parallel reductions, thread-block scheduling); application-engineering roles get medium LeetCode; ML / infrastructure roles get a mix.\n\nTake-home (some research and senior roles): 4&ndash;8 hours on a realistic problem. For CUDA roles, often involves implementing a kernel or optimizing one; for ML, prototyping a model or evaluation harness; for platform, a focused systems problem.\n\nOnsite / virtual onsite (4&ndash;6 rounds):\n\n- Coding (1&ndash;2 rounds): medium-hard problems. Language: C++ for kernel / systems; Python for deep-learning framework engineering and research; Go / Rust for infrastructure; TypeScript for web / cloud platform.\n\n- Technical deep-dive (1&ndash;2 rounds): role-specific depth. GPU architecture candidates get memory hierarchy, warp execution, occupancy, register pressure. CUDA kernel engineers get parallel algorithms, shared memory usage, warp-level primitives, Tensor Core utilization. Distributed training engineers get NCCL collectives, ZeRO / FSDP / pipeline parallelism, gradient compression. ML research engineers get model architecture, scaling laws, evaluation methodology.\n\n- System design (1 round, for platform / infrastructure roles): training / inference infrastructure prompts. \"Design a scheduler for 10K GPUs running 1000 heterogeneous training jobs.\" \"Design an inference-serving system with sub-100ms tail latency on Blackwell GPUs.\"\n\n- Research / paper discussion (for research-engineering roles): deep dive on a paper you know or one the interviewer picks.\n\n- Behavioral / hiring manager: past projects, ownership, ability to work in a large cross-functional organization.\n\nTechnical Focus Areas\n\nGPU architecture: SIMT execution model, warp scheduling, memory hierarchy (registers, shared memory, L2, HBM), occupancy and its determinants, coalesced memory access, bank conflicts, Tensor Cores and their data layouts. Needed for hardware, CUDA, and compiler roles.\n\nCUDA programming: kernel launch configuration, shared memory tiling, cooperative groups, warp-level primitives (shuffle, ballot, reduce), async copy and memcpy_async, MPS and multi-stream concurrency. Essential for kernel-engineering roles.\n\nParallel algorithms: reductions, prefix sums (scan), sorting (radix, bitonic), matrix multiplication (GEMM) tiling, attention kernels, FFT, sparse operations.\n\nDistributed training: NCCL collectives (AllReduce, AllGather, ReduceScatter), ring vs tree algorithms, parallelism schemes (data, tensor, pipeline, sequence), ZeRO and FSDP memory optimization, gradient accumulation and mixed precision, Megatron-LM and Nemo architecture.\n\nDeep learning frameworks: PyTorch internals (autograd, dispatcher, C++ core), TensorFlow / JAX at conceptual level, operator fusion, graph optimization, custom CUDA ops.\n\nSystems / infrastructure: Kubernetes with GPU scheduling, Slurm and cluster management, RDMA networking with InfiniBand, GPU virtualization (MIG), NVLink and NVSwitch, storage for ML workloads.\n\nInference systems: TensorRT optimization, FP8 / FP4 quantization, speculative decoding, KV-cache management, continuous batching, multi-tenant inference serving.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty varies dramatically by team.\n\nC"
+}

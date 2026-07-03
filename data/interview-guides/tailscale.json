@@ -1,0 +1,25 @@
+{
+  "company": "Tailscale",
+  "slug": "tailscale",
+  "url": "https://www.techinterview.org/companies/tailscale",
+  "scrapedAt": "2026-07-02T07:26:54.473Z",
+  "interviewStages": [],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Tailscale fully remote?",
+      "Why is the interview so slow?",
+      "Do I need WireGuard or networking experience?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Tailscale Interview Guide (2026): Zero-Trust Networking\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nTailscale\ntailscale.com ↗\n\nTailscale builds the WireGuard mesh VPN that everyone in tech recommends. The engineering culture is famously thoughtful — long Hacker News threads, deep blog posts, and an interview process that values writing skill almost as much as coding. Hiring is selective and slow.\n\nProcess\n\nRecruiter screen → written work sample (yes, really — a small async project, ~2–4 hours) → 60-minute coding pair → 60-minute system design → 60-minute past-project deep dive → 60-minute behavioral. Cycle: 4–6 weeks. Tailscale is one of the few companies where a strong written sample can carry weight.\n\nWhat they actually ask\n\n- Design a NAT-traversal protocol that works behind symmetric NATs\n\n- Design a coordination server (DERP) for WireGuard relays at global scale\n\n- Design key rotation and identity for a fleet of devices\n\n- Coding: practical Go, often parsing or networking-flavored\n\n- Past-project deep dive: defend technical decisions, especially writeups they can read first\n\nLevels and comp (2026)\n\n- SE II: $180K–$220K total\n\n- Senior SE: $260K–$340K\n\n- Staff: $380K–$500K\n\n- Principal: $540K–$700K\n\nPrep priorities\n\n- Read the Tailscale blog cover to cover — they value people who already engage with their writing\n\n- Be fluent in Go and networking fundamentals (TCP, UDP, NAT, BGP basics)\n\n- Have a strong portfolio of writing — blog posts, RFCs, or engineering writeups\n\nFrequently Asked Questions\n\nIs Tailscale fully remote?\n\nYes. ~150 employees globally. Quarterly off-sites, otherwise fully distributed.\n\nWhy is the interview so slow?\n\nDeliberate. They prioritize fit and depth. Many candidates report excellent feedback even on rejection.\n\nDo I need WireGuard or networking experience?\n\nHelpful but not required. Curiosity and the ability to dive deep matter more.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Tailscale? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextCore Web Vitals Optimization: Frontend Performance Interview⏱ 5 min readLow-Level Design: Real Estate Platform — Property Listings, Search, Mortgage Calculator, and Agent Matching⏱ 6 min readUsing AI Tools in Tech Interviews: The 2026 Canon⏱ 6 min read"
+}

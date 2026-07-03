@@ -1,0 +1,27 @@
+{
+  "company": "Marqeta",
+  "slug": "marqeta-interview-guide",
+  "url": "https://www.techinterview.org/companies/marqeta-interview-guide",
+  "scrapedAt": "2026-07-02T07:18:04.345Z",
+  "interviewStages": [
+    "Behavioral: customer focus, working with payments domain, regulatory awareness"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Marqeta remote-friendly?",
+      "How does Marqeta compare to Stripe Issuing or Galileo?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Marqeta Interview Guide (2026): Modern Card Issuing Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nMarqeta\nmarqeta.com ↗\n\nMarqeta is the modern card issuing platform — powers cards for Square, Doordash, Instacart, and many fintechs. The interview is payments-engineering-heavy with focus on card networks, real-time authorization, and the regulatory framework around card issuing.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 4–6 weeks.\n\nWhat they actually ask\n\n- Design a real-time card authorization system with sub-100ms latency\n\n- Design just-in-time funding — fund the card seconds before authorization\n\n- Design fraud detection at the moment of swipe\n\n- Coding: medium DSA, often with concurrency or financial framing\n\n- Behavioral: customer focus, working with payments domain, regulatory awareness\n\nLevels and comp (2026)\n\n- SE II: $150K–$190K total\n\n- Senior SE: $215K–$290K\n\n- Staff: $310K–$420K\n\n- Principal: $430K–$570K\n\nPrep priorities\n\n- Be fluent in Java (the bulk of the codebase)\n\n- Understand card networks: Visa, Mastercard, EMV, ISO 8583\n\n- Brush up on card issuing regulations: BSA, OFAC, FFIEC\n\nFrequently Asked Questions\n\nIs Marqeta remote-friendly?\n\nHybrid in Oakland (HQ), London, Sydney. Some engineering roles fully remote within US.\n\nHow does Marqeta compare to Stripe Issuing or Galileo?\n\nMarqeta is the largest pure-play. Stripe Issuing is part of broader Stripe stack. Galileo (SoFi-owned) is the legacy player. Marqeta engineering culture leans deeper on payments expertise.\n\nWhat is the engineering culture?\n\nMature, payments-focused, methodical. Strong testing and reliability culture given the financial stakes.\n\nSimilar company guides\n\nAmerican Expressinterview guideCapital Oneinterview guideWiseinterview guideKlarnainterview guideCartainterview guideAdyeninterview guide\n\nPrepping for Marqeta? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextError Tracking Service Low-Level Design: Exception Grouping, Fingerprinting, and Alert Deduplication⏱ 5 min readSystem Design Interview: Kubernetes Autoscaling (HPA, VPA, KEDA, and Cluster Autoscaler)⏱ 9 min readSystem Design Interview: Ride-Sharing App (Uber / Lyft)⏱ 8 min read"
+}

@@ -1,0 +1,27 @@
+{
+  "company": "LaunchDarkly",
+  "slug": "launchdarkly-interview-guide",
+  "url": "https://www.techinterview.org/companies/launchdarkly-interview-guide",
+  "scrapedAt": "2026-07-02T07:23:46.351Z",
+  "interviewStages": [
+    "Behavioral: customer focus, async collaboration, written communication"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is LaunchDarkly fully remote?",
+      "How does LaunchDarkly compare to Statsig or Optimizely?",
+      "Is the bar harder than Datadog?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "LaunchDarkly Interview Guide (2026): Feature Flag Platform Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nLaunchDarkly\nlaunchdarkly.com ↗\n\nLaunchDarkly is the dominant feature-flag-as-a-service platform — used by 4000+ companies including IBM, Microsoft, and Atlassian. The interview emphasizes low-latency global delivery (flag values must reach SDKs in <200ms worldwide), SDK ergonomics, and edge cases around progressive delivery.\n\nProcess\n\nRecruiter screen → 60-minute coding pair (often Go, sometimes Python or TypeScript) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 2–4 weeks.\n\nWhat they actually ask\n\n- Design a global flag-evaluation service with sub-200ms p99 worldwide\n\n- Design an SDK that streams flag updates over a long-lived connection (SSE or WebSocket)\n\n- Design experimentation analysis (A/B test math) for marketing dashboards\n\n- Coding: practical Go, often network and concurrency-flavored\n\n- Behavioral: customer focus, async collaboration, written communication\n\nLevels and comp (2026)\n\n- SE II: $170K–$210K total\n\n- Senior SE: $240K–$320K\n\n- Staff: $360K–$470K\n\n- Principal: $490K–$640K\n\nPrep priorities\n\n- Be fluent in Go and at least one SDK language (TypeScript, Python, Java)\n\n- Understand CDN architecture, edge servers, and global state propagation\n\n- Read LaunchDarkly engineering blog — the posts on flag evaluation, SDK design, and Relay Proxy are interview gold\n\nFrequently Asked Questions\n\nIs LaunchDarkly fully remote?\n\nYes. Distributed across US, Canada, UK, and parts of Europe. Quarterly off-sites are optional.\n\nHow does LaunchDarkly compare to Statsig or Optimizely?\n\nLaunchDarkly is the most mature for feature flagging; Statsig is stronger on experimentation analytics; Optimizely is the legacy enterprise A/B testing leader.\n\nIs the bar harder than Datadog?\n\nComparable on engineering bar; LaunchDarkly has a deeper preference for distributed-systems craft. Datadog leans more toward SaaS-product engineering.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for LaunchDarkly? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow Level Design: Log Aggregation System⏱ 4 min readFile Version Control System Low-Level Design⏱ 7 min readAnyscale Interview Guide (2026): Distributed AI Computing⏱ 1 min read"
+}

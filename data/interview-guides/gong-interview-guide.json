@@ -1,0 +1,27 @@
+{
+  "company": "Gong",
+  "slug": "gong-interview-guide",
+  "url": "https://www.techinterview.org/companies/gong-interview-guide",
+  "scrapedAt": "2026-07-02T07:22:53.397Z",
+  "interviewStages": [
+    "Behavioral: customer focus, ownership, working with sales domain"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Gong remote-friendly?",
+      "How does Gong compare to Chorus or Salesloft?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Gong Interview Guide (2026): Revenue Intelligence Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nGong\ngong.io ↗\n\nGong is the leading revenue intelligence platform — captures sales calls, transcribes them, and uses ML to surface insights for sales teams. Used by 4000+ companies. The interview emphasizes audio processing, LLM-based analysis, and the realities of running speech-to-text at scale.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a real-time audio capture and transcription pipeline for sales calls\n\n- Design speaker diarization and topic extraction at scale\n\n- Design LLM-based call summarization with grounding to specific moments\n\n- Coding: medium DSA with stream processing or ML flavor\n\n- Behavioral: customer focus, ownership, working with sales domain\n\nLevels and comp (2026)\n\n- SE II: $160K–$200K total (US); ₪600K–₪780K (Tel Aviv)\n\n- Senior SE: $230K–$300K\n\n- Staff: $320K–$420K\n\n- Principal: $450K–$580K\n\nPrep priorities\n\n- Be fluent in Java or Scala (backend) and Python (ML)\n\n- Understand audio processing: ASR, diarization, beamforming\n\n- Brush up on modern LLM patterns for call analysis\n\nFrequently Asked Questions\n\nIs Gong remote-friendly?\n\nHybrid in San Francisco, Tel Aviv (HQ), Atlanta, Dublin. Some engineering roles fully remote within supported countries.\n\nHow does Gong compare to Chorus or Salesloft?\n\nGong is the dominant brand. Chorus was acquired by ZoomInfo. Salesloft is the prosumer-tier alternative. Gong pays comparably to mid-tier SaaS.\n\nWhat is the engineering culture?\n\nIsraeli + US tech culture: direct, fast-moving, ML-curious. Strong product-engineering partnership.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Gong? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextAdvanced Greedy Interview Patterns: Interval Scheduling, Jump Game, and Huffman Coding (2025)⏱ 6 min readChronosphere Interview Guide (2026): Modern Observability Platform⏱ 1 min readDesign a Mobile Calendar: Sync, Conflicts, and Recurrence⏱ 2 min read"
+}

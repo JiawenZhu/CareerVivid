@@ -1,0 +1,27 @@
+{
+  "company": "New Relic",
+  "slug": "new-relic-interview-guide",
+  "url": "https://www.techinterview.org/companies/new-relic-interview-guide",
+  "scrapedAt": "2026-07-02T07:24:28.676Z",
+  "interviewStages": [
+    "Behavioral: customer focus, ownership, technical communication"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is New Relic remote-friendly?",
+      "How does New Relic compare to Datadog or Honeycomb?",
+      "What is the engineering culture under private ownership?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "New Relic Interview Guide (2026): Application Performance Monitoring\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nNew Relic\nnewrelic.com ↗\n\nNew Relic is one of the historical leaders in APM (application performance monitoring). Used by 15K+ companies, taken private in 2023 by Francisco Partners and TPG. The interview emphasizes data engineering, distributed tracing, and the realities of running a global telemetry pipeline.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a metrics ingestion pipeline at 1B events/sec\n\n- Design distributed tracing across thousands of services\n\n- Design alerting that respects user thresholds and cardinality limits\n\n- Coding: medium DSA, often with stream processing flavor\n\n- Behavioral: customer focus, ownership, technical communication\n\nLevels and comp (2026)\n\n- SE II: $140K–$170K total\n\n- Senior SE: $200K–$270K\n\n- Staff: $280K–$380K\n\n- Principal: $400K–$530K\n\nPrep priorities\n\n- Be fluent in Java (legacy) or Go/Rust (newer services)\n\n- Understand observability fundamentals: metrics, logs, traces, OpenTelemetry\n\n- Read about NRDB (New Relic's columnar storage) and the engineering blog\n\nFrequently Asked Questions\n\nIs New Relic remote-friendly?\n\nHybrid in Portland (HQ), Atlanta, Dublin, Barcelona. Many engineering roles fully remote within US/EU.\n\nHow does New Relic compare to Datadog or Honeycomb?\n\nNew Relic is older and more enterprise; Datadog leads on platform breadth; Honeycomb wins on developer experience for distributed systems. New Relic pays below Datadog by 15–25%.\n\nWhat is the engineering culture under private ownership?\n\nStable but less expansive than peak-era. Focus has shifted to profitability and core APM excellence.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for New Relic? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextWebhook Subscription System Low-Level Design: Registration, Challenge Verification, Event Filtering, and SSRF Prevention⏱ 9 min readSystem Design Interview: Search Autocomplete / Typeahead (2025)⏱ 7 min readLow-Level Design: Survey Builder — Dynamic Forms, Response Collection, and Analytics⏱ 5 min read"
+}

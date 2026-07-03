@@ -1,0 +1,24 @@
+{
+  "company": "Adobe",
+  "slug": "adobe",
+  "url": "https://www.techinterview.org/companies/adobe",
+  "scrapedAt": "2026-07-02T07:12:43.355Z",
+  "interviewStages": [
+    "System Design (1 round): Design a photo editing app backend. Not just \"make it scale\" – they care about user workflows, responsive UI, and handling large files.",
+    "Behavioral (1 round): Questions about collaboration with designers, handling feedback, and creative problem-solving."
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": []
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Adobe\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  February 1, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated February 1, 2026 · techinterview.org\n\n⏱ 2 min read\n\nAdobe\nadobe.com ↗\n\nMy Adobe Interview Experience\n\nInterviewed at Adobe in 2024 for their Creative Cloud team. If you're expecting typical FAANG-style grinding, you'll be surprised – Adobe cares as much about design sense as coding skills.\n\nWhat Makes Adobe Different\n\nThey build tools for designers. Even as an engineer, they want to know you care about user experience and understand design principles. My interviewer asked \"What's your favorite Adobe product and why?\" – I said Lightroom and talked about the slider UX. That mattered.\n\nThe Process\n\nRecruiter Screen (30 min): Standard stuff. They asked about my portfolio and side projects. If you have anything design-related, mention it.\n\nTechnical Phone Screen (1 hour): One coding problem (mine was string manipulation) plus questions about previous projects. They went deep on a web app I'd built – asking about architecture, performance, and user experience choices.\n\nOnsite Loop (4-5 rounds):\n\n- Coding (2 rounds): Medium difficulty. Arrays, strings, trees. Standard stuff but they want clean code with good variable names. My interviewer commented on my naming choices – that doesn't happen at Google.\n\n- System Design (1 round): Design a photo editing app backend. Not just \"make it scale\" – they care about user workflows, responsive UI, and handling large files.\n\n- Project Deep Dive (1 round): Present a project you've built. They asked about design decisions, tech stack choices, and showed me mockups asking how I'd implement features.\n\n- Behavioral (1 round): Questions about collaboration with designers, handling feedback, and creative problem-solving.\n\nQuestions You'll Get\n\n- Image Processing: Filters, compression, file formats\n\n- Performance: Handling large files, real-time rendering\n\n- UI/UX: Responsive design, accessibility, user workflows\n\n- Algorithms: Standard coding problems, nothing exotic\n\n- Design Patterns: MVC, observer pattern, factory pattern\n\nWhat Worked For Me\n\n- Use Their Products: Download Photoshop or Illustrator (free trial). Play with it. Understand what makes it good (and frustrating). I mentioned keyboard shortcuts I used – interviewer loved it.\n\n- Care About Design: Even if you're backend, show you think about user experience. \"This API design makes it easier for frontend devs because&#8230;\"\n\n- Build Side Projects: They care more about what you've built than LeetCode count. I had a photo gallery app – spent 20 minutes discussing it.\n\n- Know Your Fundamentals: 80-100 LeetCode problems is enough. Focus on clean, readable code.\n\n- Understand Creative Workflows: If you know nothing about design tools, you'll struggle to connect with interviewers.\n\nCommon Mistakes\n\nI saw someone on Blind fail Adobe because they dismissed design questions as \"not technical.\" Wrong mindset. Adobe engineers need to understand their users (creators).\n\nAlso: Don't just optimize for speed. They care about code maintainability and collaboration with designers. My interviewer asked \"How would a designer test this feature?\" – I hadn't thought about that.\n\nThe Culture\n\nCreative, collaborative, less pressure than FAANG. People actually take time off (unlimited PTO that people use). Open offices with design inspiration everywhere. If you hate that vibe, you'll hate Adobe.\n\nComp: Solid but not FAANG-level. Base + stock + bonus = 10-15% below Google/Meta. But better work-life balance.\n\nLast Updated: February 2026\n\nSimilar company guides\n\nServiceNowinterview guideSAPinterview guideCiscointerview guideOracleinterview guideSalesforceinterview guideMicrosoftinterview guide\n\nPrepping for Adobe? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLinear Interview Guide 2026: Offline-First Sync Engine, Issue-Tracking Craft, and the Decisive Take-Home⏱ 11 min readMercury Interview Guide 2026: Startup Banking Platform, Haskell/Elm Stack, and the Craft Round⏱ 9 min readSnap Interview Guide⏱ 18 min read"
+}

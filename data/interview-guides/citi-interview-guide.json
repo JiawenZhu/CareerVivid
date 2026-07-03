@@ -1,0 +1,43 @@
+{
+  "company": "Citi",
+  "slug": "citi-interview-guide",
+  "url": "https://www.techinterview.org/companies/citi-interview-guide",
+  "scrapedAt": "2026-07-02T07:17:09.120Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — practical engineering with banking flavor",
+    "System design (1 round) — financial systems at bank scale",
+    "Domain depth (1 round) — depends on role: trading systems, risk, quant analytics, ML",
+    "Behavioral (1–2 rounds) — collaboration, ambiguity, banking culture fit"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "How is the Jane Fraser restructuring affecting engineers?",
+      "What's Citi Velocity actually like?",
+      "How does Citi compare to JPMorgan for engineers?",
+      "How is the cloud migration going?",
+      "Is Citi a good place for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad SWE: $130k–$200k total comp first year",
+    "Mid-level (4–7 years): $200k–$340k",
+    "Senior (8+ years, AVP / VP): $300k–$520k",
+    "Director / Senior VP: $500k–$900k+",
+    "Managing Director: $900k–$2M+",
+    "The global footprint creates real career optionality — engineers can move between US, UK, Asia offices over their career.",
+    "The legacy tech is more substantial than candidates expect; engineers ramping into core systems take 6–9 months to be productive.",
+    "The restructuring effects are real — divisional shifts, team consolidations, occasional layoffs as part of simplification.",
+    "Compensation is below top hedge funds and FAANG; engineers optimizing purely for total comp end up elsewhere.",
+    "The international diversity of the engineering organization is genuinely different from US-tech-pure firms; meetings span 4–6 time zones routinely."
+  ],
+  "rawSummary": "Citi Interview Guide 2026: Global Markets Tech, Citi Velocity, Restructuring Era\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 30, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Citi Interview Guide 2026: Global Markets Tech, Citi Velocity, Restructuring Era, and Banking at the Most-Restructured Bank\n\n- What Citi Does\n\n- Roles Citi Hires For\n\n- Citi Interview Process\n\n- What Citi Tests For\n\n- Compensation\n\n- Working at Citi\n\n- Citi vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 30, 2026 · techinterview.org\n\n⏱ 7 min read\n\nCiti\nciti.com ↗\n\nCiti Interview Guide 2026: Global Markets Tech, Citi Velocity, Restructuring Era, and Banking at the Most-Restructured Bank\n\nCitigroup (NYSE: C) is the third-largest US bank by assets and one of the most globally distributed banks (substantial presence in 90+ countries). Citi's recent history has been defined by Jane Fraser's 2021–2025+ restructuring — divesting consumer banking businesses internationally, simplifying organization structure, and investing heavily in technology to modernize legacy systems. The hiring process reflects a bank in transition: real engineering investment, growing tech profile, but cultural complexity from years of M&A integration. This guide covers what Citi does, the engineering tracks, the interview process, and what makes Citi hiring distinctive in 2026.\n\nWhat Citi Does\n\nCiti operates across five primary business lines (post-restructuring 2024+):\n\n- Services: Treasury and Trade Solutions (TTS), Securities Services. Citi's most globally-distributed business; serves multinational corporations and institutional clients in 90+ countries. Major engineering investment area.\n\n- Markets: Global Markets — equities, fixed income, FX, commodities trading. Citi is among the top-3 FX banks globally; substantial trading and electronic execution infrastructure.\n\n- Banking: Investment banking, corporate banking. Mergers, capital markets origination, lending.\n\n- Wealth: Citi Private Bank, Citigold, wealth management for high-net-worth clients.\n\n- US Personal Banking: US retail banking — branches, credit cards, mortgages, deposits. The remaining consumer business after international consumer divestitures.\n\nMajor technology platforms:\n\n- Citi Velocity: the institutional client e-trading and analytics platform. Substantial engineering investment; comparable to Goldman's Marquee or JPMorgan's Athena.\n\n- CitiDirect: corporate treasury / cash management platform for TTS clients.\n\n- Risk and quant infrastructure: internal risk management systems, model validation, market risk analytics.\n\n- Citi Token Services: blockchain-based settlement infrastructure (announced 2023, growing).\n\nDistinctive features:\n\n- Global footprint: Citi has more international presence than peer US banks. Engineers can be based in NYC, London, Hong Kong, Singapore, Mumbai, Tampa, Mexico City.\n\n- Restructuring under Jane Fraser: the 2021–2025 divestiture of consumer banking in 14 international markets has reshaped the firm. Engineers describe the simplification as substantively useful but the cultural disruption real.\n\n- Legacy technology depth: Citi has been the bank with the most-cited \"legacy tech\" criticism. The current modernization effort is real but the legacy is real too.\n\n- Public company: NYSE: C; substantial scrutiny especially during the restructuring period.\n\nRoles Citi Hires For\n\nSoftware engineer (Markets / Citi Velocity)\n\nBuilds the institutional electronic trading and analytics platform. Java and Python heavy; some C++ for performance-critical components. Large engineering organization with hundreds of engineers.\n\nSoftware engineer (Services / TTS)\n\nBuilds the cash management, payments, and trade finance systems. Multi-currency, multi-jurisdictional. Java heavy; substantial mainframe / legacy systems remain.\n\nSoftware engineer (Risk / Quant Infrastructure)\n\nBuilds risk management systems, model validation, regulatory reporting. Java + Python; strong domain knowledge expected.\n\nQuantitative analyst / strats\n\nMarkets quant strats — pricing models, risk analytics, structuring support. Less prestigious than Goldman / Morgan Stanley strats but real quant work.\n\nML / data engineer (growing)\n\nPersonalization, fraud detection, AML, alternative data. Substantial growth area in 2024–2026.\n\nCloud / infrastructure engineer\n\nCiti is in active cloud migration to AWS and Azure. Cloud engineering investment substantial; Kubernetes adoption ongoing.\n\nSoftware engineer (Citi Token Services)\n\nBlockchain-based settlement infrastructure. Smaller team; growing area. Combines blockchain engineering with traditional financial systems.\n\nBanker / IB analyst (non-tech)\n\nInvestment banking analyst / associate roles. Standard IB recruiting; tech-heavy candidates can stay engineering-track or transition into banking.\n\nCiti Interview Process\n\nRound 1: Recruiter screen\n\n30 minutes. Background, motivation, role fit. Recruiters often probe specifically on b"
+}

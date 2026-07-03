@@ -1,0 +1,79 @@
+{
+  "company": "Supabase",
+  "slug": "supabase",
+  "url": "https://www.techinterview.org/companies/supabase",
+  "scrapedAt": "2026-07-02T07:26:49.549Z",
+  "interviewStages": [
+    "System design (1 round): developer-platform prompts. \"Design the Supabase Realtime server broadcasting Postgres changes to 10K concurrent subscribers per project.\" \"Design the database-per-project isolation model with fast provisioning.\" \"Design the edge-functions system deployed to global POPs with Deno runtime.\"",
+    "Behavioral / hiring manager: past projects, remote-work effectiveness, asynchronous collaboration."
+  ],
+  "codingTopics": [
+    "Implement a row-level-security rule evaluator for a given query",
+    "Build a streaming change-data-capture consumer (similar to Supabase Realtime's source layer)",
+    "Design an auto-retrying API client with backoff and per-endpoint rate limits",
+    "Parse / transform SQL (extract table names, rewrite with row-security predicates)",
+    "Classic algorithm problems (trees, graphs, DP) with developer-platform twists"
+  ],
+  "systemDesignTopics": [
+    "\"Design the Realtime server broadcasting Postgres changes to 50K concurrent subscribers across 10K projects.\"",
+    "\"Design the multi-tenant Postgres provisioning system supporting fast spin-up and per-project isolation.\"",
+    "\"Design the Edge Functions deployment system distributing Deno-runtime functions to global POPs.\"",
+    "\"Design the auth system supporting multiple identity providers with session management across projects.\"",
+    "Walk through Postgres MVCC and logical replication.",
+    "Discuss row-level security design for multi-tenant applications.",
+    "Reason about connection-pooling choices (PgBouncer vs Supavisor) for different workload patterns.",
+    "Describe the trade-offs of per-project-database vs shared-database multi-tenancy.",
+    "Explain pg_vector HNSW vs IVF and when each is appropriate.",
+    "\"What's great about Supabase as a developer platform? What's broken?\"",
+    "\"Compare Supabase, Firebase, and Convex. Where does each win?\"",
+    "\"If you could improve one thing for Supabase developers, what would it be?\"",
+    "\"What's your take on the AI-powered backend direction (vector search, AI assistants)?\""
+  ],
+  "behavioralTopics": [
+    "Open-source sensibility: \"Have you contributed to open source? What's your philosophy about open development?\"",
+    "Remote / async effectiveness: \"Describe your practices for effective async collaboration across timezones.\"",
+    "Small-team comfort: \"How do you operate when owning broad scope with less specialization?\"",
+    "Customer empathy: \"Tell me about a time you understood a developer user's problem deeply.\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need deep PostgreSQL knowledge to get hired?",
+      "How does Supabase compare to Firebase / Convex on interviews?",
+      "Is the open-source orientation real?",
+      "What's the hiring bar like given the small team?",
+      "How distributed is engineering really?"
+    ]
+  },
+  "difficulty": 7,
+  "tips": [
+    "Build with Supabase. A real small project covering auth, RLS, realtime, and maybe vector search gives you concrete product experience.",
+    "Read the open-source repos. Supabase studio, realtime, gotrue on GitHub &mdash; skim meaningful chunks.",
+    "Know Postgres. RLS, logical replication, connection pooling &mdash; the core primitives Supabase depends on.",
+    "Engage with the developer community. Discord, GitHub issues, Reddit discussions &mdash; authentic community familiarity helps.",
+    "Prepare remote / async stories. Specific practices, not generic claims.",
+    "Supabase engineering blog and technical deep-dive posts",
+    "Supabase GitHub organization (especially realtime, gotrue, studio repositories)",
+    "PostgreSQL official documentation (especially RLS, logical replication, extensions)",
+    "PostgreSQL: Up and Running by Obe and Hsu",
+    "Programming Elixir by Dave Thomas for realtime-team prep",
+    "Supabase Discord and community forums for engineering-culture context"
+  ],
+  "compensation": [
+    "Software Engineer (US / senior-EU hubs): $165k&ndash;$210k USD base, $120k&ndash;$230k equity (4 years), modest bonus. Total: ~$260k&ndash;$410k / year.",
+    "Senior Software Engineer: $215k&ndash;$275k base, $250k&ndash;$500k equity. Total: ~$360k&ndash;$570k / year.",
+    "Staff Engineer: $280k&ndash;$345k base, $500k&ndash;$900k equity. Total: ~$500k&ndash;$800k / year.",
+    "Supabase is genuinely open-source &mdash; not a \"source-available\" commercial play. Community contributions to the core products are real.",
+    "The Postgres-depth expectation is real. Surface familiarity isn't enough for core-platform roles.",
+    "The remote-first culture is robust &mdash; 120 people across 20+ countries with functional async practices.",
+    "The growth trajectory has been strong; hiring has increased meaningfully through 2024&ndash;2025.",
+    "Not having used Supabase. Building even a toy app signals preparation.",
+    "Weak Postgres knowledge for database-platform roles.",
+    "Dismissing the open-source orientation. It shapes everything from hiring to product decisions.",
+    "Expecting hub-city-centric operations. Supabase doesn't work that way."
+  ],
+  "rawSummary": "Supabase Interview Guide 2026: Open-Source Postgres Platform, Realtime, Edge Functions, and Vector Search\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 24, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 24, 2026 · techinterview.org\n\n⏱ 8 min read\n\nSupabase\nsupabase.com ↗\n\nSupabase Interview Process: Complete 2026 Guide\n\nOverview\n\nSupabase is the open-source developer platform that wraps PostgreSQL, auth, storage, edge functions, realtime, and vector search into a cohesive Firebase-alternative backend-as-a-service. Founded 2020 by Paul Copplestone and Ant Wilson, private with a Series D valuation approaching $2B in 2024 and continued growth through 2025. ~120 employees in 2026, deliberately small relative to product scope. Fully remote globally &mdash; no offices &mdash; with engineers distributed across 20+ countries. The product strategy is distinctive: rather than proprietary backend primitives, Supabase assembles best-of-breed open-source tools (PostgreSQL at the core, PostgREST for auto-generated APIs, GoTrue for auth, custom realtime server in Elixir, pg_vector for embeddings, etc.) and makes them developer-friendly. Engineering stack spans TypeScript (dashboard, API layer), Elixir (realtime), Go (storage, admin tooling), Rust (some performance-critical paths), and substantial Postgres-internals work. Interviews reflect the reality of operating a developer-platform company &mdash; expect strong open-source sensibilities, PostgreSQL depth for core-platform roles, and genuine appreciation for the BaaS / developer-experience space.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Supabase, team preference. The engineering surface spans dashboard, API / database, auth, storage, realtime, edge functions, AI (Vectorize / AI Assistant), and platform / infrastructure. Triage matters &mdash; core database-platform work is distinct from dashboard / frontend work.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. TypeScript for dashboard and API-layer roles; Elixir for realtime; Go for storage; Rust for performance-critical. Problems tilt applied &mdash; model a row-level-security scenario, implement a stateful stream processor, build a small API routing layer.\n\nTake-home (most senior / staff roles): 4&ndash;6 hours on a realistic engineering problem, typically involving extending an open-source library or building on top of one of Supabase's foundations. Write-up quality and open-source-project sensibility are both weighted.\n\nOnsite / virtual onsite (3&ndash;5 rounds, compact):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied round. The applied round often involves Postgres-adjacent primitives &mdash; row-level security policies, parse / transform SQL or structured queries, auth-token flows.\n\n- System design (1 round): developer-platform prompts. \"Design the Supabase Realtime server broadcasting Postgres changes to 10K concurrent subscribers per project.\" \"Design the database-per-project isolation model with fast provisioning.\" \"Design the edge-functions system deployed to global POPs with Deno runtime.\"\n\n- PostgreSQL / infrastructure deep-dive (1 round): Postgres internals (WAL, logical replication, MVCC, extensions), multi-tenant isolation trade-offs, connection pooling at scale (Supabase uses Supavisor / PgBouncer heavily). For non-database-core roles, more conversation-style.\n\n- Product / craft round (1 round): developer-experience orientation, open-source community engagement, opinions about the BaaS space (Firebase, AWS Amplify, Convex, etc.).\n\n- Behavioral / hiring manager: past projects, remote-work effectiveness, asynchronous collaboration.\n\nTechnical Focus Areas\n\nCoding: TypeScript fluency (strict mode, generics, discriminated unions), idiomatic Elixir / Go / Rust depending on role. Clean code with genuine open-source quality standards.\n\nPostgreSQL: Postgres is Supabase's core; deep familiarity matters across roles. Topics: row-level security (RLS), logical replication, extensions (pg_vector, pg_graphql, pg_cron, pgsodium), connection pooling (transaction vs session mode in PgBouncer / Supavisor), query optimization, JSONB handling, replication slots.\n\nMulti-tenant architecture: Supabase's per-project-database model is distinctive. Understanding how Supabase provisions, isolates, and manages thousands of Postgres instances &mdash; including the connection-pooling, replication, and cost-optimization aspects &mdash; is central for platform roles.\n\nRealtime (Elixir): the realtime server is Elixir / Phoenix-based, broadcasting Postgres change events via WebSocket to subscribers. OTP fundamentals, Phoenix channels, distributed Elixir clustering, and broadcast fan-out patterns matter for this team.\n\nEdge Functions (Deno): the serverless-functions product runs Deno runtime globally distributed. Cold-start optimization, JavaScript sandboxing, and deployment across edge POPs are the core concerns.\n\nVector / AI: pg_vector enables embedding storage and ANN search"
+}

@@ -1,0 +1,48 @@
+{
+  "company": "Riot Games",
+  "slug": "riot-games-interview-guide",
+  "url": "https://www.techinterview.org/companies/riot-games-interview-guide",
+  "scrapedAt": "2026-07-02T07:25:55.269Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — algorithms with practical engineering flavor; less competitive-programming style than FAANG",
+    "Domain depth (1–2 rounds) — depends on role: gameplay programming, networking, distributed systems, ML",
+    "Player focus / values round (1 round) — Riot's distinctive cultural round probing your player-first thinking and gaming engagement",
+    "Behavioral / cross-functional (1 round) — collaboration, communication, ambiguity handling"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [
+      "How does the player-focus values round actually work?"
+    ],
+    "other": [
+      "Do I need to play League / Valorant to work at Riot?",
+      "What's the relationship with Tencent like for engineers?",
+      "Is Riot a good place for early-career engineers?",
+      "How does Riot's anti-cheat engineering work?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad SWE: $160k–$250k total comp first year",
+    "Mid-level (4–7 years): $250k–$400k",
+    "Senior (8+ years): $400k–$600k",
+    "Staff / Principal: $550k–$1M+",
+    "The League codebase is older and more complex than candidates expect; ramping takes months not weeks.",
+    "The player-first culture is real, not just recruiting language — engineers see colleagues escalate player-impact concerns even when inconvenient.",
+    "The Tencent ownership doesn't translate to day-to-day involvement; Riot engineering operates autonomously on game development.",
+    "Compensation, while competitive within gaming, is below FAANG; engineers optimizing purely for comp sometimes find this disappointing.",
+    "The values round (player focus) is rigorous; candidates who treat it as a formality underperform.",
+    "Activision Blizzard &mdash; MMORPG and shooter franchises",
+    "Electronic Arts &mdash; sports franchises and AAA",
+    "Epic Games &mdash; Unreal Engine and Fortnite",
+    "Unity &mdash; game engine",
+    "Roblox &mdash; user-generated games"
+  ],
+  "rawSummary": "Riot Games Interview Guide 2026: League, Valorant, Live-Service Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 29, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Riot Games Interview Guide 2026: League of Legends, Valorant, Live-Service Gaming Engineering, and the Player-First Culture\n\n- What Riot Does\n\n- Roles Riot Hires For\n\n- Riot Interview Process\n\n- What Riot Tests For\n\n- Compensation\n\n- Working at Riot\n\n- Riot vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\n- Adjacent Gaming Companies\n\nUpdated May 2, 2026 · techinterview.org\n\n⏱ 7 min read\n\nRiot Games\nriotgames.com ↗\n\nRiot Games Interview Guide 2026: League of Legends, Valorant, Live-Service Gaming Engineering, and the Player-First Culture\n\nRiot Games is one of the most influential game studios of the last 15 years. Founded in 2006, owned by Tencent since 2011 (which acquired full ownership in 2015), Riot operates on the strength of two flagship games — League of Legends and Valorant — plus an expanding portfolio (Teamfight Tactics, Wild Rift, 2XKO, MMO development, the animated series Arcane). The hiring process is rigorous, distinctive, and reflects Riot's stated commitment to player-first engineering and craft. This guide covers what Riot does, the engineering tracks, the interview process, and what makes Riot hiring distinctive in 2026.\n\nWhat Riot Does\n\nRiot operates several major product lines:\n\n- League of Legends: the flagship — MOBA released 2009, still one of the most-played games globally with 100M+ monthly active users.\n\n- Valorant: tactical shooter released 2020, competitive esports global presence.\n\n- Teamfight Tactics (TFT): auto-battler game mode within League ecosystem.\n\n- Wild Rift: mobile League adapted for touch controls.\n\n- 2XKO: tag-team fighter (announced 2023, in development).\n\n- MMO (in development): long-rumored League MMO; still pre-release as of 2026.\n\n- Riot Forge: publishing arm that funds external developers building games in League IP.\n\n- Arcane: animated series in partnership with Netflix; technical work on cinematic pipelines.\n\n- Esports operations: LCS, LEC, LCK, LPL, VCT — substantial engineering investment in tournament infrastructure.\n\nDistinctive features:\n\n- Live-service depth: League has been live for 15+ years; the engineering challenge of evolving a live game while maintaining player retention is extreme and few companies operate at this duration.\n\n- Player-first ethos: Riot's stated value (and recruiting frame) — engineering decisions explicitly weigh player experience over short-term revenue.\n\n- Tencent-owned but autonomous: Riot operates with substantial independence from Tencent on game development; some shared infrastructure (especially in Asia).\n\n- Esports tech investment: Riot operates global esports leagues with substantial engineering — broadcast, statistics, anti-cheat, tournament systems.\n\nRoles Riot Hires For\n\nSoftware engineer (gameplay)\n\nBuilds gameplay systems — champions, abilities, items, game modes. C++ and Lua for League; C++ for Valorant (Unreal Engine). Strong gameplay programming experience valued.\n\nSoftware engineer (live services / backend)\n\nBuilds matchmaking, ranked systems, social, store, account services. Go and Python dominant; Java in some teams. Distributed systems at hundreds-of-millions-of-users scale.\n\nSoftware engineer (engine / platform)\n\nLeague's custom engine, Valorant's Unreal Engine work, shared platform tools. Deep C++ expertise expected.\n\nNetwork programmer\n\nMultiplayer netcode, latency optimization, server tick architectures. Specialized work; few engineers globally have deep expertise here.\n\nAnti-cheat engineer\n\nVanguard (Riot's kernel-level anti-cheat for Valorant and now League) and broader cheat-detection systems. Adversarial engineering with continuous attacker pressure.\n\nData engineer / data scientist\n\nPlayer behavior, matchmaking quality, retention modeling, anti-toxicity systems. Large-scale data infrastructure and ML.\n\nEsports systems engineer\n\nTournament infrastructure, broadcast systems, real-time stat tracking. Specialized engineering during tournament seasons.\n\nRiot Interview Process\n\nRound 1: Recruiter screen\n\n30 minutes. Background, motivation (Riot probes for genuine player / gaming engagement; not required but matters), role fit. Cultural fit screening starts here.\n\nRound 2: Technical phone screen\n\n60–90 minutes. Coding (medium difficulty, sometimes with gameplay or systems flavor), some technical depth on relevant systems. For gameplay roles, expect questions that touch game-relevant data structures (spatial partitioning, cooldown systems, etc.).\n\nRound 3: On-site / virtual on-site\n\n4–6 rounds, each 60–90 minutes:\n\n- Coding (1–2 rounds) — algorithms with practical engineering flavor; less competitive-programming style than FAANG\n\n- Domain depth (1–2 rounds) — depends on role: gameplay programming, networking, distributed systems, ML\n\n- Player focus / values round (1 round) — Riot's distinctive cultur"
+}

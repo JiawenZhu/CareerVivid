@@ -1,0 +1,79 @@
+{
+  "company": "Sourcegraph",
+  "slug": "sourcegraph",
+  "url": "https://www.techinterview.org/companies/sourcegraph",
+  "scrapedAt": "2026-07-02T07:26:37.010Z",
+  "interviewStages": [
+    "System design (1 round): code-intelligence-flavored prompts. \"Design the code-search index for 50K repositories with billions of symbols.\" \"Design Cody's context-retrieval pipeline producing 8K tokens of relevant code within 500ms.\" \"Design the batch-change system that applies code modifications across thousands of repositories.\"",
+    "Behavioral / hiring manager: past projects, remote-work practices, async collaboration effectiveness."
+  ],
+  "codingTopics": [
+    "AST-walk: given a tree of language tokens, implement queries like \"find all references to this identifier\" or \"find all matches of this pattern\"",
+    "Trie-based prefix search with ranking (find identifiers starting with X, ordered by relevance)",
+    "Context-window management: given a set of candidate code snippets and a token budget, select the most relevant subset",
+    "Streaming search: process a large document corpus with bounded memory",
+    "Classic algorithm problems (graphs, trees) with code-intelligence twists (dependency graph traversal, call-graph analysis)"
+  ],
+  "systemDesignTopics": [
+    "\"Design the code-search index for 100K repositories with incremental updates and 200ms query latency.\"",
+    "\"Design Cody's context-retrieval system producing 8K tokens of relevant context within 500ms.\"",
+    "\"Design the batch-change system applying a refactor across 5K repositories with failure recovery.\"",
+    "\"Design the enterprise deployment model for air-gapped customers with self-managed Kubernetes clusters.\"",
+    "Walk through how you'd build \"find references\" for a specific language.",
+    "Explain the trade-offs of LSIF vs SCIP as indexing formats.",
+    "Discuss how tree-sitter compares to language-specific parsers.",
+    "Reason about how to handle incremental indexing when code changes.",
+    "Describe approaches for cross-language symbol resolution.",
+    "\"What AI coding tools have you used? What's strong and weak about each?\"",
+    "\"If you were designing Cody, how would you prioritize features for the next quarter?\"",
+    "\"Describe a time an AI coding tool failed you. What would you have fixed?\"",
+    "\"How do you measure the quality of generated code beyond 'it compiles'?\""
+  ],
+  "behavioralTopics": [
+    "Remote effectiveness: \"Describe your practices for working effectively in a fully-distributed team.\"",
+    "Written communication: \"Tell me about a time written documentation changed a project outcome.\"",
+    "Ownership: \"Describe a production incident you owned end-to-end.\"",
+    "Customer focus: \"How have you directly engaged with developer / customer feedback?\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need compiler / language-server background?",
+      "How does Cody compare to GitHub Copilot / Cursor / Windsurf?",
+      "How real is the fully-remote culture?",
+      "Is Sourcegraph financially stable given the 2022 rightsizing?",
+      "What's the team structure like?"
+    ]
+  },
+  "difficulty": 7,
+  "tips": [
+    "Use Cody and competitors. Authentic opinions win in the product round.",
+    "Read the Handbook. At minimum the engineering and values sections.",
+    "Engage with code intelligence. Tree-sitter, LSP, AST &mdash; even a weekend exploring these pays off.",
+    "Prepare remote-work stories with specifics. \"We wrote a 3-page RFC before the engineering design session\" beats generic \"I communicate well.\"",
+    "Ask about Cody's roadmap. Signals you're aware of strategic priorities.",
+    "Sourcegraph engineering blog (posts on Zoekt, Cody, context retrieval, embeddings for code)",
+    "The Sourcegraph Handbook (engineering, values, and operating practices)",
+    "Crafting Interpreters by Robert Nystrom for AST / compiler fundamentals",
+    "Tree-sitter documentation and examples",
+    "LSP and LSIF / SCIP specifications",
+    "Cody itself &mdash; use it for a real project over 1&ndash;2 weeks before interviewing"
+  ],
+  "compensation": [
+    "Software Engineer: $170k&ndash;$215k base (location-adjusted), $100k&ndash;$180k equity/yr, modest bonus. Total: ~$260k&ndash;$410k / year (US).",
+    "Senior Software Engineer: $220k&ndash;$280k base, $180k&ndash;$340k equity/yr. Total: ~$360k&ndash;$560k / year.",
+    "Staff Engineer: $285k&ndash;$345k base, $330k&ndash;$600k equity/yr. Total: ~$520k&ndash;$800k / year.",
+    "The technical heritage is real. Sourcegraph engineers are among the most knowledgeable people about code intelligence anywhere.",
+    "Cody is a significant engineering investment, not a wrapper over third-party LLMs. The context-retrieval work is distinctive.",
+    "The Handbook is real &mdash; read it before interviewing.",
+    "Remote work is not \"remote-friendly,\" it's the company's structural default with no offices anywhere.",
+    "Not having used Cody or competitor AI coding tools seriously before interviewing.",
+    "Treating code search as \"just grep at scale.\" The indexing depth is real engineering.",
+    "Weak async communication practices in past roles.",
+    "No opinions about the AI-coding landscape. Sourcegraph operates in it daily."
+  ],
+  "rawSummary": "Sourcegraph Interview Guide 2026: Code Intelligence, Cody AI Coding, and Fully-Remote Culture\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 23, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 23, 2026 · techinterview.org\n\n⏱ 8 min read\n\nSourcegraph\nsourcegraph.com ↗\n\nSourcegraph Interview Process: Complete 2026 Guide\n\nOverview\n\nSourcegraph is the code intelligence and AI coding platform serving enterprise engineering teams with code search, navigation, batch refactoring, and the Cody AI coding assistant. Founded 2013 by Quinn Slack and Beyang Liu, private with valuations reflecting the AI-coding tailwinds (Series D in 2021; secondary tenders since). ~350 employees in 2026 after post-2022 rightsizing that narrowed focus back to core code intelligence plus Cody AI. The product's lineage is deep code-understanding across millions of repositories; Cody layers LLM capabilities on top of this context-rich foundation, which Sourcegraph argues (plausibly) is a durable differentiation vs generic AI coding tools. Sourcegraph is fully remote with no offices &mdash; one of the earliest fully-distributed tech companies. Engineering is Go-heavy on the backend, TypeScript on the client, with growing Python presence for ML / AI work. Interviews reflect both the deep-tech developer-tools heritage and the AI-product reality.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Sourcegraph, team preference. The engineering surface spans code intelligence (search, navigation, symbol resolution), platform infrastructure, Cody AI, enterprise product, and developer-experience (DX) tooling. Remote-work effectiveness is probed early &mdash; the company hires remote-only and needs candidates who genuinely thrive async.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. Go for backend; TypeScript for client; Python for ML. Problems tilt applied &mdash; implement a tree-walk for a parsed AST, handle a streaming search, implement context-ranking logic.\n\nTake-home (many senior / staff roles): 4&ndash;6 hours on a realistic engineering problem. Historically involves code-intelligence primitives &mdash; build a small language-aware search, implement a symbol-resolution system for a tiny language, or extend a Cody-style context retrieval pipeline.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied round. The applied round often involves code-intelligence primitives &mdash; AST traversal, trie-based identifier search, language-server-like symbol lookup, or context-window management for LLM prompts.\n\n- System design (1 round): code-intelligence-flavored prompts. \"Design the code-search index for 50K repositories with billions of symbols.\" \"Design Cody's context-retrieval pipeline producing 8K tokens of relevant code within 500ms.\" \"Design the batch-change system that applies code modifications across thousands of repositories.\"\n\n- Domain / code-intelligence deep-dive (1 round): distinctive to Sourcegraph. Discussion of language servers, AST-based search, LSIF / SCIP (code-intelligence formats), symbol resolution across languages, and the specific challenges of code-at-scale.\n\n- Product / craft round (1 round): engagement with developer-experience and AI-coding-tool quality. Candidates are expected to have opinions about Cody, Copilot, Cursor, Windsurf, and the broader AI-coding landscape.\n\n- Behavioral / hiring manager: past projects, remote-work practices, async collaboration effectiveness.\n\nTechnical Focus Areas\n\nCoding: Go idioms (channels, context propagation, graceful shutdown), TypeScript fluency for client work, Python for ML / AI. Clean code with clear error handling. Candidates are evaluated on code-review friendliness as much as correctness.\n\nCode intelligence: parsers and abstract syntax trees, language-server protocol (LSP), code-indexing formats (LSIF, the newer SCIP), symbol tables and name resolution, cross-repository navigation, incremental indexing as code changes.\n\nSearch: trigram-based code search, Zoekt (Sourcegraph's underlying search engine), regex search at scale, structural search via tree-sitter-based queries, semantic search with embeddings.\n\nCody / AI coding: context retrieval for LLM prompts (combining lexical search, embeddings, symbol resolution), prompt engineering for coding tasks, evaluation methodology for code-generation quality, latency budgets (users expect fast responses), fallback handling when the LLM produces bad code.\n\nInfrastructure: Kubernetes-based deployment (both cloud and customer-managed), multi-tenant isolation for cloud customers, enterprise deployment patterns for air-gapped environments, data ingestion for customer-code corpora.\n\nBatch changes: large-scale refactoring across thousands of repositories, dependency management, change-review workflows, integration with version-control hosts (GitHub, GitLab, Bitbucket).\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is medium-hard "
+}

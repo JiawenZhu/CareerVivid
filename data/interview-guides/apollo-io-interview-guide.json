@@ -1,0 +1,27 @@
+{
+  "company": "Apollo.io",
+  "slug": "apollo-io-interview-guide",
+  "url": "https://www.techinterview.org/companies/apollo-io-interview-guide",
+  "scrapedAt": "2026-07-02T07:20:12.800Z",
+  "interviewStages": [
+    "Behavioral: customer focus, ownership, fast-moving culture"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Apollo remote-friendly?",
+      "How does Apollo compare to ZoomInfo or Salesloft?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Apollo.io Interview Guide (2026): B2B Sales Intelligence\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nApollo.io\napollo.io ↗\n\nApollo is the SMB-friendly sales intelligence and engagement platform — combines a contact database with engagement tools. Series D funding, fast-growing. The interview emphasizes data engineering at scale (hundreds of millions of contacts) and the unique challenges of running a B2B data platform.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a contact database with hundreds of millions of records\n\n- Design data freshness and verification pipelines\n\n- Design an email engagement engine with deliverability\n\n- Coding: medium DSA, often with data-pipeline framing\n\n- Behavioral: customer focus, ownership, fast-moving culture\n\nLevels and comp (2026)\n\n- SE II: $160K–$200K total\n\n- Senior SE: $230K–$305K\n\n- Staff: $320K–$430K\n\n- Principal: $450K–$600K\n\nPrep priorities\n\n- Be fluent in TypeScript/Node.js (bulk of the codebase)\n\n- Understand data engineering at scale and ETL patterns\n\n- Brush up on email deliverability and CRM data\n\nFrequently Asked Questions\n\nIs Apollo remote-friendly?\n\nDistributed-first since 2020. Hubs in San Francisco and remote across US. Most engineering roles fully remote.\n\nHow does Apollo compare to ZoomInfo or Salesloft?\n\nZoomInfo is enterprise-tier with deeper data. Salesloft is engagement-focused. Apollo combines both for SMB. Apollo pays competitively with similarly-staged startups.\n\nWhat is the engineering culture?\n\nFast-moving, ship-focused, ownership-heavy. Younger team. Strong fit for engineers who like startup intensity.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Apollo.io? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextMulti-Region Replication Low-Level Design: Global Data Distribution and Failover⏱ 8 min readHarvey Interview Guide (2026): Process, Questions, Compensation⏱ 6 min readLow-Level Design: Pharmacy Prescription System — Drug Interactions, Refills, Insurance Adjudication, and Dispensing⏱ 6 min read"
+}

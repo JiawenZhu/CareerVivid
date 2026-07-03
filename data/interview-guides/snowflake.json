@@ -1,0 +1,70 @@
+{
+  "company": "Snowflake",
+  "slug": "snowflake",
+  "url": "https://www.techinterview.org/companies/snowflake",
+  "scrapedAt": "2026-07-02T07:26:29.197Z",
+  "interviewStages": [
+    "System design (1 round): database / data-cloud flavored prompts. \"Design a query result cache that handles 1M queries/sec across 10K customers.\" \"Design the storage layer that supports time-travel, cloning, and cross-region replication.\" \"Design the cost-based optimizer's statistics collection system.\"",
+    "Behavioral / hiring manager: past projects, customer focus, handling technically-complex cross-team work."
+  ],
+  "codingTopics": [
+    "Implement a database primitive: hash-aggregate operator, sort with spill-to-disk, tournament-sort for external merge",
+    "Iterator / generator with backpressure and pull-based semantics",
+    "Expression evaluation: given a small expression tree, implement interpretation and then codegen",
+    "Graph / tree problems with a plan-optimizer twist (tree rewriting, cost-based plan selection)",
+    "Classic algorithm problems with data-systems flavor (top-K with bounded memory, distinct counting, approximate algorithms)"
+  ],
+  "systemDesignTopics": [
+    "\"Design a query result cache with invalidation that handles 1M queries/sec across 10K tenants.\"",
+    "\"Design the cloning / time-travel feature supporting point-in-time queries up to 90 days back.\"",
+    "\"Design cross-region data replication with eventual consistency guarantees and bounded lag.\"",
+    "\"Design the query-statistics system feeding the cost-based optimizer.\""
+  ],
+  "behavioralTopics": [
+    "Customer focus: \"Tell me about a time you deeply engaged with a customer problem.\"",
+    "Cross-functional ownership: \"Describe a project that required coordination across multiple teams.\"",
+    "Technical depth: \"Walk me through the hardest technical problem you've solved.\"",
+    "Scaling impact: \"How have you made others around you more effective?\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need database internals experience to get hired?",
+      "How does Snowflake compare to Databricks on interviews?",
+      "Is Bozeman, MT a real engineering hub or a remote outpost?",
+      "What's Cortex AI's engineering opportunity like?",
+      "How stable is compensation post-IPO?"
+    ]
+  },
+  "difficulty": 8,
+  "tips": [
+    "Read the Snowflake SIGMOD paper. Foundational. Understand the architecture in the founders' words.",
+    "Pick a specialty area. Optimizer, executor, storage, services &mdash; go deep on one for the database deep-dive.",
+    "Know modern C++ (if targeting core). Ownership, RVO, perfect forwarding &mdash; idiomatic fluency matters.",
+    "Engage with cost consciousness. Efficient compute is the product.",
+    "Use Snowflake. The free trial gives you enough to understand the interaction model.",
+    "The Snowflake Elastic Data Warehouse (SIGMOD 2016) &mdash; foundational paper",
+    "Snowflake engineering blog (posts on optimizer, storage, and Cortex AI)",
+    "Designing Data-Intensive Applications (Kleppmann) for general systems context",
+    "Database System Concepts (Silberschatz, Korth, Sudarshan) for database theory",
+    "Effective Modern C++ (Meyers) for C++ roles",
+    "The Database System Implementation chapters in Readings in Database Systems (Red Book)"
+  ],
+  "compensation": [
+    "MTS1 / Software Engineer: $170k&ndash;$215k base, $150k&ndash;$280k equity/yr, 10% bonus. Total: ~$280k&ndash;$450k / year.",
+    "MTS2 / Senior Software Engineer: $220k&ndash;$290k base, $300k&ndash;$550k equity/yr. Total: ~$420k&ndash;$640k / year.",
+    "Principal Engineer: $290k&ndash;$370k base, $600k&ndash;$1.2M equity/yr. Total: ~$620k&ndash;$1M / year.",
+    "The core engine is C++. Not Rust, not Go, not Java. Real C++ fluency matters.",
+    "Database theory matters more than most SaaS companies. Knowing query optimization and execution concepts gives a real edge.",
+    "Bozeman is a real hub, not a remote outpost. Many senior engineers work there.",
+    "Cortex AI is a strategic investment, not a marketing tack-on. Engineering scope is real.",
+    "Weak C++ when applying for core-engine roles. \"I learned C++ in college\" is not the level.",
+    "Treating database work as routine. Snowflake engineers are typically proud of the domain; dismissiveness lands badly.",
+    "Hand-waving on cost. Snowflake customers pay for compute; engineers must think about efficiency economically.",
+    "Ignoring multi-tenancy in system design."
+  ],
+  "rawSummary": "Snowflake Interview Guide 2026: Data Cloud Architecture, C++ Query Engine, Separation of Storage and Compute\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 23, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 23, 2026 · techinterview.org\n\n⏱ 9 min read\n\nSnowflake\nsnowflake.com ↗\n\nSnowflake Interview Process: Complete 2026 Guide\n\nOverview\n\nSnowflake is the data cloud platform that pioneered the separation of storage, compute, and services for analytical workloads. Founded 2012, went public in 2020 with one of the largest software IPOs of the year, ~7,500 employees in 2026. The core product is a columnar cloud data warehouse that decouples elastic compute (virtual warehouses) from durable object storage, enabling multi-tenant isolation, per-query autoscaling, and cross-cloud data sharing. The platform has expanded significantly: Snowpark for developer-facing Python / Scala / Java workloads; Unistore for transactional queries on operational data; native apps via Snowflake Native App Framework; and Cortex AI for LLM-powered functions and ML inside the data cloud. Headquartered in Bozeman, MT and San Mateo with hubs in Dublin, Berlin, Tel Aviv, Bangalore, and remote roles across the US. Engineering is C++ heavy for core database and query execution, with Java, Go, and Python elsewhere. Interviews reflect database-company reality: deep systems thinking, query-optimizer intuition, and multi-tenant operational awareness.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Snowflake, team interest. The product surface is broad &mdash; query execution, storage, optimizer, services layer, Snowpark, Cortex AI, data sharing, native apps, cloud infrastructure, and SRE each have distinct technical profiles. The screen triages accordingly.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. C++ for core engine teams; Java for services; Go for infrastructure; Python for data / ML / Cortex AI. Problems tend toward systems-y &mdash; implement an iterator with backpressure, build a small query-plan node, parse a structured expression.\n\nTake-home (some senior / staff roles): 4&ndash;6 hours on a realistic engineering problem, typically a small database primitive or query-processing component.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (2 rounds): one algorithms round, one applied systems round. The applied round often involves database primitives &mdash; implement a hash join, write a sort operator, build a simple optimizer rule.\n\n- System design (1 round): database / data-cloud flavored prompts. \"Design a query result cache that handles 1M queries/sec across 10K customers.\" \"Design the storage layer that supports time-travel, cloning, and cross-region replication.\" \"Design the cost-based optimizer's statistics collection system.\"\n\n- Database / systems deep-dive (1 round): query execution internals, storage engine concepts, distributed systems fundamentals, or cloud infrastructure depending on role. The specificity depends on team.\n\n- Behavioral / hiring manager: past projects, customer focus, handling technically-complex cross-team work.\n\n- Values / culture round (some loops): Snowflake's values (Put Customers First, Think Big, Get It Done, Own It, Make Each Other Better) come up in specific question phrasings.\n\nTechnical Focus Areas\n\nCoding: C++ for core teams &mdash; modern C++ (C++17/20), RAII, move semantics, template metaprogramming at the level relevant to compiler / query engine work. Java / Go / Python for adjacent teams. Clean code, clear naming, and correctness under concurrency all matter.\n\nDatabase internals: relational algebra, query plan representations, cost-based optimization (Cascades framework at a conceptual level), join algorithms (nested loop, hash, sort-merge), aggregation strategies, columnar storage and compression, vectorized execution, LSM vs B-tree trade-offs.\n\nDistributed systems: consensus (Raft / Paxos), sharding, replication, consistency models, time-travel implementation via micro-partitions, cross-region data movement, multi-cloud abstraction.\n\nQuery execution: pipeline vs materialization, parallelism (intra-query, inter-query), memory management for large intermediate results, spill-to-disk strategies, skew handling.\n\nStorage: object-store interactions (S3, GCS, Azure Blob), caching layers, micro-partition design (Snowflake's core storage unit), pruning and zone maps, compression (dictionary, RLE, delta encoding).\n\nCortex AI: for AI-platform roles &mdash; LLM serving inside a data warehouse, vector search (embeddings stored and queried in-warehouse), agent orchestration for data-agnostic workflows, security and governance for AI over customer data.\n\nSnowpark / developer platform: Python UDFs, DataFrame APIs, stored-procedure execution environments, container services for custom workloads.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is medium-hard. Comparable to Google L5 for core engine teams; medium for platform-application"
+}

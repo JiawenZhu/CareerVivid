@@ -1,0 +1,43 @@
+{
+  "company": "Wells Fargo",
+  "slug": "wells-fargo-interview-guide",
+  "url": "https://www.techinterview.org/companies/wells-fargo-interview-guide",
+  "scrapedAt": "2026-07-02T07:19:00.393Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — practical engineering with banking flavor",
+    "System design (1 round) — financial systems at bank scale",
+    "Domain depth (1 round) — depends on role: distributed systems, ML, risk, security",
+    "Behavioral (1 round) — collaboration, ambiguity, banking domain interest"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "What's the asset cap and how does it affect engineers?",
+      "How is the Charles Scharf modernization era going?",
+      "What's working on the Wells Fargo digital banking app like?",
+      "How does Wells Fargo compare to Chase / BofA for engineers?",
+      "Is Wells Fargo a good place for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad SWE: $110k–$170k total comp first year",
+    "Mid-level (4–7 years): $170k–$280k",
+    "Senior (8+ years, AVP / VP): $260k–$430k",
+    "Director / Senior VP: $400k–$700k",
+    "Managing Director: $700k–$1.5M+",
+    "The asset cap is more substantive than candidates expect; it shapes strategic priorities and engineering investment patterns.",
+    "The Charlotte tech footprint is large; many engineers based in Charlotte rather than San Francisco.",
+    "The modernization push is real but proceeding at deliberate pace; engineers should expect both legacy systems and greenfield modern projects.",
+    "Compensation is below top FAANG, hedge funds, and top investment banks; engineers optimizing purely for total comp end up elsewhere.",
+    "The post-2016 cultural reset is genuine; \"do right by customers\" framing is operationally meaningful, not just marketing."
+  ],
+  "rawSummary": "Wells Fargo Interview Guide 2026: US-Domestic Bank Tech, Asset Cap Era, Modernization\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 30, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Wells Fargo Interview Guide 2026: US-Domestic Bank Tech, Asset Cap Era Continued, and the Modernization Reality\n\n- What Wells Fargo Does\n\n- Roles Wells Fargo Hires For\n\n- Wells Fargo Interview Process\n\n- What Wells Fargo Tests For\n\n- Compensation\n\n- Working at Wells Fargo\n\n- Wells Fargo vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 30, 2026 · techinterview.org\n\n⏱ 7 min read\n\nWells Fargo\nwellsfargo.com ↗\n\nWells Fargo Interview Guide 2026: US-Domestic Bank Tech, Asset Cap Era Continued, and the Modernization Reality\n\nWells Fargo (NYSE: WFC) is the third-largest US bank by assets and the most domestically-focused of the major US banks. Unlike JPMorgan, Citi, and Bank of America, Wells Fargo has limited international presence — engineering and business operate primarily within the US. The firm has been operating under the Federal Reserve's $1.95 trillion asset cap since 2018 (consequence of the 2016 fake-accounts scandal), which has shaped strategy, hiring, and engineering investment. Charles Scharf's tenure as CEO since 2019 has driven substantial cost-cutting and technology modernization. The hiring process reflects a bank in transition. This guide covers what Wells Fargo does, the engineering tracks, the interview process, and what makes Wells Fargo hiring distinctive in 2026.\n\nWhat Wells Fargo Does\n\nWells Fargo operates across four primary business lines:\n\n- Consumer Banking and Lending: US retail banking — checking, savings, credit cards, mortgages, auto loans. Largest revenue contributor.\n\n- Commercial Banking: mid-size and large corporate banking, treasury services, real estate lending.\n\n- Corporate and Investment Banking: capital markets, M&A advisory, equity / debt origination, FX. Smaller than Goldman / Morgan Stanley / JPMorgan IB.\n\n- Wealth and Investment Management: wealth management, brokerage, asset management. Smaller than Morgan Stanley / BofA Wealth.\n\nMajor technology platforms:\n\n- Wells Fargo digital banking: mobile and web retail banking apps. Substantial engineering investment to compete with Chase, BofA, Citi consumer apps.\n\n- Wells Fargo Vantage: commercial banking digital platform launched 2023.\n\n- Wells Fargo Markets infrastructure: trading systems, FX, fixed income electronic execution.\n\n- Internal data platform / cloud migration: active migration from on-premise to AWS, Azure. Substantial engineering ongoing.\n\nDistinctive features:\n\n- Asset cap (since 2018): the Federal Reserve's $1.95T asset cap restricts Wells Fargo's growth. Cap has been in place since the 2016 fake-accounts scandal; lifting depends on remediation completion. Has shaped strategy — focus on profitability over growth, increased investment in technology efficiency.\n\n- Domestic focus: minimal international presence relative to JPMorgan, Citi, BofA. Engineers based primarily in US.\n\n- San Francisco headquartered: historical Wells Fargo culture is West Coast / California, distinct from NYC bank peers. The firm has been moving more operations to the East Coast (NYC, Charlotte) and to Texas in recent years.\n\n- Public company: NYSE: WFC; substantial scrutiny especially around remediation and asset cap status.\n\n- Modernization push: Charles Scharf has driven substantial technology investment since 2019. The narrative: Wells Fargo has been behind on tech but is catching up.\n\nRoles Wells Fargo Hires For\n\nSoftware engineer (consumer / digital banking)\n\nBuilds the Wells Fargo retail banking app and web experience. Substantial engineering investment to modernize the customer experience. Java and Kotlin / Swift mobile heavy; React + TypeScript on web frontend.\n\nSoftware engineer (commercial / corporate)\n\nBuilds Wells Fargo Vantage and corporate banking platforms. Java + Python heavy.\n\nSoftware engineer (Markets / Trading)\n\nTrading systems, FX, fixed income execution. Smaller-scale than top investment banks but real engineering.\n\nRisk / quant infrastructure engineer\n\nRisk management systems, model validation, regulatory reporting. Substantial work given the regulatory scrutiny Wells Fargo is under.\n\nML / data engineer (growing)\n\nPersonalization, fraud detection, AML, credit decisioning. Substantial growth area in 2024–2026.\n\nCloud / infrastructure engineer\n\nActive multi-cloud migration. Cloud engineering investment substantial; AWS and Azure adoption ongoing.\n\nSecurity engineer\n\nSubstantial security investment given regulatory scrutiny and consumer banking footprint. Application security, infrastructure security, threat detection.\n\nCompliance / regulatory engineer\n\nEngineering for compliance — anti-money-laundering, fair lending, regulatory reporting. Large engineering footprint given Wells Fargo's regulatory remediation work post-2016.\n\nWells Fargo Interview Process\n\nRound 1: Recruiter screen\n\n3"
+}

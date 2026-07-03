@@ -1,0 +1,53 @@
+{
+  "company": "Epic Systems",
+  "slug": "epic-systems-interview-guide",
+  "url": "https://www.techinterview.org/companies/epic-systems-interview-guide",
+  "scrapedAt": "2026-07-02T07:22:21.780Z",
+  "interviewStages": [
+    "Online application and assessment. Coding test plus aptitude / cognitive testing.",
+    "Phone screen.",
+    "On-campus interviews in Verona. Multiple rounds: technical, behavioral, culture-fit. Epic usually flies candidates to Verona for the day.",
+    "Decision and offer.",
+    "Standard CS fundamentals: data structures, algorithms (typically easier than FAANG)",
+    "SQL and database design (Epic's products use both M and SQL extensively)",
+    "Logic puzzles and aptitude tests (Epic uses these heavily as filters)",
+    "For experienced hires: software architecture, scaling, healthcare domain familiarity helps",
+    "Knowledge of MUMPS is not required (you will learn it on the job)"
+  ],
+  "codingTopics": [
+    "Standard data-structure questions in any language. Epic does not require MUMPS knowledge in the interview; you will learn it on the job. Expect arrays, strings, hash maps, trees, and basic graph problems at LeetCode-medium difficulty.",
+    "SQL design for clinical data. Given a description of patient encounters, design tables that support fast retrieval of \"all encounters of type X for patient Y in the last 12 months.\" Discuss indexing, denormalization for read paths, and audit-log design.",
+    "Logic puzzles. Epic is one of the few large tech employers that still uses logic puzzles as a filter. The puzzles tend toward Bayesian conditioning, combinatorics, and algorithmic thinking rather than the dead Microsoft brainteaser tradition. Practice on a small set before the loop.",
+    "Why Epic dominates US hospital IT despite the technology stack being from the 1980s. Network effects, switching costs, regulatory requirements (Meaningful Use, MIPS), and the role of Epic's UserWeb community.",
+    "The MyChart consumer product: how patients access their records, the design decisions that make it usable across age groups, and the integration with Apple Health / Android Health.",
+    "Cosmos: Epic's clinical research data set built from de-identified EHR data across customer hospitals. Discuss the privacy architecture and how this differentiates Epic from Cerner / other competitors.",
+    "Cost of living: Verona-area housing is dramatically cheaper than coastal tech hubs. A senior engineer's cash comp goes much further locally than the same comp in San Francisco or Seattle.",
+    "Career portability: MUMPS / M skills are essentially non-portable. Engineers leaving Epic typically have to rebuild expertise in modern languages. Some roles (cloud infrastructure, mobile, web frontend) use modern stacks and are more portable.",
+    "Cultural fit: The Verona environment is famously distinctive (themed buildings, founder Judy Faulkner's strong personal stamp on the culture, a heavy mission orientation around healthcare). Some engineers love it; others find it isolating."
+  ],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I have to live in Verona?",
+      "What is MUMPS / M, and is it a career trap?",
+      "What is Epic's culture like?",
+      "How does Epic compare to other healthcare-tech firms?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New grad: $80–95K base + relocation + bonus → $95–110K total",
+    "Mid: $95–130K base + bonus → $110–155K total",
+    "Senior: $130–180K base + bonus → $150–210K total",
+    "Veeva Systems &mdash; life-sciences SaaS",
+    "Tempus AI &mdash; precision medicine and genomics",
+    "23andMe &mdash; consumer genomics"
+  ],
+  "rawSummary": "Epic Systems Interview Guide (2026): Process, Questions, Compensation\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 2, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- What makes Epic unique\n\n- Interview process\n\n- Common technical questions\n\n- Compensation (2026 estimates, Verona, WI)\n\n- Sample interview questions in depth\n\n- The Verona experience\n\n- Compensation realities\n\n- Frequently Asked Questions\n\n- Adjacent Healthcare Tech\n\nUpdated May 3, 2026 · techinterview.org\n\n⏱ 5 min read\n\nEpic Systems\nepic.com ↗\n\nEpic Systems Interview Guide\n\nCompany overview: Epic Systems is the dominant electronic health records (EHR) vendor in the United States, with software running at most major US hospitals and a growing international presence. Privately held; headquartered in Verona, Wisconsin (a campus famously themed like a fairy tale village). Engineering organization is unusual for tech: ~10,000 employees almost entirely on the Verona campus, with limited remote work and a culture distinct from coastal tech.\n\nWhat makes Epic unique\n\n- Verona-centric. Almost all employees relocate to Verona; remote work is rare. Wisconsin cost of living is much lower than coastal tech hubs.\n\n- MUMPS / M language. Epic's core systems are written in MUMPS (also known as M), a language from the 1960s most often associated with healthcare. Not a language taught in CS programs, but Epic teaches it to new hires; transferring out of Epic to other industries can be difficult because the skill is non-portable.\n\n- Strong culture. Founder Judy Faulkner built and runs the company; the culture is famously distinct — quirky, mission-driven, with high expectations and sometimes-demanding hours.\n\n- New-grad heavy. Epic hires extensively from college campuses; experienced-hire applications face a higher bar.\n\nInterview process\n\nTimeline: 4–8 weeks. Heavily structured.\n\n- Online application and assessment. Coding test plus aptitude / cognitive testing.\n\n- Phone screen.\n\n- On-campus interviews in Verona. Multiple rounds: technical, behavioral, culture-fit. Epic usually flies candidates to Verona for the day.\n\n- Decision and offer.\n\nCommon technical questions\n\n- Standard CS fundamentals: data structures, algorithms (typically easier than FAANG)\n\n- SQL and database design (Epic's products use both M and SQL extensively)\n\n- Logic puzzles and aptitude tests (Epic uses these heavily as filters)\n\n- For experienced hires: software architecture, scaling, healthcare domain familiarity helps\n\n- Knowledge of MUMPS is not required (you will learn it on the job)\n\nCompensation (2026 estimates, Verona, WI)\n\n- New grad: $80–95K base + relocation + bonus → $95–110K total\n\n- Mid: $95–130K base + bonus → $110–155K total\n\n- Senior: $130–180K base + bonus → $150–210K total\n\nBelow FAANG cash significantly. Wisconsin cost of living offsets some of the gap; Verona-area housing is dramatically cheaper than Bay Area or Seattle. No equity (Epic is private and does not issue stock).\n\nSample interview questions in depth\n\nCoding (M / MUMPS for engine, Cache/IRIS, plus general CS)\n\n- Standard data-structure questions in any language. Epic does not require MUMPS knowledge in the interview; you will learn it on the job. Expect arrays, strings, hash maps, trees, and basic graph problems at LeetCode-medium difficulty.\n\n- SQL design for clinical data. Given a description of patient encounters, design tables that support fast retrieval of \"all encounters of type X for patient Y in the last 12 months.\" Discuss indexing, denormalization for read paths, and audit-log design.\n\n- Logic puzzles. Epic is one of the few large tech employers that still uses logic puzzles as a filter. The puzzles tend toward Bayesian conditioning, combinatorics, and algorithmic thinking rather than the dead Microsoft brainteaser tradition. Practice on a small set before the loop.\n\nAptitude testing\n\nThe Epic interview pipeline includes a standardized aptitude test (the Wonderlic-style cognitive assessment, plus Epic's internal puzzle-style logic test). The aptitude test is the highest-leverage part of the loop in terms of pass/fail; preparing specifically for it (timed practice on syllogisms, sequence problems, basic math under pressure) pays dividends.\n\nHealthcare domain context\n\n- Why Epic dominates US hospital IT despite the technology stack being from the 1980s. Network effects, switching costs, regulatory requirements (Meaningful Use, MIPS), and the role of Epic's UserWeb community.\n\n- The MyChart consumer product: how patients access their records, the design decisions that make it usable across age groups, and the integration with Apple Health / Android Health.\n\n- Cosmos: Epic's clinical research data set built from de-identified EHR data across customer hospitals. Discuss the privacy architecture and how this differentiates Epic from Cerner / other competitors.\n\nThe Verona experience\n\nEpic's all-in-Verona requirement is the most distinctive feature of the company. Engineers relocate to a small Wisconsin t"
+}

@@ -1,0 +1,47 @@
+{
+  "company": "AMD",
+  "slug": "amd-interview-guide",
+  "url": "https://www.techinterview.org/companies/amd-interview-guide",
+  "scrapedAt": "2026-07-02T07:19:11.323Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — algorithms, often with systems / hardware flavor (memory hierarchy, SIMD, parallelism)",
+    "Domain depth (1–2 rounds) — depends on role: GPU programming, compiler internals, ML systems, hardware design",
+    "System design or specialty design (1 round) — varies by role; for ML systems candidates, expect questions about distributed training and inference architectures",
+    "Behavioral / cross-functional (1 round)"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Should I choose AMD or NVIDIA for an AI / GPU career?",
+      "How realistic is AMD closing the CUDA gap?",
+      "What's the Xilinx integration like for engineers?",
+      "Is AMD a good place for early-career engineers?",
+      "How does the Lisa Su era affect engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad SWE / hardware engineer: $160k–$240k total comp first year",
+    "Mid-level (4–7 years): $230k–$380k",
+    "Senior (8+ years): $350k–$550k",
+    "Staff / Principal: $500k–$900k+",
+    "Distinguished engineer / Senior Fellow: $1M+",
+    "The ROCm software ecosystem is real but maturity gap with CUDA is real; engineers have honest conversations about closing it.",
+    "The Xilinx integration is ongoing; FPGA / adaptive computing teams operate with substantial autonomy from CPU/GPU teams.",
+    "Compensation is below NVIDIA but the work is more diverse (CPUs + GPUs + accelerators + FPGAs).",
+    "The Lisa Su discipline is real and shapes engineering culture; meeting commitments matters.",
+    "The pace is more sustainable than NVIDIA but still demanding; engineers from slower-paced backgrounds need to ramp up.",
+    "NVIDIA &mdash; GPU and AI accelerator",
+    "Intel &mdash; x86 incumbent",
+    "Broadcom &mdash; networking and infrastructure",
+    "Apple Silicon &mdash; custom SoC"
+  ],
+  "rawSummary": "AMD Interview Guide 2026: Ryzen, EPYC, Instinct AI, ROCm, Closing the NVIDIA Gap\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 29, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- AMD Interview Guide 2026: Ryzen, EPYC, Instinct AI Accelerators, ROCm Software Stack, and Closing the Gap with NVIDIA\n\n- What AMD Does\n\n- Roles AMD Hires For\n\n- AMD Interview Process\n\n- What AMD Tests For\n\n- Compensation\n\n- Working at AMD\n\n- AMD vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\n- Adjacent Semiconductor Companies\n\nUpdated May 2, 2026 · techinterview.org\n\n⏱ 6 min read\n\nAMD\namd.com ↗\n\nAMD Interview Guide 2026: Ryzen, EPYC, Instinct AI Accelerators, ROCm Software Stack, and Closing the Gap with NVIDIA\n\nAMD is the most credible challenger to NVIDIA in AI / accelerated computing and the most credible challenger to Intel in CPUs. Founded in 1969, the company's modern resurgence began with the 2017 Zen architecture and has accelerated dramatically with the Lisa Su era — Ryzen taking consumer market share, EPYC taking server market share, and Instinct (MI300, MI325, MI350+) entering the AI accelerator market. The 2022 Xilinx acquisition added FPGA expertise. The hiring process is rigorous and reflects the company's renewed engineering ambition. This guide covers what AMD does, the engineering tracks, the interview process, and what makes AMD hiring distinctive in 2026.\n\nWhat AMD Does\n\nAMD designs and produces:\n\n- Ryzen CPUs: consumer desktop and laptop processors based on Zen 5 / Zen 5c (2024+); Zen 6 expected in 2026.\n\n- EPYC CPUs: server processors; the success story that took meaningful server market share from Intel.\n\n- Instinct AI accelerators: MI300X, MI325X, MI350 series — AMD's response to NVIDIA's H100 / H200 / Blackwell.\n\n- Radeon GPUs: consumer GPUs (RDNA architecture); also the GPU IP underlying integrated graphics.\n\n- Embedded and Adaptive (formerly Xilinx): FPGAs, adaptive SoCs (Versal), embedded products.\n\n- Pensando DPUs: data processing units acquired 2022.\n\n- ROCm software stack: AMD's open-source competitor to CUDA — HIP, MIOpen, ROCm libraries, integration with PyTorch and other frameworks.\n\nDistinctive features:\n\n- Multi-product strategy: CPUs, GPUs, AI accelerators, FPGAs, DPUs — AMD covers more accelerator types than any single competitor.\n\n- Open software approach: ROCm is open-source; AMD positions this as differentiation against CUDA's proprietary lock-in.\n\n- Lisa Su era discipline: the company's modern reputation is built on consistent execution; engineering culture reflects this.\n\n- Public company: NASDAQ: AMD; substantial scrutiny.\n\nRoles AMD Hires For\n\nHardware / silicon engineer\n\nDesigns CPUs, GPUs, accelerators, FPGAs. Verilog / SystemVerilog; deep VLSI / RTL / ASIC expertise. Years-long product cycles.\n\nGPU compute / kernel engineer\n\nWrites code for AMD GPUs — HIP (CUDA-compatible API), kernel optimization, ROCm libraries. Equivalent of NVIDIA's CUDA engineer track. C++ and HIP fluency.\n\nCompiler / software engineer (LLVM, ROCm)\n\nBuilds the ROCm compiler stack, LLVM extensions for AMD GPUs, kernel optimizations. Deep compiler engineering background.\n\nML / deep learning engineer\n\nPyTorch / JAX integration with ROCm, ML library development (MIOpen), distributed training on Instinct hardware. Substantial growth area.\n\nDriver / firmware engineer\n\nGPU drivers, CPU firmware, Instinct firmware. C / C++; OS internals; embedded experience.\n\nPerformance / verification engineer\n\nPerformance characterization, simulation-based verification, post-silicon validation. Hybrid hardware-software work.\n\nFPGA / adaptive computing engineer (Xilinx side)\n\nFPGA design, Versal SoCs, adaptive computing applications. Specialized track from the Xilinx acquisition.\n\nAMD Interview Process\n\nRound 1: Recruiter screen\n\n30 minutes. Background, motivation, role fit. Compensation expectations.\n\nRound 2: Technical phone screen\n\n60–90 minutes. For software roles: coding plus systems / hardware concepts. For hardware roles: digital design fundamentals; sometimes a small RTL exercise.\n\nRound 3: On-site / virtual on-site\n\n4–6 rounds, each 60–90 minutes:\n\n- Coding (1–2 rounds) — algorithms, often with systems / hardware flavor (memory hierarchy, SIMD, parallelism)\n\n- Domain depth (1–2 rounds) — depends on role: GPU programming, compiler internals, ML systems, hardware design\n\n- System design or specialty design (1 round) — varies by role; for ML systems candidates, expect questions about distributed training and inference architectures\n\n- Behavioral / cross-functional (1 round)\n\nSpecialty depth matters more than at typical FAANG; generalist coding alone is insufficient for most AMD roles.\n\nRound 4: Decision\n\nCalibration meeting; offer typically within 1–3 weeks. Compensation negotiation expected.\n\nWhat AMD Tests For\n\nSpecialty depth\n\nAMD hires specialists. CPU engineers know CPUs; GPU engineers know GPUs; ML engineers know PyTorch internals. Generic CS background isn't sufficient for senior+ rol"
+}

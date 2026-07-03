@@ -1,0 +1,58 @@
+{
+  "company": "Grab",
+  "slug": "grab-interview-guide",
+  "url": "https://www.techinterview.org/companies/grab-interview-guide",
+  "scrapedAt": "2026-07-02T07:22:55.948Z",
+  "interviewStages": [
+    "Recruiter screen (30 min). Background, role fit, location preferences. Most engineering hires are based in Singapore or Bangalore; Singapore comes with a higher comp band but tighter visa requirements.",
+    "Online assessment (60 min). Two LeetCode-medium coding problems on HackerRank or similar.",
+    "Technical phone screen (60 min). Coding problem plus brief design discussion.",
+    "Onsite (4–5 rounds).",
+    "1 system design round, often Southeast-Asia-context-flavored (design ride dispatch for high-density cities, design payments across multiple currencies)",
+    "1 behavioral round mapped to Grab's \"Heart, Hunger, Honour, Humility\" (4H) values",
+    "Hiring committee review.",
+    "Standard LeetCode mediums plus 1–2 hards at the senior level",
+    "Geospatial: nearest-neighbor queries, geohashing, dispatch algorithms (similar to Uber's surface area)",
+    "Real-time matching: high-throughput driver-rider matching with surge consideration",
+    "Payments: idempotency, multi-currency settlement, regulatory compliance across SEA jurisdictions",
+    "Go is heavily used at Grab; Java and Python also common"
+  ],
+  "codingTopics": [
+    "Design a high-throughput driver-rider matching service. Real-time geospatial queries (geohashing, S2 cells, R-tree), surge consideration, fairness across drivers, and what to do when supply concentrates in a few zones during demand spikes.",
+    "Implement an idempotent payment authorization flow. Multi-currency consideration (Indonesian rupiah and Vietnamese dong have very different decimal handling), retry semantics, and how to compose with multiple payment providers (Visa, MasterCard, GrabPay wallet, OVO, GoPay competitors).",
+    "Top-K nearest drivers query at 100K QPS. Discuss caching strategies, how to keep driver locations fresh, and what happens during a network partition between the driver app and the matching service."
+  ],
+  "systemDesignTopics": [
+    "Design GrabFood for a city of 30 million people. Restaurants, real-time menu sync, ETA prediction, courier dispatch, and the platform-vs-merchant data trade-offs.",
+    "Design a multi-currency wallet (GrabPay) across SEA jurisdictions. Each country has different KYC, AML, and central-bank reporting requirements. Discuss how to architect a system where business rules vary by country but the core wallet state machine is shared.",
+    "Design a fraud-detection pipeline for ride-hailing. Common attack patterns: fake GPS, phantom rides, account takeover, payment chargeback abuse. ML model serving, feedback loops from human reviewers, and how to balance false positives against driver experience.",
+    "Heart — service to customers, drivers, merchants. Stories about going beyond the spec to solve a real user problem.",
+    "Hunger — drive and ownership. Stories about taking on scope that was not formally yours.",
+    "Honour — ethical decisions, dealing with pressure to compromise. The hardest of the four to nail because it requires a story where you held a line under pushback.",
+    "Humility — admitting being wrong, learning from feedback. Pairs well with technical-failure stories.",
+    "Uber &mdash; ride-hailing and delivery"
+  ],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [
+      "Grab interviews often probe whether the candidate understands the specific operating context of Southeast Asia. Common questions: how does ride-hailing work differently in Jakarta vs Singapore? What is the role of motorbike fleets (GrabBike) and how does it change the engineering problem? How does payments fragmentation (cash, e-wallet, bank transfer, BNPL) affect the platform's data model?",
+      "Does Grab sponsor work visas?",
+      "What languages should I know?",
+      "How does Grab compare to Sea / Shopee?"
+    ],
+    "values": [
+      "What is the Grab 4H values round?"
+    ],
+    "other": []
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "SWE 2 / 3: SGD 100–160K base + RSU + bonus → SGD 140–200K total",
+    "Senior SWE: SGD 160–230K base + meaningful RSU → SGD 230–320K total",
+    "Staff SWE: SGD 230–320K base + RSU → SGD 350–500K total"
+  ],
+  "rawSummary": "Grab Interview Guide (2026): Process, Questions, Compensation\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 2, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Interview process\n\n- Common technical questions\n\n- Compensation (2026 estimates, Singapore)\n\n- Sample interview questions in depth\n\n- The 4H values round in detail\n\n- Frequently Asked Questions\n\n- Adjacent Transport and Marketplace\n\nUpdated May 3, 2026 · techinterview.org\n\n⏱ 4 min read\n\nGrab\ngrab.com ↗\n\nGrab Interview Guide\n\nCompany overview: Grab is the largest super-app in Southeast Asia, offering ride-hailing, food delivery, financial services (GrabFin / GrabPay), and digital banking across Singapore, Indonesia, Malaysia, Thailand, Vietnam, the Philippines, and Cambodia. Headquartered in Singapore with major engineering centers in Singapore, Bangalore, Jakarta, and Ho Chi Minh City. Public on NASDAQ (GRAB) since 2021 via SPAC merger.\n\nInterview process\n\nTimeline: 4–6 weeks.\n\n- Recruiter screen (30 min). Background, role fit, location preferences. Most engineering hires are based in Singapore or Bangalore; Singapore comes with a higher comp band but tighter visa requirements.\n\n- Online assessment (60 min). Two LeetCode-medium coding problems on HackerRank or similar.\n\n- Technical phone screen (60 min). Coding problem plus brief design discussion.\n\n- Onsite (4–5 rounds).\n\n2 coding rounds (medium-to-hard)\n\n- 1 system design round, often Southeast-Asia-context-flavored (design ride dispatch for high-density cities, design payments across multiple currencies)\n\n- 1 behavioral round mapped to Grab's \"Heart, Hunger, Honour, Humility\" (4H) values\n\n- Hiring committee review.\n\nCommon technical questions\n\n- Standard LeetCode mediums plus 1–2 hards at the senior level\n\n- Geospatial: nearest-neighbor queries, geohashing, dispatch algorithms (similar to Uber's surface area)\n\n- Real-time matching: high-throughput driver-rider matching with surge consideration\n\n- Payments: idempotency, multi-currency settlement, regulatory compliance across SEA jurisdictions\n\n- Go is heavily used at Grab; Java and Python also common\n\nCompensation (2026 estimates, Singapore)\n\n- SWE 2 / 3: SGD 100–160K base + RSU + bonus → SGD 140–200K total\n\n- Senior SWE: SGD 160–230K base + meaningful RSU → SGD 230–320K total\n\n- Staff SWE: SGD 230–320K base + RSU → SGD 350–500K total\n\nSingapore comp is roughly 30–50% lower in USD-equivalent than US FAANG, but Singapore's lower tax burden (top marginal rate around 22%) closes some of the gap. Bangalore comp is significantly lower in absolute terms but high relative to the local market.\n\nSample interview questions in depth\n\nCoding (Go-flavored backend)\n\n- Design a high-throughput driver-rider matching service. Real-time geospatial queries (geohashing, S2 cells, R-tree), surge consideration, fairness across drivers, and what to do when supply concentrates in a few zones during demand spikes.\n\n- Implement an idempotent payment authorization flow. Multi-currency consideration (Indonesian rupiah and Vietnamese dong have very different decimal handling), retry semantics, and how to compose with multiple payment providers (Visa, MasterCard, GrabPay wallet, OVO, GoPay competitors).\n\n- Top-K nearest drivers query at 100K QPS. Discuss caching strategies, how to keep driver locations fresh, and what happens during a network partition between the driver app and the matching service.\n\nSystem design at SEA scale\n\n- Design GrabFood for a city of 30 million people. Restaurants, real-time menu sync, ETA prediction, courier dispatch, and the platform-vs-merchant data trade-offs.\n\n- Design a multi-currency wallet (GrabPay) across SEA jurisdictions. Each country has different KYC, AML, and central-bank reporting requirements. Discuss how to architect a system where business rules vary by country but the core wallet state machine is shared.\n\n- Design a fraud-detection pipeline for ride-hailing. Common attack patterns: fake GPS, phantom rides, account takeover, payment chargeback abuse. ML model serving, feedback loops from human reviewers, and how to balance false positives against driver experience.\n\nThe SEA market context\n\nGrab interviews often probe whether the candidate understands the specific operating context of Southeast Asia. Common questions: how does ride-hailing work differently in Jakarta vs Singapore? What is the role of motorbike fleets (GrabBike) and how does it change the engineering problem? How does payments fragmentation (cash, e-wallet, bank transfer, BNPL) affect the platform's data model?\n\nCandidates who treat Grab as \"just like Uber for Asia\" tend to score worse than candidates who articulate the specific differences. SEA's market structure, regulatory landscape, and consumer behavior diverge significantly from US/EU markets, and the engineering organization expects new hires to engage with that.\n\nThe 4H values round in detail\n\nGrab's behavioral round is structured around the four core values:\n\n- Heart — service to customers, drivers, merchan"
+}

@@ -1,0 +1,43 @@
+{
+  "company": "BlackRock",
+  "slug": "blackrock-interview-guide",
+  "url": "https://www.techinterview.org/companies/blackrock-interview-guide",
+  "scrapedAt": "2026-07-02T07:16:39.414Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — algorithms with practical engineering flavor; less competitive-programming style than FAANG",
+    "System design (1 round) — financial-systems flavor (multi-asset risk calculations, real-time pricing, large-scale portfolio analytics)",
+    "Domain depth (1 round) — depends on role: quant finance, ML, distributed systems, security",
+    "Behavioral / cross-functional (1 round) — collaboration, ambiguity, fit with the BlackRock culture"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "How important is Aladdin to BlackRock's overall identity?",
+      "What's the AI / ML investment trajectory at BlackRock?",
+      "How does the Preqin acquisition affect engineering?",
+      "How does compensation compare to hedge funds?",
+      "Is BlackRock a good place for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad SWE: $170k–$260k total comp first year",
+    "Mid-level (4–7 years): $230k–$400k",
+    "Senior (8+ years): $380k–$650k",
+    "Director / VP-engineering: $600k–$1.2M+",
+    "Managing Director / senior tech leadership: $1.2M–$3M+",
+    "The Aladdin engineering investment is more substantial than candidates expect; it's effectively a major tech company within a financial firm.",
+    "The compensation is competitive with bank tech and trails only top hedge funds; many candidates underestimate BlackRock's pay.",
+    "The technology culture is more sophisticated than candidates expect from \"asset manager\" positioning; engineering practices are tech-company-grade.",
+    "The deferral structure is real; senior roles see substantial deferred comp in firm RSUs.",
+    "The political exposure is real — BlackRock as the largest index owner attracts political pressure (anti-ESG backlash, anti-monopoly concerns); this affects internal communication and strategy."
+  ],
+  "rawSummary": "BlackRock Interview Guide 2026: Aladdin Platform, ETFs, Largest Asset Manager Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 29, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- BlackRock Interview Guide 2026: Aladdin Platform, $11 Trillion AUM, ETFs, and the Largest Asset Manager&#039;s Tech Engineering\n\n- What BlackRock Does\n\n- Roles BlackRock Hires For\n\n- BlackRock Interview Process\n\n- What BlackRock Tests For\n\n- Compensation\n\n- Working at BlackRock\n\n- BlackRock vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 29, 2026 · techinterview.org\n\n⏱ 7 min read\n\nBlackRock\nblackrock.com ↗\n\nBlackRock Interview Guide 2026: Aladdin Platform, $11 Trillion AUM, ETFs, and the Largest Asset Manager's Tech Engineering\n\nBlackRock (NYSE: BLK) is the largest asset manager in the world by AUM (~$11 trillion as of 2026), the dominant player in ETFs (iShares), and the operator of Aladdin — the most-used institutional risk and portfolio management platform globally. BlackRock's tech reputation is distinctive: a buy-side firm with software-engineering-company-level technology investment, anchored by Aladdin and increasingly by AI-driven research and ETF products. The hiring process is rigorous and reflects the company's hybrid finance-and-technology identity. This guide covers what BlackRock does, the engineering tracks, the interview process, and what makes BlackRock hiring distinctive in 2026.\n\nWhat BlackRock Does\n\nBlackRock operates as both an asset manager and a financial technology provider:\n\n- Asset management: ETFs (iShares — the largest ETF family globally), index funds, active equity, fixed income, alternatives. ~$11T AUM split across institutional and retail clients.\n\n- Aladdin: the technology platform — risk management, portfolio analytics, trading, operations. Used internally by BlackRock and licensed externally to ~200+ institutions including pension funds, insurance companies, and other asset managers. Aladdin Wealth and Aladdin Climate extend the platform to wealth management and ESG.\n\n- Alternatives (BAI): private equity, real estate, infrastructure, hedge fund solutions.\n\n- BlackRock Solutions: the original Aladdin business unit; expanded to broader financial technology consulting.\n\n- eFront: alternatives portfolio management software, acquired 2019. Integrated with Aladdin over 2020-2024.\n\n- Preqin (acquisition): private markets data; announced acquisition 2024, closed 2025. Substantial private-markets data integration work ongoing.\n\n- Climate / ESG products: Aladdin Climate, ESG analytics, sustainable investment funds.\n\nDistinctive features:\n\n- Aladdin as moat: few competitors operate at BlackRock's combination of asset management scale and proprietary technology. Aladdin is genuinely the standard institutional risk platform; competitors (BNY's Eagle, MSCI Wealth Risk, Bloomberg AIM) trail substantially.\n\n- ETF dominance: iShares is the largest ETF family globally; engineering work touches index construction, ETF mechanics, market-making relationships.\n\n- Tech-company-grade engineering investment: BlackRock has hired aggressively from FAANG / hedge fund tech for over a decade; the engineering organization is closer in culture and compensation to a tech company than a traditional asset manager.\n\n- Public company: NYSE: BLK; substantial scrutiny, especially around index ownership and political pressure on ESG.\n\nRoles BlackRock Hires For\n\nSoftware engineer (Aladdin)\n\nBuilds the Aladdin platform — risk analytics, portfolio modeling, trading, operations modules. Heavy C++ and Python; some Scala. Performance-critical components (real-time risk calculation across portfolios) are C++; analytics layers are Python. Substantial growth area.\n\nQuant engineer / quant developer\n\nBuilds analytics — risk models, portfolio optimization, factor models, derivatives pricing. Hybrid of quant finance background and software engineering.\n\nSoftware engineer (ETF / index)\n\nBuilds systems for index calculation, ETF creation / redemption, capital markets workflows. Specialized fintech engineering.\n\nML engineer / AI engineer\n\nSubstantial growth area. ML for research (alpha signals, alternative data), Aladdin features (anomaly detection, risk scoring), and increasingly AI assistants for portfolio managers and clients. The 2024+ AI investment has accelerated.\n\nData engineer\n\nPipeline engineering for market data, alternative data, ESG data, and the recently-acquired Preqin private-markets datasets. Substantial scale.\n\nSite reliability / infrastructure engineer\n\nAladdin operates as both internal and external SaaS; reliability matters substantially. Infrastructure engineering at meaningful scale.\n\nFrontend engineer\n\nAladdin UI, internal portfolio manager tools, client-facing tools. React + TypeScript.\n\nCyber / security engineer\n\nSubstantial security investment given fiduciary responsibility for $11T AUM. Application security, infrastructure security, threat detection.\n\nBlackRock Int"
+}

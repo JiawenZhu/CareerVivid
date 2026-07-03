@@ -1,0 +1,57 @@
+{
+  "company": "Tempus AI",
+  "slug": "tempus-ai-interview-guide",
+  "url": "https://www.techinterview.org/companies/tempus-ai-interview-guide",
+  "scrapedAt": "2026-07-02T07:16:10.297Z",
+  "interviewStages": [
+    "Recruiter screen (30 min).",
+    "Hiring manager screen (45 min).",
+    "Technical phone screen (60 min).",
+    "Virtual onsite (4–5 rounds)."
+  ],
+  "codingTopics": [
+    "1 system design round (often health-data-flavored)",
+    "1 domain depth round for senior+ (genomics pipelines, clinical data integration, ML for medical applications)",
+    "1 behavioral round",
+    "Hiring committee review.",
+    "Standard LeetCode mediums (Python dominant for ML / data; Go and Java for backend)",
+    "Bioinformatics pipelines for genomics-track roles: BWA, GATK, variant calling, annotation",
+    "Healthcare data integration: HL7, FHIR, EHR APIs, HIPAA compliance",
+    "ML for medical applications: how to validate clinical models, regulatory considerations, fairness across patient populations",
+    "For senior+: building reliable scientific pipelines under regulatory scrutiny",
+    "Implement variant calling from sequence data. Walk through how to align reads to a reference genome, identify SNVs and indels, and apply quality-score filters. Senior candidates should mention BWA-MEM, GATK HaplotypeCaller, and the trade-offs of joint genotyping vs single-sample calling.",
+    "Design a feature store for clinical-genomic data. Patient features (demographics, comorbidities) plus genomic features (mutations, copy-number, methylation). Discuss versioning, feature freshness, and how to handle late-arriving lab results.",
+    "Build a clinical trial matching service. Match patients to trials based on genomic and clinical inclusion criteria. Discuss how to handle ambiguous criteria (eligibility windows, concurrent therapy restrictions) and how oncologists should be in the loop.",
+    "Validation strategies for clinical-grade models: hold-out by site, hold-out by year, prospective validation. Why standard k-fold cross-validation is misleading for medical data.",
+    "Fairness across patient populations: how to measure model performance disparities across race, sex, age, and what to do when you find them. The current FDA stance on AI/ML medical-device approval (2024 guidance).",
+    "Hallucination and grounding for LLM-based clinical tools: why \"the model is usually right\" is unacceptable when the model is summarizing pathology reports. Citation grounding, retrieval augmentation, and physician-in-the-loop design.",
+    "HL7 v2 vs FHIR: the structural differences, why most US healthcare systems use both, and how to bridge them. Specific challenges with HL7 v2 (positional fields, optional fragments, vendor-specific Z-segments).",
+    "Tempus's data scale: tens of millions of clinical records combined with genomic and imaging data. Discuss storage and query strategies that work at petabyte scale.",
+    "De-identification for research use: HIPAA Safe Harbor vs Expert Determination, k-anonymity, and the trade-off between privacy and research utility.",
+    "Veeva Systems &mdash; life-sciences SaaS",
+    "23andMe &mdash; consumer genomics",
+    "Epic Systems &mdash; EHR"
+  ],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [
+      "Do I need biology / genomics background?",
+      "How does Tempus compare to other health AI firms?",
+      "Is the work HIPAA-regulated?",
+      "What languages are used?"
+    ],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": []
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "Mid: $130–170K base + RSU + bonus → $200–280K total",
+    "Senior: $170–230K base + RSU → $280–400K total",
+    "Staff: $230–290K base + RSU → $400–550K total"
+  ],
+  "rawSummary": "Tempus AI Interview Guide (2026): Process, Questions, Compensation\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 2, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Interview process\n\n- Common technical questions\n\n- Compensation (2026 estimates, Chicago)\n\n- Sample interview questions in depth\n\n- What&#039;s distinctive about Tempus\n\n- Post-IPO compensation context\n\n- Frequently Asked Questions\n\n- Adjacent Healthcare Tech\n\nUpdated May 3, 2026 · techinterview.org\n\n⏱ 3 min read\n\nTempus AI\ntempus.com ↗\n\nTempus AI Interview Guide\n\nCompany overview: Tempus (now Tempus AI, NASDAQ: TEM after 2024 IPO) is a precision-medicine company combining genomic sequencing, clinical data, and AI to inform cancer treatment and other medical decisions. Chicago headquartered with engineering across Chicago, Atlanta, Boston, and remote. Founded by Eric Lefkofsky (Groupon co-founder) in 2015. Engineering domains span clinical lab software, genomic analysis pipelines, AI/ML for clinical decision support, and the customer-facing platform used by oncologists.\n\nInterview process\n\nTimeline: 4–6 weeks.\n\n- Recruiter screen (30 min).\n\n- Hiring manager screen (45 min).\n\n- Technical phone screen (60 min).\n\n- Virtual onsite (4–5 rounds).\n\n2 coding rounds\n\n- 1 system design round (often health-data-flavored)\n\n- 1 domain depth round for senior+ (genomics pipelines, clinical data integration, ML for medical applications)\n\n- 1 behavioral round\n\n- Hiring committee review.\n\nCommon technical questions\n\n- Standard LeetCode mediums (Python dominant for ML / data; Go and Java for backend)\n\n- Bioinformatics pipelines for genomics-track roles: BWA, GATK, variant calling, annotation\n\n- Healthcare data integration: HL7, FHIR, EHR APIs, HIPAA compliance\n\n- ML for medical applications: how to validate clinical models, regulatory considerations, fairness across patient populations\n\n- For senior+: building reliable scientific pipelines under regulatory scrutiny\n\nCompensation (2026 estimates, Chicago)\n\n- Mid: $130–170K base + RSU + bonus → $200–280K total\n\n- Senior: $170–230K base + RSU → $280–400K total\n\n- Staff: $230–290K base + RSU → $400–550K total\n\nBelow FAANG cash; Chicago cost of living offsets partially. Post-IPO equity has been volatile.\n\nSample interview questions in depth\n\nCoding (Python-heavy ML / data engineering)\n\n- Implement variant calling from sequence data. Walk through how to align reads to a reference genome, identify SNVs and indels, and apply quality-score filters. Senior candidates should mention BWA-MEM, GATK HaplotypeCaller, and the trade-offs of joint genotyping vs single-sample calling.\n\n- Design a feature store for clinical-genomic data. Patient features (demographics, comorbidities) plus genomic features (mutations, copy-number, methylation). Discuss versioning, feature freshness, and how to handle late-arriving lab results.\n\n- Build a clinical trial matching service. Match patients to trials based on genomic and clinical inclusion criteria. Discuss how to handle ambiguous criteria (eligibility windows, concurrent therapy restrictions) and how oncologists should be in the loop.\n\nML for medical applications (senior+)\n\n- Validation strategies for clinical-grade models: hold-out by site, hold-out by year, prospective validation. Why standard k-fold cross-validation is misleading for medical data.\n\n- Fairness across patient populations: how to measure model performance disparities across race, sex, age, and what to do when you find them. The current FDA stance on AI/ML medical-device approval (2024 guidance).\n\n- Hallucination and grounding for LLM-based clinical tools: why \"the model is usually right\" is unacceptable when the model is summarizing pathology reports. Citation grounding, retrieval augmentation, and physician-in-the-loop design.\n\nHealthcare data integration\n\n- HL7 v2 vs FHIR: the structural differences, why most US healthcare systems use both, and how to bridge them. Specific challenges with HL7 v2 (positional fields, optional fragments, vendor-specific Z-segments).\n\n- Tempus's data scale: tens of millions of clinical records combined with genomic and imaging data. Discuss storage and query strategies that work at petabyte scale.\n\n- De-identification for research use: HIPAA Safe Harbor vs Expert Determination, k-anonymity, and the trade-off between privacy and research utility.\n\nWhat's distinctive about Tempus\n\nTempus combines three things rare to find together: a clinical lab business (revenue), large clinical-genomic data scale (a moat), and an AI/ML team building tools for oncologists (the product). The engineering work spans bioinformatics pipelines, clinical-trial matching software, AI agent development, and platform infrastructure for handling regulated data. Candidates who get senior+ offers typically have either deep domain experience (genomics, oncology informatics) or strong general engineering plus visible curiosity about the medical context.\n\nPost-IPO compensation context\n\nTempus IPO'd in mid-2024. The post-I"
+}

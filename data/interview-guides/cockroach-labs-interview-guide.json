@@ -1,0 +1,25 @@
+{
+  "company": "Cockroach Labs",
+  "slug": "cockroach-labs-interview-guide",
+  "url": "https://www.techinterview.org/companies/cockroach-labs-interview-guide",
+  "scrapedAt": "2026-07-02T07:21:18.690Z",
+  "interviewStages": [],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need database experience to interview at Cockroach Labs?",
+      "What language is CockroachDB written in?",
+      "Is the interview different from a Google or Snowflake interview?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Cockroach Labs Interview Guide (2026): Distributed SQL Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nCockroach Labs\ncockroachlabs.com ↗\n\nCockroach Labs builds CockroachDB — a globally distributed, strongly consistent SQL database used by financial institutions, gaming companies, and enterprises that need both Postgres compatibility and horizontal scale. Interviews are some of the most technically rigorous in the database space, second only to Google Spanner team or AWS Aurora.\n\nProcess\n\nRecruiter screen → 60-minute technical phone (DSA + low-level systems question) → onsite loop of 5 rounds: 2 coding (LeetCode medium-hard, often graph or tree), 1 distributed systems design, 1 deep-dive on a past project, 1 behavioral. Database team candidates get an additional storage/transactions round. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a distributed transaction protocol with serializable isolation\n\n- Implement Raft consensus or describe how you would extend it\n\n- Design a globally distributed key-value store with multi-region writes\n\n- Coding: graph/tree problems, often involving distributed state\n\n- Past-project deep dive: prepare to defend every architectural decision in a project from your past\n\nLevels and comp (2026)\n\n- SWE II: $200K–$250K total\n\n- SWE III (mid): $260K–$340K\n\n- Senior SWE: $360K–$480K\n\n- Staff: $500K–$650K\n\nPrep priorities\n\n- Read the CockroachDB design papers — Raft, distributed transactions, range leases\n\n- Practice low-level Go (memory layout, goroutines, escape analysis)\n\n- Understand SQL internals: query planning, optimization, execution\n\nFrequently Asked Questions\n\nDo I need database experience to interview at Cockroach Labs?\n\nNot strictly, but it helps. They hire generalists who are excited to dive deep into databases. Show you have read their blog and papers.\n\nWhat language is CockroachDB written in?\n\nGo. Some C++ for RocksDB-derived storage. Knowing Go well is a strong advantage.\n\nIs the interview different from a Google or Snowflake interview?\n\nYes. More emphasis on database internals and consensus protocols, less on web-scale system design.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Cockroach Labs? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextDesign a Strava-Style Fitness Tracker: GPS, Sensors, and Social⏱ 2 min readDesign a Payment System⏱ 5 min readCoding Interview: Design Patterns for Interviews — Iterator, Composite, Command, State, Template Method, DI⏱ 7 min read"
+}

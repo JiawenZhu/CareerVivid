@@ -1,0 +1,27 @@
+{
+  "company": "Heroku",
+  "slug": "heroku-interview-guide",
+  "url": "https://www.techinterview.org/companies/heroku-interview-guide",
+  "scrapedAt": "2026-07-02T07:23:13.639Z",
+  "interviewStages": [
+    "Behavioral: customer focus, ownership, working through ambiguity"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Heroku still relevant in 2026?",
+      "Is Heroku remote-friendly?",
+      "How does Heroku compare to Render or Fly.io?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Heroku Interview Guide (2026): Cloud Application Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nHeroku\nheroku.com ↗\n\nHeroku, owned by Salesforce since 2010, was the original PaaS — pioneered the 12-factor app, dyno model, git-push-to-deploy. Its rebirth in recent years includes Heroku Next platform with Kubernetes underneath. The interview emphasizes platform engineering, multi-tenant architecture, and the realities of running customer code at scale.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 4–6 weeks (Salesforce hiring is famously slow).\n\nWhat they actually ask\n\n- Design a multi-tenant container scheduler that runs customer apps with strong isolation\n\n- Design a build pipeline (buildpacks) that produces deployable artifacts from source\n\n- Design log streaming from thousands of customer dynos\n\n- Coding: medium DSA, often with concurrency or scheduling flavor\n\n- Behavioral: customer focus, ownership, working through ambiguity\n\nLevels and comp (2026)\n\n- SE II: $145K–$180K total\n\n- Senior SE: $210K–$280K\n\n- Staff: $300K–$400K\n\n- Principal: $420K–$550K\n\nSalesforce comp bands apply; total comp is solid but lags FAANG by 20–30% at senior+.\n\nPrep priorities\n\n- Be fluent in Ruby (legacy) and Go (newer services)\n\n- Understand container internals: Docker, Kubernetes, runc\n\n- Read about the 12-factor app and Heroku's contribution to platform thinking\n\nFrequently Asked Questions\n\nIs Heroku still relevant in 2026?\n\nYes for many SMB customers; less for hyperscale. Heroku Next aims to bring it forward with modern Kubernetes underpinnings. Salesforce is investing.\n\nIs Heroku remote-friendly?\n\nHybrid in San Francisco; many engineering roles fully remote within Salesforce supported countries.\n\nHow does Heroku compare to Render or Fly.io?\n\nHeroku has the brand and history. Render and Fly.io are newer with modern UX. Heroku still wins for enterprises wanting a Salesforce-supported platform.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Heroku? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextFeature Flag System Low-Level Design⏱ 7 min readLow-Level Design: Warehouse Management System — Receiving, Put-Away, Picking, and Shipping⏱ 5 min readQuery Understanding Service Low-Level Design: Intent Classification, Entity Extraction, and Query Rewriting⏱ 4 min read"
+}

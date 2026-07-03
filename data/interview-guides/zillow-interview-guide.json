@@ -1,0 +1,27 @@
+{
+  "company": "Zillow",
+  "slug": "zillow-interview-guide",
+  "url": "https://www.techinterview.org/companies/zillow-interview-guide",
+  "scrapedAt": "2026-07-02T07:27:45.602Z",
+  "interviewStages": [
+    "Behavioral: customer focus, ownership, working with industry data"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Zillow remote-friendly?",
+      "How does Zillow compare to Redfin or Realtor.com?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Zillow Interview Guide (2026): Real Estate Tech Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nZillow\nzillow.com ↗\n\nZillow is the dominant US real estate platform — 200M+ monthly visitors. The interview is data-heavy with focus on Zestimate (home valuation ML), search at scale, and the unique challenges of real estate data (slow-changing, geographically distributed).\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design Zestimate — automated home valuation at national scale\n\n- Design real estate search with geographic filters\n\n- Design real-time MLS integration\n\n- Coding: medium DSA, often with geo or ML framing\n\n- Behavioral: customer focus, ownership, working with industry data\n\nLevels and comp (2026)\n\n- SE II: $145K–$180K total\n\n- Senior SE: $215K–$285K\n\n- Staff: $310K–$410K\n\n- Principal: $430K–$570K\n\nPrep priorities\n\n- Be fluent in Java (legacy core) and Python (ML services)\n\n- Understand geographic data and MLS standards\n\n- Brush up on ML for valuation and recommendations\n\nFrequently Asked Questions\n\nIs Zillow remote-friendly?\n\n\"Cloud HQ\" — distributed-first. Some hubs in Seattle, Bay Area, NYC. Many engineering roles fully remote within US.\n\nHow does Zillow compare to Redfin or Realtor.com?\n\nZillow has the largest brand and visitor base. Redfin is more vertical-integrated. Realtor.com (Move/News Corp) competes on agent listings. Zillow comp is mid-tier; below FAANG.\n\nWhat is the engineering culture?\n\nMature, distributed-first, calm pace. Strong work-life balance. Less hype than peak years; reliable.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Zillow? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextFrontend Testing 2026: Vitest, Playwright, and Visual Regression⏱ 4 min readAPI Design: REST vs GraphQL vs gRPC⏱ 5 min readMultiply Two Integers Without Multiplication: Russian Peasant, Bit Shifts⏱ 5 min read"
+}

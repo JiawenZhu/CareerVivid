@@ -1,0 +1,27 @@
+{
+  "company": "Glassdoor",
+  "slug": "glassdoor-interview-guide",
+  "url": "https://www.techinterview.org/companies/glassdoor-interview-guide",
+  "scrapedAt": "2026-07-02T07:22:50.940Z",
+  "interviewStages": [
+    "Behavioral: customer focus, ownership, mature product"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Glassdoor remote-friendly?",
+      "How does Glassdoor compare to Levels.fyi or Blind?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Glassdoor Interview Guide (2026): Company Reviews Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nGlassdoor\nglassdoor.com ↗\n\nGlassdoor is the dominant company-reviews and salary-transparency platform — owned by Recruit Holdings (same parent as Indeed). The interview emphasizes user-generated content moderation, salary aggregation, and the unique two-sided dynamics of employees vs employers.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 4–6 weeks.\n\nWhat they actually ask\n\n- Design a moderation system for company reviews (anonymous + authentic)\n\n- Design salary aggregation with privacy preservation\n\n- Design a recommendation system matching users to companies\n\n- Coding: medium DSA, often with search or text-processing framing\n\n- Behavioral: customer focus, ownership, mature product\n\nLevels and comp (2026)\n\n- SE II: $135K–$170K total\n\n- Senior SE: $200K–$260K\n\n- Staff: $290K–$380K\n\n- Principal: $400K–$520K\n\nPrep priorities\n\n- Be fluent in Java or Scala (the bulk of the codebase)\n\n- Understand content moderation and trust/safety patterns\n\n- Brush up on differential privacy / privacy-preserving aggregation\n\nFrequently Asked Questions\n\nIs Glassdoor remote-friendly?\n\nDistributed-first. Office in San Francisco. Most engineering roles fully remote within US.\n\nHow does Glassdoor compare to Levels.fyi or Blind?\n\nGlassdoor is the broadest. Levels.fyi specializes in tech compensation. Blind is anonymous discussion. Glassdoor pays mid-tier; below tech specialty companies.\n\nWhat is the engineering culture?\n\nStable, mature, calm pace. Less expansive than peak years; reliable and humane.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Glassdoor? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSystem Design Interview: Design a Hotel Reservation System⏱ 5 min readNumber of Islands: Flood Fill Pattern Explained⏱ 4 min readDesign Mobile Email: Gmail-Style Sync and Search⏱ 2 min read"
+}

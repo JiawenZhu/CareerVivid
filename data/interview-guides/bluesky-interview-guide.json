@@ -1,0 +1,27 @@
+{
+  "company": "Bluesky",
+  "slug": "bluesky-interview-guide",
+  "url": "https://www.techinterview.org/companies/bluesky-interview-guide",
+  "scrapedAt": "2026-07-02T07:20:34.082Z",
+  "interviewStages": [
+    "Behavioral: mission alignment with open social web, written communication"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Bluesky remote-friendly?",
+      "How does Bluesky compare to Mastodon or Threads?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Bluesky Interview Guide (2026): Decentralized Social Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nBluesky\nbsky.app ↗\n\nBluesky is the decentralized social network built on the AT Protocol — the modern alternative to Twitter/X. Funded by Twitter spinout, now an independent company. The interview is technically rigorous with focus on the federated protocol design and the unique scale challenges of decentralized social.\n\nProcess\n\nRecruiter screen → 60-minute coding pair → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a federated social network with decentralized identity\n\n- Design timeline algorithms for AT Protocol\n\n- Design content moderation across federated servers\n\n- Coding: practical TypeScript/Go, often with distributed-systems framing\n\n- Behavioral: mission alignment with open social web, written communication\n\nLevels and comp (2026)\n\n- SE: $180K–$240K total\n\n- Senior SE: $260K–$340K\n\n- Staff: $370K–$480K\n\n- Principal: $500K–$650K\n\nPrep priorities\n\n- Be fluent in TypeScript / Go (the bulk of the codebase)\n\n- Understand AT Protocol and federated social architectures\n\n- Read about ActivityPub, Mastodon, and the broader fediverse for context\n\nFrequently Asked Questions\n\nIs Bluesky remote-friendly?\n\nDistributed-first. Small team (~50 employees) globally. Quarterly off-sites.\n\nHow does Bluesky compare to Mastodon or Threads?\n\nMastodon is ActivityPub-based, federated. Threads is Meta-controlled. Bluesky uses AT Protocol with different decentralization model. Bluesky engineering pays competitively.\n\nWhat is the engineering culture?\n\nMission-driven (open social web), small team, technically deep. Strong fit for engineers excited about the future of social networks.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Bluesky? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextPalindrome Dynamic Programming Interview Patterns: LPS, Minimum Cuts, and Palindrome Partitioning (2025)⏱ 6 min readLow-Level Design: Chat Application (OOP Interview)⏱ 8 min readSystem Design Interview: E-Commerce Platform (Amazon/Shopify Scale)⏱ 5 min read"
+}

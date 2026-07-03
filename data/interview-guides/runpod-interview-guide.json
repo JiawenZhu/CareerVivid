@@ -1,0 +1,27 @@
+{
+  "company": "RunPod",
+  "slug": "runpod-interview-guide",
+  "url": "https://www.techinterview.org/companies/runpod-interview-guide",
+  "scrapedAt": "2026-07-02T07:26:05.959Z",
+  "interviewStages": [
+    "Behavioral: ownership, customer empathy for ML engineers, fast-moving startup"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is RunPod remote-friendly?",
+      "How does RunPod compare to Modal, Replicate, or Lambda Cloud?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "RunPod Interview Guide (2026): Serverless GPU Cloud\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nRunPod\nrunpod.io ↗\n\nRunPod is a developer-friendly GPU cloud — known for spot/serverless pricing and a fast on-ramp for ML workloads. Series A in 2024. The interview emphasizes container orchestration on GPU, low-latency cold-start engineering, and the developer experience of \"deploy a Python function and it runs on an H100.\"\n\nProcess\n\nRecruiter screen → 60-minute coding (Python or Go) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a serverless GPU executor with fast cold start\n\n- Design a container scheduler that handles spot interruptions\n\n- Design a billing pipeline for sub-second GPU usage\n\n- Coding: medium DSA, often with concurrency, scheduling, or container framing\n\n- Behavioral: ownership, customer empathy for ML engineers, fast-moving startup\n\nLevels and comp (2026)\n\n- SE: $160K–$220K total (cash + meaningful equity)\n\n- Senior SE: $230K–$310K total\n\n- Staff: $310K–$440K total\n\nPrep priorities\n\n- Be fluent in Go (control plane), Python (SDK / customer surface), some C/Linux internals\n\n- Understand container internals (cgroups, namespaces) and GPU device passthrough\n\n- Brush up on Kubernetes operators, MIG/MPS, and spot-instance handling\n\nFrequently Asked Questions\n\nIs RunPod remote-friendly?\n\nDistributed-first. Engineers across the Americas and Europe.\n\nHow does RunPod compare to Modal, Replicate, or Lambda Cloud?\n\nRunPod leans on community/spot pricing and a self-serve experience. Modal is more polished serverless. Replicate is opinionated model-hub. Lambda is more on-prem-cluster. RunPod competes on price.\n\nWhat is the engineering culture?\n\nSmall, ship-focused, async. Strong fit for engineers who like systems work and customer feedback loops.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for RunPod? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextReport Builder Low-Level Design: Dynamic Query Generation, Parameterized Reports, and Scheduled Delivery⏱ 5 min readSystem Design: Design Twitter DM — Direct Messaging, End-to-End Encryption, Read Receipts, Media, Group Conversations⏱ 6 min readLow-Level Design: Recommendation Engine – Collaborative Filtering, Content-Based, and Hybrid (2025)⏱ 7 min read"
+}

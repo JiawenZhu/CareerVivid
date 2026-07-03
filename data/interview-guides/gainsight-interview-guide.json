@@ -1,0 +1,27 @@
+{
+  "company": "Gainsight",
+  "slug": "gainsight-interview-guide",
+  "url": "https://www.techinterview.org/companies/gainsight-interview-guide",
+  "scrapedAt": "2026-07-02T07:22:46.065Z",
+  "interviewStages": [
+    "Behavioral: customer focus, ownership, working in mature B2B SaaS"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Gainsight remote-friendly?",
+      "How does Gainsight compare to ChurnZero or Totango?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Gainsight Interview Guide (2026): Customer Success Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nGainsight\ngainsight.com ↗\n\nGainsight is the category-defining customer success platform — used by enterprises to track health scores, drive renewals, and reduce churn. Owned by Vista Equity. The interview emphasizes data integration across CRM/usage/support systems, rules engines, and the analytics that power health scoring.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a customer-health scoring engine that pulls from many sources\n\n- Design a rules/playbook engine for CSM workflows\n\n- Design Salesforce-bidirectional sync at enterprise scale\n\n- Coding: medium DSA, often with data-pipeline framing\n\n- Behavioral: customer focus, ownership, working in mature B2B SaaS\n\nLevels and comp (2026)\n\n- SE II: $130K–$165K total\n\n- Senior SE: $190K–$255K\n\n- Staff: $275K–$365K\n\n- Principal: $390K–$520K\n\nPrep priorities\n\n- Be fluent in Java and Salesforce/Apex (large parts of the codebase)\n\n- Understand ETL, rule engines, and CRM data models\n\n- Brush up on customer-success domain (NPS, health, churn)\n\nFrequently Asked Questions\n\nIs Gainsight remote-friendly?\n\nDistributed across St. Louis, San Francisco, Hyderabad. Many engineering roles fully remote.\n\nHow does Gainsight compare to ChurnZero or Totango?\n\nGainsight is the enterprise leader. ChurnZero is mid-market. Totango is more flexible/modern. Comp is mid-tier B2B SaaS; below cloud leaders.\n\nWhat is the engineering culture?\n\nMature, customer-driven, calmer pace under PE ownership. Strong work-life balance.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Gainsight? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextProject Management System Low-Level Design: Gantt Chart, Resource Allocation, and Critical Path⏱ 6 min readWebSockets in Production: Scaling, Auth, and Reconnect⏱ 2 min readFrontend Edge Computing 2026: Cloudflare Workers, Vercel Edge, Deno Deploy⏱ 4 min read"
+}

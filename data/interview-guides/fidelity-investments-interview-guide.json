@@ -1,0 +1,43 @@
+{
+  "company": "Fidelity Investments",
+  "slug": "fidelity-investments-interview-guide",
+  "url": "https://www.techinterview.org/companies/fidelity-investments-interview-guide",
+  "scrapedAt": "2026-07-02T07:17:27.057Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — practical engineering, often with finance / brokerage flavor",
+    "System design (1 round) — financial systems with scale (millions of accounts, billions in transactions)",
+    "Domain depth (1 round) — depends on role: distributed systems, ML, security, crypto, data engineering",
+    "Behavioral / fit (1 round) — collaboration, ambiguity, customer focus"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "How does private ownership actually affect engineers?",
+      "What's working in Fidelity Digital Assets like?",
+      "How does the Bitcoin ETF business affect engineers?",
+      "How does Fidelity compare to Schwab for engineers?",
+      "Is Fidelity a good place for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad SWE: $130k–$220k total comp first year",
+    "Mid-level (4–7 years): $200k–$370k",
+    "Senior (8+ years): $350k–$580k",
+    "Principal / Director: $500k–$900k+",
+    "VP / Senior leadership: $800k–$1.5M+",
+    "The crypto investment is more substantial than candidates expect; Fidelity Digital Assets is a real engineering organization with hundreds of engineers.",
+    "Family ownership means longer-horizon thinking is genuinely operative — not marketing language.",
+    "The Boston culture is meaningfully different from NYC; engineers who don't fit either coast often find Boston comfortable.",
+    "Compensation is below FAANG and top hedge funds; engineers optimizing purely for comp end up elsewhere.",
+    "The 401(k) workplace business is huge but invisible to consumers; engineering depth is real."
+  ],
+  "rawSummary": "Fidelity Investments Interview Guide 2026: Family-Owned, $5T AUM, Boston Engineering, Crypto-Forward\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 30, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Fidelity Investments Interview Guide 2026: Family-Owned, $5 Trillion AUM, Boston Engineering, and the Crypto-Forward Asset Manager\n\n- What Fidelity Does\n\n- Roles Fidelity Hires For\n\n- Fidelity Interview Process\n\n- What Fidelity Tests For\n\n- Compensation\n\n- Working at Fidelity\n\n- Fidelity vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 30, 2026 · techinterview.org\n\n⏱ 8 min read\n\nFidelity Investments\nfidelity.com ↗\n\nFidelity Investments Interview Guide 2026: Family-Owned, $5 Trillion AUM, Boston Engineering, and the Crypto-Forward Asset Manager\n\nFidelity Investments is the third-largest asset manager in the US (~$5 trillion AUM in 2026), the largest privately-held financial services firm in the country, and one of the most engineering-aggressive of the big asset managers. Founded in 1946 and family-owned through five generations of the Johnson family (currently led by Abigail Johnson), Fidelity has historically been ahead of peer asset managers in technology adoption — early to crypto, early to direct-indexing, aggressive in retail brokerage technology investment. The hiring process reflects the firm's distinctive culture: less buttoned-up than NYC peers, less low-key than Vanguard, more aggressive in product launches than competitors. This guide covers what Fidelity does, the engineering tracks, the interview process, and what makes Fidelity hiring distinctive in 2026.\n\nWhat Fidelity Does\n\nFidelity operates across many financial services lines:\n\n- Mutual funds: active and index mutual funds. Fidelity competes head-on with Vanguard on index funds (sometimes priced at zero expense ratio for retail) plus active mutual funds where Fidelity has a strong heritage.\n\n- Retail brokerage: Fidelity Investments brokerage platform — competing with Schwab, Vanguard, Robinhood for retail investor accounts. The brokerage is the firm's most-engineering-intensive product.\n\n- Workplace retirement (401k): Fidelity is the largest 401(k) administrator in the US. Substantial engineering for plan administration, recordkeeping, participant experience.\n\n- Wealth management: Fidelity Wealth Management — high-net-worth advisory services.\n\n- Fidelity Digital Assets: institutional crypto custody and trading. Fidelity launched institutional Bitcoin services in 2018, well before peer asset managers.\n\n- Fidelity Bitcoin / Ethereum ETFs: spot ETFs (FBTC for Bitcoin, FETH for Ethereum) launched 2024 — among the first major asset manager spot crypto ETFs.\n\n- Geode Capital Management: majority-owned subsidiary running quantitative index strategies.\n\n- Fidelity Investments Charitable: donor-advised funds and charitable services.\n\n- Direct Indexing: tax-optimized custom index portfolios for retail. Fidelity acquired direct indexer FolioInvesting in 2018; product is growing.\n\nDistinctive features:\n\n- Family ownership: the Johnson family controls ~49% of voting shares. Multi-generational ownership influences strategy: long-term oriented, willing to invest in unprofitable lines for years (Fidelity Digital Assets pre-2020 crypto winter, Direct Indexing pre-2022 mainstream adoption).\n\n- Crypto-forward: Fidelity led peer asset managers into crypto by 5+ years. Engineering teams in Fidelity Digital Assets are substantial.\n\n- Boston headquarters: Fidelity's corporate culture is rooted in Boston, distinct from NYC and PA peers. Cultural style: thoughtful, less hype-driven, deeply engineering-respected.\n\n- Aggressive product launches: Fidelity is willing to ship products faster than Vanguard and with more polish than legacy banks. The \"ZERO-fee\" funds (no expense ratio) launched in 2018 were a category-defining move.\n\nRoles Fidelity Hires For\n\nSoftware engineer (retail brokerage)\n\nBuilds the Fidelity retail brokerage platform — accounts, trading, statements, analytics. Major engineering investment area. Java and Python heavy; React + TypeScript frontend.\n\nSoftware engineer (Fidelity Digital Assets)\n\nBuilds custody, trading, and wallet infrastructure for institutional crypto. Smaller team; high specialty (HSM-based key management, multi-party computation, blockchain integration). Distinct from the rest of Fidelity engineering culturally.\n\nSoftware engineer (workplace / 401k)\n\nBuilds the 401(k) administration platform — plan setup, contributions, distributions, participant tools. Largest segment by AUM under administration. Substantial engineering with real complexity (regulatory compliance, plan-design variation).\n\nQuantitative analyst / research engineer\n\nBuilds analytics for Fidelity Active funds, ESG analysis, factor research. Less prestigious than at Two Sigma or AQR but real quant work.\n\nData engineer / data scientist\n\nPipeline engineering for the substantial customer / behavioral data Fidelity has acros"
+}

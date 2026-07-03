@@ -1,0 +1,2711 @@
+{
+  "1password-interview-guide": {
+    "company": "1Password",
+    "slug": "1password-interview-guide",
+    "scrapedAt": "2026-07-02T07:19:47.982Z",
+    "stageCount": 0,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "23andme-interview-guide": {
+    "company": "23andMe",
+    "slug": "23andme-interview-guide",
+    "scrapedAt": "2026-07-02T07:19:50.605Z",
+    "stageCount": 12,
+    "questionCount": 4,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "adobe": {
+    "company": "Adobe",
+    "slug": "adobe",
+    "scrapedAt": "2026-07-02T07:12:43.355Z",
+    "stageCount": 2,
+    "questionCount": 0,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "adyen-interview-guide": {
+    "company": "Adyen",
+    "slug": "adyen-interview-guide",
+    "scrapedAt": "2026-07-02T07:16:23.502Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "affirm-interview-guide": {
+    "company": "Affirm",
+    "slug": "affirm-interview-guide",
+    "scrapedAt": "2026-07-02T07:16:26.126Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "airbnb": {
+    "company": "Airbnb",
+    "slug": "airbnb",
+    "scrapedAt": "2026-07-02T07:19:53.029Z",
+    "stageCount": 5,
+    "questionCount": 0,
+    "tipCount": 5,
+    "difficulty": null
+  },
+  "airbyte-interview-guide": {
+    "company": "Airbyte",
+    "slug": "airbyte-interview-guide",
+    "scrapedAt": "2026-07-02T07:19:55.475Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "airtable-interview-guide": {
+    "company": "Airtable",
+    "slug": "airtable-interview-guide",
+    "scrapedAt": "2026-07-02T07:19:57.963Z",
+    "stageCount": 10,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "akamai-interview-guide": {
+    "company": "Akamai",
+    "slug": "akamai-interview-guide",
+    "scrapedAt": "2026-07-02T07:20:00.619Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "akuna-capital-interview-guide": {
+    "company": "Akuna Capital",
+    "slug": "akuna-capital-interview-guide",
+    "scrapedAt": "2026-07-02T07:16:28.754Z",
+    "stageCount": 0,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "algolia-interview-guide": {
+    "company": "Algolia",
+    "slug": "algolia-interview-guide",
+    "scrapedAt": "2026-07-02T07:20:04.054Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "alibaba-interview-guide": {
+    "company": "Alibaba",
+    "slug": "alibaba-interview-guide",
+    "scrapedAt": "2026-07-02T07:20:06.857Z",
+    "stageCount": 13,
+    "questionCount": 5,
+    "tipCount": 7,
+    "difficulty": null
+  },
+  "amazon": {
+    "company": "Amazon",
+    "slug": "amazon",
+    "scrapedAt": "2026-07-02T07:32:23.517Z",
+    "stageCount": 4,
+    "questionCount": 0,
+    "tipCount": 5,
+    "difficulty": null
+  },
+  "amd-interview-guide": {
+    "company": "AMD",
+    "slug": "amd-interview-guide",
+    "scrapedAt": "2026-07-02T07:19:11.323Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "american-express-interview-guide": {
+    "company": "American Express",
+    "slug": "american-express-interview-guide",
+    "scrapedAt": "2026-07-02T07:16:31.396Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "amplitude-interview-guide": {
+    "company": "Amplitude",
+    "slug": "amplitude-interview-guide",
+    "scrapedAt": "2026-07-02T07:20:09.823Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "anduril-interview-guide": {
+    "company": "Anduril",
+    "slug": "anduril-interview-guide",
+    "scrapedAt": "2026-07-02T07:19:14.958Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "anthropic": {
+    "company": "Anthropic",
+    "slug": "anthropic",
+    "scrapedAt": "2026-07-02T07:32:22.777Z",
+    "stageCount": 6,
+    "questionCount": 5,
+    "tipCount": 10,
+    "difficulty": 8.5
+  },
+  "anyscale-interview-guide": {
+    "company": "Anyscale",
+    "slug": "anyscale-interview-guide",
+    "scrapedAt": "2026-07-02T07:13:16.738Z",
+    "stageCount": 0,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "apollo-io-interview-guide": {
+    "company": "Apollo.io",
+    "slug": "apollo-io-interview-guide",
+    "scrapedAt": "2026-07-02T07:20:12.800Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "apple-silicon-team-interview-guide": {
+    "company": "Apple Silicon",
+    "slug": "apple-silicon-team-interview-guide",
+    "scrapedAt": "2026-07-02T07:19:18.805Z",
+    "stageCount": 12,
+    "questionCount": 4,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "apple": {
+    "company": "Apple",
+    "slug": "apple",
+    "scrapedAt": "2026-07-02T07:12:48.547Z",
+    "stageCount": 4,
+    "questionCount": 1,
+    "tipCount": 5,
+    "difficulty": null
+  },
+  "applovin-interview-guide": {
+    "company": "AppLovin",
+    "slug": "applovin-interview-guide",
+    "scrapedAt": "2026-07-02T07:20:15.733Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "aqr-capital-management-interview-guide": {
+    "company": "AQR Capital Management",
+    "slug": "aqr-capital-management-interview-guide",
+    "scrapedAt": "2026-07-02T07:16:34.005Z",
+    "stageCount": 5,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "asana": {
+    "company": "Asana",
+    "slug": "asana",
+    "scrapedAt": "2026-07-02T07:20:18.450Z",
+    "stageCount": 3,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 7.5
+  },
+  "astronomer-interview-guide": {
+    "company": "Astronomer",
+    "slug": "astronomer-interview-guide",
+    "scrapedAt": "2026-07-02T07:20:21.042Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "atlassian": {
+    "company": "Atlassian",
+    "slug": "atlassian",
+    "scrapedAt": "2026-07-02T07:20:23.678Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 7
+  },
+  "bank-of-america-bofa-securities-interview-guide": {
+    "company": "Bank of America",
+    "slug": "bank-of-america-bofa-securities-interview-guide",
+    "scrapedAt": "2026-07-02T07:16:36.672Z",
+    "stageCount": 0,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "beehiiv-interview-guide": {
+    "company": "Beehiiv",
+    "slug": "beehiiv-interview-guide",
+    "scrapedAt": "2026-07-02T07:20:26.255Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "bigcommerce-interview-guide": {
+    "company": "BigCommerce",
+    "slug": "bigcommerce-interview-guide",
+    "scrapedAt": "2026-07-02T07:20:28.927Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "black-forest-labs-interview-guide": {
+    "company": "Black Forest Labs",
+    "slug": "black-forest-labs-interview-guide",
+    "scrapedAt": "2026-07-02T07:13:19.293Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "blackrock-interview-guide": {
+    "company": "BlackRock",
+    "slug": "blackrock-interview-guide",
+    "scrapedAt": "2026-07-02T07:16:39.414Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "blizzard-activision-interview-guide": {
+    "company": "Blizzard/Activision",
+    "slug": "blizzard-activision-interview-guide",
+    "scrapedAt": "2026-07-02T07:20:31.504Z",
+    "stageCount": 17,
+    "questionCount": 4,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "block": {
+    "company": "Block",
+    "slug": "block",
+    "scrapedAt": "2026-07-02T07:16:41.905Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 7.5
+  },
+  "bloomberg": {
+    "company": "Bloomberg",
+    "slug": "bloomberg",
+    "scrapedAt": "2026-07-02T07:16:44.441Z",
+    "stageCount": 3,
+    "questionCount": 0,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "blue-origin-interview-guide": {
+    "company": "Blue Origin",
+    "slug": "blue-origin-interview-guide",
+    "scrapedAt": "2026-07-02T07:19:23.174Z",
+    "stageCount": 13,
+    "questionCount": 4,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "bluesky-interview-guide": {
+    "company": "Bluesky",
+    "slug": "bluesky-interview-guide",
+    "scrapedAt": "2026-07-02T07:20:34.082Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "booking-com-interview-guide": {
+    "company": "Booking.com",
+    "slug": "booking-com-interview-guide",
+    "scrapedAt": "2026-07-02T07:20:37.421Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "box-interview-guide": {
+    "company": "Box",
+    "slug": "box-interview-guide",
+    "scrapedAt": "2026-07-02T07:20:40.112Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "braze-interview-guide": {
+    "company": "Braze",
+    "slug": "braze-interview-guide",
+    "scrapedAt": "2026-07-02T07:20:42.703Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "brex": {
+    "company": "Brex",
+    "slug": "brex",
+    "scrapedAt": "2026-07-02T07:16:47.190Z",
+    "stageCount": 3,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 7.5
+  },
+  "bridgewater-associates-interview-guide": {
+    "company": "Bridgewater Associates",
+    "slug": "bridgewater-associates-interview-guide",
+    "scrapedAt": "2026-07-02T07:16:49.731Z",
+    "stageCount": 0,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "broadcom-interview-guide": {
+    "company": "Broadcom",
+    "slug": "broadcom-interview-guide",
+    "scrapedAt": "2026-07-02T07:19:25.550Z",
+    "stageCount": 4,
+    "questionCount": 4,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "bumble-interview-guide": {
+    "company": "Bumble",
+    "slug": "bumble-interview-guide",
+    "scrapedAt": "2026-07-02T07:20:45.136Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "bytedance-tiktok-interview-guide": {
+    "company": "ByteDance/TikTok",
+    "slug": "bytedance-tiktok-interview-guide",
+    "scrapedAt": "2026-07-02T07:20:47.777Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "calm-interview-guide": {
+    "company": "Calm",
+    "slug": "calm-interview-guide",
+    "scrapedAt": "2026-07-02T07:20:50.382Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "canva": {
+    "company": "Canva",
+    "slug": "canva",
+    "scrapedAt": "2026-07-02T07:20:53.012Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 7
+  },
+  "capital-one-interview-guide": {
+    "company": "Capital One",
+    "slug": "capital-one-interview-guide",
+    "scrapedAt": "2026-07-02T07:16:52.357Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "cargurus-interview-guide": {
+    "company": "CarGurus",
+    "slug": "cargurus-interview-guide",
+    "scrapedAt": "2026-07-02T07:20:55.473Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "carta-interview-guide": {
+    "company": "Carta",
+    "slug": "carta-interview-guide",
+    "scrapedAt": "2026-07-02T07:16:54.995Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "carvana-interview-guide": {
+    "company": "Carvana",
+    "slug": "carvana-interview-guide",
+    "scrapedAt": "2026-07-02T07:20:58.397Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "character-ai-interview-guide": {
+    "company": "Character.AI",
+    "slug": "character-ai-interview-guide",
+    "scrapedAt": "2026-07-02T07:13:21.773Z",
+    "stageCount": 13,
+    "questionCount": 4,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "chime": {
+    "company": "Chime",
+    "slug": "chime",
+    "scrapedAt": "2026-07-02T07:16:57.667Z",
+    "stageCount": 2,
+    "questionCount": 6,
+    "tipCount": 10,
+    "difficulty": 7
+  },
+  "chronosphere-interview-guide": {
+    "company": "Chronosphere",
+    "slug": "chronosphere-interview-guide",
+    "scrapedAt": "2026-07-02T07:21:01.102Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "circleci-interview-guide": {
+    "company": "CircleCI",
+    "slug": "circleci-interview-guide",
+    "scrapedAt": "2026-07-02T07:21:03.792Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "cisco": {
+    "company": "Cisco",
+    "slug": "cisco",
+    "scrapedAt": "2026-07-02T07:32:24.183Z",
+    "stageCount": 15,
+    "questionCount": 0,
+    "tipCount": 9,
+    "difficulty": 6.5
+  },
+  "citadel-hedge-fund-interview-guide": {
+    "company": "Citadel Hedge Fund",
+    "slug": "citadel-hedge-fund-interview-guide",
+    "scrapedAt": "2026-07-02T07:17:03.444Z",
+    "stageCount": 0,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "citadel-securities": {
+    "company": "Citadel Securities",
+    "slug": "citadel-securities",
+    "scrapedAt": "2026-07-02T07:17:06.181Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": null
+  },
+  "citi-interview-guide": {
+    "company": "Citi",
+    "slug": "citi-interview-guide",
+    "scrapedAt": "2026-07-02T07:17:09.120Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "clerk-interview-guide": {
+    "company": "Clerk",
+    "slug": "clerk-interview-guide",
+    "scrapedAt": "2026-07-02T07:21:06.311Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "clickhouse-interview-guide": {
+    "company": "ClickHouse",
+    "slug": "clickhouse-interview-guide",
+    "scrapedAt": "2026-07-02T07:21:08.922Z",
+    "stageCount": 0,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "clickup-interview-guide": {
+    "company": "ClickUp",
+    "slug": "clickup-interview-guide",
+    "scrapedAt": "2026-07-02T07:21:11.396Z",
+    "stageCount": 10,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "cloudera-interview-guide": {
+    "company": "Cloudera",
+    "slug": "cloudera-interview-guide",
+    "scrapedAt": "2026-07-02T07:21:13.717Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "cloudflare": {
+    "company": "Cloudflare",
+    "slug": "cloudflare",
+    "scrapedAt": "2026-07-02T07:21:16.263Z",
+    "stageCount": 3,
+    "questionCount": 6,
+    "tipCount": 11,
+    "difficulty": 7.5
+  },
+  "cockroach-labs-interview-guide": {
+    "company": "Cockroach Labs",
+    "slug": "cockroach-labs-interview-guide",
+    "scrapedAt": "2026-07-02T07:21:18.690Z",
+    "stageCount": 0,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "coda-interview-guide": {
+    "company": "Coda",
+    "slug": "coda-interview-guide",
+    "scrapedAt": "2026-07-02T07:21:20.788Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "codecademy-interview-guide": {
+    "company": "Codecademy",
+    "slug": "codecademy-interview-guide",
+    "scrapedAt": "2026-07-02T07:21:23.373Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "codesandbox-interview-guide": {
+    "company": "CodeSandbox",
+    "slug": "codesandbox-interview-guide",
+    "scrapedAt": "2026-07-02T07:21:25.994Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "cohere": {
+    "company": "Cohere",
+    "slug": "cohere",
+    "scrapedAt": "2026-07-02T07:13:24.389Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 14,
+    "difficulty": 7.5
+  },
+  "coinbase": {
+    "company": "Coinbase",
+    "slug": "coinbase",
+    "scrapedAt": "2026-07-02T07:17:11.795Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 13,
+    "difficulty": 7.5
+  },
+  "confluent-interview-guide": {
+    "company": "Confluent",
+    "slug": "confluent-interview-guide",
+    "scrapedAt": "2026-07-02T07:21:28.437Z",
+    "stageCount": 13,
+    "questionCount": 5,
+    "tipCount": 6,
+    "difficulty": null
+  },
+  "convertkit-interview-guide": {
+    "company": "ConvertKit",
+    "slug": "convertkit-interview-guide",
+    "scrapedAt": "2026-07-02T07:21:30.991Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "coreweave-interview-guide": {
+    "company": "CoreWeave",
+    "slug": "coreweave-interview-guide",
+    "scrapedAt": "2026-07-02T07:21:33.582Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "coursera-interview-guide": {
+    "company": "Coursera",
+    "slug": "coursera-interview-guide",
+    "scrapedAt": "2026-07-02T07:21:36.146Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "credit-karma-interview-guide": {
+    "company": "Credit Karma",
+    "slug": "credit-karma-interview-guide",
+    "scrapedAt": "2026-07-02T07:21:38.852Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "cribl-interview-guide": {
+    "company": "Cribl",
+    "slug": "cribl-interview-guide",
+    "scrapedAt": "2026-07-02T07:21:41.290Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "crowdstrike-interview-guide": {
+    "company": "CrowdStrike",
+    "slug": "crowdstrike-interview-guide",
+    "scrapedAt": "2026-07-02T07:21:43.741Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "crypto-trio-circle-ripple-chainalysis-interview-guide": {
+    "company": "Circle/Ripple/Chainalysis",
+    "slug": "crypto-trio-circle-ripple-chainalysis-interview-guide",
+    "scrapedAt": "2026-07-02T07:17:00.303Z",
+    "stageCount": 0,
+    "questionCount": 4,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "cursor": {
+    "company": "Cursor",
+    "slug": "cursor",
+    "scrapedAt": "2026-07-02T07:13:26.903Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 8
+  },
+  "databricks": {
+    "company": "Databricks",
+    "slug": "databricks",
+    "scrapedAt": "2026-07-02T07:21:46.303Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "datadog": {
+    "company": "Datadog",
+    "slug": "datadog",
+    "scrapedAt": "2026-07-02T07:21:48.891Z",
+    "stageCount": 3,
+    "questionCount": 5,
+    "tipCount": 13,
+    "difficulty": 8
+  },
+  "datastax-interview-guide": {
+    "company": "DataStax",
+    "slug": "datastax-interview-guide",
+    "scrapedAt": "2026-07-02T07:21:51.523Z",
+    "stageCount": 0,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "dbt-labs-interview-guide": {
+    "company": "dbt Labs",
+    "slug": "dbt-labs-interview-guide",
+    "scrapedAt": "2026-07-02T07:21:54.222Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "de-shaw": {
+    "company": "D. E. Shaw",
+    "slug": "de-shaw",
+    "scrapedAt": "2026-07-02T07:17:14.406Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": null
+  },
+  "decagon-interview-guide": {
+    "company": "Decagon",
+    "slug": "decagon-interview-guide",
+    "scrapedAt": "2026-07-02T07:13:29.410Z",
+    "stageCount": 0,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "deel": {
+    "company": "Deel",
+    "slug": "deel",
+    "scrapedAt": "2026-07-02T07:17:17.050Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 7
+  },
+  "deepgram-interview-guide": {
+    "company": "Deepgram",
+    "slug": "deepgram-interview-guide",
+    "scrapedAt": "2026-07-02T07:13:31.980Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "defense-primes-lockheed-northrop-raytheon-interview-guide": {
+    "company": "Defense Primes",
+    "slug": "defense-primes-lockheed-northrop-raytheon-interview-guide",
+    "scrapedAt": "2026-07-02T07:19:28.058Z",
+    "stageCount": 12,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "deutsche-bank-interview-guide": {
+    "company": "Deutsche Bank",
+    "slug": "deutsche-bank-interview-guide",
+    "scrapedAt": "2026-07-02T07:17:19.748Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "discord": {
+    "company": "Discord",
+    "slug": "discord",
+    "scrapedAt": "2026-07-02T07:21:56.736Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 7.5
+  },
+  "docusign": {
+    "company": "DocuSign",
+    "slug": "docusign",
+    "scrapedAt": "2026-07-02T07:21:59.195Z",
+    "stageCount": 2,
+    "questionCount": 7,
+    "tipCount": 11,
+    "difficulty": 6.5
+  },
+  "doppler-interview-guide": {
+    "company": "Doppler",
+    "slug": "doppler-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:01.968Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "drata-interview-guide": {
+    "company": "Drata",
+    "slug": "drata-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:04.574Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "dropbox-interview-guide": {
+    "company": "Dropbox",
+    "slug": "dropbox-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:07.200Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "drw-interview-guide": {
+    "company": "DRW",
+    "slug": "drw-interview-guide",
+    "scrapedAt": "2026-07-02T07:17:22.345Z",
+    "stageCount": 0,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "duckdb-labs-interview-guide": {
+    "company": "DuckDB Labs",
+    "slug": "duckdb-labs-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:09.719Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "duolingo-interview-guide": {
+    "company": "Duolingo",
+    "slug": "duolingo-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:12.150Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "elastic-interview-guide": {
+    "company": "Elastic",
+    "slug": "elastic-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:14.500Z",
+    "stageCount": 13,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "electronic-arts-ea-interview-guide": {
+    "company": "Electronic Arts",
+    "slug": "electronic-arts-ea-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:16.967Z",
+    "stageCount": 16,
+    "questionCount": 4,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "elevenlabs-interview-guide": {
+    "company": "ElevenLabs",
+    "slug": "elevenlabs-interview-guide",
+    "scrapedAt": "2026-07-02T07:13:34.545Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "epic-games-interview-guide": {
+    "company": "Epic Games",
+    "slug": "epic-games-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:19.347Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "epic-systems-interview-guide": {
+    "company": "Epic Systems",
+    "slug": "epic-systems-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:21.780Z",
+    "stageCount": 9,
+    "questionCount": 4,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "etsy-interview-guide": {
+    "company": "Etsy",
+    "slug": "etsy-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:24.215Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "eventbrite-interview-guide": {
+    "company": "Eventbrite",
+    "slug": "eventbrite-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:26.721Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "evercore-interview-guide": {
+    "company": "Evercore",
+    "slug": "evercore-interview-guide",
+    "scrapedAt": "2026-07-02T07:17:24.412Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "faire-interview-guide": {
+    "company": "Faire",
+    "slug": "faire-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:29.120Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "fastly-interview-guide": {
+    "company": "Fastly",
+    "slug": "fastly-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:31.567Z",
+    "stageCount": 0,
+    "questionCount": 4,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "fidelity-investments-interview-guide": {
+    "company": "Fidelity Investments",
+    "slug": "fidelity-investments-interview-guide",
+    "scrapedAt": "2026-07-02T07:17:27.057Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "figma": {
+    "company": "Figma",
+    "slug": "figma",
+    "scrapedAt": "2026-07-02T07:22:33.932Z",
+    "stageCount": 2,
+    "questionCount": 9,
+    "tipCount": 11,
+    "difficulty": 8
+  },
+  "fireworks-ai": {
+    "company": "Fireworks AI",
+    "slug": "fireworks-ai",
+    "scrapedAt": "2026-07-02T07:13:36.635Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 8.5
+  },
+  "five9-interview-guide": {
+    "company": "Five9",
+    "slug": "five9-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:36.507Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "fivetran-interview-guide": {
+    "company": "Fivetran",
+    "slug": "fivetran-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:38.965Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "flow-traders-interview-guide": {
+    "company": "Flow Traders",
+    "slug": "flow-traders-interview-guide",
+    "scrapedAt": "2026-07-02T07:17:29.690Z",
+    "stageCount": 5,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "fly-io-interview-guide": {
+    "company": "Fly.io",
+    "slug": "fly-io-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:41.326Z",
+    "stageCount": 0,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "framer-interview-guide": {
+    "company": "Framer",
+    "slug": "framer-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:43.765Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "gainsight-interview-guide": {
+    "company": "Gainsight",
+    "slug": "gainsight-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:46.065Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "galaxy-digital-interview-guide": {
+    "company": "Galaxy Digital",
+    "slug": "galaxy-digital-interview-guide",
+    "scrapedAt": "2026-07-02T07:17:32.289Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "gitlab": {
+    "company": "GitLab",
+    "slug": "gitlab",
+    "scrapedAt": "2026-07-02T07:22:48.497Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 7
+  },
+  "glassdoor-interview-guide": {
+    "company": "Glassdoor",
+    "slug": "glassdoor-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:50.940Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "glean-interview-guide": {
+    "company": "Glean",
+    "slug": "glean-interview-guide",
+    "scrapedAt": "2026-07-02T07:13:39.172Z",
+    "stageCount": 13,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "goldman-sachs-strats-engineering-interview-guide": {
+    "company": "Goldman Sachs",
+    "slug": "goldman-sachs-strats-engineering-interview-guide",
+    "scrapedAt": "2026-07-02T07:17:34.840Z",
+    "stageCount": 0,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "gong-interview-guide": {
+    "company": "Gong",
+    "slug": "gong-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:53.397Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "google": {
+    "company": "Google",
+    "slug": "google",
+    "scrapedAt": "2026-07-02T07:12:53.190Z",
+    "stageCount": 3,
+    "questionCount": 0,
+    "tipCount": 5,
+    "difficulty": null
+  },
+  "grab-interview-guide": {
+    "company": "Grab",
+    "slug": "grab-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:55.948Z",
+    "stageCount": 12,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "grafana-labs-interview-guide": {
+    "company": "Grafana Labs",
+    "slug": "grafana-labs-interview-guide",
+    "scrapedAt": "2026-07-02T07:22:58.465Z",
+    "stageCount": 0,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "greenhouse-interview-guide": {
+    "company": "Greenhouse",
+    "slug": "greenhouse-interview-guide",
+    "scrapedAt": "2026-07-02T07:23:01.040Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "grubhub-interview-guide": {
+    "company": "Grubhub",
+    "slug": "grubhub-interview-guide",
+    "scrapedAt": "2026-07-02T07:23:03.616Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "gusto-interview-guide": {
+    "company": "Gusto",
+    "slug": "gusto-interview-guide",
+    "scrapedAt": "2026-07-02T07:17:37.494Z",
+    "stageCount": 0,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "hackerrank-interview-guide": {
+    "company": "HackerRank",
+    "slug": "hackerrank-interview-guide",
+    "scrapedAt": "2026-07-02T07:23:06.110Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "harvey-interview-guide": {
+    "company": "Harvey",
+    "slug": "harvey-interview-guide",
+    "scrapedAt": "2026-07-02T07:13:41.831Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "hashicorp": {
+    "company": "HashiCorp",
+    "slug": "hashicorp",
+    "scrapedAt": "2026-07-02T07:23:08.752Z",
+    "stageCount": 2,
+    "questionCount": 8,
+    "tipCount": 11,
+    "difficulty": 8
+  },
+  "headspace-interview-guide": {
+    "company": "Headspace",
+    "slug": "headspace-interview-guide",
+    "scrapedAt": "2026-07-02T07:23:11.204Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "heroku-interview-guide": {
+    "company": "Heroku",
+    "slug": "heroku-interview-guide",
+    "scrapedAt": "2026-07-02T07:23:13.639Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "hex": {
+    "company": "Hex",
+    "slug": "hex",
+    "scrapedAt": "2026-07-02T07:23:15.957Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 7.5
+  },
+  "hightouch-interview-guide": {
+    "company": "Hightouch",
+    "slug": "hightouch-interview-guide",
+    "scrapedAt": "2026-07-02T07:23:18.402Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "hippocratic-ai-interview-guide": {
+    "company": "Hippocratic AI",
+    "slug": "hippocratic-ai-interview-guide",
+    "scrapedAt": "2026-07-02T07:13:44.454Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "honeycomb-interview-guide": {
+    "company": "Honeycomb",
+    "slug": "honeycomb-interview-guide",
+    "scrapedAt": "2026-07-02T07:23:20.851Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "hopper-interview-guide": {
+    "company": "Hopper",
+    "slug": "hopper-interview-guide",
+    "scrapedAt": "2026-07-02T07:23:23.328Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "hubspot": {
+    "company": "HubSpot",
+    "slug": "hubspot",
+    "scrapedAt": "2026-07-02T07:23:25.807Z",
+    "stageCount": 3,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 6.5
+  },
+  "hudson-river-trading": {
+    "company": "Hudson River Trading",
+    "slug": "hudson-river-trading",
+    "scrapedAt": "2026-07-02T07:17:40.059Z",
+    "stageCount": 2,
+    "questionCount": 7,
+    "tipCount": 12,
+    "difficulty": null
+  },
+  "hugging-face-interview-guide": {
+    "company": "Hugging Face",
+    "slug": "hugging-face-interview-guide",
+    "scrapedAt": "2026-07-02T07:13:47.138Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "imc-trading-interview-guide": {
+    "company": "IMC Trading",
+    "slug": "imc-trading-interview-guide",
+    "scrapedAt": "2026-07-02T07:17:42.777Z",
+    "stageCount": 0,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "indeed-interview-guide": {
+    "company": "Indeed",
+    "slug": "indeed-interview-guide",
+    "scrapedAt": "2026-07-02T07:23:28.247Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "instacart-interview-guide": {
+    "company": "Instacart",
+    "slug": "instacart-interview-guide",
+    "scrapedAt": "2026-07-02T07:23:30.712Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "intel-interview-guide": {
+    "company": "Intel",
+    "slug": "intel-interview-guide",
+    "scrapedAt": "2026-07-02T07:19:30.675Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "intercom-interview-guide": {
+    "company": "Intercom",
+    "slug": "intercom-interview-guide",
+    "scrapedAt": "2026-07-02T07:23:33.141Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "iterable-interview-guide": {
+    "company": "Iterable",
+    "slug": "iterable-interview-guide",
+    "scrapedAt": "2026-07-02T07:23:35.947Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "jane-street": {
+    "company": "Jane Street",
+    "slug": "jane-street",
+    "scrapedAt": "2026-07-02T07:17:45.349Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": null
+  },
+  "jetbrains-interview-guide": {
+    "company": "JetBrains",
+    "slug": "jetbrains-interview-guide",
+    "scrapedAt": "2026-07-02T07:23:38.787Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "jpmorgan-tech-quant-interview-guide": {
+    "company": "JPMorgan Chase",
+    "slug": "jpmorgan-tech-quant-interview-guide",
+    "scrapedAt": "2026-07-02T07:17:47.916Z",
+    "stageCount": 0,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "jump-trading": {
+    "company": "Jump Trading",
+    "slug": "jump-trading",
+    "scrapedAt": "2026-07-02T07:17:50.559Z",
+    "stageCount": 2,
+    "questionCount": 6,
+    "tipCount": 12,
+    "difficulty": null
+  },
+  "klarna-interview-guide": {
+    "company": "Klarna",
+    "slug": "klarna-interview-guide",
+    "scrapedAt": "2026-07-02T07:17:52.973Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "klaviyo-interview-guide": {
+    "company": "Klaviyo",
+    "slug": "klaviyo-interview-guide",
+    "scrapedAt": "2026-07-02T07:23:41.253Z",
+    "stageCount": 0,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "kraken-interview-guide": {
+    "company": "Kraken",
+    "slug": "kraken-interview-guide",
+    "scrapedAt": "2026-07-02T07:17:55.523Z",
+    "stageCount": 5,
+    "questionCount": 5,
+    "tipCount": 7,
+    "difficulty": null
+  },
+  "lambda-labs-interview-guide": {
+    "company": "Lambda Labs",
+    "slug": "lambda-labs-interview-guide",
+    "scrapedAt": "2026-07-02T07:13:49.704Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "langchain": {
+    "company": "LangChain",
+    "slug": "langchain",
+    "scrapedAt": "2026-07-02T07:13:52.326Z",
+    "stageCount": 2,
+    "questionCount": 6,
+    "tipCount": 11,
+    "difficulty": 7
+  },
+  "lattice-interview-guide": {
+    "company": "Lattice",
+    "slug": "lattice-interview-guide",
+    "scrapedAt": "2026-07-02T07:23:43.798Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "launchdarkly-interview-guide": {
+    "company": "LaunchDarkly",
+    "slug": "launchdarkly-interview-guide",
+    "scrapedAt": "2026-07-02T07:23:46.351Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "lazard-interview-guide": {
+    "company": "Lazard",
+    "slug": "lazard-interview-guide",
+    "scrapedAt": "2026-07-02T07:17:58.106Z",
+    "stageCount": 8,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "leetcode-interview-guide": {
+    "company": "LeetCode",
+    "slug": "leetcode-interview-guide",
+    "scrapedAt": "2026-07-02T07:23:48.927Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "lightspeed-interview-guide": {
+    "company": "Lightspeed Commerce",
+    "slug": "lightspeed-interview-guide",
+    "scrapedAt": "2026-07-02T07:23:51.539Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "linear": {
+    "company": "Linear",
+    "slug": "linear",
+    "scrapedAt": "2026-07-02T07:23:54.149Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 8
+  },
+  "linkedin": {
+    "company": "LinkedIn",
+    "slug": "linkedin",
+    "scrapedAt": "2026-07-02T07:23:56.760Z",
+    "stageCount": 3,
+    "questionCount": 0,
+    "tipCount": 5,
+    "difficulty": null
+  },
+  "llamaindex-interview-guide": {
+    "company": "LlamaIndex",
+    "slug": "llamaindex-interview-guide",
+    "scrapedAt": "2026-07-02T07:13:54.948Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "lyft-interview-guide": {
+    "company": "Lyft",
+    "slug": "lyft-interview-guide",
+    "scrapedAt": "2026-07-02T07:23:59.339Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "mailchimp-interview-guide": {
+    "company": "Mailchimp",
+    "slug": "mailchimp-interview-guide",
+    "scrapedAt": "2026-07-02T07:24:02.603Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "man-group-interview-guide": {
+    "company": "Man Group",
+    "slug": "man-group-interview-guide",
+    "scrapedAt": "2026-07-02T07:18:01.559Z",
+    "stageCount": 5,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "marqeta-interview-guide": {
+    "company": "Marqeta",
+    "slug": "marqeta-interview-guide",
+    "scrapedAt": "2026-07-02T07:18:04.345Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "match-group-interview-guide": {
+    "company": "Match Group",
+    "slug": "match-group-interview-guide",
+    "scrapedAt": "2026-07-02T07:24:05.093Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "materialize-interview-guide": {
+    "company": "Materialize",
+    "slug": "materialize-interview-guide",
+    "scrapedAt": "2026-07-02T07:24:07.693Z",
+    "stageCount": 0,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "medium-interview-guide": {
+    "company": "Medium",
+    "slug": "medium-interview-guide",
+    "scrapedAt": "2026-07-02T07:24:10.943Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "mercury": {
+    "company": "Mercury",
+    "slug": "mercury",
+    "scrapedAt": "2026-07-02T07:18:07.579Z",
+    "stageCount": 2,
+    "questionCount": 8,
+    "tipCount": 11,
+    "difficulty": 7.5
+  },
+  "meta-facebook": {
+    "company": "Meta",
+    "slug": "meta-facebook",
+    "scrapedAt": "2026-07-02T07:12:55.775Z",
+    "stageCount": 3,
+    "questionCount": 0,
+    "tipCount": 5,
+    "difficulty": null
+  },
+  "microsoft": {
+    "company": "Microsoft",
+    "slug": "microsoft",
+    "scrapedAt": "2026-07-02T07:12:58.359Z",
+    "stageCount": 4,
+    "questionCount": 0,
+    "tipCount": 5,
+    "difficulty": null
+  },
+  "millennium-management-interview-guide": {
+    "company": "Millennium Management",
+    "slug": "millennium-management-interview-guide",
+    "scrapedAt": "2026-07-02T07:18:10.262Z",
+    "stageCount": 0,
+    "questionCount": 7,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "mistral-ai-interview-guide": {
+    "company": "Mistral AI",
+    "slug": "mistral-ai-interview-guide",
+    "scrapedAt": "2026-07-02T07:13:57.590Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "mixpanel-interview-guide": {
+    "company": "Mixpanel",
+    "slug": "mixpanel-interview-guide",
+    "scrapedAt": "2026-07-02T07:24:14.571Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "modal": {
+    "company": "Modal",
+    "slug": "modal",
+    "scrapedAt": "2026-07-02T07:14:00.251Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 12,
+    "difficulty": 8
+  },
+  "monday-com-interview-guide": {
+    "company": "Monday.com",
+    "slug": "monday-com-interview-guide",
+    "scrapedAt": "2026-07-02T07:24:18.318Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "mongodb": {
+    "company": "MongoDB",
+    "slug": "mongodb",
+    "scrapedAt": "2026-07-02T07:24:21.728Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 8
+  },
+  "morgan-stanley-tech-quant-interview-guide": {
+    "company": "Morgan Stanley",
+    "slug": "morgan-stanley-tech-quant-interview-guide",
+    "scrapedAt": "2026-07-02T07:18:13.288Z",
+    "stageCount": 0,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "motherduck": {
+    "company": "MotherDuck",
+    "slug": "motherduck",
+    "scrapedAt": "2026-07-02T07:14:02.950Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 7.5
+  },
+  "neon": {
+    "company": "Neon",
+    "slug": "neon",
+    "scrapedAt": "2026-07-02T07:24:25.352Z",
+    "stageCount": 2,
+    "questionCount": 6,
+    "tipCount": 11,
+    "difficulty": 8
+  },
+  "netflix": {
+    "company": "Netflix",
+    "slug": "netflix",
+    "scrapedAt": "2026-07-02T07:13:00.937Z",
+    "stageCount": 3,
+    "questionCount": 0,
+    "tipCount": 5,
+    "difficulty": null
+  },
+  "new-relic-interview-guide": {
+    "company": "New Relic",
+    "slug": "new-relic-interview-guide",
+    "scrapedAt": "2026-07-02T07:24:28.676Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "niantic-interview-guide": {
+    "company": "Niantic",
+    "slug": "niantic-interview-guide",
+    "scrapedAt": "2026-07-02T07:24:33.257Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "notion": {
+    "company": "Notion",
+    "slug": "notion",
+    "scrapedAt": "2026-07-02T07:24:37.282Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 8
+  },
+  "nvidia": {
+    "company": "Nvidia",
+    "slug": "nvidia",
+    "scrapedAt": "2026-07-02T07:19:33.128Z",
+    "stageCount": 3,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 8.5
+  },
+  "okta-interview-guide": {
+    "company": "Okta",
+    "slug": "okta-interview-guide",
+    "scrapedAt": "2026-07-02T07:24:41.238Z",
+    "stageCount": 13,
+    "questionCount": 5,
+    "tipCount": 7,
+    "difficulty": null
+  },
+  "openai": {
+    "company": "OpenAI",
+    "slug": "openai",
+    "scrapedAt": "2026-07-02T07:14:05.692Z",
+    "stageCount": 3,
+    "questionCount": 5,
+    "tipCount": 17,
+    "difficulty": 8
+  },
+  "opendoor-interview-guide": {
+    "company": "Opendoor",
+    "slug": "opendoor-interview-guide",
+    "scrapedAt": "2026-07-02T07:24:44.939Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "optiver-interview-guide": {
+    "company": "Optiver",
+    "slug": "optiver-interview-guide",
+    "scrapedAt": "2026-07-02T07:18:15.833Z",
+    "stageCount": 7,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "oracle-interview": {
+    "company": "Oracle",
+    "slug": "oracle-interview",
+    "scrapedAt": "2026-07-02T07:13:03.585Z",
+    "stageCount": 1,
+    "questionCount": 0,
+    "tipCount": 17,
+    "difficulty": 9
+  },
+  "orca-security-interview-guide": {
+    "company": "Orca Security",
+    "slug": "orca-security-interview-guide",
+    "scrapedAt": "2026-07-02T07:24:48.471Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "outreach-interview-guide": {
+    "company": "Outreach",
+    "slug": "outreach-interview-guide",
+    "scrapedAt": "2026-07-02T07:24:52.065Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "pagerduty-interview-guide": {
+    "company": "PagerDuty",
+    "slug": "pagerduty-interview-guide",
+    "scrapedAt": "2026-07-02T07:24:55.642Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "palantir": {
+    "company": "Palantir",
+    "slug": "palantir",
+    "scrapedAt": "2026-07-02T07:24:59.381Z",
+    "stageCount": 5,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "palo-alto-networks-interview-guide": {
+    "company": "Palo Alto Networks",
+    "slug": "palo-alto-networks-interview-guide",
+    "scrapedAt": "2026-07-02T07:25:04.471Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "patreon-interview-guide": {
+    "company": "Patreon",
+    "slug": "patreon-interview-guide",
+    "scrapedAt": "2026-07-02T07:25:08.359Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "paypal": {
+    "company": "PayPal",
+    "slug": "paypal",
+    "scrapedAt": "2026-07-02T07:18:18.446Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 6.5
+  },
+  "peloton-interview-guide": {
+    "company": "Peloton",
+    "slug": "peloton-interview-guide",
+    "scrapedAt": "2026-07-02T07:25:11.212Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "pendo-interview-guide": {
+    "company": "Pendo",
+    "slug": "pendo-interview-guide",
+    "scrapedAt": "2026-07-02T07:25:13.921Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "perplexity": {
+    "company": "Perplexity",
+    "slug": "perplexity",
+    "scrapedAt": "2026-07-02T07:14:08.533Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 14,
+    "difficulty": 7.5
+  },
+  "pika-labs-interview-guide": {
+    "company": "Pika Labs",
+    "slug": "pika-labs-interview-guide",
+    "scrapedAt": "2026-07-02T07:14:11.154Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "pinecone-interview-guide": {
+    "company": "Pinecone",
+    "slug": "pinecone-interview-guide",
+    "scrapedAt": "2026-07-02T07:14:13.815Z",
+    "stageCount": 14,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "pinterest-interview": {
+    "company": "Pinterest",
+    "slug": "pinterest-interview",
+    "scrapedAt": "2026-07-02T07:25:16.791Z",
+    "stageCount": 1,
+    "questionCount": 1,
+    "tipCount": 21,
+    "difficulty": 9
+  },
+  "plaid": {
+    "company": "Plaid",
+    "slug": "plaid",
+    "scrapedAt": "2026-07-02T07:18:20.965Z",
+    "stageCount": 2,
+    "questionCount": 6,
+    "tipCount": 11,
+    "difficulty": 7.5
+  },
+  "planetscale": {
+    "company": "PlanetScale",
+    "slug": "planetscale",
+    "scrapedAt": "2026-07-02T07:25:19.350Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 7.5
+  },
+  "point72-interview-guide": {
+    "company": "Point72",
+    "slug": "point72-interview-guide",
+    "scrapedAt": "2026-07-02T07:18:23.718Z",
+    "stageCount": 0,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "posthog-interview-guide": {
+    "company": "PostHog",
+    "slug": "posthog-interview-guide",
+    "scrapedAt": "2026-07-02T07:25:21.832Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "postman": {
+    "company": "Postman",
+    "slug": "postman",
+    "scrapedAt": "2026-07-02T07:25:24.328Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 6.5
+  },
+  "procore-interview-guide": {
+    "company": "Procore",
+    "slug": "procore-interview-guide",
+    "scrapedAt": "2026-07-02T07:25:26.946Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "pulumi-interview-guide": {
+    "company": "Pulumi",
+    "slug": "pulumi-interview-guide",
+    "scrapedAt": "2026-07-02T07:25:29.496Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "qdrant-interview-guide": {
+    "company": "Qdrant",
+    "slug": "qdrant-interview-guide",
+    "scrapedAt": "2026-07-02T07:14:16.293Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "qualcomm-interview-guide": {
+    "company": "Qualcomm",
+    "slug": "qualcomm-interview-guide",
+    "scrapedAt": "2026-07-02T07:19:35.514Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "quora-interview-guide": {
+    "company": "Quora",
+    "slug": "quora-interview-guide",
+    "scrapedAt": "2026-07-02T07:25:32.137Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "ramp": {
+    "company": "Ramp",
+    "slug": "ramp",
+    "scrapedAt": "2026-07-02T07:18:26.345Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 7.5
+  },
+  "rapid7-interview-guide": {
+    "company": "Rapid7",
+    "slug": "rapid7-interview-guide",
+    "scrapedAt": "2026-07-02T07:25:34.707Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "reddit-interview": {
+    "company": "Reddit",
+    "slug": "reddit-interview",
+    "scrapedAt": "2026-07-02T07:25:37.397Z",
+    "stageCount": 2,
+    "questionCount": 1,
+    "tipCount": 23,
+    "difficulty": 9
+  },
+  "redfin-interview-guide": {
+    "company": "Redfin",
+    "slug": "redfin-interview-guide",
+    "scrapedAt": "2026-07-02T07:25:39.827Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "reka-ai-interview-guide": {
+    "company": "Reka AI",
+    "slug": "reka-ai-interview-guide",
+    "scrapedAt": "2026-07-02T07:14:18.783Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "renaissance-technologies-interview-guide": {
+    "company": "Renaissance Technologies",
+    "slug": "renaissance-technologies-interview-guide",
+    "scrapedAt": "2026-07-02T07:18:28.829Z",
+    "stageCount": 0,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "render-interview-guide": {
+    "company": "Render",
+    "slug": "render-interview-guide",
+    "scrapedAt": "2026-07-02T07:25:42.380Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "replicate": {
+    "company": "Replicate",
+    "slug": "replicate",
+    "scrapedAt": "2026-07-02T07:14:21.256Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 7.5
+  },
+  "replit-interview-guide": {
+    "company": "Replit",
+    "slug": "replit-interview-guide",
+    "scrapedAt": "2026-07-02T07:25:45.003Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "resend-interview-guide": {
+    "company": "Resend",
+    "slug": "resend-interview-guide",
+    "scrapedAt": "2026-07-02T07:25:47.510Z",
+    "stageCount": 0,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "retool": {
+    "company": "Retool",
+    "slug": "retool",
+    "scrapedAt": "2026-07-02T07:25:49.997Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 7
+  },
+  "ringcentral-interview-guide": {
+    "company": "RingCentral",
+    "slug": "ringcentral-interview-guide",
+    "scrapedAt": "2026-07-02T07:25:52.538Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "riot-games-interview-guide": {
+    "company": "Riot Games",
+    "slug": "riot-games-interview-guide",
+    "scrapedAt": "2026-07-02T07:25:55.269Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "rippling": {
+    "company": "Rippling",
+    "slug": "rippling",
+    "scrapedAt": "2026-07-02T07:25:57.845Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 7
+  },
+  "robinhood": {
+    "company": "Robinhood",
+    "slug": "robinhood",
+    "scrapedAt": "2026-07-02T07:18:31.401Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 12,
+    "difficulty": 7.5
+  },
+  "roblox": {
+    "company": "Roblox",
+    "slug": "roblox",
+    "scrapedAt": "2026-07-02T07:26:00.533Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 13,
+    "difficulty": 8
+  },
+  "rubrik-interview-guide": {
+    "company": "Rubrik",
+    "slug": "rubrik-interview-guide",
+    "scrapedAt": "2026-07-02T07:26:03.273Z",
+    "stageCount": 0,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "runpod-interview-guide": {
+    "company": "RunPod",
+    "slug": "runpod-interview-guide",
+    "scrapedAt": "2026-07-02T07:26:05.959Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "runway-interview-guide": {
+    "company": "Runway",
+    "slug": "runway-interview-guide",
+    "scrapedAt": "2026-07-02T07:14:24.586Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "sakana-ai-interview-guide": {
+    "company": "Sakana AI",
+    "slug": "sakana-ai-interview-guide",
+    "scrapedAt": "2026-07-02T07:14:28.493Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "salesforce": {
+    "company": "Salesforce",
+    "slug": "salesforce",
+    "scrapedAt": "2026-07-02T07:13:06.181Z",
+    "stageCount": 5,
+    "questionCount": 1,
+    "tipCount": 5,
+    "difficulty": null
+  },
+  "salesloft-interview-guide": {
+    "company": "Salesloft",
+    "slug": "salesloft-interview-guide",
+    "scrapedAt": "2026-07-02T07:26:09.095Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "samsung-electronics-interview-guide": {
+    "company": "Samsung",
+    "slug": "samsung-electronics-interview-guide",
+    "scrapedAt": "2026-07-02T07:19:38.027Z",
+    "stageCount": 3,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "sap": {
+    "company": "SAP",
+    "slug": "sap",
+    "scrapedAt": "2026-07-02T07:30:48.040Z",
+    "stageCount": 19,
+    "questionCount": 0,
+    "tipCount": 22,
+    "difficulty": 5.5
+  },
+  "scale-ai": {
+    "company": "Scale AI",
+    "slug": "scale-ai",
+    "scrapedAt": "2026-07-02T07:14:31.924Z",
+    "stageCount": 2,
+    "questionCount": 9,
+    "tipCount": 11,
+    "difficulty": 7.5
+  },
+  "sentinelone-interview-guide": {
+    "company": "SentinelOne",
+    "slug": "sentinelone-interview-guide",
+    "scrapedAt": "2026-07-02T07:26:11.634Z",
+    "stageCount": 13,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "sentry-interview-guide": {
+    "company": "Sentry",
+    "slug": "sentry-interview-guide",
+    "scrapedAt": "2026-07-02T07:26:14.182Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "servicenow": {
+    "company": "ServiceNow",
+    "slug": "servicenow",
+    "scrapedAt": "2026-07-02T07:13:11.426Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 7
+  },
+  "shopify": {
+    "company": "Shopify",
+    "slug": "shopify",
+    "scrapedAt": "2026-07-02T07:26:16.758Z",
+    "stageCount": 14,
+    "questionCount": 0,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "sierra-interview-guide": {
+    "company": "Sierra",
+    "slug": "sierra-interview-guide",
+    "scrapedAt": "2026-07-02T07:14:35.269Z",
+    "stageCount": 0,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "sig-susquehanna-interview-guide": {
+    "company": "SIG Susquehanna",
+    "slug": "sig-susquehanna-interview-guide",
+    "scrapedAt": "2026-07-02T07:18:34.054Z",
+    "stageCount": 8,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "singlestore-interview-guide": {
+    "company": "SingleStore",
+    "slug": "singlestore-interview-guide",
+    "scrapedAt": "2026-07-02T07:26:19.192Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "skyscanner-interview-guide": {
+    "company": "Skyscanner",
+    "slug": "skyscanner-interview-guide",
+    "scrapedAt": "2026-07-02T07:26:21.728Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "smartsheet-interview-guide": {
+    "company": "Smartsheet",
+    "slug": "smartsheet-interview-guide",
+    "scrapedAt": "2026-07-02T07:26:24.152Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "snap": {
+    "company": "Snap",
+    "slug": "snap",
+    "scrapedAt": "2026-07-02T07:26:26.744Z",
+    "stageCount": 2,
+    "questionCount": 0,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "snowflake": {
+    "company": "Snowflake",
+    "slug": "snowflake",
+    "scrapedAt": "2026-07-02T07:26:29.197Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 8
+  },
+  "snyk-interview-guide": {
+    "company": "Snyk",
+    "slug": "snyk-interview-guide",
+    "scrapedAt": "2026-07-02T07:26:31.813Z",
+    "stageCount": 11,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "sofi-interview-guide": {
+    "company": "SoFi",
+    "slug": "sofi-interview-guide",
+    "scrapedAt": "2026-07-02T07:18:36.745Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "sony-interview-guide": {
+    "company": "Sony",
+    "slug": "sony-interview-guide",
+    "scrapedAt": "2026-07-02T07:19:40.484Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "soundcloud-interview-guide": {
+    "company": "SoundCloud",
+    "slug": "soundcloud-interview-guide",
+    "scrapedAt": "2026-07-02T07:26:34.343Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "sourcegraph": {
+    "company": "Sourcegraph",
+    "slug": "sourcegraph",
+    "scrapedAt": "2026-07-02T07:26:37.010Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 7
+  },
+  "spacex-interview-guide": {
+    "company": "SpaceX",
+    "slug": "spacex-interview-guide",
+    "scrapedAt": "2026-07-02T07:19:42.946Z",
+    "stageCount": 13,
+    "questionCount": 5,
+    "tipCount": 7,
+    "difficulty": null
+  },
+  "splunk-interview-guide": {
+    "company": "Splunk",
+    "slug": "splunk-interview-guide",
+    "scrapedAt": "2026-07-02T07:26:39.506Z",
+    "stageCount": 13,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "spotify": {
+    "company": "Spotify",
+    "slug": "spotify",
+    "scrapedAt": "2026-07-02T07:26:41.956Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "squarespace-interview-guide": {
+    "company": "Squarespace",
+    "slug": "squarespace-interview-guide",
+    "scrapedAt": "2026-07-02T07:26:44.392Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "stability-ai-interview-guide": {
+    "company": "Stability AI",
+    "slug": "stability-ai-interview-guide",
+    "scrapedAt": "2026-07-02T07:14:39.356Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "state-street-interview-guide": {
+    "company": "State Street",
+    "slug": "state-street-interview-guide",
+    "scrapedAt": "2026-07-02T07:18:39.297Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "stripe": {
+    "company": "Stripe",
+    "slug": "stripe",
+    "scrapedAt": "2026-07-02T07:18:41.919Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "substack-interview-guide": {
+    "company": "Substack",
+    "slug": "substack-interview-guide",
+    "scrapedAt": "2026-07-02T07:26:47.062Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "suno-interview-guide": {
+    "company": "Suno",
+    "slug": "suno-interview-guide",
+    "scrapedAt": "2026-07-02T07:16:07.728Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "supabase": {
+    "company": "Supabase",
+    "slug": "supabase",
+    "scrapedAt": "2026-07-02T07:26:49.549Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 7
+  },
+  "sysdig-interview-guide": {
+    "company": "Sysdig",
+    "slug": "sysdig-interview-guide",
+    "scrapedAt": "2026-07-02T07:26:51.988Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "tailscale": {
+    "company": "Tailscale",
+    "slug": "tailscale",
+    "scrapedAt": "2026-07-02T07:26:54.473Z",
+    "stageCount": 0,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "temporal-interview-guide": {
+    "company": "Temporal",
+    "slug": "temporal-interview-guide",
+    "scrapedAt": "2026-07-02T07:26:57.112Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "tempus-ai-interview-guide": {
+    "company": "Tempus AI",
+    "slug": "tempus-ai-interview-guide",
+    "scrapedAt": "2026-07-02T07:16:10.297Z",
+    "stageCount": 4,
+    "questionCount": 4,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "tesla": {
+    "company": "Tesla",
+    "slug": "tesla",
+    "scrapedAt": "2026-07-02T07:19:45.392Z",
+    "stageCount": 3,
+    "questionCount": 0,
+    "tipCount": 5,
+    "difficulty": null
+  },
+  "toast-interview-guide": {
+    "company": "Toast",
+    "slug": "toast-interview-guide",
+    "scrapedAt": "2026-07-02T07:27:04.008Z",
+    "stageCount": 0,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "together-ai": {
+    "company": "Together AI",
+    "slug": "together-ai",
+    "scrapedAt": "2026-07-02T07:16:12.864Z",
+    "stageCount": 2,
+    "questionCount": 6,
+    "tipCount": 10,
+    "difficulty": 8
+  },
+  "tower-research-capital-interview-guide": {
+    "company": "Tower Research Capital",
+    "slug": "tower-research-capital-interview-guide",
+    "scrapedAt": "2026-07-02T07:18:44.589Z",
+    "stageCount": 0,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "turso": {
+    "company": "Turso",
+    "slug": "turso",
+    "scrapedAt": "2026-07-02T07:16:15.491Z",
+    "stageCount": 2,
+    "questionCount": 6,
+    "tipCount": 11,
+    "difficulty": 7.5
+  },
+  "twilio-interview-guide": {
+    "company": "Twilio",
+    "slug": "twilio-interview-guide",
+    "scrapedAt": "2026-07-02T07:27:06.549Z",
+    "stageCount": 0,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "two-sigma": {
+    "company": "Two Sigma",
+    "slug": "two-sigma",
+    "scrapedAt": "2026-07-02T07:18:47.166Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": null
+  },
+  "uber": {
+    "company": "Uber",
+    "slug": "uber",
+    "scrapedAt": "2026-07-02T07:27:11.057Z",
+    "stageCount": 3,
+    "questionCount": 0,
+    "tipCount": 5,
+    "difficulty": null
+  },
+  "ubs-interview-guide": {
+    "company": "UBS",
+    "slug": "ubs-interview-guide",
+    "scrapedAt": "2026-07-02T07:18:49.747Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "unity-interview-guide": {
+    "company": "Unity",
+    "slug": "unity-interview-guide",
+    "scrapedAt": "2026-07-02T07:27:13.608Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "vanguard-interview-guide": {
+    "company": "Vanguard",
+    "slug": "vanguard-interview-guide",
+    "scrapedAt": "2026-07-02T07:18:52.411Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "veeva-systems-interview-guide": {
+    "company": "Veeva Systems",
+    "slug": "veeva-systems-interview-guide",
+    "scrapedAt": "2026-07-02T07:27:22.886Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "vercel": {
+    "company": "Vercel",
+    "slug": "vercel",
+    "scrapedAt": "2026-07-02T07:27:20.361Z",
+    "stageCount": 2,
+    "questionCount": 8,
+    "tipCount": 11,
+    "difficulty": 7
+  },
+  "virtu-financial-interview-guide": {
+    "company": "Virtu Financial",
+    "slug": "virtu-financial-interview-guide",
+    "scrapedAt": "2026-07-02T07:18:55.058Z",
+    "stageCount": 0,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "wealthfront": {
+    "company": "Wealthfront",
+    "slug": "wealthfront",
+    "scrapedAt": "2026-07-02T07:18:57.770Z",
+    "stageCount": 2,
+    "questionCount": 7,
+    "tipCount": 11,
+    "difficulty": 8
+  },
+  "weaviate-interview-guide": {
+    "company": "Weaviate",
+    "slug": "weaviate-interview-guide",
+    "scrapedAt": "2026-07-02T07:16:18.074Z",
+    "stageCount": 10,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "webflow-interview-guide": {
+    "company": "Webflow",
+    "slug": "webflow-interview-guide",
+    "scrapedAt": "2026-07-02T07:27:31.524Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "wells-fargo-interview-guide": {
+    "company": "Wells Fargo",
+    "slug": "wells-fargo-interview-guide",
+    "scrapedAt": "2026-07-02T07:19:00.393Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "wintermute-interview-guide": {
+    "company": "Wintermute",
+    "slug": "wintermute-interview-guide",
+    "scrapedAt": "2026-07-02T07:19:03.290Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "wise-interview-guide": {
+    "company": "Wise",
+    "slug": "wise-interview-guide",
+    "scrapedAt": "2026-07-02T07:19:05.909Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "workday": {
+    "company": "Workday",
+    "slug": "workday",
+    "scrapedAt": "2026-07-02T07:29:43.292Z",
+    "stageCount": 2,
+    "questionCount": 7,
+    "tipCount": 11,
+    "difficulty": 6.5
+  },
+  "workos-interview-guide": {
+    "company": "WorkOS",
+    "slug": "workos-interview-guide",
+    "scrapedAt": "2026-07-02T07:27:36.078Z",
+    "stageCount": 0,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "xai": {
+    "company": "xAI",
+    "slug": "xai",
+    "scrapedAt": "2026-07-02T07:16:20.745Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 8.5
+  },
+  "xtx-markets-interview-guide": {
+    "company": "XTX Markets",
+    "slug": "xtx-markets-interview-guide",
+    "scrapedAt": "2026-07-02T07:19:08.623Z",
+    "stageCount": 5,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "yelp-interview-guide": {
+    "company": "Yelp",
+    "slug": "yelp-interview-guide",
+    "scrapedAt": "2026-07-02T07:27:40.677Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "zendesk-interview-guide": {
+    "company": "Zendesk",
+    "slug": "zendesk-interview-guide",
+    "scrapedAt": "2026-07-02T07:27:43.131Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "zillow-interview-guide": {
+    "company": "Zillow",
+    "slug": "zillow-interview-guide",
+    "scrapedAt": "2026-07-02T07:27:45.602Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "zoom": {
+    "company": "Zoom",
+    "slug": "zoom",
+    "scrapedAt": "2026-07-02T07:29:45.189Z",
+    "stageCount": 2,
+    "questionCount": 5,
+    "tipCount": 11,
+    "difficulty": 7
+  },
+  "zoominfo-interview-guide": {
+    "company": "ZoomInfo",
+    "slug": "zoominfo-interview-guide",
+    "scrapedAt": "2026-07-02T07:27:50.161Z",
+    "stageCount": 1,
+    "questionCount": 3,
+    "tipCount": 0,
+    "difficulty": null
+  },
+  "zscaler-interview-guide": {
+    "company": "Zscaler",
+    "slug": "zscaler-interview-guide",
+    "scrapedAt": "2026-07-02T07:27:52.735Z",
+    "stageCount": 4,
+    "questionCount": 5,
+    "tipCount": 0,
+    "difficulty": null
+  }
+}

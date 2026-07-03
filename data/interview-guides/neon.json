@@ -1,0 +1,76 @@
+{
+  "company": "Neon",
+  "slug": "neon",
+  "url": "https://www.techinterview.org/companies/neon",
+  "scrapedAt": "2026-07-02T07:24:25.352Z",
+  "interviewStages": [
+    "System design (1 round): storage / database-platform prompts. \"Design the pageserver that stores Postgres pages in object storage with efficient access.\" \"Design the branching feature enabling copy-on-write database forks in seconds.\" \"Design the compute-node autoscaling that spins up Postgres instances in under 2 seconds.\"",
+    "Behavioral / hiring manager: past projects, comfort with database-platform rigor, Databricks-integration adaptation."
+  ],
+  "codingTopics": [
+    "Implement a page-cache with LRU / LFU eviction and consistency guarantees",
+    "Parse a Postgres-like binary format (page layout, WAL records)",
+    "Implement a log-structured storage layer with compaction",
+    "Design a multi-tenant connection pool with fair allocation",
+    "Classic algorithm problems (graphs, trees, intervals) with storage-adjacent twists"
+  ],
+  "systemDesignTopics": [
+    "\"Design the pageserver storing Postgres pages in S3 with sub-10ms read latency.\"",
+    "\"Design the branching system enabling copy-on-write database forks in seconds for 10K projects.\"",
+    "\"Design the autoscaler that spins up Postgres compute instances from cold in under 2 seconds.\"",
+    "\"Design the WAL-based logical replication for backup and analytics-export use cases.\"",
+    "Walk through Postgres MVCC and how versioning affects storage design.",
+    "Discuss the trade-offs of Neon's storage architecture vs traditional monolithic Postgres.",
+    "Explain how branching preserves consistency while enabling divergent writes.",
+    "Describe garbage-collection strategies for historical page versions that are no longer reachable."
+  ],
+  "behavioralTopics": [
+    "Systems-engineering ownership: \"Describe a systems-heavy project you owned end-to-end.\"",
+    "Customer empathy: \"Tell me about engaging with a database-using customer's problem.\"",
+    "Acquisition-adaptation comfort: \"How do you think about working at a recently-acquired company through the integration period?\"",
+    "Open-source orientation: \"Have you contributed to open source? How do you think about public engineering work?\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [
+      "Reason about cold-start latency &mdash; what has to happen to go from zero to serving queries?"
+    ],
+    "values": [],
+    "other": [
+      "How did the Databricks acquisition affect Neon?",
+      "How does Neon compare to Supabase and PlanetScale on interviews?",
+      "Is Rust genuinely required?",
+      "What's the pageserver, architecturally?",
+      "Is remote work supported?"
+    ]
+  },
+  "difficulty": 8,
+  "tips": [
+    "Read Neon's engineering blog. The team publishes detailed architecture posts.",
+    "Try Neon in production use. Free tier works for real experimentation with branching and scale-to-zero.",
+    "Know Postgres internals. WAL, MVCC, buffer pool, indexes &mdash; vocabulary for deep-dive rounds.",
+    "Ramp on Rust if targeting storage. Even 4&ndash;6 weeks of focused practice meaningfully helps.",
+    "Engage thoughtfully with the Databricks acquisition. Have a considered view on integration trade-offs.",
+    "Neon engineering blog (architecture posts, pageserver deep-dives)",
+    "Database Internals by Alex Petrov",
+    "PostgreSQL documentation (WAL, MVCC, storage sections)",
+    "The Rust Programming Language (official book)",
+    "Neon GitHub repository (open-source; skim meaningful code sections)",
+    "Neon free tier &mdash; use it for real projects before interviewing"
+  ],
+  "compensation": [
+    "Software Engineer: $185k&ndash;$230k base, $180k&ndash;$350k equity (Databricks RSUs, 4 years), 10% bonus. Total: ~$300k&ndash;$480k / year.",
+    "Senior Software Engineer: $235k&ndash;$295k base, $400k&ndash;$700k equity/yr. Total: ~$440k&ndash;$680k / year.",
+    "Staff Engineer: $300k&ndash;$370k base, $700k&ndash;$1.3M equity/yr. Total: ~$630k&ndash;$1M+ / year.",
+    "The storage-engine engineering is substantial &mdash; not a lightweight Postgres wrapper but a genuine custom storage layer.",
+    "Post-Databricks acquisition, Neon continues to ship independently but with growing integration work.",
+    "Cold-start under 2 seconds for new Postgres instances is a real engineering achievement.",
+    "Rust is the dominant language for core teams &mdash; not optional.",
+    "Weak Rust for core-storage roles. Surface familiarity isn't enough.",
+    "Ignoring Postgres internals when applying for database-engine teams.",
+    "Treating the pageserver as a \"cache\" rather than engaging with its actual architecture.",
+    "No understanding of object-storage characteristics for platform roles."
+  ],
+  "rawSummary": "Neon Interview Guide 2026: Serverless Postgres, Rust Storage Engine, Branching, and Databricks Integration\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 24, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 24, 2026 · techinterview.org\n\n⏱ 8 min read\n\nNeon\nneon.tech ↗\n\nNeon Interview Process: Complete 2026 Guide\n\nOverview\n\nNeon is the serverless Postgres company that pioneered separating storage and compute for the standard Postgres engine, enabling instant branching, scale-to-zero, and copy-on-write data workflows. Founded 2021 by Nikita Shamgunov (previously SingleStore / MemSQL founder) and a team of experienced database engineers, Neon was acquired by Databricks in May 2025 for ~$1B and now operates as Databricks' serverless Postgres offering while maintaining the Neon product and community. ~150 employees in 2026 post-acquisition, with engineering distributed across the US, Europe, and Asia. The product's distinctive technical architecture: a custom storage engine (Neon's pageserver, written in Rust) that persists Postgres pages to S3-compatible object storage with WAL-based replication, enabling compute nodes to scale independently and branching to be effectively free. Interviews reflect the reality of running a serious open-source database-platform company with deep systems-engineering focus.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Neon (especially in the context of the Databricks acquisition), team preference. The engineering surface: storage engine (Rust), compute / Postgres fork, control plane / orchestration, developer experience (CLI, console, SDKs), and Databricks-integration work post-acquisition.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. Rust for storage-engine work; Python / TypeScript for control plane; Go for some services. Problems tilt systems-y &mdash; implement a page-cache eviction policy, parse a binary format, handle streaming WAL.\n\nTake-home (many senior / staff roles): 4&ndash;8 hours on a realistic systems problem. Historically involves database-adjacent work &mdash; implement a simple storage engine or WAL-replication consumer.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied systems round. The applied round often involves storage / database primitives.\n\n- System design (1 round): storage / database-platform prompts. \"Design the pageserver that stores Postgres pages in object storage with efficient access.\" \"Design the branching feature enabling copy-on-write database forks in seconds.\" \"Design the compute-node autoscaling that spins up Postgres instances in under 2 seconds.\"\n\n- Database / systems deep-dive (1 round): Postgres internals (MVCC, WAL, buffer pool, indexes), Rust systems programming, object-storage-backed systems, log-structured storage. Genuinely hard for candidates on core teams.\n\n- Behavioral / hiring manager: past projects, comfort with database-platform rigor, Databricks-integration adaptation.\n\nTechnical Focus Areas\n\nCoding: Rust fluency for core-storage work (ownership, lifetimes, async with tokio, performance-sensitive patterns); Python / TypeScript for control-plane; Go for some services. Systems-engineering mindset is essential.\n\nPostgres internals: MVCC and snapshot isolation, WAL (Write-Ahead Log) structure, buffer pool management, B-tree indexes, HOT updates, VACUUM internals, replication slots and logical decoding, extensions ecosystem.\n\nStorage-engine design: Neon's pageserver is a custom storage engine. Understanding it (or building intuition for it) is central for storage-team work. Topics: log-structured storage, compaction, layering between pageservers and compute, reading Postgres page format, caching strategies, garbage collection for historical versions.\n\nObject storage: S3-compatible object-storage characteristics (eventual consistency where applicable, request costs, throughput patterns), efficient access patterns for small pages, prefetching, batching, caching.\n\nBranching (copy-on-write): Neon's branching enables instant database forks by sharing pages via the pageserver until divergence. Understanding this (and the implications for backup, point-in-time recovery, and reading from historical snapshots) matters for platform work.\n\nCompute node management: starting Postgres instances quickly (sub-2-second target for cold starts), connecting compute to pageserver, autoscaling based on load, safepoint behavior when shutting down idle computes.\n\nControl plane: multi-tenant project provisioning, compute-endpoint management, billing / metering, quota enforcement, API surface for SDKs and dashboard.\n\nDatabricks integration (post-acquisition): Neon is being integrated into the Databricks platform as a Postgres offering. Engineers may work on integration surfaces &mdash; authentication, billing, data-sharing with Lakehouse, unified experience.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is solidly hard for core-st"
+}

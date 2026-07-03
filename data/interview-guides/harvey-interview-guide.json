@@ -1,0 +1,27 @@
+{
+  "company": "Harvey",
+  "slug": "harvey-interview-guide",
+  "url": "https://www.techinterview.org/companies/harvey-interview-guide",
+  "scrapedAt": "2026-07-02T07:13:41.831Z",
+  "interviewStages": [
+    "Behavioral: ownership, customer empathy for lawyers, regulated-industry care"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Harvey remote-friendly?",
+      "How does Harvey compare to Casetext or EvenUp?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Harvey Interview Guide (2026): Legal AI Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nHarvey\nharvey.ai ↗\n\nHarvey is the leading legal AI platform — used by Allen & Overy, PwC, and many BigLaw firms for contract analysis, document drafting, and legal research. Series E, $5B+ valuation. The interview emphasizes vertical-AI engineering, retrieval over very large legal document corpora, and the regulated-industry care of working with privileged data.\n\nProcess\n\nRecruiter screen → 60-minute coding (Python or TypeScript) → onsite virtual: 2 coding, 1 system design (LLM-flavored), 1 craft deep-dive, 1 behavioral. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a RAG pipeline over millions of legal documents per customer\n\n- Design a contract-analysis system that compares thousands of provisions\n\n- Design an evaluation harness for legal-correctness (high-stakes domain)\n\n- Coding: medium DSA, often with NLP or pipeline framing\n\n- Behavioral: ownership, customer empathy for lawyers, regulated-industry care\n\nLevels and comp (2026)\n\n- SE: $185K–$255K total (cash + late-stage equity)\n\n- Senior SE: $270K–$370K total\n\n- Staff: $385K–$535K total\n\n- Principal: $545K–$740K total\n\nPrep priorities\n\n- Be fluent in Python (ML/AI services) and TypeScript / Node.js (product surface)\n\n- Understand RAG patterns deeply (chunking, embeddings, reranking, structured extraction)\n\n- Brush up on legal data formats, privilege/confidentiality concerns, and audit-trail patterns\n\nFrequently Asked Questions\n\nIs Harvey remote-friendly?\n\nHubs in San Francisco (HQ) and NYC. Most engineering roles fully remote within US.\n\nHow does Harvey compare to Casetext or EvenUp?\n\nCasetext was acquired by Thomson Reuters and serves a broader market. EvenUp focuses on personal injury / plaintiff side. Harvey is BigLaw-focused premium. Comp at Harvey is competitive at top of late-stage AI company bands.\n\nWhat is the engineering culture?\n\nSenior-heavy hires, customer-obsessed (BigLaw partners are demanding), fast-shipping. Calmer than frontier-lab pace; more product-engineering balance.\n\nSimilar company guides\n\nReka AIinterview guideSakana AIinterview guideBlack Forest Labsinterview guideHippocratic AIinterview guideRunwayinterview guidePika Labsinterview guide\n\nPrepping for Harvey? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextUser Blocking System Low-Level Design⏱ 6 min readLow-Level Design: Appointment Scheduling System — Availability, Booking, and Conflict Prevention⏱ 6 min readSystem Design: Message Queues — RabbitMQ vs SQS vs Kafka, Dead Letter Queues, Exactly-Once, Ordering⏱ 9 min read"
+}

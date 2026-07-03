@@ -1,0 +1,24 @@
+<!-- @dsCard group="Spacing" viewport="700x200" name="Shadows" subtitle="Thin and restrained — hairline cards, purple hover glow, deep modal" -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+body { margin: 0; padding: 22px 24px; background: var(--cv-neutral-50); font-family: var(--cv-font-body); }
+.row { display: flex; gap: 16px; }
+.sh { flex: 1; height: 96px; border-radius: 12px; background: #fff; border: 1px solid var(--cv-border-product); display: flex; flex-direction: column; justify-content: flex-end; padding: 10px 12px; box-sizing: border-box; }
+.sh p { margin: 0; font-size: 11px; font-weight: 700; color: var(--cv-neutral-700); }
+.sh span { font-family: var(--cv-font-mono); font-size: 8.5px; font-weight: 600; color: var(--cv-neutral-400); }
+</style>
+</head>
+<body>
+<div class="row">
+  <div class="sh" style="box-shadow: var(--cv-shadow-card);"><p>card</p><span>0 1px 2px rgba(16,24,40,.05)</span></div>
+  <div class="sh" style="box-shadow: var(--cv-shadow-warm-card); border-color: var(--cv-border-warm); background: var(--cv-paper-50);"><p>warm card</p><span>0 1px 2px rgba(139,90,22,.05)</span></div>
+  <div class="sh" style="box-shadow: var(--cv-shadow-card-hover); border-color: var(--cv-purple-200); transform: translateY(-2px);"><p>hover (-2px)</p><span>0 8px 24px rgba(98,91,213,.08)</span></div>
+  <div class="sh" style="box-shadow: var(--cv-shadow-extension-card); border-color: var(--cv-border-subtle);"><p>extension</p><span>0 8px 18px rgba(15,23,42,.04)</span></div>
+  <div class="sh" style="box-shadow: var(--cv-shadow-modal);"><p>modal</p><span>0 24px 70px rgba(17,24,39,.24)</span></div>
+</div>
+</body>
+</html>

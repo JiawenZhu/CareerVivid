@@ -1,0 +1,43 @@
+{
+  "company": "Deutsche Bank",
+  "slug": "deutsche-bank-interview-guide",
+  "url": "https://www.techinterview.org/companies/deutsche-bank-interview-guide",
+  "scrapedAt": "2026-07-02T07:17:19.748Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — practical engineering with banking flavor",
+    "System design (1 round) — financial systems at bank scale",
+    "Domain depth (1 round) — depends on role: distributed systems, ML, risk, cloud migration",
+    "Behavioral (1 round) — collaboration, ambiguity, banking domain interest"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "How is the Sewing restructuring affecting engineers?",
+      "What's working on Autobahn actually like?",
+      "How is the Google Cloud migration going?",
+      "How does DB compare to UBS post-Credit Suisse merger?",
+      "Is Deutsche Bank a good place for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad SWE (London): £50k–£90k total comp first year",
+    "Mid-level (4–7 years, London): £90k–£200k",
+    "Senior (8+ years, AVP / VP, London): £150k–£350k",
+    "Director (London): £300k–£600k",
+    "Managing Director (London): £600k–£1.5M+",
+    "The Sewing-era restructuring is more substantial than candidates expect; the firm is materially different from pre-2019.",
+    "The exit from equities (2019) was real; DB engineers in equities-related roles transitioned out or to other firms.",
+    "The Postbank integration is ongoing; engineers in retail / Private Bank teams work on integration challenges from a 2008-era acquisition.",
+    "The GCP cloud partnership is genuinely strategic; engineers wanting Google Cloud experience can find it at DB.",
+    "Compensation is below US peers; engineers optimizing purely for comp end up at US banks or FAANG."
+  ],
+  "rawSummary": "Deutsche Bank Interview Guide 2026: European Bank Tech, Autobahn, Sewing Restructuring\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 30, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Deutsche Bank Interview Guide 2026: European Bank Tech, Autobahn Markets Platform, Restructuring Era Continued, and the German Investment Bank&#039;s Modernization\n\n- What Deutsche Bank Does\n\n- Roles Deutsche Bank Hires For\n\n- Deutsche Bank Interview Process\n\n- What Deutsche Bank Tests For\n\n- Compensation\n\n- Working at Deutsche Bank\n\n- Deutsche Bank vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 30, 2026 · techinterview.org\n\n⏱ 7 min read\n\nDeutsche Bank\ndb.com ↗\n\nDeutsche Bank Interview Guide 2026: European Bank Tech, Autobahn Markets Platform, Restructuring Era Continued, and the German Investment Bank's Modernization\n\nDeutsche Bank (NYSE: DB, FRA: DBK) is Germany's largest bank by assets, the most globally distributed European bank, and one of the most-restructured major banks of the last decade. Christian Sewing's tenure as CEO since 2018 has driven substantial restructuring — exiting equities sales and trading, reducing investment banking footprint, focusing on the Private Bank, Corporate Bank, Asset Management (DWS), and remaining FICC business. The hiring process reflects a bank in transition: real engineering investment, tighter cost discipline, and a culture rebuilding after the 2010s crisis era. This guide covers what Deutsche Bank does, the engineering tracks, the interview process, and what makes Deutsche Bank hiring distinctive in 2026.\n\nWhat Deutsche Bank Does\n\nDeutsche Bank operates four primary business divisions (post-restructuring 2019+):\n\n- Corporate Bank: transaction banking, trade finance, treasury services for corporate and institutional clients. Largest revenue contributor.\n\n- Private Bank: wealth management, retail banking, business banking. Strong in Germany via Postbank brand and core Deutsche brand internationally.\n\n- Investment Bank: Fixed Income and Currencies (FIC) markets — DB exited equities sales and trading in 2019. Origination and Advisory (M&A, DCM, ECM). Smaller than peer global investment banks but real franchise.\n\n- Asset Management (DWS): publicly-listed subsidiary (FRA: DWS), one of Europe's largest asset managers. Active and passive management.\n\nMajor technology platforms:\n\n- Autobahn: Deutsche Bank's institutional client portal and electronic trading platform. Fixed income, FX, structured products, research distribution. Major engineering investment area.\n\n- db360: internal engineering platform for service catalog, deployment, observability.\n\n- Cloud migration: active migration to Google Cloud Platform under multi-year strategic agreement (announced 2020).\n\n- Risk and quant infrastructure: internal risk systems, model validation, regulatory reporting.\n\nDistinctive features:\n\n- Restructuring era under Sewing: the 2019 announcement of exiting equities sales and trading, cutting 18,000 jobs, and refocusing on profitable businesses reshaped the firm. Engineers describe the post-2019 era as more disciplined; cultural continuity from pre-2019 has thinned.\n\n- European headquarters: headquartered in Frankfurt with substantial London presence. EU regulatory environment (ECB, BaFin) shapes strategic and engineering decisions.\n\n- Global footprint: Deutsche has presence in Asia, US, EU. More global than other major European banks (BNP Paribas, Santander, Credit Agricole) which are more domestic-focused.\n\n- Postbank acquisition fully integrated: Postbank (German retail bank) was acquired in 2008-2010 and fully merged into Deutsche by 2018-2024. The integration created substantial engineering complexity.\n\n- Public company: NYSE: DB and FRA: DBK; substantial scrutiny especially around restructuring milestones.\n\nRoles Deutsche Bank Hires For\n\nSoftware engineer (Autobahn / Markets)\n\nBuilds the Autobahn platform — institutional electronic trading, research, analytics. Java heavy; some C++ for performance-critical components. Substantial engineering organization across London, Frankfurt, NYC, Bangalore.\n\nSoftware engineer (Corporate Bank)\n\nBuilds transaction banking, trade finance, treasury services systems. Multi-currency, multi-jurisdictional. Java + Python.\n\nSoftware engineer (Private Bank / retail)\n\nBuilds Deutsche Bank retail platforms — primarily for German market post-Postbank integration. Java heavy; mobile (Kotlin/Swift); React + TypeScript on web frontend.\n\nQuantitative analyst / strats\n\nMarkets quants — pricing models, risk analytics, structuring support. FIC focus given exit from equities. Real quant work though smaller-scale than Goldman / Morgan Stanley.\n\nML / data engineer (growing)\n\nPersonalization, fraud detection, AML, alternative data. Substantial growth area in 2024–2026.\n\nCloud / infrastructure engineer (Google Cloud)\n\nDB's strategic GCP partnership has driven substantial cloud engineering investment. Multi-year migration ongoing"
+}

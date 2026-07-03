@@ -1,0 +1,74 @@
+{
+  "company": "Linear",
+  "slug": "linear",
+  "url": "https://www.techinterview.org/companies/linear",
+  "scrapedAt": "2026-07-02T07:23:54.149Z",
+  "interviewStages": [
+    "System design (1 round): offline-first and real-time collaboration prompts. \"Design the sync engine that keeps 100 clients consistent with the server while allowing offline edits.\" \"Design Linear's issue-relationship model with parents, sub-issues, dependencies, and cycles.\" \"Design the keyboard-driven command palette with fast search across all workspace objects.\"",
+    "Behavioral / hiring manager: past projects, remote-work practices, long-term career thinking, craft orientation."
+  ],
+  "codingTopics": [
+    "Data-model design: given a product scenario (e.g., issues with parent / child relationships and cycles), design types and operations that preserve invariants",
+    "Sync-engine primitive: given a set of local edits and a set of remote edits, compute a consistent merged state",
+    "Command-palette search: implement fast fuzzy search across a typed object corpus",
+    "Streaming / reactive: update a derived view efficiently as inputs change",
+    "Classic algorithm problems (graphs, trees, intervals) with product-feature twists (dependency graph with cycle detection, topological sort for sub-issue rollup)"
+  ],
+  "systemDesignTopics": [
+    "\"Design the offline-first sync engine that keeps clients consistent while allowing offline edits.\"",
+    "\"Design the issue-relationship model supporting parents, children, blockers, and dependencies with invariant preservation.\"",
+    "\"Design the command-palette with fast global search across issues, projects, people, and labels.\"",
+    "\"Design the activity-feed and notification system with per-user relevance ranking.\"",
+    "\"What tools do you use daily? What's great and what's broken about each?\"",
+    "\"Describe a design decision in Linear you think is brilliant. And one you'd change.\"",
+    "\"Walk me through a feature you've shipped that you're proud of from a craft perspective.\"",
+    "\"You're designing a new tool. What are the first three decisions you'd make?\""
+  ],
+  "behavioralTopics": [
+    "Craft: \"Tell me about a time you pushed back on shipping something that wasn't quite right.\"",
+    "Remote effectiveness: \"Describe how you've worked effectively across timezones.\"",
+    "Long-term thinking: \"What are you hoping to build or learn over the next several years?\"",
+    "Customer focus: \"Tell me about a time you deeply understood a user's problem.\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "How does Linear's offline-first architecture actually work?",
+      "Is Linear's craft round really decisive?",
+      "How does Linear compare to Notion / Figma on interview rigor?",
+      "What's Linear's AI strategy?",
+      "How small is Linear relative to competitors?"
+    ]
+  },
+  "difficulty": 8,
+  "tips": [
+    "Use Linear for real work. Ideally multiple weeks before interviewing &mdash; try cycles, projects, relationships, roadmap views.",
+    "Read Tuomas Artman's sync-engine talks. The YouTube recordings are gold for platform-role prep.",
+    "Invest fully in the take-home. Treat it as a portfolio piece, not a checkbox.",
+    "Prepare craft-round opinions. Specific, considered views about Linear and 2&ndash;3 competitor tools.",
+    "Engage with remote realities. \"Here's how my team communicates async\" with specifics wins.",
+    "Linear engineering blog and public talks (especially Tuomas Artman's sync-engine presentations)",
+    "Karri Saarinen's essays on product design",
+    "Yjs documentation for CRDT intuition",
+    "Linear Method (Linear's published product-development philosophy)",
+    "Designing Data-Intensive Applications (Kleppmann) for general systems context",
+    "Linear itself &mdash; use it for a real project over 2+ weeks before interviewing"
+  ],
+  "compensation": [
+    "Software Engineer: $180k&ndash;$225k USD base (US, top hubs), $150k&ndash;$280k equity (4 years), modest bonus. Total: ~$280k&ndash;$440k / year.",
+    "Senior Software Engineer: $230k&ndash;$290k base, $300k&ndash;$600k equity. Total: ~$380k&ndash;$610k / year.",
+    "Staff Engineer: $295k&ndash;$360k base, $650k&ndash;$1.2M equity. Total: ~$580k&ndash;$920k / year.",
+    "The engineering depth is higher than the \"beautiful UI\" perception suggests. The sync engine is real systems work.",
+    "The hiring bar for product / craft is as high as the technical bar. Candidates strong on one but not the other don't pass.",
+    "The take-home matters more than candidates expect &mdash; it's often decisive.",
+    "Remote work is real, but not aggressively-distributed; meaningful timezone overlap is expected for most teams.",
+    "Not having used Linear seriously. Interviewers notice within the first few questions.",
+    "Weak product opinions. Generic takes lose the craft round.",
+    "Skimping on the take-home. It's a primary signal.",
+    "Ignoring the sync / offline-first dimension in system design."
+  ],
+  "rawSummary": "Linear Interview Guide 2026: Offline-First Sync Engine, Issue-Tracking Craft, and the Decisive Take-Home\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 24, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Linear Interview Process: Complete 2026 Guide\n\n- Frequently Asked Questions\n\n- What Linear Pays and How to Think About the Equity\n\nUpdated June 30, 2026 · techinterview.org\n\n⏱ 11 min read\n\nLinear\nlinear.app ↗\n\nLinear Interview Process: Complete 2026 Guide\n\nOverview\n\nLinear is the issue-tracking and project-management tool for high-performing software teams. Founded 2019 by Karri Saarinen, Tuomas Artman, and Jori Lallo, private with a 2024 Series C valuation of $1.25B after the \"Slack for issue tracking\" thesis paid off &mdash; Linear has become the default tool for many modern engineering teams that found Jira bureaucratic. ~120 employees in 2026, deliberately small relative to product sophistication. Remote-first (no single HQ) with team members distributed across Europe, North America, and other timezones. Engineering is TypeScript-heavy on both client and server, with a locally-first (offline-first) architecture centered on a custom sync engine that enables Linear's characteristic snappy UX. Linear is widely admired among engineers for craft, design, and product sensibility &mdash; the company is consistently cited as an interview target where quality matters more than volume. Interviews reflect that reality: rigorous, craft-focused, and distinctively selective.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Linear, cultural fit. The company interviews selectively &mdash; limited headcount means each hire matters. Expect thoughtful questions about how you think about tools, product quality, and craft.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. TypeScript is the dominant language; problems are applied and data-modeling-oriented. Expect to model a small domain (issues, projects, cycles), implement a state machine, or handle a structured event stream.\n\nTake-home (almost all roles): 4&ndash;8 hours on a realistic engineering problem. Linear's take-home is substantive and extensively reviewed &mdash; it's often the most important signal in the loop. Historically involves building a small feature end-to-end (data model, client, sync) or extending a starter app with specific constraints. Write-up quality is weighed heavily.\n\nOnsite / virtual onsite (3&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied round often extending the take-home or focused on data modeling. Clean, readable, correct TypeScript is weighted heavily.\n\n- System design (1 round): offline-first and real-time collaboration prompts. \"Design the sync engine that keeps 100 clients consistent with the server while allowing offline edits.\" \"Design Linear's issue-relationship model with parents, sub-issues, dependencies, and cycles.\" \"Design the keyboard-driven command palette with fast search across all workspace objects.\"\n\n- Product / craft round (1 round): decisive round at Linear. A conversation about design sensibility, UX decisions, and what makes a good tool. Candidates who've used Linear deeply and have strong opinions on the competitive landscape do well.\n\n- Behavioral / hiring manager: past projects, remote-work practices, long-term career thinking, craft orientation.\n\nTechnical Focus Areas\n\nCoding: TypeScript fluency at a high level (strict, proper use of generics and discriminated unions, immutable data patterns), functional / reactive patterns where appropriate. Clean code is non-negotiable.\n\nOffline-first sync: local-first architecture is Linear's distinctive technical choice. Understanding sync-engine design &mdash; operational transforms or CRDTs, conflict resolution, merge semantics, partial sync, client-side caching, optimistic updates &mdash; is central for platform and infrastructure roles. Linear has shared some architectural details publicly (Tuomas Artman's talks).\n\nData modeling: Linear's issue model is deceptively rich &mdash; parents, sub-issues, blockers, dependencies, cycles, projects, triage, custom views &mdash; with invariants that need careful preservation under concurrent edits. Clean data modeling with explicit invariants is a recurring theme in interviews.\n\nReal-time collaboration: cursor awareness, co-editing with conflict-free merges, presence indicators, activity streams with live updates.\n\nGraphQL: Linear's API is GraphQL; for platform and API-adjacent roles, GraphQL fluency matters. Schema design, N+1 avoidance with DataLoader, subscription-based real-time updates.\n\nPerformance: Linear ships with a reputation for feel-native speed. Frontend performance (initial load, command-palette latency, sync update throughput), React optimization (memoization, virtualization), and client-side caching design are all relevant.\n\nAI integration: Linear has been adding AI features (triage assistance, issue summarization) carefully. For AI-team roles, e"
+}

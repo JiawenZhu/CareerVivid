@@ -1,0 +1,27 @@
+{
+  "company": "Qdrant",
+  "slug": "qdrant-interview-guide",
+  "url": "https://www.techinterview.org/companies/qdrant-interview-guide",
+  "scrapedAt": "2026-07-02T07:14:16.293Z",
+  "interviewStages": [
+    "Behavioral: ownership, OSS contributor empathy, working in a small distributed team"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Qdrant remote-friendly?",
+      "How does Qdrant compare to Pinecone, Weaviate, or Milvus?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Qdrant Interview Guide (2026): Vector Database Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nQdrant\nqdrant.tech ↗\n\nQdrant is a leading open-source vector database written in Rust — used for semantic search, RAG, and recommendation. The cloud product (Qdrant Cloud) is the commercial arm. The interview emphasizes systems engineering in Rust, ANN algorithms (HNSW), and distributed-systems work for sharded vector indexes.\n\nProcess\n\nRecruiter screen → 60-minute coding (Rust strongly preferred for backend roles) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Some senior+ roles include a take-home (small Rust systems task). Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a sharded HNSW index with consistent hashing for routing\n\n- Design a write-ahead log and snapshot for crash recovery\n\n- Design quantization (PQ/SQ/Binary) integration into the index\n\n- Coding: systems-flavored, often with concurrency, memory, or algorithm framing\n\n- Behavioral: ownership, OSS contributor empathy, working in a small distributed team\n\nLevels and comp (2026)\n\n- SE: $140K–$200K total in EU; US offers $180K–$260K total\n\n- Senior SE: $250K–$340K total in US bands\n\n- Staff: $340K–$460K total in US bands\n\nPrep priorities\n\n- Be fluent in Rust (the entire engine) and Python (Python client work)\n\n- Understand HNSW, IVF, and PQ/SQ/Binary quantization deeply\n\n- Brush up on disk-based ANN, mmap, and zero-copy serialization\n\nFrequently Asked Questions\n\nIs Qdrant remote-friendly?\n\nDistributed-first, Berlin-incorporated. Most engineers remote across EU and US.\n\nHow does Qdrant compare to Pinecone, Weaviate, or Milvus?\n\nQdrant is the Rust-based open-source option with strong filtering. Pinecone is closed-source SaaS. Weaviate is OSS with a knowledge-graph bent. Milvus is the Zilliz-backed C++ option. Comp is competitive for OSS infrastructure with strong equity upside.\n\nWhat is the engineering culture?\n\nSmall, technically deep, OSS-driven. Strong written-first, async culture.\n\nSimilar company guides\n\nReka AIinterview guideSakana AIinterview guideBlack Forest Labsinterview guideHippocratic AIinterview guideRunwayinterview guidePika Labsinterview guide\n\nPrepping for Qdrant? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextGeofencing System Low-Level Design⏱ 5 min readAirtable Interview Guide (2026): No-Code Database Engineering⏱ 2 min readWells Fargo Interview Guide 2026: US-Domestic Bank Tech, Asset Cap Era, Modernization⏱ 7 min read"
+}

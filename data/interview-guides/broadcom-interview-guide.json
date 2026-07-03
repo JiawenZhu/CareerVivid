@@ -1,0 +1,56 @@
+{
+  "company": "Broadcom",
+  "slug": "broadcom-interview-guide",
+  "url": "https://www.techinterview.org/companies/broadcom-interview-guide",
+  "scrapedAt": "2026-07-02T07:19:25.550Z",
+  "interviewStages": [
+    "Recruiter screen.",
+    "Hiring manager screen.",
+    "Technical phone screen (60–90 min). Track-specific.",
+    "Onsite or virtual loop (4–6 rounds)."
+  ],
+  "codingTopics": [
+    "For hardware: RTL, architecture, or domain-specific rounds depending on team",
+    "1 behavioral round",
+    "Hiring committee review."
+  ],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "How has the VMware acquisition changed Broadcom's hiring?",
+      "Does Broadcom hire from non-traditional backgrounds?",
+      "How does Broadcom compare to Marvell or Qualcomm?",
+      "Is VMware still a viable employer post-acquisition?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "Senior software engineer (VMware track): $180–240K base + AVGO RSU + bonus → $320–500K total",
+    "Staff software engineer: $240–310K base + RSU → $500K–750K total",
+    "Senior hardware engineer: $200–270K base + RSU → $350–550K total",
+    "Implement a deep packet pipeline in SystemVerilog. Networking ASICs at Broadcom handle packets at 400Gbps. Discuss how to pipeline parsing, lookups, and modification within a strict cycle budget. Pipeline hazards, stalls, and bypass logic.",
+    "Design a coherent cache snoop filter. For the Broadcom networking SoCs, multiple cores and accelerators must maintain coherence. Walk through MESI / MESIF protocols, snoop bandwidth, and how directory-based coherence reduces snoop traffic at scale.",
+    "SerDes link training. 56G PAM-4 and 112G links require complex equalization and channel calibration. Discuss what happens during link training and why it can take milliseconds.",
+    "vSphere internals: how the ESXi hypervisor handles CPU scheduling, memory ballooning, and hot-add operations. Discuss why vSphere is harder to displace than the headlines suggest.",
+    "Software-defined networking with NSX: the distributed firewall, the difference between L2/L3 routing in software vs hardware, and what changes with SmartNIC offload.",
+    "Tanzu Kubernetes lineage: how VMware integrated Kubernetes into the vSphere stack and what survived post-Broadcom acquisition. Senior+ candidates should have a view on whether the Tanzu strategy still makes sense after the strategy shifts.",
+    "Cost discipline: Broadcom's acquisition philosophy is to focus on the highest-margin enterprise customers and divest non-core lines. Engineering teams have been right-sized accordingly. Comp packages have been reduced from pre-acquisition VMware levels.",
+    "Customer concentration: VMware now serves a smaller, larger-customer-focused base. Engineering priorities have shifted toward features that the largest enterprise customers ask for.",
+    "Sales-engineering tension: the new commercial structure has tighter coupling between engineering roadmap and Broadcom's enterprise sales motion. Engineers should expect more interaction with sales than at pre-acquisition VMware.",
+    "Semiconductor (Broadcom Inc legacy): traditional chip-design culture. Long product cycles, hardware engineering deep-dive interviews. Best for engineers who want to do RTL/verification/architecture.",
+    "Infrastructure software (CA, Symantec Enterprise, Brocade): mature enterprise products with stable customer bases. More traditional enterprise software culture; less innovation but more predictable.",
+    "VMware (post-2023 acquisition): the largest engineering organization in the company. Significant restructuring still ongoing as of 2026.",
+    "NVIDIA &mdash; GPU and AI accelerator",
+    "AMD &mdash; CPU and GPU",
+    "Intel &mdash; x86 incumbent",
+    "Qualcomm &mdash; mobile SoC",
+    "Apple Silicon &mdash; custom SoC"
+  ],
+  "rawSummary": "Broadcom Interview Guide (2026): Process, Questions, Compensation\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 2, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- The divisional structure\n\n- Interview process\n\n- Compensation (2026 estimates)\n\n- Sample interview questions in depth\n\n- Picking the right division\n\n- Frequently Asked Questions\n\n- Adjacent Semiconductor Companies\n\nUpdated May 3, 2026 · techinterview.org\n\n⏱ 4 min read\n\nBroadcom\nbroadcom.com ↗\n\nBroadcom Interview Guide\n\nCompany overview: Broadcom is one of the largest semiconductor and infrastructure software companies, with a major divisional structure spanning semiconductors (networking chips, broadband chips, custom silicon for hyperscalers, RF/wireless), infrastructure software (Brocade, CA Technologies), and most prominently the VMware portfolio acquired in 2023. Palo Alto headquarters with massive engineering footprint across the US, Israel, India, and globally. Public on NASDAQ (AVGO).\n\nThe divisional structure\n\nBroadcom's interview process varies dramatically by division. Each division has its own hiring practices, comp bands, and culture:\n\n- Semiconductor divisions: hardware engineering, ASIC design, RTL, verification. Closer to traditional chip company process.\n\n- VMware: infrastructure software for virtualization, cloud, networking. Post-acquisition has tightened cost structures and changed comp considerably.\n\n- CA / Brocade / Symantec Enterprise: mature enterprise software products with stable customer bases.\n\nThe VMware track is the most-applied-to in 2026 because of the size of the engineering organization. Note that the VMware product portfolio has been undergoing significant restructuring post-acquisition.\n\nInterview process\n\nTimeline: 4–8 weeks (VMware track tends to be faster; semiconductor track slower).\n\n- Recruiter screen.\n\n- Hiring manager screen.\n\n- Technical phone screen (60–90 min). Track-specific.\n\n- Onsite or virtual loop (4–6 rounds).\n\nFor software: coding rounds plus system design\n\n- For hardware: RTL, architecture, or domain-specific rounds depending on team\n\n- 1 behavioral round\n\n- Hiring committee review.\n\nCompensation (2026 estimates)\n\nBroadcom comp is generally competitive but below FAANG cash. The VMware-track post-acquisition has reduced from pre-acquisition levels. Specific bands vary considerably by division and location.\n\n- Senior software engineer (VMware track): $180–240K base + AVGO RSU + bonus → $320–500K total\n\n- Staff software engineer: $240–310K base + RSU → $500K–750K total\n\n- Senior hardware engineer: $200–270K base + RSU → $350–550K total\n\nSample interview questions in depth\n\nSemiconductor track (RTL / verification)\n\n- Implement a deep packet pipeline in SystemVerilog. Networking ASICs at Broadcom handle packets at 400Gbps. Discuss how to pipeline parsing, lookups, and modification within a strict cycle budget. Pipeline hazards, stalls, and bypass logic.\n\n- Design a coherent cache snoop filter. For the Broadcom networking SoCs, multiple cores and accelerators must maintain coherence. Walk through MESI / MESIF protocols, snoop bandwidth, and how directory-based coherence reduces snoop traffic at scale.\n\n- SerDes link training. 56G PAM-4 and 112G links require complex equalization and channel calibration. Discuss what happens during link training and why it can take milliseconds.\n\nVMware track (post-acquisition infrastructure software)\n\n- vSphere internals: how the ESXi hypervisor handles CPU scheduling, memory ballooning, and hot-add operations. Discuss why vSphere is harder to displace than the headlines suggest.\n\n- Software-defined networking with NSX: the distributed firewall, the difference between L2/L3 routing in software vs hardware, and what changes with SmartNIC offload.\n\n- Tanzu Kubernetes lineage: how VMware integrated Kubernetes into the vSphere stack and what survived post-Broadcom acquisition. Senior+ candidates should have a view on whether the Tanzu strategy still makes sense after the strategy shifts.\n\nThe post-acquisition reality\n\n- Cost discipline: Broadcom's acquisition philosophy is to focus on the highest-margin enterprise customers and divest non-core lines. Engineering teams have been right-sized accordingly. Comp packages have been reduced from pre-acquisition VMware levels.\n\n- Customer concentration: VMware now serves a smaller, larger-customer-focused base. Engineering priorities have shifted toward features that the largest enterprise customers ask for.\n\n- Sales-engineering tension: the new commercial structure has tighter coupling between engineering roadmap and Broadcom's enterprise sales motion. Engineers should expect more interaction with sales than at pre-acquisition VMware.\n\nPicking the right division\n\nBroadcom is essentially three different companies sharing a corporate name:\n\n- Semiconductor (Broadcom Inc legacy): traditional chip-design culture. Long product cycles, hardware engineering deep-dive interviews. Best for engineers who want to do RTL/verification/a"
+}

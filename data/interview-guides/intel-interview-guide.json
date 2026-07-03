@@ -1,0 +1,47 @@
+{
+  "company": "Intel",
+  "slug": "intel-interview-guide",
+  "url": "https://www.techinterview.org/companies/intel-interview-guide",
+  "scrapedAt": "2026-07-02T07:19:30.675Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — algorithms, often with systems / hardware flavor",
+    "Domain depth (1–2 rounds) — depends on role: CPU architecture, compilers, ML systems, manufacturing process",
+    "System / specialty design (1 round) — varies substantially by role",
+    "Behavioral / cross-functional (1 round)"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Should I join Intel given recent execution issues?",
+      "What's the foundry pivot actually like for engineers?",
+      "How does Intel compare to AMD for CPU architecture work?",
+      "Is Intel a good place for early-career engineers?",
+      "Will Intel recover commercially?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad SWE / hardware engineer: $130k–$200k total comp first year",
+    "Mid-level (4–7 years): $200k–$320k",
+    "Senior (8+ years): $300k–$480k",
+    "Principal Engineer: $450k–$800k",
+    "Senior Principal / Fellow: $700k–$1.5M+",
+    "The engineering reputation remains strong despite commercial struggles; the talent in CPU architecture, compilers, and research is widely respected.",
+    "The foundry pivot is real engineering work, not just business strategy; thousands of engineers are working on Intel 18A and 14A.",
+    "The recent restructuring reduced headcount substantially; remaining engineers operate with broader scope per person.",
+    "Compensation is below NVIDIA / AMD; engineers optimizing for total comp end up at competitors.",
+    "Long-horizon engineering culture means short-term-impact expectations are different than at FAANG; calibrate accordingly.",
+    "AMD &mdash; CPU competitor",
+    "NVIDIA &mdash; GPU and AI accelerator",
+    "Broadcom &mdash; networking and infrastructure",
+    "Apple Silicon &mdash; custom SoC"
+  ],
+  "rawSummary": "Intel Interview Guide 2026: Foundry Pivot, Gaudi AI, x86 Reset, Engineering Reset\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 29, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Intel Interview Guide 2026: Foundry Pivot, Gaudi AI Accelerators, Core Ultra, x86 Reset, and Engineering at the Most Challenged Chipmaker\n\n- What Intel Does\n\n- Roles Intel Hires For\n\n- Intel Interview Process\n\n- What Intel Tests For\n\n- Compensation\n\n- Working at Intel\n\n- Intel vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\n- Adjacent Semiconductor Companies\n\nUpdated May 2, 2026 · techinterview.org\n\n⏱ 7 min read\n\nIntel\nintel.com ↗\n\nIntel Interview Guide 2026: Foundry Pivot, Gaudi AI Accelerators, Core Ultra, x86 Reset, and Engineering at the Most Challenged Chipmaker\n\nIntel is the most strategically challenged of the major chip companies in 2026. The company that defined x86 computing for four decades has been losing market share to AMD in CPUs, has never closed the gap with NVIDIA in AI accelerators, and is in the middle of a contentious foundry build-out aiming to compete with TSMC. Pat Gelsinger's tenure (2021–2024) ended with substantial restructuring; his successor inherits an Intel that is technically deep but commercially struggling. The hiring process remains rigorous and reflects the company's engineering depth despite recent execution issues. This guide covers what Intel does, the engineering tracks, the interview process, and what makes Intel hiring distinctive in 2026.\n\nWhat Intel Does\n\nIntel operates several major business areas:\n\n- Client Computing Group (CCG): consumer CPUs (Core Ultra series, Lunar Lake, Arrow Lake, Panther Lake roadmap).\n\n- Data Center and AI (DCAI): Xeon server CPUs, Gaudi AI accelerators (Gaudi 2, Gaudi 3), Habana Labs technology.\n\n- Network and Edge (NEX): networking SoCs, edge compute, IPUs (infrastructure processing units).\n\n- Intel Foundry: the manufacturing pivot — Intel building chips for external customers (AWS, Microsoft, Department of Defense, etc.). Process nodes Intel 3, Intel 18A (2024–2025), Intel 14A roadmap.\n\n- Mobileye: autonomous driving subsidiary (separately listed NASDAQ: MBLY).\n\n- Altera (FPGA): being separated as standalone entity (announced 2024).\n\n- Software: oneAPI, OpenVINO, compilers (Intel oneAPI DPC++, ICC), Intel Tiber AI Cloud.\n\nDistinctive features:\n\n- IDM 2.0 / Foundry pivot: Intel manufactures its own chips AND chips for external customers. This is unique among major chip designers and a substantial strategic and engineering undertaking.\n\n- Process technology depth: Intel has historically led process technology; the 10nm / 7nm / 3nm transition struggles cost the company its lead. Recovery is ongoing; Intel 18A is positioned as the comeback node.\n\n- Public company in difficulty: NASDAQ: INTC; stock has substantially underperformed peers. Compensation and morale calibration affected.\n\n- Foundational engineering reputation: Intel's research, compiler, and CPU architecture teams remain deeply respected despite commercial struggles.\n\nRoles Intel Hires For\n\nHardware / silicon engineer (CPU)\n\nDesigns Xeon server CPUs and Core Ultra client CPUs. Verilog / SystemVerilog. Multi-year product cycles. Deep VLSI / RTL / microarchitecture expertise.\n\nHardware / silicon engineer (AI accelerator)\n\nDesigns Gaudi AI accelerators (post-Habana acquisition). Newer track within Intel; smaller team but high-priority area.\n\nProcess / yield engineer (Foundry)\n\nProcess technology development, manufacturing, yield improvement at Intel fabs. Heavily location-bound (Hillsboro OR, Ocotillo AZ, Kiryat Gat Israel, Leixlip Ireland, Magdeburg Germany — under construction).\n\nCompiler / software engineer (oneAPI)\n\nBuilds Intel's compiler and library stack — DPC++, OpenVINO, MKL, oneDNN, oneCCL. Deep compiler engineering.\n\nML engineer / Gaudi software\n\nPyTorch / Megatron integration with Gaudi, ML library development, distributed training. Substantial growth area but smaller team than NVIDIA / AMD equivalents.\n\nDriver / firmware engineer\n\nCPU / GPU drivers, platform firmware, BMC firmware. C / C++; OS internals; embedded.\n\nPerformance / verification engineer\n\nPre-silicon verification, post-silicon validation, performance characterization. Hybrid hardware-software work.\n\nResearch scientist (Intel Labs)\n\nResearch in computing systems, architecture, security, quantum, neuromorphic. Substantial publication record expected for senior research roles.\n\nIntel Interview Process\n\nRound 1: Recruiter screen\n\n30 minutes. Background, motivation, role fit. Recruiters often discuss the foundry pivot and recent restructuring with candidates; cultural fit screening starts here.\n\nRound 2: Technical phone screen\n\n60–90 minutes. For software roles: coding plus relevant systems / hardware concepts. For hardware roles: digital design fundamentals; sometimes a small RTL exercise.\n\nRound 3: On-site / virtual on-site\n\n4–6 rounds, each 60–90 minutes:\n\n- Coding (1–2 rounds) — algorithms,"
+}

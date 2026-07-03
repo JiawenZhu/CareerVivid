@@ -1053,3 +1053,68 @@ export interface SOPData {
   customBlocks?: Record<string, string>;
   layoutMode?: 'standard' | 'manual' | 'business';
 }
+
+// --- Gamification / Learner Progress Types ---
+
+export type XpEventType =
+  | 'interview_completed'
+  | 'daily_login'
+  | 'resume_created'
+  | 'lesson_completed'
+  | 'quest_stage_cleared'
+  | 'quest_completed';
+
+export interface XpEvent {
+  /** Deterministic dedupe key, doubles as the Firestore doc id (e.g. `interview_analysis_123`). */
+  id: string;
+  type: XpEventType;
+  xp: number;
+  createdAt: number;
+  meta?: Record<string, string | number | boolean>;
+}
+
+export interface BadgeAward {
+  id: string;
+  earnedAt: number;
+}
+
+export interface StreakState {
+  current: number;
+  longest: number;
+  /** Local calendar day of last qualifying activity, formatted YYYY-MM-DD. */
+  lastActiveDay: string;
+}
+
+export interface ProgressCounters {
+  interviewsCompleted: number;
+  interviewsPassed: number;
+  lessonsCompleted: number;
+  questStagesCleared: number;
+}
+
+export interface UserProgress {
+  xp: number;
+  level: number;
+  streak: StreakState;
+  badges: BadgeAward[];
+  counters: ProgressCounters;
+  updatedAt: number;
+}
+
+// --- Company Quest Types ---
+
+export interface QuestStageResult {
+  bestScore: number;
+  attempts: number;
+  clearedAt: number | null;
+  lastAnalysisId: string;
+}
+
+export interface CompanyQuestProgress {
+  slug: string;
+  company: string;
+  stageResults: Record<string, QuestStageResult>;
+  startedAt: number;
+  completedAt: number | null;
+  updatedAt: number;
+}

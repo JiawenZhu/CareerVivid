@@ -1,0 +1,27 @@
+{
+  "company": "Medium",
+  "slug": "medium-interview-guide",
+  "url": "https://www.techinterview.org/companies/medium-interview-guide",
+  "scrapedAt": "2026-07-02T07:24:10.943Z",
+  "interviewStages": [
+    "Behavioral: customer focus, mission-driven (deep reading), calm pace"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Medium remote-friendly?",
+      "How does Medium compare to Substack?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Medium Interview Guide (2026): Publishing Platform Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nMedium\nmedium.com ↗\n\nMedium is one of the largest long-form publishing platforms — 100M+ monthly visitors, paid membership model. The interview emphasizes content recommendation, editor experience, and the realities of running a creator-economy platform.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a recommendation system for personalized reading feeds\n\n- Design a rich-text editor with images, code, and collaboration\n\n- Design content quality detection (paywall vs free, spam, AI-generated)\n\n- Coding: medium DSA, often with text-processing or graph framing\n\n- Behavioral: customer focus, mission-driven (deep reading), calm pace\n\nLevels and comp (2026)\n\n- SE II: $150K–$185K total\n\n- Senior SE: $215K–$285K\n\n- Staff: $310K–$410K\n\n- Principal: $430K–$570K\n\nPrep priorities\n\n- Be fluent in TypeScript/Node.js (the bulk of the codebase)\n\n- Understand recommendation systems and content engagement metrics\n\n- Brush up on rich-text editor patterns (ProseMirror, Slate)\n\nFrequently Asked Questions\n\nIs Medium remote-friendly?\n\nDistributed-first since 2020. Hubs in San Francisco and NYC.\n\nHow does Medium compare to Substack?\n\nMedium is curated platform with paid membership. Substack is creator-owned newsletters. Different models. Medium pays mid-tier; below FAANG.\n\nWhat is the engineering culture?\n\nMission-driven, calm pace, mature. Strong work-life balance. Less expansive than peak years; reliable.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Medium? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextModal Interview Guide 2026: Serverless GPU Compute, Custom Scheduler, and Python-First Infrastructure⏱ 11 min readLow Level Design: GraphQL API Design⏱ 6 min readZillow Interview Guide (2026): Real Estate Tech Engineering⏱ 1 min read"
+}

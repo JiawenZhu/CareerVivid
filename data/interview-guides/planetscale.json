@@ -1,0 +1,75 @@
+{
+  "company": "PlanetScale",
+  "slug": "planetscale",
+  "url": "https://www.techinterview.org/companies/planetscale",
+  "scrapedAt": "2026-07-02T07:25:19.350Z",
+  "interviewStages": [
+    "System design (1 round): database-platform prompts. \"Design the Vitess-based sharding layer handling 1M QPS across thousands of customers.\" \"Design online schema change for a multi-TB table with zero downtime.\" \"Design query caching (PlanetScale Boost) with automatic cache invalidation.\"",
+    "Behavioral / hiring manager: past projects, customer empathy, distributed-team effectiveness."
+  ],
+  "codingTopics": [
+    "Implement a simple query parser / evaluator for a structured expression language",
+    "Build a routing component: given a query and shard configuration, determine target shard(s)",
+    "Design a connection pool with fair allocation and timeout handling",
+    "Schema-diff algorithm: given two table definitions, produce minimal migration steps",
+    "Classic algorithm problems (graphs, trees, intervals) with database-applied twists"
+  ],
+  "systemDesignTopics": [
+    "\"Design the sharding layer handling 1M QPS with correct routing across thousands of shards.\"",
+    "\"Design online schema change for a 10TB table with zero downtime on a high-write workload.\"",
+    "\"Design the query-cache invalidation system (PlanetScale Boost-style) with strong consistency guarantees.\"",
+    "\"Design multi-cloud failover with customer-visible cloud choice and bounded recovery time.\"",
+    "Walk through MySQL's InnoDB B-tree structure and how updates propagate through the buffer pool.",
+    "Discuss Vitess's VReplication for online schema change &mdash; the copy phase, cutover, and rollback.",
+    "Explain distributed-transaction trade-offs in Vitess (2PC vs application-level transactions).",
+    "Reason about hot-spot handling in a sharded workload.",
+    "Describe replication lag mitigation and its impact on read-after-write consistency."
+  ],
+  "behavioralTopics": [
+    "Database-engineering ownership: \"Describe a database-related project you owned end-to-end.\"",
+    "Customer empathy: \"Tell me about supporting a customer with a database problem. What did you learn?\"",
+    "Distributed-team effectiveness: \"Describe your practices for remote / async work.\"",
+    "Technical depth: \"Walk me through the hardest database problem you've solved.\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need MySQL / Vitess experience to get hired?",
+      "How does PlanetScale compare to Supabase / Neon / Aurora?",
+      "Is the Vitess heritage truly differentiating?",
+      "What's the 2024 business-model change history?",
+      "Is remote work supported?"
+    ]
+  },
+  "difficulty": 7.5,
+  "tips": [
+    "Use PlanetScale for a real project. Create a database, try branching / deploy-requests, observe Insights.",
+    "Read Vitess documentation. Architecture, VReplication, and topology sections are directly relevant.",
+    "Know MySQL internals. InnoDB, binlog, replication modes &mdash; vocabulary for database deep-dive rounds.",
+    "Engage with online DDL. Non-blocking schema change is a distinctive product capability; understanding the mechanism helps.",
+    "Prepare database-ownership stories. Past projects involving database scaling, replication, or performance pay off.",
+    "Vitess documentation (well-maintained, covers architecture deeply)",
+    "Original Vitess papers and Sugu Sougoumarane's public talks",
+    "High Performance MySQL by Schwartz, Zaitsev, Tkachenko",
+    "PlanetScale engineering blog (posts on Boost, Insights, multi-cloud architecture)",
+    "Designing Data-Intensive Applications (Kleppmann)",
+    "PlanetScale itself &mdash; use the free / hobby tier for a real project"
+  ],
+  "compensation": [
+    "Software Engineer: $170k&ndash;$215k base, $120k&ndash;$230k equity (4 years), modest bonus. Total: ~$260k&ndash;$410k / year.",
+    "Senior Software Engineer: $220k&ndash;$280k base, $240k&ndash;$460k equity. Total: ~$350k&ndash;$550k / year.",
+    "Staff Engineer: $285k&ndash;$350k base, $500k&ndash;$900k equity. Total: ~$510k&ndash;$800k / year.",
+    "The Vitess heritage is real. The technical credibility of the founders shapes both engineering and customer expectations.",
+    "MySQL / Vitess depth is genuinely expected for core-platform roles. Postgres-only or general-backend background doesn't translate directly.",
+    "Customer-facing reliability is taken seriously. Customers running production workloads on PlanetScale have real SLA expectations.",
+    "The branching feature (non-blocking schema changes with git-like workflow) is a distinctive product differentiator.",
+    "Weak MySQL / database knowledge for core-platform roles. \"I've used Postgres\" isn't a substitute.",
+    "Hand-waving on replication or sharding in system design.",
+    "Ignoring the customer-reliability dimension.",
+    "Dismissing Vitess as \"just MySQL sharding.\" The technical depth is substantial."
+  ],
+  "rawSummary": "PlanetScale Interview Guide 2026: Vitess-Based MySQL Platform, Sharding, Branching, and Multi-Cloud\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 24, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 24, 2026 · techinterview.org\n\n⏱ 8 min read\n\nPlanetScale\nplanetscale.com ↗\n\nPlanetScale Interview Process: Complete 2026 Guide\n\nOverview\n\nPlanetScale is the MySQL-compatible serverless database platform built on Vitess &mdash; the horizontal-scaling technology originally developed at YouTube. Founded 2018 by Jiten Vaidya and Sugu Sougoumarane (the original Vitess authors), private with successive funding rounds through 2024 and continued growth in 2025. ~200 employees in 2026. Headquartered in San Francisco with a distributed-first engineering culture and offices / hubs in Los Angeles, New York, and remote hires globally. The product's distinctive technical position: a hosted MySQL platform with Vitess-based sharding that scales horizontally like NoSQL while preserving SQL semantics, branching / non-blocking schema changes via Vitess's online DDL, and managed infrastructure across AWS / GCP / Azure. Customers like GitHub, Square (historically), Slack (historically), and many others have run production workloads on PlanetScale. Interviews reflect the reality of running a serious database-platform company &mdash; expect genuine MySQL / Vitess depth for core roles, strong systems reasoning, and appreciation for the database-engineering tradition.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why PlanetScale, team interest. The engineering surface spans Vitess core (Go), cloud platform (orchestration, billing, multi-cloud), developer experience (CLI, web dashboard, SDKs), query / schema tooling, and AI / data-adjacent products (PlanetScale Insights, Boost query caching).\n\nTechnical phone screen (60 min): one coding problem, medium-hard. Go for core Vitess and infrastructure; TypeScript for web dashboard; Python for data-tooling work. Problems tilt systems-y &mdash; implement a routing algorithm, parse a SQL expression, build a schema-diff tool.\n\nTake-home (many senior / staff roles): 4&ndash;6 hours on a realistic engineering problem. Historically involves database-adjacent work &mdash; implement a small query router, extend a sharding scheme, build a schema-migration tool.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied systems round. The applied round often involves database primitives &mdash; parse a SQL-like expression, implement a query-plan node, design a connection pool.\n\n- System design (1 round): database-platform prompts. \"Design the Vitess-based sharding layer handling 1M QPS across thousands of customers.\" \"Design online schema change for a multi-TB table with zero downtime.\" \"Design query caching (PlanetScale Boost) with automatic cache invalidation.\"\n\n- Database / systems deep-dive (1 round): MySQL internals (InnoDB, replication, binlog), Vitess architecture (vtgate, vttablet, topology service), sharding schemes (range-based, hash-based, keyspace-based), online DDL, query routing. Genuinely demanding for core-platform candidates.\n\n- Behavioral / hiring manager: past projects, customer empathy, distributed-team effectiveness.\n\nTechnical Focus Areas\n\nCoding: Go idioms (context propagation, channels, error handling, testing discipline), TypeScript for web / dashboard work. Clean code with production-grade error handling.\n\nMySQL internals: InnoDB storage engine (B-tree organization, undo log, redo log, buffer pool), replication (binary log, GTID, semi-sync), query optimizer (join ordering, index selection, optimizer hints), transaction isolation levels.\n\nVitess architecture: vtgate (query routing / aggregation layer), vttablet (per-shard tablet manager), topology service (etcd / Consul / ZK for coordination), vtadmin, cluster management. The original Vitess papers and talks from YouTube-era are foundational reading.\n\nSharding: sharding-key selection, resharding operations (online chunk migration), cross-shard query handling (aggregation, limits), distributed transactions (Vitess supports 2PC for cross-shard), hot-spot handling.\n\nOnline schema change: Vitess's VReplication for online DDL is distinctive &mdash; allows adding / modifying columns on huge tables with zero blocking. Understanding the mechanism (shadow table, copy phase, cutover) matters.\n\nMulti-cloud orchestration: PlanetScale runs across AWS / GCP / Azure with customer-visible cloud choice. Managing production databases across clouds, network architecture, cost optimization, and cloud-specific reliability considerations.\n\nBoost (query caching): automatic query-result caching layer with cache invalidation tied to write events. Understanding the architecture (cache storage, invalidation propagation, consistency trade-offs) matters for related teams.\n\nAI / Insights: PlanetScale Insights provides query performance analysis and recommendations. For data-adjacent roles, unde"
+}

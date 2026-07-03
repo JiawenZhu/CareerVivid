@@ -1,0 +1,27 @@
+{
+  "company": "Faire",
+  "slug": "faire-interview-guide",
+  "url": "https://www.techinterview.org/companies/faire-interview-guide",
+  "scrapedAt": "2026-07-02T07:22:29.120Z",
+  "interviewStages": [
+    "Behavioral: customer focus, working with two-sided marketplace dynamics"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Faire remote-friendly?",
+      "How does Faire compare to Shopify's Handshake?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Faire Interview Guide (2026): Wholesale Marketplace Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nFaire\nfaire.com ↗\n\nFaire is the dominant online wholesale marketplace — connects independent retailers with brands, processing billions in GMV. The interview emphasizes marketplace dynamics, search relevance, payment risk, and supply-chain integrations.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a marketplace search ranking system for highly variable inventory\n\n- Design a payment terms system (net-60 with credit risk modeling)\n\n- Design a recommendation engine for \"what other retailers like you bought\"\n\n- Coding: medium DSA, often with marketplace or graph framing\n\n- Behavioral: customer focus, working with two-sided marketplace dynamics\n\nLevels and comp (2026)\n\n- SE II: $170K–$210K total\n\n- Senior SE: $250K–$330K\n\n- Staff: $360K–$470K\n\n- Principal: $490K–$640K\n\nPrep priorities\n\n- Be fluent in TypeScript/Node.js (frontend + backend) or Python (ML)\n\n- Understand marketplace dynamics, GMV, take-rate, retention\n\n- Brush up on credit risk modeling and underwriting\n\nFrequently Asked Questions\n\nIs Faire remote-friendly?\n\nDistributed across San Francisco, NYC, Toronto, Kitchener-Waterloo. Most engineering roles fully remote within US/Canada.\n\nHow does Faire compare to Shopify's Handshake?\n\nFaire is the standalone leader. Shopify Handshake is a smaller offering. Faire pays competitively with later-stage startups.\n\nWhat is the engineering culture?\n\nPragmatic, customer-driven, fast-moving. Strong product-engineering partnership.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Faire? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextChaos Engineering Platform Low-Level Design: Fault Injection, Blast Radius Control, and Steady-State Hypothesis⏱ 6 min readLow Level Design: Paxos vs Raft Consensus Algorithms⏱ 3 min readLow Level Design: File System Design and Internals⏱ 4 min read"
+}

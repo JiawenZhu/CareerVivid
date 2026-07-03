@@ -1,0 +1,72 @@
+{
+  "company": "ServiceNow",
+  "slug": "servicenow",
+  "url": "https://www.techinterview.org/companies/servicenow",
+  "scrapedAt": "2026-07-02T07:13:11.426Z",
+  "interviewStages": [
+    "System design (1 round): enterprise multi-tenant prompts. \"Design the workflow engine that executes millions of workflows per day across 8K customer tenants.\" \"Design the permissions model for a CMDB with 100M configuration items and complex role hierarchies.\" \"Design the audit logging system for SOC 2 compliance across all platform events.\"",
+    "Hiring manager / behavioral (1&ndash;2 rounds): past projects, ownership, customer focus, comfort with enterprise software timelines. ServiceNow values candidates who understand that enterprise customers need predictability, not just velocity."
+  ],
+  "codingTopics": [
+    "OO design: model a workflow / approval system with clean class hierarchy, extensibility, and tests",
+    "Implement a small rules engine or DSL evaluator with specific semantics",
+    "Extend an existing Java class hierarchy with new functionality, respecting existing patterns",
+    "Build a permissions-check system with role hierarchies and inheritance",
+    "Parse and transform structured data (XML, JSON config, CSV) into a domain model",
+    "Classic algorithm problems (trees, graphs, tries) with practical application twists"
+  ],
+  "systemDesignTopics": [
+    "\"Design the workflow execution engine that runs 100M workflows per day across 8K tenants.\"",
+    "\"Design the CMDB schema and query layer supporting 100M configuration items with complex relationships.\"",
+    "\"Design the incident-ticket subscription system with real-time updates for 500K agents.\"",
+    "\"Design the audit logging pipeline meeting SOC 2, FedRAMP, and customer-specific compliance requirements.\""
+  ],
+  "behavioralTopics": [
+    "Customer focus: \"Describe a time you deeply understood a customer problem. How did that change what you built?\"",
+    "Ownership: \"Tell me about a production incident you led from detection through postmortem.\"",
+    "Teamwork: \"Describe a cross-functional project you contributed to. What was hard and how did you make it work?\"",
+    "Predictability: \"How do you balance shipping fast vs shipping reliably? Give a specific example.\"",
+    "Scaling impact: \"How have you made others more effective? Mentorship, tooling, process?\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need Now Platform experience to get hired?",
+      "How does ServiceNow compare to Salesforce on interviews?",
+      "Is remote work supported?",
+      "What's happening with Now Assist and the AI product line?",
+      "How is the stock compensation picture?"
+    ]
+  },
+  "difficulty": 7,
+  "tips": [
+    "Understand the Now Platform conceptually. Read the developer documentation overview. You don't need to have built apps on it, but you should understand the metadata-driven philosophy.",
+    "Write modern Java. Records, sealed classes, text blocks, streams, var. Current idiom shows currency.",
+    "Engage with multi-tenancy explicitly. In system design, name tenant isolation and data residency as first-class constraints.",
+    "Show customer empathy. Behavioral answers that demonstrate understanding of user impact differentiate you.",
+    "Know about Now Assist / Pro+. AI is the fastest-growing area; engagement with it signals relevance.",
+    "ServiceNow developer documentation overview (the Now Platform architecture and developer guides)",
+    "Effective Java (3rd edition) by Joshua Bloch",
+    "Designing Data-Intensive Applications (Kleppmann) for multi-tenant architecture background",
+    "The ServiceNow engineering blog for recent architecture posts",
+    "Release notes for the most recent named release (Xanadu, Yokohama, Zurich) to understand product pace",
+    "LeetCode's OO design section for low-level design practice"
+  ],
+  "compensation": [
+    "IC3 / Software Engineer: $155k&ndash;$195k base, $60k&ndash;$110k equity/yr, 12&ndash;15% bonus. Total: ~$235k&ndash;$350k / year.",
+    "IC4 / Senior Software Engineer: $200k&ndash;$250k base, $110k&ndash;$210k equity/yr. Total: ~$330k&ndash;$500k / year.",
+    "IC5 / Staff / Principal: $260k&ndash;$320k base, $200k&ndash;$380k equity/yr. Total: ~$490k&ndash;$720k / year.",
+    "The Now Platform is more sophisticated than people assume &mdash; metadata-driven architecture at significant scale is a genuine engineering challenge.",
+    "Customer-success emphasis is real. Behavioral answers that lack customer context land less well than at product-focused companies.",
+    "The AI product line is growing rapidly and has more ambitious engineering and compensation than the core platform teams.",
+    "Release discipline matters. If your stories are all \"we shipped and fixed it in prod,\" that signals bad fit.",
+    "Ignoring multi-tenancy in system design. ServiceNow's fundamental constraint is serving 8K enterprise tenants simultaneously.",
+    "Dated Java style. Writing 2010-style Java signals you haven't kept up.",
+    "Lack of customer context in behavioral answers. Enterprise engineering requires understanding who uses the product.",
+    "Dismissing enterprise software as \"boring.\" ServiceNow engineers take genuine pride in the domain; signaling dismissal kills loops."
+  ],
+  "rawSummary": "ServiceNow Interview Guide 2026: Now Platform, Multi-Tenant Enterprise, and Now Assist AI\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 23, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 23, 2026 · techinterview.org\n\n⏱ 9 min read\n\nServiceNow\nservicenow.com ↗\n\nServiceNow Interview Process: Complete 2026 Guide\n\nOverview\n\nServiceNow is the enterprise workflow and platform company behind the Now Platform, IT Service Management (ITSM), IT Operations Management, HR Service Delivery, Customer Service Management, and a rapidly growing AI product line (Now Assist, Pro+, Agent). Founded 2004, public since 2012, ~25,000 employees in 2026 &mdash; making it one of the largest pure-play enterprise SaaS employers. The product sits at the deep center of Fortune-500 operations, touching billions of workflow records per day across thousands of tenants. Headquartered in Santa Clara with major engineering hubs in San Diego, Kirkland (WA), Hyderabad, Dublin, and Amsterdam. Interviews reflect the enterprise reality: rigorous on correctness, multi-tenancy, and scale; practical rather than theoretical; heavier on Java and platform-engineering depth than on algorithmic puzzles.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why ServiceNow, preference between Now Platform, application teams (ITSM, HR, CSM), AI (Now Assist), or platform infrastructure. Screens also probe comfort with enterprise software culture &mdash; the pace, the customer focus, and the multi-tenant operational model.\n\nTechnical phone screen (60 min): one coding problem, medium difficulty. Languages: Java dominates &mdash; the Now Platform is Java at its core. JavaScript appears for client-side scripting (on the platform itself). Python accepted for data and ML roles. Problems tend to be object-oriented: model a domain, extend a class hierarchy, implement a small engine.\n\nTake-home (some senior / staff roles): 4&ndash;6 hour project focused on a realistic platform problem &mdash; implement a small rules engine, design a workflow state machine, extend an existing data model.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one OO / applied round. The applied round often asks you to build a small rules or workflow engine, implement a permissions-check system, or model a configuration-driven feature.\n\n- System design (1 round): enterprise multi-tenant prompts. \"Design the workflow engine that executes millions of workflows per day across 8K customer tenants.\" \"Design the permissions model for a CMDB with 100M configuration items and complex role hierarchies.\" \"Design the audit logging system for SOC 2 compliance across all platform events.\"\n\n- Role-specific deep-dive: Java / JVM depth for backend; frontend architecture for platform UI; AI / RAG / prompt engineering for Now Assist roles; Kubernetes / service mesh for infrastructure.\n\n- Hiring manager / behavioral (1&ndash;2 rounds): past projects, ownership, customer focus, comfort with enterprise software timelines. ServiceNow values candidates who understand that enterprise customers need predictability, not just velocity.\n\n- Leadership principles / values (senior roles): standard leadership-behavioral questions tied to ServiceNow's operating principles (Customer Success, Teamwork, Stay Hungry Humble Helpful, etc.).\n\nTechnical Focus Areas\n\nCoding: Java fluency (Java 17+ features: records, sealed classes, pattern matching, text blocks, streams, Optional), object-oriented design, Spring Boot patterns, collections depth, testing with JUnit 5 / Mockito.\n\nPlatform architecture: multi-tenant isolation patterns (schema-per-tenant vs shared schema), permissions and ACL models, configuration-driven applications (metadata-defined features), versioned APIs, upgrade patterns.\n\nWorkflow engines: state machines for business processes, approval chains, escalation policies, SLA management, conditional branching, rollback semantics.\n\nDatabase: MariaDB / MySQL at large tenant scale, indexing strategies, query optimization, partitioning for multi-tenant isolation, ACID vs performance tradeoffs. ServiceNow has a proprietary MariaDB-based architecture; knowledge of RDBMS internals matters.\n\nPlatform internals: the Now Platform is a metadata-driven framework (Glide, GlideRecord, Business Rules, UI Policies). Candidates interviewing for platform-engineering roles should understand the design principles, even if they haven't used it in production.\n\nAI / Now Assist: LLM integration patterns, retrieval over enterprise knowledge bases, prompt engineering for structured outputs, evaluation in enterprise contexts, agent orchestration. For roles on the Now Assist team or Pro+ AI product line.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is medium. Comparable to Atlassian or Oracle &mdash; below Google L5 on pure algorithms but with higher OO design and enterprise multi-tenancy expectations. Java is preferred; using a modern Java style (17+) signals cur"
+}

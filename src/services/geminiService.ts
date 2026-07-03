@@ -672,7 +672,20 @@ export const generalChat = async (userId: string, history: { role: 'user' | 'mod
 
 export const generateInterviewQuestions = async (userId: string, prompt: string): Promise<string[]> => {
     try {
-        const fullPrompt = `Based on the following description, generate a list of 5-7 insightful interview questions...`;
+        const fullPrompt = `You are a senior interviewer designing the question set for a real interview. Use the context below to write questions that a candidate would actually be asked in this specific interview.
+
+--- INTERVIEW CONTEXT ---
+${prompt.trim()}
+--- END CONTEXT ---
+
+Write 5 to 7 interview questions that:
+- Are specific to the role, seniority, company, and interview stage described in the context. If the context names a company or a stage (e.g. coding, system design, behavioral, values), tailor every question to it.
+- Match the stated difficulty. Entry-level gets fundamentals; senior gets depth, trade-offs, and scale.
+- Are a realistic mix for this stage, not five variations of the same question. Include at least one that probes depth with a follow-up built in ("...and how would you handle X?").
+- Are answerable out loud in an interview — concrete and self-contained, not essay prompts or take-home tasks.
+- Reference the candidate's background from the context when it is provided, to make questions feel targeted.
+
+Do not number the questions or add preamble. Return ONLY a JSON array of question strings.`;
         const result = await callGeminiProxy({
             modelName: DEFAULT_TEXT_MODEL,
             contents: fullPrompt,
@@ -685,7 +698,8 @@ export const generateInterviewQuestions = async (userId: string, prompt: string)
         const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
         await trackUsage(userId, 'question_generation', { tokenUsage });
 
-        return JSON.parse(result.text.trim()) as string[];
+        const parsed = JSON.parse(result.text.trim()) as string[];
+        return Array.isArray(parsed) ? parsed.map(q => String(q).trim()).filter(Boolean) : [];
     } catch (error) {
         console.error("Error generating interview questions:", error);
         reportError(error as Error, { functionName: 'generateInterviewQuestions' });
@@ -717,14 +731,36 @@ export const analyzeInterviewTranscript = async (userId: string, transcript: Tra
     try {
         const formattedTranscript = transcript.map(entry => `${entry.speaker === 'ai' ? 'Interviewer' : 'Candidate'}: ${entry.text}`).join('\n\n');
 
-        const fullPrompt = `You are an expert interview coach. Your task is to analyze the following interview transcript and provide a structured, objective, and constructive feedback report in JSON format. The interview was for the role described as: '${prompt}'.
-...
+        const fullPrompt = `You are an experienced interviewer writing an honest, calibrated feedback report after an interview. Judge the CANDIDATE only — the Interviewer lines are the questions asked. Base every judgment on what the candidate actually said in the transcript; never invent strengths or answers that are not there.
+
+Role / interview context:
+${prompt}
+
+Scoring rubric — all scores are 0 to 100. Calibrate honestly against a real hiring bar, do not inflate:
+- 85-100: strong hire — specific, structured, correct, with depth.
+- 70-84: hire — solid answers with minor gaps.
+- 50-69: mixed — partially answered, vague, or shallow in places.
+- 30-49: weak — mostly vague, off-target, or missing key substance.
+- 0-29: no signal — barely answered, evasive, or empty transcript.
+
+Score each dimension:
+- overallScore: your holistic hire/no-hire read, weighted toward relevance and substance.
+- communicationScore: structure, clarity, and concision. Did they organize answers (e.g. STAR) and stay easy to follow?
+- confidenceScore: composure and conviction WITHOUT arrogance. Hedging, rambling, or "I don't know" with no attempt lowers this.
+- relevanceScore: did answers actually address the questions and the role, with concrete detail (metrics, examples, specifics) rather than generic filler?
+
+If the transcript is empty or the candidate barely responded, score everything below 30 and say so plainly.
+
+Feedback rules:
+- strengths: 2-4 markdown bullets, each citing something specific the candidate actually said or did well. No generic praise.
+- areasForImprovement: 2-4 markdown bullets, each an actionable fix tied to a concrete moment ("When asked about X, you said Y — instead, quantify the impact and name the trade-off"). Be direct and useful, not soft.
+
 **Transcript:**
 ---
 ${formattedTranscript}
 ---
-...
-Your entire response MUST be a valid JSON object that conforms to the provided schema.`;
+
+Return ONLY a valid JSON object conforming to the schema.`;
 
         const config = {
             responseMimeType: "application/json",
@@ -762,6 +798,79 @@ Your entire response MUST be a valid JSON object that conforms to the provided s
         console.error("Error analyzing transcript:", error);
         reportError(error as Error, { functionName: 'analyzeInterviewTranscript' });
         throw new Error("Failed to analyze interview transcript.");
+    }
+};
+
+/**
+ * Scores a system design diagram (exported as a PNG data URL) against a design
+ * brief. Returns the same shape as analyzeInterviewTranscript so it plugs into
+ * the interview report + quest scoring. The four score fields carry
+ * system-design semantics: communicationScore = diagram clarity,
+ * confidenceScore = requirement coverage, relevanceScore = scalability & trade-offs.
+ */
+export const analyzeSystemDesignDiagram = async (
+    userId: string,
+    imageDataUrl: string,
+    brief: string,
+): Promise<Omit<InterviewAnalysis, 'id' | 'timestamp' | 'transcript'>> => {
+    try {
+        const base64Data = imageDataUrl.includes(',') ? imageDataUrl.split(',')[1] : imageDataUrl;
+        const mimeType = imageDataUrl.startsWith('data:image/jpeg') ? 'image/jpeg' : 'image/png';
+
+        const instruction = `You are a senior staff engineer conducting a system design interview. The candidate was given this brief:
+
+---
+${brief}
+---
+
+The attached image is the candidate's hand-drawn system design diagram (whiteboard). Evaluate it as you would in a real onsite. Judge only what is actually shown in the diagram plus any labels. Be objective and constructive.
+
+Scoring (all 0-100):
+- overallScore: weighted overall quality of the design.
+- communicationScore: clarity and readability of the diagram — are components labeled, is data flow clear, is it organized?
+- confidenceScore: requirement coverage — does the design address the core requirements in the brief (key components, data stores, APIs)?
+- relevanceScore: scalability and trade-offs — does it handle scale, bottlenecks, failure modes, and show sensible engineering trade-offs?
+
+If the diagram is empty or unreadable, score everything low (under 30) and say so.
+
+strengths: markdown bullets on what the design does well.
+areasForImprovement: markdown bullets with specific, actionable gaps (missing components, scaling concerns, unclear flows).
+
+Return ONLY a JSON object matching the schema.`;
+
+        const contents = {
+            parts: [
+                { text: instruction },
+                { inlineData: { mimeType, data: base64Data } },
+            ],
+        };
+
+        const config = {
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: "OBJECT",
+                properties: {
+                    overallScore: { type: "NUMBER", description: "Weighted overall design quality, 0 to 100." },
+                    communicationScore: { type: "NUMBER", description: "Diagram clarity and readability, 0 to 100." },
+                    confidenceScore: { type: "NUMBER", description: "Requirement coverage, 0 to 100." },
+                    relevanceScore: { type: "NUMBER", description: "Scalability and trade-offs, 0 to 100." },
+                    strengths: { type: "STRING", description: "Markdown bullets on design strengths." },
+                    areasForImprovement: { type: "STRING", description: "Markdown bullets on actionable gaps." },
+                },
+                required: ['overallScore', 'communicationScore', 'confidenceScore', 'relevanceScore', 'strengths', 'areasForImprovement'],
+            },
+        };
+
+        const result = await callGeminiProxy({ modelName: DEFAULT_TEXT_MODEL, contents, config });
+
+        const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
+        await trackUsage(userId, 'interview_analysis', { tokenUsage });
+
+        return JSON.parse(result.text.trim());
+    } catch (error) {
+        console.error("Error analyzing system design diagram:", error);
+        reportError(error as Error, { functionName: 'analyzeSystemDesignDiagram' });
+        throw new Error("Failed to analyze system design diagram.");
     }
 };
 

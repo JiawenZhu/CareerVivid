@@ -1,0 +1,76 @@
+{
+  "company": "HubSpot",
+  "slug": "hubspot",
+  "url": "https://www.techinterview.org/companies/hubspot",
+  "scrapedAt": "2026-07-02T07:23:25.807Z",
+  "interviewStages": [
+    "System design (1 round): multi-tenant SaaS prompts. \"Design the workflow engine that runs 10M automation events per day across 250K tenants.\" \"Design the email-send pipeline with deliverability guarantees and per-tenant rate limits.\" \"Design the CRM search layer supporting complex filters on 10M records per tenant.\"",
+    "Hiring manager (1 round): past projects, team fit, career trajectory, specific role alignment.",
+    "Behavioral (1 round): STAR stories with a bias toward transparency, ownership, and constructive conflict."
+  ],
+  "codingTopics": [
+    "OO design: model a CRM-style domain (workflow with triggers / actions / conditions, contact list with custom fields, sequence of emails with A/B variants)",
+    "Implement a rate limiter, retry client, or event aggregator with specific semantics",
+    "Extend an existing codebase: add a feature to a small service, respect existing patterns, write tests",
+    "Graph / tree problems with a practical twist (contact deduplication via fuzzy clustering, workflow DAG evaluation, dependency resolution)",
+    "Streaming problems (compute rolling engagement scores from an event stream)"
+  ],
+  "systemDesignTopics": [
+    "\"Design the workflow / automation engine evaluating 10M events/day across 250K tenants.\"",
+    "\"Design the transactional email pipeline with deliverability tracking and per-tenant throttling.\"",
+    "\"Design the CRM search supporting complex filter queries (AND/OR on custom properties) against 10M records per tenant.\"",
+    "\"Design the real-time engagement scoring pipeline feeding Breeze AI recommendations.\"",
+    "How you handle disagreement with a teammate (transparency, empathy)",
+    "How you deliver feedback and receive it",
+    "How you balance individual achievement with team outcomes",
+    "How you think about growing yourself and others",
+    "How you handle ambiguity and change"
+  ],
+  "behavioralTopics": [
+    "Transparency: \"Tell me about a time you shared a mistake or difficult situation openly with stakeholders.\"",
+    "Ownership: \"Describe a project you led from concept to ship.\"",
+    "Growth mindset: \"Tell me about a time you changed your mind on something significant.\"",
+    "Customer focus: \"Describe a time you advocated for a user / customer even when it slowed a project.\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need to have read the Culture Code deck?",
+      "Is Scala really used or is it legacy code?",
+      "How does HubSpot compare to Salesforce on interviews?",
+      "Is remote work supported?",
+      "What's the Breeze AI career opportunity like?"
+    ]
+  },
+  "difficulty": 6.5,
+  "tips": [
+    "Read the Culture Code deck. Not as a checklist &mdash; to see whether the values resonate with how you actually work.",
+    "Use HubSpot CRM. The free tier is substantial. Build a workflow, try sequences, test an email campaign. Form opinions.",
+    "Engage with multi-tenancy. In every system design answer, name tenant isolation, noisy-neighbor mitigation, and data residency as first-class constraints.",
+    "Write modern JVM code. Records, sealed classes, text blocks, data classes, when statements. Current idiom matters.",
+    "Know about Breeze AI. If AI roles interest you, try the Breeze features and have opinions.",
+    "The HubSpot Culture Code deck (public on the HubSpot website)",
+    "HubSpot engineering blog (platform architecture, multi-tenant scaling, Breeze AI)",
+    "Effective Java (3rd edition) by Joshua Bloch",
+    "Kotlin in Action or Programming in Scala for the relevant language",
+    "Designing Data-Intensive Applications (Kleppmann)",
+    "LeetCode's OO design / low-level design section"
+  ],
+  "compensation": [
+    "Software Engineer II: $150k&ndash;$190k base, $60k&ndash;$110k equity/yr, 10% bonus. Total: ~$225k&ndash;$330k / year.",
+    "Senior Software Engineer: $195k&ndash;$245k base, $110k&ndash;$200k equity/yr. Total: ~$320k&ndash;$480k / year.",
+    "Principal Engineer: $260k&ndash;$315k base, $200k&ndash;$370k equity/yr. Total: ~$480k&ndash;$700k / year.",
+    "The Culture Code is real. Interviewers reference it by name.",
+    "Multi-tenancy is the organizing constraint of the entire platform; engaging with it in system design is non-negotiable.",
+    "Scala is still used meaningfully in data-engineering contexts; not legacy-only.",
+    "Breeze AI is a central product bet in 2026 with dedicated leadership and fast-growing engineering.",
+    "Not having read the Culture Code before interviewing. Interviewers notice quickly.",
+    "Ignoring multi-tenancy in system design rounds.",
+    "Dated Java style (mutable everything, no Optional / streams).",
+    "Dismissive attitudes toward \"marketing software\" &mdash; HubSpot engineers take genuine pride in the domain and customer impact."
+  ],
+  "rawSummary": "HubSpot Interview Guide 2026: Customer Platform, Java/Kotlin, Multi-Tenant SaaS, and Breeze AI\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 23, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 23, 2026 · techinterview.org\n\n⏱ 8 min read\n\nHubSpot\nhubspot.com ↗\n\nHubSpot Interview Process: Complete 2026 Guide\n\nOverview\n\nHubSpot is the customer platform company that started as an inbound-marketing SaaS and has expanded into a full CRM suite covering Marketing Hub, Sales Hub, Service Hub, CMS Hub, Operations Hub, Commerce Hub, and the Breeze AI product line introduced in 2024. Founded 2006 in Cambridge, MA, public since 2014, ~9,000 employees in 2026. The company has deep engineering presence in Cambridge, Dublin, and Singapore, with remote hiring expanding across North America and Europe. The product runs as a multi-tenant SaaS serving ~250K customers; engineering reflects that reality with Java and Scala dominating the backend, TypeScript on the frontend, and Python heavy on data and ML. The culture is famously documented in the Culture Code deck (public since 2013), and candidates who've read it visibly have an edge.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why HubSpot, team interest. They triage early among Breeze AI / data science, backend platform, product (Marketing / Sales / Service), frontend, infrastructure, and SRE. HubSpot also screens for culture fit explicitly &mdash; the Culture Code values (HEART: Humble, Empathetic, Adaptable, Remarkable, Transparent) come up across subsequent rounds.\n\nTechnical phone screen (60 min): one coding problem, medium difficulty. Java / Kotlin and Scala dominate the backend; TypeScript for frontend; Python for data / ML. Problems lean applied &mdash; implement a small workflow engine, extend a rate-limited API client, process a structured event stream.\n\nTake-home (some senior / staff roles): 4&ndash;6 hour focused project. Historically involves a realistic application problem or a small extensible system. Write-up quality and test coverage carry weight.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied OO design round. The OO round often asks you to model a CRM-like domain &mdash; model a workflow with triggers and actions, design a contact-deduplication system, build a permission model for a team-oriented app.\n\n- System design (1 round): multi-tenant SaaS prompts. \"Design the workflow engine that runs 10M automation events per day across 250K tenants.\" \"Design the email-send pipeline with deliverability guarantees and per-tenant rate limits.\" \"Design the CRM search layer supporting complex filters on 10M records per tenant.\"\n\n- Engineering culture / values round (1 round): distinctive to HubSpot. Not a pure behavioral round &mdash; more of a conversation about how you operate, how you collaborate, how you think about users and teammates. Comes back to HEART values explicitly.\n\n- Hiring manager (1 round): past projects, team fit, career trajectory, specific role alignment.\n\n- Behavioral (1 round): STAR stories with a bias toward transparency, ownership, and constructive conflict.\n\nTechnical Focus Areas\n\nCoding: Java / Kotlin / Scala fluency (streams, collections, sealed types, functional patterns where idiomatic), OO design with real class hierarchies, testing with JUnit / Kotest / ScalaTest, idempotency patterns.\n\nSystem design: multi-tenant isolation (HubSpot operates at 250K+ tenants; tenant-level considerations are central), workflow engines with triggers and actions, event-driven architectures (Kafka is used heavily), email deliverability infrastructure, search at scale (Elasticsearch / custom), GraphQL federation for the platform API.\n\nData & ML: feature stores for engagement scoring, lead-scoring models, content-personalization pipelines, Breeze AI agents for marketing / sales / service workflows, RAG over customer content.\n\nFrontend: React / TypeScript at scale, the UIKit design system, performance with large CRM record tables, real-time updates, accessibility. HubSpot cares about a polished product surface.\n\nEmail systems: deliverability, authentication (SPF, DKIM, DMARC), bounce / complaint handling, reputation management, A/B testing email content, rate limiting to prevent tenant-level abuse.\n\nBreeze AI: agent orchestration for marketing / sales workflows, RAG over HubSpot CRM data, evaluation in enterprise contexts, prompt safety with customer PII.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is medium. Comparable to Atlassian or Shopify &mdash; below Google L5 on pure algorithms, higher on OO design and practical correctness. Modern Java, Kotlin, or Scala expected; writing idiomatic code matters.\n\nTypical problem shapes:\n\n- OO design: model a CRM-style domain (workflow with triggers / actions / conditions, contact list with custom fields, sequence of emails with A/B variants)\n\n- Implement a rate limiter, retry client, or event aggregator with speci"
+}

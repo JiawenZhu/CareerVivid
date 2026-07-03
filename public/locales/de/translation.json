@@ -500,6 +500,362 @@
         "resume_prep": "Resume und interview prep zusammen",
         "chrome_extension": "Chrome Extension workflow"
       }
+    },
+    "public": {
+      "fast_start": {
+        "eyebrow": "Beginnen Sie mit dem, was Sie schon haben",
+        "title": "Laden Sie einen Lebenslauf hoch, fügen Sie Inhalte ein oder speichern Sie eine Stelle. CareerVivid macht daraus einen Bewerbungsarbeitsbereich.",
+        "copy": "Der schnellste Weg ist konkret: Starten Sie mit Ihrem vorhandenen Lebenslauf oder speichern Sie zuerst die Stelle und passen Sie alles aus diesem Kontext an.",
+        "actions": {
+          "upload": {
+            "title": "Lebenslauf hochladen",
+            "copy": "Starten Sie mit PDF oder DOCX und machen Sie daraus bearbeitbare Lebenslaufabschnitte.",
+            "action": "Lebenslauf hochladen"
+          },
+          "paste": {
+            "title": "Lebenslauftext einfügen",
+            "copy": "Fügen Sie vorhandenen Text ein und CareerVivid strukturiert ihn für die Anpassung.",
+            "action": "Lebenslauf einfügen"
+          },
+          "chrome": {
+            "title": "Stelle aus Chrome speichern",
+            "copy": "Erfassen Sie Rolle, Unternehmen, Bewerbungslink und Vorbereitungskontext im Browser.",
+            "action": "Erweiterung installieren"
+          }
+        }
+      },
+      "product_index": {
+        "job_tracker": "Job-Tracker",
+        "resume_builder": "KI-Lebenslauf-Builder",
+        "ats_checker": "ATS-Prüfung",
+        "resume_tailor": "Lebenslauf anpassen",
+        "autofill": "Bewerbungen automatisch ausfüllen",
+        "resume_match": "Lebenslauf-Abgleich",
+        "interview_coach": "Interview-Coach",
+        "career_pipeline": "Karriere-Pipeline"
+      },
+      "platform": {
+        "eyebrow": "Apps und Erweiterung",
+        "title": "Nutzen Sie CareerVivid dort, wo Sie sich bewerben.",
+        "copy": "Starten Sie heute mit der Chrome-Erweiterung. iOS- und Android-Apps folgen bald, damit derselbe Bewerbungsarbeitsbereich vom Desktop auf mobile Geräte mitkommt.",
+        "cards": {
+          "chrome": {
+            "label": "Jetzt verfügbar",
+            "title": "Chrome-Erweiterung",
+            "copy": "Speichern Sie Stellen von Jobseiten, behalten Sie den ursprünglichen Bewerbungslink und verbinden Sie Browserarbeit mit CareerVivid.",
+            "action": "Chrome-Erweiterung holen"
+          },
+          "ios": {
+            "label": "Demnächst",
+            "title": "iOS-App",
+            "copy": "Verwalten Sie Lebensläufe, Interviewvorbereitung und Job-Follow-ups auf dem iPhone, sobald die App bereit ist.",
+            "action": "iOS demnächst"
+          },
+          "android": {
+            "label": "Demnächst",
+            "title": "Android-App",
+            "copy": "CareerVivid für Android ist geplant, damit derselbe Arbeitsbereich auf jedem Gerät verfügbar ist.",
+            "action": "Android demnächst"
+          }
+        }
+      },
+      "demo": {
+        "eyebrow": "Product walkthrough",
+        "title": "See the Chrome-to-workspace flow in action.",
+        "copy": "Watch how CareerVivid keeps a saved job, resume tailoring, and interview prep connected in one application workspace.",
+        "window_label": "CareerVivid demo",
+        "steps": {
+          "capture": {
+            "label": "Capture",
+            "copy": "Save the role from Chrome."
+          },
+          "tailor": {
+            "label": "Tailor",
+            "copy": "Load the job into your resume."
+          },
+          "practice": {
+            "label": "Practice",
+            "copy": "Prepare from the same context."
+          }
+        }
+      },
+      "readiness": {
+        "eyebrow": "Resume readiness",
+        "title": "Show users what improves before they apply.",
+        "score": "score",
+        "side_eyebrow": "ATS checker + interview prep",
+        "side_title": "A resume score is useful only when it creates the next action.",
+        "side_copy": "CareerVivid should not stop at a score. It should show missing keywords, proof gaps, and the interview prompts that help the user explain their strongest work.",
+        "checks": {
+          "ats_keywords": {
+            "label": "ATS keywords",
+            "copy": "Keyword coverage from the target role"
+          },
+          "experience_proof": {
+            "label": "Experience proof",
+            "copy": "Specific projects and measurable outcomes"
+          },
+          "interview_readiness": {
+            "label": "Interview readiness",
+            "copy": "Practice prompts tied to the saved job"
+          }
+        },
+        "actions": {
+          "scan": {
+            "title": "Scan the role",
+            "copy": "Extract the skills, evidence, and language the job description rewards."
+          },
+          "rewrite": {
+            "title": "Rewrite with proof",
+            "copy": "Turn weak bullets into specific, measurable experience."
+          },
+          "practice": {
+            "title": "Practice the story",
+            "copy": "Use the same role context to rehearse interview answers."
+          }
+        }
+      },
+      "resume_examples": {
+        "eyebrow": "Resume examples and templates",
+        "title": "Give every job seeker a starting point that matches their story.",
+        "copy": "A strong resume tool should make the first draft feel less blank. CareerVivid pairs templates with job tracking, tailoring, and interview prep so each example leads to action.",
+        "preview_role": "Frontend Engineer",
+        "ats_ready": "ATS ready",
+        "preview_sections": {
+          "profile": "Profile",
+          "experience": "Experience",
+          "projects": "Projects",
+          "contact": "Contact",
+          "skills": "Skills",
+          "education": "Education"
+        },
+        "preview_badges": {
+          "clean_format": "Clean format",
+          "keyword_match": "Keyword match",
+          "export_ready": "Export ready"
+        },
+        "cards": {
+          "software_engineer": {
+            "title": "Software engineer resume",
+            "copy": "Show full-stack projects, system ownership, measurable impact, and interview-ready stories.",
+            "tags": [
+              "React",
+              "Node.js",
+              "Systems"
+            ]
+          },
+          "new_grad": {
+            "title": "New grad resume",
+            "copy": "Turn coursework, internships, hackathons, and campus work into credible proof.",
+            "tags": [
+              "Projects",
+              "Internships",
+              "Skills"
+            ]
+          },
+          "career_changer": {
+            "title": "Career changer resume",
+            "copy": "Connect transferable strengths to the target role without hiding the transition.",
+            "tags": [
+              "Story",
+              "Proof",
+              "Fit"
+            ]
+          },
+          "frontend_developer": {
+            "title": "Frontend developer resume",
+            "copy": "Highlight UI quality, accessibility, performance, and product collaboration.",
+            "tags": [
+              "UX",
+              "A11y",
+              "Performance"
+            ]
+          }
+        }
+      },
+      "user_stories": {
+        "eyebrow": "User stories",
+        "title": "Designed around the moments job seekers repeat.",
+        "copy": "These example story cards show the target user problems CareerVivid is built to solve while public customer reviews are still being collected.",
+        "summary_title": "Example job-seeker stories",
+        "summary_copy": "Illustrative personas, not fake reviews.",
+        "story_label": "Example story",
+        "cards": {
+          "maya": {
+            "role": "Career switcher",
+            "name": "Maya, product analyst",
+            "quote": "I need to know which applications deserve a tailored resume today, not just collect another list of jobs.",
+            "outcome": "Prioritized job cards with match gaps and next steps."
+          },
+          "alex": {
+            "role": "New grad",
+            "name": "Alex, new CS grad",
+            "quote": "I want a place where every role has notes, prep questions, and the original apply link before I forget why I saved it.",
+            "outcome": "Application context saved from the browser into one workspace."
+          },
+          "jordan": {
+            "role": "Busy applicant",
+            "name": "Jordan, full-stack engineer",
+            "quote": "I need a repeatable routine: find the job, tailor the resume, apply directly, then follow up.",
+            "outcome": "Tracker, resume tailoring, and interview prep connected."
+          }
+        }
+      },
+      "proof": {
+        "eyebrow": "Why it feels trustworthy",
+        "title": "A job-search workflow users can verify.",
+        "copy": "CareerVivid keeps direct job links, resume fit, prep notes, and a clear next step visible for every application.",
+        "cards": {
+          "direct_links": {
+            "title": "Direct apply links stay attached",
+            "copy": "Save the original company career page, application URL, source, and next action with the role instead of losing it in browser history."
+          },
+          "salary_context": {
+            "title": "Salary and level context ready",
+            "copy": "CareerVivid is designed to pair target roles with compensation and leveling context when approved partner data is available."
+          },
+          "application_packet": {
+            "title": "Application packet, not scattered tools",
+            "copy": "Resume match, tailored notes, interview prep, and follow-up history live with the job so users know what to do next."
+          }
+        }
+      },
+      "workflow": {
+        "eyebrow": "Application routine",
+        "title": "From hidden job link to prepared application.",
+        "action": "Open job tracker",
+        "steps": {
+          "capture": {
+            "title": "Find or capture the role",
+            "copy": "Save a job from the web, keep the direct application URL, and add company, location, deadline, notes, and status."
+          },
+          "fit": {
+            "title": "Understand the fit",
+            "copy": "Compare your resume against the role, review missing proof, and decide whether the job is worth tailoring."
+          },
+          "tailor": {
+            "title": "Tailor and apply",
+            "copy": "Create role-specific resume improvements, keep the application page attached, and move the job through the pipeline."
+          },
+          "prepare": {
+            "title": "Prepare for the next conversation",
+            "copy": "Generate interview prep, notes, and follow-up reminders from the exact role context you saved."
+          }
+        }
+      },
+      "teams_trust": {
+        "eyebrow": "Trust comes from clarity",
+        "title": "One workspace. Clear context for every application.",
+        "copy": "CareerVivid should feel like a reliable workbench, not a loud promise machine.",
+        "primary_action": "Start for free",
+        "secondary_action": "Talk to us",
+        "notes": {
+          "plain_claims": {
+            "title": "Plain claims",
+            "copy": "CareerVivid keeps trust tied to visible product workflows instead of exaggerated AI promises."
+          },
+          "private_workspace": {
+            "title": "Private workspace",
+            "copy": "Saved jobs, resumes, prep notes, and application context stay inside the user account and product workflow."
+          },
+          "repeated_use": {
+            "title": "Built for repeated use",
+            "copy": "The app is designed for the daily rhythm of searching, applying, following up, and improving materials."
+          }
+        },
+        "feature_cards": {
+          "career_center": {
+            "title": "Career center dashboard",
+            "copy": "Invite students, allocate credits, and monitor progress when CareerVivid is used by a cohort."
+          },
+          "application_context": {
+            "title": "Application context",
+            "copy": "Store role, company, location, links, dates, notes, and preparation in one place."
+          },
+          "gemini_assistance": {
+            "title": "Gemini-powered assistance",
+            "copy": "Generate focused prep and resume suggestions from the user saved context."
+          }
+        }
+      },
+      "pricing": {
+        "eyebrow": "Simple pricing",
+        "title": "Start free, then choose the AI help that matches your search.",
+        "copy": "Keep the entry point clear, then compare current plan details on the pricing page when advanced AI credits become useful.",
+        "popular": "Popular",
+        "plans": {
+          "free": {
+            "name": "Free",
+            "price": "$0",
+            "copy": "Start organizing jobs, resumes, and prep without a credit card.",
+            "points": [
+              "Basic workspace",
+              "Resume starter flow",
+              "Job tracker"
+            ],
+            "action": "Start free"
+          },
+          "pro": {
+            "name": "Pro",
+            "price": "AI credits",
+            "copy": "For active applicants who want deeper tailoring, practice, and Chrome-connected workflows.",
+            "points": [
+              "AI resume tailoring",
+              "Interview prep",
+              "Chrome workflow"
+            ],
+            "action": "See Pro"
+          },
+          "teams": {
+            "name": "Teams",
+            "price": "Custom",
+            "copy": "For schools, career centers, and cohorts supporting many job seekers.",
+            "points": [
+              "Student dashboards",
+              "Credit allocation",
+              "Progress tracking"
+            ],
+            "action": "Talk to us"
+          }
+        }
+      },
+      "faq": {
+        "eyebrow": "FAQ",
+        "title": "Questions before you start",
+        "items": {
+          "resume_builder": {
+            "question": "Is CareerVivid just a resume builder?",
+            "answer": "No. The resume builder is one part of the workspace. CareerVivid also includes a job tracker, resume matching, interview prep, application notes, and Chrome extension workflows."
+          },
+          "resume_check": {
+            "question": "Can CareerVivid check my resume against a job description?",
+            "answer": "Yes. CareerVivid is designed around job context: save or paste a role, compare your resume with that role, then improve keywords, proof, and interview stories from the same workspace."
+          },
+          "direct_applications": {
+            "question": "Can CareerVivid help with direct applications?",
+            "answer": "Yes. The workflow is built around saving the original job source and application link so users can apply directly and keep context attached to the role."
+          },
+          "chrome_extension": {
+            "question": "Does CareerVivid have a Chrome extension?",
+            "answer": "Yes. The Chrome extension helps save job postings, keep apply links attached, and connect browser application work back to CareerVivid."
+          },
+          "mobile_apps": {
+            "question": "Are iOS and Android apps available?",
+            "answer": "The web app and Chrome extension are available now. CareerVivid iOS and Android apps are planned and marked as coming soon."
+          },
+          "api_key": {
+            "question": "Do I need my own AI API key?",
+            "answer": "No for the hosted app. CareerVivid uses managed Gemini-powered features through the app. Developers who self-host can configure their own Firebase and Gemini setup."
+          }
+        }
+      },
+      "final_cta": {
+        "eyebrow": "Ready when your next application is",
+        "title": "Create one workspace for the whole search.",
+        "copy": "Build the resume, save the role, prepare the interview, and keep the next action visible.",
+        "primary_action": "Sign up free",
+        "secondary_action": "Contact support"
+      }
     }
   },
   "pricing": {

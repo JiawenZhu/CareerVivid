@@ -1,0 +1,27 @@
+{
+  "company": "Salesloft",
+  "slug": "salesloft-interview-guide",
+  "url": "https://www.techinterview.org/companies/salesloft-interview-guide",
+  "scrapedAt": "2026-07-02T07:26:09.095Z",
+  "interviewStages": [
+    "Behavioral: customer focus, ownership, working with sales domain"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Salesloft remote-friendly?",
+      "How does Salesloft compare to Outreach?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Salesloft Interview Guide (2026): Sales Engagement Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nSalesloft\nsalesloft.com ↗\n\nSalesloft is the close competitor to Outreach in sales engagement — used by 5000+ companies. The interview emphasizes email/call sequencing, CRM integration, and AI-augmented sales workflows.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design an email send pipeline with deliverability optimization\n\n- Design CRM bi-directional sync (Salesforce, HubSpot)\n\n- Design AI conversation intelligence on calls\n\n- Coding: medium DSA, often with workflow framing\n\n- Behavioral: customer focus, ownership, working with sales domain\n\nLevels and comp (2026)\n\n- SE II: $140K–$175K total\n\n- Senior SE: $205K–$270K\n\n- Staff: $295K–$385K\n\n- Principal: $410K–$540K\n\nPrep priorities\n\n- Be fluent in Ruby on Rails (the bulk of the codebase)\n\n- Understand email deliverability and CRM data models\n\n- Brush up on call analytics and ML for conversation insights\n\nFrequently Asked Questions\n\nIs Salesloft remote-friendly?\n\nHybrid in Atlanta (HQ), San Francisco. Many engineering roles fully remote within US.\n\nHow does Salesloft compare to Outreach?\n\nOutreach has slightly larger market share. Salesloft is closer in features. Comp is comparable.\n\nWhat is the engineering culture?\n\nMature SaaS, customer-driven, calm pace. Strong work-life balance.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Salesloft? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextCoding Interview: Complete Technical Interview Preparation Guide — Timeline, Resources, Strategies, Mindset⏱ 6 min readLow Level Design: Memory Allocator Design⏱ 3 min readGeofencing System Low-Level Design⏱ 5 min read"
+}

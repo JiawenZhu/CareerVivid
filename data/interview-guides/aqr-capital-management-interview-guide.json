@@ -1,0 +1,44 @@
+{
+  "company": "AQR Capital Management",
+  "slug": "aqr-capital-management-interview-guide",
+  "url": "https://www.techinterview.org/companies/aqr-capital-management-interview-guide",
+  "scrapedAt": "2026-07-02T07:16:34.005Z",
+  "interviewStages": [
+    "Probability / statistics (1–2 rounds for QR roles) — heavy on Bayesian reasoning, statistical inference, regression diagnostics",
+    "Coding (1–2 rounds) — Python primary; algorithms with practical engineering flavor",
+    "Research / portfolio discussion (1 round for QR roles) — discuss your thesis or recent project; defend methodology",
+    "Domain depth (1–2 rounds) — depends on role: factor research, ML systems, distributed systems, data infrastructure",
+    "Behavioral / cultural fit (1 round) — collaboration, intellectual humility, willingness to engage with challenging research feedback"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need a PhD to work at AQR?",
+      "How real is the academic culture vs marketing?",
+      "What's the relationship between Cliff Asness and AQR culture?",
+      "How did AQR perform during the Style Premia drawdown 2018–2020?",
+      "Is AQR a good place for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad quant researcher: $250k–$400k total comp first year (PhD; lower for Master's)",
+    "New-grad software / quant dev: $200k–$320k total comp first year",
+    "Mid-level (4–7 years): $400k–$800k",
+    "Senior (8+ years): $700k–$1.5M",
+    "Senior researcher / Principal: $1.2M–$3M+",
+    "The Greenwich, CT headquarters changes the lifestyle calculation — much more suburban than Manhattan-based peers, family-friendly, less \"Wall Street culture.\"",
+    "The performance volatility is real; AQR's strategies have multi-year drawdowns followed by recoveries. Comp tracks this somewhat.",
+    "The mutual fund business is more substantial than candidates expect; AQR has retail / advisor distribution rare among hedge funds.",
+    "Cliff Asness's voice and personality are still influential; the firm's intellectual culture reflects his perspectives.",
+    "The PhD ratio at QR roles is high; Master's-only candidates can succeed but face higher bar."
+  ],
+  "rawSummary": "AQR Capital Management Interview Guide 2026: Factor Investing, Asness Era, Greenwich Quant\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 29, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- AQR Capital Management Interview Guide 2026: Academic-Heritage Quant, Factor Investing, Alternative Risk Premia, and the Asness Era Continued\n\n- What AQR Does\n\n- Roles AQR Hires For\n\n- AQR Interview Process\n\n- What AQR Tests For\n\n- Compensation\n\n- Working at AQR\n\n- AQR vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\n- How Compensation Works at AQR and How to Read the Offer\n\nUpdated June 30, 2026 · techinterview.org\n\n⏱ 9 min read\n\nAQR Capital Management\naqr.com ↗\n\nAQR Capital Management Interview Guide 2026: Academic-Heritage Quant, Factor Investing, Alternative Risk Premia, and the Asness Era Continued\n\nAQR Capital Management is one of the largest quantitative investment managers globally and the most academically-heritage-rooted of the big quant funds. Founded in 1998 by Cliff Asness, David Kabiller, John Liew, and Robert Krail (all of whom met at Goldman Sachs Asset Management's quantitative research group, which itself emerged from the University of Chicago), AQR built its position on factor-investing research and systematic strategies. AUM has fluctuated substantially — peak around $226B in 2018, down to ~$80–90B in 2020, recovering to $108B+ by 2024–2026. The hiring process is rigorous and reflects the company's research-driven culture. This guide covers what AQR does, the engineering tracks, the interview process, and what makes AQR hiring distinctive in 2026.\n\nWhat AQR Does\n\nAQR operates across several investment strategy areas:\n\n- Equity factor strategies: long-short and long-only quantitative equity, exploiting value, momentum, quality, low-volatility, and other academic factors. The flagship strategies AQR built its reputation on.\n\n- Macro / managed futures: trend-following, global macro, and managed futures strategies. AQR's \"Style Premia\" funds offered systematic exposure to alternative risk premia — though these have had performance challenges 2018–2022 and recovery 2023–2025.\n\n- Fixed income / credit: systematic fixed income strategies, credit factor investing, sovereign debt models.\n\n- Multi-strategy alternatives: AQR Multi-Strategy combines several systematic strategies into a single fund.\n\n- Liquid alternatives / mutual funds: AQR offers retail-accessible mutual funds running quantitative strategies — a differentiator from most hedge funds. AQR's mutual fund business gives the firm broader retail/advisor distribution.\n\n- Research and publications: AQR publishes substantial academic-style research (white papers, journal articles, the AQR Insights series). The research output is part of the firm's brand and recruitment.\n\nDistinctive features:\n\n- Academic culture: AQR is more academically-driven than most peer hedge funds. Cliff Asness has a PhD from University of Chicago (Eugene Fama / Kenneth French era) and the firm's culture reflects that. Many senior researchers have PhDs and continue publishing in academic journals.\n\n- Factor investing roots: AQR is the most-publicly-associated firm with the academic factor-investing tradition. Strategies are documented, theoretically grounded, and explained to investors in research-paper format.\n\n- Performance volatility: Unlike multi-strategy pod shops, AQR's performance is highly correlated to the academic factors it bets on. Style Premia funds had multi-year drawdowns 2018–2020; recovery 2023–2025. The firm survives large drawdowns better than smaller funds because of mutual fund assets and institutional investor relationships.\n\n- Greenwich, CT headquarters: distinct from Manhattan-based peers; quieter, suburban, family-friendly culture.\n\nRoles AQR Hires For\n\nQuant researcher\n\nThe most prestigious track. Develops investment strategies, factor models, alpha signals. PhD-heavy (Economics, Statistics, Physics, Math, Computer Science) but does hire strong Master's candidates. Research output expected; publications welcome.\n\nQuant developer\n\nBuilds the systematic trading infrastructure — factor calculation, portfolio construction, optimization, execution, risk systems. Python primary; some C++ for performance-critical components. Bridge between research and production.\n\nSoftware engineer (platform / infrastructure)\n\nBuilds and maintains the broader engineering platform — data pipelines, research environments, reporting systems, internal tools. Java, Python, and Go heavy.\n\nData engineer\n\nPipeline engineering for the substantial alternative data investment AQR has made. Vendor data, alternative data, market data ingestion at scale.\n\nRisk / portfolio analyst\n\nPortfolio risk monitoring, stress testing, factor exposure analysis. Hybrid of quant and risk management.\n\nTrading / execution engineer\n\nSmart-order routing, execution algorithms, transaction cost analysis. Less prestigious than at HFT firms but still substantial work given AQR'"
+}

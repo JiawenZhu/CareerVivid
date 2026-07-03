@@ -1,0 +1,77 @@
+{
+  "company": "Plaid",
+  "slug": "plaid",
+  "url": "https://www.techinterview.org/companies/plaid",
+  "scrapedAt": "2026-07-02T07:18:20.965Z",
+  "interviewStages": [
+    "System design (1 round): fintech-flavored prompts. \"Design the infrastructure for pulling transactions from 15K banks.\" \"Design a system that detects and retries failed API calls to upstream banks without duplicating transactions.\" \"Design real-time balance checking with consistent results across 100K concurrent users.\" The interviewer pushes on idempotency, exactly-once semantics, and graceful degradation when upstream banks are slow or down.",
+    "Behavioral / hiring manager: past projects, handling regulatory / compliance constraints, working with ambiguous product requirements."
+  ],
+  "codingTopics": [
+    "Transaction processing with idempotency (given this stream of transactions, some duplicated, produce a correct aggregate)",
+    "Fuzzy matching (given two sets of account records, find likely matches across institutions)",
+    "State machine for a bank-connection flow (handle MFA, failed auth, expired token, institution-specific quirks)",
+    "Data transformation with incomplete records (fill in plausible values, flag ambiguous ones)",
+    "Rate limiter or circuit breaker implementation"
+  ],
+  "systemDesignTopics": [
+    "\"Design the transaction-pull pipeline for 15K banks with varying reliability.\"",
+    "\"Design a balance-check API with strong consistency guarantees across concurrent requests.\"",
+    "\"Design a data reconciliation system that detects when your stored state drifts from the upstream bank.\"",
+    "\"Design the payment-initiation infrastructure with exactly-once semantics.\"",
+    "\"Tell me about the reconciliation system you built.\" (2 min)",
+    "\"What was the consistency model?\" (5 min)",
+    "\"How did you handle late-arriving updates?\" (10 min)",
+    "\"What's an edge case that broke the first version?\" (10 min)",
+    "\"If you were rebuilding it today, what would you change?\" (15 min)"
+  ],
+  "behavioralTopics": [
+    "Ambiguity: \"Tell me about a project where the requirements kept changing. How did you manage it?\"",
+    "Ownership: \"Describe a production incident you owned end-to-end.\"",
+    "Compliance awareness: \"Have you worked in a regulated environment? How did compliance constraints affect your architecture choices?\"",
+    "Financial-inclusion values: \"Why do you want to work on financial infrastructure? What do you think is broken about how money moves today?\""
+  ],
+  "sampleQuestions": {
+    "coding": [
+      "Two coding rounds, 60 minutes each, medium difficulty &mdash; Plaid's bar is slightly below Google L5 on pure algorithms but higher on applied engineering and domain reasoning. Interviewers probe edge cases hard: What if the same transaction comes through twice? What if the bank returns inconsistent balances? What if the API call times out after sending but before receiving a response?"
+    ],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need fintech background to get hired?",
+      "How important is the project deep-dive?",
+      "Is Plaid's compensation competitive with FAANG?",
+      "How does Plaid compare to Stripe on interviews?",
+      "What's the IPO outlook?"
+    ]
+  },
+  "difficulty": 7.5,
+  "tips": [
+    "Know the fintech ecosystem. Understand the difference between ACH, wires, RTP, card networks, and the role of banks vs processors vs Plaid.",
+    "Use a Plaid-powered app. Connect Venmo or Robinhood to a bank account; notice what's smooth and what's clunky.",
+    "Prep for failure-mode questions. Every system design question will include \"what if X fails?\" &mdash; have answers ready.",
+    "Engage with the mission. Read about the US banking system's dysfunctions and have a point of view.",
+    "Demonstrate compliance awareness. Even if you haven't worked in fintech, mentioning PCI, SOC 2, or data-residency concerns signals maturity.",
+    "Plaid engineering blog (especially posts on reconciliation, data accuracy, and bank integrations)",
+    "Stripe engineering blog (idempotency, rate limiting, and payment-processing canonicals)",
+    "Designing Data-Intensive Applications (Kleppmann) for consistency model background",
+    "Building Secure and Reliable Systems (Google SRE book) for reliability engineering",
+    "The Plaid Sandbox for hands-on experience with a real financial API",
+    "LeetCode medium set with emphasis on strings, parsing, and state-machine problems"
+  ],
+  "compensation": [
+    "Software Engineer: $170k&ndash;$215k base, $120k&ndash;$220k equity (4 years), 10% bonus. Total: ~$260k&ndash;$400k / year.",
+    "Senior Software Engineer: $220k&ndash;$285k base, $250k&ndash;$500k equity. Total: ~$370k&ndash;$580k / year.",
+    "Staff Engineer: $285k&ndash;$355k base, $600k&ndash;$1M equity. Total: ~$530k&ndash;$850k / year.",
+    "The failure-mode mindset is real. If your system-design answers don't explicitly handle failures, you won't pass.",
+    "Domain knowledge of how banks actually work is valued. Candidates who've never thought about ACH, SWIFT, or card-network rails need to catch up before interviewing.",
+    "The company genuinely cares about the mission; cynical answers about \"just another fintech\" land badly.",
+    "Compensation is competitive but not top-of-market; Plaid competes on mission and technical problems, not on raw cash.",
+    "Hand-waving on idempotency. \"We'd use a unique ID\" without explaining the storage, retention, and retry semantics signals shallow thinking.",
+    "Treating upstream unreliability as someone else's problem. At Plaid, upstream unreliability IS the problem.",
+    "No awareness of compliance constraints. \"Just log the data\" signals you've never worked on regulated systems.",
+    "Vague project deep-dives. Candidates who can't go specific lose the round."
+  ],
+  "rawSummary": "Plaid Interview Guide 2026: Financial Data Infrastructure, Idempotency, and Bank API Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 22, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 22, 2026 · techinterview.org\n\n⏱ 9 min read\n\nPlaid\nplaid.com ↗\n\nPlaid Interview Process: Complete 2026 Guide\n\nOverview\n\nPlaid is the financial-data infrastructure company that connects consumer apps to bank accounts &mdash; used by Venmo, Robinhood, Coinbase, Chime, and thousands of other fintech apps to authenticate users, pull transactions, verify income, and move money. Founded 2013, private with reported revenue nearing $1B in 2025, ~1,400 employees in 2026. The failed Visa acquisition in 2021 paradoxically strengthened the company; they've expanded into identity verification, open banking in Europe, and credit underwriting since then. Engineering is concentrated in SF and NYC, with remote hiring across North America. The product deals with the messy realities of financial infrastructure &mdash; screen scraping legacy bank websites, parsing inconsistent API formats, maintaining uptime when upstream providers fail. Interviews reflect this: practical, reliability-focused, and more empathetic toward real-world messiness than theoretical purity.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Plaid, product knowledge. They do ask what products you've used that rely on Plaid &mdash; having a real answer signals authentic interest.\n\nTechnical phone screen (60 min): one coding problem, medium difficulty. Python, Go, and TypeScript are the house languages. Problems often involve data processing &mdash; parse this transaction format, dedupe these records, classify these based on patterns.\n\nTake-home (some senior and applied-ML roles): 4&ndash;6 hour project. Historically involves a realistic financial-data problem &mdash; categorize these transactions, detect anomalies, build a small reconciliation pipeline. Domain reasoning is part of the grading.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (2 rounds): one classic data-structures problem, one applied problem. The applied round often involves transaction categorization, fuzzy matching (account holders across institutions), or a small state machine (OAuth bank-connection flow with failure states).\n\n- System design (1 round): fintech-flavored prompts. \"Design the infrastructure for pulling transactions from 15K banks.\" \"Design a system that detects and retries failed API calls to upstream banks without duplicating transactions.\" \"Design real-time balance checking with consistent results across 100K concurrent users.\" The interviewer pushes on idempotency, exactly-once semantics, and graceful degradation when upstream banks are slow or down.\n\n- Project deep-dive / architecture round (1 round): 45-minute dive into one project from your resume. Expect questions about why you made specific choices, what broke first, and what you'd change now.\n\n- Behavioral / hiring manager: past projects, handling regulatory / compliance constraints, working with ambiguous product requirements.\n\n- Values / mission round (some loops): Plaid takes its role in financial inclusion seriously; they screen for candidates who engage with the societal dimension of financial infrastructure.\n\nTechnical Focus Areas\n\nCoding: parsing and transformation (JSON, CSV, custom wire formats), fuzzy matching (Levenshtein, soundex-style algorithms for account reconciliation), idempotency keys, retry-with-backoff, rate limiting, stateful HTTP clients.\n\nSystem design: upstream-dependency management (how to handle 15K unreliable banks as data sources), idempotency at scale, queue-based retry systems, exactly-once message processing, reconciliation and reconciliation-failure handling, compliance-aware data isolation (PCI, SOC 2, GDPR).\n\nData engineering: batch vs streaming tradeoffs, slowly changing dimensions for account data, deduplication strategies, late-arriving records, transaction classification pipelines.\n\nSecurity & compliance: tokenization, encryption at rest and in transit, access control for sensitive financial data, audit logging, OAuth flows with bank-specific quirks, PSD2 / open-banking regulatory context (for European roles).\n\nReliability: circuit breakers, bulkheads, graceful degradation, latency budgets when calling unreliable upstream systems, SLA math.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each, medium difficulty &mdash; Plaid's bar is slightly below Google L5 on pure algorithms but higher on applied engineering and domain reasoning. Interviewers probe edge cases hard: What if the same transaction comes through twice? What if the bank returns inconsistent balances? What if the API call times out after sending but before receiving a response?\n\nTypical problem types:\n\n- Transaction processing with idempotency (given this stream of transactions, some duplicated, produce a correct aggregate)\n\n- Fuzzy matching (given two sets of account records, find likely"
+}

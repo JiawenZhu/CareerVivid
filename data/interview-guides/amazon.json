@@ -1,0 +1,45 @@
+{
+  "company": "Amazon",
+  "slug": "amazon",
+  "url": "https://www.techinterview.org/companies/amazon",
+  "scrapedAt": "2026-07-02T07:32:23.517Z",
+  "interviewStages": [
+    "Onsite Loop (5-6 rounds)",
+    "Coding Rounds (2-3): Medium difficulty algorithm problems. Amazon prefers solutions that work over perfectly optimized code. Expect questions on strings, arrays, trees, and graphs.",
+    "System Design (1 round): Design scalable systems like e-commerce platforms, recommendation engines, or distributed storage. Focus on reliability and cost optimization.",
+    "Behavioral/Bar Raiser (2-3 rounds): Deep-dive into past experiences using STAR method. The Bar Raiser is a specially trained interviewer who ensures high hiring standards."
+  ],
+  "codingTopics": [
+    "Arrays/Strings: Rotation, sliding window, substring problems",
+    "Trees: Binary tree operations, BST validation, tree traversals",
+    "Graphs: BFS, DFS, shortest path (Dijkstra's algorithm)",
+    "Dynamic Programming: Optimization problems, memoization",
+    "System Design: E-commerce systems, inventory management, distributed databases"
+  ],
+  "systemDesignTopics": [],
+  "behavioralTopics": [
+    "Customer Obsession: Starting with the customer and working backwards",
+    "Ownership: Acting on behalf of the entire company, thinking long-term",
+    "Invent and Simplify: Finding new solutions and keeping things simple",
+    "Dive Deep: Operating at all levels and auditing frequently",
+    "Bias for Action: Taking calculated risks and valuing speed",
+    "Deliver Results: Focusing on key inputs and delivering quality outcomes"
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": []
+  },
+  "difficulty": null,
+  "tips": [
+    "Master Leadership Principles: Have 15-20 STAR stories ready covering different principles. Be specific about your individual contribution.",
+    "Practice Working Code: Amazon wants code that works, even if not optimal. Test your solutions thoroughly.",
+    "Focus on Medium Problems: Amazon rarely asks extremely difficult algorithmic questions. Consistency matters more than brilliance.",
+    "Think About Scale: In system design, emphasize reliability, cost optimization, and handling millions of customers.",
+    "Prepare Questions: Ask about team dynamics, projects, and how teams embody Leadership Principles."
+  ],
+  "compensation": null,
+  "rawSummary": "Amazon\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  February 1, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated February 1, 2026 · techinterview.org\n\n⏱ 2 min read\n\nAmazon\namazon.com ↗\n\nInterview Process Overview\n\nAmazon's interview process is unique in its heavy emphasis on the company's 16 Leadership Principles. Technical skills are important, but cultural fit and demonstration of these principles are equally critical to success.\n\nWhat to Expect\n\nOnline Assessment (OA): Many candidates start with a 90-minute online coding assessment featuring 2 algorithmic problems and sometimes work simulation questions. This screens for basic coding ability.\n\nTechnical Phone Screen (1 round): 1-hour interview with coding and behavioral questions. You'll solve one algorithmic problem while discussing your approach, then answer behavioral questions tied to Leadership Principles.\n\nOnsite Loop (5-6 rounds):\n\n- Coding Rounds (2-3): Medium difficulty algorithm problems. Amazon prefers solutions that work over perfectly optimized code. Expect questions on strings, arrays, trees, and graphs.\n\n- System Design (1 round): Design scalable systems like e-commerce platforms, recommendation engines, or distributed storage. Focus on reliability and cost optimization.\n\n- Behavioral/Bar Raiser (2-3 rounds): Deep-dive into past experiences using STAR method. The Bar Raiser is a specially trained interviewer who ensures high hiring standards.\n\nLeadership Principles Focus\n\nAmazon interviews revolve around their 16 Leadership Principles. Prepare 2-3 stories for each:\n\n- Customer Obsession: Starting with the customer and working backwards\n\n- Ownership: Acting on behalf of the entire company, thinking long-term\n\n- Invent and Simplify: Finding new solutions and keeping things simple\n\n- Dive Deep: Operating at all levels and auditing frequently\n\n- Bias for Action: Taking calculated risks and valuing speed\n\n- Deliver Results: Focusing on key inputs and delivering quality outcomes\n\nCommon Question Topics\n\n- Arrays/Strings: Rotation, sliding window, substring problems\n\n- Trees: Binary tree operations, BST validation, tree traversals\n\n- Graphs: BFS, DFS, shortest path (Dijkstra's algorithm)\n\n- Dynamic Programming: Optimization problems, memoization\n\n- System Design: E-commerce systems, inventory management, distributed databases\n\nPreparation Tips\n\n- Master Leadership Principles: Have 15-20 STAR stories ready covering different principles. Be specific about your individual contribution.\n\n- Practice Working Code: Amazon wants code that works, even if not optimal. Test your solutions thoroughly.\n\n- Focus on Medium Problems: Amazon rarely asks extremely difficult algorithmic questions. Consistency matters more than brilliance.\n\n- Think About Scale: In system design, emphasize reliability, cost optimization, and handling millions of customers.\n\n- Prepare Questions: Ask about team dynamics, projects, and how teams embody Leadership Principles.\n\nInterview Culture\n\nAmazon values frugality, ownership, and customer obsession. Demonstrate long-term thinking, willingness to dive into details, and bias for action. The Bar Raiser interview is particularly important – this person has veto power and ensures you raise the bar for Amazon's talent level.\n\nLast Updated: February 2026\n\nSimilar company guides\n\nServiceNowinterview guideSAPinterview guideCiscointerview guideOracleinterview guideAdobeinterview guideSalesforceinterview guide\n\nPrepping for Amazon? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextMicrosoft⏱ 2 min readBloomberg⏱ 3 min readDatadog Interview Guide 2026: Observability Engineering, Streaming Data, and the Deep-Dive Round⏱ 8 min read"
+}

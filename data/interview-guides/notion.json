@@ -1,0 +1,74 @@
+{
+  "company": "Notion",
+  "slug": "notion",
+  "url": "https://www.techinterview.org/companies/notion",
+  "scrapedAt": "2026-07-02T07:24:37.282Z",
+  "interviewStages": [
+    "System design (1 round): collaborative-editing and data-platform prompts. \"Design the backend for a block-based editor supporting 100 concurrent editors per document.\" \"Design the sync system that keeps mobile clients consistent with the cloud source of truth.\" \"Design a permissions and sharing model for a workspace with 10K members.\"",
+    "Behavioral / hiring manager: past projects, collaboration style, handling ambiguity, and long-term career thinking."
+  ],
+  "codingTopics": [
+    "Data-model operations: given a tree of blocks, implement move / delete / merge with invariants preserved under concurrent edits",
+    "Undo / redo system with branching history or linear stack",
+    "Incremental computation: given a set of derived views on block data, update efficiently when a block changes",
+    "Text-buffer-style problem (implement a rope, piece table, or gap buffer with specific operations)",
+    "Graph / tree problems with practical twists (sync conflict resolution, permission inheritance resolution, search scoring)"
+  ],
+  "systemDesignTopics": [
+    "\"Design the backend for a block-based editor supporting 100 concurrent editors per document with sub-200ms sync latency.\"",
+    "\"Design the sync protocol between mobile and cloud for offline-first document editing.\"",
+    "\"Design the permissions model for workspaces with inherited access, custom roles, and per-block sharing.\"",
+    "\"Design search across a user's workspace content with permission-aware results and sub-second latency.\"",
+    "\"Tell me about a product you love using. Why? What's broken about it?\"",
+    "\"You've been using Notion. What would you change? How would you decide which change matters most?\"",
+    "\"Walk me through a design decision you made where the engineering-optimal choice wasn't the best user-experience choice.\"",
+    "\"Show me something you've built personally &mdash; a side project, a tool, a writing project. What did you learn?\""
+  ],
+  "behavioralTopics": [
+    "Craft: \"Tell me about a time you had to push back on shipping to get something right.\"",
+    "Aim high: \"Describe a project where the initial ambition felt unrealistic. What happened?\"",
+    "Ambiguity: \"Tell me about a time you had to define the problem yourself before solving it.\"",
+    "Long-term thinking: \"What are you hoping to learn or build over the next 2&ndash;3 years?\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "How selective is Notion compared to peers?",
+      "Is the take-home really important?",
+      "How does Notion compare to Figma on interviews?",
+      "How important is AI experience?",
+      "What's remote work like?"
+    ]
+  },
+  "difficulty": 8,
+  "tips": [
+    "Build something real in Notion. Personal workspace, side-project tracker, reading list with formulas. Form concrete opinions.",
+    "Know CRDTs vs OT trade-offs. Even at high level, this shows you've engaged with the technical space.",
+    "Invest in the take-home. Treat it as a portfolio piece, not a checkbox.",
+    "Prepare craft-round specifics. Three tools you love and what's broken about each, delivered with authentic taste.",
+    "Write clearly in interviews. Whatever you type in an interview editor is read as if it were code review material.",
+    "Notion engineering blog and public talks (especially on the block-based data model and scaling search)",
+    "Yjs documentation and the original Shapiro CRDT survey",
+    "Figma's multiplayer engineering post (useful comparison / contrast)",
+    "Ivan Zhao's essays on the company website and interviews",
+    "Designing Data-Intensive Applications for general systems grounding",
+    "The Notion app itself, used deeply for 1&ndash;2 weeks before interviewing"
+  ],
+  "compensation": [
+    "Software Engineer: $180k&ndash;$225k base, $150k&ndash;$280k equity (4 years), modest bonus. Total: ~$275k&ndash;$440k / year.",
+    "Senior Software Engineer: $225k&ndash;$290k base, $300k&ndash;$600k equity. Total: ~$380k&ndash;$620k / year.",
+    "Staff Engineer: $295k&ndash;$365k base, $650k&ndash;$1.2M equity. Total: ~$570k&ndash;$940k / year.",
+    "The hiring bar is higher than the company size suggests. Notion is ~800 people but filters at FAANG-adjacent rates.",
+    "Craft matters in daily work, not just interviews. Code review is intense; design documents are read carefully.",
+    "The product / craft round really does filter heavily. Candidates who breeze through technicals sometimes fail here.",
+    "Notion AI is a significant strategic investment, not an afterthought.",
+    "Not using Notion seriously. Interviewers can tell.",
+    "Vague product opinions. \"Users want X\" without specifics or reasoning.",
+    "Dismissing the take-home. Skimping on it is visible in the final review.",
+    "Hand-waving on CRDT / OT when applying for platform or collaboration teams."
+  ],
+  "rawSummary": "Notion Interview Guide 2026: Connected Workspace, Block-Based Data Model, CRDTs, and Notion AI\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 23, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 23, 2026 · techinterview.org\n\n⏱ 9 min read\n\nNotion\nnotion.com ↗\n\nNotion Interview Process: Complete 2026 Guide\n\nOverview\n\nNotion is the connected-workspace platform that unified documents, wikis, databases, and project management into a single block-based editor. Founded 2013 by Ivan Zhao and Simon Last, private with a 2021 valuation of $10B and subsequent tender offers at higher marks; ~800 employees in 2026. The product has expanded significantly post-pandemic: Notion AI launched in 2023 with continued enhancements, Notion Projects and Notion Calendar (via Cron acquisition) added native project management, and the platform has deepened into enterprise with Notion AI for Work and Notion Forms. Headquartered in San Francisco with offices in Dublin, Tokyo, Hyderabad, and New York plus remote hiring across timezones. The engineering culture is distinctively craft-focused &mdash; a small, senior team building what is essentially a runtime for user-defined information structures. The technical differentiation (the block-based data model, real-time collaboration, and cross-platform consistency) is the heart of the interview process.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Notion, team preference. Triaging among web platform, mobile, backend / infrastructure, AI (Notion AI), and emerging product areas (Calendar, Projects). Notion hires deliberately and selectively; the recruiter screens seriously for cultural fit alongside the technical bar.\n\nTechnical phone screen (60 min): one coding problem, medium-hard. TypeScript and Python dominate; Swift and Kotlin for mobile; Go for infrastructure; Rust appearing for performance-sensitive components. Problems favor applied state modeling and clean implementation &mdash; design a small collaborative editor primitive, handle a tree-rewriting operation, build a type-safe small-DSL evaluator.\n\nTake-home (many senior / staff roles): 5&ndash;8 hour focused project. Historically involves building a small collaborative editor, extending a block-based data model, or implementing sync logic. Quality of code and the accompanying design document are both heavily weighted &mdash; Notion treats writing as first-class engineering output.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms round, one applied / data-modeling round. The applied round often involves modeling a block-based document with operations (move, delete, merge, undo) that preserve invariants under concurrent edits.\n\n- System design (1 round): collaborative-editing and data-platform prompts. \"Design the backend for a block-based editor supporting 100 concurrent editors per document.\" \"Design the sync system that keeps mobile clients consistent with the cloud source of truth.\" \"Design a permissions and sharing model for a workspace with 10K members.\"\n\n- Product / craft round (1 round): distinctive at Notion. A conversation about building for creators, UX trade-offs, and design-engineering partnership. Candidates are expected to have deep opinions about tools they use.\n\n- Behavioral / hiring manager: past projects, collaboration style, handling ambiguity, and long-term career thinking.\n\n- Values / cultural fit: Notion's values (Aim Incredibly High, Creatively Ambitious, Make Sense of the Mess, etc.) come up; the culture is explicitly craft-oriented and selective.\n\nTechnical Focus Areas\n\nCoding: TypeScript fluency, functional / immutable state patterns where appropriate, clean data modeling, reactive / incremental programming intuition, clear naming and structure. Code quality carries heavy weight &mdash; Notion engineers read each other's code closely.\n\nBlock-based data model: Notion's internal data model is built around blocks as the atomic unit &mdash; each block has a type, properties, children, and parents. Understanding tree-based document models and the operations that preserve invariants under concurrent edits is central. Read anything about Notion's data model (their engineering talks discuss this publicly).\n\nReal-time collaboration: operational transforms (OT) vs CRDTs, sync protocols, conflict resolution, optimistic UI with rollback, offline support and re-sync, presence / awareness.\n\nSystem design: content storage at scale (billions of blocks), sharding strategies for multi-tenant workspaces, permission models with inheritance and overrides, search across user content (Notion's search has been rebuilt multiple times), cross-platform consistency.\n\nNotion AI / LLM systems: RAG over user's own workspace content (with strict privacy boundaries), agent orchestration for document manipulation, prompt engineering for structured outputs, evaluation methodology with subjective quality metrics, on-device vs cloud inference trade-offs.\n\nMobile: React Native with cus"
+}

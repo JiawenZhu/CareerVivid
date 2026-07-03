@@ -1,0 +1,43 @@
+{
+  "company": "Stripe",
+  "slug": "stripe",
+  "url": "https://www.techinterview.org/companies/stripe",
+  "scrapedAt": "2026-07-02T07:18:41.919Z",
+  "interviewStages": [
+    "Practical coding (1–2 rounds) — extend a small codebase to add functionality, debug an existing system, parse and analyze data. Sorbet / Ruby fluency helps but isn't required; candidates can pick their language.",
+    "System design (1 round) — payments-flavored design problems (idempotency, ledger consistency, webhooks, retry semantics).",
+    "Bar raiser (1 round) — Stripe's distinctive cross-team interview round. A senior engineer outside the hiring team probes on judgment, writing, and how you reason about ambiguity. Often the highest-stakes round.",
+    "Behavioral / values fit (1 round) — probes on collaboration, taste, motivation. Less rigid than FAANG behavioral but still scored."
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need Ruby experience to interview at Stripe?",
+      "How is the bar raiser round different from a normal round?",
+      "How important is the writing component?",
+      "What's the equity story at Stripe pre-IPO?",
+      "Is Stripe a good place for early-career engineers?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad SWE (L0/L1): $200k–$320k total comp first year",
+    "Mid-level (L2/L3, 4–7 years): $300k–$550k",
+    "Senior (L4, 8+ years): $450k–$850k",
+    "Staff (L5): $700k–$1.3M",
+    "Principal (L6+): $1.2M–$2.5M+",
+    "The Ruby + Sorbet stack is real and the codebase is large; engineers from Go / Java / Python backgrounds need to ramp up.",
+    "The interview style is more practical than FAANG's algorithmic style; candidates who over-prepare on LeetCode at the expense of real-world coding underperform.",
+    "The writing culture is real; engineers write substantially more documents than at most peer companies.",
+    "Promotion is slower than at FAANG; engineers optimizing for fast leveling sometimes find this frustrating.",
+    "The bar raiser round is the highest-stakes; preparation should focus on it specifically — clear judgment, clear writing, calibrated confidence."
+  ],
+  "rawSummary": "Stripe Interview Guide 2026: Payments, Ruby/Sorbet, API Design, Bar Raiser\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  February 1, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Stripe Interview Guide 2026: Payments Infrastructure, Ruby/Sorbet, API Design, and the Bar Raiser Loop\n\n- What Stripe Does\n\n- Roles Stripe Hires For\n\n- Stripe Interview Process\n\n- What Stripe Tests For\n\n- Compensation\n\n- Working at Stripe\n\n- Stripe vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 29, 2026 · techinterview.org\n\n⏱ 7 min read\n\nStripe\nstripe.com ↗\n\nStripe Interview Guide 2026: Payments Infrastructure, Ruby/Sorbet, API Design, and the Bar Raiser Loop\n\nStripe is the most influential developer-tools and payments company of the last decade. Founded in 2010 by Patrick and John Collison, it has grown into a private company valued at $70B+ (last 2024 tender) with deep technical reputation among engineers — particularly around API design, Ruby tooling (Sorbet, the company's gradual type system), and payments-infrastructure scale. The hiring process is rigorous, distinctive, and reflects the company's emphasis on craft, judgment, and writing ability. This guide covers what Stripe does, the engineering tracks, the interview process, and what makes Stripe hiring distinctive in 2026.\n\nWhat Stripe Does\n\nStripe builds payments and financial infrastructure for the internet:\n\n- Payments: the core product — card processing, ACH, wallets, BNPL, regional payment methods.\n\n- Connect: marketplace and platform payments (Lyft, Shopify, DoorDash all run on Connect).\n\n- Billing: subscription billing, usage-based billing, dunning.\n\n- Tax: automated sales tax / VAT calculation and remittance.\n\n- Issuing: issue cards programmatically.\n\n- Treasury: embedded banking-as-a-service.\n\n- Atlas: US company incorporation for international founders.\n\n- Climate: carbon-removal fund for businesses.\n\n- Stripe Apps / AI: developer ecosystem and AI integrations across the API surface.\n\nDistinctive features:\n\n- API craft: Stripe's API is widely cited as the gold standard for developer experience. The internal culture of API design discipline is real.\n\n- Ruby + Sorbet: Stripe's primary backend language is Ruby, augmented by Sorbet (open-sourced gradual type system Stripe built). Rare in 2026 to see Ruby at this scale.\n\n- Writing culture: heavy use of internal memos, design documents, written decision-making. Engineers write substantially.\n\n- Private but mature: $70B+ valuation; consistently rumored IPO that hasn't materialized. Tender offers provide periodic liquidity.\n\nRoles Stripe Hires For\n\nSoftware engineer (backend / payments)\n\nBuilds the core payments stack, APIs, ledger systems. Ruby (with Sorbet) primary; Go, Java, Scala, Python in specialized teams. Strong API design and distributed-systems chops valued.\n\nSoftware engineer (infrastructure)\n\nBuilds the platform engineers run on — deployment, observability, databases, container orchestration. Heavy Go and Rust use; Kubernetes-adjacent.\n\nSoftware engineer (frontend)\n\nStripe Dashboard, Stripe Checkout, Elements, hosted pages. React + TypeScript dominant.\n\nMachine learning / fraud / risk engineer\n\nStripe Radar (fraud detection), risk models, identity verification. ML systems with real adversarial pressure.\n\nSolutions engineer / sales engineering\n\nCustomer-facing engineering for large-platform integrations. Technical but customer-facing.\n\nSecurity engineer\n\nPayments security is high-stakes; substantial security engineering investment. PCI-DSS, key management, fraud-adjacent security work.\n\nStripe Interview Process\n\nRound 1: Recruiter screen\n\n30 minutes. Background, motivation, role fit. Stripe recruiters often probe specifically on writing — they care about candidates who can write clearly.\n\nRound 2: Technical phone screen\n\n60 minutes coding interview. Stripe's coding rounds have a distinctive flavor: practical rather than competitive-programming. Expect questions like \"implement a basic rate limiter\" or \"parse this billing file format and answer questions about it\" rather than \"find the longest palindromic substring.\" The bar is real but the style differs from FAANG.\n\nRound 3: On-site (virtual or in-person)\n\n4–5 rounds, each 60–90 minutes:\n\n- Practical coding (1–2 rounds) — extend a small codebase to add functionality, debug an existing system, parse and analyze data. Sorbet / Ruby fluency helps but isn't required; candidates can pick their language.\n\n- System design (1 round) — payments-flavored design problems (idempotency, ledger consistency, webhooks, retry semantics).\n\n- Bar raiser (1 round) — Stripe's distinctive cross-team interview round. A senior engineer outside the hiring team probes on judgment, writing, and how you reason about ambiguity. Often the highest-stakes round.\n\n- Behavioral / values fit (1 round) — probes on collaboration, taste, motivation. Less rigid than FAANG behavioral but still scored.\n\nRound 4: Decision\n\nCalibration meeting; offer t"
+}

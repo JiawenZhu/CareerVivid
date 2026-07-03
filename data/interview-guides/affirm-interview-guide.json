@@ -1,0 +1,42 @@
+{
+  "company": "Affirm",
+  "slug": "affirm-interview-guide",
+  "url": "https://www.techinterview.org/companies/affirm-interview-guide",
+  "scrapedAt": "2026-07-02T07:16:26.126Z",
+  "interviewStages": [
+    "Coding (1–2 rounds) — practical engineering, often with fintech / financial-systems flavor",
+    "System design (1 round) — fintech systems (loan servicing, payments, idempotency, ledger consistency)",
+    "Domain depth (1 round) — depends on role: ML for underwriting, mobile, distributed systems, compliance engineering",
+    "Behavioral / values fit (1 round) — collaboration, written reasoning, conviction about the product mission"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "How does the 2024 CFPB rule affect Affirm engineering?",
+      "What's the underwriting ML actually like?",
+      "How is Levchin's culture really expressed in engineering?",
+      "Is Affirm a good place for early-career engineers?",
+      "How risky is the BNPL business given regulatory pressure?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad SWE: $170k–$260k total comp first year",
+    "Mid-level (4–7 years): $250k–$400k",
+    "Senior (8+ years): $380k–$600k",
+    "Staff / Principal: $550k–$1M+",
+    "The Levchin-era culture is real — written reasoning, technical depth, conviction matter more than at most peer fintechs.",
+    "The regulatory exposure is substantial; compliance engineering is a major focus area post-2024 CFPB rule.",
+    "The underwriting ML is technically deep; ML engineers from web / consumer backgrounds have a learning curve.",
+    "Stock volatility has been substantial; engineers should calibrate equity expectations carefully.",
+    "The mission framing is genuine; engineers who treat it as marketing don't last."
+  ],
+  "rawSummary": "Affirm Interview Guide 2026: BNPL, Underwriting, Levchin Culture, Post-CFPB Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 29, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Affirm Interview Guide 2026: Buy-Now-Pay-Later, Underwriting, Merchant Network, and the Levchin Engineering Culture\n\n- What Affirm Does\n\n- Roles Affirm Hires For\n\n- Affirm Interview Process\n\n- What Affirm Tests For\n\n- Compensation\n\n- Working at Affirm\n\n- Affirm vs Alternatives\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\nUpdated April 29, 2026 · techinterview.org\n\n⏱ 7 min read\n\nAffirm\naffirm.com ↗\n\nAffirm Interview Guide 2026: Buy-Now-Pay-Later, Underwriting, Merchant Network, and the Levchin Engineering Culture\n\nAffirm (NASDAQ: AFRM) is the largest US-headquartered buy-now-pay-later (BNPL) company. Founded in 2012 by Max Levchin (PayPal co-founder), the company built its position on transparent installment loans — fixed terms, no late fees, real underwriting on each transaction — differentiating from credit-card-style revolving debt. The hiring process reflects Levchin-era engineering values: technical depth, written reasoning, conviction about the product mission. The 2024–2025 BNPL regulatory shift in the US (Consumer Financial Protection Bureau treating BNPL as credit-card-equivalent under TILA) has reshaped product engineering. This guide covers what Affirm does, the engineering tracks, the interview process, and what makes Affirm hiring distinctive in 2026.\n\nWhat Affirm Does\n\nAffirm operates a consumer BNPL platform plus a card product:\n\n- Pay in 4: short-term installment plans (4 payments over 6 weeks), interest-free.\n\n- Monthly installment loans: longer-term loans (3, 6, 12, 24, 36 months), interest-bearing for some merchants and consumers, 0% APR for others.\n\n- Affirm Card: debit-card-with-installment-options consumer product launched 2022 — debit by default, can elect installment financing on individual transactions.\n\n- Merchant network: integrations with major retailers (Amazon partnership renewed 2024, Walmart, Target, Best Buy, Apple, Shopify, etc.).\n\n- Adaptive Checkout: the merchant-facing product that prices and offers loans dynamically at checkout.\n\n- Affirm Money Account: savings account product launched alongside the Card.\n\n- Affirm SDKs: Shopify integration, native iOS / Android SDKs, web SDK for merchant integration.\n\nDistinctive features:\n\n- Per-transaction underwriting: unlike credit cards which extend a revolving line, Affirm underwrites each transaction. The underwriting models are central to the business and a major engineering investment area.\n\n- Transparent / no-late-fee positioning: Affirm explicitly avoids late fees and revolving debt — the marketing distinction that drives consumer adoption.\n\n- Levchin-era engineering culture: direct, written-reasoning-heavy, technically deep. The \"Affirm Reading List\" and intellectual culture are real.\n\n- Public company: NASDAQ: AFRM since 2021; substantial scrutiny.\n\n- Regulatory exposure: the 2024–2025 CFPB rule treating BNPL as credit-card-equivalent under TILA has reshaped compliance engineering. The Trump administration's CFPB transition adds further regulatory uncertainty.\n\nRoles Affirm Hires For\n\nSoftware engineer (backend / loans platform)\n\nBuilds the loans platform — application processing, underwriting integration, servicing, payments, collections. Python primary; Go in some newer services. Distributed systems with strict consistency requirements (financial transactions).\n\nSoftware engineer (merchant / integrations)\n\nBuilds merchant SDKs, checkout flows, partner integrations. JavaScript / TypeScript heavy for web SDK; mobile SDKs in Swift / Kotlin.\n\nSoftware engineer (Card / consumer)\n\nAffirm Card platform — card issuing (Stripe Issuing or in-house), transaction routing, installment-option-on-debit logic. Hybrid of fintech and consumer-product engineering.\n\nML engineer / data scientist (underwriting / risk)\n\nUnderwriting models — credit decisioning, fraud detection, repayment prediction. Substantial investment area. Models drive pricing and approval; engineering quality directly affects business outcomes.\n\nData engineer\n\nPipeline engineering, feature platform for ML models, regulatory reporting infrastructure. Substantial scale (transactions across millions of consumers).\n\nFrontend engineer\n\nAffirm consumer web and app, merchant dashboards, internal admin tools. React + TypeScript dominant.\n\nCompliance / regulatory engineer\n\nEngineering work for compliance (truth-in-lending disclosures, state-level licensing, CFPB regulatory reporting). Growth area post-2024 regulatory shift.\n\nSecurity / fraud engineer\n\nFraud detection, account security, transaction security. Adversarial engineering with continuous attacker pressure on identity / synthetic-identity fraud.\n\nAffirm Interview Process\n\nRound 1: Recruiter screen\n\n30 minutes. Background, motivation, role fit. Affirm recruiters often probe specifically on product engagement — whet"
+}

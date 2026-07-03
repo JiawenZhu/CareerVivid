@@ -1,0 +1,27 @@
+{
+  "company": "Honeycomb",
+  "slug": "honeycomb-interview-guide",
+  "url": "https://www.techinterview.org/companies/honeycomb-interview-guide",
+  "scrapedAt": "2026-07-02T07:23:20.851Z",
+  "interviewStages": [
+    "Behavioral: collaboration, writing skill, customer empathy for developer audiences"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Honeycomb fully remote?",
+      "How does Honeycomb compare to Datadog?",
+      "What is the take-home like?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Honeycomb Interview Guide (2026): Observability for Modern Systems\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nHoneycomb\nhoneycomb.io ↗\n\nHoneycomb is the technically respected observability-for-engineers platform — wide events, high-cardinality fields, BubbleUp anomaly detection. The engineering team is thoughtful, opinionated, and extremely public about what they do (Charity Majors' blog, the Honeycomb engineering blog, and SREcon talks). The interview is async-friendly, writing-focused, and rewards engineers who already engage with their content.\n\nProcess\n\nRecruiter screen → take-home async work sample (paid, ~3 hours) → 60-minute pair-programming → 60-minute system design → 60-minute past-project deep dive → behavioral. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design a high-cardinality event store optimized for slice-and-dice queries\n\n- Design distributed tracing ingestion at 1M spans/sec\n\n- Design BubbleUp — automated anomaly detection across hundreds of fields\n\n- Coding: Go (the bulk of the codebase), often involving streaming or columnar processing\n\n- Behavioral: collaboration, writing skill, customer empathy for developer audiences\n\nLevels and comp (2026)\n\n- SE II: $170K–$210K total\n\n- Senior SE: $240K–$310K\n\n- Staff: $340K–$440K\n\n- Principal: $470K–$610K\n\nPrep priorities\n\n- Read the Honeycomb blog and OpenTelemetry docs — Honeycomb employees lead OTel\n\n- Be fluent in Go and at least one observability stack (Prometheus, Grafana, Tempo)\n\n- Understand columnar storage, time-series compression, and trace data models\n\nFrequently Asked Questions\n\nIs Honeycomb fully remote?\n\nYes. Distributed across US and Canada with some EU presence. ~250 employees.\n\nHow does Honeycomb compare to Datadog?\n\nDatadog is broader (infra + APM + logs). Honeycomb is deeper on developer-debugging via wide events. Smaller team, smaller comp, but more interesting engineering for many candidates.\n\nWhat is the take-home like?\n\nRealistic and bounded — a couple hours of work. They pay for it. Quality of writing and reasoning matters more than completeness.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Honeycomb? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextRandom Walks and Stopping Times for Quant Interviews⏱ 8 min readAI Inference Infrastructure Interview Prep 2026: vLLM, Triton, Kernels⏱ 3 min readFrontend Performance: Code Splitting and Lazy Loading⏱ 2 min read"
+}

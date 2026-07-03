@@ -1,0 +1,25 @@
+{
+  "company": "Resend",
+  "slug": "resend-interview-guide",
+  "url": "https://www.techinterview.org/companies/resend-interview-guide",
+  "scrapedAt": "2026-07-02T07:25:47.510Z",
+  "interviewStages": [],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Resend fully remote?",
+      "How does Resend compare to SendGrid (Twilio) or Postmark?",
+      "What is the engineering bar?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Resend Interview Guide (2026): Modern Email API Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nResend\nresend.com ↗\n\nResend is the modern email API for developers — clean DX, React Email components, fast onboarding, and a respected engineering team. Founded by ex-Vercel engineers. The interview is selective and reflects the high engineering standards of similar developer-tools companies.\n\nProcess\n\nRecruiter screen → take-home async work sample (paid, ~3–4 hours) → 60-minute pair-programming → 60-minute system design → 60-minute past-project deep dive → behavioral. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design an email delivery pipeline with high deliverability and per-domain reputation management\n\n- Design React Email — server-side rendering of email-safe HTML/CSS\n\n- Design webhook delivery with retries and exactly-once guarantees\n\n- Coding: practical TypeScript/Node, often with concurrency or queue flavor\n\n- Past-project deep dive: must demonstrate genuine engineering depth\n\nLevels and comp (2026)\n\n- SE: $180K–$240K total\n\n- Senior SE: $260K–$340K\n\n- Staff: $370K–$480K\n\n- Principal: $500K–$650K\n\nPrep priorities\n\n- Be fluent in TypeScript and React; some Go for backend\n\n- Understand email protocols: SMTP, DKIM, SPF, DMARC, MIME\n\n- Read the Resend blog — they hire people who already engage with the work\n\nFrequently Asked Questions\n\nIs Resend fully remote?\n\nYes. Distributed across US, EU, Latin America. Small team (under 100 people in 2026).\n\nHow does Resend compare to SendGrid (Twilio) or Postmark?\n\nSendGrid is the volume incumbent. Postmark is reliability-focused for transactional. Resend wins on developer experience and modern stack. Comp is competitive at senior+.\n\nWhat is the engineering bar?\n\nVery high. The team is small and the standards are strong. Strong written communication and demonstrable craft are essential.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Resend? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextPrice History System Low-Level Design: Time-Series Storage, Change Detection, and Alert Notifications⏱ 7 min readSystem Design: Ad Server — Targeting, Real-Time Bidding, Impression Tracking, and Click Attribution⏱ 7 min readLow Level Design: CPU Cache Optimization⏱ 9 min read"
+}

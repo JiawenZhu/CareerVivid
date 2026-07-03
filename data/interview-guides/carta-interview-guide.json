@@ -1,0 +1,27 @@
+{
+  "company": "Carta",
+  "slug": "carta-interview-guide",
+  "url": "https://www.techinterview.org/companies/carta-interview-guide",
+  "scrapedAt": "2026-07-02T07:16:54.995Z",
+  "interviewStages": [
+    "Behavioral: customer focus, navigating regulatory complexity, working with finance domain"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Carta remote-friendly?",
+      "How does Carta compare to Pulley?",
+      "What is the financial-engineering domain like?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Carta Interview Guide (2026): Cap Table and Equity Management\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nCarta\ncarta.com ↗\n\nCarta is the dominant cap table and equity management platform — used by 40,000+ private companies and most US venture firms. The interview focuses on financial domain modeling, multi-tenant architecture, and the realities of building software for high-stakes financial workflows.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a cap table data model that handles dilution, conversions, and historical events\n\n- Design 409A valuation calculations with auditability\n\n- Design an electronic signature workflow with regulatory compliance\n\n- Coding: medium DSA, often with financial calculation framing\n\n- Behavioral: customer focus, navigating regulatory complexity, working with finance domain\n\nLevels and comp (2026)\n\n- SE II: $145K–$180K total\n\n- Senior SE: $215K–$285K\n\n- Staff: $310K–$410K\n\n- Principal: $430K–$570K\n\nPrep priorities\n\n- Be fluent in Python or TypeScript (Carta uses both)\n\n- Understand financial concepts: equity, vesting, options, RSUs\n\n- Brush up on event-sourcing patterns — cap tables are essentially event-sourced\n\nFrequently Asked Questions\n\nIs Carta remote-friendly?\n\nHybrid in San Francisco, NYC, Salt Lake City, others. Some engineering roles remote within US.\n\nHow does Carta compare to Pulley?\n\nCarta is the incumbent with broad enterprise traction. Pulley is the upstart with better developer-experience focus. Carta has more scope but slower pace.\n\nWhat is the financial-engineering domain like?\n\nDetail-oriented, regulation-aware, high-stakes for correctness. Engineers who enjoy financial domain modeling find it rewarding.\n\nSimilar company guides\n\nAmerican Expressinterview guideCapital Oneinterview guideMarqetainterview guideWiseinterview guideKlarnainterview guideAdyeninterview guide\n\nPrepping for Carta? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow Level Design: Event Sourcing — Design and Patterns⏱ 5 min readConsensus Service Low-Level Design: Raft Protocol, Log Replication, and Membership Changes⏱ 5 min readSystem Design: Observability Stack — Prometheus, Grafana, ELK, OpenTelemetry, Metrics, Logs, Traces, Alerting⏱ 9 min read"
+}

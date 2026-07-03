@@ -1,0 +1,73 @@
+{
+  "company": "GitLab",
+  "slug": "gitlab",
+  "url": "https://www.techinterview.org/companies/gitlab",
+  "scrapedAt": "2026-07-02T07:22:48.497Z",
+  "interviewStages": [
+    "Technical deep-dive: 60 minutes on a specific technical domain relevant to the role. Rails / ActiveRecord internals for backend; Vue / component design for frontend; monitoring / scaling for SRE. They want real depth, not breadth.",
+    "System design (1 round, engineering roles): prompts relate to GitLab's actual product &mdash; \"Design CI/CD at scale with 10K parallel pipelines,\" \"Design a container registry with high availability,\" \"Design the merge-request workflow for a team of 10K developers.\" Expect practical, Rails-monolith-compatible answers rather than greenfield microservices.",
+    "Behavioral / values round (1&ndash;2 rounds): deep dive into GitLab's values using specific past behaviors. \"Tell me about a time you iterated on something instead of waiting for perfect.\" \"Describe how you've made async collaboration work across time zones.\" The CREDIT framework is applied rigorously.",
+    "Hiring manager / team fit: past projects, how you handle distributed ownership, how you manage async communication."
+  ],
+  "codingTopics": [
+    "Extend an existing Rails controller with a new endpoint, handling edge cases and writing tests",
+    "Refactor a slow ActiveRecord query to be N+1-free and properly indexed",
+    "Build a small Vue component with specific reactivity semantics and accessibility constraints",
+    "Implement a Go concurrency primitive (worker pool with cancellation, rate-limited fetcher with retries)",
+    "Debug and fix a failing test in a realistic codebase"
+  ],
+  "systemDesignTopics": [
+    "\"Design the infrastructure for running 50K parallel CI pipelines across cloud providers.\"",
+    "\"Design container registry storage with cross-region replication and bounded latency.\"",
+    "\"Design incremental merge request validation that runs against partial diffs.\"",
+    "\"Design audit logging for compliance with SOC 2 and FedRAMP requirements.\"",
+    "Collaboration: \"Describe a time you worked effectively with someone you strongly disagreed with.\"",
+    "Results: \"Tell me about a project where you had to ship despite imperfect information.\"",
+    "Efficiency: \"Describe a process you improved or automated. How did you measure the impact?\"",
+    "Diversity, Inclusion, and Belonging: \"Tell me about a time you created a more inclusive team environment.\"",
+    "Iteration: \"Describe a project you shipped in small pieces rather than waiting for completion.\"",
+    "Transparency: \"Tell me about a mistake you made publicly and what happened.\""
+  ],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I really need to read the Handbook before interviewing?",
+      "How real is the location-factor compensation?",
+      "Is Rails knowledge really required for backend roles?",
+      "How does GitLab compare to Atlassian on interviews?",
+      "What's the stock compensation picture in 2026?"
+    ]
+  },
+  "difficulty": 7,
+  "tips": [
+    "Read the Handbook. At minimum: Values, Hiring, Engineering. Mention specific Handbook sections during interviews to show preparation.",
+    "Use GitLab.com for a real project. Configure CI, merge requests, issues. Form opinions about the product.",
+    "Prepare CREDIT values stories. Six stories, one per value, with specifics and outcomes.",
+    "Be honest about remote-work realities. Idealized answers read as inauthentic.",
+    "Match the language to the role. Rails role? Write idiomatic Rails. Vue role? Write idiomatic Vue. Don't submit TypeScript for a Ruby position.",
+    "The GitLab Handbook (handbook.gitlab.com) &mdash; especially Values, Hiring, and Engineering sections",
+    "GitLab engineering blog (especially posts on Rails at scale, CI/CD internals, PostgreSQL management)",
+    "Kevin Deldycke's Awesome Ruby on Rails curated list",
+    "Designing Data-Intensive Applications (Kleppmann) for system design background",
+    "A small side project deployed with GitLab.com before the interview",
+    "GitLab's public compensation calculator &mdash; knowing your expected range avoids awkward negotiation"
+  ],
+  "compensation": [
+    "Intermediate Engineer (US, mid-tier city): $150k&ndash;$185k base, $50k&ndash;$120k equity/yr, 10% bonus. Total: ~$215k&ndash;$330k / year.",
+    "Senior Engineer (US, mid-tier city): $195k&ndash;$240k base, $80k&ndash;$180k equity/yr. Total: ~$290k&ndash;$440k / year.",
+    "Staff Engineer (US, mid-tier city): $250k&ndash;$300k base, $150k&ndash;$280k equity/yr. Total: ~$420k&ndash;$600k / year.",
+    "The Handbook is not marketing &mdash; it's the actual operating manual. Read it.",
+    "Values rounds are rigorous. Candidates who breeze through technicals often fail here.",
+    "The Rails monolith is much more sophisticated than the \"legacy monolith\" stereotype. Modern Rails at scale has real complexity.",
+    "Location-factor compensation is genuinely applied &mdash; US coastal city pay is not the norm.",
+    "Not having read the Handbook. Interviewers notice immediately.",
+    "Microservices-maximalism in system design. GitLab's culture is monolith-first.",
+    "Not using GitLab before the interview. Having a working mental model of the product is essentially required.",
+    "Weak or rehearsed values stories. The CREDIT rubric rewards specificity."
+  ],
+  "rawSummary": "GitLab Interview Guide 2026: All-Remote DevOps Platform, Rails Monolith, and CREDIT Values\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 22, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 22, 2026 · techinterview.org\n\n⏱ 9 min read\n\nGitLab\ngitlab.com ↗\n\nGitLab Interview Process: Complete 2026 Guide\n\nOverview\n\nGitLab is the DevOps platform that bundles source control, CI/CD, issue tracking, security scanning, and observability into a single application. Founded 2011, went public 2021, ~2,100 employees in 2026. The company is famously all-remote &mdash; no offices anywhere, no headquarters, staff distributed across 60+ countries. This shapes the interview process profoundly: nearly everything about hiring is public in the GitLab Handbook, which means you can read the actual evaluation rubric before interviewing. The product is sprawling (2,500+ features across 10 stages) but the engineering bar is focused and consistent. Rails dominates the monolith; Go, Vue, and Ruby are the working languages.\n\nInterview Structure\n\nRecruiter screen (30 min): background, remote-work experience, why GitLab. They screen early for \"GitLab values alignment\" &mdash; the CREDIT values (Collaboration, Results, Efficiency, Diversity-Inclusion-Belonging, Iteration, Transparency) are real and come up in every subsequent round. Having read the Handbook helps.\n\nTechnical assessment: depending on role, either a timed coding test or a take-home. Backend assessments are typically Ruby / Rails or Go; frontend uses Vue; SRE uses language-agnostic problems. Take-homes are scoped to ~4 hours of real work and weight correctness, test coverage, and documentation quality equally.\n\nOnsite / virtual onsite (4&ndash;6 rounds):\n\n- Technical deep-dive: 60 minutes on a specific technical domain relevant to the role. Rails / ActiveRecord internals for backend; Vue / component design for frontend; monitoring / scaling for SRE. They want real depth, not breadth.\n\n- Pairing / live coding: 60-minute collaborative coding session, often extending the take-home. Interviewers care about how you think out loud and respond to suggestions.\n\n- System design (1 round, engineering roles): prompts relate to GitLab's actual product &mdash; \"Design CI/CD at scale with 10K parallel pipelines,\" \"Design a container registry with high availability,\" \"Design the merge-request workflow for a team of 10K developers.\" Expect practical, Rails-monolith-compatible answers rather than greenfield microservices.\n\n- Behavioral / values round (1&ndash;2 rounds): deep dive into GitLab's values using specific past behaviors. \"Tell me about a time you iterated on something instead of waiting for perfect.\" \"Describe how you've made async collaboration work across time zones.\" The CREDIT framework is applied rigorously.\n\n- Hiring manager / team fit: past projects, how you handle distributed ownership, how you manage async communication.\n\nTechnical Focus Areas\n\nCoding: Ruby on Rails (ActiveRecord, performance pitfalls, N+1 queries, caching strategies), Vue (component composition, Pinia state management, reactivity model), Go (concurrency patterns, context propagation, error handling). Problems tend to be applied &mdash; extend this feature, refactor this controller, write tests for this scenario.\n\nRails internals: ActiveRecord query interface, eager loading vs lazy loading, database migrations with concurrent users, background job patterns (Sidekiq), caching layers (fragment, Russian doll, HTTP), asset pipeline. For senior Rails roles, expect questions about monolith maintenance at scale &mdash; GitLab's Rails app is one of the largest in production.\n\nVue / frontend: component API design, reactivity implications, Pinia vs Vuex migration patterns, GraphQL integration, SSR / hydration if relevant. GitLab's frontend is exclusively Vue; React knowledge is not a substitute.\n\nDatabase: PostgreSQL at scale &mdash; query optimization, index strategies, partitioning, CTEs, materialized views. GitLab runs one of the largest single-tenant PostgreSQL deployments in production; database fluency matters.\n\nCI/CD internals: runner architecture, caching, artifact management, parallel pipeline execution, resource groups, needs-based DAG scheduling. Relevant for any role touching CI.\n\nSRE / reliability (for SRE roles): error budget mathematics, SLIs and SLOs, incident review practices, multi-region architecture, database replication, Kubernetes at scale.\n\nCoding Interview Details\n\nCoding rounds are typically 60 minutes each. Difficulty is medium &mdash; below Google L5 on pure algorithms but with higher expectations on code quality, test coverage, and idiomatic usage of the target framework. Comparable to Shopify or HashiCorp rounds.\n\nTypical problem shapes:\n\n- Extend an existing Rails controller with a new endpoint, handling edge cases and writing tests\n\n- Refactor a slow ActiveRecord query to be N+1-free and properly indexed\n\n- Build a small Vue component with specific reactivity semantics and accessibilit"
+}

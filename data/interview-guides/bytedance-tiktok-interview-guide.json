@@ -1,0 +1,45 @@
+{
+  "company": "ByteDance/TikTok",
+  "slug": "bytedance-tiktok-interview-guide",
+  "url": "https://www.techinterview.org/companies/bytedance-tiktok-interview-guide",
+  "scrapedAt": "2026-07-02T07:20:47.777Z",
+  "interviewStages": [
+    "Coding (2 rounds typically) — algorithms and data structures",
+    "System design (1 round) — calibrated to your level; can be quite deep at senior",
+    "Domain-specific (1 round) — for ML roles, ML systems / model questions; for recommendation roles, ranking / retrieval / collaborative filtering",
+    "Behavioral / cross-functional (1 round) — culture fit, collaboration, motivation"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "What's the work-life balance really like?",
+      "Why does ByteDance pay so well?",
+      "How does the equity work since ByteDance is private?",
+      "What about the regulatory situation around TikTok in the US?",
+      "Should I prefer ByteDance over FAANG?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": [
+    "New-grad SWE: $200k–$320k total (location-dependent)",
+    "Mid-level: $300k–$500k",
+    "Senior: $450k–$800k",
+    "Staff / Principal: $700k–$1.5M+",
+    "The recommendation algorithm work is genuinely state-of-the-art; you'd be exposed to ML techniques few other companies operate at this scale.",
+    "Western offices are more \"typical Bay Area\" than Beijing reputation suggests.",
+    "Compensation is competitive but liquidity uncertainty (private equity) is real.",
+    "Performance bar is high; managing out is faster than at typical FAANG.",
+    "The product work is consumer-facing and has visible impact — a strong draw for engineers who want to see their work in users' hands.",
+    "Alibaba &mdash; e-commerce and cloud",
+    "Tencent &mdash; social and gaming",
+    "Samsung Electronics &mdash; consumer electronics"
+  ],
+  "rawSummary": "ByteDance / TikTok Interview Guide: Recommendation Systems, ML at Scale, Global Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 27, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- ByteDance / TikTok Interview Guide: Recommendation Systems, ML at Scale, and the Global Engineering Culture\n\n- What ByteDance Does\n\n- Roles ByteDance Hires For\n\n- ByteDance Interview Process\n\n- What ByteDance Tests For\n\n- Compensation\n\n- Cultural Considerations\n\n- Things That Surprise Candidates\n\n- Frequently Asked Questions\n\n- Adjacent International Tech\n\nUpdated May 2, 2026 · techinterview.org\n\n⏱ 6 min read\n\nByteDance / TikTok\nbytedance.com ↗\n\nByteDance / TikTok Interview Guide: Recommendation Systems, ML at Scale, and the Global Engineering Culture\n\nByteDance is one of the most influential tech companies in the world: parent of TikTok, Douyin, CapCut, Lark, and several other consumer products with combined users in the billions. Founded in Beijing in 2012, ByteDance has built world-class machine learning infrastructure, a global engineering presence (Beijing, Singapore, Mountain View, Seattle, London), and one of the most aggressive recruiting profiles in tech. For ML engineers, recommendation system specialists, and infrastructure SWE, ByteDance offers one of the largest production-ML platforms in existence and competitive compensation. This guide covers the company structure, interview process, and what candidates should expect when targeting ByteDance / TikTok roles.\n\nWhat ByteDance Does\n\nByteDance operates dozens of consumer products globally:\n\n- TikTok / Douyin: short-form video, billion+ MAU. Recommendation algorithm is widely studied as state-of-the-art.\n\n- CapCut: video editing app with hundreds of millions of users.\n\n- Lark: enterprise collaboration suite (competes with Slack / Microsoft Teams).\n\n- Toutiao: Chinese news/content app.\n\n- Various international apps across gaming, social, fintech.\n\nThe engineering organization spans research, recommendation systems, infrastructure, mobile, machine learning systems, and data platforms. Most of the engineering work centers on processing and serving content recommendations at billion-user scale.\n\nDistinctive features:\n\n- Recommendation systems are core IP. The algorithm is the company's primary moat. ML and recommendation engineering work at the largest scale in the industry.\n\n- Global presence with regional autonomy. Beijing HQ; substantial engineering in Singapore, Mountain View, Seattle, London, Tokyo. Each region has different hiring profile and product focus.\n\n- Aggressive hiring and compensation. ByteDance pays competitively at the senior+ level, often at FAANG-equivalent or above.\n\n- Cultural intensity. Reputation for long hours and high pace; Beijing offices have 996 (9am–9pm, 6 days/week) reputation. Western offices report less extreme but still intense cultures.\n\nRoles ByteDance Hires For\n\nRecommendation system engineer\n\nBuilds and tunes the recommendation models that drive TikTok / Douyin feeds. Strong ML background (PyTorch, TensorFlow, distributed training). Expected to operate at billion-scale. Highly competitive hiring.\n\nML engineer / ML systems\n\nAdjacent to recommendation systems but broader: training infrastructure, serving infrastructure, feature stores, experimentation platforms. Strong systems and ML knowledge.\n\nBackend / infrastructure engineer\n\nBuilds the core platform: distributed systems, content distribution, scaling, regional infrastructure. Heavy on Go, C++, Java. Latency-sensitive at scale.\n\nMobile engineer\n\niOS and Android for TikTok and other apps. Performance-critical work; mobile apps used by billions. Native (Swift, Kotlin) heavy; some React Native and cross-platform work.\n\nData platform / analytics engineer\n\nBuilds the data infrastructure feeding ML and analytics. Heavy on streaming systems, ClickHouse, custom data infrastructure.\n\nQuantitative researcher (Investment / Finance side)\n\nByteDance has a substantial investment arm; hires quant-style roles separately from product engineering.\n\nByteDance Interview Process\n\nRound 1: Online assessment\n\nFor most engineering roles: HackerRank-style coding challenge. Algorithm-heavy. Standard data-structures-and-algorithms problems. Difficulty similar to FAANG.\n\nRound 2: Technical phone / video screen\n\n30–60 minutes coding + system design fundamentals. Often two parts: coding question + brief design discussion. Interviewer is typically a senior engineer.\n\nRound 3: On-site / virtual on-site\n\n4–5 rounds, each 60–90 minutes:\n\n- Coding (2 rounds typically) — algorithms and data structures\n\n- System design (1 round) — calibrated to your level; can be quite deep at senior\n\n- Domain-specific (1 round) — for ML roles, ML systems / model questions; for recommendation roles, ranking / retrieval / collaborative filtering\n\n- Behavioral / cross-functional (1 round) — culture fit, collaboration, motivation\n\nSome loops include a manager screen or skip-level conversation.\n\nRound 4: Decision and offer\n\nCa"
+}

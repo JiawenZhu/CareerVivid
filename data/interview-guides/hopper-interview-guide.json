@@ -1,0 +1,27 @@
+{
+  "company": "Hopper",
+  "slug": "hopper-interview-guide",
+  "url": "https://www.techinterview.org/companies/hopper-interview-guide",
+  "scrapedAt": "2026-07-02T07:23:23.328Z",
+  "interviewStages": [
+    "Behavioral: customer focus, ownership, working with B2C scale"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Hopper remote-friendly?",
+      "How does Hopper compare to Booking.com or Expedia?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Hopper Interview Guide (2026): Travel App Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nHopper\nhopper.com ↗\n\nHopper is the mobile-first travel platform that pioneered ML-powered price prediction for flights and hotels. Used by tens of millions for booking and price-watch features. The interview emphasizes mobile engineering, ML for pricing, and the unique constraints of the travel domain.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a price prediction model and serving infrastructure for flight prices\n\n- Design search across hundreds of airlines with sub-second latency\n\n- Design \"freeze the price\" features (financial product on top of travel)\n\n- Coding: medium DSA, often with caching or graph framing\n\n- Behavioral: customer focus, ownership, working with B2C scale\n\nLevels and comp (2026)\n\n- SE II: $150K–$190K total (US); CAD$135K–$170K (Montreal)\n\n- Senior SE: $215K–$285K\n\n- Staff: $310K–$410K\n\n- Principal: $430K–$570K\n\nPrep priorities\n\n- Be fluent in Scala (backend) or Python (ML); Swift/Kotlin for mobile roles\n\n- Understand ML system design and time-series forecasting\n\n- Brush up on airline data model: GDS, ATPCO, fare construction\n\nFrequently Asked Questions\n\nIs Hopper remote-friendly?\n\nHybrid in Montreal (HQ), Boston, Toronto, NYC, London. Some engineering roles fully remote.\n\nHow does Hopper compare to Booking.com or Expedia?\n\nHopper is mobile-first and ML-driven; legacy OTAs are desktop-heavy and inventory-broker-driven. Hopper comp is competitive with FAANG-Canada.\n\nWhat is the engineering culture?\n\nStrong technical bar, ML-curious, mobile-first. Montreal HQ gives it a different cultural feel from Bay Area peers.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Hopper? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextSystem Design: Twitter/X News Feed — Timeline Generation, Fanout-on-Write vs Read, Celebrity Problem, Ranking⏱ 9 min readDynamic Programming Knapsack Patterns: 0/1, Unbounded, Subset Sum⏱ 7 min readData Quality Service Low-Level Design: Rule Validation, Anomaly Detection, and Lineage Tracking⏱ 5 min read"
+}

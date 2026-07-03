@@ -1,0 +1,70 @@
+{
+  "company": "Zoom",
+  "slug": "zoom",
+  "url": "https://www.techinterview.org/companies/zoom",
+  "scrapedAt": "2026-07-02T07:29:45.189Z",
+  "interviewStages": [
+    "System design (1 round): real-time-communications-flavored prompts. \"Design a video conferencing system supporting 100K concurrent meetings with 10 participants each.\" \"Design the media routing layer for a global SFU deployment.\" \"Design the audio/video recording pipeline with per-participant tracks for post-meeting AI analysis.\"",
+    "Behavioral / hiring manager: past projects, how you handle real-time constraints, collaboration across global time zones (Zoom has large engineering presence in China and India with US integration)."
+  ],
+  "codingTopics": [
+    "Real-time buffer management (jitter buffer with bounded memory, reordering out-of-order packets)",
+    "Adaptive bitrate logic (given this bandwidth estimate, pick the right layer combination)",
+    "Stream aggregation (compute per-meeting statistics from a continuous event stream)",
+    "OO design (model a meeting session, chat thread, or recording pipeline with clean interfaces)",
+    "Classic algorithm problems with a real-time constraint twist (shortest path with latency budget, priority queue for packet scheduling)"
+  ],
+  "systemDesignTopics": [
+    "\"Design a global video conferencing infrastructure supporting 100K concurrent meetings.\"",
+    "\"Design the media routing layer with SFU nodes across 30 POPs.\"",
+    "\"Design the recording pipeline with per-participant tracks and post-meeting AI analysis.\"",
+    "\"Design the AI Companion summary pipeline with sub-minute end-of-meeting delivery.\""
+  ],
+  "behavioralTopics": [
+    "Real-time systems ownership: \"Describe a production issue where latency or quality degraded. How did you diagnose and fix?\"",
+    "Cross-timezone collaboration: \"How do you work effectively with teammates in different timezones?\" (Relevant given Zoom's US-Asia distribution.)",
+    "Post-boom realism: \"How do you think about shipping in a mature SaaS company versus a high-growth one?\"",
+    "AI product collaboration: \"How would you approach integrating AI into an existing feature that users rely on for real-time communication?\""
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Does Zoom use WebRTC?",
+      "How important is AI Companion for interview preparation?",
+      "How does China-based engineering factor in?",
+      "What's the stock compensation picture in 2026?",
+      "How does Zoom compare to Cisco WebEx or Microsoft Teams on interviews?"
+    ]
+  },
+  "difficulty": 7,
+  "tips": [
+    "Know WebRTC fundamentals. Even for backend roles, understanding ICE, STUN, TURN, simulcast signals technical currency.",
+    "Use AI Companion. Try the meeting summary, action items, and transcription features. Form opinions.",
+    "Prepare cross-timezone stories. Zoom's global engineering is real; demonstrate you've worked that way.",
+    "Engage with the product strategically. \"I see Zoom expanding from Meetings to a full communications platform; I think X team is doing the most interesting work because&#8230;\"",
+    "Match language to role. C++ for media/client, Java / Go for backend, Python for ML. Don't submit TypeScript for a media role.",
+    "Zoom engineering blog (posts on SFU, encoding, global routing)",
+    "High Performance Browser Networking (Grigorik) &mdash; WebRTC chapter",
+    "The WebRTC specification (at least ICE, STUN, TURN, SDP sections)",
+    "Designing Data-Intensive Applications (Kleppmann) for general systems",
+    "Recent Zoom earnings calls for product direction and AI investment context",
+    "A small WebRTC project (even a weekend app) for hands-on intuition"
+  ],
+  "compensation": [
+    "Software Engineer: $160k&ndash;$200k base, $70k&ndash;$140k equity/yr, 10% bonus. Total: ~$235k&ndash;$360k / year.",
+    "Senior Software Engineer: $205k&ndash;$260k base, $130k&ndash;$240k equity/yr. Total: ~$335k&ndash;$500k / year.",
+    "Staff Engineer: $270k&ndash;$330k base, $230k&ndash;$420k equity/yr. Total: ~$500k&ndash;$750k / year.",
+    "Zoom's infrastructure is more custom than people assume. The SFU, codecs, and network routing are proprietary, not WebRTC off-the-shelf.",
+    "AI Companion is central strategically, not an afterthought. Resources and leadership attention are real.",
+    "The China engineering center is substantial and does meaningful product work. US-China time zone collaboration is a real skill.",
+    "Compensation is competitive but not top-of-market; Zoom competes on technical problems and product scale, not cash.",
+    "Generic \"design a video chat\" answers that ignore SFU vs MCU, simulcast, and packet loss realities.",
+    "No understanding of WebRTC fundamentals when applying for client/media roles.",
+    "Dismissing Zoom as a \"pandemic stock\" without engaging with the current product direction.",
+    "No opinions about AI Companion or Zoom's AI product strategy."
+  ],
+  "rawSummary": "Zoom Interview Guide 2026: Real-Time Media, SFU Architecture, WebRTC, and AI Companion\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 23, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 23, 2026 · techinterview.org\n\n⏱ 9 min read\n\nZoom\nzoom.com ↗\n\nZoom Interview Process: Complete 2026 Guide\n\nOverview\n\nZoom is the real-time communications company behind Zoom Meetings, Zoom Phone, Zoom Contact Center, Zoom Workplace, and the growing AI Companion product line. Founded 2011 by Eric Yuan, public since 2019, ~8,400 employees in 2026. After the pandemic boom and subsequent normalization, the company pivoted from pure-Meetings to a broader communications and workflow platform, with AI-Companion-driven features (summaries, action items, transcription, meeting prep) forming a central strategic focus. Engineering is distributed globally: San Jose HQ, large centers in Hangzhou, Suzhou, Hefei, Bangalore, and remote hiring across the US. The product runs on custom real-time media infrastructure &mdash; proprietary SFU, adaptive bitrate codecs, and globally distributed POPs &mdash; which shapes the interview process in ways distinctive from most SaaS companies.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Zoom, team preference (Meetings client, Meetings backend, Phone, Contact Center, AI Companion, platform). Zoom's product sprawl means team selection matters &mdash; the Meetings client engineering bar looks different from the AI Companion ML bar.\n\nTechnical phone screen (60 min): one coding problem, medium difficulty. C++ for clients and media infrastructure; Java and Go for backend; Python for data and ML; TypeScript for web and AI Companion web surfaces. Problems vary widely by team &mdash; real-time systems problems for client/media, stream processing for backend, OO design for platform.\n\nTake-home (some senior / staff roles): 4&ndash;6 hours on a realistic piece of engineering. For ML / AI roles, often involves prototyping a small model or evaluation harness. For platform, a small API service.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (2 rounds): one algorithms round, one applied round. The applied round often involves real-time data processing &mdash; audio buffer handling, jitter buffer logic, bitrate adaptation math, or stream aggregation for analytics.\n\n- System design (1 round): real-time-communications-flavored prompts. \"Design a video conferencing system supporting 100K concurrent meetings with 10 participants each.\" \"Design the media routing layer for a global SFU deployment.\" \"Design the audio/video recording pipeline with per-participant tracks for post-meeting AI analysis.\"\n\n- Domain deep-dive (1 round): real-time media internals, codec fundamentals, network adaptation, or ML for audio depending on the role. Client engineers get WebRTC / native SDK questions; backend gets SFU architecture; AI roles get audio ML.\n\n- Behavioral / hiring manager: past projects, how you handle real-time constraints, collaboration across global time zones (Zoom has large engineering presence in China and India with US integration).\n\nTechnical Focus Areas\n\nClient coding (C++): audio / video pipeline basics, callback-driven programming, real-time constraints (jitter, latency, packet loss recovery), platform-specific codec APIs (VideoToolbox, MediaCodec, DirectX), memory management in tight loops.\n\nMedia infrastructure: SFU (Selective Forwarding Unit) vs MCU (Multipoint Control Unit) architectures, simulcast and SVC (Scalable Video Coding), adaptive bitrate algorithms, TCP vs UDP trade-offs for media, congestion control, forward error correction.\n\nNetworking: WebRTC protocol stack (ICE, STUN, TURN, SRTP), TCP congestion control variants, QUIC, NAT traversal, firewalls and enterprise network realities, measurement (MOS, R-factor, packet loss patterns).\n\nBackend system design: global routing with geographic presence points, signaling systems (WebSocket fan-out, presence), recording pipelines, chat persistence, meeting scheduling, enterprise identity integration (SAML, SSO, SCIM).\n\nAI / Companion: speech-to-text pipelines, diarization, summarization with LLMs, meeting context retrieval (RAG), action-item extraction, AI safety in enterprise contexts.\n\nEnterprise / security: end-to-end encryption for meetings, key management, data residency, compliance (FedRAMP, HIPAA, SOC 2), administrator controls.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty varies significantly by team. Client / media engineering can be quite hard (real-time code with memory and latency constraints); product and application backend rounds are medium. Languages: C++ for client/media, Java for backend platform, Go for newer services, Python for ML, TypeScript for web.\n\nTypical problem shapes:\n\n- Real-time buffer management (jitter buffer with bounded memory, reordering out-of-order packets)\n\n- Adaptive bitrate logic (given this bandwidth estimate, pick the right layer combination)\n\n- Stream aggregation (c"
+}

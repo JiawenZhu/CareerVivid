@@ -1,0 +1,74 @@
+{
+  "company": "Brex",
+  "slug": "brex",
+  "url": "https://www.techinterview.org/companies/brex",
+  "scrapedAt": "2026-07-02T07:16:47.190Z",
+  "interviewStages": [
+    "System design (1 round): fintech-focused prompts. \"Design the card-authorization path with <100ms latency.\" \"Design a ledger system with double-entry accounting and nightly reconciliation.\" \"Design fraud detection for real-time card transactions with a 1% false-positive budget.\"",
+    "Hiring manager / values: past ownership, how you deal with regulatory constraints, customer-focus stories.",
+    "Behavioral (1 round): standard STAR questions with a bias toward high-judgment situations."
+  ],
+  "codingTopics": [
+    "Implement a payment-handler API endpoint with idempotency, retry safety, and transactional correctness",
+    "Build a ledger-entry system that handles double-entry posting with consistency guarantees",
+    "Reconciliation algorithm: match internal transactions against external feeds with fuzzy rules",
+    "Authorization state machine with all failure paths (timeout, network error, bank decline, duplicate)",
+    "Classic algorithm problems (graphs, trees) with practical financial twists (money flow, approval chains)"
+  ],
+  "systemDesignTopics": [
+    "\"Design the card-authorization path with a strict 100ms latency budget, handling 10K TPS at peak.\"",
+    "\"Design a ledger system with double-entry accounting, audit logging, and nightly reconciliation.\"",
+    "\"Design real-time fraud detection that blocks 80% of true fraud with <1% false positives.\"",
+    "\"Design the expense-approval workflow engine for 5K enterprise customers with custom rules.\"",
+    "\"Tell me about a time you built something that handled money or high-stakes data.\"",
+    "\"What's the worst bug you've shipped to production? How did you catch it and how did you prevent it from happening again?\"",
+    "\"Describe a situation where you had to choose between shipping fast and getting it right.\""
+  ],
+  "behavioralTopics": [
+    "High-judgment situations: \"Describe a time you had to make a call with incomplete information where the downside was significant.\"",
+    "Regulatory awareness: \"Have you worked under compliance constraints? How did they shape your decisions?\"",
+    "Cross-functional collaboration: \"Tell me about a project involving risk, legal, or finance stakeholders. How did you align with them?\"",
+    "Ownership through hard quarters: Brex went through a 2022&ndash;2023 rightsizing; interviewers value candidates who've persisted through hard company moments."
+  ],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need Rails experience to get hired?",
+      "How does the craft round differ from a standard project deep-dive?",
+      "How has the 2022&ndash;2023 reset affected culture?",
+      "Is Brex compensation competitive with Stripe?",
+      "What about the AI product line?"
+    ]
+  },
+  "difficulty": 7.5,
+  "tips": [
+    "Ramp on Rails. Even 2 weeks of focused Rails work meaningfully improves your performance.",
+    "Know fintech primitives. Double-entry accounting, authorization vs capture, chargebacks, card-network rails. An hour of reading closes most gaps.",
+    "Prepare craft stories with specifics. Numbers, failures, preventive systems you built.",
+    "Engage with the reset. \"I saw Brex narrowed focus to enterprise spend; I think that's the right call because&#8230;\" beats pretending nothing changed.",
+    "Ask about the AI product line. It's the fastest-growing area and signals you're aware of the roadmap.",
+    "Brex engineering blog (posts on card authorization, ledger design, fraud systems)",
+    "Stripe engineering blog (especially idempotency and rate-limiting posts)",
+    "Designing Data-Intensive Applications (Kleppmann)",
+    "The Rails Doctrine (Heinemeier Hansson) for Rails philosophy",
+    "Effective Testing with RSpec 3 for RSpec depth",
+    "A small side project with Stripe payments + a double-entry ledger, to internalize the primitives"
+  ],
+  "compensation": [
+    "Software Engineer: $175k&ndash;$215k base, $150k&ndash;$280k equity (4 years), variable bonus. Total: ~$280k&ndash;$430k / year.",
+    "Senior Software Engineer: $225k&ndash;$285k base, $300k&ndash;$550k equity. Total: ~$390k&ndash;$600k / year.",
+    "Staff Engineer: $290k&ndash;$360k base, $600k&ndash;$1.2M equity. Total: ~$550k&ndash;$900k / year.",
+    "Ruby / Rails is the primary stack. Strong Node / Python-only candidates without Ruby experience need to ramp.",
+    "The craft deep-dive round is unusually rigorous for a fintech. Come prepared to go deep on real correctness work.",
+    "The 2022&ndash;2023 reset narrowed the product. Engineers who joined for the consumer-adjacent product should understand that enterprise and startup spend are now the focus.",
+    "AI spending in Brex is real &mdash; agent-driven expense categorization, automated controls &mdash; and growing fast.",
+    "Hand-waving on idempotency. \"We'd have unique IDs\" without engaging with retention, retry, and failure semantics signals shallow thinking.",
+    "Treating money as a generic data type. Every answer should implicitly acknowledge that lost data = lost money.",
+    "Weak craft stories. If your past projects are all feature work without correctness dimensions, you'll need to dig deeper.",
+    "Not understanding the product. Read about Brex cards, Empower, spend management before the interview."
+  ],
+  "rawSummary": "Brex Interview Guide 2026: Corporate Cards, Ruby/Rails Fintech, Ledger Design, and the Craft Round\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 23, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\tUpdated April 23, 2026 · techinterview.org\n\n⏱ 9 min read\n\nBrex\nbrex.com ↗\n\nBrex Interview Process: Complete 2026 Guide\n\nOverview\n\nBrex is the fintech platform for startup and enterprise spend &mdash; corporate cards, expense management, bill pay, treasury, and increasingly AI-driven finance workflows. Founded 2017 by Henrique Dubugras and Pedro Franceschi, private with a 2022 valuation of $12.3B and subsequent secondary tenders. ~1,100 employees in 2026 after multiple rightsizings that narrowed the company's focus back toward its core card + platform product. Headquartered in SF with offices in Salt Lake City, New York, and Vancouver; remote roles across North America are common. Engineering is Ruby / Rails-heavy for the application tier, with Go and Python for data and ML systems. Interviews reflect fintech reality: idempotency, reconciliation, fraud, compliance, and precise handling of money are weighted above algorithmic cleverness.\n\nInterview Structure\n\nRecruiter screen (30 min): background, why Brex, team interest (card platform, spend management, treasury, risk / fraud, AI). They ask about your comfort with financial-product complexity early; candidates who've only built consumer features get filtered toward application teams, not core fintech.\n\nTechnical phone screen (60 min): one coding problem, medium difficulty. Ruby and Python dominate for backend; TypeScript for frontend; Go for some infra. Problems tilt applied &mdash; parse this transaction stream, reconcile these records, implement this retry-safe handler.\n\nTake-home (some senior / staff roles): 4&ndash;6 hour project, typically a realistic financial-data exercise &mdash; transaction categorization, anomaly detection, small state machine for authorization flow. Code quality, test coverage, and clear documentation all matter.\n\nOnsite / virtual onsite (4&ndash;5 rounds):\n\n- Coding (1&ndash;2 rounds): one algorithms problem, one applied fintech problem. The applied round often covers idempotent transaction handlers, authorization state machines, or reconciliation logic with late-arriving data.\n\n- System design (1 round): fintech-focused prompts. \"Design the card-authorization path with <100ms latency.\" \"Design a ledger system with double-entry accounting and nightly reconciliation.\" \"Design fraud detection for real-time card transactions with a 1% false-positive budget.\"\n\n- Craft / domain round (1 round): a deep discussion of a past project with specific questions about how you handled money, concurrency, idempotency, or failure. Interviewers specifically probe for whether you understand that \"lost a message\" = \"lost money.\"\n\n- Hiring manager / values: past ownership, how you deal with regulatory constraints, customer-focus stories.\n\n- Behavioral (1 round): standard STAR questions with a bias toward high-judgment situations.\n\nTechnical Focus Areas\n\nCoding: Ruby / Rails fluency (idioms, ActiveRecord, service objects, testing with RSpec), idempotency keys, retry-with-backoff, rate limiting, state machines for authorization / refund flows.\n\nRails internals: ActiveRecord query patterns at scale, transaction semantics, race-condition avoidance (advisory locks, SELECT FOR UPDATE), background job patterns (Sidekiq), caching strategies, test isolation with database cleaner / transactional fixtures.\n\nSystem design: card authorization networks (EMV, ISO 8583 at a conceptual level), double-entry ledgers with immutable transaction logs, reconciliation between internal state and card network / bank feeds, idempotent payment APIs, fraud-signal aggregation in real time.\n\nData: PostgreSQL at fintech scale &mdash; partitioning, query optimization, index strategies for ledger-style tables, snapshot-isolation semantics. Kafka / Kinesis for event streams.\n\nFraud / risk: feature engineering for real-time risk, model serving with <50ms budgets, rule engines alongside ML, adversarial robustness, model-monitoring in production.\n\nAI / spend management: RAG over enterprise spend data, agent patterns for expense categorization, prompt safety in financial contexts. Relevant for the growing AI product surface.\n\nCoding Interview Details\n\nTwo coding rounds, 60 minutes each. Difficulty is medium &mdash; below Google L5 on pure algorithms but with sharp expectations on idempotency, concurrency, and correctness under partial failure. Ruby is strongly preferred for product-engineering roles; writing idiomatic Rails service objects and respecting transactional boundaries matters.\n\nTypical problem shapes:\n\n- Implement a payment-handler API endpoint with idempotency, retry safety, and transactional correctness\n\n- Build a ledger-entry system that handles double-entry posting with consistency guarantees\n\n- Reconciliation algorithm: match internal transactions against external feeds with fuzzy rules\n\n- "
+}

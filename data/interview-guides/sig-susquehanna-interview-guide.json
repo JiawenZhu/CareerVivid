@@ -1,0 +1,36 @@
+{
+  "company": "SIG Susquehanna",
+  "slug": "sig-susquehanna-interview-guide",
+  "url": "https://www.techinterview.org/companies/sig-susquehanna-interview-guide",
+  "scrapedAt": "2026-07-02T07:18:34.054Z",
+  "interviewStages": [
+    "\"You're playing a game where you flip coins until you get two heads in a row. What's the expected number of flips?\"",
+    "\"In a poker hand, you have a 30% chance of winning. The pot is $100 and your opponent bets $50. Should you call?\"",
+    "\"Make me a market on the number of dominos in a standard set.\"",
+    "Multiple back-to-back interviews with traders (probability, market making, sometimes coding)",
+    "Group exercise / trading game",
+    "Poker hand discussion (if you've played) or a structured decision-theory problem",
+    "Behavioral / culture-fit conversations",
+    "Lunch with current traders"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Do I need to play poker to get hired at SIG?",
+      "How does SIG's training program work?",
+      "Is SIG worth interviewing at if I'm focused on Jane Street / Citadel Securities?",
+      "Where is SIG based and how location-flexible are roles?",
+      "What kind of background does SIG hire?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "SIG (Susquehanna) Interview Guide: Poker, Options & Decision Theory\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  April 25, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- SIG (Susquehanna) Interview Guide: Poker, Options, and Decision Theory\n\n- What SIG Does\n\n- Roles SIG Hires For\n\n- SIG Interview Process\n\n- What SIG Tests For\n\n- Preparation Strategy\n\n- SIG vs Other Market-Making Firms\n\n- Compensation\n\n- Frequently Asked Questions\n\nUpdated April 25, 2026 · techinterview.org\n\n⏱ 6 min read\n\nSIG (Susquehanna)\nsig.com ↗\n\nSIG (Susquehanna) Interview Guide: Poker, Options, and Decision Theory\n\nSusquehanna International Group &mdash; \"SIG\" &mdash; is one of the largest options market-making firms in the world and is famously the home of the \"poker culture\" in quant trading. Founded in 1987 outside Philadelphia, SIG built its trading approach around the same skills that win poker tournaments: incomplete information, expected-value reasoning, opponent modeling, and disciplined bet sizing. The interview process reflects this culture, and SIG remains one of the most distinctive interview experiences in quant finance.\n\nWhat SIG Does\n\nSIG is a proprietary trading firm focused on options market making, with significant business in equities, ETFs, fixed income, FX, and structured products. The firm is headquartered in Bala Cynwyd, Pennsylvania, with offices in New York, Chicago, Dublin, London, Hong Kong, Singapore, Sydney, and elsewhere. SIG trades its own capital; profit comes from spread capture and disciplined risk management, not client management.\n\nThe firm's trading approach is rooted in expected-value decision-making under uncertainty &mdash; the same framework as serious poker. Many of SIG's senior traders are former competitive poker players, and the firm runs internal poker tournaments as part of trader training. The intuition: a trader who can quote a fair market on an unknown, manage inventory across many positions, and stay disciplined when variance hits is functionally doing what a good poker player does at a table.\n\nRoles SIG Hires For\n\nQuantitative Trader\n\nThe flagship role. New graduates enter SIG's trader training program (in Bala Cynwyd or Dublin), spend several months on options theory, market simulation, and poker training, then move to a trading desk. The training program is intensive and is a meaningful filter on top of the interview process.\n\nQuantitative Researcher\n\nBuilds models, signals, and analytics for trading desks. Heavier on math, statistics, and programming than the trader role. PhD candidates often end up here.\n\nSoftware Engineer / Technology\n\nBuilds trading systems, exchange connectivity, risk infrastructure, market-data systems. SIG has a substantial technology organization; SWE roles are not second-class.\n\nQuantitative Strategist (QS)\n\nHybrid trader-quant role on certain desks; combines model development with active trading.\n\nSIG Interview Process\n\nRound 1: Online assessment\n\nProbability, brainteaser, and quantitative reasoning questions. Some candidates also see a logic / sequencing component. Less mental-math-heavy than Optiver's 80-in-8 but still timed and demanding.\n\nRound 2: First-round interview (phone or video)\n\n30&ndash;45 minutes with a recruiter or junior trader. Probability brainteasers, expected-value problems, motivation discussion. Expect 3&ndash;5 problems, ranging from coin/dice classics to slightly stranger setups (the interviewer is gauging how you reason under partial information).\n\nRound 3: Technical phone or video interview\n\nDeeper probability, market making, and a poker / decision-theory question or two. Sample questions:\n\n- \"You're playing a game where you flip coins until you get two heads in a row. What's the expected number of flips?\"\n\n- \"In a poker hand, you have a 30% chance of winning. The pot is $100 and your opponent bets $50. Should you call?\"\n\n- \"Make me a market on the number of dominos in a standard set.\"\n\nRound 4: SIG on-site (or virtual on-site)\n\nMulti-hour event. Includes:\n\n- Multiple back-to-back interviews with traders (probability, market making, sometimes coding)\n\n- Group exercise / trading game\n\n- Poker hand discussion (if you've played) or a structured decision-theory problem\n\n- Behavioral / culture-fit conversations\n\n- Lunch with current traders\n\nRound 5: Final / decision\n\nSenior trader review. Decision usually within a week.\n\nWhat SIG Tests For\n\nExpected-value reasoning\n\nSIG wants traders who instinctively think \"what's the EV of this decision?\" rather than \"what's the most likely outcome?\" Brainteasers are designed to probe this: situations where the most likely outcome differs from the highest-EV decision (Monty Hall is a classic example). Strong candidates compute EVs out loud, considering multiple branches.\n\nProbability under partial information\n\nConditional probability problems. Bayesian updating. Information cascades. The interviewer might reveal partial information mid-problem and watch how you update your estimate.\n\nMarket-making"
+}

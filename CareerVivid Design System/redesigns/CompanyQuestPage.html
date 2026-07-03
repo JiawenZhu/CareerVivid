@@ -1,0 +1,154 @@
+<!-- @dsCard group="Redesigns" viewport="900x780" name="Company Quest page" subtitle="Stage map on brand purple — replaces the indigo version" -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CompanyQuestPage — redesign</title>
+<link rel="stylesheet" href="../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="lucide-icons.js"></script>
+<style>body { margin: 0; background: var(--cv-neutral-50); }</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const P = '#625bd5', PH = '#514ac5', PSOFT = '#eef0ff', PRING = '#dfe2ff', PTINT = '#f3f2ff';
+const G = { bg: '#eef9f2', border: '#cfe8d5', text: '#15803d', deep: '#166534' };
+
+function Ic({ name, size = 16, sw = 2, style }) {
+  return <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" style={style}
+    dangerouslySetInnerHTML={{ __html: window.CV_LUCIDE[name] || '' }} />;
+}
+
+const questStages = [
+  { id: 'screen', title: 'Recruiter screen', desc: 'Motivation, background, and role fit with a Google recruiter.', pass: 70, state: 'cleared', best: 84, attempts: 2, icon: 'mic' },
+  { id: 'phone', title: 'Technical phone screen', desc: 'One 45-minute coding conversation — data structures and algorithms.', pass: 70, state: 'cleared', best: 76, attempts: 3, icon: 'mic' },
+  { id: 'onsite', title: 'Onsite coding rounds', desc: 'Two back-to-back coding interviews at onsite difficulty.', pass: 75, state: 'unlocked', best: 68, attempts: 1, icon: 'mic' },
+  { id: 'system_design', title: 'System design', desc: 'Design a real Google-scale system on the whiteboard.', pass: 75, state: 'locked', icon: 'pen-tool' },
+  { id: 'googleyness', title: 'Googleyness & leadership', desc: 'Behavioral round on collaboration, ambiguity, and leadership.', pass: 70, state: 'locked', icon: 'mic' },
+];
+
+function QuestButton({ kind, children, icon }) {
+  const [h, setH] = React.useState(false);
+  const styles = kind === 'primary'
+    ? { background: h ? PH : P, color: '#fff', border: '1px solid transparent' }
+    : { background: h ? 'var(--cv-neutral-50)' : '#fff', color: 'var(--cv-neutral-700)', border: '1px solid var(--cv-border-product)' };
+  return (
+    <button type="button" onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
+      style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, height: 34, padding: '0 13px',
+        borderRadius: 8, fontFamily: 'var(--cv-font-body)', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+        boxShadow: 'var(--cv-shadow-card)', transition: 'all 120ms cubic-bezier(0.2,0,0,1)', whiteSpace: 'nowrap', ...styles }}>
+      {icon ? <Ic name={icon} size={14} /> : null}{children}
+    </button>
+  );
+}
+
+function StageNode({ state, index }) {
+  const base = { display: 'flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 999, flexShrink: 0, fontFamily: 'var(--cv-font-body)', fontSize: 13, fontWeight: 800, position: 'relative', zIndex: 1 };
+  if (state === 'cleared') return <span style={{ ...base, background: G.text, color: '#fff' }}><Ic name="check" size={16} sw={3} /></span>;
+  if (state === 'unlocked') return <span style={{ ...base, background: P, color: '#fff', boxShadow: `0 0 0 4px ${PTINT}` }}>{index + 1}</span>;
+  return <span style={{ ...base, background: 'var(--cv-neutral-100)', color: 'var(--cv-neutral-400)', border: '1px solid var(--cv-border-product)' }}><Ic name="lock" size={13} /></span>;
+}
+
+function StageRow({ stage, index, isLast }) {
+  const s = stage.state;
+  const current = s === 'unlocked';
+  return (
+    <li style={{ display: 'flex', gap: 14, position: 'relative', listStyle: 'none' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <StageNode state={s} index={index} />
+        {!isLast ? <span style={{ width: 2, flex: 1, minHeight: 18, background: s === 'cleared' ? G.border : 'var(--cv-neutral-200)' }}></span> : null}
+      </div>
+      <div style={{ flex: 1, minWidth: 0, paddingBottom: isLast ? 0 : 12 }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 12,
+          background: s === 'locked' ? 'transparent' : '#fff',
+          border: `1px solid ${current ? PRING : s === 'cleared' ? G.border : 'var(--cv-border-product)'}`,
+          boxShadow: current ? '0 8px 24px rgba(98,91,213,0.08)' : s === 'cleared' ? 'var(--cv-shadow-card)' : 'none',
+          opacity: s === 'locked' ? 0.72 : 1,
+        }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <h2 style={{ margin: 0, fontFamily: 'var(--cv-font-body)', fontSize: 14, fontWeight: 700, color: 'var(--cv-neutral-900)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{stage.title}</h2>
+              {current ? <span style={{ borderRadius: 999, padding: '2px 8px', fontSize: 10, fontWeight: 700, background: PTINT, color: P, border: `1px solid ${PRING}`, whiteSpace: 'nowrap' }}>Up next</span> : null}
+            </div>
+            <p style={{ margin: '3px 0 0', fontSize: 12, fontWeight: 500, lineHeight: 1.5, color: 'var(--cv-text-body-product)' }}>{stage.desc}</p>
+            <p style={{ margin: '5px 0 0', fontSize: 11, fontWeight: 600, color: 'var(--cv-neutral-400)' }}>
+              Pass ≥ {stage.pass}{stage.best != null ? <span> · Best score {stage.best} · {stage.attempts} attempt{stage.attempts === 1 ? '' : 's'}</span> : null}
+            </p>
+          </div>
+          <div style={{ flexShrink: 0 }}>
+            {s === 'locked'
+              ? <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--cv-neutral-400)' }}>Clear previous stage</span>
+              : s === 'cleared'
+                ? <QuestButton kind="neutral" icon="rotate-ccw">Improve score</QuestButton>
+                : <QuestButton kind="primary" icon={stage.id === 'system_design' ? 'pen-tool' : 'chevron-right'}>{stage.id === 'system_design' ? 'Open whiteboard' : 'Start stage'}</QuestButton>}
+          </div>
+        </div>
+      </div>
+    </li>
+  );
+}
+
+function Page() {
+  const cleared = questStages.filter((s) => s.state === 'cleared').length;
+  return (
+    <div style={{ maxWidth: 760, margin: '0 auto', padding: '20px 24px 32px', fontFamily: 'var(--cv-font-body)' }}>
+      <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 14, border: 'none', background: 'none', padding: 0, fontFamily: 'var(--cv-font-body)', fontSize: 13, fontWeight: 600, color: 'var(--cv-neutral-500)', cursor: 'pointer' }}>
+        <Ic name="arrow-left" size={15} /> Interview Studio
+      </button>
+
+      <header style={{ background: '#fff', border: '1px solid var(--cv-border-product)', borderRadius: 16, padding: 20, boxShadow: 'var(--cv-shadow-card)' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+          <div style={{ display: 'flex', gap: 12, minWidth: 0 }}>
+            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40, flexShrink: 0, borderRadius: 12, background: P, color: '#fff', boxShadow: '0 4px 12px rgba(98,91,213,0.25)' }}>
+              <Ic name="swords" size={19} />
+            </span>
+            <div style={{ minWidth: 0 }}>
+              <h1 style={{ margin: 0, fontSize: 20, fontWeight: 800, letterSpacing: 0, color: 'var(--cv-neutral-900)' }}>Google quest</h1>
+              <p style={{ margin: '4px 0 0', fontFamily: 'var(--cv-font-body)', fontSize: 13, fontWeight: 500, lineHeight: 1.55, color: 'var(--cv-text-body-product)' }}>
+                Clear every stage of the real Google interview loop. Each stage is a live AI mock interview — score 70+ to advance.
+              </p>
+            </div>
+          </div>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, flexShrink: 0, borderRadius: 999, padding: '4px 10px', fontSize: 11, fontWeight: 700, background: 'var(--cv-neutral-100)', color: 'var(--cv-neutral-700)' }}>
+            <Ic name="bar-chart-3" size={12} /> 8/10 difficulty
+          </span>
+        </div>
+        <div style={{ marginTop: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--cv-neutral-500)' }}>{cleared} / {questStages.length} stages cleared</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: P }}>+40 XP per first clear · +200 XP quest bonus</span>
+          </div>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {questStages.map((s, i) => (
+              <span key={s.id} style={{ flex: 1, height: 6, borderRadius: 999, background: s.state === 'cleared' ? P : i === cleared ? PRING : 'var(--cv-neutral-100)' }}></span>
+            ))}
+          </div>
+        </div>
+      </header>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '14px 0', padding: '11px 14px', borderRadius: 12, background: G.bg, border: `1px solid ${G.border}` }}>
+        <Ic name="check-circle-2" size={18} style={{ color: G.text, flexShrink: 0 }} />
+        <div>
+          <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: G.deep }}>Technical phone screen cleared with a score of 76!</p>
+          <p style={{ margin: '1px 0 0', fontSize: 11, fontWeight: 600, color: G.text }}>+40 XP — next stage unlocked.</p>
+        </div>
+      </div>
+
+      <ol style={{ margin: 0, padding: 0 }}>
+        {questStages.map((stage, i) => (
+          <StageRow key={stage.id} stage={stage} index={i} isLast={i === questStages.length - 1} />
+        ))}
+      </ol>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Page />);
+</script>
+</body>
+</html>

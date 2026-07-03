@@ -1,0 +1,27 @@
+{
+  "company": "CircleCI",
+  "slug": "circleci-interview-guide",
+  "url": "https://www.techinterview.org/companies/circleci-interview-guide",
+  "scrapedAt": "2026-07-02T07:21:03.792Z",
+  "interviewStages": [
+    "Behavioral: ownership, customer focus, working through ambiguity"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is CircleCI remote-friendly?",
+      "How does CircleCI compare to GitHub Actions?",
+      "What is the post-incident culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "CircleCI Interview Guide (2026): CI/CD Platform Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nCircleCI\ncircleci.com ↗\n\nCircleCI is one of the most widely-used CI/CD platforms — runs millions of builds daily for tens of thousands of customers. The interview emphasizes large-scale build orchestration, container scheduling, and the operational challenges of running a multi-tenant system where customers can submit arbitrary code.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (DSA medium) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–4 weeks.\n\nWhat they actually ask\n\n- Design a multi-tenant build scheduler running customer-submitted code in isolated environments\n\n- Design log streaming from running containers to a queryable backend\n\n- Design caching for npm/pip/maven artifacts with multi-tenant invalidation\n\n- Coding: medium DSA, often with concurrency or scheduling flavor\n\n- Behavioral: ownership, customer focus, working through ambiguity\n\nLevels and comp (2026)\n\n- SE II: $160K–$200K total\n\n- Senior SE: $220K–$290K\n\n- Staff: $310K–$410K\n\n- Principal: $440K–$570K\n\nPrep priorities\n\n- Be fluent in Clojure (CircleCI's heritage stack) or Go (newer services); willingness to ramp up matters\n\n- Understand container internals: Docker, runc, Kubernetes\n\n- Brush up on multi-tenant security: sandboxing, secrets management\n\nFrequently Asked Questions\n\nIs CircleCI remote-friendly?\n\nDistributed-first. Hubs in San Francisco, Denver, Tokyo. Many engineering roles fully remote.\n\nHow does CircleCI compare to GitHub Actions?\n\nGitHub Actions is tightly integrated with the GitHub ecosystem; CircleCI is independent and more flexible for complex multi-stage pipelines. Comp is comparable.\n\nWhat is the post-incident culture?\n\nStrong. CircleCI famously published detailed post-mortems for the 2023 security incident; the engineering culture treats incident review as a learning opportunity.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for CircleCI? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextTower Research Capital Interview Guide: Quantitative Trading, Team Autonomy, Engineering Platform⏱ 6 min readKnowledge Graph Low-Level Design: Entity Storage, Relationship Traversal, and Graph Query Optimization⏱ 6 min readAMD Interview Guide 2026: Ryzen, EPYC, Instinct AI, ROCm, Closing the NVIDIA Gap⏱ 6 min read"
+}

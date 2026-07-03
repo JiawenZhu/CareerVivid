@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase';
 import { collection, query, onSnapshot, doc, setDoc, updateDoc, arrayUnion, serverTimestamp, orderBy, getDoc, deleteDoc, getDocs, writeBatch } from 'firebase/firestore';
 import { Job, PracticeHistoryEntry, InterviewAnalysis, InterviewSessionDraft } from '../types';
+import { awardInterviewCompletion } from '../services/progressService';
 
 // Creates a stable, URL-safe ID from the job title and company.
 const createJobId = (job: Omit<Job, 'id' | 'location' | 'description' | 'url'>): string => {
@@ -99,6 +100,13 @@ export const usePracticeHistory = () => {
             activeInterviewDraft: null,
             timestamp: serverTimestamp() // Also update the main timestamp for recency sorting
         });
+
+        // Gamification: award XP for the completed interview. Idempotent per
+        // analysis id and never allowed to break the interview save itself.
+        void awardInterviewCompletion(currentUser.uid, newAnalysis).catch((error) => {
+            console.error('Failed to award interview XP:', error);
+        });
+
         return newAnalysis;
     }, [currentUser]);
 

@@ -1,0 +1,25 @@
+{
+  "company": "Klaviyo",
+  "slug": "klaviyo-interview-guide",
+  "url": "https://www.techinterview.org/companies/klaviyo-interview-guide",
+  "scrapedAt": "2026-07-02T07:23:41.253Z",
+  "interviewStages": [],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Does Klaviyo use Python?",
+      "Is Klaviyo remote-friendly?",
+      "What is the offer negotiation flexibility?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Klaviyo Interview Guide (2026): Marketing Automation Engineering\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 5, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 5, 2026 · techinterview.org\n\n⏱ 1 min read\n\nKlaviyo\nklaviyo.com ↗\n\nKlaviyo IPO'd in 2023 and is now the dominant ecommerce marketing automation platform — billions of emails and SMS sent monthly, real-time segmentation across hundreds of millions of profiles. The interview emphasizes data-heavy system design and pragmatic coding over LeetCode-hard puzzles.\n\nProcess\n\nRecruiter screen → 60-minute coding phone (one medium DSA + one applied data question) → onsite virtual loop of 4 rounds: coding (pair programming, often Python), system design (segmentation/email pipeline), behavioral, and hiring manager. Senior candidates get an additional architecture round. Cycle: 2–3 weeks.\n\nWhat they actually ask\n\n- Design real-time customer segmentation that updates as events arrive\n\n- Design email send infrastructure with throttling, suppression lists, and per-domain reputation\n\n- Build a flow engine where users define multi-step automation triggers (debounce, branching, delays)\n\n- Coding: array/string medium, often involves event streams or aggregation\n\n- SQL questions for some data-leaning roles (window functions, joins, aggregations)\n\nLevels and comp (2026)\n\n- SE I: $150K–$180K total\n\n- SE II: $200K–$250K\n\n- Senior SE: $280K–$360K\n\n- Staff: $380K–$500K\n\nPrep priorities\n\n- Practice event-driven architecture, Kafka, materialized views, and Postgres at scale\n\n- Be ready to discuss tradeoffs between real-time and batch segmentation\n\n- Klaviyo loves curiosity — bring questions about ecommerce, deliverability, or growth metrics\n\nFrequently Asked Questions\n\nDoes Klaviyo use Python?\n\nYes. The backend is heavily Python with some Go and Scala. Pair programming rounds typically use Python.\n\nIs Klaviyo remote-friendly?\n\nHybrid in Boston/Denver/London; fully remote roles exist for select teams.\n\nWhat is the offer negotiation flexibility?\n\nBase is firm; equity has more room. Always negotiate the equity grant and target bonus percentage.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Klaviyo? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextEvent Calendar Low-Level Design: Event Model, Recurring Rules, and Conflict Detection⏱ 5 min readWebSocket Server Low-Level Design: Real-Time Connections, Routing, and Scaling⏱ 8 min readLow Level Design: Electronic Health Records System⏱ 9 min read"
+}

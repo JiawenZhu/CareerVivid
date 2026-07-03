@@ -203,6 +203,12 @@ service cloud.firestore {
         }
       }
 
+      // Gamification progress lives at progress/summary with an append-only
+      // events subcollection (progress/summary/events/{dedupeId}). Owner
+      // access is granted by the catch-all below. XP is client-awarded for
+      // now (users can only affect their own totals); before shipping any
+      // leaderboard or XP-gated rewards, move awarding into a Cloud Function
+      // and restrict client writes to this namespace.
       match /{allChildren=**} {
         allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
       }

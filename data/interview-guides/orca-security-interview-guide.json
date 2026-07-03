@@ -1,0 +1,27 @@
+{
+  "company": "Orca Security",
+  "slug": "orca-security-interview-guide",
+  "url": "https://www.techinterview.org/companies/orca-security-interview-guide",
+  "scrapedAt": "2026-07-02T07:24:48.471Z",
+  "interviewStages": [
+    "Behavioral: ownership, customer empathy for security teams, regulated-industry care"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Orca remote-friendly?",
+      "How does Orca compare to Wiz, Lacework, or Prisma Cloud?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Orca Security Interview Guide (2026): Agentless Cloud Security\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nOrca Security\norca.security ↗\n\nOrca Security is a leading agentless cloud-security platform — scans cloud infrastructure (AWS, Azure, GCP) without deploying agents on workloads. Series E, $1.8B valuation. The interview emphasizes cloud-internals depth, the agentless side-scan architecture, and the engineering of security data normalization across the major hyperscalers.\n\nProcess\n\nRecruiter screen → 60-minute coding (Python or Go) → onsite virtual: 2 coding, 1 system design, 1 craft deep-dive, 1 behavioral. Cycle: 3–5 weeks.\n\nWhat they actually ask\n\n- Design an agentless side-scan architecture (snapshot, attach, scan)\n\n- Design a vulnerability database mapping to CVE and cloud-asset graph\n\n- Design a cloud-graph that connects identity, network, and workload risks\n\n- Coding: medium DSA, often with parsing, graph, or scheduling framing\n\n- Behavioral: ownership, customer empathy for security teams, regulated-industry care\n\nLevels and comp (2026)\n\n- SE: $165K–$220K total\n\n- Senior SE: $235K–$320K total\n\n- Staff: $335K–$455K total\n\n- Principal: $470K–$640K total\n\nPrep priorities\n\n- Be fluent in Python (security-flavored services) and Go (some platform)\n\n- Understand AWS / Azure / GCP cloud-security primitives (IAM, network, snapshot APIs)\n\n- Brush up on cloud-attack paths (Identity-based attacks, lateral movement, privilege escalation)\n\nFrequently Asked Questions\n\nIs Orca remote-friendly?\n\nHubs in Tel Aviv and Portland OR. Many engineering roles remote within US/Israel.\n\nHow does Orca compare to Wiz, Lacework, or Prisma Cloud?\n\nWiz is the largest by velocity / customer count. Lacework focuses on workload protection. Prisma Cloud (Palo Alto Networks) is the legacy enterprise option. Orca differentiates on agentless side-scan depth. Comp competitive at senior+ for cloud security.\n\nWhat is the engineering culture?\n\nMature, customer-driven, calmer pace post-2024 reorgs. Strong Israeli-US distributed culture.\n\nSimilar company guides\n\nChronosphereinterview guideDopplerinterview guideReka AIinterview guideSakana AIinterview guideDuckDB Labsinterview guideSingleStoreinterview guide\n\nPrepping for Orca Security? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextLow Level Design: Circuit Breaker Service⏱ 9 min readSystem Design: Service Discovery — Consul, DNS, etcd, Eureka, Health Checking, Load Balancing, Kubernetes Services⏱ 7 min readDesign a Mobile Chat App: WhatsApp, iMessage, and the Hard Parts⏱ 2 min read"
+}

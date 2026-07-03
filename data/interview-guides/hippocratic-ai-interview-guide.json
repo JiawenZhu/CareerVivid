@@ -1,0 +1,27 @@
+{
+  "company": "Hippocratic AI",
+  "slug": "hippocratic-ai-interview-guide",
+  "url": "https://www.techinterview.org/companies/hippocratic-ai-interview-guide",
+  "scrapedAt": "2026-07-02T07:13:44.454Z",
+  "interviewStages": [
+    "Behavioral: ownership, regulated-industry care, mission alignment"
+  ],
+  "codingTopics": [],
+  "systemDesignTopics": [],
+  "behavioralTopics": [],
+  "sampleQuestions": {
+    "coding": [],
+    "behavioral": [],
+    "systemDesign": [],
+    "values": [],
+    "other": [
+      "Is Hippocratic remote-friendly?",
+      "How does Hippocratic compare to Abridge, Suki, or Nuance DAX?",
+      "What is the engineering culture?"
+    ]
+  },
+  "difficulty": null,
+  "tips": [],
+  "compensation": null,
+  "rawSummary": "Hippocratic AI Interview Guide (2026): Healthcare LLM Platform\nBy \t\t\t\n\t\t\t\t\n\t\t\t\ttechinterview.org\t\t\t\n\t\t\t\n\t\t\n\n\t\t /  May 6, 2026 \n\t\t\t\n\t\t\n\n\t\n\t\n\t\n\n\t\t\n\t\t\nOn this page\n\n- Process\n\n- What they actually ask\n\n- Levels and comp (2026)\n\n- Prep priorities\n\n- Frequently Asked Questions\n\nUpdated May 6, 2026 · techinterview.org\n\n⏱ 1 min read\n\nHippocratic AI\nhippocraticai.com ↗\n\nHippocratic AI builds clinical-grade LLM agents for low-acuity healthcare tasks (post-discharge follow-up, chronic care check-ins, medication reconciliation). Series B in 2024 with strong clinical advisory board. The interview emphasizes regulated-industry AI engineering, clinical evaluation methodology, and the deep safety-engineering required for healthcare applications.\n\nProcess\n\nRecruiter screen → 60-minute coding (Python preferred) → onsite virtual: 2 coding, 1 ML system design, 1 craft deep-dive, 1 behavioral with clinical safety lens. Cycle: 4–6 weeks.\n\nWhat they actually ask\n\n- Design a clinical-grade LLM agent with safety guardrails\n\n- Design a real-time voice-agent pipeline (ASR → LLM → TTS) for patient calls\n\n- Design an evaluation harness for clinical safety with physician review\n\n- Coding: medium DSA, sometimes clinical-data-flavored\n\n- Behavioral: ownership, regulated-industry care, mission alignment\n\nLevels and comp (2026)\n\n- SE: $185K–$250K total\n\n- Senior SE: $260K–$355K total\n\n- Staff / ML: $370K–$520K+ total\n\nPrep priorities\n\n- Be fluent in Python (most of the platform)\n\n- Understand healthcare data (FHIR, HL7), HIPAA constraints, and clinical workflows\n\n- Brush up on LLM safety / red-teaming, voice-agent architecture, and clinical evaluation\n\nFrequently Asked Questions\n\nIs Hippocratic remote-friendly?\n\nHubs in San Francisco and Austin. Many engineering roles remote within US.\n\nHow does Hippocratic compare to Abridge, Suki, or Nuance DAX?\n\nAbridge focuses on clinical documentation. Suki is voice-driven scribe. Nuance DAX (Microsoft) is the incumbent. Hippocratic differentiates on patient-facing agents (not provider-facing). Comp competitive for vertical AI.\n\nWhat is the engineering culture?\n\nMission-driven, careful, calmer than frontier-lab pace. Strong clinical-advisor culture; engineers expected to engage with safety and clinical context.\n\nSimilar company guides\n\nReka AIinterview guideSakana AIinterview guideBlack Forest Labsinterview guideRunwayinterview guidePika Labsinterview guideSunointerview guide\n\nPrepping for Hippocratic AI? Put it to work:\nBuild a study planCheck your resumeCalculate the offerUp nextDatabase Sharding Strategies: Low-Level Design⏱ 4 min readSliding Window Interview Patterns: A Complete Guide (2025)⏱ 8 min readDesign Mobile Maps: Vector Tiles, Routing, and Offline⏱ 2 min read"
+}
