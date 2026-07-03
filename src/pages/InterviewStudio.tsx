@@ -588,8 +588,8 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                         type="button"
                         onClick={() => onChange(option)}
                         className={`min-h-[34px] rounded-md px-2 text-xs font-semibold leading-tight transition-colors ${value === option
-                            ? 'bg-white text-indigo-700 shadow-sm dark:bg-gray-700 dark:text-indigo-200'
-                            : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'
+                            ? 'border border-[#dfe2ff] bg-[#eef0ff] text-[#625bd5] shadow-sm dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]'
+                            : 'text-gray-600 hover:bg-white hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'
                             }`}
                         aria-pressed={value === option}
                     >
@@ -683,7 +683,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
     const renderCompanyGuideCards = () => (
         <section className="@container/guides overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
             {/* Header */}
-            <div className="border-b border-gray-100 bg-gradient-to-br from-[#f3f2ff]/80 via-white to-white p-4 sm:p-5 dark:border-gray-800 dark:from-[#2f2b55]/35 dark:via-gray-900 dark:to-gray-900">
+            <div className="border-b border-gray-100 bg-[#fbfbff] p-4 sm:p-5 dark:border-gray-800 dark:bg-gray-900">
                 <div className="flex flex-col gap-3 @[720px]/guides:flex-row @[720px]/guides:items-center @[720px]/guides:justify-between">
                     <div className="min-w-0">
                         <div className="flex items-center gap-2">
@@ -896,7 +896,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                 <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Recent sessions</h2>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{practiceHistory.length} saved</p>
                             </div>
-                            <Mic className="text-indigo-500 flex-shrink-0" size={20} />
+                            <Mic className="flex-shrink-0 text-[#625bd5]" size={20} />
                         </div>
 
                         <div className="grid grid-cols-1 @[720px]/interview-page:grid-cols-2 @[1040px]/interview-page:grid-cols-3 gap-3">
@@ -923,7 +923,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                                     {(practiceCount > 0 || resumableDraft) && (
                                                         <div className="flex shrink-0 flex-col items-end gap-1">
                                                             {practiceCount > 0 && (
-                                                                <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-bold text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300">
+                                                                <span className="rounded-full border border-[#dfe2ff] bg-[#eef0ff] px-2 py-0.5 text-[11px] font-bold text-[#625bd5] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]">
                                                                     {practiceCount} {practiceCount === 1 ? 'practice' : 'practices'}
                                                                 </span>
                                                             )}
@@ -980,7 +980,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                                         type="button"
                                                         onClick={() => setSelectedJobForReport(entry)}
                                                         disabled={!entry.interviewHistory || entry.interviewHistory.length === 0}
-                                                        className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md bg-indigo-50 px-2.5 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-100 hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-indigo-950/40 dark:text-indigo-300 dark:ring-indigo-900/60 dark:hover:bg-indigo-950/70"
+                                                        className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md border border-[#dfe2ff] bg-[#eef0ff] px-2.5 text-xs font-semibold text-[#625bd5] hover:bg-[#e6e8ff] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff] dark:hover:bg-[#312d6b]"
                                                     >
                                                         <BarChart3 size={14} /> Report
                                                     </button>
@@ -1002,7 +1002,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                             <section className="@container/setup bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5 @[720px]/setup:p-6 shadow-sm">
                                 <div className="flex flex-col gap-5">
                                     <div>
-                                        <div className="inline-flex items-center gap-2 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 rounded-full px-2.5 py-1 mb-3">
+                                        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#dfe2ff] bg-[#eef0ff] px-2.5 py-1 text-xs font-semibold text-[#625bd5] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]">
                                             <Mic size={14} />
                                             <span>Interview workspace</span>
                                         </div>
@@ -1022,11 +1022,11 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                                     value={prompt}
                                                     onChange={(e) => setPrompt(e.target.value)}
                                                     placeholder={placeholder}
-                                                    className="flex-grow w-full px-3.5 py-2.5 text-sm border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:outline-none transition-shadow"
+                                                    className="w-full flex-grow rounded-2xl border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 transition-shadow focus:border-[#c9ccff] focus:outline-none focus:ring-2 focus:ring-[#eef0ff] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-[#625bd5]/60 dark:focus:ring-[#252244]"
                                                 />
                                                 <button
                                                     type="submit"
-                                                    className="flex-shrink-0 min-h-[42px] bg-indigo-600 text-white text-sm font-semibold py-2.5 px-4 rounded-lg shadow-soft hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 disabled:bg-indigo-300 disabled:cursor-not-allowed"
+                                                    className="flex min-h-[42px] flex-shrink-0 items-center justify-center gap-2 rounded-2xl border border-[#dfe2ff] bg-[#eef0ff] px-4 py-2.5 text-sm font-semibold text-[#4f46c6] shadow-sm transition-colors hover:bg-[#e6e8ff] disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff] dark:hover:bg-[#312d6b] dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
                                                     disabled={!prompt.trim() || isLoading}
                                                 >
                                                     {t('interview_studio.start_btn')} <ArrowRight size={16} />
@@ -1035,9 +1035,9 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                         </div>
 
                                         <div className="grid grid-cols-1 @[560px]/setup:grid-cols-3 gap-4">
-                                            {renderSegmentedControl('Mode', interviewModes, interviewMode, setInterviewMode, <Sparkles size={16} className="text-indigo-500" />)}
-                                            {renderSegmentedControl('Difficulty', interviewDifficulties, interviewDifficulty, setInterviewDifficulty, <SlidersHorizontal size={16} className="text-indigo-500" />)}
-                                            {renderSegmentedControl('Duration', interviewDurations, interviewDuration, setInterviewDuration, <Clock size={16} className="text-indigo-500" />)}
+                                            {renderSegmentedControl('Mode', interviewModes, interviewMode, setInterviewMode, <Sparkles size={16} className="text-[#625bd5]" />)}
+                                            {renderSegmentedControl('Difficulty', interviewDifficulties, interviewDifficulty, setInterviewDifficulty, <SlidersHorizontal size={16} className="text-[#625bd5]" />)}
+                                            {renderSegmentedControl('Duration', interviewDurations, interviewDuration, setInterviewDuration, <Clock size={16} className="text-[#625bd5]" />)}
                                         </div>
                                     </form>
                                 </div>
