@@ -1,0 +1,25 @@
+<!-- @dsCard group="Colors" viewport="700x170" name="Semantic tints" subtitle="Success, warning, danger, info, accent — chips and wells only" -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+body { margin: 0; padding: 16px; background: #ffffff; font-family: var(--cv-font-body); }
+.row { display: flex; gap: 8px; }
+.cell { flex: 1; border-radius: 10px; padding: 10px; box-sizing: border-box; }
+.cell p { margin: 0; font-size: 11px; font-weight: 700; }
+.cell span { display: block; margin-top: 4px; font-size: 9px; font-weight: 600; font-family: var(--cv-font-mono); opacity: 0.75; }
+</style>
+</head>
+<body>
+<div class="row">
+  <div class="cell" style="background: var(--cv-success-50); border: 1px solid var(--cv-success-200);"><p style="color: var(--cv-success-600);">Success</p><span style="color: var(--cv-success-600);">eef9f2 / 15803d</span></div>
+  <div class="cell" style="background: var(--cv-warning-50); border: 1px solid var(--cv-warning-200);"><p style="color: var(--cv-warning-700);">Warning</p><span style="color: var(--cv-warning-700);">fffbeb / b45309</span></div>
+  <div class="cell" style="background: var(--cv-danger-50); border: 1px solid var(--cv-danger-200);"><p style="color: var(--cv-danger-700);">Danger</p><span style="color: var(--cv-danger-700);">fff1f2 / be123c</span></div>
+  <div class="cell" style="background: var(--cv-blue-50); border: 1px solid var(--cv-blue-100);"><p style="color: var(--cv-blue-600);">Info</p><span style="color: var(--cv-blue-600);">eff6ff / 2563eb</span></div>
+  <div class="cell" style="background: var(--cv-purple-50); border: 1px solid var(--cv-purple-200);"><p style="color: var(--cv-purple-600);">Accent</p><span style="color: var(--cv-purple-600);">f3f2ff / 625bd5</span></div>
+</div>
+<p style="margin: 12px 0 0; font-size: 11px; font-weight: 600; color: var(--cv-text-muted);">Status color lives in chips, dots, badges, and tinted icon wells — never large blocks.</p>
+</body>
+</html>

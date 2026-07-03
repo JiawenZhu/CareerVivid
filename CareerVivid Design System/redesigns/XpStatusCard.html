@@ -1,0 +1,124 @@
+<!-- @dsCard group="Redesigns" viewport="700x420" name="XP Status Card + sidebar" subtitle="Expanded + collapsed variants, brand purple, unified neutrals" -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XpStatusCard — redesign</title>
+<link rel="stylesheet" href="../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="lucide-icons.js"></script>
+<style>body { margin: 0; background: var(--cv-neutral-50); }</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const P = '#625bd5', PRING = '#dfe2ff', PTINT = '#f3f2ff', PSOFT = '#eef0ff';
+const AMBER = '#d97706';
+
+function Ic({ name, size = 16, sw = 2, style }) {
+  return <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" style={style}
+    dangerouslySetInnerHTML={{ __html: window.CV_LUCIDE[name] || '' }} />;
+}
+
+function XpCardExpanded({ streakActive = true }) {
+  const [h, setH] = React.useState(false);
+  return (
+    <button type="button" onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
+      style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 12px', borderRadius: 12, cursor: 'pointer',
+        background: '#fff', border: `1px solid ${h ? PRING : 'var(--cv-border-subtle)'}`,
+        boxShadow: h ? '0 8px 24px rgba(98,91,213,0.08)' : 'var(--cv-shadow-card)',
+        transition: 'all 120ms cubic-bezier(0.2,0,0,1)', fontFamily: 'var(--cv-font-body)', boxSizing: 'border-box' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, fontWeight: 700, color: 'var(--cv-neutral-900)' }}>
+          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 22, height: 22, borderRadius: 7, background: PSOFT, color: P }}>
+            <Ic name="zap" size={12} />
+          </span>
+          Level 7
+        </span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 700, color: streakActive ? AMBER : 'var(--cv-neutral-300)' }}>
+          <Ic name="flame" size={14} /> 12
+        </span>
+      </div>
+      <div style={{ marginTop: 9, height: 6, borderRadius: 999, background: 'var(--cv-neutral-100)', overflow: 'hidden' }}>
+        <div style={{ height: '100%', width: '64%', borderRadius: 999, background: `linear-gradient(90deg, ${P}, #7069dc)` }}></div>
+      </div>
+      <p style={{ margin: '6px 0 0', fontSize: 10, fontWeight: 600, color: 'var(--cv-neutral-400)', fontVariantNumeric: 'tabular-nums' }}>320 / 500 XP to level 8</p>
+    </button>
+  );
+}
+
+function XpCardCollapsed({ streakActive = true }) {
+  const [h, setH] = React.useState(false);
+  return (
+    <button type="button" onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
+      style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44,
+        borderRadius: 12, cursor: 'pointer', background: '#fff', border: `1px solid ${h ? PRING : 'var(--cv-border-subtle)'}`,
+        boxShadow: 'var(--cv-shadow-card)', color: P, fontFamily: 'var(--cv-font-body)', fontSize: 11, fontWeight: 800,
+        transition: 'border-color 120ms cubic-bezier(0.2,0,0,1)' }}>
+      <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}><Ic name="zap" size={11} />7</span>
+      <span style={{ position: 'absolute', top: -5, right: -5, display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 17, height: 17, padding: '0 3px', borderRadius: 999, background: '#fff', border: '1px solid var(--cv-border-subtle)', color: streakActive ? AMBER : 'var(--cv-neutral-300)', fontSize: 8, fontWeight: 800 }}>12</span>
+    </button>
+  );
+}
+
+function SidebarSlice() {
+  const quickLinks = [
+    { label: 'Resumes', icon: 'file-text' },
+    { label: 'Pipeline', icon: 'kanban-square', active: true },
+    { label: 'Interviews', icon: 'mic' },
+    { label: 'Portfolio', icon: 'globe' },
+  ];
+  return (
+    <div style={{ width: 236, padding: '12px 12px 14px', background: '#fff', border: '1px solid var(--cv-border-subtle)', borderRadius: 14, fontFamily: 'var(--cv-font-body)', boxSizing: 'border-box' }}>
+      <p style={{ margin: '0 0 7px 2px', fontSize: 10, fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--cv-neutral-400)' }}>Quick access</p>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 10 }}>
+        {quickLinks.map((l) => (
+          <span key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 7, minHeight: 34, padding: '0 9px', borderRadius: 9, boxSizing: 'border-box',
+            background: l.active ? PSOFT : 'transparent', color: l.active ? P : 'var(--cv-neutral-500)',
+            border: `1px solid ${l.active ? PRING : 'transparent'}`, fontSize: 10, fontWeight: 700 }}>
+            <Ic name={l.icon} size={14} /><span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.label}</span>
+          </span>
+        ))}
+      </div>
+      <XpCardExpanded />
+      <div style={{ marginTop: 8, padding: '9px 12px', borderRadius: 12, background: '#fff', border: '1px solid var(--cv-border-subtle)', boxShadow: 'var(--cv-shadow-card)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 700 }}>
+          <span style={{ color: 'var(--cv-neutral-900)' }}>AI credits</span>
+          <span style={{ color: 'var(--cv-neutral-400)' }}>34/100</span>
+        </div>
+        <div style={{ marginTop: 7, height: 5, borderRadius: 999, background: 'var(--cv-neutral-100)', overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: '34%', borderRadius: 999, background: P }}></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Demo() {
+  return (
+    <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start', padding: 24, fontFamily: 'var(--cv-font-body)' }}>
+      <div>
+        <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 700, color: 'var(--cv-neutral-400)' }}>Expanded — in sidebar utility section</p>
+        <SidebarSlice />
+      </div>
+      <div>
+        <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 700, color: 'var(--cv-neutral-400)' }}>Collapsed rail</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center', width: 68, padding: '14px 0', background: '#fff', border: '1px solid var(--cv-border-subtle)', borderRadius: 14 }}>
+          <XpCardCollapsed />
+          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, borderRadius: 12, border: '1px solid var(--cv-border-subtle)', background: '#fff', color: 'var(--cv-neutral-500)', fontSize: 10, fontWeight: 800 }}>EN</span>
+          <img src="../assets/avatars/careervivid-rabbit-glasses.jpg" alt="" style={{ width: 44, height: 44, borderRadius: 12, objectFit: 'cover', border: '1px solid var(--cv-border-subtle)' }} />
+        </div>
+        <p style={{ margin: '16px 0 8px', fontSize: 11, fontWeight: 700, color: 'var(--cv-neutral-400)' }}>Streak inactive</p>
+        <div style={{ width: 236 }}><XpCardExpanded streakActive={false} /></div>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+</script>
+</body>
+</html>

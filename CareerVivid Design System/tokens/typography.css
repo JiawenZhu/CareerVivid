@@ -1,0 +1,25 @@
+/* CareerVivid typography tokens.
+   Body: Inter. Headings: Plus Jakarta Sans. Letter-spacing 0 except eyebrows/badges. */
+
+:root {
+  --cv-font-body: 'Inter', sans-serif;
+  --cv-font-heading: 'Plus Jakarta Sans', sans-serif;
+  --cv-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Scale (from careervivid-system-theme.json) */
+  --cv-text-page-title: 28px;        /* 24-32px, weight 700-800, lh 1.05-1.15 */
+  --cv-text-section-title: 18px;     /* 16-22px, weight 650-750 */
+  --cv-text-card-title: 14px;        /* 13-15px, weight 700 */
+  --cv-text-body-size: 13px;         /* 12-14px, weight 500, lh 1.45-1.75 */
+  --cv-text-metadata: 11px;          /* 10-12px, weight 600 */
+  --cv-text-badge: 10px;             /* 10-11px, weight 700 */
+
+  --cv-tracking-default: 0;
+  --cv-tracking-eyebrow: 0.22em;
+  --cv-tracking-badge: 0.08em;
+
+  --cv-leading-tight: 1.15;
+  --cv-leading-heading: 1.25;
+  --cv-leading-body: 1.6;
+  --cv-leading-public-body: 2rem;    /* cv-warm-body line-height */
+}

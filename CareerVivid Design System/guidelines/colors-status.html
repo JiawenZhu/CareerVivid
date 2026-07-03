@@ -1,0 +1,24 @@
+<!-- @dsCard group="Colors" viewport="700x130" name="Pipeline status" subtitle="Career Pipeline column dots — 10px circles" -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+body { margin: 0; padding: 20px 24px; background: #ffffff; font-family: var(--cv-font-body); }
+.row { display: flex; gap: 10px; }
+.st { flex: 1; display: flex; align-items: center; gap: 8px; border: 1px solid var(--cv-border-product); border-radius: 8px; padding: 10px 12px; background: rgba(249,250,251,0.8); }
+.st i { width: 10px; height: 10px; border-radius: 999px; flex-shrink: 0; }
+.st p { margin: 0; font-size: 12px; font-weight: 700; color: var(--cv-neutral-700); }
+</style>
+</head>
+<body>
+<div class="row">
+  <div class="st"><i style="background: var(--cv-status-to-apply);"></i><p>To Apply</p></div>
+  <div class="st"><i style="background: var(--cv-status-applied);"></i><p>Applied</p></div>
+  <div class="st"><i style="background: var(--cv-status-interviewing);"></i><p>Interviewing</p></div>
+  <div class="st"><i style="background: var(--cv-status-offered);"></i><p>Offered</p></div>
+  <div class="st"><i style="background: var(--cv-status-rejected);"></i><p>Rejected</p></div>
+</div>
+</body>
+</html>

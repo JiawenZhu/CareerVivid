@@ -1,0 +1,153 @@
+/* CareerVivid color tokens.
+   Source of truth: careervivid/docs/design/careervivid-system-theme.json (2026-07-03)
+   + careervivid/src/index.css. Values are exact — do not snap. */
+
+:root {
+  /* ---------- Base palette: warm paper (public/marketing surfaces) ---------- */
+  --cv-paper-50: #fffaf1;
+  --cv-paper-100: #f7f1e7;
+  --cv-paper-200: #efe5d6;
+  --cv-paper-300: #e6dac8;
+  --cv-paper-400: #e4d3bc;
+  --cv-paper-ink: #211b16;
+  --cv-paper-muted: #665a4a;
+
+  /* ---------- Base palette: neutral (product/dashboard surfaces) ---------- */
+  --cv-neutral-0: #ffffff;
+  --cv-neutral-25: #fbfbfe;
+  --cv-neutral-50: #f8f8fb;
+  --cv-neutral-100: #f3f4f6;
+  --cv-neutral-200: #e5e7eb;
+  --cv-neutral-300: #d1d5db;
+  --cv-neutral-400: #9ca3af;
+  --cv-neutral-500: #6b7280;
+  --cv-neutral-600: #4b5563;
+  --cv-neutral-700: #374151;
+  --cv-neutral-800: #1f2937;
+  --cv-neutral-900: #111827;
+  --cv-neutral-950: #030712;
+
+  /* ---------- Career purple (accent — CTAs, selected states, focus only) ---------- */
+  --cv-purple-25: #fbfbff;
+  --cv-purple-50: #f3f2ff;
+  --cv-purple-75: #eef0ff;
+  --cv-purple-100: #e5e7ff;
+  --cv-purple-200: #dfdcff;
+  --cv-purple-250: #dfe2ff; /* soft action border */
+  --cv-purple-300: #c8c3ff;
+  --cv-purple-400: #8d88e6;
+  --cv-purple-500: #7069dc;
+  --cv-purple-600: #625bd5; /* primary accent */
+  --cv-purple-700: #514ac5;
+
+  /* ---------- Warm amber (eyebrows, warm accents) ---------- */
+  --cv-amber-50: #fff7e8;
+  --cv-amber-100: #f2dfc2;
+  --cv-amber-200: #e4c48d;
+  --cv-amber-400: #caa26c;
+  --cv-amber-600: #a97935;
+  --cv-amber-700: #7c4f18;
+
+  /* ---------- Status ---------- */
+  --cv-success-50: #eef9f2;
+  --cv-success-100: #d9f2e2;
+  --cv-success-200: #cfe8d5;
+  --cv-success-600: #15803d;
+  --cv-success-700: #166534;
+  --cv-warning-50: #fffbeb;
+  --cv-warning-100: #fef3c7;
+  --cv-warning-200: #fde68a;
+  --cv-warning-600: #d97706;
+  --cv-warning-700: #b45309;
+  --cv-danger-50: #fff1f2;
+  --cv-danger-100: #ffe4e6;
+  --cv-danger-200: #fecdd3;
+  --cv-danger-600: #e11d48;
+  --cv-danger-700: #be123c;
+  --cv-blue-50: #eff6ff;
+  --cv-blue-100: #dbeafe;
+  --cv-blue-500: #3b82f6;
+  --cv-blue-600: #2563eb;
+
+  /* Job pipeline status dots (KanbanBoard.tsx) */
+  --cv-status-to-apply: #6b7280;
+  --cv-status-applied: #3b82f6;
+  --cv-status-interviewing: #eab308;
+  --cv-status-offered: #22c55e;
+  --cv-status-rejected: #ef4444;
+
+  /* ---------- Semantic: backgrounds ---------- */
+  --cv-bg-public: var(--cv-paper-100);        /* warm paper marketing pages */
+  --cv-bg-product: var(--cv-neutral-50);      /* app workspace shell */
+  --cv-surface: var(--cv-neutral-0);
+  --cv-surface-warm: var(--cv-paper-50);
+  --cv-surface-muted: var(--cv-neutral-25);
+  --cv-surface-selected: var(--cv-purple-75);
+  --cv-surface-warm-card: rgba(255, 250, 241, 0.88);
+
+  /* ---------- Semantic: text ---------- */
+  --cv-text-heading: var(--cv-paper-ink);      /* warm surfaces */
+  --cv-text-heading-product: var(--cv-neutral-900);
+  --cv-text-body: var(--cv-paper-muted);       /* warm surfaces */
+  --cv-text-body-product: #64748b;
+  --cv-text-muted: var(--cv-neutral-500);
+  --cv-text-subtle: var(--cv-neutral-400);
+  --cv-text-inverse: #ffffff;
+  --cv-text-accent: var(--cv-purple-600);
+  --cv-text-eyebrow: var(--cv-amber-600);
+
+  /* ---------- Semantic: borders ---------- */
+  --cv-border-warm: var(--cv-paper-400);
+  --cv-border-product: var(--cv-neutral-200);
+  --cv-border-subtle: #ececf4;
+  --cv-border-accent: var(--cv-purple-200);
+  --cv-border-focus: var(--cv-purple-400);
+
+  /* ---------- Semantic: actions ---------- */
+  --cv-action-primary: var(--cv-purple-600);
+  --cv-action-primary-hover: var(--cv-purple-700);
+  --cv-action-soft-bg: var(--cv-purple-75);
+  --cv-action-soft-hover: var(--cv-purple-100);
+  --cv-action-soft-text: var(--cv-purple-600);
+  --cv-action-soft-border: var(--cv-purple-250);
+  --cv-focus-ring: rgba(98, 91, 213, 0.22);
+
+  /* ---------- Page grid lines (cv-warm-grid) ---------- */
+  --cv-grid-line-v: rgba(139, 90, 22, 0.07);
+  --cv-grid-line-h: rgba(139, 90, 22, 0.06);
+}
+
+/* ---------- Dark mode (html.dark) ---------- */
+html.dark {
+  --cv-bg-public: #1f1f1d;
+  --cv-bg-product: #0f172a;
+  --cv-surface: #262522;
+  --cv-surface-warm: #262522;
+  --cv-surface-muted: #302e2a;
+  --cv-surface-selected: rgba(47, 43, 85, 0.7);
+  --cv-surface-warm-card: rgba(38, 37, 34, 0.88);
+
+  --cv-text-heading: #f4f1e9;
+  --cv-text-heading-product: #f4f1e9;
+  --cv-text-body: #aaa39a;
+  --cv-text-body-product: #94a3b8;
+  --cv-text-muted: #9ca3af;
+  --cv-text-eyebrow: #caa26c;
+
+  --cv-border-warm: #37332d;
+  --cv-border-product: #374151;
+  --cv-border-subtle: #37332d;
+  --cv-border-accent: #484273;
+  --cv-border-focus: #bbb8ff;
+
+  --cv-action-primary: #7069dc;
+  --cv-action-primary-hover: #8d88e6;
+  --cv-action-soft-bg: rgba(47, 43, 85, 0.7);
+  --cv-action-soft-hover: #383266;
+  --cv-action-soft-text: #bbb8ff;
+  --cv-action-soft-border: #484273;
+  --cv-focus-ring: rgba(187, 184, 255, 0.22);
+
+  --cv-grid-line-v: rgba(244, 241, 233, 0.05);
+  --cv-grid-line-h: rgba(244, 241, 233, 0.04);
+}

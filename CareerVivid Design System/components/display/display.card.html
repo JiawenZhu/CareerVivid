@@ -1,0 +1,53 @@
+<!-- @dsCard group="Components" viewport="700x400" name="Display" subtitle="Card, Badge, StatCard, Avatar, JobCard, CompanyGuideCard" -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>body { background: #f8f8fb; margin: 0; padding: 16px; }</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { Card, Eyebrow, Badge, StatusDot, StatCard, Avatar, JobCard, CompanyGuideCard } = window.CareerVividDesignSystem_456569;
+function Demo() {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6 }}>
+          <Badge tone="accent">Preview</Badge>
+          <Badge tone="success">Offered</Badge>
+          <Badge tone="warning" dot>High priority</Badge>
+          <Badge tone="danger">Rejected</Badge>
+          <Badge tone="info">86% match</Badge>
+          <Badge tone="neutral" bordered>Draft</Badge>
+          <StatusDot status="To Apply" /><StatusDot status="Applied" /><StatusDot status="Interviewing" /><StatusDot status="Offered" /><StatusDot status="Rejected" />
+        </div>
+        <StatCard label="Active applications" value={12} icon="briefcase" tone="blue" delta="3 added this week" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Avatar src="../../assets/avatars/careervivid-rabbit-glasses.jpg" size={36} />
+          <Avatar src="../../assets/avatars/careervivid-rabbit-bow.jpg" size={36} />
+          <Avatar initial="M" tone="purple" size={36} />
+          <Avatar initial="A" tone="green" size={36} />
+          <Avatar initial="J" tone="amber" size={36} />
+        </div>
+        <Card variant="warm" padding={14}>
+          <Eyebrow>Interview studio</Eyebrow>
+          <p style={{ margin: '6px 0 0', fontSize: 13, fontWeight: 500, color: 'var(--cv-text-body)' }}>Warm public card with amber eyebrow.</p>
+        </Card>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <JobCard title="Senior Frontend Engineer" company="Figma" priority="High" matchScore={86} prepDone={3} dueDate="Jul 8" />
+        <CompanyGuideCard company="Stripe" role="Backend Engineer · Phone screen" difficulty="high" topics={['System design', 'APIs']} toneIndex={1} />
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+</script>
+</body>
+</html>
