@@ -577,19 +577,19 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
         icon: React.ReactNode
     ) => (
         <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-200 mb-2">
+            <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-200">
                 {icon}
                 <span>{label}</span>
             </div>
-            <div className={`grid ${options.length === 4 ? 'grid-cols-2' : 'grid-cols-3'} gap-1 rounded-lg bg-gray-100 dark:bg-gray-900/70 p-1`}>
+            <div className={`grid ${options.length === 4 ? 'grid-cols-2' : 'grid-cols-3'} gap-1 rounded-xl border border-gray-200 bg-[#fbfbfe] p-1 dark:border-gray-700 dark:bg-gray-900/70`}>
                 {options.map(option => (
                     <button
                         key={option}
                         type="button"
                         onClick={() => onChange(option)}
-                        className={`min-h-[34px] rounded-md px-2 text-xs font-semibold leading-tight transition-colors ${value === option
+                        className={`min-h-[34px] rounded-lg px-2 text-xs font-semibold leading-tight transition-colors ${value === option
                             ? 'border border-[#dfe2ff] bg-[#eef0ff] text-[#625bd5] shadow-sm dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]'
-                            : 'text-gray-600 hover:bg-white hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'
+                            : 'border border-transparent text-gray-600 hover:border-[#dfdcff] hover:bg-white hover:text-[#625bd5] dark:text-gray-400 dark:hover:border-[#484273] dark:hover:bg-gray-800 dark:hover:text-[#bbb8ff]'
                             }`}
                         aria-pressed={value === option}
                     >
@@ -604,20 +604,20 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
     const renderContent = () => {
         if (selectedIndustry) {
             return (
-                <section className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5 shadow-sm">
-                    <button onClick={() => setSelectedIndustry(null)} className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 mb-4 font-semibold">
+                <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-5">
+                    <button onClick={() => setSelectedIndustry(null)} className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200">
                         <ChevronLeft size={16} /> {t('interview_studio.back_to_industries')}
                     </button>
-                    <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">{t('interview_studio.select_role', { industry: selectedIndustry.name })}</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 @[960px]/interview-page:grid-cols-1 gap-2.5">
+                    <h2 className="mb-4 text-base font-bold text-gray-900 dark:text-gray-100">{t('interview_studio.select_role', { industry: selectedIndustry.name })}</h2>
+                    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 @[1080px]/interview-page:grid-cols-1">
                         {selectedIndustry.roles.map(role => (
                             <button
                                 key={role.name}
                                 onClick={() => handleRoleSelect(role.name)}
-                                className="min-h-[54px] p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:border-primary-500 dark:hover:border-primary-400 border border-gray-200 dark:border-gray-700 transition-all text-left flex items-center justify-between gap-3 group"
+                                className="group flex min-h-[54px] items-center justify-between gap-3 rounded-lg border border-gray-200 bg-[#fbfbfe] p-3 text-left transition-all hover:-translate-y-0.5 hover:border-[#dfdcff] hover:bg-[#fbfbff] hover:shadow-[0_8px_24px_rgba(98,91,213,0.08)] dark:border-gray-700 dark:bg-gray-800/60 dark:hover:border-[#484273] dark:hover:bg-[#24233a]/50"
                             >
                                 <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{role.name}</h3>
-                                <ArrowRight size={16} className="text-gray-400 group-hover:text-primary-500 transition-colors" />
+                                <ArrowRight size={16} className="text-gray-400 transition-colors group-hover:text-[#625bd5] dark:group-hover:text-[#bbb8ff]" />
                             </button>
                         ))}
                     </div>
@@ -626,17 +626,22 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
         }
 
         return (
-            <section className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5 shadow-sm">
-                <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">{t('interview_studio.select_career')}</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 @[960px]/interview-page:grid-cols-1 gap-2.5">
+            <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-5">
+                <div className="mb-4 flex items-center gap-2">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#dfe2ff] bg-[#eef0ff] text-[#625bd5] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]">
+                        <Swords size={15} />
+                    </span>
+                    <h2 className="text-base font-bold text-gray-900 dark:text-gray-100">{t('interview_studio.select_career')}</h2>
+                </div>
+                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 @[1080px]/interview-page:grid-cols-1">
                     {CAREER_PATHS.map(industry => (
                         <button
                             key={industry.name}
                             onClick={() => setSelectedIndustry(industry)}
-                            className="min-h-[54px] p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:border-primary-500 dark:hover:border-primary-400 border border-gray-200 dark:border-gray-700 transition-all text-left flex items-center justify-between gap-3 group"
+                            className="group flex min-h-[54px] items-center justify-between gap-3 rounded-lg border border-gray-200 bg-[#fbfbfe] p-3 text-left transition-all hover:-translate-y-0.5 hover:border-[#dfdcff] hover:bg-[#fbfbff] hover:shadow-[0_8px_24px_rgba(98,91,213,0.08)] dark:border-gray-700 dark:bg-gray-800/60 dark:hover:border-[#484273] dark:hover:bg-[#24233a]/50"
                         >
                             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{industry.name}</h3>
-                            <ArrowRight size={16} className="text-gray-400 group-hover:text-primary-500 transition-colors" />
+                            <ArrowRight size={16} className="text-gray-400 transition-colors group-hover:text-[#625bd5] dark:group-hover:text-[#bbb8ff]" />
                         </button>
                     ))}
                 </div>
@@ -714,7 +719,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
 
                 {/* Search + category filters */}
                 <div className="mt-4 flex flex-col gap-2.5">
-                    <div className="group/search flex min-h-[46px] items-center gap-3 rounded-xl border border-gray-200 bg-gray-50/80 px-3.5 transition-all duration-200 focus-within:border-gray-400 focus-within:bg-white focus-within:shadow-[0_1px_2px_rgba(16,24,40,0.05),0_4px_14px_rgba(16,24,40,0.08)] hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800/60 dark:focus-within:border-gray-500 dark:focus-within:bg-gray-800 dark:focus-within:shadow-none">
+                    <div className="group/search flex min-h-[52px] items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50/80 px-4 transition-all duration-200 focus-within:border-gray-400 focus-within:bg-white focus-within:shadow-[0_1px_2px_rgba(16,24,40,0.05),0_4px_14px_rgba(16,24,40,0.08)] hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800/60 dark:focus-within:border-gray-500 dark:focus-within:bg-gray-800 dark:focus-within:shadow-none">
                         <Search size={17} strokeWidth={2.25} className="shrink-0 text-gray-400 transition-colors group-focus-within/search:text-gray-700 dark:group-focus-within/search:text-gray-200" />
                         <input
                             ref={guideSearchRef}
@@ -888,118 +893,11 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
     return (
         <AppLayout>
             <CreditLimitModal />
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-16 relative text-left">
-                <div id="start-session" className="@container/interview-page max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-5">
-                    <section className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5 shadow-sm">
-                        <div className="flex items-center justify-between gap-4 mb-4">
-                            <div>
-                                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Recent sessions</h2>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{practiceHistory.length} saved</p>
-                            </div>
-                            <Mic className="flex-shrink-0 text-[#625bd5]" size={20} />
-                        </div>
-
-                        <div className="grid grid-cols-1 @[720px]/interview-page:grid-cols-2 @[1040px]/interview-page:grid-cols-3 gap-3">
-                            {isLoadingHistory
-                                ? Array.from({ length: 3 }).map((_, i) => <InterviewHistoryCardSkeleton key={i} />)
-                                : practiceHistory.length > 0 ? (
-                                    practiceHistory.map(entry => {
-                                        const practiceCount = entry.interviewHistory?.length || 0;
-                                        const resumableDraft = getResumableDraft(entry);
-                                        return (
-                                            <article
-                                                key={entry.id}
-                                                className="flex min-h-[132px] flex-col rounded-lg border border-gray-200 bg-gray-50/80 p-3 dark:border-gray-700 dark:bg-gray-800/60"
-                                            >
-                                                <div className="flex items-start justify-between gap-3">
-                                                    <div className="min-w-0">
-                                                        <h3 className="truncate text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                            {entry.job.title}
-                                                        </h3>
-                                                        <p className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
-                                                            {entry.job.company || 'Custom Practice'}
-                                                        </p>
-                                                    </div>
-                                                    {(practiceCount > 0 || resumableDraft) && (
-                                                        <div className="flex shrink-0 flex-col items-end gap-1">
-                                                            {practiceCount > 0 && (
-                                                                <span className="rounded-full border border-[#dfe2ff] bg-[#eef0ff] px-2 py-0.5 text-[11px] font-bold text-[#625bd5] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]">
-                                                                    {practiceCount} {practiceCount === 1 ? 'practice' : 'practices'}
-                                                                </span>
-                                                            )}
-                                                            {resumableDraft && (
-                                                                <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/25 dark:text-amber-200">
-                                                                    {getResumeQuestionLabel(resumableDraft)}
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="mt-2 flex h-5 min-w-0 items-center gap-1.5 text-xs">
-                                                    {resumableDraft && (
-                                                        <>
-                                                            <span className="shrink-0 rounded-full bg-amber-50 px-2 py-0.5 font-bold text-amber-800 ring-1 ring-amber-200 dark:bg-amber-950/25 dark:text-amber-200 dark:ring-amber-900/50">
-                                                                Saved draft
-                                                            </span>
-                                                            <span className="text-gray-300 dark:text-gray-600">·</span>
-                                                        </>
-                                                    )}
-                                                    <span className="truncate text-gray-500 dark:text-gray-400">
-                                                        Last activity: {formatSessionDate(entry.timestamp)}
-                                                    </span>
-                                                </div>
-                                                <div className="mt-auto flex flex-nowrap items-center gap-1.5 pt-3">
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleDeleteClick(entry.id)}
-                                                        aria-label={`Delete ${entry.job.title}`}
-                                                        className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
-                                                    >
-                                                        <Trash2 size={15} />
-                                                    </button>
-                                                    {resumableDraft && (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleResumeSessionDirect(entry)}
-                                                            aria-label="Resume session"
-                                                            className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md bg-amber-100 px-2.5 text-xs font-semibold text-amber-900 ring-1 ring-amber-200 hover:bg-amber-200 dark:bg-amber-950/40 dark:text-amber-200 dark:ring-amber-900/60 dark:hover:bg-amber-950/70"
-                                                        >
-                                                            <Clock size={14} /> Resume
-                                                        </button>
-                                                    )}
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handlePracticeAgainDirect(entry)}
-                                                        aria-label={resumableDraft ? 'Start over' : 'Practice Again'}
-                                                        className={`${resumableDraft ? 'w-8 justify-center px-0' : 'px-2.5'} inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md bg-white text-xs font-semibold text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-200 dark:ring-gray-700 dark:hover:bg-gray-800`}
-                                                    >
-                                                        <Sparkles size={14} />
-                                                        {!resumableDraft && 'Practice Again'}
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setSelectedJobForReport(entry)}
-                                                        disabled={!entry.interviewHistory || entry.interviewHistory.length === 0}
-                                                        className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md border border-[#dfe2ff] bg-[#eef0ff] px-2.5 text-xs font-semibold text-[#625bd5] hover:bg-[#e6e8ff] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff] dark:hover:bg-[#312d6b]"
-                                                    >
-                                                        <BarChart3 size={14} /> Report
-                                                    </button>
-                                                </div>
-                                            </article>
-                                        );
-                                    })
-                                ) : (
-                                    <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 py-8 text-center dark:border-gray-700 dark:bg-gray-800/50 @[720px]/interview-page:col-span-2 @[1040px]/interview-page:col-span-3">
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">No interview sessions found.</p>
-                                    </div>
-                                )
-                            }
-                        </div>
-                    </section>
-
-                    <div className="grid grid-cols-1 @[960px]/interview-page:grid-cols-[minmax(0,1fr)_360px] gap-5 items-start">
+            <div className="relative min-h-screen bg-[#f8f8fb] pb-16 text-left dark:bg-gray-950">
+                <div id="start-session" className="@container/interview-page mx-auto max-w-7xl px-4 py-6 text-left sm:px-6 lg:px-8 lg:py-8">
+                    <div className="grid grid-cols-1 items-start gap-5 @[1080px]/interview-page:grid-cols-[minmax(0,1fr)_360px]">
                         <main className="space-y-4">
-                            <section className="@container/setup bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sm:p-5 @[720px]/setup:p-6 shadow-sm">
+                            <section className="@container/setup rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-5 @[720px]/setup:p-6">
                                 <div className="flex flex-col gap-5">
                                     <div>
                                         <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#dfe2ff] bg-[#eef0ff] px-2.5 py-1 text-xs font-semibold text-[#625bd5] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]">
@@ -1015,18 +913,18 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                             <label htmlFor="interview-prompt" className="block text-xs font-semibold text-gray-700 dark:text-gray-200 mb-2">
                                                 {t('interview_studio.start_title')}
                                             </label>
-                                            <div className="flex flex-col @[560px]/setup:flex-row gap-3">
+                                            <div className="flex flex-col gap-3 @[560px]/setup:flex-row">
                                                 <input
                                                     id="interview-prompt"
                                                     type="text"
                                                     value={prompt}
                                                     onChange={(e) => setPrompt(e.target.value)}
                                                     placeholder={placeholder}
-                                                    className="w-full flex-grow rounded-2xl border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 transition-shadow focus:border-[#c9ccff] focus:outline-none focus:ring-2 focus:ring-[#eef0ff] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-[#625bd5]/60 dark:focus:ring-[#252244]"
+                                                    className="min-h-[52px] w-full flex-grow rounded-2xl border border-gray-300 bg-white px-4 text-sm font-medium text-gray-900 transition-shadow placeholder:text-gray-400 focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-[#eef0ff] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-[#625bd5]/60 dark:focus:ring-[#252244]"
                                                 />
                                                 <button
                                                     type="submit"
-                                                    className="flex min-h-[42px] flex-shrink-0 items-center justify-center gap-2 rounded-2xl border border-[#dfe2ff] bg-[#eef0ff] px-4 py-2.5 text-sm font-semibold text-[#4f46c6] shadow-sm transition-colors hover:bg-[#e6e8ff] disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff] dark:hover:bg-[#312d6b] dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
+                                                    className="flex min-h-[52px] flex-shrink-0 items-center justify-center gap-2 rounded-2xl border border-[#dfe2ff] bg-[#eef0ff] px-5 text-sm font-bold text-[#625bd5] shadow-sm transition-colors hover:bg-[#e5e7ff] hover:text-[#514ac5] disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400 dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff] dark:hover:bg-[#312d6b] dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
                                                     disabled={!prompt.trim() || isLoading}
                                                 >
                                                     {t('interview_studio.start_btn')} <ArrowRight size={16} />
@@ -1045,9 +943,117 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                             {error && <p className="text-red-500 bg-red-100 dark:bg-red-900/20 dark:text-red-400 p-3 rounded-lg">{error}</p>}
                             {renderCompanyGuideCards()}
                         </main>
-                        <div>
+                        <aside className="space-y-4 @[1080px]/interview-page:sticky @[1080px]/interview-page:top-6">
+                            <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                                <div className="mb-4 flex items-center justify-between gap-4">
+                                    <div>
+                                        <h2 className="text-base font-bold text-gray-900 dark:text-gray-100">Recent sessions</h2>
+                                        <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{practiceHistory.length} saved</p>
+                                    </div>
+                                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#dfe2ff] bg-[#eef0ff] text-[#625bd5] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]">
+                                        <Mic size={16} />
+                                    </span>
+                                </div>
+
+                                <div className="grid max-h-[520px] grid-cols-1 gap-3 overflow-y-auto pr-1">
+                                    {isLoadingHistory
+                                        ? Array.from({ length: 3 }).map((_, i) => <InterviewHistoryCardSkeleton key={i} />)
+                                        : practiceHistory.length > 0 ? (
+                                            practiceHistory.slice(0, 8).map(entry => {
+                                                const practiceCount = entry.interviewHistory?.length || 0;
+                                                const resumableDraft = getResumableDraft(entry);
+                                                return (
+                                                    <article
+                                                        key={entry.id}
+                                                        className="flex min-h-[124px] flex-col rounded-lg border border-gray-200 bg-[#fbfbfe] p-3 transition-colors hover:border-[#dfdcff] hover:bg-[#fbfbff] dark:border-gray-700 dark:bg-gray-800/60 dark:hover:border-[#625bd5]/40"
+                                                    >
+                                                        <div className="flex items-start justify-between gap-3">
+                                                            <div className="min-w-0">
+                                                                <h3 className="truncate text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                                    {entry.job.title}
+                                                                </h3>
+                                                                <p className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
+                                                                    {entry.job.company || 'Custom Practice'}
+                                                                </p>
+                                                            </div>
+                                                            {(practiceCount > 0 || resumableDraft) && (
+                                                                <div className="flex shrink-0 flex-col items-end gap-1">
+                                                                    {practiceCount > 0 && (
+                                                                        <span className="rounded-full border border-[#dfe2ff] bg-[#eef0ff] px-2 py-0.5 text-[11px] font-bold text-[#625bd5] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]">
+                                                                            {practiceCount}
+                                                                        </span>
+                                                                    )}
+                                                                    {resumableDraft && (
+                                                                        <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/25 dark:text-amber-200">
+                                                                            {getResumeQuestionLabel(resumableDraft)}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="mt-2 flex h-5 min-w-0 items-center gap-1.5 text-xs">
+                                                            {resumableDraft && (
+                                                                <>
+                                                                    <span className="shrink-0 rounded-full bg-amber-50 px-2 py-0.5 font-bold text-amber-800 ring-1 ring-amber-200 dark:bg-amber-950/25 dark:text-amber-200 dark:ring-amber-900/50">
+                                                                        Saved draft
+                                                                    </span>
+                                                                    <span className="text-gray-300 dark:text-gray-600">·</span>
+                                                                </>
+                                                            )}
+                                                            <span className="truncate text-gray-500 dark:text-gray-400">
+                                                                Last activity: {formatSessionDate(entry.timestamp)}
+                                                            </span>
+                                                        </div>
+                                                        <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-3">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleDeleteClick(entry.id)}
+                                                                aria-label={`Delete ${entry.job.title}`}
+                                                                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
+                                                            >
+                                                                <Trash2 size={15} />
+                                                            </button>
+                                                            {resumableDraft && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleResumeSessionDirect(entry)}
+                                                                    aria-label="Resume session"
+                                                                    className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md bg-amber-100 px-2.5 text-xs font-semibold text-amber-900 ring-1 ring-amber-200 hover:bg-amber-200 dark:bg-amber-950/40 dark:text-amber-200 dark:ring-amber-900/60 dark:hover:bg-amber-950/70"
+                                                                >
+                                                                    <Clock size={14} /> Resume
+                                                                </button>
+                                                            )}
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handlePracticeAgainDirect(entry)}
+                                                                aria-label={resumableDraft ? 'Start over' : 'Practice Again'}
+                                                                className={`${resumableDraft ? 'w-8 justify-center px-0' : 'px-2.5'} inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md bg-white text-xs font-semibold text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-200 dark:ring-gray-700 dark:hover:bg-gray-800`}
+                                                            >
+                                                                <Sparkles size={14} />
+                                                                {!resumableDraft && 'Practice Again'}
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setSelectedJobForReport(entry)}
+                                                                disabled={!entry.interviewHistory || entry.interviewHistory.length === 0}
+                                                                className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md border border-[#dfe2ff] bg-[#eef0ff] px-2.5 text-xs font-semibold text-[#625bd5] hover:bg-[#e6e8ff] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff] dark:hover:bg-[#312d6b]"
+                                                            >
+                                                                <BarChart3 size={14} /> Report
+                                                            </button>
+                                                        </div>
+                                                    </article>
+                                                );
+                                            })
+                                        ) : (
+                                            <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 py-8 text-center dark:border-gray-700 dark:bg-gray-800/50">
+                                                <p className="text-sm text-gray-500 dark:text-gray-400">No interview sessions found.</p>
+                                            </div>
+                                        )
+                                    }
+                                </div>
+                            </section>
                             {renderContent()}
-                        </div>
+                        </aside>
                     </div>
                 </div>
             </div>
