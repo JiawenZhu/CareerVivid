@@ -38,7 +38,7 @@ const MyPostsPage: React.FC = () => {
                 <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary-400/20 dark:bg-primary-600/10 blur-[120px] pointer-events-none z-[-1]" />
                 <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/20 dark:bg-blue-600/10 blur-[120px] pointer-events-none z-[-1]" />
 
-                <div className="max-w-7xl mx-auto relative z-10">
+                <div className="max-w-screen-2xl mx-auto relative z-10">
                     <header className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
                             <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">My Posts</h1>

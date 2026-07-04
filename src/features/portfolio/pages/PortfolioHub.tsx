@@ -408,7 +408,7 @@ const PortfolioHub: React.FC = () => {
 
                 {/* Top Section: My Portfolios */}
                 <div className="w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 pt-8 pb-12 mb-12">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center mb-8">
                             <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                                 <Briefcase className="text-indigo-600" size={32} />
@@ -473,7 +473,7 @@ const PortfolioHub: React.FC = () => {
                         <p className="text-gray-500 dark:text-gray-400"> Analyzing your inputs and designing the perfect layout.</p>
                     </div>
                 ) : (
-                    <div id="create-portfolio" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+                    <div id="create-portfolio" className="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
                         {/* Header */}
                         <div className="text-center mb-12 animate-in slide-in-from-bottom-4 duration-500">
                             <div className="inline-flex items-center justify-center p-3 mb-6 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-500/30">

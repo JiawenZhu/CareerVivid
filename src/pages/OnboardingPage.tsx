@@ -204,7 +204,7 @@ const OnboardingPage: React.FC = () => {
                 <meta name="robots" content="noindex,nofollow" />
             </Helmet>
             <div className="cv-warm-page cv-warm-grid min-h-screen px-4 py-6 text-[#211b16] dark:text-[#f4f1e9] sm:px-6 lg:px-8">
-                <div className="mx-auto max-w-7xl">
+                <div className="mx-auto max-w-screen-2xl">
                     <header className="flex flex-col gap-4 border-b border-[#e4d3bc] pb-6 dark:border-[#37332d] md:flex-row md:items-center md:justify-between">
                         <div className="flex items-start gap-4">
                             <div className="hidden h-12 w-12 items-center justify-center rounded-lg border border-[#e4d3bc] bg-[#fffaf1] shadow-sm dark:border-[#37332d] dark:bg-[#262522] sm:flex">

@@ -894,7 +894,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
         <AppLayout>
             <CreditLimitModal />
             <div className="relative min-h-screen bg-[#f8f8fb] pb-16 text-left dark:bg-gray-950">
-                <div id="start-session" className="@container/interview-page mx-auto max-w-7xl px-4 py-6 text-left sm:px-6 lg:px-8 lg:py-8">
+                <div id="start-session" className="@container/interview-page mx-auto max-w-screen-2xl px-4 py-6 text-left sm:px-6 lg:px-8 lg:py-8">
                     <div className="grid grid-cols-1 items-start gap-5 @[1080px]/interview-page:grid-cols-[minmax(0,1fr)_360px]">
                         <main className="space-y-4">
                             <section className="@container/setup rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-5 @[720px]/setup:p-6">

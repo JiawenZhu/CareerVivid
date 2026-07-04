@@ -346,7 +346,7 @@ const JobTrackerPage: React.FC = () => {
 
     return (
         <AppLayout>
-            <div className="bg-gray-100 dark:bg-gray-900 min-h-screen">
+            <div className="mx-auto min-h-screen max-w-screen-2xl">
                 <header className="bg-white dark:bg-gray-800 shadow-sm dark:border-b dark:border-gray-700">
                     <div className="max-w-full mx-auto py-4 px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center">

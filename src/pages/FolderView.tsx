@@ -91,7 +91,7 @@ const FolderView: React.FC = () => {
         <AppLayout>
             <div
                 ref={drop}
-                className={`flex-1 flex flex-col h-full min-h-screen p-8 transition-colors duration-200
+                className={`mx-auto flex h-full min-h-screen max-w-screen-2xl flex-1 flex-col p-8 transition-colors duration-200
                     ${isOver && canDrop ? 'bg-indigo-50/50 dark:bg-indigo-500/5' : 'bg-gray-50/30 dark:bg-gray-900/30'}
                 `}
             >

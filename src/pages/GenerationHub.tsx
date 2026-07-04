@@ -360,7 +360,7 @@ const GenerationHub: React.FC = () => {
             <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-20 relative text-left">
                 {/* Top Section: My Resumes */}
                 <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 pt-8 pb-12 mb-12">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center mb-8">
                             <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                                 <FileText className="text-primary-600" size={32} />
