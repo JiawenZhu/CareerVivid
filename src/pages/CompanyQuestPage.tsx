@@ -37,10 +37,12 @@ import { XP_RULES } from '../lib/gamification';
 import { generateInterviewQuestions } from '../services/geminiService';
 import {
     InterviewAnalysis,
+    InterviewSessionDraft,
     PracticeHistoryEntry,
     QuestCodingArtifact,
     QuestSystemDesignArtifact,
     ResumeData,
+    TranscriptEntry,
 } from '../types';
 import { navigate } from '../utils/navigation';
 
@@ -70,6 +72,9 @@ interface BattleState {
     prompt: string;
     questions: string[];
     resumeContext: string;
+    isFirstTime: boolean;
+    initialTranscript?: TranscriptEntry[];
+    resumeFromQuestionIndex?: number;
 }
 
 interface DesignBattleState {
@@ -102,9 +107,17 @@ const getAnalysisFromEntry = (
     return history[history.length - 1];
 };
 
+const getResumableDraft = (entry: PracticeHistoryEntry | undefined): InterviewSessionDraft | null => {
+    const draft = entry?.activeInterviewDraft;
+    const draftQuestions = draft?.questions?.length ? draft.questions : entry?.questions;
+    if (!draft || !draft.transcript?.length || !draftQuestions?.length) return null;
+    if (draft.questionIndex >= draftQuestions.length) return null;
+    return { ...draft, questions: draftQuestions };
+};
+
 const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
     const { currentUser } = useAuth();
-    const { practiceHistory, addJob, addAnalysisToJob } = usePracticeHistory();
+    const { practiceHistory, addJob, addAnalysisToJob, saveInterviewDraft } = usePracticeHistory();
     const { resumes } = useResumes();
     const { checkCredit, CreditLimitModal } = useAICreditCheck();
 
@@ -141,23 +154,22 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
     const clearedCount = stageStates.filter((s) => s === 'cleared').length;
     const questComplete = stages.length > 0 && clearedCount === stages.length;
 
-    const reportEntriesByStageId = useMemo(() => {
+    const practiceEntriesByStageId = useMemo(() => {
         if (!guide) return new Map<string, PracticeHistoryEntry>();
 
         return stages.reduce((entries, stage) => {
             const result = quest?.stageResults?.[stage.id];
-            if (!result) return entries;
-
-            const entryByAnalysisId = result.lastAnalysisId
+            const lastAnalysisId = result?.lastAnalysisId;
+            const entryByAnalysisId = lastAnalysisId
                 ? practiceHistory.find((entry) =>
-                    entry.interviewHistory?.some((analysis) => analysis.id === result.lastAnalysisId),
+                    entry.interviewHistory?.some((analysis) => analysis.id === lastAnalysisId),
                 )
                 : null;
 
             const entryByStageTitle = practiceHistory.find((entry) =>
                 entry.job?.company === guide.company
                 && entry.job?.title === `${guide.company} quest — ${stage.title}`
-                && (entry.interviewHistory?.length ?? 0) > 0,
+                && ((entry.interviewHistory?.length ?? 0) > 0 || !!getResumableDraft(entry)),
             );
 
             const entry = entryByAnalysisId || entryByStageTitle;
@@ -168,7 +180,9 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
 
     const handleStartStage = async (stage: QuestStage) => {
         if (!guide || !currentUser) return;
-        if (!checkCredit()) return;
+        const stageEntry = practiceEntriesByStageId.get(stage.id);
+        const draft = getResumableDraft(stageEntry);
+        if (!draft && !checkCredit()) return;
 
         setStartingStageId(stage.id);
         setError('');
@@ -180,7 +194,7 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
             if (stage.id === 'coding') {
                 const brief = buildCodingBrief(guide);
                 const artifact = getAnalysisFromEntry(
-                    reportEntriesByStageId.get(stage.id),
+                    practiceEntriesByStageId.get(stage.id),
                     quest?.stageResults?.[stage.id]?.lastAnalysisId,
                 )?.questArtifact;
                 const jobId = await addJob({
@@ -203,7 +217,7 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
             if (stage.id === 'system_design') {
                 const brief = buildSystemDesignBrief(guide);
                 const artifact = getAnalysisFromEntry(
-                    reportEntriesByStageId.get(stage.id),
+                    practiceEntriesByStageId.get(stage.id),
                     quest?.stageResults?.[stage.id]?.lastAnalysisId,
                 )?.questArtifact;
                 const jobId = await addJob({
@@ -223,6 +237,21 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
             }
 
             const prompt = buildQuestStagePrompt(guide, stage);
+            if (draft && stageEntry) {
+                const activeResume = resumes.find(r => r.isDefault) || resumes[0];
+                setBattle({
+                    stage,
+                    jobId: stageEntry.id,
+                    prompt: stageEntry.job?.description || prompt,
+                    questions: draft.questions,
+                    isFirstTime: false,
+                    resumeContext: activeResume ? formatResumeForContext(activeResume) : '',
+                    initialTranscript: draft.transcript,
+                    resumeFromQuestionIndex: draft.questionIndex,
+                });
+                return;
+            }
+
             const pool = getStageQuestionPool(guide, stage).slice(0, 5);
             let questions = pool;
             if (pool.length < 3) {
@@ -257,6 +286,7 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                 jobId,
                 prompt,
                 questions,
+                isFirstTime: true,
                 resumeContext: activeResume ? formatResumeForContext(activeResume) : '',
             });
         } catch (e) {
@@ -430,7 +460,9 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                     {stages.map((stage, index) => {
                         const state = stageStates[index];
                         const result = quest?.stageResults?.[stage.id];
-                        const reportEntry = reportEntriesByStageId.get(stage.id);
+                        const stageEntry = practiceEntriesByStageId.get(stage.id);
+                        const reportEntry = (stageEntry?.interviewHistory?.length ?? 0) > 0 ? stageEntry : null;
+                        const draft = getResumableDraft(stageEntry);
                         const isStarting = startingStageId === stage.id;
                         const isLast = index === stages.length - 1;
                         return (
@@ -501,14 +533,18 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                                                 >
                                                     {isStarting
                                                         ? <Loader2 size={14} className="animate-spin" />
-                                                        : state === 'cleared'
+                                                        : draft
+                                                            ? <RotateCcw size={13} />
+                                                            : state === 'cleared'
                                                             ? <RotateCcw size={13} />
                                                             : stage.id === 'system_design'
                                                                 ? <PenTool size={13} />
                                                                 : stage.id === 'coding'
                                                                     ? <Code2 size={13} />
                                                                     : <ChevronRight size={14} />}
-                                                    {state === 'cleared'
+                                                    {draft
+                                                        ? 'Resume session'
+                                                        : state === 'cleared'
                                                         ? 'Improve score'
                                                         : stage.id === 'system_design'
                                                             ? 'Open whiteboard'
@@ -535,10 +571,13 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                         jobId={battle.jobId}
                         interviewPrompt={battle.prompt}
                         questions={battle.questions}
-                        isFirstTime={true}
+                        isFirstTime={battle.isFirstTime}
                         resumeContext={battle.resumeContext}
                         jobTitle={`${guide.company} quest — ${battle.stage.title}`}
                         jobCompany={guide.company}
+                        initialTranscript={battle.initialTranscript}
+                        resumeFromQuestionIndex={battle.resumeFromQuestionIndex}
+                        onDraftChange={(draft) => saveInterviewDraft(battle.jobId, draft)}
                         onClose={() => setBattle(null)}
                         onAnalysisComplete={(analysis) => handleStageAnalysis(battle.stage, analysis)}
                     />
