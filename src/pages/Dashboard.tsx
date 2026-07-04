@@ -145,19 +145,16 @@ const Dashboard: React.FC = () => {
 
     if (isDesktop && isLoadingResumes) {
         return (
-            <div className="flex flex-col justify-center items-center h-screen bg-gray-100 dark:bg-gray-950">
-                <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
-                <p className="dark:text-white mt-4">{t('dashboard.loading')}</p>
+            <div className="cv-design-page cv-design-grid flex h-screen flex-col items-center justify-center">
+                <Loader2 className="h-12 w-12 animate-spin text-[var(--cv-action-primary)]" />
+                <p className="cv-design-body mt-4">{t('dashboard.loading')}</p>
             </div>
         );
     }
 
     return (
         <AppLayout>
-            <div className="min-h-screen bg-gray-50/50 dark:bg-[#0a0c10]/80 relative overflow-hidden">
-                {/* Ambient Base Glow */}
-                <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary-400/20 dark:bg-primary-600/10 blur-[120px] pointer-events-none z-[-1]" />
-                <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/20 dark:bg-blue-600/10 blur-[120px] pointer-events-none z-[-1]" />
+            <div className="cv-design-page cv-design-grid relative min-h-screen overflow-hidden">
                 <ConfirmationModal
                     isOpen={isUpgradeModalOpen}
                     onCancel={() => setIsUpgradeModalOpen(false)}
@@ -169,15 +166,15 @@ const Dashboard: React.FC = () => {
                     variant="default"
                 />
 
-                <header className="bg-white/80 dark:bg-[#0a0c10]/80 backdrop-blur-md border-b border-gray-200/60 dark:border-gray-800/60 shadow-sm sticky top-0 z-20 md:hidden">
+                <header className="cv-design-header sticky top-0 z-20 md:hidden">
                     <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center h-16 sm:h-20">
                             <div className="flex min-w-0 items-center gap-3">
                                 <a href="/dashboard" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }} className="flex items-center gap-2">
                                     <Logo className="h-8 w-8" />
-                                    <span className="text-xl font-bold text-gray-900 dark:text-white hidden sm:inline">CareerVivid</span>
+                                    <span className="hidden font-heading text-xl font-bold text-[var(--cv-text-heading)] sm:inline">CareerVivid</span>
                                 </a>
-                                <span className="hidden max-w-[240px] truncate rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-xs font-semibold text-slate-600 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-300 md:inline-flex">
+                                <span className="hidden max-w-[240px] truncate rounded-full border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-muted)] px-3 py-1 text-xs font-semibold text-[var(--cv-text-body)] md:inline-flex">
                                     {currentUser?.email || 'Workspace'}
                                 </span>
                             </div>
@@ -189,42 +186,42 @@ const Dashboard: React.FC = () => {
                                 )}
                                 <LanguageSelect />
                                 <ThemeToggle />
-                                <button onClick={() => navigate('/community')} className="flex items-center gap-2 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 font-semibold py-2 px-3 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-900/80 transition-colors cursor-pointer md:hidden">
+                                <button onClick={() => navigate('/community')} className="flex cursor-pointer items-center gap-2 rounded-lg bg-[var(--cv-success-soft)] px-3 py-2 font-semibold text-[var(--cv-success-text)] transition-colors md:hidden">
                                     <Users size={20} /> <span className="hidden md:inline">{t('nav.community', 'Community')}</span>
                                 </button>
                                 <div className="relative hidden md:block" ref={newMenuRef}>
-                                    <button onClick={() => setIsNewMenuOpen(!isNewMenuOpen)} className="flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-bold text-white shadow-soft transition hover:bg-primary-700">
+                                    <button onClick={() => setIsNewMenuOpen(!isNewMenuOpen)} className="cv-design-button-primary px-4 py-2.5 text-sm">
                                         <PlusCircle size={18} /> <span>{t('dashboard.create_new')}</span> <ChevronDown size={18} />
                                     </button>
                                     {isNewMenuOpen && (
-                                        <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-20 border dark:border-gray-700">
+                                        <div className="cv-design-card absolute right-0 z-20 mt-2 w-56 overflow-hidden rounded-lg shadow-lg">
                                             <div className="py-1">
-                                                <button onClick={() => { navigate('/onboarding'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                <button onClick={() => { navigate('/onboarding'); setIsNewMenuOpen(false); }} className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-[var(--cv-text-body)] hover:bg-[var(--cv-action-soft-bg)] hover:text-[var(--cv-action-primary)]">
                                                     <Sparkles size={16} /> Quick Start
                                                 </button>
-                                                <button onClick={() => { navigate('/newresume'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                <button onClick={() => { navigate('/newresume'); setIsNewMenuOpen(false); }} className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-[var(--cv-text-body)] hover:bg-[var(--cv-action-soft-bg)] hover:text-[var(--cv-action-primary)]">
                                                     <FileText size={16} /> {t('dashboard.new_resume')}
                                                 </button>
-                                                <button onClick={() => { navigate('/portfolio'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                <button onClick={() => { navigate('/portfolio'); setIsNewMenuOpen(false); }} className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-[var(--cv-text-body)] hover:bg-[var(--cv-action-soft-bg)] hover:text-[var(--cv-action-primary)]">
                                                     <Globe size={16} /> New Portfolio
                                                 </button>
-                                                <button onClick={async () => { const id = await createWhiteboard(); navigate(`/whiteboard/${id}`); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                <button onClick={async () => { const id = await createWhiteboard(); navigate(`/whiteboard/${id}`); setIsNewMenuOpen(false); }} className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-[var(--cv-text-body)] hover:bg-[var(--cv-action-soft-bg)] hover:text-[var(--cv-action-primary)]">
                                                     <PenTool size={16} /> New Whiteboard
                                                 </button>
                                                 {/* <button onClick={() => { navigate('/sop/new'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                     <ClipboardList size={16} /> New SOP Document
                                                 </button> */}
-                                                <button onClick={() => { navigate('/interview-studio'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                <button onClick={() => { navigate('/interview-studio'); setIsNewMenuOpen(false); }} className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-[var(--cv-text-body)] hover:bg-[var(--cv-action-soft-bg)] hover:text-[var(--cv-action-primary)]">
                                                     <Mic size={16} /> {t('dashboard.interview_practice')}
                                                 </button>
-                                                <button onClick={() => { navigate('/job-market'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                <button onClick={() => { navigate('/job-market'); setIsNewMenuOpen(false); }} className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-[var(--cv-text-body)] hover:bg-[var(--cv-action-soft-bg)] hover:text-[var(--cv-action-primary)]">
                                                     <Briefcase size={16} /> Find Jobs (Professional)
                                                 </button>
-                                                <button onClick={() => { navigate('/job-tracker'); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                <button onClick={() => { navigate('/job-tracker'); setIsNewMenuOpen(false); }} className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-[var(--cv-text-body)] hover:bg-[var(--cv-action-soft-bg)] hover:text-[var(--cv-action-primary)]">
                                                     <Briefcase size={16} /> {t('dashboard.track_new_job')}
                                                 </button>
-                                                <div className="border-t my-1 border-gray-200 dark:border-gray-600"></div>
-                                                <button onClick={() => { handleAddFolder(); setIsNewMenuOpen(false); }} className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                <div className="my-1 border-t border-[var(--cv-border-subtle)]"></div>
+                                                <button onClick={() => { handleAddFolder(); setIsNewMenuOpen(false); }} className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-[var(--cv-text-body)] hover:bg-[var(--cv-action-soft-bg)] hover:text-[var(--cv-action-primary)]">
                                                     <FolderPlus size={16} /> {t('dashboard.new_folder')}
                                                 </button>
                                             </div>
@@ -232,19 +229,19 @@ const Dashboard: React.FC = () => {
                                     )}
                                 </div>
                                 <div className="relative" ref={userMenuRef}>
-                                    <button onClick={handleStep1Click} className="relative w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300">
+                                    <button onClick={handleStep1Click} className="relative flex h-10 w-10 items-center justify-center rounded-full bg-[var(--cv-surface-warm-muted)] text-[var(--cv-text-body)]">
                                         {currentUser?.photoURL ? <img src={currentUser.photoURL} alt="User" className="w-full h-full rounded-full object-cover" /> : <UserIcon size={20} />}
                                         {!isPremium && upgradeStep === 1 && (
                                             <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 flex flex-col items-center animate-bounce-vertical pointer-events-none z-50">
                                                 <svg className="w-8 h-8 text-orange-500 transform -rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                                                <span className="text-orange-500 font-bold text-sm whitespace-nowrap bg-white dark:bg-gray-800 px-1 rounded shadow-sm">Click on Profile</span>
+                                                <span className="whitespace-nowrap rounded bg-[var(--cv-surface-warm-card-strong)] px-1 text-sm font-bold text-[var(--cv-warning-text)] shadow-sm">Click on Profile</span>
                                             </div>
                                         )}
                                     </button>
                                     {isUserMenuOpen && (
-                                        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-20 border dark:border-gray-700">
+                                        <div className="cv-design-card absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-lg shadow-lg">
                                             <div className="py-1">
-                                                <button onClick={() => { handleStep2Click(); navigate('/profile'); }} className="w-full text-left relative block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                <button onClick={() => { handleStep2Click(); navigate('/profile'); }} className="relative block w-full px-4 py-2 text-left text-sm text-[var(--cv-text-body)] hover:bg-[var(--cv-action-soft-bg)] hover:text-[var(--cv-action-primary)]">
                                                     {t('dashboard.profile')}
                                                     {!isPremium && upgradeStep === 2 && (
                                                         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 animate-bounce-horizontal pointer-events-none">
@@ -253,13 +250,13 @@ const Dashboard: React.FC = () => {
                                                         </div>
                                                     )}
                                                 </button>
-                                                <button onClick={() => navigate('/developer')} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Developer Settings (API/MCP)</button>
-                                                {isPremium && <button onClick={() => navigate('/referrals')} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Referrals</button>}
-                                                {(userProfile?.roles?.includes('academic_partner') || userProfile?.role === 'academic_partner') && <button onClick={() => navigate('/academic-partner')} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.academic_partner')}</button>}
-                                                {(userProfile?.roles?.includes('business_partner') || userProfile?.role === 'business_partner') && <button onClick={() => navigate('/business-partner/dashboard')} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Business Partner</button>}
-                                                {(userProfile?.roles?.includes('agency_partner') || userProfile?.role === 'agency_partner') && <button onClick={() => navigate('/agency-partner/dashboard')} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Agency Partner</button>}
-                                                {isAdmin && <button onClick={() => navigate('/admin')} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.admin')}</button>}
-                                                <button onClick={logOut} className="w-full text-left block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">{t('dashboard.sign_out')}</button>
+                                                <button onClick={() => navigate('/developer')} className="block w-full px-4 py-2 text-left text-sm text-[var(--cv-text-body)] hover:bg-[var(--cv-action-soft-bg)] hover:text-[var(--cv-action-primary)]">Developer Settings (API/MCP)</button>
+                                                {isPremium && <button onClick={() => navigate('/referrals')} className="block w-full px-4 py-2 text-left text-sm text-[var(--cv-text-body)] hover:bg-[var(--cv-action-soft-bg)] hover:text-[var(--cv-action-primary)]">Referrals</button>}
+                                                {(userProfile?.roles?.includes('academic_partner') || userProfile?.role === 'academic_partner') && <button onClick={() => navigate('/academic-partner')} className="block w-full px-4 py-2 text-left text-sm text-[var(--cv-text-body)] hover:bg-[var(--cv-action-soft-bg)] hover:text-[var(--cv-action-primary)]">{t('dashboard.academic_partner')}</button>}
+                                                {(userProfile?.roles?.includes('business_partner') || userProfile?.role === 'business_partner') && <button onClick={() => navigate('/business-partner/dashboard')} className="block w-full px-4 py-2 text-left text-sm text-[var(--cv-text-body)] hover:bg-[var(--cv-action-soft-bg)] hover:text-[var(--cv-action-primary)]">Business Partner</button>}
+                                                {(userProfile?.roles?.includes('agency_partner') || userProfile?.role === 'agency_partner') && <button onClick={() => navigate('/agency-partner/dashboard')} className="block w-full px-4 py-2 text-left text-sm text-[var(--cv-text-body)] hover:bg-[var(--cv-action-soft-bg)] hover:text-[var(--cv-action-primary)]">Agency Partner</button>}
+                                                {isAdmin && <button onClick={() => navigate('/admin')} className="block w-full px-4 py-2 text-left text-sm text-[var(--cv-text-body)] hover:bg-[var(--cv-action-soft-bg)] hover:text-[var(--cv-action-primary)]">{t('dashboard.admin')}</button>}
+                                                <button onClick={logOut} className="block w-full px-4 py-2 text-left text-sm text-[var(--cv-text-body)] hover:bg-[var(--cv-danger-soft)] hover:text-[var(--cv-danger-text)]">{t('dashboard.sign_out')}</button>
                                             </div>
                                         </div>
                                     )}
@@ -275,12 +272,14 @@ const Dashboard: React.FC = () => {
                 </header>
 
                 <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <div className="mb-8 md:hidden">
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-all">{dashboardTitle}</h1>
+                    <div className="mb-6 md:hidden">
+                        <h1 className="cv-design-title text-[22px] transition-all">{dashboardTitle}</h1>
+                        <p className="cv-design-body mt-0.5 text-[13px]">{t('dashboard.subtitle', "Here's your job search at a glance.")}</p>
                     </div>
 
-                    <div className="mb-8 hidden md:block">
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-all">{dashboardTitle}</h1>
+                    <div className="mb-6 hidden md:block">
+                        <h1 className="cv-design-title text-[22px] transition-all">{dashboardTitle}</h1>
+                        <p className="cv-design-body mt-0.5 text-[13px]">{t('dashboard.subtitle', "Here's your job search at a glance.")}</p>
                     </div>
 
                     <MobileWorkflowLauncher />

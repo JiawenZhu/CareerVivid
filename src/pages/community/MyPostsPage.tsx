@@ -33,20 +33,16 @@ const MyPostsPage: React.FC = () => {
 
     return (
         <AppLayout>
-            <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950/80 relative overflow-hidden py-8 px-4 sm:px-6 lg:px-8">
-                {/* Ambient Base Glow */}
-                <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary-400/20 dark:bg-primary-600/10 blur-[120px] pointer-events-none z-[-1]" />
-                <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/20 dark:bg-blue-600/10 blur-[120px] pointer-events-none z-[-1]" />
-
+            <div className="cv-design-page cv-design-grid relative min-h-screen overflow-hidden px-4 py-8 sm:px-6 lg:px-8">
                 <div className="max-w-screen-2xl mx-auto relative z-10">
                     <header className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
-                            <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">My Posts</h1>
-                            <p className="mt-2 text-gray-600 dark:text-gray-400 text-lg">Manage your published community articles.</p>
+                            <h1 className="cv-design-title text-3xl">My Posts</h1>
+                            <p className="cv-design-body mt-2 text-lg">Manage your published community articles.</p>
                         </div>
                         <button
                             onClick={() => navigate('/community/new')}
-                            className="bg-primary-600 text-white font-bold py-2.5 px-6 rounded-xl hover:bg-primary-700 hover:shadow-lg transition-all flex items-center gap-2"
+                            className="cv-design-button-primary rounded-xl px-6 py-2.5 text-sm"
                         >
                             <Plus size={20} />
                             Create New Post
@@ -64,17 +60,17 @@ const MyPostsPage: React.FC = () => {
                             <Loader2 className="w-10 h-10 text-primary-500 animate-spin" />
                         </div>
                     ) : posts.length === 0 ? (
-                        <div className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-[24px] shadow-sm border border-white/50 dark:border-gray-800/50 p-12 text-center flex flex-col items-center">
-                            <div className="w-20 h-20 bg-primary-50 dark:bg-primary-900/20 rounded-full flex items-center justify-center mb-6">
-                                <PenTool className="w-10 h-10 text-primary-500" />
+                        <div className="cv-design-card flex flex-col items-center rounded-[24px] p-12 text-center">
+                            <div className="cv-design-icon-well mb-6 flex h-20 w-20 items-center justify-center rounded-full">
+                                <PenTool className="w-10 h-10" />
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No Posts Yet</h3>
-                            <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm">
+                            <h3 className="cv-design-title mb-2 text-xl">No Posts Yet</h3>
+                            <p className="cv-design-body mb-8 max-w-sm">
                                 You haven't written any community posts yet. Share your experience and knowledge with others!
                             </p>
                             <button
                                 onClick={() => navigate('/community/new')}
-                                className="bg-primary-600 text-white font-bold py-2.5 px-6 rounded-xl hover:bg-primary-700 transition flex items-center gap-2"
+                                className="cv-design-button-primary rounded-xl px-6 py-2.5 text-sm"
                             >
                                 <Plus size={20} /> Start Writing
                             </button>

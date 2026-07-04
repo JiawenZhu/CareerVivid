@@ -577,19 +577,19 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
         icon: React.ReactNode
     ) => (
         <div>
-            <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-200">
+            <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-[var(--cv-text-body)]">
                 {icon}
                 <span>{label}</span>
             </div>
-            <div className={`grid ${options.length === 4 ? 'grid-cols-2' : 'grid-cols-3'} gap-1 rounded-xl border border-gray-200 bg-[#fbfbfe] p-1 dark:border-gray-700 dark:bg-gray-900/70`}>
+            <div className={`grid ${options.length === 4 ? 'grid-cols-2' : 'grid-cols-3'} gap-1 rounded-xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-muted)] p-1`}>
                 {options.map(option => (
                     <button
                         key={option}
                         type="button"
                         onClick={() => onChange(option)}
                         className={`min-h-[34px] rounded-lg px-2 text-xs font-semibold leading-tight transition-colors ${value === option
-                            ? 'border border-[#dfe2ff] bg-[#eef0ff] text-[#625bd5] shadow-sm dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]'
-                            : 'border border-transparent text-gray-600 hover:border-[#dfdcff] hover:bg-white hover:text-[#625bd5] dark:text-gray-400 dark:hover:border-[#484273] dark:hover:bg-gray-800 dark:hover:text-[#bbb8ff]'
+                            ? 'border border-[var(--cv-action-border)] bg-[var(--cv-action-soft-bg)] text-[var(--cv-action-primary)] shadow-sm'
+                            : 'border border-transparent text-[var(--cv-text-body)] hover:border-[var(--cv-action-border)] hover:bg-[var(--cv-surface-warm-card-strong)] hover:text-[var(--cv-action-primary)]'
                             }`}
                         aria-pressed={value === option}
                     >
@@ -604,20 +604,20 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
     const renderContent = () => {
         if (selectedIndustry) {
             return (
-                <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-5">
-                    <button onClick={() => setSelectedIndustry(null)} className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200">
+                <section className="cv-design-card p-4 sm:p-5">
+                    <button onClick={() => setSelectedIndustry(null)} className="mb-4 flex items-center gap-2 text-sm font-semibold text-[var(--cv-text-muted)] hover:text-[var(--cv-text-heading)]">
                         <ChevronLeft size={16} /> {t('interview_studio.back_to_industries')}
                     </button>
-                    <h2 className="mb-4 text-base font-bold text-gray-900 dark:text-gray-100">{t('interview_studio.select_role', { industry: selectedIndustry.name })}</h2>
+                    <h2 className="cv-design-title mb-4 text-base">{t('interview_studio.select_role', { industry: selectedIndustry.name })}</h2>
                     <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 @[1080px]/interview-page:grid-cols-1">
                         {selectedIndustry.roles.map(role => (
                             <button
                                 key={role.name}
                                 onClick={() => handleRoleSelect(role.name)}
-                                className="group flex min-h-[54px] items-center justify-between gap-3 rounded-lg border border-gray-200 bg-[#fbfbfe] p-3 text-left transition-all hover:-translate-y-0.5 hover:border-[#dfdcff] hover:bg-[#fbfbff] hover:shadow-[0_8px_24px_rgba(98,91,213,0.08)] dark:border-gray-700 dark:bg-gray-800/60 dark:hover:border-[#484273] dark:hover:bg-[#24233a]/50"
+                                className="cv-design-card-hover group flex min-h-[54px] items-center justify-between gap-3 rounded-lg border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card-strong)] p-3 text-left transition-all hover:-translate-y-0.5"
                             >
-                                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{role.name}</h3>
-                                <ArrowRight size={16} className="text-gray-400 transition-colors group-hover:text-[#625bd5] dark:group-hover:text-[#bbb8ff]" />
+                                <h3 className="text-sm font-semibold text-[var(--cv-text-heading)]">{role.name}</h3>
+                                <ArrowRight size={16} className="text-[var(--cv-text-muted)] transition-colors group-hover:text-[var(--cv-action-primary)]" />
                             </button>
                         ))}
                     </div>
@@ -626,22 +626,22 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
         }
 
         return (
-            <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-5">
+            <section className="cv-design-card p-4 sm:p-5">
                 <div className="mb-4 flex items-center gap-2">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#dfe2ff] bg-[#eef0ff] text-[#625bd5] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]">
+                    <span className="cv-design-icon-well flex h-8 w-8 items-center justify-center rounded-lg">
                         <Swords size={15} />
                     </span>
-                    <h2 className="text-base font-bold text-gray-900 dark:text-gray-100">{t('interview_studio.select_career')}</h2>
+                    <h2 className="cv-design-title text-base">{t('interview_studio.select_career')}</h2>
                 </div>
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 @[1080px]/interview-page:grid-cols-1">
                     {CAREER_PATHS.map(industry => (
                         <button
                             key={industry.name}
                             onClick={() => setSelectedIndustry(industry)}
-                            className="group flex min-h-[54px] items-center justify-between gap-3 rounded-lg border border-gray-200 bg-[#fbfbfe] p-3 text-left transition-all hover:-translate-y-0.5 hover:border-[#dfdcff] hover:bg-[#fbfbff] hover:shadow-[0_8px_24px_rgba(98,91,213,0.08)] dark:border-gray-700 dark:bg-gray-800/60 dark:hover:border-[#484273] dark:hover:bg-[#24233a]/50"
+                            className="cv-design-card-hover group flex min-h-[54px] items-center justify-between gap-3 rounded-lg border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card-strong)] p-3 text-left transition-all hover:-translate-y-0.5"
                         >
-                            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{industry.name}</h3>
-                            <ArrowRight size={16} className="text-gray-400 transition-colors group-hover:text-[#625bd5] dark:group-hover:text-[#bbb8ff]" />
+                            <h3 className="text-sm font-semibold text-[var(--cv-text-heading)]">{industry.name}</h3>
+                            <ArrowRight size={16} className="text-[var(--cv-text-muted)] transition-colors group-hover:text-[var(--cv-action-primary)]" />
                         </button>
                     ))}
                 </div>
@@ -686,32 +686,32 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
     };
 
     const renderCompanyGuideCards = () => (
-        <section className="@container/guides overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <section className="cv-design-card @container/guides overflow-hidden">
             {/* Header */}
-            <div className="border-b border-gray-100 bg-[#fbfbff] p-4 sm:p-5 dark:border-gray-800 dark:bg-gray-900">
+            <div className="border-b border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-muted)] p-4 sm:p-5">
                 <div className="flex flex-col gap-3 @[720px]/guides:flex-row @[720px]/guides:items-center @[720px]/guides:justify-between">
                     <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f3f2ff] text-[#625bd5] ring-1 ring-[#dfdcff] dark:bg-[#2f2b55]/70 dark:text-[#bbb8ff] dark:ring-[#484273]">
+                            <span className="cv-design-icon-well flex h-8 w-8 items-center justify-center rounded-lg">
                                 <Building2 size={16} />
                             </span>
-                            <h2 className="text-lg font-bold tracking-tight text-gray-900 dark:text-gray-100">
+                            <h2 className="cv-design-title text-lg">
                                 Practice from real company guides
                             </h2>
                         </div>
-                        <p className="mt-1.5 text-sm text-gray-500 dark:text-gray-400">
+                        <p className="cv-design-body mt-1.5 text-sm">
                             Verified stages, topics, and sample questions — turned into a company-style mock interview.
                         </p>
                     </div>
-                    <div className="flex shrink-0 items-center divide-x divide-gray-200 rounded-xl border border-gray-200 bg-white/80 shadow-sm backdrop-blur dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-800/80">
+                    <div className="flex shrink-0 items-center divide-x divide-[var(--cv-border-subtle)] rounded-xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card-strong)] shadow-sm backdrop-blur">
                         {[
                             { value: INTERVIEW_GUIDE_TOTALS.companies, label: 'companies' },
                             { value: INTERVIEW_GUIDE_TOTALS.questions, label: 'questions' },
                             { value: INTERVIEW_GUIDE_TOTALS.stages, label: 'stages' },
                         ].map((stat) => (
                             <div key={stat.label} className="px-4 py-2 text-center first:pl-4 last:pr-4">
-                                <p className="text-sm font-bold tabular-nums text-gray-900 dark:text-gray-100">{stat.value.toLocaleString()}</p>
-                                <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">{stat.label}</p>
+                                <p className="text-sm font-bold tabular-nums text-[var(--cv-text-heading)]">{stat.value.toLocaleString()}</p>
+                                <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--cv-text-muted)]">{stat.label}</p>
                             </div>
                         ))}
                     </div>
@@ -719,8 +719,8 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
 
                 {/* Search + category filters */}
                 <div className="mt-4 flex flex-col gap-2.5">
-                    <div className="group/search flex min-h-[52px] items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50/80 px-4 transition-all duration-200 focus-within:border-gray-400 focus-within:bg-white focus-within:shadow-[0_1px_2px_rgba(16,24,40,0.05),0_4px_14px_rgba(16,24,40,0.08)] hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800/60 dark:focus-within:border-gray-500 dark:focus-within:bg-gray-800 dark:focus-within:shadow-none">
-                        <Search size={17} strokeWidth={2.25} className="shrink-0 text-gray-400 transition-colors group-focus-within/search:text-gray-700 dark:group-focus-within/search:text-gray-200" />
+                    <div className="group/search flex min-h-[52px] items-center gap-3 rounded-2xl border border-[var(--cv-input-border)] bg-[var(--cv-input-bg)] px-4 transition-all duration-200 hover:border-[var(--cv-action-border)] focus-within:border-[var(--cv-action-border)] focus-within:bg-[var(--cv-surface-warm-card-strong)] focus-within:shadow-[0_1px_2px_rgba(55,38,18,0.05),0_4px_14px_rgba(55,38,18,0.08)]">
+                        <Search size={17} strokeWidth={2.25} className="shrink-0 text-[var(--cv-text-muted)] transition-colors group-focus-within/search:text-[var(--cv-action-primary)]" />
                         <input
                             ref={guideSearchRef}
                             type="search"
@@ -735,19 +735,19 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                             }}
                             placeholder="Search Google, Stripe, OpenAI, system design..."
                             aria-label="Search company interview guides"
-                            className="min-w-0 flex-1 border-0 bg-transparent p-0 py-3 text-sm font-medium text-gray-900 outline-none ring-0 placeholder:text-gray-400 focus:border-0 focus:outline-none focus:ring-0 dark:text-gray-100 dark:placeholder:text-gray-500 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+                            className="min-w-0 flex-1 border-0 bg-transparent p-0 py-3 text-sm font-medium text-[var(--cv-text-heading)] outline-none ring-0 placeholder:text-[var(--cv-text-muted)] focus:border-0 focus:outline-none focus:ring-0 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
                         />
                         {guideSearch ? (
                             <button
                                 type="button"
                                 onClick={() => { setGuideSearch(''); setGuideLimit(12); guideSearchRef.current?.focus(); }}
                                 aria-label="Clear search"
-                                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-200/70 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+                                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[var(--cv-text-muted)] transition-colors hover:bg-[var(--cv-surface-warm-muted)] hover:text-[var(--cv-text-heading)]"
                             >
                                 <X size={14} strokeWidth={2.5} />
                             </button>
                         ) : (
-                            <kbd className="hidden shrink-0 items-center rounded-md border border-gray-200 bg-white px-1.5 py-0.5 font-sans text-[11px] font-semibold text-gray-400 shadow-[0_1px_0_rgba(16,24,40,0.06)] @[480px]/guides:inline-flex dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400">
+                            <kbd className="hidden shrink-0 items-center rounded-md border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card-strong)] px-1.5 py-0.5 font-sans text-[11px] font-semibold text-[var(--cv-text-muted)] shadow-[0_1px_0_rgba(55,38,18,0.06)] @[480px]/guides:inline-flex">
                                 /
                             </kbd>
                         )}
@@ -762,8 +762,8 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                     onClick={() => { setGuideCategory(category.id); setGuideLimit(12); }}
                                     aria-pressed={isActive}
                                     className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${isActive
-                                        ? 'bg-gray-950 text-white shadow-sm dark:bg-gray-100 dark:text-gray-950'
-                                        : 'border border-gray-200 bg-white text-gray-600 hover:border-[#dfdcff] hover:bg-[#fbfbff] hover:text-[#625bd5] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-[#484273] dark:hover:text-[#bbb8ff]'
+                                        ? 'bg-[var(--cv-action-primary)] text-white shadow-sm'
+                                        : 'border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card-strong)] text-[var(--cv-text-body)] hover:border-[var(--cv-action-border)] hover:bg-[var(--cv-action-soft-bg)] hover:text-[var(--cv-action-primary)]'
                                         }`}
                                 >
                                     {category.label}
@@ -783,7 +783,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                         return (
                             <article
                                 key={guide.slug}
-                                className="group flex flex-col rounded-xl border border-gray-200 bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-[#dfdcff] hover:bg-[#fbfbff] hover:shadow-md hover:shadow-[#625bd5]/8 dark:border-gray-700 dark:bg-gray-800/60 dark:hover:border-[#484273] dark:hover:bg-[#24233a]/50"
+                                className="cv-design-card cv-design-card-hover group flex flex-col p-4 transition-all hover:-translate-y-0.5"
                             >
                                 <div className="flex items-center gap-3">
                                     <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold ring-1 shadow-sm ${getGuideAvatarTone(guide.company)} dark:bg-[#2f2b55]/70 dark:text-[#bbb8ff] dark:ring-[#484273]`}>
@@ -791,10 +791,10 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center justify-between gap-2">
-                                            <h3 className="truncate text-sm font-bold text-gray-900 dark:text-gray-100">{guide.company}</h3>
+                                            <h3 className="truncate text-sm font-bold text-[var(--cv-text-heading)]">{guide.company}</h3>
                                             {getDifficultyBadge(guide.difficulty)}
                                         </div>
-                                        <p className="mt-0.5 truncate text-xs font-medium text-gray-500 dark:text-gray-400">
+                                        <p className="mt-0.5 truncate text-xs font-medium text-[var(--cv-text-muted)]">
                                             {formatGuideMeta(guide)}
                                         </p>
                                     </div>
@@ -805,7 +805,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                         {topicChips.map((topic) => (
                                             <span
                                                 key={topic}
-                                                className="max-w-full truncate rounded-md bg-gray-100 px-2 py-1 text-[11px] font-medium text-gray-600 group-hover:bg-[#f3f2ff] group-hover:text-[#625bd5] dark:bg-gray-900/80 dark:text-gray-300 dark:group-hover:bg-[#2f2b55]/60 dark:group-hover:text-[#bbb8ff]"
+                                                className="max-w-full truncate rounded-md bg-[var(--cv-surface-warm-muted)] px-2 py-1 text-[11px] font-medium text-[var(--cv-text-body)] group-hover:bg-[var(--cv-action-soft-bg)] group-hover:text-[var(--cv-action-primary)]"
                                             >
                                                 {topic}
                                             </span>
@@ -817,7 +817,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                     <button
                                         type="button"
                                         onClick={() => navigate(`/quest/${guide.slug}`)}
-                                        className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#eef0ff] px-3 text-xs font-semibold text-[#625bd5] ring-1 ring-[#dfe2ff] shadow-sm transition-colors hover:bg-[#e5e7ff] hover:text-[#514ac5] dark:bg-[#2f2b55]/70 dark:text-[#bbb8ff] dark:ring-[#484273] dark:hover:bg-[#383266]"
+                                        className="cv-design-button-primary inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 text-xs"
                                     >
                                         <Swords size={14} />
                                         Start quest
@@ -828,7 +828,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                         disabled={isLoading}
                                         title="Single mock interview (no quest)"
                                         aria-label={`Single mock interview for ${guide.company}`}
-                                        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-400 transition-colors hover:border-gray-300 hover:text-[#625bd5] disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-500 dark:hover:text-[#bbb8ff]"
+                                        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card-strong)] text-[var(--cv-text-muted)] transition-colors hover:border-[var(--cv-action-border)] hover:text-[var(--cv-action-primary)] disabled:cursor-not-allowed disabled:opacity-60"
                                     >
                                         {isStarting ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
                                     </button>
@@ -836,7 +836,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                         href={`https://www.techinterview.org/companies/${guide.slug}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-400 transition-colors hover:border-gray-300 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-500 dark:hover:text-gray-200"
+                                        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card-strong)] text-[var(--cv-text-muted)] transition-colors hover:border-[var(--cv-action-border)] hover:text-[var(--cv-text-heading)]"
                                         aria-label={`Open ${guide.company} source guide`}
                                         title="View source guide"
                                     >
@@ -849,10 +849,10 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                 </div>
 
                 {visibleGuideSummaries.length === 0 && (
-                    <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 py-10 text-center dark:border-gray-700 dark:bg-gray-800/50">
-                        <ListChecks className="mx-auto text-gray-400" size={22} />
-                        <p className="mt-2 text-sm font-semibold text-gray-700 dark:text-gray-200">No matching company guides</p>
-                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Try a company name, interview topic, or system design keyword.</p>
+                    <div className="rounded-xl border border-dashed border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-muted)] py-10 text-center">
+                        <ListChecks className="mx-auto text-[var(--cv-text-muted)]" size={22} />
+                        <p className="mt-2 text-sm font-semibold text-[var(--cv-text-heading)]">No matching company guides</p>
+                        <p className="mt-1 text-xs text-[var(--cv-text-muted)]">Try a company name, interview topic, or system design keyword.</p>
                     </div>
                 )}
 
@@ -861,10 +861,10 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                         <button
                             type="button"
                             onClick={() => setGuideLimit((prev) => prev + 12)}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-4 py-2 text-xs font-semibold text-gray-700 shadow-sm transition-colors hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                            className="cv-design-button-secondary inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs"
                         >
                             Show more companies
-                            <span className="text-gray-400">({guideMatchTotal - visibleGuideSummaries.length} more)</span>
+                            <span className="text-[var(--cv-text-muted)]">({guideMatchTotal - visibleGuideSummaries.length} more)</span>
                         </button>
                     </div>
                 )}
@@ -874,14 +874,14 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
 
     if ((isLoading || isSyncingTransit) && !isInterviewModalOpen) {
         return (
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center p-4">
+            <div className="cv-design-page cv-design-grid flex min-h-screen flex-col items-center justify-center p-4">
                 <div className="text-center">
-                    <Loader2 className="w-16 h-16 text-primary-500 animate-spin mx-auto" />
-                    <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mt-6">
+                    <Loader2 className="mx-auto h-16 w-16 animate-spin text-[var(--cv-action-primary)]" />
+                    <h1 className="cv-design-title mt-6 text-2xl">
                         {isSyncingTransit ? "Synchronizing Job Details..." : t('interview_studio.preparing')}
                     </h1>
                     <div className="h-6 mt-2">
-                        <p key={loadingMessageIndex} className="text-gray-500 dark:text-gray-400 animate-fade-in">
+                        <p key={loadingMessageIndex} className="cv-design-body animate-fade-in">
                             {isSyncingTransit ? "Preparing your AI mock interview room..." : t(`interview_studio.loading_${loadingMessageIndex + 1}`)}
                         </p>
                     </div>
@@ -893,24 +893,24 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
     return (
         <AppLayout>
             <CreditLimitModal />
-            <div className="relative min-h-screen bg-[#f8f8fb] pb-16 text-left dark:bg-gray-950">
+            <div className="cv-design-page cv-design-grid relative min-h-screen pb-16 text-left">
                 <div id="start-session" className="@container/interview-page mx-auto max-w-screen-2xl px-4 py-6 text-left sm:px-6 lg:px-8 lg:py-8">
                     <div className="grid grid-cols-1 items-start gap-5 @[1080px]/interview-page:grid-cols-[minmax(0,1fr)_360px]">
                         <main className="space-y-4">
-                            <section className="@container/setup rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-5 @[720px]/setup:p-6">
+                            <section className="@container/setup cv-design-card p-4 sm:p-5 @[720px]/setup:p-6">
                                 <div className="flex flex-col gap-5">
                                     <div>
-                                        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#dfe2ff] bg-[#eef0ff] px-2.5 py-1 text-xs font-semibold text-[#625bd5] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]">
+                                        <div className="cv-design-eyebrow mb-3 inline-flex items-center gap-2 rounded-full border border-[var(--cv-action-border)] bg-[var(--cv-action-soft-bg)] px-2.5 py-1 text-xs">
                                             <Mic size={14} />
                                             <span>Interview workspace</span>
                                         </div>
-                                        <h1 className="text-2xl @[560px]/setup:text-3xl font-extrabold text-gray-900 dark:text-gray-100">{t('interview_studio.title')}</h1>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5 max-w-2xl">{t('interview_studio.subtitle')}</p>
+                                        <h1 className="cv-design-title text-2xl @[560px]/setup:text-3xl">{t('interview_studio.title')}</h1>
+                                        <p className="cv-design-body mt-1.5 max-w-2xl text-sm">{t('interview_studio.subtitle')}</p>
                                     </div>
 
                                     <form onSubmit={handlePromptSubmit} className="space-y-4">
                                         <div>
-                                            <label htmlFor="interview-prompt" className="block text-xs font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                                            <label htmlFor="interview-prompt" className="mb-2 block text-xs font-semibold text-[var(--cv-text-body)]">
                                                 {t('interview_studio.start_title')}
                                             </label>
                                             <div className="flex flex-col gap-3 @[560px]/setup:flex-row">
@@ -920,11 +920,11 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                                     value={prompt}
                                                     onChange={(e) => setPrompt(e.target.value)}
                                                     placeholder={placeholder}
-                                                    className="min-h-[52px] w-full flex-grow rounded-2xl border border-gray-300 bg-white px-4 text-sm font-medium text-gray-900 transition-shadow placeholder:text-gray-400 focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-[#eef0ff] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-[#625bd5]/60 dark:focus:ring-[#252244]"
+                                                    className="cv-design-input min-h-[52px] w-full flex-grow rounded-2xl px-4 text-sm font-medium transition-shadow placeholder:text-[var(--cv-text-muted)]"
                                                 />
                                                 <button
                                                     type="submit"
-                                                    className="flex min-h-[52px] flex-shrink-0 items-center justify-center gap-2 rounded-2xl border border-[#dfe2ff] bg-[#eef0ff] px-5 text-sm font-bold text-[#625bd5] shadow-sm transition-colors hover:bg-[#e5e7ff] hover:text-[#514ac5] disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400 dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff] dark:hover:bg-[#312d6b] dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
+                                                    className="cv-design-button-secondary min-h-[52px] flex-shrink-0 rounded-2xl px-5 text-sm disabled:cursor-not-allowed disabled:opacity-55"
                                                     disabled={!prompt.trim() || isLoading}
                                                 >
                                                     {t('interview_studio.start_btn')} <ArrowRight size={16} />
@@ -933,9 +933,9 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                         </div>
 
                                         <div className="grid grid-cols-1 @[560px]/setup:grid-cols-3 gap-4">
-                                            {renderSegmentedControl('Mode', interviewModes, interviewMode, setInterviewMode, <Sparkles size={16} className="text-[#625bd5]" />)}
-                                            {renderSegmentedControl('Difficulty', interviewDifficulties, interviewDifficulty, setInterviewDifficulty, <SlidersHorizontal size={16} className="text-[#625bd5]" />)}
-                                            {renderSegmentedControl('Duration', interviewDurations, interviewDuration, setInterviewDuration, <Clock size={16} className="text-[#625bd5]" />)}
+                                            {renderSegmentedControl('Mode', interviewModes, interviewMode, setInterviewMode, <Sparkles size={16} className="text-[var(--cv-action-primary)]" />)}
+                                            {renderSegmentedControl('Difficulty', interviewDifficulties, interviewDifficulty, setInterviewDifficulty, <SlidersHorizontal size={16} className="text-[var(--cv-action-primary)]" />)}
+                                            {renderSegmentedControl('Duration', interviewDurations, interviewDuration, setInterviewDuration, <Clock size={16} className="text-[var(--cv-action-primary)]" />)}
                                         </div>
                                     </form>
                                 </div>
@@ -944,13 +944,13 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                             {renderCompanyGuideCards()}
                         </main>
                         <aside className="space-y-4 @[1080px]/interview-page:sticky @[1080px]/interview-page:top-6">
-                            <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                            <section className="cv-design-card p-4">
                                 <div className="mb-4 flex items-center justify-between gap-4">
                                     <div>
-                                        <h2 className="text-base font-bold text-gray-900 dark:text-gray-100">Recent sessions</h2>
-                                        <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{practiceHistory.length} saved</p>
+                                        <h2 className="cv-design-title text-base">Recent sessions</h2>
+                                        <p className="cv-design-body mt-0.5 text-xs">{practiceHistory.length} saved</p>
                                     </div>
-                                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#dfe2ff] bg-[#eef0ff] text-[#625bd5] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]">
+                                    <span className="cv-design-icon-well flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
                                         <Mic size={16} />
                                     </span>
                                 </div>
@@ -965,21 +965,21 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                                 return (
                                                     <article
                                                         key={entry.id}
-                                                        className="flex min-h-[124px] flex-col rounded-lg border border-gray-200 bg-[#fbfbfe] p-3 transition-colors hover:border-[#dfdcff] hover:bg-[#fbfbff] dark:border-gray-700 dark:bg-gray-800/60 dark:hover:border-[#625bd5]/40"
+                                                        className="cv-design-card cv-design-card-hover flex min-h-[124px] flex-col rounded-lg p-3 transition-colors"
                                                     >
                                                         <div className="flex items-start justify-between gap-3">
                                                             <div className="min-w-0">
-                                                                <h3 className="truncate text-sm font-bold text-gray-900 dark:text-gray-100">
+                                                                <h3 className="truncate text-sm font-bold text-[var(--cv-text-heading)]">
                                                                     {entry.job.title}
                                                                 </h3>
-                                                                <p className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
+                                                                <p className="mt-0.5 truncate text-xs text-[var(--cv-text-muted)]">
                                                                     {entry.job.company || 'Custom Practice'}
                                                                 </p>
                                                             </div>
                                                             {(practiceCount > 0 || resumableDraft) && (
                                                                 <div className="flex shrink-0 flex-col items-end gap-1">
                                                                     {practiceCount > 0 && (
-                                                                        <span className="rounded-full border border-[#dfe2ff] bg-[#eef0ff] px-2 py-0.5 text-[11px] font-bold text-[#625bd5] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]">
+                                                                        <span className="rounded-full border border-[var(--cv-action-border)] bg-[var(--cv-action-soft-bg)] px-2 py-0.5 text-[11px] font-bold text-[var(--cv-action-primary)]">
                                                                             {practiceCount}
                                                                         </span>
                                                                     )}
@@ -997,10 +997,10 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                                                     <span className="shrink-0 rounded-full bg-amber-50 px-2 py-0.5 font-bold text-amber-800 ring-1 ring-amber-200 dark:bg-amber-950/25 dark:text-amber-200 dark:ring-amber-900/50">
                                                                         Saved draft
                                                                     </span>
-                                                                    <span className="text-gray-300 dark:text-gray-600">·</span>
+                                                                    <span className="text-[var(--cv-border-subtle)]">·</span>
                                                                 </>
                                                             )}
-                                                            <span className="truncate text-gray-500 dark:text-gray-400">
+                                                            <span className="truncate text-[var(--cv-text-muted)]">
                                                                 Last activity: {formatSessionDate(entry.timestamp)}
                                                             </span>
                                                         </div>
@@ -1009,7 +1009,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                                                 type="button"
                                                                 onClick={() => handleDeleteClick(entry.id)}
                                                                 aria-label={`Delete ${entry.job.title}`}
-                                                                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
+                                                                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--cv-text-muted)] hover:bg-[var(--cv-danger-soft)] hover:text-[var(--cv-danger-text)]"
                                                             >
                                                                 <Trash2 size={15} />
                                                             </button>
@@ -1027,7 +1027,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                                                 type="button"
                                                                 onClick={() => handlePracticeAgainDirect(entry)}
                                                                 aria-label={resumableDraft ? 'Start over' : 'Practice Again'}
-                                                                className={`${resumableDraft ? 'w-8 justify-center px-0' : 'px-2.5'} inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md bg-white text-xs font-semibold text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-200 dark:ring-gray-700 dark:hover:bg-gray-800`}
+                                                                className={`${resumableDraft ? 'w-8 justify-center px-0' : 'px-2.5'} inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md bg-[var(--cv-surface-warm-card-strong)] text-xs font-semibold text-[var(--cv-text-body)] shadow-sm ring-1 ring-[var(--cv-border-subtle)] hover:bg-[var(--cv-surface-warm-muted)]`}
                                                             >
                                                                 <Sparkles size={14} />
                                                                 {!resumableDraft && 'Practice Again'}
@@ -1036,7 +1036,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                                                 type="button"
                                                                 onClick={() => setSelectedJobForReport(entry)}
                                                                 disabled={!entry.interviewHistory || entry.interviewHistory.length === 0}
-                                                                className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md border border-[#dfe2ff] bg-[#eef0ff] px-2.5 text-xs font-semibold text-[#625bd5] hover:bg-[#e6e8ff] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff] dark:hover:bg-[#312d6b]"
+                                                                className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md border border-[var(--cv-action-border)] bg-[var(--cv-action-soft-bg)] px-2.5 text-xs font-semibold text-[var(--cv-action-primary)] hover:bg-[var(--cv-action-soft-bg-strong)] disabled:cursor-not-allowed disabled:opacity-50"
                                                             >
                                                                 <BarChart3 size={14} /> Report
                                                             </button>
@@ -1045,8 +1045,8 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                                 );
                                             })
                                         ) : (
-                                            <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 py-8 text-center dark:border-gray-700 dark:bg-gray-800/50">
-                                                <p className="text-sm text-gray-500 dark:text-gray-400">No interview sessions found.</p>
+                                            <div className="rounded-lg border border-dashed border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-muted)] py-8 text-center">
+                                                <p className="text-sm text-[var(--cv-text-muted)]">No interview sessions found.</p>
                                             </div>
                                         )
                                     }

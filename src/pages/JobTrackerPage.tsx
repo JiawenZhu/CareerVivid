@@ -285,6 +285,7 @@ const JobTrackerPage: React.FC = () => {
         try {
             const newJobId = await addJobApplication(jobData);
             if (newJobId) {
+                sessionStorage.setItem('cv_last_welcome_job_id', newJobId);
                 // Create a temporary object to immediately open the modal.
                 // The snapshot listener will update the main list with the server-stamped data.
                 const tempJobForModal: JobApplicationData = {
@@ -346,37 +347,38 @@ const JobTrackerPage: React.FC = () => {
 
     return (
         <AppLayout>
-            <div className="mx-auto min-h-screen max-w-screen-2xl">
-                <header className="bg-white dark:bg-gray-800 shadow-sm dark:border-b dark:border-gray-700">
-                    <div className="max-w-full mx-auto py-4 px-4 sm:px-6 lg:px-8">
-                        <div className="flex justify-between items-center">
-                            {/* Back arrow + title — hidden on desktop when sidebar is active */}
-                            <div className={`flex items-center gap-4 ${navPosition === 'side' ? 'md:hidden' : ''}`}>
-                                <button onClick={() => navigate('/dashboard')} title={t('nav.dashboard')} className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                                    <ArrowLeft size={24} />
-                                </button>
-                                <div>
-                                    <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{t('job_tracker.title')}</h1>
-                                    <p className="text-gray-500 dark:text-gray-400 mt-1">{t('job_tracker.subtitle')}</p>
-                                </div>
-                            </div>
-                            {/* Title shown inline in side-nav mode */}
-                            {navPosition === 'side' && (
-                                <h1 className="hidden md:block text-2xl font-bold text-gray-900 dark:text-gray-100">{t('job_tracker.title')}</h1>
-                            )}
+            <div className="cv-design-page cv-design-grid mx-auto min-h-screen max-w-screen-2xl">
+                {/* Inline page header */}
+                <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                        {navPosition !== 'side' && (
                             <button
-                                onClick={() => setIsAddModalOpen(true)}
-                                className="flex items-center gap-2 bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-primary-700 transition-colors"
+                                onClick={() => navigate('/dashboard')}
+                                title={t('nav.dashboard')}
+                                className="shrink-0 text-[var(--cv-text-body)] hover:text-[var(--cv-text-heading)]"
                             >
-                                <PlusCircle size={20} />
-                                {t('job_tracker.track_new')}
+                                <ArrowLeft size={20} />
                             </button>
+                        )}
+                        <div className="min-w-0">
+                            <h1 className="cv-design-title text-[22px]">
+                                {t('job_tracker.title')}
+                            </h1>
+                            <p className="cv-design-body mt-0.5 text-[13px]">
+                                {t('job_tracker.subtitle')}
+                            </p>
                         </div>
                     </div>
-                </header>
+                    <button
+                        onClick={() => setIsAddModalOpen(true)}
+                        className="cv-design-button-primary h-9 shrink-0 px-3.5 text-xs"
+                    >
+                        <PlusCircle size={14} />
+                        {t('job_tracker.track_new')}
+                    </button>
+                </div>
 
-                <main className="py-6">
-                    <div className="max-w-full mx-auto px-3 sm:px-5 lg:px-6">
+                <div className="px-3 pb-6 sm:px-5 lg:px-6">
                         {isLoading ? (
                             <p className="text-center text-gray-500 dark:text-gray-400">{t('job_tracker.loading')}</p>
                         ) : (
@@ -420,8 +422,7 @@ const JobTrackerPage: React.FC = () => {
                                 </div>
                             </>
                         )}
-                    </div>
-                </main>
+                </div>
 
                 {isAddModalOpen && (
                     <AddJobModal

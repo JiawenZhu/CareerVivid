@@ -28,13 +28,13 @@ export const DraggableSectionHeader: React.FC<DraggableSectionHeaderProps> = ({
                 {/* Immediate trigger for reorder modal */}
                 {onLongPress ? (
                     <div
-                        className="relative flex items-center justify-center p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer text-gray-400 select-none touch-none"
+                        className="relative flex cursor-pointer touch-none select-none items-center justify-center rounded p-1 text-[var(--cv-text-muted)] transition-colors hover:bg-[var(--cv-surface-warm-muted)]"
                         onClick={onLongPress}
                     >
                         {viewMode === 'row' ? <GripHorizontal size={20} /> : <GripVertical size={20} />}
                     </div>
                 ) : icon ? (
-                    <span className="text-gray-400">{icon}</span>
+                    <span className="text-[var(--cv-text-muted)]">{icon}</span>
                 ) : null}
 
                 <EditableHeader
@@ -47,7 +47,7 @@ export const DraggableSectionHeader: React.FC<DraggableSectionHeaderProps> = ({
             {hasItems && onViewAll && (
                 <button
                     onClick={onViewAll}
-                    className="shrink-0 text-[13px] font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 flex items-center gap-1 transition-colors px-2.5 sm:px-3 py-1.5 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-500/10"
+                    className="flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1.5 text-[13px] font-bold text-[var(--cv-action-primary)] transition-colors hover:bg-[var(--cv-action-soft-bg)] hover:text-[var(--cv-action-primary-hover)] sm:px-3"
                 >
                     View All <ChevronRight size={14} />
                 </button>
@@ -110,18 +110,18 @@ function DashboardPreviewSection<T>({
 
             {!hasRendered ? (
                 // Skeleton height placeholder based on ViewMode
-                <div className={`w-full ${viewMode === 'row' ? 'h-[280px]' : 'h-[400px]'} bg-gray-50/50 dark:bg-gray-900/20 rounded-2xl border border-gray-100 dark:border-gray-800 animate-pulse`} />
+                <div className={`w-full ${viewMode === 'row' ? 'h-[280px]' : 'h-[400px]'} animate-pulse rounded-2xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-muted)]`} />
             ) : items.length === 0 ? (
                 <div 
                     onClick={onViewAll}
-                    className={`bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl rounded-lg sm:rounded-2xl p-6 sm:p-10 text-center border border-dashed border-slate-200/80 dark:border-slate-800/80 transition-all duration-300 hover:border-indigo-500/40 dark:hover:border-indigo-400/40 flex flex-col justify-center items-center shadow-sm group/empty
-                        ${onViewAll ? 'cursor-pointer hover:bg-gray-50/50 dark:hover:bg-gray-800/40' : ''}
+                    className={`cv-design-card flex flex-col items-center justify-center border-dashed p-6 text-center transition-all duration-300 group/empty sm:p-10
+                        ${onViewAll ? 'cursor-pointer hover:border-[var(--cv-action-border)] hover:bg-[var(--cv-surface-warm-card-strong)]' : ''}
                     `}
                 >
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-50 dark:bg-gray-800/60 rounded-full flex items-center justify-center mb-3 sm:mb-4 group-hover/empty:scale-110 transition-transform duration-300 border border-slate-200/20 dark:border-slate-800/20">
-                        <Plus className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 dark:text-gray-500 group-hover/empty:text-indigo-500 dark:group-hover/empty:text-indigo-400 transition-colors" />
+                    <div className="cv-design-icon-well mb-3 flex h-10 w-10 items-center justify-center rounded-full transition-transform duration-300 group-hover/empty:scale-110 sm:mb-4 sm:h-12 sm:w-12">
+                        <Plus className="h-5 w-5 text-[var(--cv-text-muted)] transition-colors group-hover/empty:text-[var(--cv-action-primary)] sm:h-6 sm:w-6" />
                     </div>
-                    <p className="text-[14px] text-gray-500 dark:text-gray-400 font-medium group-hover/empty:text-indigo-500 dark:group-hover/empty:text-indigo-400 transition-colors">{emptyMessage}</p>
+                    <p className="text-[14px] font-medium text-[var(--cv-text-body)] transition-colors group-hover/empty:text-[var(--cv-action-primary)]">{emptyMessage}</p>
                 </div>
             ) : (
                 <>

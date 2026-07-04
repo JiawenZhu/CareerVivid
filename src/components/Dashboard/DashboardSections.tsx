@@ -208,7 +208,7 @@ export const WhiteboardsSection: React.FC<SectionProps & { setShareModalWhiteboa
                             const id = await createWhiteboard();
                             navigate(`/whiteboard/${id}`);
                         }}
-                        className="bg-primary-600 text-white font-medium py-2 px-6 rounded-lg hover:bg-primary-700 transition"
+                        className="cv-design-button-primary rounded-lg px-6 py-2 text-sm"
                     >
                         + Create a New Whiteboard
                     </button>

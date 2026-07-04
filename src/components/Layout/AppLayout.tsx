@@ -28,11 +28,11 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
     return (
         <div
-            className="cv-product-density flex min-h-screen bg-gray-50 dark:bg-gray-950"
+            className="cv-product-density cv-design-page cv-design-grid flex min-h-screen"
             style={{ '--sidebar-width': `${activeSidebarWidth}px` } as React.CSSProperties}
         >
             <Sidebar />
-            <main className="flex-1 overflow-x-hidden md:pl-[var(--sidebar-width)] flex flex-col min-w-0 bg-gray-50 transition-[padding-left] duration-200 ease-in-out dark:bg-gray-950">
+            <main className="cv-design-page cv-design-grid flex min-w-0 flex-1 flex-col overflow-x-hidden transition-[padding-left] duration-200 ease-in-out md:pl-[var(--sidebar-width)]">
                 <div className="cv-product-density-viewport flex-1">{children}</div>
                 <div className="cv-product-density-footer">
                     <OpenSourceAttribution />

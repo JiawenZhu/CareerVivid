@@ -22,8 +22,8 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
             title: 'My Resumes',
             count: resumeCount,
             icon: FileText,
-            color: 'text-blue-600',
-            bg: 'bg-blue-100 dark:bg-blue-900/30',
+            color: 'text-[var(--cv-action-primary)]',
+            bg: 'bg-[var(--cv-action-soft-bg)]',
             link: '/newresume',
             isAction: false
         },
@@ -31,8 +31,8 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
             title: 'Find Jobs',
             count: null,
             icon: Briefcase,
-            color: 'text-emerald-600',
-            bg: 'bg-emerald-100 dark:bg-emerald-900/30',
+            color: 'text-[var(--cv-action-primary)]',
+            bg: 'bg-[var(--cv-action-soft-bg)]',
             link: '/jobs/recommend',
             isAction: true,
             actionText: 'Find Jobs'
@@ -42,8 +42,8 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
             mobileTitle: 'Interview Sessions',
             count: interviewCount,
             icon: Mic,
-            color: 'text-purple-600',
-            bg: 'bg-purple-100 dark:bg-purple-900/30',
+            color: 'text-[var(--cv-action-primary)]',
+            bg: 'bg-[var(--cv-action-soft-bg)]',
             link: '/interview-studio',
             isAction: false
         },
@@ -51,8 +51,8 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
             title: 'Portfolios',
             count: portfolioCount,
             icon: Globe,
-            color: 'text-pink-600',
-            bg: 'bg-pink-100 dark:bg-pink-900/30',
+            color: 'text-[var(--cv-action-primary)]',
+            bg: 'bg-[var(--cv-action-soft-bg)]',
             link: '/portfolio',
             isAction: false
         },
@@ -60,8 +60,8 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
             title: 'Career Pipeline',
             count: jobCount > 0 ? jobCount : null,
             icon: Briefcase,
-            color: 'text-indigo-600',
-            bg: 'bg-indigo-100 dark:bg-indigo-900/30',
+            color: 'text-[var(--cv-action-primary)]',
+            bg: 'bg-[var(--cv-action-soft-bg)]',
             link: '/job-tracker',
             isAction: jobCount === 0,
             actionText: '+ Track Job'
@@ -70,29 +70,29 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
             title: 'Community Posts',
             count: communityPostCount,
             icon: MessageSquare,
-            color: 'text-amber-600',
-            bg: 'bg-amber-100 dark:bg-amber-900/30',
+            color: 'text-[var(--cv-action-primary)]',
+            bg: 'bg-[var(--cv-action-soft-bg)]',
             link: '/my-posts',
             isAction: false
         }
     ];
 
     return (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 md:gap-6 mb-8 md:mb-10">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 md:gap-6 mb-5 md:mb-6">
             {cards.map((card, index) => (
                 <div
                     key={index}
                     onClick={() => navigate(card.link)}
-                    className="relative bg-white/70 dark:bg-gray-900/50 backdrop-blur-xl p-4 md:p-5 min-h-[128px] md:h-36 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 transition-all duration-300 hover:border-indigo-500/40 dark:hover:border-indigo-400/40 shadow-sm hover:shadow-md hover:shadow-indigo-500/[0.03] cursor-pointer group overflow-hidden flex flex-col justify-between"
+                    className="cv-design-card cv-design-card-hover group relative flex min-h-[128px] cursor-pointer flex-col justify-between overflow-hidden p-4 transition-all duration-300 md:h-36 md:p-5"
                 >
                     {/* Subtle Top Gradient Line */}
-                    <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute left-0 top-0 h-[2px] w-full bg-gradient-to-r from-transparent via-[var(--cv-action-border)] to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
                     <div className="flex gap-3 items-start min-h-12">
-                        <div className={`p-2 md:p-2.5 rounded-xl ${card.bg} border border-slate-200/40 dark:border-slate-800/40 flex-shrink-0 flex items-center justify-center`}>
+                        <div className={`flex shrink-0 items-center justify-center rounded-xl border border-[var(--cv-action-border)] p-2 md:p-2.5 ${card.bg}`}>
                             <card.icon className={`w-4 h-4 ${card.color}`} />
                         </div>
-                        <h3 className="text-[11px] font-bold text-gray-500 dark:text-gray-400 font-sans tracking-wider uppercase leading-tight text-left">
+                        <h3 className="text-left font-heading text-[11px] font-extrabold uppercase leading-tight tracking-[0.14em] text-[var(--cv-text-muted)]">
                             <span className="md:hidden">{card.mobileTitle || card.title}</span>
                             <span className="hidden md:inline">{card.title}</span>
                         </h3>
@@ -100,16 +100,16 @@ const DashboardSummaryCards: React.FC<DashboardSummaryCardsProps> = ({
 
                     <div className="flex items-end justify-between mt-auto">
                         {card.isAction ? (
-                            <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xs bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1.5 rounded-lg border border-indigo-100/50 dark:border-indigo-900/30 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/50 transition-colors">
+                            <div className="flex items-center gap-2 rounded-lg border border-[var(--cv-action-border)] bg-[var(--cv-action-soft-bg)] px-3 py-1.5 text-xs font-extrabold text-[var(--cv-action-primary)] transition-colors group-hover:bg-[var(--cv-action-soft-bg-strong)]">
                                 {card.actionText}
                             </div>
                         ) : (
-                            <div className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white font-sans tracking-tight leading-none">
+                            <div className="font-heading text-2xl font-extrabold leading-none tracking-tight text-[var(--cv-text-heading)] md:text-3xl">
                                 {card.count !== null ? card.count : 0}
                             </div>
                         )}
-                        <div className="w-7 h-7 rounded-full bg-gray-50 dark:bg-slate-800/80 flex items-center justify-center opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                            <Plus className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 group-hover:text-indigo-500 dark:group-hover:text-indigo-400" />
+                        <div className="flex h-7 w-7 -translate-x-1 items-center justify-center rounded-full bg-[var(--cv-surface-warm-muted)] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+                            <Plus className="h-3.5 w-3.5 text-[var(--cv-text-muted)] transition-colors group-hover:text-[var(--cv-action-primary)]" />
                         </div>
                     </div>
                 </div>

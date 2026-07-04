@@ -746,26 +746,26 @@ const JobsRecommendPage: React.FC = () => {
                 />
             </Helmet>
 
-            <div className="min-h-screen bg-[#f7f1e7] text-[#211b16] dark:bg-[#1f1f1d] dark:text-[#f1eee7]">
-                <header className="border-b border-stone-200/80 bg-[#fffaf1]/85 backdrop-blur-xl dark:border-slate-800/80 dark:bg-[#262522]/85">
+            <div className="cv-design-page cv-design-grid min-h-screen">
+                <header className="cv-design-header">
                     <div className="mx-auto flex max-w-[1480px] flex-col gap-5 px-4 py-5 sm:px-6 lg:px-8">
                         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                             <div>
-                                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-200">
+                                <div className="cv-design-eyebrow mb-3 inline-flex items-center gap-2 rounded-full border border-[var(--cv-action-border)] bg-[var(--cv-action-soft-bg)] px-3 py-1 text-xs">
                                     <Sparkles size={14} />
                                     {recommendedFeedJobs.length ? 'Apply-ready recommendations' : 'Recommended jobs'}
                                 </div>
-                                <h1 className="text-2xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-3xl">
+                                <h1 className="cv-design-title text-2xl sm:text-3xl">
                                     Jobs matched to your CareerVivid profile
                                 </h1>
-                                <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-stone-600 dark:text-slate-300">
+                                <p className="cv-design-body mt-2 max-w-3xl text-sm">
                                     CareerVivid shows validated company and ATS jobs in Recommended, then keeps saved tracker roles in Saved and External.
                                 </p>
                                 <div className="mt-4 flex flex-wrap gap-2">
                                     <button
                                         type="button"
                                         onClick={() => setIsTargetJobModalOpen(true)}
-                                        className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-3.5 py-2 text-sm font-black text-white shadow-sm transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100"
+                                        className="cv-design-button-primary rounded-xl px-3.5 py-2 text-sm font-black"
                                     >
                                         <PlusCircle size={16} />
                                         Set target job
@@ -773,7 +773,7 @@ const JobsRecommendPage: React.FC = () => {
                                     <button
                                         type="button"
                                         onClick={() => navigate('/job-tracker')}
-                                        className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white/75 px-3.5 py-2 text-sm font-bold text-stone-700 shadow-sm transition hover:border-stone-300 hover:text-slate-950 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-300 dark:hover:text-white"
+                                        className="cv-design-button-secondary rounded-xl px-3.5 py-2 text-sm"
                                     >
                                         <LayoutDashboard size={16} />
                                         Open tracker
@@ -787,20 +787,20 @@ const JobsRecommendPage: React.FC = () => {
                             </div>
 
                             <div className="grid grid-cols-3 gap-2 sm:min-w-[420px]">
-                                <div className="rounded-2xl border border-stone-200 bg-white/75 p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
-                                    <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-stone-500 dark:text-slate-400">Top match</div>
-                                    <div className="mt-1 flex items-end gap-1 text-2xl font-black text-slate-950 dark:text-white">{topScore}<span className="pb-1 text-xs text-stone-500">%</span></div>
+                                <div className="cv-design-card rounded-2xl p-3">
+                                    <div className="cv-design-eyebrow text-[11px]">Top match</div>
+                                    <div className="mt-1 flex items-end gap-1 text-2xl font-black text-[var(--cv-text-heading)]">{topScore}<span className="pb-1 text-xs text-[var(--cv-text-muted)]">%</span></div>
                                 </div>
-                                <div className="rounded-2xl border border-stone-200 bg-white/75 p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
-                                    <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-stone-500 dark:text-slate-400">Profile assets</div>
-                                    <div className="mt-1 text-2xl font-black text-slate-950 dark:text-white">{profileAssetCount}</div>
+                                <div className="cv-design-card rounded-2xl p-3">
+                                    <div className="cv-design-eyebrow text-[11px]">Profile assets</div>
+                                    <div className="mt-1 text-2xl font-black text-[var(--cv-text-heading)]">{profileAssetCount}</div>
                                 </div>
                                 <button
                                     onClick={() => navigate('/job-tracker')}
-                                    className="rounded-2xl border border-indigo-200 bg-indigo-50 p-3 text-left shadow-sm transition hover:border-indigo-300 hover:bg-indigo-100 dark:border-indigo-900/60 dark:bg-indigo-950/40 dark:hover:bg-indigo-950/70"
+                                    className="cv-design-button-secondary rounded-2xl p-3 text-left"
                                 >
-                                    <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-indigo-600 dark:text-indigo-300">Pipeline</div>
-                                    <div className="mt-1 flex items-center gap-1 text-sm font-black text-indigo-800 dark:text-indigo-100">
+                                    <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--cv-action-primary)]">Pipeline</div>
+                                    <div className="mt-1 flex items-center gap-1 text-sm font-black text-[var(--cv-action-primary)]">
                                         Open <ArrowUpRight size={14} />
                                     </div>
                                 </button>
@@ -819,8 +819,8 @@ const JobsRecommendPage: React.FC = () => {
                                         key={id}
                                         onClick={() => setActiveTab(id as typeof activeTab)}
                                         className={`rounded-full border px-4 py-2 text-xs font-extrabold transition ${activeTab === id
-                                            ? 'border-slate-900 bg-slate-950 text-white dark:border-white dark:bg-white dark:text-slate-950'
-                                            : 'border-stone-200 bg-white/70 text-stone-600 hover:border-stone-300 hover:text-slate-950 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-300 dark:hover:border-slate-700 dark:hover:text-white'
+                                            ? 'border-[var(--cv-action-primary)] bg-[var(--cv-action-primary)] text-white'
+                                            : 'border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card-strong)] text-[var(--cv-text-body)] hover:border-[var(--cv-action-border)] hover:text-[var(--cv-action-primary)]'
                                             }`}
                                     >
                                         {label} <span className="ml-1 opacity-70">{count}</span>
@@ -834,7 +834,7 @@ const JobsRecommendPage: React.FC = () => {
                                     value={searchQuery}
                                     onChange={(event) => setSearchQuery(event.target.value)}
                                     placeholder="Search roles, companies, skills..."
-                                    className="h-11 w-full rounded-2xl border border-stone-200 bg-white/80 pl-10 pr-4 text-sm font-semibold text-slate-900 outline-none transition placeholder:text-stone-400 focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100 dark:border-slate-800 dark:bg-slate-900/70 dark:text-white dark:focus:border-indigo-700 dark:focus:ring-indigo-950"
+                                    className="cv-design-input h-11 w-full rounded-2xl pl-10 pr-4 text-sm font-semibold transition placeholder:text-stone-400"
                                 />
                             </label>
                         </div>
@@ -857,18 +857,18 @@ const JobsRecommendPage: React.FC = () => {
                         )}
 
                         {!isLoadingScrapedJobs && visibleJobs.length === 0 && (
-                            <div className="rounded-3xl border border-stone-200/80 bg-white/80 p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
+                            <div className="cv-design-card rounded-3xl p-8 text-center">
                                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-200">
                                     <ShieldCheck size={24} />
                                 </div>
-                                <h2 className="mt-4 text-xl font-black text-slate-950 dark:text-white">{emptyStateCopy.title}</h2>
-                                <p className="mx-auto mt-2 max-w-xl text-sm font-medium leading-6 text-stone-600 dark:text-slate-300">
+                                <h2 className="cv-design-title mt-4 text-xl">{emptyStateCopy.title}</h2>
+                                <p className="cv-design-body mx-auto mt-2 max-w-xl text-sm">
                                     {emptyStateCopy.description}
                                 </p>
                                 <button
                                     type="button"
                                     onClick={() => setIsTargetJobModalOpen(true)}
-                                    className="mt-5 inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-2 text-sm font-black text-white shadow-sm transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100"
+                                    className="cv-design-button-primary mt-5 rounded-xl px-4 py-2 text-sm font-black"
                                 >
                                     <PlusCircle size={16} />
                                     Paste target job
@@ -881,7 +881,7 @@ const JobsRecommendPage: React.FC = () => {
                             return (
                                 <article
                                     key={job.id}
-                                    className="grid gap-4 rounded-3xl border border-stone-200/80 bg-white/80 p-4 shadow-sm transition hover:border-indigo-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-indigo-900/60 lg:grid-cols-[minmax(0,1fr)_150px]"
+                                    className="cv-design-card cv-design-card-hover grid gap-4 rounded-3xl p-4 lg:grid-cols-[minmax(0,1fr)_150px]"
                                 >
                                     <div className="min-w-0">
                                         <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -893,12 +893,12 @@ const JobsRecommendPage: React.FC = () => {
                                         </div>
 
                                         <div className="flex gap-3">
-                                            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-stone-200 bg-[#fffaf1] text-lg font-black text-slate-950 dark:border-slate-800 dark:bg-slate-950 dark:text-white">
+                                            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card-strong)] text-lg font-black text-[var(--cv-text-heading)]">
                                                 {job.company.slice(0, 2).toUpperCase()}
                                             </div>
                                             <div className="min-w-0">
-                                                <h2 className="text-lg font-black tracking-tight text-slate-950 dark:text-white">{job.title}</h2>
-                                                <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold text-stone-600 dark:text-slate-300">
+                                                <h2 className="text-lg font-black tracking-tight text-[var(--cv-text-heading)]">{job.title}</h2>
+                                                <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold text-[var(--cv-text-body)]">
                                                     <Building2 size={15} /> {job.company}
                                                     <span className="hidden text-stone-300 sm:inline">/</span>
                                                     <span>{job.seniority}</span>
@@ -913,9 +913,9 @@ const JobsRecommendPage: React.FC = () => {
                                             <div className="flex items-center gap-2"><BadgeCheck size={15} /> {job.salary}</div>
                                         </div>
 
-                                        <div className="mt-4 max-w-4xl rounded-2xl border border-stone-200/70 bg-[#fffaf1]/70 px-3 py-2.5 dark:border-slate-800 dark:bg-slate-950/35">
-                                            <div className="mb-1 text-[10px] font-black uppercase tracking-[0.14em] text-stone-500 dark:text-slate-500">Summary</div>
-                                            <p className="text-sm font-medium leading-6 text-stone-700 dark:text-slate-300">{job.description}</p>
+                                        <div className="mt-4 max-w-4xl rounded-2xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-muted)] px-3 py-2.5">
+                                            <div className="cv-design-eyebrow mb-1 text-[10px]">Summary</div>
+                                            <p className="text-sm font-medium leading-6 text-[var(--cv-text-body)]">{job.description}</p>
                                         </div>
 
                                         <div className="mt-4 grid gap-3 xl:grid-cols-2">
@@ -925,7 +925,7 @@ const JobsRecommendPage: React.FC = () => {
                                                 </div>
                                                 <div className="flex flex-wrap gap-1.5">
                                                     {job.matchReasons.map((reason) => (
-                                                        <span key={reason} className="rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-bold text-emerald-800 dark:bg-slate-900/70 dark:text-emerald-100">{reason}</span>
+                                                        <span key={reason} className="rounded-full bg-[var(--cv-surface-warm-card-strong)] px-2.5 py-1 text-[11px] font-bold text-emerald-800 dark:text-emerald-100">{reason}</span>
                                                     ))}
                                                 </div>
                                             </div>
@@ -936,14 +936,14 @@ const JobsRecommendPage: React.FC = () => {
                                                 </div>
                                                 <div className="flex flex-wrap gap-1.5">
                                                     {(job.missingKeywords.length ? job.missingKeywords : ['No major gaps listed']).map((keyword) => (
-                                                        <span key={keyword} className="rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-bold text-rose-800 dark:bg-slate-900/70 dark:text-rose-100">{keyword}</span>
+                                                        <span key={keyword} className="rounded-full bg-[var(--cv-surface-warm-card-strong)] px-2.5 py-1 text-[11px] font-bold text-rose-800 dark:text-rose-100">{keyword}</span>
                                                     ))}
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <aside className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-950 p-3 text-white shadow-sm dark:border-slate-700">
+                                    <aside className="cv-design-card flex flex-col gap-3 rounded-2xl p-3">
                                         <div className={`rounded-2xl border p-3 text-center ${scoreTone(job.matchScore)}`}>
                                             <Gauge className="mx-auto mb-2 h-5 w-5" />
                                             <div className="text-3xl font-black leading-none">{job.matchScore}<span className="text-sm">%</span></div>
@@ -953,7 +953,7 @@ const JobsRecommendPage: React.FC = () => {
                                         <button
                                             onClick={() => { void saveSeedJob(job); }}
                                             disabled={isSaved || savingJobId === job.id || tailoringJobId === job.id}
-                                            className="inline-flex min-h-[40px] items-center justify-center gap-2 rounded-xl bg-[#7c6df2] px-3 py-2 text-xs font-black text-white transition hover:bg-[#6757dc] disabled:cursor-default disabled:bg-slate-700 disabled:text-slate-300"
+                                            className="cv-design-button-primary min-h-[40px] rounded-xl px-3 py-2 text-xs font-black disabled:cursor-default"
                                         >
                                             <Heart size={15} />
                                             {isSaved ? 'Saved' : savingJobId === job.id ? 'Saving...' : 'Save'}
@@ -962,7 +962,7 @@ const JobsRecommendPage: React.FC = () => {
                                             type="button"
                                             onClick={() => { void saveAndOpenTailorJob(job); }}
                                             disabled={savingJobId === job.id || tailoringJobId === job.id}
-                                            className="inline-flex min-h-[40px] items-center justify-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-xs font-black text-white transition hover:bg-white/15 disabled:cursor-default disabled:opacity-55"
+                                            className="cv-design-button-secondary min-h-[40px] rounded-xl px-3 py-2 text-xs font-black disabled:cursor-default disabled:opacity-55"
                                         >
                                             <FileText size={15} />
                                             {tailoringJobId === job.id ? 'Opening...' : 'Tailor resume'}
@@ -972,14 +972,14 @@ const JobsRecommendPage: React.FC = () => {
                                                 type="button"
                                                 onClick={() => { void openApplyLink(job); }}
                                                 disabled={openingJobId === job.id}
-                                                className="inline-flex min-h-[40px] items-center justify-center gap-2 rounded-xl bg-emerald-400 px-3 py-2 text-xs font-black text-slate-950 transition hover:bg-emerald-300"
+                                                className="cv-design-button-secondary min-h-[40px] rounded-xl px-3 py-2 text-xs font-black"
                                             >
                                                 {openingJobId === job.id ? 'Opening...' : job.source === 'scraped' ? 'Apply now' : 'Open apply page'} <ExternalLink size={15} />
                                             </button>
                                         ) : (
                                             <button
                                                 onClick={() => navigate('/job-tracker')}
-                                                className="inline-flex min-h-[40px] items-center justify-center gap-2 rounded-xl bg-emerald-400 px-3 py-2 text-xs font-black text-slate-950 transition hover:bg-emerald-300"
+                                                className="cv-design-button-secondary min-h-[40px] rounded-xl px-3 py-2 text-xs font-black"
                                             >
                                                 Open tracker <ExternalLink size={15} />
                                             </button>
@@ -991,45 +991,45 @@ const JobsRecommendPage: React.FC = () => {
                     </section>
 
                     <aside className="space-y-4">
-                        <section className="rounded-3xl border border-stone-200 bg-white/80 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
-                            <div className="flex items-center gap-2 text-sm font-black text-slate-950 dark:text-white">
-                                <Target size={18} className="text-indigo-500" />
+                        <section className="cv-design-card rounded-3xl p-4">
+                            <div className="flex items-center gap-2 text-sm font-black text-[var(--cv-text-heading)]">
+                                <Target size={18} className="text-[var(--cv-action-primary)]" />
                                 Target companies
                             </div>
-                            <p className="mt-2 text-sm font-medium leading-6 text-stone-600 dark:text-slate-300">
+                            <p className="cv-design-body mt-2 text-sm">
                                 Paste a real job description for the company you want. CareerVivid saves it as the target role for tailoring and practice.
                             </p>
                             <button
                                 type="button"
                                 onClick={() => setIsTargetJobModalOpen(true)}
-                                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#7c6df2] px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-[#6757dc]"
+                                className="cv-design-button-primary mt-4 w-full rounded-2xl px-4 py-3 text-sm font-black"
                             >
                                 <FileText size={16} />
                                 Paste job description
                             </button>
                             <div className="mt-4 space-y-2">
                                 {targetCompanies.length ? targetCompanies.map((company) => (
-                                    <div key={company} className="flex items-center justify-between rounded-2xl border border-stone-200 bg-[#fffaf1] px-3 py-2 text-xs font-bold text-stone-700 dark:border-slate-800 dark:bg-slate-950/50 dark:text-slate-300">
+                                    <div key={company} className="flex items-center justify-between rounded-2xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-muted)] px-3 py-2 text-xs font-bold text-[var(--cv-text-body)]">
                                         <span className="truncate">{company}</span>
                                         <CheckCircle2 size={14} className="shrink-0 text-emerald-500" />
                                     </div>
                                 )) : (
-                                    <div className="rounded-2xl border border-dashed border-stone-300 bg-[#fffaf1]/70 px-3 py-3 text-xs font-bold leading-5 text-stone-500 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-400">
+                                    <div className="rounded-2xl border border-dashed border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-muted)] px-3 py-3 text-xs font-bold leading-5 text-[var(--cv-text-muted)]">
                                         Add your first target company by pasting a job description.
                                     </div>
                                 )}
-                                <div className="rounded-2xl border border-stone-200 bg-stone-50 px-3 py-2 text-xs font-bold text-stone-600 dark:border-slate-800 dark:bg-slate-950/50 dark:text-slate-300">
+                                <div className="rounded-2xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-muted)] px-3 py-2 text-xs font-bold text-[var(--cv-text-body)]">
                                     {targetJobCount} target {targetJobCount === 1 ? 'job' : 'jobs'} with descriptions
                                 </div>
                             </div>
                         </section>
 
-                        <section className="rounded-3xl border border-stone-200 bg-white/80 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
-                            <div className="flex items-center gap-2 text-sm font-black text-slate-950 dark:text-white">
+                        <section className="cv-design-card rounded-3xl p-4">
+                            <div className="flex items-center gap-2 text-sm font-black text-[var(--cv-text-heading)]">
                                 <ShieldCheck size={18} className="text-emerald-500" />
                                 Feed policy
                             </div>
-                            <p className="mt-3 text-sm font-medium leading-6 text-stone-600 dark:text-slate-300">
+                            <p className="cv-design-body mt-3 text-sm">
                                 Recommended uses authenticated ATS and company-career ingestion. A job is visible only after its external apply page is validated; expired or broken links are removed.
                             </p>
                             <div className="mt-4 rounded-2xl bg-slate-950 p-3 text-xs font-bold leading-5 text-slate-200">
@@ -1039,7 +1039,7 @@ const JobsRecommendPage: React.FC = () => {
 
                         <button
                             onClick={() => navigate('/dashboard')}
-                            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 bg-white/80 px-4 py-3 text-sm font-black text-stone-700 shadow-sm transition hover:border-stone-300 hover:text-slate-950 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-300 dark:hover:text-white"
+                            className="cv-design-button-secondary w-full rounded-2xl px-4 py-3 text-sm font-black"
                         >
                             <LayoutDashboard size={16} />
                             Dashboard
