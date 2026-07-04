@@ -15,7 +15,7 @@ import { useAICreditCheck } from '../hooks/useAICreditCheck';
 import { InterviewHistoryCardSkeleton } from '../components/Dashboard/DashboardSkeletons';
 import ConfirmationModal from '../components/ConfirmationModal';
 import AppLayout from '../components/Layout/AppLayout';
-import { INTERVIEW_GUIDE_TOTALS, InterviewGuideSummary } from '../data/interviewGuideSummaries.generated';
+import { INTERVIEW_GUIDE_SUMMARIES, INTERVIEW_GUIDE_TOTALS, InterviewGuideSummary } from '../data/interviewGuideSummaries.generated';
 import {
     buildLocalInterviewGuidePrompt,
     filterInterviewGuideSummaries,
@@ -78,6 +78,52 @@ const placeholderPrompts = [
     'A mock interview focused on leadership skills',
     'Systems design interview for a backend engineer role',
 ];
+
+const normalizeCompanyLookupKey = (value: string) => value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '');
+
+const slugifyQuestCompany = (value: string) =>
+    value
+        .trim()
+        .toLowerCase()
+        .replace(/&/g, ' and ')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+const GUIDE_SLUG_BY_COMPANY = new Map(
+    INTERVIEW_GUIDE_SUMMARIES.map((guide) => [normalizeCompanyLookupKey(guide.company), guide.slug]),
+);
+
+const extractQuestSlugFromUrl = (url?: string) => {
+    if (!url) return null;
+
+    try {
+        const parsed = new URL(url.startsWith('http') ? url : `https://${url}`);
+        const parts = parsed.pathname.split('/').filter(Boolean);
+        const companiesIndex = parts.lastIndexOf('companies');
+        const slug = companiesIndex >= 0 ? parts[companiesIndex + 1] : parts.at(-1);
+        if (!slug) return null;
+        return decodeURIComponent(slug).trim().toLowerCase();
+    } catch {
+        const match = url.match(/(?:^|\/)companies\/([^/?#]+)/i);
+        return match?.[1] ? decodeURIComponent(match[1]).trim().toLowerCase() : null;
+    }
+};
+
+const resolveQuestPathFromHistoryEntry = (entry: PracticeHistoryEntry) => {
+    const title = entry.job?.title || '';
+    const questTitleMatch = title.match(/^\s*(.+?)\s+quest\s+[—-]\s+/i);
+    if (!questTitleMatch) return null;
+
+    const urlSlug = extractQuestSlugFromUrl(entry.job?.url);
+    if (urlSlug) return `/quest/${urlSlug}`;
+
+    const company = questTitleMatch[1]?.trim() || entry.job?.company || '';
+    const mappedSlug = GUIDE_SLUG_BY_COMPANY.get(normalizeCompanyLookupKey(company));
+    const fallbackSlug = slugifyQuestCompany(company);
+    const slug = mappedSlug || fallbackSlug;
+
+    return slug ? `/quest/${slug}` : null;
+};
 
 type InterviewMode = 'Behavioral' | 'Technical' | 'Mixed' | 'Screening';
 type InterviewDifficulty = 'Entry' | 'Standard' | 'Senior';
@@ -349,6 +395,12 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
 
     // Starts a clean attempt and clears any saved draft for this role.
     const handlePracticeAgainDirect = (jobEntry: PracticeHistoryEntry) => {
+        const questPath = resolveQuestPathFromHistoryEntry(jobEntry);
+        if (questPath) {
+            navigate(questPath);
+            return;
+        }
+
         const jobData = {
             title: jobEntry.job.title,
             company: jobEntry.job.company || 'Custom Practice',

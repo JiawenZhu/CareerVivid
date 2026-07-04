@@ -11,6 +11,7 @@ const {
   mockGenerateInterviewQuestions,
   mockCheckCredit,
   mockSaveInterviewDraft,
+  mockNavigate,
   mockPracticeHistory,
 } = vi.hoisted(() => ({
   mockAddJob: vi.fn(),
@@ -18,6 +19,7 @@ const {
   mockGenerateInterviewQuestions: vi.fn(),
   mockCheckCredit: vi.fn(),
   mockSaveInterviewDraft: vi.fn(),
+  mockNavigate: vi.fn(),
   mockPracticeHistory: [] as PracticeHistoryEntry[],
 }));
 
@@ -117,6 +119,10 @@ vi.mock('../firebase', () => ({
   db: {},
 }));
 
+vi.mock('../utils/navigation', () => ({
+  navigate: mockNavigate,
+}));
+
 vi.mock('firebase/functions', () => ({
   getFunctions: vi.fn(() => ({ app: 'firebase-functions' })),
   httpsCallable: vi.fn(() => vi.fn().mockResolvedValue({ data: { prewarmed: true } })),
@@ -181,6 +187,20 @@ const draftEntry: PracticeHistoryEntry = {
     startedAt: Date.now() - 60000,
     updatedAt: Date.now() - 50000,
   },
+};
+
+const questEntry: PracticeHistoryEntry = {
+  ...sampleEntry,
+  id: 'figma-quest-coding',
+  job: {
+    id: 'figma-quest-coding',
+    title: 'Figma quest — Coding round',
+    company: 'Figma',
+    location: '',
+    description: 'Coding challenge brief.',
+    url: 'https://www.techinterview.org/companies/figma',
+  },
+  questions: [],
 };
 
 describe('InterviewStudio setup workspace', () => {
@@ -254,6 +274,17 @@ describe('InterviewStudio setup workspace', () => {
     fireEvent.click(screen.getByRole('button', { name: /resume session/i }));
 
     expect(await screen.findByText('I answered the first question.')).toBeInTheDocument();
+    expect(mockGenerateInterviewQuestions).not.toHaveBeenCalled();
+    expect(mockAddJob).not.toHaveBeenCalled();
+  });
+
+  it('routes quest practice-again actions back to the company quest page', () => {
+    mockPracticeHistory.push(questEntry);
+    render(<InterviewStudio />);
+
+    fireEvent.click(screen.getByRole('button', { name: /practice again/i }));
+
+    expect(mockNavigate).toHaveBeenCalledWith('/quest/figma');
     expect(mockGenerateInterviewQuestions).not.toHaveBeenCalled();
     expect(mockAddJob).not.toHaveBeenCalled();
   });
