@@ -340,6 +340,10 @@
     zoom: 0.8;
   }
 
+  .cv-product-density-main {
+    min-height: 125vh;
+  }
+
   html.cv-product-density-root,
   body.cv-product-density-body {
     max-width: 100%;
