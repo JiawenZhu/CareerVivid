@@ -44,14 +44,14 @@ describe('buildQuestLine', () => {
     expect(ids).toContain('values');
   });
 
-  it('raises pass thresholds for hard companies and the final round', () => {
+  it('uses a 75-point clear threshold for every stage', () => {
     const easy = buildQuestLine(makeGuide({ difficulty: 6 }));
     const hard = buildQuestLine(makeGuide({ difficulty: 8.5 }));
 
-    expect(easy.find((s) => s.id === 'coding')!.passThreshold).toBe(70);
+    expect(easy.find((s) => s.id === 'coding')!.passThreshold).toBe(75);
     expect(easy.find((s) => s.id === 'final')!.passThreshold).toBe(75);
     expect(hard.find((s) => s.id === 'coding')!.passThreshold).toBe(75);
-    expect(hard.find((s) => s.id === 'final')!.passThreshold).toBe(80);
+    expect(hard.find((s) => s.id === 'final')!.passThreshold).toBe(75);
   });
 });
 
@@ -112,11 +112,11 @@ describe('buildSystemDesignBrief', () => {
 });
 
 describe('isStageCleared', () => {
-  const stage = { ...buildQuestLine(makeGuide())[1] }; // coding, threshold 70
+  const stage = { ...buildQuestLine(makeGuide())[1] }; // coding, threshold 75
 
   it('handles 0-100 scores', () => {
-    expect(isStageCleared(72, stage)).toBe(true);
-    expect(isStageCleared(69, stage)).toBe(false);
+    expect(isStageCleared(75, stage)).toBe(true);
+    expect(isStageCleared(74, stage)).toBe(false);
   });
 
   it('handles 0-10 scores via normalization', () => {

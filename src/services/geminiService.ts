@@ -874,6 +874,91 @@ Return ONLY a JSON object matching the schema.`;
     }
 };
 
+export interface CodingSubmissionInput {
+    language: 'javascript' | 'python';
+    code: string;
+    /** Challenge brief text (problem, requirements). */
+    brief: string;
+    /** Hidden + visible test outcomes from the in-browser runner. */
+    passed: number;
+    total: number;
+    /** Up to 5 failing cases as short strings. */
+    failures: string[];
+}
+
+/**
+ * Scores a coding-round submission. Correctness is decided by the real test
+ * run in the browser — the model is told the pass rate and must anchor
+ * confidenceScore to it, grading only approach, clarity, and complexity on
+ * top. Returns the same shape as analyzeInterviewTranscript so it plugs into
+ * the interview report + quest scoring: communicationScore = code clarity,
+ * confidenceScore = correctness (test pass rate), relevanceScore = efficiency
+ * & approach.
+ */
+export const analyzeCodingSubmission = async (
+    userId: string,
+    submission: CodingSubmissionInput,
+): Promise<Omit<InterviewAnalysis, 'id' | 'timestamp' | 'transcript'>> => {
+    try {
+        const passRate = submission.total > 0 ? Math.round((submission.passed / submission.total) * 100) : 0;
+        const instruction = `You are a senior engineer grading a coding-interview submission. The candidate was given this brief:
+
+---
+${submission.brief}
+---
+
+The candidate submitted this ${submission.language} solution:
+
+\`\`\`${submission.language}
+${submission.code}
+\`\`\`
+
+The solution was ALREADY EXECUTED against a hidden test suite in a sandbox. Ground truth (do not second-guess it):
+- Tests passed: ${submission.passed}/${submission.total} (${passRate}%)
+${submission.failures.length ? `- Failing cases:\n${submission.failures.map((f) => `  - ${f}`).join('\n')}` : '- All tests passed.'}
+
+Scoring (all 0-100):
+- confidenceScore: correctness — anchor this to the test pass rate above (${passRate}%). Adjust at most ±10 for near-miss issues like unhandled edge cases the suite did not cover.
+- communicationScore: code clarity — naming, structure, comments where they matter, idiomatic ${submission.language}.
+- relevanceScore: approach and efficiency — algorithm choice, time/space complexity versus the requirements, avoidance of brute force where the brief asks for better.
+- overallScore: weighted overall quality (correctness matters most).
+
+strengths: markdown bullets on what the solution does well.
+areasForImprovement: markdown bullets with specific, actionable feedback (complexity, edge cases, readability). Reference concrete lines or constructs from the code.
+
+Return ONLY a JSON object matching the schema.`;
+
+        const contents = { parts: [{ text: instruction }] };
+
+        const config = {
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: "OBJECT",
+                properties: {
+                    overallScore: { type: "NUMBER", description: "Weighted overall solution quality, 0 to 100." },
+                    communicationScore: { type: "NUMBER", description: "Code clarity and readability, 0 to 100." },
+                    confidenceScore: { type: "NUMBER", description: "Correctness anchored to test pass rate, 0 to 100." },
+                    relevanceScore: { type: "NUMBER", description: "Approach and efficiency, 0 to 100." },
+                    strengths: { type: "STRING", description: "Markdown bullets on solution strengths." },
+                    areasForImprovement: { type: "STRING", description: "Markdown bullets on actionable gaps." },
+                },
+                required: ['overallScore', 'communicationScore', 'confidenceScore', 'relevanceScore', 'strengths', 'areasForImprovement'],
+            },
+        };
+
+        const result = await callGeminiProxy({ modelName: DEFAULT_TEXT_MODEL, contents, config });
+
+        const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
+        await trackUsage(userId, 'interview_analysis', { tokenUsage });
+
+        return JSON.parse(result.text.trim());
+    } catch (error) {
+        console.error("Error analyzing coding submission:", error);
+        reportError(error as Error, { functionName: 'analyzeCodingSubmission' });
+        throw new Error("Failed to analyze coding submission.");
+    }
+};
+
 const granularCategorySchema = {
     type: "OBJECT",
     properties: {

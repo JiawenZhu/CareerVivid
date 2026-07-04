@@ -282,6 +282,22 @@ export interface TranscriptEntry {
   timestamp?: number;
 }
 
+export interface QuestCodingArtifact {
+  type: 'coding';
+  challengeId: string;
+  language: 'javascript' | 'python';
+  code: string;
+  codeByLanguage?: Partial<Record<'javascript' | 'python', string>>;
+}
+
+export interface QuestSystemDesignArtifact {
+  type: 'system_design';
+  elements: any[];
+  files?: Record<string, any>;
+}
+
+export type QuestPracticeArtifact = QuestCodingArtifact | QuestSystemDesignArtifact;
+
 export interface InterviewAnalysis {
   id: string;
   timestamp: number;
@@ -292,6 +308,7 @@ export interface InterviewAnalysis {
   strengths: string;
   areasForImprovement: string;
   transcript: TranscriptEntry[];
+  questArtifact?: QuestPracticeArtifact;
 }
 
 export interface InterviewSessionDraft {

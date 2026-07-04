@@ -1,10 +1,10 @@
-import React, { Suspense, useRef, useState } from 'react';
+import React, { Suspense, useMemo, useRef, useState } from 'react';
 import { Excalidraw, exportToBlob } from '@excalidraw/excalidraw';
 import '@excalidraw/excalidraw/index.css';
 import { CheckCircle2, ClipboardList, Lightbulb, Loader2, Send, Swords, X } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { analyzeSystemDesignDiagram } from '../../services/geminiService';
-import { InterviewAnalysis } from '../../types';
+import { InterviewAnalysis, QuestSystemDesignArtifact } from '../../types';
 import { SystemDesignBrief } from '../../lib/companyQuests';
 
 const InterviewReportModal = React.lazy(() => import('../InterviewReportModal'));
@@ -14,6 +14,7 @@ interface SystemDesignBattleProps {
     company: string;
     stageTitle: string;
     brief: SystemDesignBrief;
+    initialArtifact?: QuestSystemDesignArtifact;
     /** Persist the analysis and return the saved record (with id + timestamp). */
     saveAnalysis: (analysis: Omit<InterviewAnalysis, 'id' | 'timestamp'>) => Promise<InterviewAnalysis>;
     onAnalysisComplete: (analysis: InterviewAnalysis) => void;
@@ -28,11 +29,15 @@ const blobToDataUrl = (blob: Blob): Promise<string> =>
         reader.readAsDataURL(blob);
     });
 
+const toSerializableScene = <T,>(value: T): T =>
+    value == null ? value : JSON.parse(JSON.stringify(value));
+
 const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
     userId,
     company,
     stageTitle,
     brief,
+    initialArtifact,
     saveAnalysis,
     onAnalysisComplete,
     onClose,
@@ -42,6 +47,11 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [reportEntry, setReportEntry] = useState<InterviewAnalysis | null>(null);
+    const initialData = useMemo(() => ({
+        elements: initialArtifact?.type === 'system_design' ? initialArtifact.elements : [],
+        appState: { viewBackgroundColor: resolvedTheme === 'dark' ? '#1f2937' : '#ffffff' },
+        files: initialArtifact?.type === 'system_design' ? initialArtifact.files : undefined,
+    }), [initialArtifact, resolvedTheme]);
 
     const handleSubmit = async () => {
         const api = excalidrawAPIRef.current;
@@ -65,9 +75,22 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
             });
             const dataUrl = await blobToDataUrl(blob);
 
+            const files = api.getFiles();
+            const serializedElements = toSerializableScene(elements);
+            const serializedFiles = toSerializableScene(files) ?? {};
             const analysisData = await analyzeSystemDesignDiagram(userId, dataUrl, brief.prompt);
 
-            const saved = await saveAnalysis({ ...analysisData, transcript: [] });
+            const questArtifact: QuestSystemDesignArtifact = {
+                type: 'system_design',
+                elements: serializedElements,
+                ...(Object.keys(serializedFiles).length ? { files: serializedFiles } : {}),
+            };
+
+            const saved = await saveAnalysis({
+                ...analysisData,
+                transcript: [],
+                questArtifact,
+            });
             setReportEntry(saved);
             onAnalysisComplete(saved);
         } catch (e) {
@@ -105,7 +128,7 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
                 {/* Header */}
                 <header className="flex shrink-0 items-center justify-between gap-3 border-b border-gray-200 px-4 py-3 dark:border-gray-800">
                     <div className="flex min-w-0 items-center gap-2">
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#dfe2ff] bg-[#eef0ff] text-[#625bd5] shadow-sm dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#625bd5] text-white shadow-sm dark:bg-[#7069dc]">
                             <Swords size={16} />
                         </span>
                         <div className="min-w-0">
@@ -118,7 +141,7 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
                             type="button"
                             onClick={handleSubmit}
                             disabled={isSubmitting}
-                            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#dfe2ff] bg-[#eef0ff] px-3.5 text-xs font-semibold text-[#4f46c6] shadow-sm transition-colors hover:bg-[#e6e8ff] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff] dark:hover:bg-[#312d6b]"
+                            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-transparent bg-[#625bd5] px-3.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-[#514ac5] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#7069dc] dark:hover:bg-[#8d88e6]"
                         >
                             {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                             {isSubmitting ? 'Reviewing…' : 'Submit for review'}
@@ -143,7 +166,7 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
                 {/* Body: brief + canvas */}
                 <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
                     {/* Brief panel */}
-                    <aside className="shrink-0 overflow-y-auto border-b border-gray-200 bg-[#fbfbfe] p-4 dark:border-gray-800 dark:bg-gray-900/60 lg:w-72 lg:border-b-0 lg:border-r">
+                    <aside className="shrink-0 overflow-y-auto border-b border-[#ececf4] bg-[#fbfbfe] p-4 dark:border-gray-800 dark:bg-gray-900/60 lg:w-72 lg:border-b-0 lg:border-r">
                         <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-[#625bd5] dark:text-[#9b96ef]">
                             <ClipboardList size={13} /> Design brief
                         </div>
@@ -177,7 +200,7 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
                         <Excalidraw
                             excalidrawAPI={(api: any) => { excalidrawAPIRef.current = api; }}
                             theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
-                            initialData={{ appState: { viewBackgroundColor: resolvedTheme === 'dark' ? '#1f2937' : '#ffffff' } }}
+                            initialData={initialData}
                         />
                     </div>
                 </div>

@@ -4,9 +4,9 @@ import {
     BarChart3,
     Check,
     ChevronRight,
+    Code2,
     Flame,
     Loader2,
-    Lock,
     PenTool,
     RotateCcw,
     Swords,
@@ -32,13 +32,22 @@ import {
     getStageQuestionPool,
     isStageCleared,
 } from '../lib/companyQuests';
+import { CodingBrief, buildCodingBrief } from '../lib/codingChallenges';
 import { XP_RULES } from '../lib/gamification';
 import { generateInterviewQuestions } from '../services/geminiService';
-import { InterviewAnalysis, ResumeData } from '../types';
+import {
+    InterviewAnalysis,
+    PracticeHistoryEntry,
+    QuestCodingArtifact,
+    QuestSystemDesignArtifact,
+    ResumeData,
+} from '../types';
 import { navigate } from '../utils/navigation';
 
 const AIInterviewAgentModal = React.lazy(() => import('../components/AIInterviewAgentModal'));
+const InterviewReportModal = React.lazy(() => import('../components/InterviewReportModal'));
 const SystemDesignBattle = React.lazy(() => import('../components/Quest/SystemDesignBattle'));
+const CodingBattle = React.lazy(() => import('../components/Quest/CodingBattle'));
 
 const formatResumeForContext = (resume: ResumeData): string => {
     let context = `Name: ${resume.personalDetails.firstName} ${resume.personalDetails.lastName}\n`;
@@ -53,7 +62,7 @@ const formatResumeForContext = (resume: ResumeData): string => {
     return context;
 };
 
-type StageState = 'cleared' | 'unlocked' | 'locked';
+type StageState = 'cleared' | 'available';
 
 interface BattleState {
     stage: QuestStage;
@@ -67,15 +76,35 @@ interface DesignBattleState {
     stage: QuestStage;
     jobId: string;
     brief: SystemDesignBrief;
+    initialArtifact?: QuestSystemDesignArtifact;
+}
+
+interface CodingBattleState {
+    stage: QuestStage;
+    jobId: string;
+    brief: CodingBrief;
+    initialArtifact?: QuestCodingArtifact;
 }
 
 interface CompanyQuestPageProps {
     slug: string;
 }
 
+const getAnalysisFromEntry = (
+    entry: PracticeHistoryEntry | undefined,
+    analysisId?: string,
+): InterviewAnalysis | null => {
+    const history = entry?.interviewHistory ?? [];
+    if (!history.length) return null;
+    if (analysisId) {
+        return history.find((analysis) => analysis.id === analysisId) ?? history[history.length - 1];
+    }
+    return history[history.length - 1];
+};
+
 const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
     const { currentUser } = useAuth();
-    const { addJob, addAnalysisToJob } = usePracticeHistory();
+    const { practiceHistory, addJob, addAnalysisToJob } = usePracticeHistory();
     const { resumes } = useResumes();
     const { checkCredit, CreditLimitModal } = useAICreditCheck();
 
@@ -84,6 +113,8 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
     const [startingStageId, setStartingStageId] = useState<string | null>(null);
     const [battle, setBattle] = useState<BattleState | null>(null);
     const [designBattle, setDesignBattle] = useState<DesignBattleState | null>(null);
+    const [codingBattle, setCodingBattle] = useState<CodingBattleState | null>(null);
+    const [selectedReportEntry, setSelectedReportEntry] = useState<PracticeHistoryEntry | null>(null);
     const [lastOutcome, setLastOutcome] = useState<(StageAttemptOutcome & { stageTitle: string }) | null>(null);
     const [error, setError] = useState('');
 
@@ -101,17 +132,39 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
     const { quest, recordStageAttempt } = useCompanyQuest(slug, guide?.company ?? slug);
 
     const stageStates: StageState[] = useMemo(() => {
-        let previousCleared = true;
         return stages.map((stage) => {
             const cleared = isStageCleared(quest?.stageResults?.[stage.id]?.bestScore, stage);
-            const state: StageState = cleared ? 'cleared' : previousCleared ? 'unlocked' : 'locked';
-            previousCleared = cleared;
-            return state;
+            return cleared ? 'cleared' : 'available';
         });
     }, [stages, quest]);
 
     const clearedCount = stageStates.filter((s) => s === 'cleared').length;
     const questComplete = stages.length > 0 && clearedCount === stages.length;
+
+    const reportEntriesByStageId = useMemo(() => {
+        if (!guide) return new Map<string, PracticeHistoryEntry>();
+
+        return stages.reduce((entries, stage) => {
+            const result = quest?.stageResults?.[stage.id];
+            if (!result) return entries;
+
+            const entryByAnalysisId = result.lastAnalysisId
+                ? practiceHistory.find((entry) =>
+                    entry.interviewHistory?.some((analysis) => analysis.id === result.lastAnalysisId),
+                )
+                : null;
+
+            const entryByStageTitle = practiceHistory.find((entry) =>
+                entry.job?.company === guide.company
+                && entry.job?.title === `${guide.company} quest — ${stage.title}`
+                && (entry.interviewHistory?.length ?? 0) > 0,
+            );
+
+            const entry = entryByAnalysisId || entryByStageTitle;
+            if (entry) entries.set(stage.id, entry);
+            return entries;
+        }, new Map<string, PracticeHistoryEntry>());
+    }, [guide, practiceHistory, quest, stages]);
 
     const handleStartStage = async (stage: QuestStage) => {
         if (!guide || !currentUser) return;
@@ -122,9 +175,14 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
         setLastOutcome(null);
 
         try {
-            // System design is played on the whiteboard, not as a voice interview.
-            if (stage.id === 'system_design') {
-                const brief = buildSystemDesignBrief(guide);
+            // Coding is played in the code editor with real test execution,
+            // not as a voice interview.
+            if (stage.id === 'coding') {
+                const brief = buildCodingBrief(guide);
+                const artifact = getAnalysisFromEntry(
+                    reportEntriesByStageId.get(stage.id),
+                    quest?.stageResults?.[stage.id]?.lastAnalysisId,
+                )?.questArtifact;
                 const jobId = await addJob({
                     title: `${guide.company} quest — ${stage.title}`,
                     company: guide.company,
@@ -132,7 +190,35 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                     description: brief.prompt,
                     url: guide.url,
                 }, []);
-                setDesignBattle({ stage, jobId, brief });
+                setCodingBattle({
+                    stage,
+                    jobId,
+                    brief,
+                    initialArtifact: artifact?.type === 'coding' ? artifact : undefined,
+                });
+                return;
+            }
+
+            // System design is played on the whiteboard, not as a voice interview.
+            if (stage.id === 'system_design') {
+                const brief = buildSystemDesignBrief(guide);
+                const artifact = getAnalysisFromEntry(
+                    reportEntriesByStageId.get(stage.id),
+                    quest?.stageResults?.[stage.id]?.lastAnalysisId,
+                )?.questArtifact;
+                const jobId = await addJob({
+                    title: `${guide.company} quest — ${stage.title}`,
+                    company: guide.company,
+                    location: '',
+                    description: brief.prompt,
+                    url: guide.url,
+                }, []);
+                setDesignBattle({
+                    stage,
+                    jobId,
+                    brief,
+                    initialArtifact: artifact?.type === 'system_design' ? artifact : undefined,
+                });
                 return;
             }
 
@@ -194,9 +280,16 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
         return addAnalysisToJob(designBattle.jobId, analysisData);
     };
 
+    // Save + score a coding solution submitted from the code editor.
+    const handleCodingAnalysis = async (
+        analysisData: Omit<InterviewAnalysis, 'id' | 'timestamp'>,
+    ): Promise<InterviewAnalysis> => {
+        if (!codingBattle) throw new Error('No active coding stage');
+        return addAnalysisToJob(codingBattle.jobId, analysisData);
+    };
+
     const stageIcon = (state: StageState, index: number) => {
         if (state === 'cleared') return <Check size={16} strokeWidth={3} />;
-        if (state === 'locked') return <Lock size={14} />;
         return <span className="text-sm font-bold">{index + 1}</span>;
     };
 
@@ -204,34 +297,34 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
         if (!lastOutcome) return null;
         if (lastOutcome.questCompleted) {
             return (
-                <div className="mb-4 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 dark:border-emerald-900 dark:bg-emerald-950/40">
-                    <Trophy size={20} className="shrink-0 text-emerald-600 dark:text-emerald-400" />
+                <div className="mb-4 flex items-center gap-3 rounded-xl border border-[#cfe8d5] bg-[#eef9f2] px-4 py-3 dark:border-emerald-900 dark:bg-emerald-950/40">
+                    <Trophy size={20} className="shrink-0 text-[#15803d] dark:text-emerald-400" />
                     <div>
-                        <p className="text-sm font-bold text-emerald-800 dark:text-emerald-200">Quest complete! You cleared the full {guide?.company} loop.</p>
-                        <p className="text-xs font-medium text-emerald-700 dark:text-emerald-300">+{XP_RULES.quest_completed} XP quest bonus earned.</p>
+                        <p className="text-sm font-bold text-[#166534] dark:text-emerald-200">Quest complete! You cleared the full {guide?.company} loop.</p>
+                        <p className="text-xs font-medium text-[#15803d] dark:text-emerald-300">+{XP_RULES.quest_completed} XP quest bonus earned.</p>
                     </div>
                 </div>
             );
         }
         if (lastOutcome.cleared) {
             return (
-                <div className="mb-4 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 dark:border-emerald-900 dark:bg-emerald-950/40">
-                    <Check size={20} className="shrink-0 text-emerald-600 dark:text-emerald-400" />
+                <div className="mb-4 flex items-center gap-3 rounded-xl border border-[#cfe8d5] bg-[#eef9f2] px-4 py-3 dark:border-emerald-900 dark:bg-emerald-950/40">
+                    <Check size={20} className="shrink-0 text-[#15803d] dark:text-emerald-400" />
                     <div>
-                        <p className="text-sm font-bold text-emerald-800 dark:text-emerald-200">
+                        <p className="text-sm font-bold text-[#166534] dark:text-emerald-200">
                             {lastOutcome.stageTitle} cleared with a score of {Math.round(lastOutcome.normalizedScore)}!
                         </p>
                         {lastOutcome.newlyCleared && (
-                            <p className="text-xs font-medium text-emerald-700 dark:text-emerald-300">+{XP_RULES.quest_stage_cleared} XP — next stage unlocked.</p>
+                            <p className="text-xs font-medium text-[#15803d] dark:text-emerald-300">+{XP_RULES.quest_stage_cleared} XP — stage cleared.</p>
                         )}
                     </div>
                 </div>
             );
         }
         return (
-            <div className="mb-4 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-900 dark:bg-amber-950/40">
-                <Flame size={20} className="shrink-0 text-amber-600 dark:text-amber-400" />
-                <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+            <div className="mb-4 flex items-center gap-3 rounded-xl border border-[#fde68a] bg-[#fffbeb] px-4 py-3 dark:border-amber-900 dark:bg-amber-950/40">
+                <Flame size={20} className="shrink-0 text-[#d97706] dark:text-amber-400" />
+                <p className="text-sm font-semibold text-[#b45309] dark:text-amber-200">
                     You scored {Math.round(lastOutcome.normalizedScore)} on {lastOutcome.stageTitle} — keep drilling and try again.
                 </p>
             </div>
@@ -257,7 +350,7 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                     <button
                         type="button"
                         onClick={() => navigate('/interview-studio')}
-                        className="mt-6 inline-flex items-center gap-2 rounded-lg border border-[#dfe2ff] bg-[#eef0ff] px-4 py-2 text-sm font-semibold text-[#4f46c6] hover:bg-[#e6e8ff] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff] dark:hover:bg-[#312d6b]"
+                        className="mt-6 inline-flex items-center gap-2 rounded-lg border border-[#dfe2ff] bg-[#eef0ff] px-4 py-2 text-sm font-semibold text-[#625bd5] hover:bg-[#e6e8ff] hover:text-[#514ac5] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff] dark:hover:bg-[#312d6b]"
                     >
                         <ArrowLeft size={16} /> Back to Interview Studio
                     </button>
@@ -282,15 +375,15 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                     <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0">
                             <div className="flex items-center gap-2">
-                                <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#dfe2ff] bg-[#eef0ff] text-[#625bd5] shadow-sm dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]">
+                                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#625bd5] text-white shadow-[0_4px_12px_rgba(98,91,213,0.25)] dark:bg-[#7069dc]">
                                     <Swords size={17} />
                                 </span>
-                                <h1 className="truncate text-xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+                                <h1 className="truncate text-xl [font-family:var(--cv-font-heading)] font-extrabold tracking-normal text-gray-900 dark:text-gray-100">
                                     {guide.company} quest
                                 </h1>
                             </div>
                             <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                Clear every stage of the real {guide.company} interview loop. Each stage is a live AI mock interview — score {stages[0]?.passThreshold ?? 70}+ to advance.
+                                Practice the {guide.company} interview loop in any order. Score {stages[0]?.passThreshold ?? 75}+ on each stage to clear it and pass the full quest.
                             </p>
                         </div>
                         {guide.difficulty && (
@@ -302,17 +395,21 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
 
                     {/* Progress */}
                     <div className="mt-4">
-                        <div className="flex items-center justify-between text-xs font-semibold text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center justify-between gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
                             <span>{clearedCount} / {stages.length} stages cleared</span>
-                            {questComplete && (
-                                <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                            {questComplete ? (
+                                <span className="inline-flex items-center gap-1 text-[#15803d] dark:text-emerald-400">
                                     <Trophy size={13} /> Loop cleared
+                                </span>
+                            ) : (
+                                <span className="text-[11px] font-bold text-[#625bd5] dark:text-[#9b96ef]">
+                                    +{XP_RULES.quest_stage_cleared} XP per clear · +{XP_RULES.quest_completed} quest bonus
                                 </span>
                             )}
                         </div>
-                        <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-[#f3f2ff] dark:bg-gray-800">
+                        <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#f3f4f6] dark:bg-gray-800">
                             <div
-                                className="h-full rounded-full bg-[#a9a5f5] transition-[width] duration-500 dark:bg-[#9b96ef]"
+                                className="h-full rounded-full bg-[#625bd5] transition-[width] duration-500 dark:bg-[#8d88e6]"
                                 style={{ width: `${stages.length ? (clearedCount / stages.length) * 100 : 0}%` }}
                             />
                         </div>
@@ -329,71 +426,98 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                 </div>
 
                 {/* Stage map */}
-                <ol className="mt-2 space-y-3">
+                <ol className="mt-2">
                     {stages.map((stage, index) => {
                         const state = stageStates[index];
                         const result = quest?.stageResults?.[stage.id];
+                        const reportEntry = reportEntriesByStageId.get(stage.id);
                         const isStarting = startingStageId === stage.id;
+                        const isLast = index === stages.length - 1;
                         return (
                             <li
                                 key={stage.id}
-                                className={`rounded-xl border p-4 transition-colors ${state === 'cleared'
-                                    ? 'border-emerald-200 bg-emerald-50/50 dark:border-emerald-900/60 dark:bg-emerald-950/20'
-                                    : state === 'unlocked'
-                                        ? 'border-[#dfe2ff] bg-[#fbfbff] shadow-sm dark:border-[#625bd5]/40 dark:bg-gray-900'
-                                        : 'border-gray-200 bg-gray-50 opacity-70 dark:border-gray-800 dark:bg-gray-900/40'
-                                    }`}
+                                className="flex gap-3 sm:gap-3.5"
                             >
-                                <div className="flex items-center gap-3">
-                                    <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${state === 'cleared'
-                                        ? 'bg-emerald-500 text-white'
-                                        : state === 'unlocked'
-                                            ? 'border border-[#dfe2ff] bg-[#eef0ff] text-[#625bd5] shadow-[0_0_0_4px_rgba(243,242,255,0.95)] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]'
-                                            : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+                                <div className="flex shrink-0 flex-col items-center">
+                                    <span className={`relative z-[1] flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-extrabold ${state === 'cleared'
+                                        ? 'bg-[#15803d] text-white shadow-sm dark:bg-[#22c55e]/80'
+                                        : 'bg-[#625bd5] text-white shadow-[0_0_0_4px_rgba(243,242,255,0.95),0_6px_16px_rgba(98,91,213,0.18)] dark:bg-[#7069dc] dark:shadow-[0_0_0_4px_rgba(47,43,85,0.72)]'
                                         }`}>
                                         {stageIcon(state, index)}
                                     </span>
-                                    <div className="min-w-0 flex-1">
-                                        <div className="flex items-center justify-between gap-2">
-                                            <h2 className="truncate text-sm font-bold text-gray-900 dark:text-gray-100">{stage.title}</h2>
-                                            <span className="shrink-0 text-[11px] font-semibold text-gray-400 dark:text-gray-500">
-                                                pass ≥ {stage.passThreshold}
-                                            </span>
-                                        </div>
-                                        <p className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">{stage.description}</p>
-                                        {result && (
-                                            <p className="mt-0.5 text-[11px] font-semibold text-gray-400 dark:text-gray-500">
-                                                Best score {Math.round(result.bestScore)} · {result.attempts} attempt{result.attempts === 1 ? '' : 's'}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div className="shrink-0">
-                                        {state === 'locked' ? (
-                                            <span className="text-[11px] font-semibold text-gray-400 dark:text-gray-500">Clear previous stage</span>
-                                        ) : (
-                                            <button
-                                                type="button"
-                                                onClick={() => handleStartStage(stage)}
-                                                disabled={isStarting || startingStageId !== null}
-                                                className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${state === 'cleared'
-                                                    ? 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800'
-                                                    : 'border border-[#dfe2ff] bg-[#eef0ff] text-[#4f46c6] hover:bg-[#e6e8ff] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff] dark:hover:bg-[#312d6b]'
-                                                    }`}
-                                            >
-                                                {isStarting
-                                                    ? <Loader2 size={14} className="animate-spin" />
-                                                    : state === 'cleared'
-                                                        ? <RotateCcw size={13} />
+                                    {!isLast && (
+                                        <span
+                                            className={`min-h-5 w-0.5 flex-1 ${state === 'cleared'
+                                                ? 'bg-[#cfe8d5] dark:bg-emerald-900/70'
+                                                : 'bg-gray-200 dark:bg-gray-800'
+                                                }`}
+                                        />
+                                    )}
+                                </div>
+
+                                <div className={`min-w-0 flex-1 pb-3 ${isLast ? 'pb-0' : ''}`}>
+                                    <div className={`rounded-xl border p-4 transition-all ${state === 'cleared'
+                                        ? 'border-[#cfe8d5] bg-white shadow-[0_1px_2px_rgba(16,24,40,0.05)] dark:border-emerald-900/60 dark:bg-gray-900'
+                                        : 'border-[#dfe2ff] bg-white shadow-[0_8px_24px_rgba(98,91,213,0.08)] dark:border-[#625bd5]/40 dark:bg-gray-900'
+                                        }`}>
+                                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex min-w-0 flex-wrap items-center gap-2">
+                                                    <h2 className="min-w-0 truncate text-sm font-bold text-gray-900 dark:text-gray-100">{stage.title}</h2>
+                                                    {state === 'available' && !result && (
+                                                        <span className="shrink-0 rounded-full border border-[#dfe2ff] bg-[#f3f2ff] px-2 py-0.5 text-[10px] font-bold text-[#625bd5] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]">
+                                                            Available
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <p className="mt-1 text-xs font-medium leading-5 text-gray-500 dark:text-gray-400">{stage.description}</p>
+                                                <p className="mt-1 text-[11px] font-semibold text-gray-400 dark:text-gray-500">
+                                                    Pass ≥ {stage.passThreshold}
+                                                    {result && (
+                                                        <span> · Best score {Math.round(result.bestScore)} · {result.attempts} attempt{result.attempts === 1 ? '' : 's'}</span>
+                                                    )}
+                                                </p>
+                                            </div>
+
+                                            <div className="flex shrink-0 flex-wrap items-center justify-start gap-2 sm:justify-end">
+                                                {reportEntry && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setSelectedReportEntry(reportEntry)}
+                                                        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-[#dfe2ff] bg-[#eef0ff] px-3 text-xs font-bold text-[#625bd5] shadow-sm transition-colors hover:bg-[#e6e8ff] hover:text-[#514ac5] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff] dark:hover:bg-[#312d6b]"
+                                                    >
+                                                        <BarChart3 size={13} />
+                                                        View report
+                                                    </button>
+                                                )}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleStartStage(stage)}
+                                                    disabled={isStarting || startingStageId !== null}
+                                                    className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-bold shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${state === 'cleared'
+                                                        ? 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800'
+                                                        : 'border border-transparent bg-[#625bd5] text-white hover:bg-[#514ac5] dark:bg-[#7069dc] dark:hover:bg-[#8d88e6]'
+                                                        }`}
+                                                >
+                                                    {isStarting
+                                                        ? <Loader2 size={14} className="animate-spin" />
+                                                        : state === 'cleared'
+                                                            ? <RotateCcw size={13} />
+                                                            : stage.id === 'system_design'
+                                                                ? <PenTool size={13} />
+                                                                : stage.id === 'coding'
+                                                                    ? <Code2 size={13} />
+                                                                    : <ChevronRight size={14} />}
+                                                    {state === 'cleared'
+                                                        ? 'Improve score'
                                                         : stage.id === 'system_design'
-                                                            ? <PenTool size={13} />
-                                                            : <ChevronRight size={14} />}
-                                                {state === 'cleared'
-                                                    ? 'Improve score'
-                                                    : stage.id === 'system_design'
-                                                        ? 'Open whiteboard'
-                                                        : 'Start stage'}
-                                            </button>
-                                        )}
+                                                            ? 'Open whiteboard'
+                                                            : stage.id === 'coding'
+                                                                ? 'Open code editor'
+                                                                : 'Start stage'}
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </li>
@@ -401,9 +525,6 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                     })}
                 </ol>
 
-                <p className="mt-4 text-center text-[11px] font-medium text-gray-400 dark:text-gray-500">
-                    Stage XP: +{XP_RULES.quest_stage_cleared} per first clear · Quest bonus: +{XP_RULES.quest_completed}
-                </p>
             </div>
 
             <CreditLimitModal />
@@ -424,6 +545,21 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                 </Suspense>
             )}
 
+            {codingBattle && currentUser && (
+                <Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"><Loader2 className="animate-spin text-white" size={28} /></div>}>
+                    <CodingBattle
+                        userId={currentUser.uid}
+                        company={guide.company}
+                        stageTitle={codingBattle.stage.title}
+                        brief={codingBattle.brief}
+                        initialArtifact={codingBattle.initialArtifact}
+                        saveAnalysis={handleCodingAnalysis}
+                        onAnalysisComplete={(analysis) => handleStageAnalysis(codingBattle.stage, analysis)}
+                        onClose={() => setCodingBattle(null)}
+                    />
+                </Suspense>
+            )}
+
             {designBattle && currentUser && (
                 <Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"><Loader2 className="animate-spin text-white" size={28} /></div>}>
                     <SystemDesignBattle
@@ -431,9 +567,19 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                         company={guide.company}
                         stageTitle={designBattle.stage.title}
                         brief={designBattle.brief}
+                        initialArtifact={designBattle.initialArtifact}
                         saveAnalysis={handleDesignAnalysis}
                         onAnalysisComplete={(analysis) => handleStageAnalysis(designBattle.stage, analysis)}
                         onClose={() => setDesignBattle(null)}
+                    />
+                </Suspense>
+            )}
+
+            {selectedReportEntry && (
+                <Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"><Loader2 className="animate-spin text-white" size={28} /></div>}>
+                    <InterviewReportModal
+                        jobHistoryEntry={selectedReportEntry}
+                        onClose={() => setSelectedReportEntry(null)}
                     />
                 </Suspense>
             )}

@@ -65,9 +65,6 @@ const STAGE_BLUEPRINTS: Record<QuestStageKind, Omit<QuestStage, 'passThreshold'>
  * and values rounds appear when the guide shows evidence of them.
  */
 export const buildQuestLine = (guide: LocalInterviewGuide): QuestStage[] => {
-  const difficulty = guide.difficulty ?? 6;
-  const basePass = difficulty >= 8 ? 75 : 70;
-
   const kinds: QuestStageKind[] = ['screening', 'coding'];
 
   const mentionsSystemDesign = guide.systemDesignTopics.length > 0
@@ -84,7 +81,7 @@ export const buildQuestLine = (guide: LocalInterviewGuide): QuestStage[] => {
 
   return kinds.map((kind) => ({
     ...STAGE_BLUEPRINTS[kind],
-    passThreshold: kind === 'final' ? basePass + 5 : basePass,
+    passThreshold: 75,
   }));
 };
 
