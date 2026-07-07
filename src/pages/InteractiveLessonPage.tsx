@@ -335,10 +335,16 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
                                     <CheckCircle2 size={16} />
                                     {isCompleted ? 'Completed' : `Mark as done · +${exercise.xp} XP`}
                                 </button>
-                                {isCompleted && nextExerciseId && (
-                                    <button onClick={() => goTo(nextExerciseId)} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[var(--cv-border-warm)] px-4 text-sm font-bold text-[var(--cv-text-body)] hover:border-[var(--cv-action-border)]">
-                                        Next lesson <ArrowRight size={15} />
-                                    </button>
+                                {isCompleted && (
+                                    nextExerciseId ? (
+                                        <button onClick={() => goTo(nextExerciseId)} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-[var(--cv-border-warm)] px-4 text-sm font-bold text-[var(--cv-text-body)] hover:border-[var(--cv-action-border)]">
+                                            Next lesson <ArrowRight size={15} />
+                                        </button>
+                                    ) : (
+                                        <button onClick={() => navigate('/learning')} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 px-4 text-sm font-bold text-emerald-800 hover:border-emerald-400">
+                                            Finish Course <CheckCircle2 size={15} className="text-emerald-600" />
+                                        </button>
+                                    )
                                 )}
                             </div>
                         )}
@@ -346,9 +352,13 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
                         {(kind === 'quiz' || kind === 'interactive') && isCompleted && (
                             <div className="mt-6 flex items-center gap-3 rounded-xl border border-emerald-300/60 bg-emerald-50 p-4 text-sm font-bold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
                                 <CheckCircle2 size={16} /> Lesson complete · +{exercise.xp} XP
-                                {nextExerciseId && (
+                                {nextExerciseId ? (
                                     <button onClick={() => goTo(nextExerciseId)} className="ml-auto inline-flex items-center gap-1 underline">
                                         Next lesson <ArrowRight size={14} />
+                                    </button>
+                                ) : (
+                                    <button onClick={() => navigate('/learning')} className="ml-auto inline-flex items-center gap-1 underline">
+                                        Finish Course <CheckCircle2 size={14} />
                                     </button>
                                 )}
                             </div>
@@ -549,13 +559,21 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
                     >
                         <ArrowLeft size={14} /> Back
                     </button>
-                    <button
-                        onClick={() => goTo(nextExerciseId)}
-                        disabled={!nextExerciseId}
-                        className="cv-design-button-primary inline-flex h-9 items-center gap-1.5 rounded-lg px-3.5 text-xs disabled:cursor-not-allowed disabled:opacity-40"
-                    >
-                        Next <ArrowRight size={14} />
-                    </button>
+                    {nextExerciseId ? (
+                        <button
+                            onClick={() => goTo(nextExerciseId)}
+                            className="cv-design-button-primary inline-flex h-9 items-center gap-1.5 rounded-lg px-3.5 text-xs"
+                        >
+                            Next <ArrowRight size={14} />
+                        </button>
+                    ) : (
+                        <button
+                            onClick={() => navigate('/learning')}
+                            className="cv-design-button-primary inline-flex h-9 items-center gap-1.5 rounded-lg px-3.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-700 dark:hover:bg-emerald-800"
+                        >
+                            Finish Course <CheckCircle2 size={14} />
+                        </button>
+                    )}
                 </div>
             </footer>
         </div>
