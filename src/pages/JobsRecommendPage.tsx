@@ -244,8 +244,32 @@ const mergeRecommendationPrepFields = (
     return patch;
 };
 
+/**
+ * Some already-ingested listings carry HTML-escaped HTML (tags stored as
+ * &lt;div&gt;). Decode entities first, then strip real tags, so summaries
+ * read as prose instead of markup soup.
+ */
+const stripEscapedHtml = (value: string): string => {
+    let text = value;
+    for (let pass = 0; pass < 2 && /&(lt|gt|amp|quot|apos|nbsp|#\d+);/i.test(text); pass += 1) {
+        text = text
+            .replace(/&nbsp;/gi, ' ')
+            .replace(/&quot;/gi, '"')
+            .replace(/&#0?39;/g, "'")
+            .replace(/&apos;/gi, "'")
+            .replace(/&lt;/gi, '<')
+            .replace(/&gt;/gi, '>')
+            .replace(/&#(\d+);/g, (_, code: string) => String.fromCharCode(Number(code)))
+            .replace(/&amp;/gi, '&');
+    }
+    return text
+        .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+        .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+        .replace(/<[^>]+>/g, ' ');
+};
+
 const summarizeDescription = (value: string | undefined, fallback: string): string => {
-    const normalized = (value || fallback)
+    const normalized = stripEscapedHtml(value || fallback)
         .replace(/Job Summary\s*/i, '')
         .replace(/Duties\s*&\s*Responsibilities[\s\S]*/i, '')
         .replace(/[•●▪]/g, '. ')

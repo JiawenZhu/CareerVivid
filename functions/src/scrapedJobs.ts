@@ -3,6 +3,7 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as admin from "firebase-admin";
 import { lookup } from "dns/promises";
 import { isIP } from "net";
+import { GENERATED_ATS_SOURCES } from "./atsBoards.generated";
 
 if (!admin.apps.length) {
     admin.initializeApp();
@@ -109,7 +110,7 @@ type SourceFetchResult = {
     jobs: ScrapedJobListing[];
 };
 
-const ATS_SOURCES: AtsSource[] = [
+const CURATED_ATS_SOURCES: AtsSource[] = [
     { provider: "greenhouse", company: "Databricks", boardToken: "databricks", companyUrl: "https://www.databricks.com/company/careers" },
     { provider: "greenhouse", company: "Airtable", boardToken: "airtable", companyUrl: "https://www.airtable.com/careers" },
     { provider: "greenhouse", company: "DoorDash", boardToken: "doordashusa", companyUrl: "https://careers.doordash.com/" },
@@ -124,6 +125,23 @@ const ATS_SOURCES: AtsSource[] = [
     { provider: "greenhouse", company: "Vercel", boardToken: "vercel", companyUrl: "https://vercel.com/careers" },
     { provider: "ashby", company: "OpenAI", boardToken: "openai", companyUrl: "https://openai.com/careers" },
 ];
+
+/**
+ * Full source list = curated entries + boards auto-discovered from the
+ * interview-guide companies (scripts/discover-ats-boards.mjs). Curated
+ * entries win on conflict because they carry verified company URLs.
+ */
+const ATS_SOURCES: AtsSource[] = (() => {
+    const seen = new Set(CURATED_ATS_SOURCES.map((s) => `${s.provider}:${s.boardToken}`));
+    const merged: AtsSource[] = [...CURATED_ATS_SOURCES];
+    for (const source of GENERATED_ATS_SOURCES) {
+        const key = `${source.provider}:${source.boardToken}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        merged.push({ ...source, companyUrl: source.companyUrl || undefined });
+    }
+    return merged;
+})();
 
 const ROLE_KEYWORDS = [
     "software",
@@ -206,15 +224,30 @@ const SEARCH_STOP_WORDS = new Set([
     "with",
 ]);
 
+const decodeHtmlEntities = (value: string): string => {
+    return value
+        .replace(/&nbsp;/gi, " ")
+        .replace(/&quot;/gi, "\"")
+        .replace(/&#0?39;/g, "'")
+        .replace(/&apos;/gi, "'")
+        .replace(/&lt;/gi, "<")
+        .replace(/&gt;/gi, ">")
+        .replace(/&#(\d+);/g, (_, code: string) => String.fromCharCode(Number(code)))
+        .replace(/&amp;/gi, "&");
+};
+
 const stripHtml = (value: string): string => {
-    return (value || "")
+    let text = value || "";
+    // Greenhouse (and some Lever) boards return HTML-escaped HTML: tags arrive
+    // as &lt;div&gt;. Decode entities FIRST (up to two passes for the
+    // double-escaped case) so the tag stripper actually sees the tags.
+    for (let pass = 0; pass < 2 && /&(lt|gt|amp|quot|apos|nbsp|#\d+);/i.test(text); pass += 1) {
+        text = decodeHtmlEntities(text);
+    }
+    return text
         .replace(/<style[\s\S]*?<\/style>/gi, " ")
         .replace(/<script[\s\S]*?<\/script>/gi, " ")
         .replace(/<[^>]+>/g, " ")
-        .replace(/&nbsp;/g, " ")
-        .replace(/&amp;/g, "&")
-        .replace(/&lt;/g, "<")
-        .replace(/&gt;/g, ">")
         .replace(/\s+/g, " ")
         .trim();
 };

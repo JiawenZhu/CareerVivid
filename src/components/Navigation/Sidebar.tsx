@@ -121,7 +121,7 @@ const Sidebar: React.FC = () => {
     // Visited tags tracking for navigation items
     const [visitedTags, setVisitedTags] = useState<Record<string, boolean>>(() => {
         const initial: Record<string, boolean> = {};
-        ['/interview-studio', '/learning'].forEach(path => {
+        ['/interview-studio', '/learning', '/jobs/recommend'].forEach(path => {
             initial[path] = localStorage.getItem(`visited_tag_${path}`) === 'true';
         });
         return initial;
@@ -129,7 +129,7 @@ const Sidebar: React.FC = () => {
 
     useEffect(() => {
         const path = currentPath;
-        if (['/interview-studio', '/learning'].includes(path)) {
+        if (['/interview-studio', '/learning', '/jobs/recommend'].includes(path)) {
             localStorage.setItem(`visited_tag_${path}`, 'true');
             setVisitedTags(prev => {
                 if (prev[path]) return prev;
@@ -139,7 +139,7 @@ const Sidebar: React.FC = () => {
     }, [currentPath]);
 
     const handleLinkClick = (path: string) => {
-        if (['/interview-studio', '/learning'].includes(path)) {
+        if (['/interview-studio', '/learning', '/jobs/recommend'].includes(path)) {
             localStorage.setItem(`visited_tag_${path}`, 'true');
             setVisitedTags(prev => ({ ...prev, [path]: true }));
         }
@@ -370,7 +370,7 @@ const Sidebar: React.FC = () => {
     const quickLinks = [
         { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
         { label: 'Quick Start', path: '/onboarding', icon: Sparkles },
-        { label: 'Jobs', path: '/jobs/recommend', icon: Briefcase },
+        { label: 'Jobs', path: '/jobs/recommend', icon: Briefcase, tag: 'New' },
         { label: 'Community', path: '/community', icon: Users },
         { label: 'Interview', path: '/interview-studio', icon: Mic, tag: 'New' },
         { label: 'Job Tracker', path: '/job-tracker', icon: Briefcase },
