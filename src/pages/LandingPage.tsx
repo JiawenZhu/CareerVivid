@@ -3,20 +3,15 @@ import { Helmet } from 'react-helmet-async';
 import PublicHeader from '../components/PublicHeader';
 import Footer from '../components/Footer';
 import CommunityShowcaseHero from '../components/Landing/CommunityShowcaseHero';
+import LearnPracticeHiredSection from '../components/Landing/LearnPracticeHiredSection';
+import CourseShowcaseSection from '../components/Landing/CourseShowcaseSection';
+import InterviewShowcaseSection from '../components/Landing/InterviewShowcaseSection';
 import {
     FAQSection,
     FinalCTA,
     DemoVideoSection,
-    FastStartSection,
-    PlatformAvailabilitySection,
     PricingPreviewSection,
-    ProductIndex,
-    ProofSection,
-    ResumeExamplesSection,
-    ResumeReadinessSection,
-    TeamsAndTrustSection,
     UserStoriesSection,
-    WorkflowSection,
 } from '../components/Landing/LandingTrustSections';
 
 const SEO_TITLE = 'CareerVivid | The AI That Gets You Hired';
@@ -194,17 +189,13 @@ const LandingPage: React.FC = () => (
         </Helmet>
         <PublicHeader variant="editorial" />
         <main>
+            {/* Slim narrative: hero → journey → real courses → real interview loops → demo → proof → pricing → FAQ → CTA */}
             <CommunityShowcaseHero />
-            <FastStartSection />
-            <ProductIndex />
-            <PlatformAvailabilitySection />
+            <LearnPracticeHiredSection />
+            <CourseShowcaseSection />
+            <InterviewShowcaseSection />
             <DemoVideoSection />
-            <ResumeReadinessSection />
-            <ResumeExamplesSection />
             <UserStoriesSection />
-            <ProofSection />
-            <WorkflowSection />
-            <TeamsAndTrustSection />
             <PricingPreviewSection />
             <FAQSection />
             <FinalCTA />

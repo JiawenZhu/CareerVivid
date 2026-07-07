@@ -403,11 +403,11 @@
       "hero": {
         "story_label": "Example user story",
         "story_quote": "“I saved the apply link, tailored my resume, and kept prep in one place.”",
-        "eyebrow": "AI-powered job search. Zero guesswork.",
-        "title": "Everything you need to land your next job — in one place.",
-        "body": "CareerVivid is your co-pilot for the job search — build standout resumes, track applications, prep for interviews in a few minutes, and autofill job forms in seconds. Your next job starts here.",
+        "eyebrow": "Learn. Practice. Get hired.",
+        "title": "Learn the skills. Practice the interview. Land the job.",
+        "body": "CareerVivid takes you the whole way: interactive AI courses that teach by doing, real company interview loops with a live voice interviewer, and a feed of verified, apply-ready jobs — with resumes, tracking, and autofill in the same workspace.",
         "start_free": "Start for free — no credit card needed",
-        "view_tracker": "View job tracker"
+        "view_tracker": "Explore free courses"
       },
       "trust": {
         "direct_links": "Direct company links saved",

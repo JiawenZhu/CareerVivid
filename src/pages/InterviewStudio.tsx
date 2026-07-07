@@ -15,6 +15,8 @@ import { useAICreditCheck } from '../hooks/useAICreditCheck';
 import { InterviewHistoryCardSkeleton } from '../components/Dashboard/DashboardSkeletons';
 import ConfirmationModal from '../components/ConfirmationModal';
 import AppLayout from '../components/Layout/AppLayout';
+import AuthGateModal, { AuthGateModalProps } from '../components/AuthGateModal';
+import { isQuestOpenToGuests } from '../config/accessPolicy';
 import { INTERVIEW_GUIDE_SUMMARIES, INTERVIEW_GUIDE_TOTALS, InterviewGuideSummary } from '../data/interviewGuideSummaries.generated';
 import {
     buildLocalInterviewGuidePrompt,
@@ -157,6 +159,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
     const [interviewDuration, setInterviewDuration] = useState<InterviewDuration>('15 min');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const [authGate, setAuthGate] = useState<Pick<AuthGateModalProps, 'title' | 'message' | 'variant'> | null>(null);
     const [selectedIndustry, setSelectedIndustry] = useState<Industry | null>(null);
     const [placeholder, setPlaceholder] = useState('');
     const [guideSearch, setGuideSearch] = useState('');
@@ -336,7 +339,14 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
     };
 
     const handleStartInterview = async (generationPrompt: string, jobData?: Omit<Job, 'id'>, resumeId?: string) => {
-        if (!generationPrompt.trim() || !currentUser) return;
+        if (!generationPrompt.trim()) return;
+        if (!currentUser) {
+            setAuthGate({
+                title: 'Sign in to start a live interview',
+                message: 'Voice interviews are scored and saved to your history — create a free account to run one.',
+            });
+            return;
+        }
 
         // CHECK CREDIT BEFORE STARTING
         if (!checkCredit()) return;
@@ -868,7 +878,16 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                 <div className="mt-auto flex items-center gap-2 pt-4">
                                     <button
                                         type="button"
-                                        onClick={() => navigate(`/quest/${guide.slug}`)}
+                                        onClick={() => {
+                                            if (!currentUser && !isQuestOpenToGuests(guide.slug)) {
+                                                setAuthGate({
+                                                    title: `Sign in to practice the ${guide.company} loop`,
+                                                    message: 'Guests can try the SAP, Figma, and Scale AI quests free — create an account to unlock all 300+ companies.',
+                                                });
+                                                return;
+                                            }
+                                            navigate(`/quest/${guide.slug}`);
+                                        }}
                                         className="cv-design-button-primary inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 text-xs"
                                     >
                                         <Swords size={14} />
@@ -944,6 +963,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
 
     return (
         <AppLayout>
+            {authGate && <AuthGateModal {...authGate} onClose={() => setAuthGate(null)} />}
             <CreditLimitModal />
             <div className="cv-design-page cv-design-grid relative min-h-screen pb-16 text-left">
                 <div id="start-session" className="@container/interview-page mx-auto max-w-screen-2xl px-4 py-6 text-left sm:px-6 lg:px-8 lg:py-8">
@@ -985,9 +1005,9 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                         </div>
 
                                         <div className="grid grid-cols-1 @[560px]/setup:grid-cols-3 gap-4">
-                                            {renderSegmentedControl('Mode', interviewModes, interviewMode, setInterviewMode, <Sparkles size={16} className="text-[var(--cv-action-primary)]" />)}
-                                            {renderSegmentedControl('Difficulty', interviewDifficulties, interviewDifficulty, setInterviewDifficulty, <SlidersHorizontal size={16} className="text-[var(--cv-action-primary)]" />)}
-                                            {renderSegmentedControl('Duration', interviewDurations, interviewDuration, setInterviewDuration, <Clock size={16} className="text-[var(--cv-action-primary)]" />)}
+                                            {renderSegmentedControl('Mode', interviewModes, interviewMode, (option) => setInterviewMode(option), <Sparkles size={16} className="text-[var(--cv-action-primary)]" />)}
+                                            {renderSegmentedControl('Difficulty', interviewDifficulties, interviewDifficulty, (option) => setInterviewDifficulty(option), <SlidersHorizontal size={16} className="text-[var(--cv-action-primary)]" />)}
+                                            {renderSegmentedControl('Duration', interviewDurations, interviewDuration, (option) => setInterviewDuration(option), <Clock size={16} className="text-[var(--cv-action-primary)]" />)}
                                         </div>
                                     </form>
                                 </div>

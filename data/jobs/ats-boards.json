@@ -1,0 +1,1563 @@
+{
+  "generatedAt": "2026-07-07T15:38:45.699Z",
+  "probed": 301,
+  "foundCount": 179,
+  "found": [
+    {
+      "company": "1Password",
+      "guideSlug": "1password-interview-guide",
+      "provider": "ashby",
+      "boardToken": "1password",
+      "jobCount": 62,
+      "discoveredAt": "2026-07-07T15:37:45.732Z"
+    },
+    {
+      "company": "Adyen",
+      "guideSlug": "adyen-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "adyen",
+      "jobCount": 204,
+      "discoveredAt": "2026-07-07T15:37:44.590Z"
+    },
+    {
+      "company": "Affirm",
+      "guideSlug": "affirm-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "affirm",
+      "jobCount": 177,
+      "discoveredAt": "2026-07-07T15:37:44.002Z"
+    },
+    {
+      "company": "Airbnb",
+      "guideSlug": "airbnb",
+      "provider": "greenhouse",
+      "boardToken": "airbnb",
+      "jobCount": 213,
+      "discoveredAt": "2026-07-07T15:37:44.003Z"
+    },
+    {
+      "company": "Airbyte",
+      "guideSlug": "airbyte-interview-guide",
+      "provider": "ashby",
+      "boardToken": "airbyte",
+      "jobCount": 12,
+      "discoveredAt": "2026-07-07T15:37:45.081Z"
+    },
+    {
+      "company": "Airtable",
+      "guideSlug": "airtable-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "airtable",
+      "jobCount": 37,
+      "discoveredAt": "2026-07-07T15:37:44.221Z"
+    },
+    {
+      "company": "Akuna Capital",
+      "guideSlug": "akuna-capital-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "akunacapital",
+      "jobCount": 28,
+      "discoveredAt": "2026-07-07T15:37:44.821Z"
+    },
+    {
+      "company": "Algolia",
+      "guideSlug": "algolia-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "algolia",
+      "jobCount": 43,
+      "discoveredAt": "2026-07-07T15:37:45.092Z"
+    },
+    {
+      "company": "Amplitude",
+      "guideSlug": "amplitude-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "amplitude",
+      "jobCount": 46,
+      "discoveredAt": "2026-07-07T15:37:45.836Z"
+    },
+    {
+      "company": "Anthropic",
+      "guideSlug": "anthropic",
+      "provider": "greenhouse",
+      "boardToken": "anthropic",
+      "jobCount": 395,
+      "discoveredAt": "2026-07-07T15:37:45.976Z"
+    },
+    {
+      "company": "Anyscale",
+      "guideSlug": "anyscale-interview-guide",
+      "provider": "lever",
+      "boardToken": "anyscale",
+      "jobCount": 1,
+      "discoveredAt": "2026-07-07T15:37:46.203Z"
+    },
+    {
+      "company": "Apollo.io",
+      "guideSlug": "apollo-io-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "apolloio",
+      "jobCount": 38,
+      "discoveredAt": "2026-07-07T15:37:45.967Z"
+    },
+    {
+      "company": "AppLovin",
+      "guideSlug": "applovin-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "applovin",
+      "jobCount": 28,
+      "discoveredAt": "2026-07-07T15:37:46.182Z"
+    },
+    {
+      "company": "AQR Capital Management",
+      "guideSlug": "aqr-capital-management-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "aqr",
+      "jobCount": 50,
+      "discoveredAt": "2026-07-07T15:37:46.868Z"
+    },
+    {
+      "company": "Asana",
+      "guideSlug": "asana",
+      "provider": "greenhouse",
+      "boardToken": "asana",
+      "jobCount": 150,
+      "discoveredAt": "2026-07-07T15:37:46.417Z"
+    },
+    {
+      "company": "Astronomer",
+      "guideSlug": "astronomer-interview-guide",
+      "provider": "ashby",
+      "boardToken": "astronomer",
+      "jobCount": 19,
+      "discoveredAt": "2026-07-07T15:37:47.095Z"
+    },
+    {
+      "company": "Atlassian",
+      "guideSlug": "atlassian",
+      "provider": "lever",
+      "boardToken": "atlassian",
+      "jobCount": 0,
+      "discoveredAt": "2026-07-07T15:37:47.290Z"
+    },
+    {
+      "company": "Black Forest Labs",
+      "guideSlug": "black-forest-labs-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "blackforestlabs",
+      "jobCount": 15,
+      "discoveredAt": "2026-07-07T15:37:47.310Z"
+    },
+    {
+      "company": "Block",
+      "guideSlug": "block",
+      "provider": "greenhouse",
+      "boardToken": "block",
+      "jobCount": 205,
+      "discoveredAt": "2026-07-07T15:37:48.445Z"
+    },
+    {
+      "company": "Blue Origin",
+      "guideSlug": "blue-origin-interview-guide",
+      "provider": "lever",
+      "boardToken": "blueorigin",
+      "jobCount": 0,
+      "discoveredAt": "2026-07-07T15:37:50.041Z"
+    },
+    {
+      "company": "Braze",
+      "guideSlug": "braze-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "braze",
+      "jobCount": 229,
+      "discoveredAt": "2026-07-07T15:37:50.353Z"
+    },
+    {
+      "company": "Brex",
+      "guideSlug": "brex",
+      "provider": "greenhouse",
+      "boardToken": "brex",
+      "jobCount": 262,
+      "discoveredAt": "2026-07-07T15:37:50.567Z"
+    },
+    {
+      "company": "Bumble",
+      "guideSlug": "bumble-interview-guide",
+      "provider": "ashby",
+      "boardToken": "bumble",
+      "jobCount": 0,
+      "discoveredAt": "2026-07-07T15:37:51.704Z"
+    },
+    {
+      "company": "Calm",
+      "guideSlug": "calm-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "calm",
+      "jobCount": 1,
+      "discoveredAt": "2026-07-07T15:37:51.571Z"
+    },
+    {
+      "company": "Capital One",
+      "guideSlug": "capital-one-interview-guide",
+      "provider": "lever",
+      "boardToken": "capital",
+      "jobCount": 51,
+      "discoveredAt": "2026-07-07T15:37:53.266Z"
+    },
+    {
+      "company": "CarGurus",
+      "guideSlug": "cargurus-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "cargurus",
+      "jobCount": 53,
+      "discoveredAt": "2026-07-07T15:37:52.090Z"
+    },
+    {
+      "company": "Carta",
+      "guideSlug": "carta-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "carta",
+      "jobCount": 47,
+      "discoveredAt": "2026-07-07T15:37:52.160Z"
+    },
+    {
+      "company": "Character.AI",
+      "guideSlug": "character-ai-interview-guide",
+      "provider": "ashby",
+      "boardToken": "character",
+      "jobCount": 17,
+      "discoveredAt": "2026-07-07T15:37:54.336Z"
+    },
+    {
+      "company": "Chime",
+      "guideSlug": "chime",
+      "provider": "greenhouse",
+      "boardToken": "chime",
+      "jobCount": 65,
+      "discoveredAt": "2026-07-07T15:37:52.447Z"
+    },
+    {
+      "company": "CircleCI",
+      "guideSlug": "circleci-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "circleci",
+      "jobCount": 14,
+      "discoveredAt": "2026-07-07T15:37:52.972Z"
+    },
+    {
+      "company": "Clerk",
+      "guideSlug": "clerk-interview-guide",
+      "provider": "ashby",
+      "boardToken": "clerk",
+      "jobCount": 0,
+      "discoveredAt": "2026-07-07T15:37:54.304Z"
+    },
+    {
+      "company": "ClickHouse",
+      "guideSlug": "clickhouse-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "clickhouse",
+      "jobCount": 165,
+      "discoveredAt": "2026-07-07T15:37:54.164Z"
+    },
+    {
+      "company": "ClickUp",
+      "guideSlug": "clickup-interview-guide",
+      "provider": "ashby",
+      "boardToken": "clickup",
+      "jobCount": 65,
+      "discoveredAt": "2026-07-07T15:38:00.361Z"
+    },
+    {
+      "company": "Cloudflare",
+      "guideSlug": "cloudflare",
+      "provider": "greenhouse",
+      "boardToken": "cloudflare",
+      "jobCount": 240,
+      "discoveredAt": "2026-07-07T15:37:54.560Z"
+    },
+    {
+      "company": "Cockroach Labs",
+      "guideSlug": "cockroach-labs-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "cockroachlabs",
+      "jobCount": 37,
+      "discoveredAt": "2026-07-07T15:37:54.781Z"
+    },
+    {
+      "company": "Cohere",
+      "guideSlug": "cohere",
+      "provider": "ashby",
+      "boardToken": "cohere",
+      "jobCount": 126,
+      "discoveredAt": "2026-07-07T15:37:57.675Z"
+    },
+    {
+      "company": "Coinbase",
+      "guideSlug": "coinbase",
+      "provider": "greenhouse",
+      "boardToken": "coinbase",
+      "jobCount": 132,
+      "discoveredAt": "2026-07-07T15:37:56.360Z"
+    },
+    {
+      "company": "Confluent",
+      "guideSlug": "confluent-interview-guide",
+      "provider": "ashby",
+      "boardToken": "confluent",
+      "jobCount": 39,
+      "discoveredAt": "2026-07-07T15:37:57.103Z"
+    },
+    {
+      "company": "CoreWeave",
+      "guideSlug": "coreweave-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "coreweave",
+      "jobCount": 274,
+      "discoveredAt": "2026-07-07T15:37:57.102Z"
+    },
+    {
+      "company": "Coursera",
+      "guideSlug": "coursera-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "coursera",
+      "jobCount": 7,
+      "discoveredAt": "2026-07-07T15:37:57.309Z"
+    },
+    {
+      "company": "Credit Karma",
+      "guideSlug": "credit-karma-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "creditkarma",
+      "jobCount": 0,
+      "discoveredAt": "2026-07-07T15:37:57.360Z"
+    },
+    {
+      "company": "Cribl",
+      "guideSlug": "cribl-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "cribl",
+      "jobCount": 56,
+      "discoveredAt": "2026-07-07T15:37:57.524Z"
+    },
+    {
+      "company": "Cursor",
+      "guideSlug": "cursor",
+      "provider": "ashby",
+      "boardToken": "cursor",
+      "jobCount": 110,
+      "discoveredAt": "2026-07-07T15:38:00.000Z"
+    },
+    {
+      "company": "Databricks",
+      "guideSlug": "databricks",
+      "provider": "greenhouse",
+      "boardToken": "databricks",
+      "jobCount": 783,
+      "discoveredAt": "2026-07-07T15:38:01.293Z"
+    },
+    {
+      "company": "Datadog",
+      "guideSlug": "datadog",
+      "provider": "greenhouse",
+      "boardToken": "datadog",
+      "jobCount": 418,
+      "discoveredAt": "2026-07-07T15:37:58.401Z"
+    },
+    {
+      "company": "Decagon",
+      "guideSlug": "decagon-interview-guide",
+      "provider": "ashby",
+      "boardToken": "decagon",
+      "jobCount": 114,
+      "discoveredAt": "2026-07-07T15:38:01.612Z"
+    },
+    {
+      "company": "Deel",
+      "guideSlug": "deel",
+      "provider": "ashby",
+      "boardToken": "deel",
+      "jobCount": 0,
+      "discoveredAt": "2026-07-07T15:38:01.693Z"
+    },
+    {
+      "company": "Deepgram",
+      "guideSlug": "deepgram-interview-guide",
+      "provider": "ashby",
+      "boardToken": "deepgram",
+      "jobCount": 59,
+      "discoveredAt": "2026-07-07T15:38:01.835Z"
+    },
+    {
+      "company": "Defense Primes",
+      "guideSlug": "defense-primes-lockheed-northrop-raytheon-interview-guide",
+      "provider": "ashby",
+      "boardToken": "defense",
+      "jobCount": 0,
+      "discoveredAt": "2026-07-07T15:38:04.547Z"
+    },
+    {
+      "company": "Discord",
+      "guideSlug": "discord",
+      "provider": "greenhouse",
+      "boardToken": "discord",
+      "jobCount": 58,
+      "discoveredAt": "2026-07-07T15:38:01.907Z"
+    },
+    {
+      "company": "Doppler",
+      "guideSlug": "doppler-interview-guide",
+      "provider": "ashby",
+      "boardToken": "doppler",
+      "jobCount": 4,
+      "discoveredAt": "2026-07-07T15:38:04.730Z"
+    },
+    {
+      "company": "Drata",
+      "guideSlug": "drata-interview-guide",
+      "provider": "ashby",
+      "boardToken": "drata",
+      "jobCount": 51,
+      "discoveredAt": "2026-07-07T15:38:02.936Z"
+    },
+    {
+      "company": "Dropbox",
+      "guideSlug": "dropbox-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "dropbox",
+      "jobCount": 46,
+      "discoveredAt": "2026-07-07T15:38:02.732Z"
+    },
+    {
+      "company": "Duolingo",
+      "guideSlug": "duolingo-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "duolingo",
+      "jobCount": 68,
+      "discoveredAt": "2026-07-07T15:38:03.148Z"
+    },
+    {
+      "company": "Elastic",
+      "guideSlug": "elastic-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "elastic",
+      "jobCount": 187,
+      "discoveredAt": "2026-07-07T15:38:03.457Z"
+    },
+    {
+      "company": "ElevenLabs",
+      "guideSlug": "elevenlabs-interview-guide",
+      "provider": "ashby",
+      "boardToken": "elevenlabs",
+      "jobCount": 156,
+      "discoveredAt": "2026-07-07T15:38:05.880Z"
+    },
+    {
+      "company": "Epic Games",
+      "guideSlug": "epic-games-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "epicgames",
+      "jobCount": 127,
+      "discoveredAt": "2026-07-07T15:38:03.916Z"
+    },
+    {
+      "company": "Faire",
+      "guideSlug": "faire-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "faire",
+      "jobCount": 77,
+      "discoveredAt": "2026-07-07T15:38:05.485Z"
+    },
+    {
+      "company": "Fastly",
+      "guideSlug": "fastly-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "fastly",
+      "jobCount": 50,
+      "discoveredAt": "2026-07-07T15:38:05.698Z"
+    },
+    {
+      "company": "Figma",
+      "guideSlug": "figma",
+      "provider": "greenhouse",
+      "boardToken": "figma",
+      "jobCount": 168,
+      "discoveredAt": "2026-07-07T15:38:05.900Z"
+    },
+    {
+      "company": "Fireworks AI",
+      "guideSlug": "fireworks-ai",
+      "provider": "greenhouse",
+      "boardToken": "fireworksai",
+      "jobCount": 35,
+      "discoveredAt": "2026-07-07T15:38:05.910Z"
+    },
+    {
+      "company": "Five9",
+      "guideSlug": "five9-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "five9",
+      "jobCount": 150,
+      "discoveredAt": "2026-07-07T15:38:06.099Z"
+    },
+    {
+      "company": "Fivetran",
+      "guideSlug": "fivetran-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "fivetran",
+      "jobCount": 129,
+      "discoveredAt": "2026-07-07T15:38:06.204Z"
+    },
+    {
+      "company": "Flow Traders",
+      "guideSlug": "flow-traders-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "flowtraders",
+      "jobCount": 32,
+      "discoveredAt": "2026-07-07T15:38:06.124Z"
+    },
+    {
+      "company": "Gainsight",
+      "guideSlug": "gainsight-interview-guide",
+      "provider": "ashby",
+      "boardToken": "gainsight",
+      "jobCount": 31,
+      "discoveredAt": "2026-07-07T15:38:08.304Z"
+    },
+    {
+      "company": "Galaxy Digital",
+      "guideSlug": "galaxy-digital-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "galaxy",
+      "jobCount": 4,
+      "discoveredAt": "2026-07-07T15:38:08.359Z"
+    },
+    {
+      "company": "GitLab",
+      "guideSlug": "gitlab",
+      "provider": "greenhouse",
+      "boardToken": "gitlab",
+      "jobCount": 145,
+      "discoveredAt": "2026-07-07T15:38:08.361Z"
+    },
+    {
+      "company": "Glassdoor",
+      "guideSlug": "glassdoor-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "glassdoor",
+      "jobCount": 0,
+      "discoveredAt": "2026-07-07T15:38:08.358Z"
+    },
+    {
+      "company": "Grafana Labs",
+      "guideSlug": "grafana-labs-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "grafanalabs",
+      "jobCount": 113,
+      "discoveredAt": "2026-07-07T15:38:09.921Z"
+    },
+    {
+      "company": "Greenhouse",
+      "guideSlug": "greenhouse-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "greenhouse",
+      "jobCount": 19,
+      "discoveredAt": "2026-07-07T15:38:09.949Z"
+    },
+    {
+      "company": "Gusto",
+      "guideSlug": "gusto-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "gusto",
+      "jobCount": 79,
+      "discoveredAt": "2026-07-07T15:38:10.291Z"
+    },
+    {
+      "company": "HackerRank",
+      "guideSlug": "hackerrank-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "hackerrank",
+      "jobCount": 36,
+      "discoveredAt": "2026-07-07T15:38:10.289Z"
+    },
+    {
+      "company": "Harvey",
+      "guideSlug": "harvey-interview-guide",
+      "provider": "ashby",
+      "boardToken": "harvey",
+      "jobCount": 333,
+      "discoveredAt": "2026-07-07T15:38:12.863Z"
+    },
+    {
+      "company": "Hex",
+      "guideSlug": "hex",
+      "provider": "ashby",
+      "boardToken": "hex",
+      "jobCount": 0,
+      "discoveredAt": "2026-07-07T15:38:11.775Z"
+    },
+    {
+      "company": "Hightouch",
+      "guideSlug": "hightouch-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "hightouch",
+      "jobCount": 64,
+      "discoveredAt": "2026-07-07T15:38:11.514Z"
+    },
+    {
+      "company": "Honeycomb",
+      "guideSlug": "honeycomb-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "honeycomb",
+      "jobCount": 15,
+      "discoveredAt": "2026-07-07T15:38:11.841Z"
+    },
+    {
+      "company": "Hopper",
+      "guideSlug": "hopper-interview-guide",
+      "provider": "ashby",
+      "boardToken": "hopper",
+      "jobCount": 126,
+      "discoveredAt": "2026-07-07T15:38:13.631Z"
+    },
+    {
+      "company": "HubSpot",
+      "guideSlug": "hubspot",
+      "provider": "greenhouse",
+      "boardToken": "hubspot",
+      "jobCount": 0,
+      "discoveredAt": "2026-07-07T15:38:12.059Z"
+    },
+    {
+      "company": "IMC Trading",
+      "guideSlug": "imc-trading-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "imc",
+      "jobCount": 157,
+      "discoveredAt": "2026-07-07T15:38:13.620Z"
+    },
+    {
+      "company": "Indeed",
+      "guideSlug": "indeed-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "indeed",
+      "jobCount": 0,
+      "discoveredAt": "2026-07-07T15:38:13.404Z"
+    },
+    {
+      "company": "Instacart",
+      "guideSlug": "instacart-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "instacart",
+      "jobCount": 155,
+      "discoveredAt": "2026-07-07T15:38:13.632Z"
+    },
+    {
+      "company": "Intercom",
+      "guideSlug": "intercom-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "intercom",
+      "jobCount": 138,
+      "discoveredAt": "2026-07-07T15:38:13.936Z"
+    },
+    {
+      "company": "Iterable",
+      "guideSlug": "iterable-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "iterable",
+      "jobCount": 26,
+      "discoveredAt": "2026-07-07T15:38:13.948Z"
+    },
+    {
+      "company": "Jane Street",
+      "guideSlug": "jane-street",
+      "provider": "greenhouse",
+      "boardToken": "janestreet",
+      "jobCount": 215,
+      "discoveredAt": "2026-07-07T15:38:13.949Z"
+    },
+    {
+      "company": "JetBrains",
+      "guideSlug": "jetbrains-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "jetbrains",
+      "jobCount": 98,
+      "discoveredAt": "2026-07-07T15:38:14.559Z"
+    },
+    {
+      "company": "Jump Trading",
+      "guideSlug": "jump-trading",
+      "provider": "greenhouse",
+      "boardToken": "jumptrading",
+      "jobCount": 59,
+      "discoveredAt": "2026-07-07T15:38:14.159Z"
+    },
+    {
+      "company": "Klaviyo",
+      "guideSlug": "klaviyo-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "klaviyo",
+      "jobCount": 167,
+      "discoveredAt": "2026-07-07T15:38:14.637Z"
+    },
+    {
+      "company": "Kraken",
+      "guideSlug": "kraken-interview-guide",
+      "provider": "lever",
+      "boardToken": "kraken",
+      "jobCount": 0,
+      "discoveredAt": "2026-07-07T15:38:15.001Z"
+    },
+    {
+      "company": "Lambda Labs",
+      "guideSlug": "lambda-labs-interview-guide",
+      "provider": "ashby",
+      "boardToken": "lambda",
+      "jobCount": 31,
+      "discoveredAt": "2026-07-07T15:38:17.124Z"
+    },
+    {
+      "company": "LangChain",
+      "guideSlug": "langchain",
+      "provider": "ashby",
+      "boardToken": "langchain",
+      "jobCount": 100,
+      "discoveredAt": "2026-07-07T15:38:15.533Z"
+    },
+    {
+      "company": "Lattice",
+      "guideSlug": "lattice-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "lattice",
+      "jobCount": 11,
+      "discoveredAt": "2026-07-07T15:38:14.996Z"
+    },
+    {
+      "company": "LaunchDarkly",
+      "guideSlug": "launchdarkly-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "launchdarkly",
+      "jobCount": 37,
+      "discoveredAt": "2026-07-07T15:38:15.165Z"
+    },
+    {
+      "company": "Lightspeed Commerce",
+      "guideSlug": "lightspeed-interview-guide",
+      "provider": "ashby",
+      "boardToken": "lightspeed",
+      "jobCount": 4,
+      "discoveredAt": "2026-07-07T15:38:17.545Z"
+    },
+    {
+      "company": "Linear",
+      "guideSlug": "linear",
+      "provider": "ashby",
+      "boardToken": "linear",
+      "jobCount": 25,
+      "discoveredAt": "2026-07-07T15:38:16.260Z"
+    },
+    {
+      "company": "LinkedIn",
+      "guideSlug": "linkedin",
+      "provider": "greenhouse",
+      "boardToken": "linkedin",
+      "jobCount": 53,
+      "discoveredAt": "2026-07-07T15:38:15.973Z"
+    },
+    {
+      "company": "LlamaIndex",
+      "guideSlug": "llamaindex-interview-guide",
+      "provider": "ashby",
+      "boardToken": "llamaindex",
+      "jobCount": 10,
+      "discoveredAt": "2026-07-07T15:38:16.693Z"
+    },
+    {
+      "company": "Lyft",
+      "guideSlug": "lyft-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "lyft",
+      "jobCount": 151,
+      "discoveredAt": "2026-07-07T15:38:16.225Z"
+    },
+    {
+      "company": "Man Group",
+      "guideSlug": "man-group-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "mangroup",
+      "jobCount": 66,
+      "discoveredAt": "2026-07-07T15:38:16.560Z"
+    },
+    {
+      "company": "Marqeta",
+      "guideSlug": "marqeta-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "marqeta",
+      "jobCount": 32,
+      "discoveredAt": "2026-07-07T15:38:16.773Z"
+    },
+    {
+      "company": "Match Group",
+      "guideSlug": "match-group-interview-guide",
+      "provider": "lever",
+      "boardToken": "matchgroup",
+      "jobCount": 83,
+      "discoveredAt": "2026-07-07T15:38:18.832Z"
+    },
+    {
+      "company": "Materialize",
+      "guideSlug": "materialize-interview-guide",
+      "provider": "ashby",
+      "boardToken": "materialize",
+      "jobCount": 2,
+      "discoveredAt": "2026-07-07T15:38:17.595Z"
+    },
+    {
+      "company": "Medium",
+      "guideSlug": "medium-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "medium",
+      "jobCount": 1,
+      "discoveredAt": "2026-07-07T15:38:17.108Z"
+    },
+    {
+      "company": "Mercury",
+      "guideSlug": "mercury",
+      "provider": "greenhouse",
+      "boardToken": "mercury",
+      "jobCount": 54,
+      "discoveredAt": "2026-07-07T15:38:17.322Z"
+    },
+    {
+      "company": "Mistral AI",
+      "guideSlug": "mistral-ai-interview-guide",
+      "provider": "lever",
+      "boardToken": "mistral",
+      "jobCount": 100,
+      "discoveredAt": "2026-07-07T15:38:21.769Z"
+    },
+    {
+      "company": "Mixpanel",
+      "guideSlug": "mixpanel-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "mixpanel",
+      "jobCount": 36,
+      "discoveredAt": "2026-07-07T15:38:17.820Z"
+    },
+    {
+      "company": "Modal",
+      "guideSlug": "modal",
+      "provider": "ashby",
+      "boardToken": "modal",
+      "jobCount": 33,
+      "discoveredAt": "2026-07-07T15:38:18.503Z"
+    },
+    {
+      "company": "MongoDB",
+      "guideSlug": "mongodb",
+      "provider": "greenhouse",
+      "boardToken": "mongodb",
+      "jobCount": 398,
+      "discoveredAt": "2026-07-07T15:38:18.789Z"
+    },
+    {
+      "company": "MotherDuck",
+      "guideSlug": "motherduck",
+      "provider": "ashby",
+      "boardToken": "motherduck",
+      "jobCount": 7,
+      "discoveredAt": "2026-07-07T15:38:20.415Z"
+    },
+    {
+      "company": "Neon",
+      "guideSlug": "neon",
+      "provider": "lever",
+      "boardToken": "neon",
+      "jobCount": 11,
+      "discoveredAt": "2026-07-07T15:38:21.770Z"
+    },
+    {
+      "company": "Netflix",
+      "guideSlug": "netflix",
+      "provider": "lever",
+      "boardToken": "netflix",
+      "jobCount": 0,
+      "discoveredAt": "2026-07-07T15:38:22.265Z"
+    },
+    {
+      "company": "New Relic",
+      "guideSlug": "new-relic-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "newrelic",
+      "jobCount": 55,
+      "discoveredAt": "2026-07-07T15:38:22.266Z"
+    },
+    {
+      "company": "Niantic",
+      "guideSlug": "niantic-interview-guide",
+      "provider": "ashby",
+      "boardToken": "niantic",
+      "jobCount": 0,
+      "discoveredAt": "2026-07-07T15:38:22.900Z"
+    },
+    {
+      "company": "Notion",
+      "guideSlug": "notion",
+      "provider": "ashby",
+      "boardToken": "notion",
+      "jobCount": 148,
+      "discoveredAt": "2026-07-07T15:38:23.065Z"
+    },
+    {
+      "company": "Okta",
+      "guideSlug": "okta-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "okta",
+      "jobCount": 358,
+      "discoveredAt": "2026-07-07T15:38:22.501Z"
+    },
+    {
+      "company": "OpenAI",
+      "guideSlug": "openai",
+      "provider": "ashby",
+      "boardToken": "openai",
+      "jobCount": 713,
+      "discoveredAt": "2026-07-07T15:38:24.475Z"
+    },
+    {
+      "company": "Optiver",
+      "guideSlug": "optiver-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "optiver",
+      "jobCount": 0,
+      "discoveredAt": "2026-07-07T15:38:26.111Z"
+    },
+    {
+      "company": "Orca Security",
+      "guideSlug": "orca-security-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "orcasecurity",
+      "jobCount": 4,
+      "discoveredAt": "2026-07-07T15:38:23.363Z"
+    },
+    {
+      "company": "Outreach",
+      "guideSlug": "outreach-interview-guide",
+      "provider": "lever",
+      "boardToken": "outreach",
+      "jobCount": 36,
+      "discoveredAt": "2026-07-07T15:38:24.019Z"
+    },
+    {
+      "company": "PagerDuty",
+      "guideSlug": "pagerduty-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "pagerduty",
+      "jobCount": 22,
+      "discoveredAt": "2026-07-07T15:38:23.580Z"
+    },
+    {
+      "company": "Palantir",
+      "guideSlug": "palantir",
+      "provider": "lever",
+      "boardToken": "palantir",
+      "jobCount": 100,
+      "discoveredAt": "2026-07-07T15:38:24.653Z"
+    },
+    {
+      "company": "Patreon",
+      "guideSlug": "patreon-interview-guide",
+      "provider": "ashby",
+      "boardToken": "patreon",
+      "jobCount": 19,
+      "discoveredAt": "2026-07-07T15:38:25.411Z"
+    },
+    {
+      "company": "Peloton",
+      "guideSlug": "peloton-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "peloton",
+      "jobCount": 59,
+      "discoveredAt": "2026-07-07T15:38:25.410Z"
+    },
+    {
+      "company": "Pendo",
+      "guideSlug": "pendo-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "pendo",
+      "jobCount": 44,
+      "discoveredAt": "2026-07-07T15:38:25.630Z"
+    },
+    {
+      "company": "Perplexity",
+      "guideSlug": "perplexity",
+      "provider": "ashby",
+      "boardToken": "perplexity",
+      "jobCount": 78,
+      "discoveredAt": "2026-07-07T15:38:26.183Z"
+    },
+    {
+      "company": "Pika Labs",
+      "guideSlug": "pika-labs-interview-guide",
+      "provider": "ashby",
+      "boardToken": "pika",
+      "jobCount": 10,
+      "discoveredAt": "2026-07-07T15:38:27.751Z"
+    },
+    {
+      "company": "Pinecone",
+      "guideSlug": "pinecone-interview-guide",
+      "provider": "ashby",
+      "boardToken": "pinecone",
+      "jobCount": 3,
+      "discoveredAt": "2026-07-07T15:38:26.553Z"
+    },
+    {
+      "company": "Pinterest",
+      "guideSlug": "pinterest-interview",
+      "provider": "greenhouse",
+      "boardToken": "pinterest",
+      "jobCount": 188,
+      "discoveredAt": "2026-07-07T15:38:26.537Z"
+    },
+    {
+      "company": "Plaid",
+      "guideSlug": "plaid",
+      "provider": "lever",
+      "boardToken": "plaid",
+      "jobCount": 0,
+      "discoveredAt": "2026-07-07T15:38:26.732Z"
+    },
+    {
+      "company": "PlanetScale",
+      "guideSlug": "planetscale",
+      "provider": "greenhouse",
+      "boardToken": "planetscale",
+      "jobCount": 12,
+      "discoveredAt": "2026-07-07T15:38:26.690Z"
+    },
+    {
+      "company": "Point72",
+      "guideSlug": "point72-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "point72",
+      "jobCount": 245,
+      "discoveredAt": "2026-07-07T15:38:26.754Z"
+    },
+    {
+      "company": "PostHog",
+      "guideSlug": "posthog-interview-guide",
+      "provider": "ashby",
+      "boardToken": "posthog",
+      "jobCount": 21,
+      "discoveredAt": "2026-07-07T15:38:27.269Z"
+    },
+    {
+      "company": "Postman",
+      "guideSlug": "postman",
+      "provider": "greenhouse",
+      "boardToken": "postman",
+      "jobCount": 119,
+      "discoveredAt": "2026-07-07T15:38:27.045Z"
+    },
+    {
+      "company": "Quora",
+      "guideSlug": "quora-interview-guide",
+      "provider": "ashby",
+      "boardToken": "quora",
+      "jobCount": 5,
+      "discoveredAt": "2026-07-07T15:38:28.207Z"
+    },
+    {
+      "company": "Ramp",
+      "guideSlug": "ramp",
+      "provider": "ashby",
+      "boardToken": "ramp",
+      "jobCount": 122,
+      "discoveredAt": "2026-07-07T15:38:28.301Z"
+    },
+    {
+      "company": "Reddit",
+      "guideSlug": "reddit-interview",
+      "provider": "greenhouse",
+      "boardToken": "reddit",
+      "jobCount": 182,
+      "discoveredAt": "2026-07-07T15:38:28.034Z"
+    },
+    {
+      "company": "Reka AI",
+      "guideSlug": "reka-ai-interview-guide",
+      "provider": "ashby",
+      "boardToken": "reka",
+      "jobCount": 7,
+      "discoveredAt": "2026-07-07T15:38:30.226Z"
+    },
+    {
+      "company": "Render",
+      "guideSlug": "render-interview-guide",
+      "provider": "ashby",
+      "boardToken": "render",
+      "jobCount": 23,
+      "discoveredAt": "2026-07-07T15:38:29.083Z"
+    },
+    {
+      "company": "Replit",
+      "guideSlug": "replit-interview-guide",
+      "provider": "ashby",
+      "boardToken": "replit",
+      "jobCount": 98,
+      "discoveredAt": "2026-07-07T15:38:29.902Z"
+    },
+    {
+      "company": "Resend",
+      "guideSlug": "resend-interview-guide",
+      "provider": "ashby",
+      "boardToken": "resend",
+      "jobCount": 8,
+      "discoveredAt": "2026-07-07T15:38:29.668Z"
+    },
+    {
+      "company": "Riot Games",
+      "guideSlug": "riot-games-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "riotgames",
+      "jobCount": 164,
+      "discoveredAt": "2026-07-07T15:38:29.894Z"
+    },
+    {
+      "company": "Robinhood",
+      "guideSlug": "robinhood",
+      "provider": "greenhouse",
+      "boardToken": "robinhood",
+      "jobCount": 128,
+      "discoveredAt": "2026-07-07T15:38:30.190Z"
+    },
+    {
+      "company": "Roblox",
+      "guideSlug": "roblox",
+      "provider": "greenhouse",
+      "boardToken": "roblox",
+      "jobCount": 231,
+      "discoveredAt": "2026-07-07T15:38:30.994Z"
+    },
+    {
+      "company": "Rubrik",
+      "guideSlug": "rubrik-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "rubrik",
+      "jobCount": 97,
+      "discoveredAt": "2026-07-07T15:38:30.404Z"
+    },
+    {
+      "company": "RunPod",
+      "guideSlug": "runpod-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "runpod",
+      "jobCount": 0,
+      "discoveredAt": "2026-07-07T15:38:30.650Z"
+    },
+    {
+      "company": "Runway",
+      "guideSlug": "runway-interview-guide",
+      "provider": "ashby",
+      "boardToken": "runway",
+      "jobCount": 4,
+      "discoveredAt": "2026-07-07T15:38:31.226Z"
+    },
+    {
+      "company": "Salesloft",
+      "guideSlug": "salesloft-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "salesloft",
+      "jobCount": 30,
+      "discoveredAt": "2026-07-07T15:38:30.928Z"
+    },
+    {
+      "company": "Scale AI",
+      "guideSlug": "scale-ai",
+      "provider": "greenhouse",
+      "boardToken": "scaleai",
+      "jobCount": 184,
+      "discoveredAt": "2026-07-07T15:38:31.455Z"
+    },
+    {
+      "company": "Sentry",
+      "guideSlug": "sentry-interview-guide",
+      "provider": "ashby",
+      "boardToken": "sentry",
+      "jobCount": 47,
+      "discoveredAt": "2026-07-07T15:38:32.642Z"
+    },
+    {
+      "company": "Sierra",
+      "guideSlug": "sierra-interview-guide",
+      "provider": "ashby",
+      "boardToken": "sierra",
+      "jobCount": 149,
+      "discoveredAt": "2026-07-07T15:38:33.707Z"
+    },
+    {
+      "company": "SingleStore",
+      "guideSlug": "singlestore-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "singlestore",
+      "jobCount": 46,
+      "discoveredAt": "2026-07-07T15:38:33.968Z"
+    },
+    {
+      "company": "Skyscanner",
+      "guideSlug": "skyscanner-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "skyscanner",
+      "jobCount": 12,
+      "discoveredAt": "2026-07-07T15:38:33.330Z"
+    },
+    {
+      "company": "Smartsheet",
+      "guideSlug": "smartsheet-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "smartsheet",
+      "jobCount": 101,
+      "discoveredAt": "2026-07-07T15:38:33.556Z"
+    },
+    {
+      "company": "Snowflake",
+      "guideSlug": "snowflake",
+      "provider": "ashby",
+      "boardToken": "snowflake",
+      "jobCount": 413,
+      "discoveredAt": "2026-07-07T15:38:37.798Z"
+    },
+    {
+      "company": "Snyk",
+      "guideSlug": "snyk-interview-guide",
+      "provider": "ashby",
+      "boardToken": "snyk",
+      "jobCount": 0,
+      "discoveredAt": "2026-07-07T15:38:34.686Z"
+    },
+    {
+      "company": "SoFi",
+      "guideSlug": "sofi-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "sofi",
+      "jobCount": 81,
+      "discoveredAt": "2026-07-07T15:38:34.847Z"
+    },
+    {
+      "company": "Spotify",
+      "guideSlug": "spotify",
+      "provider": "lever",
+      "boardToken": "spotify",
+      "jobCount": 100,
+      "discoveredAt": "2026-07-07T15:38:35.990Z"
+    },
+    {
+      "company": "Squarespace",
+      "guideSlug": "squarespace-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "squarespace",
+      "jobCount": 17,
+      "discoveredAt": "2026-07-07T15:38:35.762Z"
+    },
+    {
+      "company": "Stability AI",
+      "guideSlug": "stability-ai-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "stabilityai",
+      "jobCount": 1,
+      "discoveredAt": "2026-07-07T15:38:35.991Z"
+    },
+    {
+      "company": "Stripe",
+      "guideSlug": "stripe",
+      "provider": "greenhouse",
+      "boardToken": "stripe",
+      "jobCount": 493,
+      "discoveredAt": "2026-07-07T15:38:36.222Z"
+    },
+    {
+      "company": "Substack",
+      "guideSlug": "substack-interview-guide",
+      "provider": "ashby",
+      "boardToken": "substack",
+      "jobCount": 10,
+      "discoveredAt": "2026-07-07T15:38:36.816Z"
+    },
+    {
+      "company": "Suno",
+      "guideSlug": "suno-interview-guide",
+      "provider": "ashby",
+      "boardToken": "suno",
+      "jobCount": 59,
+      "discoveredAt": "2026-07-07T15:38:37.316Z"
+    },
+    {
+      "company": "Supabase",
+      "guideSlug": "supabase",
+      "provider": "ashby",
+      "boardToken": "supabase",
+      "jobCount": 52,
+      "discoveredAt": "2026-07-07T15:38:37.692Z"
+    },
+    {
+      "company": "Sysdig",
+      "guideSlug": "sysdig-interview-guide",
+      "provider": "lever",
+      "boardToken": "sysdig",
+      "jobCount": 4,
+      "discoveredAt": "2026-07-07T15:38:37.617Z"
+    },
+    {
+      "company": "Tailscale",
+      "guideSlug": "tailscale",
+      "provider": "greenhouse",
+      "boardToken": "tailscale",
+      "jobCount": 40,
+      "discoveredAt": "2026-07-07T15:38:37.524Z"
+    },
+    {
+      "company": "Temporal",
+      "guideSlug": "temporal-interview-guide",
+      "provider": "ashby",
+      "boardToken": "temporal",
+      "jobCount": 54,
+      "discoveredAt": "2026-07-07T15:38:39.044Z"
+    },
+    {
+      "company": "Toast",
+      "guideSlug": "toast-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "toast",
+      "jobCount": 263,
+      "discoveredAt": "2026-07-07T15:38:39.164Z"
+    },
+    {
+      "company": "Together AI",
+      "guideSlug": "together-ai",
+      "provider": "greenhouse",
+      "boardToken": "togetherai",
+      "jobCount": 59,
+      "discoveredAt": "2026-07-07T15:38:38.115Z"
+    },
+    {
+      "company": "Tower Research Capital",
+      "guideSlug": "tower-research-capital-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "towerresearchcapital",
+      "jobCount": 77,
+      "discoveredAt": "2026-07-07T15:38:38.328Z"
+    },
+    {
+      "company": "Twilio",
+      "guideSlug": "twilio-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "twilio",
+      "jobCount": 156,
+      "discoveredAt": "2026-07-07T15:38:38.735Z"
+    },
+    {
+      "company": "Veeva Systems",
+      "guideSlug": "veeva-systems-interview-guide",
+      "provider": "lever",
+      "boardToken": "veeva",
+      "jobCount": 100,
+      "discoveredAt": "2026-07-07T15:38:41.502Z"
+    },
+    {
+      "company": "Vercel",
+      "guideSlug": "vercel",
+      "provider": "greenhouse",
+      "boardToken": "vercel",
+      "jobCount": 63,
+      "discoveredAt": "2026-07-07T15:38:40.212Z"
+    },
+    {
+      "company": "Virtu Financial",
+      "guideSlug": "virtu-financial-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "virtu",
+      "jobCount": 37,
+      "discoveredAt": "2026-07-07T15:38:40.507Z"
+    },
+    {
+      "company": "Wealthfront",
+      "guideSlug": "wealthfront",
+      "provider": "lever",
+      "boardToken": "wealthfront",
+      "jobCount": 14,
+      "discoveredAt": "2026-07-07T15:38:40.696Z"
+    },
+    {
+      "company": "Weaviate",
+      "guideSlug": "weaviate-interview-guide",
+      "provider": "ashby",
+      "boardToken": "weaviate",
+      "jobCount": 4,
+      "discoveredAt": "2026-07-07T15:38:41.463Z"
+    },
+    {
+      "company": "Webflow",
+      "guideSlug": "webflow-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "webflow",
+      "jobCount": 22,
+      "discoveredAt": "2026-07-07T15:38:40.715Z"
+    },
+    {
+      "company": "WorkOS",
+      "guideSlug": "workos-interview-guide",
+      "provider": "ashby",
+      "boardToken": "workos",
+      "jobCount": 25,
+      "discoveredAt": "2026-07-07T15:38:42.501Z"
+    },
+    {
+      "company": "xAI",
+      "guideSlug": "xai",
+      "provider": "greenhouse",
+      "boardToken": "xai",
+      "jobCount": 212,
+      "discoveredAt": "2026-07-07T15:38:41.750Z"
+    },
+    {
+      "company": "ZoomInfo",
+      "guideSlug": "zoominfo-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "zoominfo",
+      "jobCount": 88,
+      "discoveredAt": "2026-07-07T15:38:42.983Z"
+    },
+    {
+      "company": "Zscaler",
+      "guideSlug": "zscaler-interview-guide",
+      "provider": "greenhouse",
+      "boardToken": "zscaler",
+      "jobCount": 325,
+      "discoveredAt": "2026-07-07T15:38:42.952Z"
+    }
+  ],
+  "missed": [
+    "23andMe",
+    "AMD",
+    "Adobe",
+    "Akamai",
+    "Alibaba",
+    "Amazon",
+    "American Express",
+    "Anduril",
+    "Apple",
+    "Apple Silicon",
+    "Bank of America",
+    "Beehiiv",
+    "BigCommerce",
+    "BlackRock",
+    "Blizzard/Activision",
+    "Bloomberg",
+    "Bluesky",
+    "Booking.com",
+    "Box",
+    "Bridgewater Associates",
+    "Broadcom",
+    "ByteDance/TikTok",
+    "Canva",
+    "Carvana",
+    "Chronosphere",
+    "Circle/Ripple/Chainalysis",
+    "Cisco",
+    "Citadel Hedge Fund",
+    "Citadel Securities",
+    "Citi",
+    "Cloudera",
+    "Coda",
+    "CodeSandbox",
+    "Codecademy",
+    "ConvertKit",
+    "CrowdStrike",
+    "D. E. Shaw",
+    "DRW",
+    "DataStax",
+    "Deutsche Bank",
+    "DocuSign",
+    "DuckDB Labs",
+    "Electronic Arts",
+    "Epic Systems",
+    "Etsy",
+    "Eventbrite",
+    "Evercore",
+    "Fidelity Investments",
+    "Fly.io",
+    "Framer",
+    "Glean",
+    "Goldman Sachs",
+    "Gong",
+    "Google",
+    "Grab",
+    "Grubhub",
+    "HashiCorp",
+    "Headspace",
+    "Heroku",
+    "Hippocratic AI",
+    "Hudson River Trading",
+    "Hugging Face",
+    "Intel",
+    "JPMorgan Chase",
+    "Klarna",
+    "Lazard",
+    "LeetCode",
+    "Mailchimp",
+    "Meta",
+    "Microsoft",
+    "Millennium Management",
+    "Monday.com",
+    "Morgan Stanley",
+    "Nvidia",
+    "Opendoor",
+    "Oracle",
+    "Palo Alto Networks",
+    "PayPal",
+    "Procore",
+    "Pulumi",
+    "Qdrant",
+    "Qualcomm",
+    "Rapid7",
+    "Redfin",
+    "Renaissance Technologies",
+    "Replicate",
+    "Retool",
+    "RingCentral",
+    "Rippling",
+    "SAP",
+    "SIG Susquehanna",
+    "Sakana AI",
+    "Salesforce",
+    "Samsung",
+    "SentinelOne",
+    "ServiceNow",
+    "Shopify",
+    "Snap",
+    "Sony",
+    "SoundCloud",
+    "Sourcegraph",
+    "SpaceX",
+    "Splunk",
+    "State Street",
+    "Tempus AI",
+    "Tesla",
+    "Turso",
+    "Two Sigma",
+    "UBS",
+    "Uber",
+    "Unity",
+    "Vanguard",
+    "Wells Fargo",
+    "Wintermute",
+    "Wise",
+    "Workday",
+    "XTX Markets",
+    "Yelp",
+    "Zendesk",
+    "Zillow",
+    "Zoom",
+    "dbt Labs"
+  ]
+}

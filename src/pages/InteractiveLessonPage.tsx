@@ -36,6 +36,7 @@ import {
 } from '../lib/interactiveCourses';
 import { getCourseWidget } from '../components/CourseWidgets';
 import QuizBlock from '../components/CourseWidgets/QuizBlock';
+import AuthGateModal from '../components/AuthGateModal';
 import { getCourseModules, getCourseTotalCount } from '../lib/courseCurriculum';
 
 const JS_TIMEOUT_MS = 5_000;
@@ -107,6 +108,7 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
     const [error, setError] = useState('');
     const [result, setResult] = useState<{ pass: boolean; detail?: string } | null>(null);
     const [showHint, setShowHint] = useState(false);
+    const [showAuthGate, setShowAuthGate] = useState(false);
 
     if (!location) {
         return (
@@ -129,7 +131,13 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
 
     const markComplete = async () => {
         setResult({ pass: true });
-        if (currentUser && !completedIds.includes(exercise.id)) {
+        if (!currentUser) {
+            // Guests can finish the free course's lessons — banking XP and
+            // progress is the account hook.
+            setShowAuthGate(true);
+            return;
+        }
+        if (!completedIds.includes(exercise.id)) {
             await complete(exercise.id, exercise.xp);
         }
     };
@@ -273,6 +281,13 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
 
     return (
         <div className="cv-design-page flex h-screen flex-col overflow-hidden">
+            {showAuthGate && (
+                <AuthGateModal
+                    title="Nice work — save your progress?"
+                    message="You finished this lesson as a guest. Create a free account to bank the XP, keep your streak, and unlock the rest of the curriculum."
+                    onClose={() => setShowAuthGate(false)}
+                />
+            )}
             {/* Top bar */}
             <header className="flex shrink-0 items-center gap-3 border-b border-[var(--cv-border-warm)] px-3 py-2.5 sm:px-4">
                 <button

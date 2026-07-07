@@ -117,6 +117,7 @@ const DndWorkspaceProvider = React.lazy(() => import('./components/DndWorkspaceP
 // Navigation utility
 import { navigate, getPathFromUrl } from './utils/navigation';
 import { getFirstExerciseId } from './lib/interactiveCourses';
+import { isCourseFreeForGuests, isQuestOpenToGuests } from './config/accessPolicy';
 
 
 const LoadingFallback = () => (
@@ -188,7 +189,10 @@ const AppContent: React.FC = () => {
       void JobTrackerPage.preload();
     };
 
-    if ('requestIdleCallback' in window) {
+    // `typeof` check (not `'x' in window`) so TS doesn't narrow `window` to
+    // `never` in the fallback branch — requestIdleCallback is always in the
+    // lib type, but not always implemented (e.g. Safari).
+    if (typeof window.requestIdleCallback === 'function') {
       const idleId = window.requestIdleCallback(preloadCoreWorkspaceRoutes, { timeout: 3500 });
       return () => window.cancelIdleCallback(idleId);
     }
@@ -494,45 +498,48 @@ const AppContent: React.FC = () => {
       content = null; // Will trigger redirect
     }
 
-    // Interview Studio
+    // Interview Studio — the catalog is browsable by guests (SaaS storefront);
+    // deep links with a jobId still require an account.
     else if (path.startsWith('/interview-studio')) {
       const parts = path.split('/');
       const jobId = parts[2];
-      content = (
+      content = jobId ? (
         <ProtectedRoute>
           <InterviewStudio jobId={jobId} />
         </ProtectedRoute>
+      ) : (
+        <InterviewStudio jobId={jobId} />
       );
     }
 
-    // Company Quest (gamified company interview loop)
+    // Company Quest — sampler quests are open to guests, the rest need an account.
     else if (path.startsWith('/quest/')) {
       const slug = path.split('/')[2];
-      content = (
+      content = isQuestOpenToGuests(slug) ? (
+        <CompanyQuestPage slug={slug} />
+      ) : (
         <ProtectedRoute>
           <CompanyQuestPage slug={slug} />
         </ProtectedRoute>
       );
     }
 
-    // AI-agent learning curriculum / course catalog
+    // AI-agent learning curriculum / course catalog — browsable by guests.
     else if (path === '/learning' || path.startsWith('/learning/')) {
-      content = (
-        <ProtectedRoute>
-          <CoursePage />
-        </ProtectedRoute>
-      );
+      content = <CoursePage />;
     }
 
     // Interactive code-along lesson: /learn/:courseId/:exerciseId
+    // The free course is open to everyone; the rest of the catalog needs an account.
     else if (path.startsWith('/learn/')) {
       const parts = path.split('/');
       const courseId = parts[2];
       const exerciseId = parts[3] || getFirstExerciseId(courseId) || '';
-      content = (
-        <ProtectedRoute>
-          <InteractiveLessonPage key={`${courseId}/${exerciseId}`} courseId={courseId} exerciseId={exerciseId} />
-        </ProtectedRoute>
+      const lesson = (
+        <InteractiveLessonPage key={`${courseId}/${exerciseId}`} courseId={courseId} exerciseId={exerciseId} />
+      );
+      content = isCourseFreeForGuests(courseId) ? lesson : (
+        <ProtectedRoute>{lesson}</ProtectedRoute>
       );
     }
 

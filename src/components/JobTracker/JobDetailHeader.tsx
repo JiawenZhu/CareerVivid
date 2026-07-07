@@ -28,11 +28,11 @@ const JobDetailHeader: React.FC<JobDetailHeaderProps> = ({
 <header className="sticky top-0 z-20 flex-shrink-0 border-b border-[#e6dac8] bg-[#fffaf4]/95 p-4 backdrop-blur dark:border-gray-800 dark:bg-[#1f1f1d]/95 sm:p-5">
   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
     <div className="flex items-start gap-3 min-w-0">
-        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-[#e7ddcf] bg-white text-[#625bd5] shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-[#aaa6ff]">
-            <Briefcase size={20} />
+        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-[#e7ddcf] bg-white text-[#625bd5] shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-[#aaa6ff]">
+            <Briefcase size={22} />
         </div>
         <div className="min-w-0">
-            <h2 className="truncate text-xl font-bold leading-tight text-gray-950 dark:text-gray-100" title={localJob.jobTitle}>
+            <h2 className="truncate text-xl font-extrabold leading-tight tracking-tight text-gray-950 dark:text-gray-100 sm:text-2xl" title={localJob.jobTitle}>
                 {localJob.jobTitle || t('job_tracker.modal.job_title')}
             </h2>
             <p className="mt-0.5 truncate text-sm font-medium text-gray-500 dark:text-gray-400" title={localJob.companyName}>

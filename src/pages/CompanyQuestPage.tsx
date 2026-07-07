@@ -17,6 +17,7 @@ import {
     Zap,
 } from 'lucide-react';
 import AppLayout from '../components/Layout/AppLayout';
+import AuthGateModal from '../components/AuthGateModal';
 import { useAuth } from '../contexts/AuthContext';
 import { useUserProgress } from '../hooks/useUserProgress';
 import { usePracticeHistory } from '../hooks/useJobHistory';
@@ -141,6 +142,7 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
     const [selectedReportEntry, setSelectedReportEntry] = useState<PracticeHistoryEntry | null>(null);
     const [lastOutcome, setLastOutcome] = useState<(StageAttemptOutcome & { stageTitle: string }) | null>(null);
     const [error, setError] = useState('');
+    const [showAuthGate, setShowAuthGate] = useState(false);
 
     useEffect(() => {
         let cancelled = false;
@@ -218,7 +220,13 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
         stage: QuestStage,
         challengeOverride?: CodingChallenge | SystemDesignPattern,
     ) => {
-        if (!guide || !currentUser) return;
+        if (!guide) return;
+        if (!currentUser) {
+            // Guests can inspect sampler quests; running a stage needs an
+            // account (stages consume AI credits and save scored attempts).
+            setShowAuthGate(true);
+            return;
+        }
         const stageEntry = practiceEntriesByStageId.get(stage.id);
         const draft = getResumableDraft(stageEntry);
         if (!draft && !checkCredit()) return;
@@ -444,6 +452,13 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
 
     return (
         <AppLayout>
+            {showAuthGate && (
+                <AuthGateModal
+                    title={`Sign in to run the ${guide.company} stages`}
+                    message="You can explore this quest as a guest — running stages records scored attempts and uses AI credits, which need a free account."
+                    onClose={() => setShowAuthGate(false)}
+                />
+            )}
             <div className="cv-design-page cv-design-grid relative min-h-screen pb-16 text-left">
                 <div className="@container/quest-page mx-auto max-w-screen-2xl px-4 py-6 text-left sm:px-6 lg:px-8 lg:py-8">
                     <button

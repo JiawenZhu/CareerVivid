@@ -22,6 +22,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useUserProgress } from '../hooks/useUserProgress';
 import { useCourseProgress } from '../hooks/useCourseProgress';
 import { useAllCourseProgress } from '../hooks/useAllCourseProgress';
+import AuthGateModal, { AuthGateModalProps } from '../components/AuthGateModal';
+import { canAccessCourse, isCourseFreeForGuests } from '../config/accessPolicy';
 import { InteractiveCourseCard } from '../components/Dashboard/InteractiveCourseCard';
 import { stripLanguagePrefix } from '../utils/languagePreference';
 import {
@@ -44,7 +46,30 @@ const STATE_ICON_WELL: Record<CourseModuleWithState['state'], string> = {
  * the row reveals the details.
  */
 const CoursePage: React.FC = () => {
-    const { currentUser } = useAuth();
+    const { currentUser, isPremium } = useAuth();
+    const [authGate, setAuthGate] = useState<Pick<AuthGateModalProps, 'title' | 'message' | 'variant'> | null>(null);
+
+    /**
+     * Gate for opening a course's lessons:
+     *  - free course → always allowed (guests included)
+     *  - guest → sign-in gate
+     *  - signed-in without premium → upgrade gate
+     */
+    const openCourse = (courseId: string) => {
+        if (canAccessCourse(courseId, { isSignedIn: Boolean(currentUser), isPremium: Boolean(isPremium) })) {
+            navigate(`/learn/${courseId}`);
+            return;
+        }
+        if (!currentUser) {
+            setAuthGate({
+                title: 'Sign in to open this course',
+                message: `The Foundations course is free for everyone — create an account to unlock the rest of the curriculum and save your progress.`,
+                variant: 'signin',
+            });
+            return;
+        }
+        setAuthGate({ variant: 'upgrade' });
+    };
     const { levelInfo, isLoading: isLoadingLevel } = useUserProgress();
     const { progress, isLoading: isLoadingCourse, complete } = useCourseProgress('ai-agent-curriculum', getCourseTotalCount());
     const { progressByCourse } = useAllCourseProgress();
@@ -70,7 +95,18 @@ const CoursePage: React.FC = () => {
     const currentLab = currentModule ? labByModuleOrder.get(currentModule.order) : undefined;
 
     const toggleExpand = (module: CourseModuleWithState) => {
-        if (module.state === 'locked') return;
+        if (module.state === 'locked') {
+            // Guests clicking a locked module get the sign-in gate instead of
+            // a dead click — same conversion moment as the interview quests.
+            if (!currentUser) {
+                setAuthGate({
+                    title: `Sign in to unlock ${module.title}`,
+                    message: 'Foundations is free for everyone. Create a free account to work through the rest of the curriculum in order and keep your progress.',
+                    variant: 'signin',
+                });
+            }
+            return;
+        }
         setExpandedId((prev) => (prev === module.id ? null : module.id));
     };
 
@@ -92,6 +128,7 @@ const CoursePage: React.FC = () => {
 
     return (
         <AppLayout>
+            {authGate && <AuthGateModal {...authGate} onClose={() => setAuthGate(null)} />}
             <div className="cv-design-page cv-design-grid relative min-h-screen pb-16 text-left">
                 <div className="@container/course-page mx-auto max-w-screen-2xl px-4 py-6 text-left sm:px-6 lg:px-8 lg:py-8">
                     {!selectedCourseId ? (
@@ -169,7 +206,7 @@ const CoursePage: React.FC = () => {
                                             {currentLab && (
                                                 <button
                                                     type="button"
-                                                    onClick={() => navigate(`/learn/${currentLab.id}`)}
+                                                    onClick={() => openCourse(currentLab.id)}
                                                     className="cv-design-button-primary inline-flex h-10 shrink-0 items-center gap-2 rounded-lg px-4 text-sm"
                                                 >
                                                     <Play size={15} />
@@ -206,7 +243,9 @@ const CoursePage: React.FC = () => {
                                                             <button
                                                                 type="button"
                                                                 onClick={() => toggleExpand(module)}
-                                                                disabled={module.state === 'locked'}
+                                                                // Locked rows stay clickable for guests so the tap opens
+                                                                // the sign-in gate instead of dying silently.
+                                                                disabled={module.state === 'locked' && Boolean(currentUser)}
                                                                 aria-expanded={isExpanded}
                                                                 className="flex min-w-0 flex-1 items-center gap-3 text-left disabled:cursor-not-allowed"
                                                             >
@@ -249,7 +288,7 @@ const CoursePage: React.FC = () => {
                                                             {lab && module.state !== 'locked' && (
                                                                 <button
                                                                     type="button"
-                                                                    onClick={() => navigate(`/learn/${lab.id}`)}
+                                                                    onClick={() => openCourse(lab.id)}
                                                                     className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg px-3 text-xs font-bold transition-colors ${isCurrent
                                                                         ? 'cv-design-button-primary'
                                                                         : 'border border-[var(--cv-action-border)] bg-[var(--cv-action-soft-bg)] text-[var(--cv-action-primary)] hover:border-[var(--cv-action-primary)]'}`}
@@ -344,7 +383,7 @@ const CoursePage: React.FC = () => {
                                                                     {lab && (
                                                                         <button
                                                                             type="button"
-                                                                            onClick={() => navigate(`/learn/${lab.id}`)}
+                                                                            onClick={() => openCourse(lab.id)}
                                                                             className="cv-design-button-primary inline-flex h-9 items-center gap-1.5 rounded-lg px-4 text-xs"
                                                                         >
                                                                             <Play size={13} /> {actionLabel} lessons

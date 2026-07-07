@@ -237,12 +237,12 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
                         </span>
                     </a>
 
-                    {/* Desktop Nav */}
+                    {/* Desktop Nav — simple, digestible tags: one word per destination */}
                     <nav className="hidden md:flex items-center gap-8 h-full">
-                        {context !== 'bio-link' && <NavItem name={productLabel} hasDropdown />}
-                        <NavItem name={t('nav.job_tracker')} href="/job-tracker" />
-                        <NavItem name={t('nav.interview_coach')} href="/interview-studio" />
-                        <NavItem name={pricingLabel} hasDropdown />
+                        <NavItem name="Courses" href="/learning" />
+                        <NavItem name="Interview" href="/interview-studio" />
+                        <NavItem name="Jobs" href="/jobs/recommend" />
+                        <NavItem name="Pricing" href="/pricing" />
                         <NavItem name={resourcesLabel} hasDropdown />
                     </nav>
 
@@ -433,12 +433,13 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ variant = 'editorial', cont
                         {/* 2. Navigation Links */}
                         <div className="space-y-1">
 
-                            {/* Product Group */}
+                            {/* Primary tags — mirror the simple desktop nav */}
                             <div className={`pl-4 ${isBrutalist ? 'border-l-4 border-black ml-1 my-2 space-y-2' : mobileGroupClasses}`}>
                                 <p className={`text-xs uppercase tracking-wider mb-2 ${isBrutalist ? 'font-black text-gray-500' : mobileGroupLabelClasses}`}>{productLabel}</p>
-                                <a href="/job-tracker" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>{t('nav.job_tracker')}</a>
+                                <a href="/learning" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>Courses</a>
+                                <a href="/interview-studio" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>Interview</a>
+                                <a href="/jobs/recommend" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>Jobs</a>
                                 <a href="/newresume" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>{t('nav.ai_resume_builder')}</a>
-                                <a href="/interview-studio" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>{t('nav.interview_coach')}</a>
                                 <a href="/extension-welcome" onClick={() => setIsMenuOpen(false)} className={`block ${isBrutalist ? 'font-bold text-black uppercase hover:underline' : mobileLinkClasses}`}>{t('nav.chrome_extension')}</a>
                             </div>
 

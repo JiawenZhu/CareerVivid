@@ -431,9 +431,17 @@ export interface STARStory {
   updatedAt?: any;
 }
 
+/** Validation state of an external apply link (mirrors functions/src/scrapedJobs.ts). */
+export type JobLinkValidationStatus = 'valid' | 'stale' | 'expired' | 'blocked' | 'unknown';
+
 export interface JobApplicationData {
   id: string; // Firestore doc ID
   userId: string;
+
+  // External apply-link validation (set when the job came from the verified feed)
+  externalLinkValidationStatus?: JobLinkValidationStatus;
+  externalLinkValidationReason?: string;
+  externalLinkValidatedAt?: number | null;
 
   // Core Job Info
   jobTitle: string;

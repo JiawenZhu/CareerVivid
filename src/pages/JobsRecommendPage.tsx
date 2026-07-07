@@ -53,6 +53,8 @@ type RecommendedJob = {
     sourceLabel: string;
     applyUrl: string;
     description: string;
+    /** Full cleaned job description — what gets saved to the tracker (the card shows the short `description`). */
+    fullDescription?: string;
     matchScore: number;
     matchLabel: 'Strong match' | 'Good match' | 'Partial match';
     matchReasons: string[];
@@ -352,6 +354,7 @@ const scrapedJobToRecommended = (job: ScrapedRecommendedJob, profileKeywords: st
         sourceLabel: job.sourceLabel || 'Scraped job feed',
         applyUrl: job.finalUrl || job.applyUrl,
         description: summarizeDescription(job.description, 'Verified job listing from a public company career source.'),
+        fullDescription: stripEscapedHtml(job.description || '').replace(/\s+/g, ' ').trim(),
         matchScore: score,
         matchLabel: score >= 88 ? 'Strong match' : score >= 75 ? 'Good match' : 'Partial match',
         matchReasons: [
@@ -369,6 +372,40 @@ const scrapedJobToRecommended = (job: ScrapedRecommendedJob, profileKeywords: st
         validationReason: job.validationReason,
     };
 };
+
+/** Full-card shimmer placeholder shown while the verified feed loads. */
+const JobCardSkeleton: React.FC = () => (
+    <div className="cv-design-card grid animate-pulse gap-4 rounded-3xl p-4 lg:grid-cols-[minmax(0,1fr)_150px]" aria-hidden="true">
+        <div className="space-y-4">
+            <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-2xl bg-[var(--cv-border-warm)]" />
+                <div className="space-y-2">
+                    <div className="h-2.5 w-28 rounded-full bg-[var(--cv-border-warm)]" />
+                    <div className="h-4 w-64 rounded-full bg-[var(--cv-border-warm)]" />
+                    <div className="h-2.5 w-40 rounded-full bg-[var(--cv-border-warm)]" />
+                </div>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-3">
+                <div className="h-3 rounded-full bg-[var(--cv-border-warm)]" />
+                <div className="h-3 rounded-full bg-[var(--cv-border-warm)]" />
+                <div className="h-3 rounded-full bg-[var(--cv-border-warm)]" />
+            </div>
+            <div className="space-y-2 rounded-2xl bg-[var(--cv-surface-warm-muted,rgba(0,0,0,0.03))] p-4">
+                <div className="h-3 w-full rounded-full bg-[var(--cv-border-warm)]" />
+                <div className="h-3 w-5/6 rounded-full bg-[var(--cv-border-warm)]" />
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+                <div className="h-16 rounded-2xl bg-[var(--cv-surface-warm-muted,rgba(0,0,0,0.03))]" />
+                <div className="h-16 rounded-2xl bg-[var(--cv-surface-warm-muted,rgba(0,0,0,0.03))]" />
+            </div>
+        </div>
+        <div className="space-y-3">
+            <div className="h-24 rounded-2xl bg-[var(--cv-border-warm)]" />
+            <div className="h-10 rounded-xl bg-[var(--cv-border-warm)]" />
+            <div className="h-10 rounded-xl bg-[var(--cv-surface-warm-muted,rgba(0,0,0,0.05))]" />
+        </div>
+    </div>
+);
 
 const getAnalysisForJob = (job: JobApplicationData): ResumeMatchAnalysis | undefined => {
     const analyses = Object.values(job.matchAnalyses || {});
@@ -459,7 +496,6 @@ const JobsRecommendPage: React.FC = () => {
         recommendedFeedJobs,
         trackerDisplayJobs,
         appliedTrackerJobs,
-        externalTrackerJobs,
     } = jobCollections;
 
     const savedSeedPendingCount = useMemo(
@@ -615,7 +651,9 @@ const JobsRecommendPage: React.FC = () => {
                 location: verifiedJob.location,
                 jobPostURL: verifiedJob.applyUrl,
                 applicationURL: verifiedJob.applyUrl,
-                jobDescription: verifiedJob.description,
+                // Save the FULL cleaned description — the card summary is too
+                // short for resume tailoring and prep to work from.
+                jobDescription: verifiedJob.fullDescription || verifiedJob.description,
                 applicationStatus: 'To Apply' as ApplicationStatus,
                 workModel: verifiedJob.workModel,
                 salaryRange: verifiedJob.salary,
@@ -750,15 +788,10 @@ const JobsRecommendPage: React.FC = () => {
                 title: 'No saved jobs in this tab',
                 description: 'Save a recommended role or use the extension to add a job to your CareerVivid tracker.',
             }
-            : activeTab === 'applied'
-                ? {
-                    title: 'No applied jobs yet',
-                    description: 'Jobs you mark as Applied in the tracker will appear here.',
-                }
-                : {
-                    title: 'No external apply links saved',
-                    description: 'Saved tracker jobs with validated external application links will appear here.',
-                };
+            : {
+                title: 'No applied jobs yet',
+                description: 'Jobs you mark as Applied in the tracker will appear here.',
+            };
 
     return (
         <AppLayout>
@@ -783,7 +816,7 @@ const JobsRecommendPage: React.FC = () => {
                                     Jobs matched to your CareerVivid profile
                                 </h1>
                                 <p className="cv-design-body mt-2 max-w-3xl text-sm">
-                                    CareerVivid shows validated company and ATS jobs in Recommended, then keeps saved tracker roles in Saved and External.
+                                    Every job here has a validated, apply-ready link — pulled directly from company career boards. Save the ones you like and they flow into your tracker pipeline.
                                 </p>
                                 <div className="mt-4 flex flex-wrap gap-2">
                                     <button
@@ -803,9 +836,9 @@ const JobsRecommendPage: React.FC = () => {
                                         Open tracker
                                     </button>
                                 </div>
-                                {(isLoadingScrapedJobs || scrapedJobsError) && (
+                                {!isLoadingScrapedJobs && scrapedJobsError && (
                                     <p className="mt-2 text-xs font-bold text-amber-700 dark:text-amber-200">
-                                        {isLoadingScrapedJobs ? 'Loading the latest scraped job feed...' : scrapedJobsError}
+                                        {scrapedJobsError}
                                     </p>
                                 )}
                             </div>
@@ -833,11 +866,11 @@ const JobsRecommendPage: React.FC = () => {
 
                         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                             <div className="flex flex-wrap gap-2">
+                                {/* "External" tab removed: every recommended job is external by definition, so the tab only duplicated Saved. */}
                                 {[
                                     ['recommended', 'Recommended', recommendedFeedJobs.length],
                                     ['saved', 'Saved', trackerDisplayJobs.length + savedSeedPendingCount],
                                     ['applied', 'Applied', appliedTrackerJobs.length],
-                                    ['external', 'External', externalTrackerJobs.length],
                                 ].map(([id, label, count]) => (
                                     <button
                                         key={id}
@@ -878,6 +911,18 @@ const JobsRecommendPage: React.FC = () => {
                             >
                                 {applyLinkMessage.text}
                             </div>
+                        )}
+
+                        {isLoadingScrapedJobs && visibleJobs.length === 0 && (
+                            <>
+                                <div className="flex items-center gap-2 px-1 text-sm font-bold text-[var(--cv-text-muted)]" role="status">
+                                    <span className="h-2 w-2 animate-ping rounded-full bg-[var(--cv-action-primary)]" />
+                                    Matching verified jobs to your profile…
+                                </div>
+                                <JobCardSkeleton />
+                                <JobCardSkeleton />
+                                <JobCardSkeleton />
+                            </>
                         )}
 
                         {!isLoadingScrapedJobs && visibleJobs.length === 0 && (

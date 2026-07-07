@@ -69,9 +69,9 @@ const actionTone = analysis?.recommendedAction === 'apply_now'
       : 'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/50';
 
 return (
-<aside className="space-y-4 min-w-0 lg:sticky lg:top-4 lg:self-start">
+<aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-4 lg:self-start xl:grid xl:grid-cols-2 xl:items-start">
     <SidebarSection title="Pipeline">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
             <EditableSelect label={t('job_tracker.modal.status.label', { defaultValue: 'Status' })} value={localJob.applicationStatus} onChange={v => handleChange('applicationStatus', v as ApplicationStatus)} options={APPLICATION_STATUSES} />
             <EditableSelect label="Priority" value={localJob.priority || 'Medium'} onChange={v => handleChange('priority', v as JobPriority)} options={JOB_PRIORITIES} />
             <EditableSelect
