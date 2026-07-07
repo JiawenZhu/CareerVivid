@@ -112,8 +112,8 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
         return (
             <div className="cv-design-page flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center">
                 <p className="cv-design-title text-xl">Lesson not found</p>
-                <button onClick={() => navigate('/learning')} className="cv-design-button-secondary rounded-lg px-4 py-2 text-sm">
-                    Back to courses
+                <button onClick={() => navigate(`/learning/${courseId}`)} className="cv-design-button-secondary rounded-lg px-4 py-2 text-sm">
+                    Back to course
                 </button>
             </div>
         );
@@ -266,7 +266,7 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
         }
         
         // 3. Navigate back to curriculum dashboard
-        navigate('/learning');
+        navigate(`/learning/${courseId}`);
     };
 
     const busy = isRunning || isSubmitting;
@@ -276,9 +276,9 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
             {/* Top bar */}
             <header className="flex shrink-0 items-center gap-3 border-b border-[var(--cv-border-warm)] px-3 py-2.5 sm:px-4">
                 <button
-                    onClick={() => navigate('/learning')}
+                    onClick={() => navigate(`/learning/${courseId}`)}
                     className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--cv-text-muted)] transition-colors hover:bg-[var(--cv-surface-warm-muted,rgba(0,0,0,0.04))] hover:text-[var(--cv-text-heading)]"
-                    aria-label="Back to courses"
+                    aria-label="Back to course"
                 >
                     <ChevronLeft size={18} />
                 </button>

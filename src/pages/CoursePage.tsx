@@ -23,6 +23,7 @@ import { useUserProgress } from '../hooks/useUserProgress';
 import { useCourseProgress } from '../hooks/useCourseProgress';
 import { useAllCourseProgress } from '../hooks/useAllCourseProgress';
 import { InteractiveCourseCard } from '../components/Dashboard/InteractiveCourseCard';
+import { stripLanguagePrefix } from '../utils/languagePreference';
 import {
     CourseModuleWithState,
     getCourseModulesWithState,
@@ -47,7 +48,9 @@ const CoursePage: React.FC = () => {
     const { levelInfo, isLoading: isLoadingLevel } = useUserProgress();
     const { progress, isLoading: isLoadingCourse, complete } = useCourseProgress('ai-agent-curriculum', getCourseTotalCount());
     const { progressByCourse } = useAllCourseProgress();
-    const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
+    const currentPath = stripLanguagePrefix(window.location.pathname);
+    const parts = currentPath.split('/');
+    const selectedCourseId = parts[2] || null;
     const [expandedId, setExpandedId] = useState<string | null>(null);
     const [completingId, setCompletingId] = useState<string | null>(null);
 
@@ -114,7 +117,7 @@ const CoursePage: React.FC = () => {
                                     difficulty="Beginner"
                                     stepsCount={totalCount}
                                     progressPct={progressPct}
-                                    onClick={() => setSelectedCourseId('ai-agent-curriculum')}
+                                    onClick={() => navigate('/learning/ai-agent-curriculum')}
                                 />
 
                                 <InteractiveCourseCard
@@ -142,7 +145,7 @@ const CoursePage: React.FC = () => {
                         <div className="space-y-4">
                             {/* Back Button */}
                             <button
-                                onClick={() => setSelectedCourseId(null)}
+                                onClick={() => navigate('/learning')}
                                 className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--cv-text-muted)] hover:text-[var(--cv-text-heading)] transition-colors"
                             >
                                 <ArrowLeft size={14} /> Back to courses

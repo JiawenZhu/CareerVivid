@@ -515,8 +515,8 @@ const AppContent: React.FC = () => {
       );
     }
 
-    // AI-agent learning curriculum
-    else if (path === '/learning') {
+    // AI-agent learning curriculum / course catalog
+    else if (path === '/learning' || path.startsWith('/learning/')) {
       content = (
         <ProtectedRoute>
           <CoursePage />
