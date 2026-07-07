@@ -31,10 +31,12 @@ import {
     evaluateCheck,
     getCourseExerciseCount,
     locateExercise,
+    getInteractiveCourses,
     type LessonKind,
 } from '../lib/interactiveCourses';
 import { getCourseWidget } from '../components/CourseWidgets';
 import QuizBlock from '../components/CourseWidgets/QuizBlock';
+import { getCourseModules, getCourseTotalCount } from '../lib/courseCurriculum';
 
 const JS_TIMEOUT_MS = 5_000;
 const PY_TIMEOUT_MS = 60_000;
@@ -90,6 +92,7 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
     );
     const totalCount = location ? getCourseExerciseCount(location.course) : 0;
     const { progress, complete } = useCourseProgress(courseId, totalCount);
+    const { complete: completeCurriculumModule } = useCourseProgress('ai-agent-curriculum', getCourseTotalCount());
 
     const [code, setCode] = useState<string>(() => {
         if (typeof window !== 'undefined' && location) {
@@ -240,6 +243,32 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
         if (id) navigate(`/learn/${courseId}/${id}`);
     };
 
+    const handleFinishCourse = async () => {
+        // 1. Mark the current final exercise as complete (if not already completed)
+        if (!isCompleted) {
+            await markComplete();
+        }
+        
+        // 2. Identify curriculum module by order index and mark it complete automatically
+        try {
+            const coursesList = getInteractiveCourses();
+            const courseIdx = coursesList.findIndex(c => c.id === courseId);
+            if (courseIdx >= 0) {
+                const targetOrder = courseIdx + 1;
+                const curriculumModules = getCourseModules();
+                const matchedModule = curriculumModules.find(m => m.order === targetOrder);
+                if (matchedModule) {
+                    await completeCurriculumModule(matchedModule.id);
+                }
+            }
+        } catch (err) {
+            console.error('Failed to mark curriculum module complete:', err);
+        }
+        
+        // 3. Navigate back to curriculum dashboard
+        navigate('/learning');
+    };
+
     const busy = isRunning || isSubmitting;
 
     return (
@@ -341,7 +370,7 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
                                             Next lesson <ArrowRight size={15} />
                                         </button>
                                     ) : (
-                                        <button onClick={() => navigate('/learning')} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 px-4 text-sm font-bold text-emerald-800 hover:border-emerald-400">
+                                        <button onClick={handleFinishCourse} className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 px-4 text-sm font-bold text-emerald-800 hover:border-emerald-400">
                                             Finish Course <CheckCircle2 size={15} className="text-emerald-600" />
                                         </button>
                                     )
@@ -357,7 +386,7 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
                                         Next lesson <ArrowRight size={14} />
                                     </button>
                                 ) : (
-                                    <button onClick={() => navigate('/learning')} className="ml-auto inline-flex items-center gap-1 underline">
+                                    <button onClick={handleFinishCourse} className="ml-auto inline-flex items-center gap-1 underline">
                                         Finish Course <CheckCircle2 size={14} />
                                     </button>
                                 )}
@@ -568,7 +597,7 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
                         </button>
                     ) : (
                         <button
-                            onClick={() => navigate('/learning')}
+                            onClick={handleFinishCourse}
                             className="cv-design-button-primary inline-flex h-9 items-center gap-1.5 rounded-lg px-3.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-700 dark:hover:bg-emerald-800"
                         >
                             Finish Course <CheckCircle2 size={14} />
