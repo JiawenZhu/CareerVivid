@@ -1,0 +1,18 @@
+{
+  "id": "08-security",
+  "order": 8,
+  "title": "Security",
+  "objective": "Understand the failure modes specific to LLM/agent systems, not just generic appsec.",
+  "topics": [
+    "Prompt injection: direct and indirect (e.g. via retrieved documents)",
+    "Tool/permission boundaries — least-privilege for agent tool access",
+    "MCP security considerations when agents call external tools/servers",
+    "Data exfiltration risks in RAG and tool-using agents"
+  ],
+  "exercise": "Given a sample tool-using agent, find one prompt-injection vector and propose a mitigation.",
+  "project": "A security checklist applied to the module-06 multi-agent project: what's the blast radius if one agent is compromised?",
+  "sourceIds": ["microsoft-ai-agents-for-beginners"],
+  "referenceOnly": [
+    { "sourceId": "claude-code-docs", "reason": "permission-model docs — read for inspiration, write original content" }
+  ]
+}

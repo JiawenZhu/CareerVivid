@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "id": "llm-basics-sampling",
+  "order": 2,
+  "title": "02. LLM basics",
+  "language": "javascript",
+  "category": "AI",
+  "difficulty": "Beginner",
+  "tagline": "Tokens, context windows, and sampling — see them, break them, then reason about cost.",
+  "description": "What actually happens inside a model call: tokenize your own text, overflow a context window, and learn to pick models on the cost/quality/latency triangle.",
+  "status": "published",
+  "tags": ["llm", "tokens", "context-window", "sampling"],
+  "estimatedMinutes": 55,
+  "sourceIds": ["mlabonne-llm-course", "microsoft-generative-ai-for-beginners"],
+  "chapters": [
+    {
+      "id": "ch1-tokens",
+      "title": "Tokens: the currency of LLMs",
+      "exercises": [
+        {
+          "id": "reading-tokens",
+          "title": "Why everything is measured in tokens",
+          "kind": "reading",
+          "xp": 15,
+          "content": "# Why everything is measured in tokens\n\nModels don't see words or characters — they see **tokens**, learned chunks of text. `unbelievable` might split into `un`+`believ`+`able`; common words like `the` are a single token. In English, one token ≈ 4 characters ≈ ¾ of a word.\n\n### Why you should care\n\n**1. Cost.** APIs bill per token, input *and* output. A verbose system prompt sent on every request is a subscription you're paying forever. Trimming a 2,000-token prompt to 800 cuts that bill by 60% — before you touch anything else.\n\n**2. Latency.** Output tokens are generated *one at a time* — remember the token predictor from course 01. A 2× longer answer takes roughly 2× longer to finish. Want a faster app? Ask for shorter answers (`max_tokens`, \"answer in 2 sentences\").\n\n**3. Languages aren't equal.** Tokenizers are trained mostly on English. The same sentence in Chinese, Korean, or emoji can cost 2–3× more tokens — which means higher cost *and* less room in the context window.\n\n**4. Weird failure modes.** Tokenization explains classic LLM stumbles: counting letters in a word ('how many r's in strawberry') is hard when the model never sees letters — only chunks.\n\n### The mental math every builder does\n\n- ~4 chars per token (English)\n- price = (input tokens × input rate) + (output tokens × output rate)\n- output rates are typically 3–5× input rates\n\nIn the next lesson you'll tokenize your own text and watch the counter — build the intuition now, save real money later.",
+          "attribution": "Adapted from \"Generative AI for Beginners\" by Microsoft (MIT) and Maxime Labonne's LLM Course (Apache-2.0)",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "interactive-tokenizer",
+          "title": "Playground: Tokenize your own text",
+          "kind": "interactive",
+          "xp": 25,
+          "widgetId": "tokenizer-playground",
+          "content": "# Tokenize your own text\n\nType anything below — your name, a prompt you use at work, a sentence in another language, a wall of emoji — and watch it split into tokens with a live cost estimate.\n\nThings worth trying:\n\n- A long English word vs. several short ones\n- The same sentence in English and another language\n- Emoji (each one is often 2–3 tokens!)\n\n*To complete this lesson: edit the text so it produces at least 20 tokens.*",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "quiz-tokens",
+          "title": "Knowledge check: tokens",
+          "kind": "quiz",
+          "xp": 20,
+          "content": "# Knowledge check\n\nThree questions on tokens. All three correct to pass — you've got this.",
+          "quiz": [
+            {
+              "id": "q1-billing",
+              "prompt": "Your API bill doubled this month with the same number of users. Which change most likely caused it?",
+              "options": [
+                "You switched the app's font to a wider one",
+                "You added a long system prompt that is sent with every single request",
+                "Users started asking questions in the evening"
+              ],
+              "correctIndex": 1,
+              "explanation": "System prompts are input tokens on every call. Adding 1,500 tokens of instructions to every request is the classic silent bill-doubler."
+            },
+            {
+              "id": "q2-latency",
+              "prompt": "Users complain the AI answer takes too long to finish. What's the most direct fix?",
+              "options": [
+                "Constrain the output — shorter answers mean fewer tokens to generate",
+                "Move the server closer to the users",
+                "Increase the temperature so the model decides faster"
+              ],
+              "correctIndex": 0,
+              "explanation": "Output tokens are generated sequentially, so answer length dominates generation time. Temperature changes *which* token is picked, not how fast."
+            },
+            {
+              "id": "q3-languages",
+              "prompt": "Why can the same message cost more tokens in Chinese or emoji than in English?",
+              "options": [
+                "The API charges a foreign-language fee",
+                "Tokenizers are trained mostly on English, so other scripts split into more, smaller pieces",
+                "Unicode characters are physically larger"
+              ],
+              "correctIndex": 1,
+              "explanation": "Token vocabularies reflect training data. Text unlike that data — CJK scripts, emoji, rare symbols — fragments into more tokens per character."
+            }
+          ],
+          "check": { "type": "quiz", "minCorrect": 3 }
+        }
+      ]
+    },
+    {
+      "id": "ch2-context-windows",
+      "title": "Context windows",
+      "exercises": [
+        {
+          "id": "interactive-context-window",
+          "title": "Playground: Overflow a context window",
+          "kind": "interactive",
+          "xp": 25,
+          "widgetId": "context-window-visualizer",
+          "content": "# The context window: the model's entire world\n\nA model has no memory. Its **context window** — everything you send plus everything it has said — is *all it knows* during a call. When the conversation outgrows the window, something has to be thrown away, and the model won't tell you it happened.\n\nBelow is a conversation you control. Add messages, paste \"documents\", and watch the window fill. When it overflows, the oldest messages silently vanish — exactly what happens in production chatbots.\n\n*To complete this lesson: overflow the window at least once. Then switch to the 200k window and notice how the same documents barely register.*",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "video-text-generation",
+          "title": "Video: Tokens & temperature in a real app",
+          "kind": "video",
+          "xp": 10,
+          "videoUrl": "https://youtu.be/0Y5Luf5sRQA",
+          "content": "### Watch: Building text generation applications\n\nMicrosoft's lesson on building your first text-generation app — the moment tokens and temperature stop being trivia and become knobs in your code. Watch for:\n\n- Where `max_tokens` appears in a real API call and what happens when it's too small.\n- How the presenters reason about **prompt cost**.\n- The temperature values they actually pick for different tasks.",
+          "attribution": "Video © Microsoft, \"Generative AI for Beginners\" — MIT license — github.com/microsoft/generative-ai-for-beginners",
+          "check": { "type": "read" }
+        }
+      ]
+    },
+    {
+      "id": "ch3-sampling-and-selection",
+      "title": "Sampling & picking models",
+      "exercises": [
+        {
+          "id": "reading-sampling-and-models",
+          "title": "Sampling controls & the model-selection triangle",
+          "kind": "reading",
+          "xp": 15,
+          "content": "# Sampling controls & the model-selection triangle\n\n### The knobs on generation\n\nYou met **temperature** in course 01 — it reshapes the token distribution. Its siblings:\n\n- **top-p (nucleus sampling)** — only sample from the smallest set of tokens whose probabilities add to *p*. `top_p: 0.9` cuts off the weird tail regardless of temperature.\n- **max_tokens** — a hard stop on output length. Too small and answers get cut mid-sentence; too large and a runaway generation costs you money.\n- **stop sequences** — strings that end generation early, great for keeping structured output clean.\n\nRule of thumb: tune **either** temperature or top-p, not both at once — you'll have no idea which knob did what.\n\n### Inference vs. training\n\nEverything above happens at **inference** — the model's weights never change. Your conversations don't teach it anything. **Fine-tuning** *does* change weights, but it teaches *behavior* (format, tone, task patterns), not fresh knowledge — that's what RAG is for (course 04).\n\n### The cost / quality / latency triangle\n\nEvery model choice trades between three corners:\n\n| Corner | Favors | Example task |\n|---|---|---|\n| **Cost** | Small/budget models | Classify support tickets at 1M/day |\n| **Quality** | Frontier models | Legal-document analysis, complex agents |\n| **Latency** | Small models, short outputs | Autocomplete, live chat suggestions |\n\nThe pro move: **route by task**. Use a budget model for the 80% of easy requests and escalate the hard 20% to a frontier model. Teams that do this cut costs by 10× without users noticing.\n\nThe final two lessons make you prove it: a quiz on real trade-offs, then the code lab where you implement `recommendSettings` yourself.",
+          "attribution": "Adapted from Maxime Labonne's LLM Course (Apache-2.0) and \"Generative AI for Beginners\" by Microsoft (MIT)",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "quiz-model-selection",
+          "title": "Knowledge check: picking the right setup",
+          "kind": "quiz",
+          "xp": 20,
+          "content": "# Knowledge check\n\nFour scenario questions — the kind you'd get in a system-design interview. At least 3 to pass.",
+          "quiz": [
+            {
+              "id": "q1-triangle",
+              "prompt": "You're building autocomplete that fires on every keystroke. Which corner of the triangle dominates?",
+              "options": [
+                "Quality — suggestions must be perfect",
+                "Latency — a suggestion that arrives late is worthless, so use a small fast model",
+                "Cost — pick the cheapest model regardless of speed"
+              ],
+              "correctIndex": 1,
+              "explanation": "Autocomplete is worthless if it lags behind typing. Small, fast models with tiny outputs win here — quality just needs to be 'good enough to accept sometimes'."
+            },
+            {
+              "id": "q2-temperature-task",
+              "prompt": "You're extracting invoice numbers from emails into JSON. Which settings make sense?",
+              "options": [
+                "Temperature ~0 with a stop sequence after the JSON — you want repeatable, parseable output",
+                "Temperature 1.2 so the model can be flexible about formats",
+                "Maximum max_tokens so nothing is ever cut off"
+              ],
+              "correctIndex": 0,
+              "explanation": "Extraction is a determinism task: low temperature, constrained output. High temperature adds exactly the creativity you don't want in structured data."
+            },
+            {
+              "id": "q3-finetune-knowledge",
+              "prompt": "The model doesn't know about products you launched last month. Will fine-tuning fix it?",
+              "options": [
+                "Yes — fine-tuning is how you teach models new facts",
+                "It's the wrong tool — fine-tuning shapes behavior; fresh facts should come in via retrieval (RAG)",
+                "No model can ever use information newer than its training data"
+              ],
+              "correctIndex": 1,
+              "explanation": "Fine-tuning bakes in patterns, not a knowledge feed — and you'd have to re-tune for every launch. Retrieval puts current facts into the context at question time."
+            },
+            {
+              "id": "q4-routing",
+              "prompt": "Your AI feature costs too much at scale, but quality drops if you switch everything to a budget model. What's the standard play?",
+              "options": [
+                "Route: budget model for easy requests, frontier model only for the hard ones",
+                "Cache one answer and serve it to everyone",
+                "Remove the feature — the triangle can't be beaten"
+              ],
+              "correctIndex": 0,
+              "explanation": "Model routing is how real products beat the triangle: most traffic is easy and cheap to serve; only genuinely hard cases pay frontier prices."
+            }
+          ],
+          "check": { "type": "quiz", "minCorrect": 3 }
+        },
+        {
+          "id": "choose-generation-settings",
+          "title": "Code lab: Choose generation settings",
+          "kind": "code",
+          "xp": 30,
+          "language": "javascript",
+          "content": "# Choose generation settings\n\nLLM output changes with context size, temperature, and the task type. Builders should pick settings intentionally instead of copying defaults — time to encode the rules you just learned.\n\n### Your task\nImplement `recommendSettings(task)` and return an object with:\n\n- `temperature`: a number\n- `reason`: a short string\n\nUse low temperature for factual extraction and higher temperature for brainstorming.\n\n### Source bench\n- mlabonne LLM Course\n- Microsoft Generative AI for Beginners",
+          "starterCode": "function recommendSettings(task) {\n  const normalized = task.toLowerCase();\n  return { temperature: 0.7, reason: \"default\" };\n}",
+          "check": {
+            "type": "tests",
+            "functionName": "recommendSettings",
+            "tests": [
+              { "input": ["extract invoice fields"], "expected": { "temperature": 0.1, "reason": "factual extraction" } },
+              { "input": ["brainstorm product names"], "expected": { "temperature": 0.8, "reason": "creative exploration" } },
+              { "input": ["summarize meeting notes"], "expected": { "temperature": 0.2, "reason": "faithful summary" } }
+            ]
+          },
+          "hint": "The exact returned objects in the tests must match. Use task keyword checks like extract, brainstorm, and summarize.",
+          "solutionCode": "function recommendSettings(task) {\n  const normalized = task.toLowerCase();\n  if (normalized.includes(\"extract\")) return { temperature: 0.1, reason: \"factual extraction\" };\n  if (normalized.includes(\"brainstorm\")) return { temperature: 0.8, reason: \"creative exploration\" };\n  if (normalized.includes(\"summarize\")) return { temperature: 0.2, reason: \"faithful summary\" };\n  return { temperature: 0.3, reason: \"balanced task\" };\n}"
+        }
+      ]
+    }
+  ]
+}

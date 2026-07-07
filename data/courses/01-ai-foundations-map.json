@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "id": "ai-foundations-map",
+  "order": 1,
+  "title": "01. AI foundations map",
+  "language": "javascript",
+  "category": "AI",
+  "difficulty": "Beginner",
+  "tagline": "Watch an LLM think, sort the AI stack yourself, and build a clean mental model.",
+  "description": "The flagship foundations course: readings, videos, animated playgrounds, quizzes, and a code lab — everything you need before choosing tools or projects.",
+  "status": "published",
+  "tags": ["foundations", "llm", "generative-ai"],
+  "estimatedMinutes": 60,
+  "sourceIds": ["microsoft-generative-ai-for-beginners"],
+  "chapters": [
+    {
+      "id": "ch1-what-is-genai",
+      "title": "What is generative AI?",
+      "exercises": [
+        {
+          "id": "reading-how-we-got-here",
+          "title": "How we got to generative AI",
+          "kind": "reading",
+          "xp": 15,
+          "content": "# How we got to generative AI\n\nGenerative AI feels sudden, but it's decades in the making. Knowing the arc helps you understand *why* today's models behave the way they do.\n\n### 1. Rule-based chatbots (1960s–90s)\nThe first chatbots matched **keywords** against a hand-written knowledge base. If your question didn't contain the magic word, the bot was lost. Experts had to write every answer — it simply didn't scale.\n\n### 2. Machine learning (1990s)\nA turning point: instead of writing rules, we **trained statistical models on data**. Given thousands of `(text, label)` pairs, a model could classify new text it had never seen. Machines started *learning patterns* rather than following scripts.\n\n### 3. Neural networks & virtual assistants (2000s–2010s)\nBetter hardware made **deep learning** practical. Recurrent neural networks (RNNs) could value a word's *context in a sentence*, powering the first useful virtual assistants — good at understanding intent, still scripted in what they could say back.\n\n### 4. Transformers & LLMs (now)\nToday's **large language models** are built on the *transformer* architecture. Two ideas changed everything:\n\n- **Attention** — the model weighs which earlier words matter most for the next word, even across long text.\n- **Scale** — trained on enormous text corpora, models learned to *generate* fluent language instead of just classifying it.\n\nThat's why it's called **generative** AI: it produces new text, images, and code from a plain-language prompt. No SQL, no Java — your own words are the interface.\n\n> **Key takeaway:** each era replaced hand-written rules with more learning from data. LLMs are the current step: models that learned language itself.\n\nNext up: the official Microsoft video for this lesson, then you'll *watch a model generate text token by token* — and steer it yourself.",
+          "attribution": "Adapted from \"Generative AI for Beginners\" by Microsoft — MIT license — github.com/microsoft/generative-ai-for-beginners",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "video-intro-genai",
+          "title": "Video: Introduction to generative AI & LLMs",
+          "kind": "video",
+          "xp": 10,
+          "videoUrl": "https://youtu.be/lFXQkBvEe0o",
+          "content": "### Watch: Introduction to Generative AI and Large Language Models\n\nThe official video for this lesson from Microsoft's *Generative AI for Beginners*. While watching, listen for:\n\n- How the presenters define **generative AI** vs earlier AI.\n- The phrase **\"predict the next token\"** — the single most important idea in this course.\n- Why the same prompt can give **different answers** each time.\n\nWhen you're done, mark the lesson complete and try the next-token playground — you'll see exactly what the video describes.",
+          "attribution": "Video © Microsoft, \"Generative AI for Beginners\" — MIT license — github.com/microsoft/generative-ai-for-beginners",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "interactive-token-predictor",
+          "title": "Playground: Watch an LLM predict tokens",
+          "kind": "interactive",
+          "xp": 25,
+          "widgetId": "token-predictor",
+          "content": "# Watch an LLM predict the next token\n\nEverything an LLM does — poems, code, interview answers — comes from repeating one step:\n\n1. Look at all the text so far.\n2. **Score every possible next token** (a token ≈ a word piece).\n3. Pick one, append it, repeat.\n\nBelow is a slowed-down model. Hit **Auto-generate** to watch it pick the most likely token each step — then **reset and pick some tokens yourself** to steer the sentence. Notice how each choice reshapes the next set of probabilities.\n\n*To complete this lesson: finish one sentence in which you picked at least one token manually.*",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "quiz-genai-basics",
+          "title": "Knowledge check: generative AI basics",
+          "kind": "quiz",
+          "xp": 20,
+          "content": "# Knowledge check\n\nFour quick questions on what you've learned so far. You need at least 3 correct to pass — explanations appear after each answer either way.",
+          "quiz": [
+            {
+              "id": "q1-what-llm-does",
+              "prompt": "At its core, what does a large language model do?",
+              "options": [
+                "It searches a database of stored answers written by experts",
+                "It predicts the next token over and over, based on the text so far",
+                "It runs your prompt as code and returns the output"
+              ],
+              "correctIndex": 1,
+              "explanation": "An LLM is a next-token predictor. Every capability you see — reasoning, code, summaries — emerges from repeatedly scoring and picking the next token."
+            },
+            {
+              "id": "q2-same-prompt",
+              "prompt": "You send the exact same prompt twice and get two different answers. Why?",
+              "options": [
+                "The model is broken — identical prompts must give identical answers",
+                "Generation involves sampling from a probability distribution, so outputs vary",
+                "The model remembers your first question and avoids repeating itself"
+              ],
+              "correctIndex": 1,
+              "explanation": "LLMs are non-deterministic by default: they sample from the token distribution. Settings like temperature control how much the response varies."
+            },
+            {
+              "id": "q3-history",
+              "prompt": "What was the key shift that machine learning introduced over early rule-based chatbots?",
+              "options": [
+                "Learning patterns from data instead of following hand-written rules",
+                "Faster hardware that could store bigger keyword lists",
+                "Connecting the chatbot to the internet"
+              ],
+              "correctIndex": 0,
+              "explanation": "Rule-based bots needed experts to write every answer. ML models learn from (text, label) pairs, so they can handle inputs no one explicitly programmed."
+            },
+            {
+              "id": "q4-expectations",
+              "prompt": "What's a realistic expectation when using an LLM for work?",
+              "options": [
+                "It's perfect at math and always produces working code",
+                "It gives you a strong first draft that you should verify and improve",
+                "It only works if you write prompts in a programming language"
+              ],
+              "correctIndex": 1,
+              "explanation": "LLMs do the heavy lifting — great first drafts of text or code — but they make mistakes. Treat output as a draft to verify, not a final answer."
+            }
+          ],
+          "check": { "type": "quiz", "minCorrect": 3 }
+        }
+      ]
+    },
+    {
+      "id": "ch2-model-landscape",
+      "title": "The model landscape",
+      "exercises": [
+        {
+          "id": "reading-types-of-models",
+          "title": "Foundation models, open weights, and friends",
+          "kind": "reading",
+          "xp": 15,
+          "content": "# The model landscape\n\n\"Which model should I use?\" is the first real decision in every AI project. The landscape sorts along a few axes:\n\n### Foundation model vs. LLM\nA **foundation model** is any large model trained on broad data that can be adapted to many tasks — text, images, audio. An **LLM** is a foundation model specialized in language. GPT-4, Claude, and Gemini are LLMs; models like DALL·E (images) or Whisper (speech) are foundation models that aren't LLMs.\n\n### Proprietary vs. open-weight\n- **Proprietary** (GPT-4, Claude, Gemini): accessed via a paid API. Strongest general quality, zero ops burden, but data leaves your infrastructure and you can't modify the model.\n- **Open-weight** (Llama, Mistral, Qwen): you download the weights and run them anywhere. Full control and privacy, but you own the serving costs and quality tuning.\n\n### By output type\n- **Text & code generation** — chat, drafting, coding assistants.\n- **Embeddings** — turn text into vectors for search and RAG (you'll build this in course 04).\n- **Image / audio / video generation** — multimodal creation.\n\n### Architecture, briefly\n**Decoder-only** models (the GPT family) excel at generating text. **Encoder** models (BERT-style) excel at understanding/classifying it. Most chat LLMs you'll use are decoder-only — which is exactly why they're next-token predictors.\n\n### Model vs. service\nA **model** is the neural network itself. A **service** (Azure OpenAI, Anthropic API, Bedrock) wraps a model with hosting, safety filters, SLAs, and billing. Products are built on services; the service quality matters as much as the raw model.\n\n### Improving results — the escalation ladder\nWhen a base model isn't good enough, climb in this order:\n\n1. **Prompt engineering with context** — cheapest, try it first (course 03).\n2. **RAG** — retrieve your own data into the prompt when the model needs facts it wasn't trained on (course 04).\n3. **Fine-tuning** — train on your examples when you need consistent format/domain behavior.\n4. **Training from scratch** — almost never; enormous cost.\n\nNow watch the companion video, then prove your mental model in the stack sorter.",
+          "attribution": "Adapted from \"Generative AI for Beginners\" by Microsoft — MIT license — github.com/microsoft/generative-ai-for-beginners",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "video-exploring-llms",
+          "title": "Video: Exploring and comparing LLMs",
+          "kind": "video",
+          "xp": 10,
+          "videoUrl": "https://youtu.be/KIRUeDKscfI",
+          "content": "### Watch: Exploring and comparing different LLMs\n\nMicrosoft's lesson-2 video. Watch for:\n\n- The difference between a **foundation model** and an **LLM**.\n- When teams pick **open-weight** models over API services.\n- The **prompt engineering → RAG → fine-tuning** escalation ladder.",
+          "attribution": "Video © Microsoft, \"Generative AI for Beginners\" — MIT license — github.com/microsoft/generative-ai-for-beginners",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "interactive-stack-sorter",
+          "title": "Game: Sort the AI stack",
+          "kind": "interactive",
+          "xp": 25,
+          "widgetId": "ai-stack-sorter",
+          "content": "# Sort the AI stack\n\nA strong mental model means you can place any tool or buzzword into the right layer instantly. That's exactly what interviewers probe when they ask *\"so where does RAG fit?\"*\n\nSort each card into its layer: **foundation model**, **application pattern**, **agent capability**, **infrastructure**, or **evaluation**. Wrong guesses cost nothing but teach a lot — every placement explains itself.\n\n*To complete this lesson: sort all cards correctly.*",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "quiz-model-landscape",
+          "title": "Knowledge check: the model landscape",
+          "kind": "quiz",
+          "xp": 20,
+          "content": "# Knowledge check\n\nFour questions on the model landscape. At least 3 correct to pass.",
+          "quiz": [
+            {
+              "id": "q1-open-vs-proprietary",
+              "prompt": "Your startup handles sensitive medical records that cannot leave your servers. Which model choice fits best?",
+              "options": [
+                "A proprietary API model — they're always more secure",
+                "An open-weight model self-hosted on your own infrastructure",
+                "No model can be used with sensitive data"
+              ],
+              "correctIndex": 1,
+              "explanation": "Open-weight models run entirely on infrastructure you control, so data never leaves. Proprietary APIs can be compliant too, but self-hosting gives the hard guarantee described here."
+            },
+            {
+              "id": "q2-embeddings",
+              "prompt": "What are embedding models mainly used for?",
+              "options": [
+                "Generating longer, more creative answers",
+                "Turning text into vectors so you can search by meaning (the backbone of RAG)",
+                "Compressing a model so it runs on a phone"
+              ],
+              "correctIndex": 1,
+              "explanation": "Embeddings map text to vectors where similar meanings land close together — that's what powers semantic search and the retrieval step of RAG."
+            },
+            {
+              "id": "q3-improve-results",
+              "prompt": "The model keeps answering questions about your product wrongly because it never saw your internal docs. What's the right *first* escalation?",
+              "options": [
+                "Fine-tune the model on your documentation",
+                "Train a new model from scratch",
+                "Use RAG — retrieve relevant doc chunks into the prompt"
+              ],
+              "correctIndex": 2,
+              "explanation": "Missing knowledge is a retrieval problem: RAG injects current, private facts at question time. Fine-tuning shapes *behavior*, not knowledge freshness, and costs far more to keep updated."
+            },
+            {
+              "id": "q4-service-vs-model",
+              "prompt": "What does a model *service* (like Azure OpenAI or the Anthropic API) add on top of the raw model?",
+              "options": [
+                "Hosting, safety filters, SLAs, and billing around the model",
+                "A bigger neural network with more parameters",
+                "Nothing — service and model are the same thing"
+              ],
+              "correctIndex": 0,
+              "explanation": "The service wraps the model with production plumbing. When you pick a provider you're evaluating the service — latency, reliability, compliance — as much as the model."
+            }
+          ],
+          "check": { "type": "quiz", "minCorrect": 3 }
+        }
+      ]
+    },
+    {
+      "id": "ch3-generation-controls",
+      "title": "Controlling generation",
+      "exercises": [
+        {
+          "id": "interactive-temperature",
+          "title": "Playground: Temperature",
+          "kind": "interactive",
+          "xp": 25,
+          "widgetId": "temperature-playground",
+          "content": "# Temperature: the creativity dial\n\nRemember: the model scores every possible next token. **Temperature** reshapes those scores before sampling:\n\n- **Low (→ 0)** — the distribution sharpens; the top token almost always wins. Predictable, repeatable. Use for extraction, code, facts.\n- **High (→ 1.5)** — the distribution flattens; unlikely tokens get real chances. Creative, surprising, occasionally unhinged.\n\nDrag the slider and watch the probability bars morph in real time — and see how the sample completion changes character.\n\n*To complete this lesson: explore both extremes (≤ 0.2 and ≥ 1.2).*",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "classify-ai-building-blocks",
+          "title": "Code lab: Classify the building blocks",
+          "kind": "code",
+          "xp": 25,
+          "language": "javascript",
+          "content": "# Classify the AI building blocks\n\nTime to encode your mental model — literally. You'll write the same classification you did in the stack sorter, as a function.\n\n### Your task\nComplete `classifyConcept(term)` so it returns one of these strings:\n\n- `foundation-model`\n- `application-pattern`\n- `agent-capability`\n- `infrastructure`\n- `evaluation`\n\n### Sample checks\n\n- `large language model` → `foundation-model`\n- `rag` → `application-pattern`\n- `tool use` → `agent-capability`\n- `vector database` → `infrastructure`\n- `eval set` → `evaluation`\n\n### Source bench\n- Microsoft Generative AI for Beginners",
+          "starterCode": "function classifyConcept(term) {\n  const normalized = term.toLowerCase();\n  // Return the correct category string.\n  return \"foundation-model\";\n}",
+          "check": {
+            "type": "tests",
+            "functionName": "classifyConcept",
+            "tests": [
+              { "input": ["large language model"], "expected": "foundation-model" },
+              { "input": ["rag"], "expected": "application-pattern" },
+              { "input": ["tool use"], "expected": "agent-capability" },
+              { "input": ["vector database"], "expected": "infrastructure" },
+              { "input": ["eval set"], "expected": "evaluation" }
+            ]
+          },
+          "hint": "Use lowercase matching. \"large language model\" or \"LLM\" is a foundation model; RAG is a pattern, tool use is an agent capability, and vector databases are infrastructure.",
+          "solutionCode": "function classifyConcept(term) {\n  const normalized = term.toLowerCase();\n  if (normalized.includes(\"language model\") || normalized.includes(\"llm\")) return \"foundation-model\";\n  if (normalized.includes(\"rag\") || normalized.includes(\"retrieval\")) return \"application-pattern\";\n  if (normalized.includes(\"tool\") || normalized.includes(\"memory\") || normalized.includes(\"planning\")) return \"agent-capability\";\n  if (normalized.includes(\"vector\") || normalized.includes(\"database\") || normalized.includes(\"queue\")) return \"infrastructure\";\n  if (normalized.includes(\"eval\") || normalized.includes(\"score\") || normalized.includes(\"trace\")) return \"evaluation\";\n  return \"application-pattern\";\n}"
+        }
+      ]
+    }
+  ]
+}

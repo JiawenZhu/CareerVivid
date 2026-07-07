@@ -264,6 +264,82 @@
     color: var(--cv-action-soft-text);
   }
 
+  /* Markdown lesson body for interactive courses */
+  .cv-lesson-prose {
+    color: var(--cv-text-body);
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  .cv-lesson-prose h1 {
+    color: var(--cv-text-heading);
+    font-family: var(--cv-font-heading);
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0 0 0.75rem;
+  }
+
+  .cv-lesson-prose h2,
+  .cv-lesson-prose h3 {
+    color: var(--cv-text-heading);
+    font-family: var(--cv-font-heading);
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 1.25rem 0 0.5rem;
+  }
+
+  .cv-lesson-prose p {
+    margin: 0 0 0.85rem;
+  }
+
+  .cv-lesson-prose strong {
+    color: var(--cv-text-heading);
+    font-weight: 700;
+  }
+
+  .cv-lesson-prose ul {
+    margin: 0 0 0.85rem;
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+
+  .cv-lesson-prose li {
+    margin: 0.25rem 0;
+  }
+
+  .cv-lesson-prose :not(pre) > code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.85em;
+    color: var(--cv-action-primary);
+    background-color: var(--cv-action-soft-bg);
+    border: 1px solid var(--cv-action-soft-border);
+    border-radius: 0.35rem;
+    padding: 0.05rem 0.35rem;
+  }
+
+  .cv-lesson-prose pre {
+    margin: 0 0 0.85rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 0.6rem;
+    background-color: #0f1117;
+    border: 1px solid var(--cv-border-warm);
+    overflow-x: auto;
+  }
+
+  .cv-lesson-prose pre code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: #e6e6ef;
+  }
+
+  .cv-lesson-prose a {
+    color: var(--cv-action-primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
   .cv-warm-page {
     min-height: 100vh;
     background-color: var(--cv-bg-public);

@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useRef } from 'react';
 import type { RunnerRequest, RunnerResponse, RunnerTest } from '../workers/questCodeRunner.worker';
-import type { CodingLanguage } from '../lib/codingChallenges';
+import type { ExecutableCodingLanguage } from '../lib/codingChallenges';
 
 export interface RunOptions {
-  language: CodingLanguage;
+  language: ExecutableCodingLanguage;
   code: string;
-  functionName: string;
-  tests: RunnerTest[];
+  /** 'tests' (default) calls functionName; 'script' just runs code + captures stdout. */
+  mode?: 'tests' | 'script';
+  functionName?: string;
+  tests?: RunnerTest[];
   /** Wall-clock budget; worker is terminated on overrun. */
   timeoutMs: number;
 }
@@ -73,8 +75,9 @@ export const useQuestCodeRunner = () => {
         id,
         language: options.language,
         code: options.code,
-        functionName: options.functionName,
-        tests: options.tests,
+        mode: options.mode ?? 'tests',
+        functionName: options.functionName ?? '',
+        tests: options.tests ?? [],
       };
       worker.postMessage(request);
     });

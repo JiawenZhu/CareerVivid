@@ -1,0 +1,26 @@
+{
+  "id": "04-rag",
+  "order": 4,
+  "title": "Retrieval-Augmented Generation (RAG)",
+  "objective": "Ground model output in real data instead of relying on parametric memory.",
+  "topics": [
+    "Embeddings and vector similarity, intuitively",
+    "Chunking strategies and why chunk size/overlap matters",
+    "Vector store basics (indexing, top-k retrieval)",
+    "Re-ranking and why raw top-k retrieval often isn't enough",
+    "Evaluating a RAG pipeline (not just \"does it look right\")"
+  ],
+  "exercise": "Chunk a sample document three different ways and compare retrieval quality for the same query.",
+  "project": "A minimal RAG pipeline over a small CareerVivid-relevant corpus (e.g. a handful of interview guides) with retrieval + generation + a basic eval.",
+  "sourceIds": [
+    "openai-cookbook",
+    "google-gemini-cookbook",
+    "anthropic-claude-cookbooks",
+    "dair-prompt-engineering-guide",
+    "microsoft-generative-ai-for-beginners"
+  ],
+  "referenceOnly": [
+    { "sourceId": "nirdiamant-rag-techniques", "reason": "non-commercial license — link only, do not clone" },
+    { "sourceId": "langchain-rag-from-scratch", "reason": "no LICENSE file — link only, do not clone" }
+  ]
+}

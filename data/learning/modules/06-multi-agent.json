@@ -1,0 +1,18 @@
+{
+  "id": "06-multi-agent",
+  "order": 6,
+  "title": "Multi-Agent Systems",
+  "objective": "Understand when and how to split work across multiple cooperating agents instead of one god-agent.",
+  "topics": [
+    "Supervisor/worker patterns",
+    "Role specialization vs. one general-purpose agent",
+    "Shared state and handoff protocols between agents",
+    "Failure containment: one agent's mistake shouldn't cascade"
+  ],
+  "exercise": "Take the module-05 single agent and split it into a supervisor + 2 specialist workers; compare reliability.",
+  "project": "A small multi-agent workflow (e.g. researcher agent + writer agent + reviewer agent) for one CareerVivid content task.",
+  "sourceIds": ["huggingface-agents-course", "microsoft-ai-agents-for-beginners"],
+  "referenceOnly": [
+    { "sourceId": "claude-code-docs", "reason": "official product docs — read for inspiration on sub-agent orchestration, write original content" }
+  ]
+}

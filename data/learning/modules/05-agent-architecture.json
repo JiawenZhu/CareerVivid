@@ -1,0 +1,15 @@
+{
+  "id": "05-agent-architecture",
+  "order": 5,
+  "title": "Agent Architecture",
+  "objective": "Understand the core agent loop — plan, act, observe, repeat — and how tool calling actually works under the hood.",
+  "topics": [
+    "Tool/function calling: schemas, invocation, result handling",
+    "The plan → act → observe loop",
+    "Memory: short-term (conversation) vs. long-term (persisted state)",
+    "Single-agent patterns: reflexion, self-correction"
+  ],
+  "exercise": "Implement a single tool-calling loop (calculator or web-search tool) with a hard iteration cap and observe where it goes wrong.",
+  "project": "A single agent that uses 2+ tools to complete a multi-step task end-to-end (e.g. \"look up a company, summarize its interview process\").",
+  "sourceIds": ["microsoft-ai-agents-for-beginners", "huggingface-agents-course", "anthropic-claude-cookbooks"]
+}

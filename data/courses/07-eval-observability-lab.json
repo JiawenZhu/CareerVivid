@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "id": "eval-observability-lab",
+  "order": 7,
+  "title": "07. Evaluation and observability",
+  "language": "javascript",
+  "category": "AI",
+  "difficulty": "Intermediate",
+  "tagline": "Grade real model outputs against a rubric — and learn why a right answer can still fail.",
+  "description": "Turn 'it seems fine' into measurement: rubrics, eval sets, traces, and failure triage — the discipline that separates demos from products.",
+  "status": "published",
+  "tags": ["evals", "observability", "quality"],
+  "estimatedMinutes": 50,
+  "sourceIds": ["openai-cookbook", "huggingface-agents-course", "anthropic-claude-cookbooks"],
+  "chapters": [
+    {
+      "id": "ch1-measuring-quality",
+      "title": "Measuring quality",
+      "exercises": [
+        {
+          "id": "reading-evals",
+          "title": "Vibes don't scale",
+          "kind": "reading",
+          "xp": 15,
+          "content": "# Vibes don't scale\n\nEvery AI feature starts the same way: you try five prompts, the answers look good, you ship. Two weeks later a user finds the case that's confidently wrong, and you have no idea whether your fix breaks three other cases.\n\nThe cure is **evals** — a repeatable test suite for model behavior.\n\n### The eval loop\n\n1. **Collect cases.** Real inputs (anonymized), edge cases, past failures. Even 20 cases beats zero; production teams grow to hundreds.\n2. **Define a rubric.** What does *good* mean, concretely? A rubric that fits many tasks:\n   - **Relevant** — does it answer what was asked?\n   - **Grounded** — do claims trace to the provided context? (RAG's promise, verified)\n   - **Safe** — no leaked secrets, no harmful content?\n   - **Tool-correct** — did the agent use allowed tools, correctly?\n3. **Score every case** after every change. Prompt tweak, model upgrade, new retrieval — run the suite, compare numbers.\n4. **Triage failures by category.** \"12 grounding failures, 2 safety\" tells you where to work; a single accuracy number doesn't.\n\n### Who grades?\n- **Exact checks** — code asserts on structure or known answers. Cheap, strict, brittle.\n- **LLM-as-judge** — a model applies your rubric at scale. Powerful, but *calibrate it against human grades first* — an uncalibrated judge automates your blind spots.\n- **Humans** — the gold standard; too slow for every run, essential for calibration.\n\n### Observability: evals' twin\nEvals tell you *whether* it broke; **traces** tell you *where*. Log every model call — prompt, context, tools, output, latency, tokens. For agents, the thought→action→observation trace (course 05) is the only way to find which step went sideways.\n\n### The mindset shift\nA fluent answer that contradicts the docs is a **failing case**, no matter how good it sounds. An answer that's right but leaked a credential is a **failing case**. The next lesson makes you feel this — you'll grade three outputs, and one of them will try to charm you.",
+          "attribution": "Adapted from the OpenAI Cookbook (MIT), Hugging Face Agents Course (Apache-2.0), and Anthropic's Claude Cookbooks (MIT)",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "interactive-eval-grader",
+          "title": "Playground: You are the grader",
+          "kind": "interactive",
+          "xp": 30,
+          "widgetId": "eval-grader",
+          "content": "# You are the grader\n\nThree model outputs, one rubric: **relevant / grounded / safe / tool-correct**, 25 points each.\n\nMark each criterion PASS or FAIL and submit. Your grade must match the reference grader to advance — and case 3 is specifically designed to catch graders who stop reading once the answer looks right.\n\n*To complete this lesson: grade all three cases correctly.*",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "quiz-evals",
+          "title": "Knowledge check: evals & traces",
+          "kind": "quiz",
+          "xp": 20,
+          "content": "# Knowledge check\n\nThree questions. All three to pass.",
+          "quiz": [
+            {
+              "id": "q1-regression",
+              "prompt": "You improved your prompt and want to ship. What does an eval suite give you that 'trying a few examples' doesn't?",
+              "options": [
+                "Proof the change helps overall — and catches the cases it silently broke",
+                "Faster API responses",
+                "Better model weights"
+              ],
+              "correctIndex": 0,
+              "explanation": "Prompt changes routinely fix 5 cases and break 3 others. Only a fixed suite run before/after makes that visible."
+            },
+            {
+              "id": "q2-judge",
+              "prompt": "What's the main risk of using an LLM as your eval judge?",
+              "options": [
+                "It costs too much to ever use",
+                "Uncalibrated, it can systematically share the generator's blind spots — validate it against human grades first",
+                "It refuses to grade other models"
+              ],
+              "correctIndex": 1,
+              "explanation": "LLM judges scale beautifully but must be calibrated: grade a sample by hand, check agreement, then trust it."
+            },
+            {
+              "id": "q3-triage",
+              "prompt": "Your suite reports 82% passing. What's the most useful next step?",
+              "options": [
+                "Celebrate — 82% is a B",
+                "Break the 18% failures down by rubric category to see what kind of failure dominates",
+                "Re-run until it randomly passes higher"
+              ],
+              "correctIndex": 1,
+              "explanation": "'12 grounding failures, 2 safety' is an action plan (fix retrieval!). '82%' is just a mood."
+            }
+          ],
+          "check": { "type": "quiz", "minCorrect": 3 }
+        }
+      ]
+    },
+    {
+      "id": "ch2-the-lab",
+      "title": "The lab",
+      "exercises": [
+        {
+          "id": "score-eval-case",
+          "title": "Code lab: Score an eval case",
+          "kind": "code",
+          "xp": 40,
+          "language": "javascript",
+          "content": "# Score an eval case\n\nYou just applied the rubric by hand — now automate it, exactly like a real eval harness scoring function.\n\n### Your task\nImplement `scoreCase(result)` and return a 0-100 score. Each true field is worth 25 points.\n\n### Source bench\n- OpenAI Cookbook\n- Hugging Face Agents Course\n- Claude Cookbooks",
+          "starterCode": "function scoreCase(result) {\n  return 0;\n}",
+          "check": {
+            "type": "tests",
+            "functionName": "scoreCase",
+            "tests": [
+              { "input": [{ "relevant": true, "grounded": true, "safe": true, "toolCorrect": true }], "expected": 100 },
+              { "input": [{ "relevant": true, "grounded": false, "safe": true, "toolCorrect": false }], "expected": 50 },
+              { "input": [{ "relevant": false, "grounded": false, "safe": true, "toolCorrect": false }], "expected": 25 }
+            ]
+          },
+          "hint": "Add 25 for each true boolean field.",
+          "solutionCode": "function scoreCase(result) {\n  const fields = [\"relevant\", \"grounded\", \"safe\", \"toolCorrect\"];\n  return fields.reduce((score, field) => score + (result[field] ? 25 : 0), 0);\n}"
+        }
+      ]
+    }
+  ]
+}

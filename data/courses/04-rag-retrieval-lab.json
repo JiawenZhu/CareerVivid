@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "id": "rag-retrieval-lab",
+  "order": 4,
+  "title": "04. RAG retrieval",
+  "language": "javascript",
+  "category": "AI",
+  "difficulty": "Intermediate",
+  "tagline": "Watch a question flow through embed → search → answer, then flip retrieval off and meet the hallucination.",
+  "description": "Retrieval-Augmented Generation end to end: embeddings, similarity search, context assembly, chunking pitfalls — and why RAG is the cure for confident nonsense.",
+  "status": "published",
+  "tags": ["rag", "embeddings", "retrieval"],
+  "estimatedMinutes": 55,
+  "sourceIds": ["openai-cookbook", "google-gemini-cookbook", "anthropic-claude-cookbooks", "microsoft-generative-ai-for-beginners"],
+  "chapters": [
+    {
+      "id": "ch1-why-rag",
+      "title": "Why models need retrieval",
+      "exercises": [
+        {
+          "id": "reading-why-rag",
+          "title": "The problem RAG solves",
+          "kind": "reading",
+          "xp": 15,
+          "content": "# The problem RAG solves\n\nAsk a model about *your* data — your company handbook, your product docs, last week's meeting — and it faces an impossible choice: admit ignorance, or guess fluently. Untuned, it usually guesses. That's a **hallucination**, and it's not a bug — it's a next-token predictor doing exactly what it was built to do with no facts to work from.\n\n**Retrieval-Augmented Generation** fixes the input, not the model: find the relevant facts first, paste them into the prompt, and instruct the model to answer *from that context*.\n\n### The pipeline\n\n1. **Index (offline).** Split documents into chunks, run each chunk through an **embedding model** (course 02!), store the vectors in a vector database.\n2. **Retrieve (per question).** Embed the user's question the same way, find the chunks whose vectors sit closest — closest vector ≈ closest meaning.\n3. **Augment.** Stuff the top chunks into the prompt with delimiters and an instruction: *\"answer using only the context below; cite what you use; say 'I don't know' if it isn't there.\"*\n4. **Generate.** The model now completes text in the presence of the facts.\n\n### Why embeddings beat keyword search\nA user asks *\"how many days off do I get?\"* — the doc says *\"vacation accrual policy\"*. Zero words overlap, but the vectors are neighbors. That's the magic: search by meaning, not spelling.\n\n### What RAG buys you\n- **Freshness** — update the index, not the model.\n- **Privacy** — your data stays in your database, retrieved per question.\n- **Citations** — every claim can point at its chunk. Answers become auditable.\n- **Cost** — no fine-tuning runs; just an index.\n\nRAG's failure modes live in retrieval, not generation: bad chunking, poor top-k choices, or a question the index simply can't answer. The next lesson lets you drive the whole pipeline — including turning retrieval off to watch the guessing come back.",
+          "attribution": "Adapted from \"Generative AI for Beginners\" by Microsoft (MIT) and the OpenAI Cookbook (MIT)",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "interactive-rag-pipeline",
+          "title": "Playground: Drive the RAG pipeline",
+          "kind": "interactive",
+          "xp": 25,
+          "widgetId": "rag-pipeline",
+          "content": "# Drive the RAG pipeline\n\nBelow is a tiny knowledge base — five chunks from a fictional company handbook — and three employee questions.\n\nWith **Retrieval ON**, watch the four stages: the query embeds, every chunk gets a similarity score, the winners fly into the prompt, and the answer arrives with a citation.\n\nThen flip **Retrieval OFF** and ask again. Same model, same question — no facts. Watch how confident the guess sounds.\n\n*To complete this lesson: run at least one question in each mode.*",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "video-rag",
+          "title": "Video: RAG and vector databases",
+          "kind": "video",
+          "xp": 10,
+          "videoUrl": "https://youtu.be/4l8zhHUBeyI",
+          "content": "### Watch: RAG and vector databases\n\nMicrosoft's lesson 15. Watch for:\n\n- How documents get **chunked** before indexing — and why chunk size is a real design decision.\n- What the **vector database** actually stores.\n- How the retrieved context is formatted into the final prompt.",
+          "attribution": "Video © Microsoft, \"Generative AI for Beginners\" — MIT license — github.com/microsoft/generative-ai-for-beginners",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "quiz-rag",
+          "title": "Knowledge check: retrieval",
+          "kind": "quiz",
+          "xp": 20,
+          "content": "# Knowledge check\n\nFour questions. At least 3 to pass.",
+          "quiz": [
+            {
+              "id": "q1-hallucination",
+              "prompt": "Why does an LLM hallucinate about your company's refund policy?",
+              "options": [
+                "The model is trying to be helpful by inventing plausible policies",
+                "It's a next-token predictor with no access to your policy — fluent guessing is its default behavior",
+                "Refund policies are legally protected data"
+              ],
+              "correctIndex": 1,
+              "explanation": "No facts in, plausible tokens out. The fix is retrieval: put the actual policy into the context window."
+            },
+            {
+              "id": "q2-semantic",
+              "prompt": "A user asks 'days off?' and the handbook says 'vacation accrual policy'. Why does embedding search still find it?",
+              "options": [
+                "The database stores synonyms for every word",
+                "Embeddings map similar *meanings* to nearby vectors, regardless of word overlap",
+                "It doesn't — RAG requires exact keyword matches"
+              ],
+              "correctIndex": 1,
+              "explanation": "That's the core trick: semantic similarity in vector space, not string matching."
+            },
+            {
+              "id": "q3-freshness",
+              "prompt": "Your product docs change weekly. With RAG, what do you update?",
+              "options": [
+                "Re-train or fine-tune the model weekly",
+                "Just the index — re-chunk and re-embed the changed docs",
+                "Nothing; models pick up changes automatically"
+              ],
+              "correctIndex": 1,
+              "explanation": "The model never changes. Freshness lives in the index, which is exactly why RAG beats fine-tuning for knowledge."
+            },
+            {
+              "id": "q4-failure",
+              "prompt": "A RAG system gives a wrong answer even though generation works fine. Where do you look first?",
+              "options": [
+                "Retrieval — check which chunks were fetched and whether the right one exists at all",
+                "Increase the temperature",
+                "Switch to a bigger model immediately"
+              ],
+              "correctIndex": 0,
+              "explanation": "Most RAG failures are retrieval failures: wrong chunks, bad chunking, or missing content. Debug the context before blaming the model."
+            }
+          ],
+          "check": { "type": "quiz", "minCorrect": 3 }
+        }
+      ]
+    },
+    {
+      "id": "ch2-the-lab",
+      "title": "The lab",
+      "exercises": [
+        {
+          "id": "rank-rag-chunks",
+          "title": "Code lab: Rank retrieval chunks",
+          "kind": "code",
+          "xp": 40,
+          "language": "javascript",
+          "content": "# Rank retrieval chunks\n\nA RAG system should send the most relevant context, not every document. You just watched similarity scoring animate — now implement the idea yourself with keyword overlap (the honest baby version of vector similarity).\n\n### Your task\nImplement `topChunk(query, chunks)` and return the `id` of the chunk with the highest overlap.\n\n### Source bench\n- OpenAI Cookbook\n- Gemini Cookbook\n- Claude Cookbooks",
+          "starterCode": "function topChunk(query, chunks) {\n  return chunks[0]?.id;\n}",
+          "check": {
+            "type": "tests",
+            "functionName": "topChunk",
+            "tests": [
+              {
+                "input": [
+                  "vector database retrieval",
+                  [
+                    { "id": "a", "text": "prompt templates and JSON output" },
+                    { "id": "b", "text": "embedding search with a vector database" },
+                    { "id": "c", "text": "deployment queues and caching" }
+                  ]
+                ],
+                "expected": "b"
+              },
+              {
+                "input": [
+                  "prompt injection safety",
+                  [
+                    { "id": "x", "text": "cache hit rate and queues" },
+                    { "id": "y", "text": "prompt injection and tool permissions" }
+                  ]
+                ],
+                "expected": "y"
+              }
+            ]
+          },
+          "hint": "Split query and chunk text into lowercase words. Count how many query words appear in each chunk.",
+          "solutionCode": "function topChunk(query, chunks) {\n  const terms = query.toLowerCase().split(/\\W+/).filter(Boolean);\n  let best = chunks[0];\n  let bestScore = -1;\n  for (const chunk of chunks) {\n    const text = chunk.text.toLowerCase();\n    const score = terms.filter((term) => text.includes(term)).length;\n    if (score > bestScore) { best = chunk; bestScore = score; }\n  }\n  return best?.id;\n}"
+        }
+      ]
+    }
+  ]
+}

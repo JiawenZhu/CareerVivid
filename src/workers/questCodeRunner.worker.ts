@@ -23,6 +23,12 @@ export interface RunnerRequest {
   code: string;
   functionName: string;
   tests: RunnerTest[];
+  /**
+   * 'tests' (default): call `functionName` against `tests`.
+   * 'script': run top-level code and just capture stdout — used by the
+   * interactive lessons where the check is "did the output match".
+   */
+  mode?: 'tests' | 'script';
 }
 
 export interface RunnerTestOutcome {
@@ -105,11 +111,52 @@ const runJavaScript = (req: RunnerRequest, logs: string[]): RunnerTestOutcome[] 
   }
 };
 
+/** Script mode: run top-level JS and capture console output; no function needed. */
+const runJavaScriptScript = (req: RunnerRequest, logs: string[]): void => {
+  const originalLog = console.log;
+  const capture = (...args: unknown[]) => {
+    if (logs.length < 200) logs.push(args.map((a) => (typeof a === 'string' ? a : stringify(a))).join(' '));
+  };
+  console.log = capture;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval
+    const factory = new Function('console', `"use strict";\n${req.code}\n`);
+    factory({ log: capture, info: capture, warn: capture, error: capture });
+  } finally {
+    console.log = originalLog;
+  }
+};
+
 // ---------------------------------------------------------------------------
 // Python runner (Pyodide)
 // ---------------------------------------------------------------------------
 
 let pyodidePromise: Promise<any> | null = null;
+
+/** Script mode: exec top-level Python and capture stdout; no function needed. */
+const runPythonScript = async (req: RunnerRequest, logs: string[]): Promise<void> => {
+  const pyodide = await getPyodide();
+  pyodide.setStdout({ batched: (line: string) => { if (logs.length < 200) logs.push(line); } });
+  pyodide.setStderr({ batched: (line: string) => { if (logs.length < 200) logs.push(line); } });
+
+  const harness = [
+    'import json',
+    'def __cv_script(user_code):',
+    '    try:',
+    '        exec(user_code, {})',
+    '        return json.dumps({"ok": True})',
+    '    except Exception as e:',
+    '        return json.dumps({"fatal": f"{type(e).__name__}: {e}"})',
+  ].join('\n');
+
+  pyodide.runPython(harness);
+  const runFn = pyodide.globals.get('__cv_script');
+  const raw = runFn(req.code);
+  runFn.destroy?.();
+
+  const parsed = JSON.parse(raw as string) as { ok?: boolean; fatal?: string };
+  if (parsed.fatal) throw new Error(parsed.fatal);
+};
 
 const getPyodide = (): Promise<any> => {
   if (!pyodidePromise) {
@@ -210,7 +257,14 @@ self.onmessage = async (event: MessageEvent<RunnerRequest>) => {
   const started = performance.now();
 
   try {
-    const results = req.language === 'python' ? await runPython(req, logs) : runJavaScript(req, logs);
+    let results: RunnerTestOutcome[];
+    if (req.mode === 'script') {
+      if (req.language === 'python') await runPythonScript(req, logs);
+      else runJavaScriptScript(req, logs);
+      results = [];
+    } else {
+      results = req.language === 'python' ? await runPython(req, logs) : runJavaScript(req, logs);
+    }
     const response: RunnerResponse = {
       id: req.id,
       ok: true,

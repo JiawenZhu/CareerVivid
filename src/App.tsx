@@ -29,6 +29,8 @@ const AgentPage = React.lazy(() => import('./pages/AgentPage'));
 const GenerationHub = React.lazy(() => import('./pages/GenerationHub')); // Protected
 const InterviewStudio = lazyWithPreload(() => import('./pages/InterviewStudio')); // Protected
 const CompanyQuestPage = React.lazy(() => import('./pages/CompanyQuestPage')); // Protected
+const CoursePage = React.lazy(() => import('./pages/CoursePage')); // Protected
+const InteractiveLessonPage = React.lazy(() => import('./pages/InteractiveLessonPage')); // Protected
 const ProfilePage = React.lazy(() => import('./pages/ProfilePage')); // Protected
 const ChatBot = React.lazy(() => import('./components/ChatBot'));
 const AuthPage = React.lazy(() => import('./pages/AuthPage'));
@@ -114,6 +116,7 @@ const DndWorkspaceProvider = React.lazy(() => import('./components/DndWorkspaceP
 
 // Navigation utility
 import { navigate, getPathFromUrl } from './utils/navigation';
+import { getFirstExerciseId } from './lib/interactiveCourses';
 
 
 const LoadingFallback = () => (
@@ -323,7 +326,6 @@ const AppContent: React.FC = () => {
               <SEOHelper isRobotsAllowed />
               <RouteSuspense routeKey={path}>
                 <ExtensionWelcomePage />
-                {currentUser && !loading && <ChatBot />}
               </RouteSuspense>
             </div>
           </NavigationProvider>
@@ -399,7 +401,7 @@ const AppContent: React.FC = () => {
   let showChatbot = false;
 
   if (currentUser && !(!isEmailVerified && currentUser.providerData[0]?.providerId === 'password')) {
-    showChatbot = true;
+    showChatbot = path === '/dashboard';
   }
 
   // 1. Verify Email Handling via specific route or override
@@ -509,6 +511,27 @@ const AppContent: React.FC = () => {
       content = (
         <ProtectedRoute>
           <CompanyQuestPage slug={slug} />
+        </ProtectedRoute>
+      );
+    }
+
+    // AI-agent learning curriculum
+    else if (path === '/learning') {
+      content = (
+        <ProtectedRoute>
+          <CoursePage />
+        </ProtectedRoute>
+      );
+    }
+
+    // Interactive code-along lesson: /learn/:courseId/:exerciseId
+    else if (path.startsWith('/learn/')) {
+      const parts = path.split('/');
+      const courseId = parts[2];
+      const exerciseId = parts[3] || getFirstExerciseId(courseId) || '';
+      content = (
+        <ProtectedRoute>
+          <InteractiveLessonPage key={`${courseId}/${exerciseId}`} courseId={courseId} exerciseId={exerciseId} />
         </ProtectedRoute>
       );
     }

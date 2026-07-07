@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "id": "ai-deployment-controls",
+  "order": 9,
+  "title": "09. Deployment controls",
+  "language": "javascript",
+  "category": "AI",
+  "difficulty": "Intermediate",
+  "tagline": "Take the pager: resolve three production incidents with cache, queue, and rate limit.",
+  "description": "The operational controls that keep AI apps fast, affordable, and alive: caching, queues, rate limits — and the monitoring that tells you which one you need.",
+  "status": "published",
+  "tags": ["deployment", "production", "infrastructure"],
+  "estimatedMinutes": 50,
+  "sourceIds": ["anthropic-claude-quickstarts", "google-gemini-cookbook", "mlabonne-llm-course", "microsoft-ai-agents-for-beginners"],
+  "chapters": [
+    {
+      "id": "ch1-production-reality",
+      "title": "Production reality",
+      "exercises": [
+        {
+          "id": "reading-deployment",
+          "title": "A model call is not a product",
+          "kind": "reading",
+          "xp": 15,
+          "content": "# A model call is not a product\n\nYour demo works. Then real traffic arrives, and three physics problems show up at once: model calls are **slow** (seconds, not milliseconds), **expensive** (per token, forever), and **flaky** (rate limits, timeouts, provider incidents). Production AI engineering is mostly managing those three.\n\nFour controls handle the vast majority of it:\n\n### 📦 Cache — for repeated work\nThousands of users ask *\"how do I export my resume?\"* — compute the answer once, serve it from cache. Exact-match caching is trivial; semantic caching (embeddings again!) catches paraphrases. Cache hits cost ~nothing and return instantly. **Signature symptom: cost scales with traffic while the distinct-question count doesn't.**\n\n### ⏳ Queue — for slow work\nAnything slower than a user's patience (video analysis, bulk processing, long agent runs) must leave the request/response cycle: accept the job, return an id, notify on completion. Retries become safe, spikes flatten into steady worker throughput. **Signature symptom: timeouts and users hammering refresh.**\n\n### 🚦 Rate limit — for hostile or buggy traffic\nOne scripted client at 500 requests/minute can degrade everyone. Per-user caps contain the blast radius; honest users never notice the ceiling exists. **Signature symptom: one API key dominating your logs.**\n\n### 📊 Monitor — to know which one you need\nLatency percentiles (p95, not average), cost per user per day, error rates by type, token counts per request. The controls above are cures; monitoring is the diagnosis. Alert on *trends* — cost per user creeping 10% per week is a fire in slow motion.\n\n### Two more habits of teams that sleep at night\n- **Graceful degradation** — when the frontier model times out, fall back to a faster model or a cached answer. Never show a spinner that ends in nothing.\n- **Budget alarms** — a hard monthly cap plus a soft alert at 60%. Every AI team has a surprise-bill story; the good ones only have it once.\n\nNext: the pager goes off three times. Diagnose each incident and flip the right switch.",
+          "attribution": "Adapted from Claude Quickstarts (MIT), the Gemini Cookbook (Apache-2.0), and \"AI Agents for Beginners\" by Microsoft (MIT)",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "video-agents-production",
+          "title": "Video: AI agents in production",
+          "kind": "video",
+          "xp": 10,
+          "videoUrl": "https://youtu.be/l4TP6IyJxmQ",
+          "content": "### Watch: AI agents in production\n\nFrom Microsoft's *AI Agents for Beginners*. Watch for:\n\n- What they monitor on live agent systems (and what they alert on).\n- How cost controls change agent design.\n- Their approach to fallbacks when a model call fails.",
+          "attribution": "Video © Microsoft, \"AI Agents for Beginners\" — MIT license — github.com/microsoft/ai-agents-for-beginners",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "interactive-traffic-control",
+          "title": "Game: The control room",
+          "kind": "interactive",
+          "xp": 30,
+          "widgetId": "traffic-control",
+          "content": "# The control room\n\nYou're on call. Three incidents will hit your AI app — a cost spike, a timeout storm, and one very enthusiastic API key. The latency / cost / error gauges show the damage live.\n\nRead each alert, find the **root cause**, and flip the control that fixes it. Wrong switches explain exactly why they don't help — those explanations are interview gold.\n\n*To complete this lesson: resolve all three incidents.*",
+          "check": { "type": "widget" }
+        },
+        {
+          "id": "quiz-deployment",
+          "title": "Knowledge check: ops instincts",
+          "kind": "quiz",
+          "xp": 20,
+          "content": "# Knowledge check\n\nThree questions. All three to pass.",
+          "quiz": [
+            {
+              "id": "q1-p95",
+              "prompt": "Why monitor p95 latency instead of average latency?",
+              "options": [
+                "p95 is easier to compute",
+                "Averages hide the tail — one slow call in twenty is thousands of users having a bad day, invisible in the mean",
+                "APIs only report percentiles"
+              ],
+              "correctIndex": 1,
+              "explanation": "A 2s average with a 30s p95 means 5% of requests are agonizing. Users remember the tail, not the mean."
+            },
+            {
+              "id": "q2-degradation",
+              "prompt": "The frontier model API is having an incident. What does a well-built AI app do?",
+              "options": [
+                "Show an error page until the provider recovers",
+                "Degrade gracefully — fall back to a faster model or cached answers, and tell users if quality is reduced",
+                "Retry the same call in a tight loop"
+              ],
+              "correctIndex": 1,
+              "explanation": "Fallback chains keep the product alive through provider incidents. Tight retry loops make their incident your outage."
+            },
+            {
+              "id": "q3-cost-creep",
+              "prompt": "Cost per user is creeping up 10% weekly with no traffic growth. What's your first move?",
+              "options": [
+                "Wait for the monthly bill to confirm the trend",
+                "Break down cost by feature and prompt — find what's growing (prompt bloat? longer outputs? retry storms?) before it compounds",
+                "Switch every feature to the cheapest model today"
+              ],
+              "correctIndex": 1,
+              "explanation": "Diagnosis before medicine: the breakdown tells you whether the fix is a cache, a prompt trim, or a retry bug. Compounding 10% weekly doubles in 8 weeks."
+            }
+          ],
+          "check": { "type": "quiz", "minCorrect": 3 }
+        }
+      ]
+    },
+    {
+      "id": "ch2-the-lab",
+      "title": "The lab",
+      "exercises": [
+        {
+          "id": "choose-deployment-control",
+          "title": "Code lab: Choose a deployment control",
+          "kind": "code",
+          "xp": 35,
+          "language": "javascript",
+          "content": "# Choose a deployment control\n\nYou diagnosed incidents in the control room — now encode the triage logic. This mapping from symptom to control is a real interview question.\n\n### Your task\nImplement `chooseControl(symptom)` and return `cache`, `queue`, `rate-limit`, or `monitor`.\n\n### Source bench\n- Claude Quickstarts\n- Gemini Cookbook\n- mlabonne LLM Course",
+          "starterCode": "function chooseControl(symptom) {\n  return \"monitor\";\n}",
+          "check": {
+            "type": "tests",
+            "functionName": "chooseControl",
+            "tests": [
+              { "input": ["same prompt repeated many times"], "expected": "cache" },
+              { "input": ["long video analysis takes minutes"], "expected": "queue" },
+              { "input": ["one user sends 500 requests per minute"], "expected": "rate-limit" },
+              { "input": ["unknown latency spike"], "expected": "monitor" }
+            ]
+          },
+          "hint": "Repeated work -> cache. Slow background work -> queue. Too many requests -> rate-limit.",
+          "solutionCode": "function chooseControl(symptom) {\n  const normalized = symptom.toLowerCase();\n  if (normalized.includes(\"repeated\") || normalized.includes(\"same prompt\")) return \"cache\";\n  if (normalized.includes(\"minutes\") || normalized.includes(\"long\")) return \"queue\";\n  if (normalized.includes(\"500\") || normalized.includes(\"per minute\") || normalized.includes(\"many requests\")) return \"rate-limit\";\n  return \"monitor\";\n}"
+        }
+      ]
+    }
+  ]
+}

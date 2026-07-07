@@ -90,3 +90,11 @@ vectorlotto/
 
 # Community content MD
 community-content/
+
+# Learning curriculum: raw third-party repos cloned by
+# scripts/sync-learning-sources.mjs. Never commit these — they're large,
+# have their own nested .git, and CareerVivid's own curriculum content lives
+# in docs/learning/ and data/learning/ instead. The LICENSES we copy out of
+# them stay tracked for compliance record-keeping.
+third_party/learning-sources/*/
+!third_party/learning-sources/LICENSES/

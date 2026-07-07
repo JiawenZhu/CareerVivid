@@ -14,6 +14,7 @@ import {
     Gift,
     LayoutDashboard,
     Sparkles,
+    GraduationCap,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
@@ -345,6 +346,7 @@ const Sidebar: React.FC = () => {
         { label: 'Community', path: '/community', icon: Users },
         { label: 'Interview', path: '/interview-studio', icon: Mic },
         { label: 'Job Tracker', path: '/job-tracker', icon: Briefcase },
+        { label: 'Course', path: '/learning', icon: GraduationCap },
     ];
 
     const accountLinks = [

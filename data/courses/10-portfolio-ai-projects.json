@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "id": "portfolio-ai-projects",
+  "order": 10,
+  "title": "10. Portfolio projects",
+  "language": "javascript",
+  "category": "AI",
+  "difficulty": "Advanced",
+  "tagline": "Turn nine courses of skills into a project a recruiter can poke at.",
+  "description": "The capstone: choose a route, design an architecture that shows real engineering, and draw it well enough to defend in an interview.",
+  "status": "published",
+  "tags": ["capstone", "portfolio", "architecture"],
+  "estimatedMinutes": 60,
+  "sourceIds": ["openai-cookbook", "google-gemini-cookbook", "anthropic-claude-quickstarts"],
+  "chapters": [
+    {
+      "id": "ch1-what-impresses",
+      "title": "What actually impresses",
+      "exercises": [
+        {
+          "id": "reading-portfolio-standards",
+          "title": "Beyond the thin wrapper",
+          "kind": "reading",
+          "xp": 15,
+          "content": "# Beyond the thin wrapper\n\nRecruiters and hiring managers have now seen a thousand \"chat with X\" demos. A textbox that forwards prompts to an API — the *thin wrapper* — signals that you followed a tutorial. Here's what signals engineering instead:\n\n### The six signals (you've built all of them)\n\n1. **A real workflow, not a chat.** Your project should *do* something: analyze interview recordings, tailor resumes to job posts, triage support email. Input → processing → artifact.\n2. **Retrieval done honestly** (course 04). Private data, real chunking decisions, citations in the output. Bonus: show a case where retrieval fails and how you handle it.\n3. **Structured output as contract** (course 03). JSON schemas between components — because something downstream consumes the model's answer.\n4. **Visible guardrails** (courses 05, 08). An iteration cap, a tool allowlist, a permission prompt. Nothing says 'production instincts' like an agent that knows when to stop.\n5. **Evals in the repo** (course 07). Even 25 cases with scores makes you the candidate who *measures*. Put the eval table in your README.\n6. **One production control** (courses 02, 09). A cache with a hit-rate stat, a queue for slow jobs, a cost-per-request note. Show you know tokens are money.\n\n### The three routes\n\n- **🟢 OpenAI RAG app** — private docs, embeddings, retrieval, citations. The workhorse. Differentiate with honest eval numbers and failure handling.\n- **🔵 Gemini multimodal app** — screenshots or video in, structured analysis out, with an async queue (course 09) because media is slow. Fewer people build these.\n- **🟣 Claude agent workflow** — planner, tools, permissions, memory, trace viewer. Hardest to do well; the trace viewer is what sells it.\n\n### The interview test\nWhatever you build, you'll be asked: *why this architecture?* Every box in your diagram needs a one-sentence justification tied to a trade-off you learned here. \"I queued video analysis because model calls take minutes and requests time out at 30 seconds\" is a hire signal. \"The tutorial did it that way\" is not.\n\nNext: a quiz to sharpen those justifications, then the whiteboard — draw the architecture you'll actually build.",
+          "attribution": "Adapted from the OpenAI Cookbook (MIT), Gemini Cookbook (Apache-2.0), and Claude Quickstarts (MIT)",
+          "check": { "type": "read" }
+        },
+        {
+          "id": "quiz-portfolio",
+          "title": "Knowledge check: defend your design",
+          "kind": "quiz",
+          "xp": 20,
+          "content": "# Knowledge check\n\nThree interview-style questions. All three to pass — these are dress rehearsal.",
+          "quiz": [
+            {
+              "id": "q1-differentiator",
+              "prompt": "An interviewer sees 'chat with your PDF' on two resumes. Candidate A shows response screenshots; candidate B shows an eval table (89% grounded, worst failures listed) and a semantic cache hit-rate. Who reads as the engineer, and why?",
+              "options": [
+                "A — screenshots prove it works",
+                "B — measurement and cost-awareness are what separate building from demoing",
+                "Neither; PDFs are played out"
+              ],
+              "correctIndex": 1,
+              "explanation": "Same project, different evidence. Evals and ops numbers show you know *how well* it works and *what it costs* — the two questions production teams ask all day."
+            },
+            {
+              "id": "q2-queue-justification",
+              "prompt": "In your architecture, video analysis goes through a job queue. The interviewer asks why. Your best answer:",
+              "options": [
+                "\"Queues are a best practice\"",
+                "\"Analysis takes minutes; HTTP requests time out in seconds — the queue moves slow work out of the request cycle and makes retries safe\"",
+                "\"The framework included one\""
+              ],
+              "correctIndex": 1,
+              "explanation": "The winning answer names the constraint (minutes vs seconds) and the failure it prevents (timeouts, unsafe retries). Every box in your diagram deserves an answer of this shape."
+            },
+            {
+              "id": "q3-agent-guardrails",
+              "prompt": "You demo an agent project. Which detail most strongly signals production instincts?",
+              "options": [
+                "The agent has fifteen tools",
+                "It shows an iteration cap, a tool allowlist, and a trace viewer for every run",
+                "It uses the newest model released this month"
+              ],
+              "correctIndex": 1,
+              "explanation": "Guardrails and observability say 'I've thought about how this fails.' Tool count and model version say 'I read the changelog.'"
+            }
+          ],
+          "check": { "type": "quiz", "minCorrect": 3 }
+        }
+      ]
+    },
+    {
+      "id": "ch2-the-capstone",
+      "title": "The capstone",
+      "exercises": [
+        {
+          "id": "draw-capstone-architecture",
+          "title": "Whiteboard: Draw your capstone architecture",
+          "kind": "whiteboard",
+          "xp": 50,
+          "language": "javascript",
+          "content": "# Draw a capstone architecture\n\nA strong portfolio project should show a real workflow, not a thin chat wrapper. Use the whiteboard to draw one of these three project routes:\n\n- OpenAI RAG app: private documents, embeddings, retrieval, citations, answer generation.\n- Gemini multimodal app: screenshots or videos, analysis queue, model call, reviewed output.\n- Claude agent workflow: planner, tools, permissions, memory, trace, and final artifact.\n\n### Your task\nDraw the architecture for one route. Include user input, model/API layer, storage, async work, and the final portfolio artifact. Label every arrow — in the interview, each one gets a \"why?\"\n\n### Source bench\n- OpenAI Cookbook\n- Gemini Cookbook\n- Claude Quickstarts",
+          "whiteboardBrief": {
+            "requirements": [
+              "Pick one route: OpenAI RAG app, Gemini multimodal app, or Claude agent workflow.",
+              "Show the user-facing app, model/API call, and the data or file store.",
+              "Add one production control: queue, cache, rate limit, or permission gate.",
+              "Label the portfolio artifact a recruiter can inspect."
+            ]
+          },
+          "check": {
+            "type": "diagram",
+            "passThreshold": 4
+          },
+          "hint": "A recruiter should be able to see what the user does, where context comes from, which model is called, and what artifact the project produces."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "07-evaluation-observability",
+  "order": 7,
+  "title": "Evaluation & Observability",
+  "objective": "Move from \"it seemed to work in my one test\" to a real evaluation practice.",
+  "topics": [
+    "Building a small eval/test set for a given task",
+    "Scoring approaches: exact-match, rubric-based, LLM-as-judge (and its pitfalls)",
+    "Tracing a multi-step agent run for debugging",
+    "Failure analysis: categorizing why a run failed, not just that it did"
+  ],
+  "exercise": "Write a 10-case eval set for the module-05 agent and score its outputs against a rubric.",
+  "project": "Add tracing + an eval harness to the multi-agent project from module 06.",
+  "sourceIds": ["openai-cookbook", "huggingface-agents-course", "anthropic-claude-cookbooks"]
+}
