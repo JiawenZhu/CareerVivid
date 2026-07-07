@@ -29,12 +29,26 @@
     "Regulated-environment comfort: \"Have you worked under compliance / regulatory constraints?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Implement pending, authorized, settled, returned, reversed. Talk through your approach, complexity, and edge cases.",
+      "Implement an idempotent processor for at-least-once delivery (message queue consumer handling duplicates). Talk through your approach, complexity, and edge cases.",
+      "Build a rate limiter with fairness guarantees across customers. Talk through your approach, complexity, and edge cases.",
+      "Implement ACH NACHA files, ISO 20022 messages, Plaid-style transaction data. Talk through your approach, complexity, and edge cases.",
+      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?"
+    ],
+    "behavioral": [
+      "Tell me about a time you pushed back on shipping because the design wasn't right yet.",
+      "Describe a moment where you understood a user / customer need deeply.",
+      "Tell me about a production incident you owned end-to-end.",
+      "Have you worked under compliance / regulatory constraints?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
     "systemDesign": [
       "When do you reach for a sum type vs a field-with-null?",
       "How do you handle errors &mdash; exceptions, Result / Either, or something else?",
-      "When is a type system overkill?"
+      "When is a type system overkill?",
+      "Design the ACH orchestration system processing 100K transfers/day with partner-bank dependency.",
+      "Design a real-time fraud detection pipeline with <50ms scoring latency and feedback loops. Cover the API, data model, and how it scales."
     ],
     "values": [],
     "other": [

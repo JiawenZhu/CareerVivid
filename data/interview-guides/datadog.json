@@ -33,9 +33,27 @@
     "Customer empathy: a situation where you directly engaged with a customer problem &mdash; observability is a customer-facing product even from infra roles."
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Implement compute top-K over a bounded memory budget. Talk through your approach, complexity, and edge cases.",
+      "Implement build a multi-line event aggregator, correlate events by ID. Talk through your approach, complexity, and edge cases.",
+      "Implement find all events within a sliding N-minute window that match a predicate. Talk through your approach, complexity, and edge cases.",
+      "Implement implement an approximate distinct counter, a bloom filter with specific false-positive rate. Talk through your approach, complexity, and edge cases.",
+      "Implement segment tree for range queries, interval tree for overlap detection. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Describe a production incident or project you owned end-to-end. What did you do, and what was the outcome?",
+      "Tell me about a time you worked across teams to deliver something. How did you handle competing priorities?",
+      "Tell me about a time you engaged deeply with a customer or user problem. How did it change what you built?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?"
+    ],
+    "systemDesign": [
+      "Design a metrics ingestion pipeline handling 10M points/sec with 1-minute latency. Cover the API, data model, and how it scales.",
+      "Design log search for 100B events/day with bounded p99 latency. Cover the API, data model, and how it scales.",
+      "Design a distributed tracing system with adaptive sampling that preserves interesting traces.",
+      "Design rate limiting across a multi-tenant API surface with fairness guarantees. Cover the API, data model, and how it scales.",
+      "Design a service at Datadog scale that shortens URLs. Cover the API, storage, and hot-key handling."
+    ],
     "values": [],
     "other": [
       "Do I need observability background to get hired?",

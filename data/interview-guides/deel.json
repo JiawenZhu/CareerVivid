@@ -31,9 +31,27 @@
     "Ownership: \"Describe a complex project you owned end-to-end.\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Given an employee and jurisdiction, compute gross-to-net with correct tax handling. Talk through your approach, complexity, and edge cases.",
+      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution."
+    ],
+    "behavioral": [
+      "How do you operate in a fast-growing company with shifting priorities?",
+      "Describe working effectively across many timezones and cultures.",
+      "Tell me about understanding a customer's HR / compliance challenge.",
+      "Describe a complex project you owned end-to-end.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the multi-country payroll execution system running bi-weekly or monthly cycles in 100+ countries with jurisdictional compliance.",
+      "Design the contractor payment orchestration with multi-currency support and banking partner failover.",
+      "Design the benefits administration platform supporting country-specific plans with ongoing enrollment and changes.",
+      "Design the immigration / visa case-management system integrating with government services where available.",
+      "Walk through what happens legally when Deel hires an employee in Germany for a US customer."
+    ],
     "values": [],
     "other": [
       "How does Deel compare to Rippling / Workday on interviews?",

@@ -18,9 +18,15 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { analyzeCodingSubmission } from '../../services/geminiService';
 import { InterviewAnalysis, QuestCodingArtifact } from '../../types';
 import {
+    CODING_LANGUAGES,
+    CODING_LANGUAGE_LABELS,
     CodingBrief,
     CodingLanguage,
     CodingRunSummary,
+    ExecutableCodingLanguage,
+    getCodingFunctionName,
+    getCodingStarterCode,
+    isExecutableCodingLanguage,
 } from '../../lib/codingChallenges';
 import { useQuestCodeRunner } from '../../hooks/useQuestCodeRunner';
 import type { RunnerResponse } from '../../workers/questCodeRunner.worker';
@@ -32,6 +38,7 @@ interface CodingBattleProps {
     company: string;
     stageTitle: string;
     brief: CodingBrief;
+    preferredLanguage: CodingLanguage;
     initialArtifact?: QuestCodingArtifact;
     /** Persist the analysis and return the saved record (with id + timestamp). */
     saveAnalysis: (analysis: Omit<InterviewAnalysis, 'id' | 'timestamp'>) => Promise<InterviewAnalysis>;
@@ -54,21 +61,25 @@ const summarize = (response: RunnerResponse, hiddenIncluded: boolean): CodingRun
 };
 
 const isCodingLanguage = (value: string | undefined): value is CodingLanguage =>
-    value === 'javascript' || value === 'python';
+    !!value && (CODING_LANGUAGES as readonly string[]).includes(value);
 
 const buildInitialCodeByLanguage = (
     brief: CodingBrief,
     artifact: QuestCodingArtifact | undefined,
 ): Record<CodingLanguage, string> => {
-    const starter = brief.challenge.starterCode;
+    const starter = Object.fromEntries(
+        CODING_LANGUAGES.map((lang) => [lang, getCodingStarterCode(brief.challenge, lang)]),
+    ) as Record<CodingLanguage, string>;
     if (!artifact || artifact.challengeId !== brief.challenge.id) {
-        return { javascript: starter.javascript, python: starter.python };
+        return starter;
     }
 
-    return {
-        javascript: artifact.codeByLanguage?.javascript ?? (artifact.language === 'javascript' ? artifact.code : starter.javascript),
-        python: artifact.codeByLanguage?.python ?? (artifact.language === 'python' ? artifact.code : starter.python),
-    };
+    return Object.fromEntries(
+        CODING_LANGUAGES.map((lang) => [
+            lang,
+            artifact.codeByLanguage?.[lang] ?? (artifact.language === lang ? artifact.code : starter[lang]),
+        ]),
+    ) as Record<CodingLanguage, string>;
 };
 
 const CodingBattle: React.FC<CodingBattleProps> = ({
@@ -76,6 +87,7 @@ const CodingBattle: React.FC<CodingBattleProps> = ({
     company,
     stageTitle,
     brief,
+    preferredLanguage,
     initialArtifact,
     saveAnalysis,
     onAnalysisComplete,
@@ -86,7 +98,7 @@ const CodingBattle: React.FC<CodingBattleProps> = ({
     const { challenge } = brief;
     const initialLanguage = initialArtifact?.challengeId === challenge.id && isCodingLanguage(initialArtifact.language)
         ? initialArtifact.language
-        : 'javascript';
+        : preferredLanguage;
 
     const [language, setLanguage] = useState<CodingLanguage>(initialLanguage);
     const [codeByLanguage, setCodeByLanguage] = useState<Record<CodingLanguage, string>>(
@@ -100,19 +112,23 @@ const CodingBattle: React.FC<CodingBattleProps> = ({
     const [reportEntry, setReportEntry] = useState<InterviewAnalysis | null>(null);
 
     const code = codeByLanguage[language];
+    const canRunLocally = isExecutableCodingLanguage(language);
     const extensions = useMemo(
-        () => [language === 'python' ? python() : javascript()],
+        () => (language === 'python' ? [python()] : language === 'javascript' ? [javascript()] : []),
         [language],
     );
     const visibleTests = useMemo(() => challenge.tests.filter((t) => !t.hidden), [challenge]);
 
-    const executeTests = async (includeHidden: boolean): Promise<CodingRunSummary> => {
+    const executeTests = async (
+        runLanguage: ExecutableCodingLanguage,
+        includeHidden: boolean,
+    ): Promise<CodingRunSummary> => {
         const response = await run({
-            language,
+            language: runLanguage,
             code,
-            functionName: challenge.functionName[language],
+            functionName: getCodingFunctionName(challenge, runLanguage),
             tests: includeHidden ? challenge.tests : visibleTests,
-            timeoutMs: language === 'python' ? PY_TIMEOUT_MS : JS_TIMEOUT_MS,
+            timeoutMs: runLanguage === 'python' ? PY_TIMEOUT_MS : JS_TIMEOUT_MS,
         });
         setLogs(response.logs);
         if (!response.ok) throw new Error(response.error || 'Your code failed to run.');
@@ -120,10 +136,16 @@ const CodingBattle: React.FC<CodingBattleProps> = ({
     };
 
     const handleRun = async () => {
+        if (!canRunLocally) {
+            setRunSummary(null);
+            setLogs([]);
+            setError(`${CODING_LANGUAGE_LABELS[language]} is AI-reviewed here. Local test execution is available for JavaScript and Python.`);
+            return;
+        }
         setIsRunning(true);
         setError('');
         try {
-            setRunSummary(await executeTests(false));
+            setRunSummary(await executeTests(language, false));
         } catch (e) {
             setRunSummary(null);
             setError(e instanceof Error ? e.message : 'Failed to run your code.');
@@ -133,15 +155,17 @@ const CodingBattle: React.FC<CodingBattleProps> = ({
     };
 
     const handleSubmit = async () => {
-        if (code.trim() === challenge.starterCode[language].trim() || !code.trim()) {
-            setError('Write your solution first — run it against the sample tests before submitting.');
+        if (code.trim() === getCodingStarterCode(challenge, language).trim() || !code.trim()) {
+            setError('Write your solution first — replace the starter code before submitting.');
             return;
         }
 
         setIsSubmitting(true);
         setError('');
         try {
-            const summary = await executeTests(true);
+            const summary = canRunLocally
+                ? await executeTests(language, true)
+                : { passed: 0, total: 0, results: [], durationMs: 0 };
             setRunSummary(summary);
 
             const analysisData = await analyzeCodingSubmission(userId, {
@@ -209,12 +233,14 @@ const CodingBattle: React.FC<CodingBattleProps> = ({
                         </span>
                         <div className="min-w-0">
                             <h2 className="truncate text-sm font-bold text-gray-900 dark:text-gray-100">{company} · {stageTitle}</h2>
-                            <p className="truncate text-xs text-gray-500 dark:text-gray-400">Write and run your solution, then submit for AI review</p>
+                            <p className="truncate text-xs text-gray-500 dark:text-gray-400">
+                                {canRunLocally ? 'Write and run your solution, then submit for AI review' : 'Write your solution, then submit for AI code review'}
+                            </p>
                         </div>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
-                        <div className="flex overflow-hidden rounded-lg border border-gray-200 text-xs font-bold dark:border-gray-700">
-                            {(['javascript', 'python'] as CodingLanguage[]).map((lang) => (
+                        <div className="flex max-w-[23rem] flex-wrap overflow-hidden rounded-lg border border-gray-200 text-xs font-bold dark:border-gray-700">
+                            {CODING_LANGUAGES.map((lang) => (
                                 <button
                                     key={lang}
                                     type="button"
@@ -223,14 +249,18 @@ const CodingBattle: React.FC<CodingBattleProps> = ({
                                         ? 'bg-[#625bd5] text-white dark:bg-[#7069dc]'
                                         : 'bg-white text-gray-500 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'}`}
                                 >
-                                    {lang === 'javascript' ? 'JavaScript' : 'Python'}
+                                    {CODING_LANGUAGE_LABELS[lang]}
+                                    {lang === preferredLanguage && (
+                                        <span className="ml-1 text-[9px] font-extrabold uppercase opacity-75">Rec</span>
+                                    )}
                                 </button>
                             ))}
                         </div>
                         <button
                             type="button"
                             onClick={handleRun}
-                            disabled={isRunning || isSubmitting}
+                            disabled={isRunning || isSubmitting || !canRunLocally}
+                            title={canRunLocally ? undefined : 'Local test execution is available for JavaScript and Python.'}
                             className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3.5 text-xs font-bold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                         >
                             {isRunning ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
@@ -323,7 +353,9 @@ const CodingBattle: React.FC<CodingBattleProps> = ({
                             </div>
                             {!runSummary && !logs.length && (
                                 <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
-                                    Press “Run tests” to execute your solution against the sample cases. Python starts a one-time runtime download on first run.
+                                    {canRunLocally
+                                        ? 'Press “Run tests” to execute your solution against the sample cases. Python starts a one-time runtime download on first run.'
+                                        : `${CODING_LANGUAGE_LABELS[language]} is reviewed by AI in this version. Switch to JavaScript or Python to run local sample tests.`}
                                 </p>
                             )}
                             {runSummary && (

@@ -36,8 +36,20 @@
     "Learning from failures"
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
+      "Implement a cache (LRU, LFU). Talk through your approach, complexity, and edge cases.",
+      "Design a database schema. Talk through your approach, complexity, and edge cases.",
+      "Parse and process log files. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+    ],
+    "behavioral": [
+      "Describe a production incident or project you owned end-to-end. What did you do, and what was the outcome?",
+      "Tell me about a time you worked across teams to deliver something. How did you handle competing priorities?",
+      "Tell me about a time you engaged deeply with a customer or user problem. How did it change what you built?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
     "systemDesign": [],
     "values": [],
     "other": []

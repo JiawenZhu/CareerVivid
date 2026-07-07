@@ -27,9 +27,27 @@
     "Creativity / craft: \"What's a side project or creative thing you've built that you're proud of?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Implement quadtree / octree / uniform grid. Talk through your approach, complexity, and edge cases.",
+      "Implement given two peer states and a diff, produce minimal update packets. Talk through your approach, complexity, and edge cases.",
+      "Implement given sparse position samples, compute smooth continuous values. Talk through your approach, complexity, and edge cases.",
+      "Implement implement a free-list allocator, object pool, ring buffer. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+    ],
+    "behavioral": [
+      "Tell me about a time you engaged with a creator or user problem. How did it change what you built?",
+      "Describe a time you took a system from small-scale to large-scale.",
+      "Have you worked in environments with child-safety or privacy regulations? How did they shape your engineering?",
+      "What's a side project or creative thing you've built that you're proud of?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the matchmaking system pairing 85M DAU into 2M concurrent sessions with latency / skill targets.",
+      "Design the server-allocation system provisioning game servers globally with seconds-level spin-up.",
+      "Design real-time chat with moderation for user-generated experiences including voice. Cover the API, data model, and how it scales.",
+      "Design the Robux ledger handling millions of transactions per minute with fraud detection. Cover the API, data model, and how it scales.",
+      "Design a service at Roblox scale that shortens URLs. Cover the API, storage, and hot-key handling."
+    ],
     "values": [
       "What about the child-safety and regulatory scrutiny?"
     ],

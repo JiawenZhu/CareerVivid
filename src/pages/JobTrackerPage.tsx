@@ -258,10 +258,18 @@ const JobTrackerPage: React.FC = () => {
         const params = new URLSearchParams(window.location.search);
         const jobId = params.get('job');
         const queryText = params.get('q');
-        const signature = `${jobId || ''}:${queryText || ''}:${jobApplications.length}`;
+        const action = params.get('action');
+        const signature = `${jobId || ''}:${queryText || ''}:${action || ''}:${jobApplications.length}`;
 
-        if (!jobId && !queryText) return;
+        if (!jobId && !queryText && !action) return;
         if (handledDeepLinkRef.current === signature) return;
+
+        // Deep link from the dashboard goal panel: open the "Track a New Job
+        // Application" modal directly (e.g. "Save target job" / "Run match"
+        // when no job is saved yet).
+        if (action === 'new') {
+            setIsAddModalOpen(true);
+        }
 
         if (queryText) {
             setSearchQuery(queryText);

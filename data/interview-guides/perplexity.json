@@ -36,9 +36,27 @@
     "Product quality instinct: \"What's your approach to shipping AI features that users trust?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Given candidate documents and a query, produce ranked output using a scoring function. Talk through your approach, complexity, and edge cases.",
+      "Stream-process LLM response tokens with structured-output parsing (extract citations as they appear). Talk through your approach, complexity, and edge cases.",
+      "Given a user question, generate retrieval-optimized queries. Talk through your approach, complexity, and edge cases.",
+      "Merge BM25 + dense-retrieval results with a scoring function. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+    ],
+    "behavioral": [
+      "Tell me about a feature you shipped in an AI-product context.",
+      "How do you design systems around LLM unreliability?",
+      "Describe working with rapidly-evolving model capabilities and user expectations.",
+      "What's your approach to shipping AI features that users trust?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the retrieval pipeline pulling from 100B web pages with sub-second latency and freshness guarantees.",
+      "Design the ranking system combining BM25, dense retrieval, and LLM reranking across multiple indexes.",
+      "Design Comet's hybrid browser architecture combining on-device privacy with cloud AI assistance.",
+      "Design the citation-verification system to reduce hallucinations in generated answers. Cover the API, data model, and how it scales.",
+      "Design a feature that would make Perplexity stickier for power users. Cover the API, data model, and how it scales."
+    ],
     "values": [],
     "other": [
       "Is Perplexity just an LLM wrapper?",

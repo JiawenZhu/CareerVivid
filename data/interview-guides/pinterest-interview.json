@@ -44,8 +44,20 @@
     "\"What would you build if you joined Pinterest?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Implement Pins as nodes, similarity as edges. Talk through your approach, complexity, and edge cases.",
+      "Take a solution you have written recently and analyze its time and space complexity. How would you optimize it?",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you engaged deeply with a customer or user problem. How did it change what you built?",
+      "Tell me about a time you worked across teams to deliver something. How did you handle competing priorities?",
+      "Tell me about the piece of work you are most proud of. What was the measurable impact?",
+      "Tell me about a time you used data to make a decision.",
+      "Describe a feature you shipped that didn't work as expected."
+    ],
     "systemDesign": [],
     "values": [],
     "other": [

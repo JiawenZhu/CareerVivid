@@ -31,9 +31,27 @@
     "Customer focus: \"Tell me about a time you deeply understood a user's problem.\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Given a product scenario (e.g., issues with parent / child relationships and cycles), design types and operations that preserve invariants. Talk through your approach, complexity, and edge cases.",
+      "Given a set of local edits and a set of remote edits, compute a consistent merged state. Talk through your approach, complexity, and edge cases.",
+      "Implement fast fuzzy search across a typed object corpus. Talk through your approach, complexity, and edge cases.",
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you pushed back on shipping something that wasn't quite right.",
+      "Describe how you've worked effectively across timezones.",
+      "What are you hoping to build or learn over the next several years?",
+      "Tell me about a time you deeply understood a user's problem.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the offline-first sync engine that keeps clients consistent while allowing offline edits.",
+      "Design the issue-relationship model supporting parents, children, blockers, and dependencies with invariant preservation.",
+      "Design the command-palette with fast global search across issues, projects, people, and labels.",
+      "Design the activity-feed and notification system with per-user relevance ranking. Cover the API, data model, and how it scales.",
+      "Walk me through a feature you've shipped that you're proud of from a craft perspective."
+    ],
     "values": [],
     "other": [
       "How does Linear's offline-first architecture actually work?",

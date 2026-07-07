@@ -32,9 +32,27 @@
     "Technical depth: \"Walk me through the hardest database problem you've solved.\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Implement a simple query parser / evaluator for a structured expression language. Talk through your approach, complexity, and edge cases.",
+      "Given a query and shard configuration, determine target shard(s). Talk through your approach, complexity, and edge cases.",
+      "Design a connection pool with fair allocation and timeout handling. Talk through your approach, complexity, and edge cases.",
+      "Given two table definitions, produce minimal migration steps. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+    ],
+    "behavioral": [
+      "Describe a database-related project you owned end-to-end.",
+      "Tell me about supporting a customer with a database problem. What did you learn?",
+      "Describe your practices for remote / async work.",
+      "Walk me through the hardest database problem you've solved.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the sharding layer handling 1M QPS with correct routing across thousands of shards. Cover the API, data model, and how it scales.",
+      "Design online schema change for a 10TB table with zero downtime on a high-write workload. Cover the API, data model, and how it scales.",
+      "Design the query-cache invalidation system (PlanetScale Boost-style) with strong consistency guarantees.",
+      "Design multi-cloud failover with customer-visible cloud choice and bounded recovery time. Cover the API, data model, and how it scales.",
+      "Walk through MySQL's InnoDB B-tree structure and how updates propagate through the buffer pool."
+    ],
     "values": [],
     "other": [
       "Do I need MySQL / Vitess experience to get hired?",

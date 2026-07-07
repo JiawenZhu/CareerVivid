@@ -7,10 +7,13 @@ import {
     FileText,
     FolderOpen,
     History,
+    ListChecks,
     Mic,
     Network,
     Sparkles,
     Target,
+    TrendingDown,
+    TrendingUp,
     type LucideIcon,
 } from 'lucide-react';
 import type { JobApplicationData, PracticeHistoryEntry, ResumeData } from '../../types';
@@ -21,7 +24,9 @@ import {
     type CareerProfileGraphNode,
     type CareerProfileGraphNodeId,
     type CareerProfileGraphTone,
+    type PracticeInsights,
 } from '../../utils/careerProfileGraph';
+import { findQuestSlugForCompany } from '../../lib/localInterviewGuides';
 import { navigate } from '../../utils/navigation';
 
 interface CareerProfileGraphCardProps {
@@ -129,7 +134,175 @@ const getReadinessState = (node: CareerProfileGraphNode) => {
     };
 };
 
-const SignalMapTile: React.FC<{ node: CareerProfileGraphNode; isNext: boolean }> = ({ node, isNext }) => {
+/**
+ * Dashboard hierarchy: Resume and Mock Interviews are the two core loops
+ * (users level up by drilling company mock interviews and sharpening the
+ * resume), Job Tracker is the third pillar, everything else is secondary.
+ */
+const HERO_NODE_IDS: CareerProfileGraphNodeId[] = ['resume', 'interview'];
+const TRACKER_NODE_ID: CareerProfileGraphNodeId = 'jobHistory';
+
+const heroDisplay: Partial<Record<CareerProfileGraphNodeId, { title: string; subtitle: string }>> = {
+    resume: { title: 'Resume', subtitle: 'Your base for every match and application.' },
+    interview: { title: 'Mock Interviews', subtitle: 'Practice real company loops — coding, system design, behavioral — and raise your score.' },
+    jobHistory: { title: 'Job Tracker', subtitle: 'Every saved role, application, and next step in one pipeline.' },
+};
+
+/** Large card for the two core areas: Resume and Mock Interviews. */
+const HeroTile: React.FC<{
+    node: CareerProfileGraphNode;
+    isNext: boolean;
+    /** Practice trend/weak-dimension insights (interview card only). */
+    insights?: PracticeInsights;
+    /** Override destination (e.g. deep link into the target company quest). */
+    pathOverride?: string;
+    actionLabelOverride?: string;
+}> = ({ node, isNext, insights, pathOverride, actionLabelOverride }) => {
+    const Icon = nodeIcons[node.id];
+    const styles = toneStyles[node.tone];
+    const state = getReadinessState(node);
+    const display = heroDisplay[node.id];
+
+    return (
+        <button
+            type="button"
+            onClick={() => navigate(pathOverride ?? node.actionPath)}
+            className={`group flex min-h-[200px] flex-col rounded-2xl border bg-white/95 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-950/60 dark:hover:bg-slate-950 ${isNext ? 'border-amber-300 ring-2 ring-amber-100 dark:border-amber-700 dark:ring-amber-900/30' : 'border-stone-200/80 dark:border-slate-800/80'} ${styles.border}`}
+            aria-label={`${display?.title ?? node.label}: ${state.label}. ${node.actionLabel}`}
+        >
+            <div className="flex items-start justify-between gap-3">
+                <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${styles.icon}`}>
+                    <Icon size={22} />
+                </span>
+                <div className="flex items-center gap-2">
+                    {isNext && (
+                        <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-black text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
+                            Next
+                        </span>
+                    )}
+                    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-bold leading-none ${state.chip}`}>
+                        <span className={`h-2 w-2 shrink-0 rounded-full ${state.dot}`} />
+                        {state.label}
+                    </span>
+                </div>
+            </div>
+
+            <div className="mt-4 min-w-0 flex-1">
+                <h3 className="text-xl font-extrabold tracking-tight text-slate-950 dark:text-white">{display?.title ?? node.label}</h3>
+                <p className="mt-1 text-sm leading-5 text-slate-600 dark:text-slate-300">{display?.subtitle ?? node.detail}</p>
+                <p className="mt-2 truncate text-xs font-bold text-slate-500 dark:text-slate-400">{node.value} · {node.detail}</p>
+
+                {/* Skill-growth signals: score trend + weakest dimension */}
+                {insights && insights.sessionsAnalyzed > 0 && (
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                        {insights.trend && (
+                            <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-black leading-none ${insights.trend.delta >= 0
+                                ? 'border-emerald-100 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-200'
+                                : 'border-rose-100 bg-rose-50 text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-200'}`}>
+                                {insights.trend.delta >= 0 ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+                                {insights.trend.delta >= 0 ? '+' : ''}{insights.trend.delta} vs last 5
+                            </span>
+                        )}
+                        {insights.weakestDimension && (
+                            <span className="inline-flex items-center gap-1 rounded-full border border-amber-100 bg-amber-50 px-2 py-1 text-[10px] font-black leading-none text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
+                                <Target size={11} />
+                                Weakest: {insights.weakestDimension.label} {insights.weakestDimension.score}%
+                            </span>
+                        )}
+                    </div>
+                )}
+            </div>
+
+            <div className="mt-4">
+                <div className="h-2 overflow-hidden rounded-full bg-stone-100 dark:bg-slate-900">
+                    <div className={`h-full rounded-full ${styles.bar}`} style={{ width: `${node.progress}%` }} />
+                </div>
+                <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-primary-700 transition group-hover:gap-2.5 dark:text-primary-300">
+                    {actionLabelOverride ?? node.actionLabel}
+                    <ArrowRight size={15} />
+                </span>
+            </div>
+        </button>
+    );
+};
+
+/** Aggregates the latest report's "practice next" bullets onto the dashboard. */
+const PracticeNextCard: React.FC<{ insights: PracticeInsights; practicePath: string }> = ({ insights, practicePath }) => (
+    <div className="rounded-2xl border border-indigo-100 bg-white/85 p-4 dark:border-indigo-900/40 dark:bg-slate-950/55">
+        <p className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500 dark:text-slate-400">
+            <ListChecks size={13} /> Practice next
+        </p>
+        {insights.practiceNext.length > 0 ? (
+            <ul className="space-y-1.5">
+                {insights.practiceNext.map((item) => (
+                    <li key={item} className="flex gap-2 text-xs leading-5 text-slate-600 dark:text-slate-300">
+                        <CircleDashed size={12} className="mt-1 shrink-0 text-indigo-500 dark:text-indigo-300" />
+                        <span className="line-clamp-2">{item}</span>
+                    </li>
+                ))}
+            </ul>
+        ) : (
+            <p className="text-xs leading-5 text-slate-500 dark:text-slate-400">
+                Finish one mock interview and your reviewer's specific improvement points will show up here after every session.
+            </p>
+        )}
+        <button
+            type="button"
+            onClick={() => navigate(practicePath)}
+            className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-primary-700 transition hover:gap-2.5 dark:text-primary-300"
+        >
+            {insights.practiceNext.length ? 'Drill these in a new session' : 'Start your first session'}
+            <ArrowRight size={13} />
+        </button>
+    </div>
+);
+
+
+/** Wide horizontal card for the Job Tracker — pillar #3. */
+const TrackerTile: React.FC<{ node: CareerProfileGraphNode; isNext: boolean }> = ({ node, isNext }) => {
+    const Icon = nodeIcons[node.id];
+    const styles = toneStyles[node.tone];
+    const state = getReadinessState(node);
+    const display = heroDisplay[node.id];
+
+    return (
+        <button
+            type="button"
+            onClick={() => navigate(node.actionPath)}
+            className={`group flex w-full items-center gap-4 rounded-2xl border bg-white/95 p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-950/60 dark:hover:bg-slate-950 ${isNext ? 'border-amber-300 ring-2 ring-amber-100 dark:border-amber-700 dark:ring-amber-900/30' : 'border-stone-200/80 dark:border-slate-800/80'} ${styles.border}`}
+            aria-label={`${display?.title ?? node.label}: ${state.label}. ${node.actionLabel}`}
+        >
+            <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${styles.icon}`}>
+                <Icon size={20} />
+            </span>
+            <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-base font-extrabold text-slate-950 dark:text-white">{display?.title ?? node.label}</h3>
+                    {isNext && (
+                        <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-black text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
+                            Next
+                        </span>
+                    )}
+                    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-bold leading-none ${state.chip}`}>
+                        <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${state.dot}`} />
+                        {state.label}
+                    </span>
+                </div>
+                <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">{node.value} · {node.detail}</p>
+                <div className="mt-2 h-1.5 max-w-md overflow-hidden rounded-full bg-stone-100 dark:bg-slate-900">
+                    <div className={`h-full rounded-full ${styles.bar}`} style={{ width: `${node.progress}%` }} />
+                </div>
+            </div>
+            <span className="inline-flex shrink-0 items-center gap-1.5 text-sm font-bold text-primary-700 transition group-hover:gap-2.5 dark:text-primary-300">
+                {node.actionLabel}
+                <ArrowRight size={15} />
+            </span>
+        </button>
+    );
+};
+
+/** Compact tile for the secondary areas (Skills, Goal progress, etc.). */
+const CompactTile: React.FC<{ node: CareerProfileGraphNode; isNext: boolean }> = ({ node, isNext }) => {
     const Icon = nodeIcons[node.id];
     const styles = toneStyles[node.tone];
     const state = getReadinessState(node);
@@ -138,32 +311,20 @@ const SignalMapTile: React.FC<{ node: CareerProfileGraphNode; isNext: boolean }>
         <button
             type="button"
             onClick={() => navigate(node.actionPath)}
-            className={`group min-h-[128px] rounded-2xl border bg-white/90 p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-white dark:bg-slate-950/55 dark:hover:bg-slate-950 ${isNext ? 'border-amber-300 ring-2 ring-amber-100 dark:border-amber-700 dark:ring-amber-900/30' : 'border-stone-200/80 dark:border-slate-800/80'} ${styles.border}`}
+            className={`group flex items-center gap-2.5 rounded-xl border bg-white/80 px-3 py-2.5 text-left transition hover:-translate-y-0.5 hover:bg-white dark:bg-slate-950/45 dark:hover:bg-slate-950 ${isNext ? 'border-amber-300 ring-1 ring-amber-100 dark:border-amber-700 dark:ring-amber-900/30' : 'border-stone-200/70 dark:border-slate-800/70'} ${styles.border}`}
             aria-label={`${node.label}: ${state.label}. ${node.actionLabel}`}
         >
-            <div className="flex items-start justify-between gap-2">
-                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl ${styles.icon}`}>
-                    <Icon size={17} />
-                </span>
-                {isNext && (
-                    <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-black text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
-                        Next
-                    </span>
-                )}
-            </div>
-
-            <div className="mt-3 min-w-0">
-                <h3 className="truncate text-sm font-extrabold text-slate-950 dark:text-white">{node.label}</h3>
-                <div className="mt-2 flex items-center gap-1.5">
-                    <span className={`h-2 w-2 shrink-0 rounded-full ${state.dot}`} />
-                    <span className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-bold leading-none ${state.chip}`}>
-                        {state.label}
-                    </span>
+            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${styles.icon}`}>
+                <Icon size={15} />
+            </span>
+            <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                    <h3 className="truncate text-xs font-extrabold text-slate-950 dark:text-white">{node.label}</h3>
+                    <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${state.dot}`} title={state.label} />
                 </div>
-            </div>
-
-            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-stone-100 dark:bg-slate-900">
-                <div className={`h-full rounded-full ${styles.bar}`} style={{ width: `${node.progress}%` }} />
+                <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-stone-100 dark:bg-slate-900">
+                    <div className={`h-full rounded-full ${styles.bar}`} style={{ width: `${node.progress}%` }} />
+                </div>
             </div>
         </button>
     );
@@ -243,6 +404,15 @@ const CareerProfileGraphCard: React.FC<CareerProfileGraphCardProps> = ({
     const readyCount = graph.nodes.filter((node) => node.progress >= 75).length;
     const buildingCount = graph.nodes.filter((node) => node.progress > 0 && node.progress < 75).length;
     const startCount = graph.nodes.filter((node) => node.progress === 0).length;
+
+    // Deep-link Mock Interviews straight into the target company's quest
+    // (the company interview loop) whenever a guide exists for it.
+    const questSlug = useMemo(
+        () => findQuestSlugForCompany(graph.roleGoal.company),
+        [graph.roleGoal.company],
+    );
+    const practicePath = questSlug ? `/quest/${questSlug}` : '/interview-studio';
+    const practiceLabel = questSlug ? `Practice the ${graph.roleGoal.company} loop` : undefined;
 
     return (
         <section className="mb-8" aria-labelledby="career-profile-graph-title">
@@ -324,10 +494,46 @@ const CareerProfileGraphCard: React.FC<CareerProfileGraphCardProps> = ({
                             </div>
                         </div>
 
-                        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-                            {graph.nodes.map((node) => (
-                                <SignalMapTile key={node.id} node={node} isNext={node.id === graph.nextBestStep.id} />
-                            ))}
+                        {/* Core loop: Resume + Mock Interviews (hero), Job Tracker (pillar #3) */}
+                        <div className="grid gap-3 sm:grid-cols-2">
+                            {HERO_NODE_IDS.map((id) => {
+                                const node = graph.nodes.find((n) => n.id === id);
+                                if (!node) return null;
+                                const isInterview = id === 'interview';
+                                return (
+                                    <HeroTile
+                                        key={id}
+                                        node={node}
+                                        isNext={id === graph.nextBestStep.id}
+                                        insights={isInterview ? graph.practiceInsights : undefined}
+                                        pathOverride={isInterview ? practicePath : undefined}
+                                        actionLabelOverride={isInterview ? practiceLabel : undefined}
+                                    />
+                                );
+                            })}
+                        </div>
+
+                        {/* Improvement loop: what to drill next, from the latest report */}
+                        <PracticeNextCard insights={graph.practiceInsights} practicePath={practicePath} />
+                        {(() => {
+                            const tracker = graph.nodes.find((n) => n.id === TRACKER_NODE_ID);
+                            return tracker
+                                ? <TrackerTile node={tracker} isNext={tracker.id === graph.nextBestStep.id} />
+                                : null;
+                        })()}
+
+                        {/* Everything else, compact */}
+                        <div>
+                            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-stone-500 dark:text-slate-400">
+                                More setup
+                            </p>
+                            <div className="grid gap-2 grid-cols-2 lg:grid-cols-4">
+                                {graph.nodes
+                                    .filter((node) => !HERO_NODE_IDS.includes(node.id) && node.id !== TRACKER_NODE_ID)
+                                    .map((node) => (
+                                        <CompactTile key={node.id} node={node} isNext={node.id === graph.nextBestStep.id} />
+                                    ))}
+                            </div>
                         </div>
 
                         <div className="grid gap-3 md:grid-cols-2">

@@ -93,8 +93,19 @@
     "Work-life balance: Actually respected, not just claimed"
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "You need to deduplicate a very large dataset that does not fit in memory. Walk me through your approach and how you would verify correctness.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you engaged deeply with a customer or user problem. How did it change what you built?",
+      "Tell me about a time you worked across teams to deliver something. How did you handle competing priorities?",
+      "How do you balance research exploration with engineering delivery? Give a concrete example.",
+      "Describe a time you had to deliver under a tight deadline. What trade-offs did you make?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
     "systemDesign": [],
     "values": [],
     "other": []

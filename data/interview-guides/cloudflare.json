@@ -27,10 +27,24 @@
     "Global scale awareness &mdash; \"How do you think about the blast radius of a change?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Implement tiny HTTP parser, TLV decoder, WebSocket frame reader. Talk through your approach, complexity, and edge cases.",
+      "Implement fixed window, sliding window log, token bucket with burst. Talk through your approach, complexity, and edge cases.",
+      "Implement top-K, sketches, sliding window counts over a long stream. Talk through your approach, complexity, and edge cases.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution."
+    ],
+    "behavioral": [
+      "Tell me about a production incident you owned.",
+      "Describe an RFC or design doc you wrote that changed a decision.",
+      "When did you intentionally sacrifice feature velocity for reliability?",
+      "How do you think about the blast radius of a change?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
     "systemDesign": [
-      "One round, 60 minutes. The framing is almost always edge-computing flavored: \"Design a global rate limiter that enforces 10K req/s per API key across 300 POPs,\" or \"Design the cache-purge system for a CDN with billions of entries.\" The interviewer pushes on operational concerns: How do you handle a POP failure? What's your cache hit ratio goal and how do you measure it? How does write-back propagation handle a 300-node network partition?"
+      "One round, 60 minutes. The framing is almost always edge-computing flavored: \"Design a global rate limiter that enforces 10K req/s per API key across 300 POPs,\" or \"Design the cache-purge system for a CDN with billions of entries.\" The interviewer pushes on operational concerns: How do you handle a POP failure? What's your cache hit ratio goal and how do you measure it? How does write-back propagation handle a 300-node network partition?",
+      "Design a service at Cloudflare scale that shortens URLs. Cover the API, storage, and hot-key handling.",
+      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
     ],
     "values": [],
     "other": [

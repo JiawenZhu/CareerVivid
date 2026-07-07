@@ -22,9 +22,25 @@
     "Mentorship / team effectiveness: \"Describe how you've raised the bar for engineers around you.\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Describe a system or kernel you owned end-to-end.",
+      "Tell me about a project requiring coordination across hardware, software, and systems teams.",
+      "How do you manage high-velocity product cycles while maintaining quality?",
+      "Describe how you've raised the bar for engineers around you.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design a scheduler for 10K GPUs running 1000 heterogeneous training jobs. Cover the API, data model, and how it scales.",
+      "Design an inference-serving system handling 100K QPS with strict p99 latency on H100 GPUs. Cover the API, data model, and how it scales.",
+      "Design the storage layer for a training cluster with 100TB of active datasets and checkpoint write amplification.",
+      "Design a GPU-observability system tracking utilization, ECC errors, and thermal throttling across 20K GPUs.",
+      "Design a service at Nvidia scale that shortens URLs. Cover the API, storage, and hot-key handling."
+    ],
     "values": [],
     "other": [
       "Do I need CUDA experience to get hired?",

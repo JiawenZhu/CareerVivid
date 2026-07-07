@@ -32,9 +32,27 @@
     "Customer focus: \"Tell me about a time you engaged with a Postman customer directly.\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Implement a request builder with variable substitution, authentication handling, and header composition. Talk through your approach, complexity, and edge cases.",
+      "Parse / validate an OpenAPI schema and generate test cases from it. Talk through your approach, complexity, and edge cases.",
+      "Handle streaming API responses (SSE, WebSocket) with proper backpressure and error handling. Talk through your approach, complexity, and edge cases.",
+      "Given a schema, generate realistic mock responses with proper content-type handling. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+    ],
+    "behavioral": [
+      "Describe a time you deeply understood a developer's workflow.",
+      "How do you work effectively across Bangalore and SF?",
+      "What have you built or learned about APIs outside of assigned work?",
+      "Tell me about a time you engaged with a Postman customer directly.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the cloud-sync system keeping collections consistent across devices with conflict resolution.",
+      "Design the monitoring service executing API checks globally with bounded latency and cost. Cover the API, data model, and how it scales.",
+      "Design Postbot AI with grounding in user collections, with prompt-engineering for test generation.",
+      "Design the enterprise API governance system enforcing custom linting rules at scale. Cover the API, data model, and how it scales.",
+      "Walk through what happens during a typical HTTP request-response cycle."
+    ],
     "values": [],
     "other": [
       "Is Postman really engineering-heavy given the \"simple tool\" reputation?",

@@ -27,12 +27,26 @@
     "Disagreement: \"Tell me about a time you disagreed with a senior engineer about an architectural decision.\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Implement TTL cache with eviction callbacks, rate limiter with graceful refill, retry-with-jitter. Talk through your approach, complexity, and edge cases.",
+      "Implement HCL-like config, JSON with schema validation, binary TLV. Talk through your approach, complexity, and edge cases.",
+      "Implement leader election, distributed lock, gossip state convergence. Talk through your approach, complexity, and edge cases.",
+      "Implement dependency resolution, topological sort of Terraform resources, cycle detection in service mesh config. Talk through your approach, complexity, and edge cases.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a complex project you led across timezones.",
+      "How do you think about what belongs in open-source vs enterprise tier?",
+      "Describe a production issue you owned end-to-end.",
+      "Tell me about a time you disagreed with a senior engineer about an architectural decision.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
     "systemDesign": [
       "Gossip protocols: how does SWIM achieve failure detection? What's the trade-off vs heartbeat-to-coordinator? How does HashiCorp's LAN vs WAN gossip differ?",
       "Consistency models: given this use case, would you pick linearizable, sequential, or eventual? Why? What's the latency / availability cost?",
-      "Go-specific: how does context cancellation propagate? What are common pitfalls with goroutine leaks? When would you use a sync.Cond vs a channel?"
+      "Go-specific: how does context cancellation propagate? What are common pitfalls with goroutine leaks? When would you use a sync.Cond vs a channel?",
+      "Design a secret-distribution service that handles 1M rotations per day across 100K apps. Cover the API, data model, and how it scales.",
+      "Design service discovery for a 10K-node Kubernetes fleet across 3 regions. Cover the API, data model, and how it scales."
     ],
     "values": [],
     "other": [

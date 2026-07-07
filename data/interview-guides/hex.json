@@ -36,9 +36,27 @@
     "Growth: \"What are you hoping to learn or build in the next few years?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Implement topological evaluation of cells with data-flow between them. Talk through your approach, complexity, and edge cases.",
+      "Process SQL results as they arrive with proper pagination / virtualization. Talk through your approach, complexity, and edge cases.",
+      "Handle concurrent cell inserts / deletes / edits with conflict resolution. Talk through your approach, complexity, and edge cases.",
+      "You need to deduplicate a very large dataset that does not fit in memory. Walk me through your approach and how you would verify correctness.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+    ],
+    "behavioral": [
+      "Tell me about deeply understanding a user's workflow and changing what you built as a result.",
+      "Describe a project where you pushed for higher quality despite deadline pressure.",
+      "How do you work effectively with design, product, and data stakeholders?",
+      "What are you hoping to learn or build in the next few years?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the notebook compute runtime securely isolating customer Python / SQL executions. Cover the API, data model, and how it scales.",
+      "Design the collaborative-editor sync for notebooks with 10+ concurrent editors and cell-level locking.",
+      "Design Magic AI: LLM-powered SQL generation grounded in the user's warehouse metadata. Cover the API, data model, and how it scales.",
+      "Design the apps publishing system turning notebooks into interactive dashboards with parameter controls.",
+      "Walk through how you'd implement cell-level reactivity with proper React updates."
+    ],
     "values": [],
     "other": [
       "Do I need data-engineering background to get hired?",

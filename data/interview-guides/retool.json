@@ -36,9 +36,27 @@
     "Early-stage comfort: \"How do you handle ambiguity and pivoting priorities at a growing company?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Given a graph of cells with formulas, re-evaluate only affected cells when inputs change. Talk through your approach, complexity, and edge cases.",
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "Implement a uniform interface over diverse APIs (REST, GraphQL, database). Talk through your approach, complexity, and edge cases.",
+      "Implement graphs, topological sort, cycle detection. Talk through your approach, complexity, and edge cases.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Describe the fastest meaningful feature you've shipped end-to-end.",
+      "Tell me about a time you understood an internal-ops user's pain point deeply.",
+      "Describe a hard technical problem you solved. How did you go from confused to confident?",
+      "How do you handle ambiguity and pivoting priorities at a growing company?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the reactive-expression engine evaluating 10K user-provided formulas with sub-100ms updates.",
+      "Design the data-source connector framework supporting 60+ databases / APIs with uniform auth, caching, rate limiting.",
+      "Design the agent-execution system with tool-calling, state persistence, and cost tracking. Cover the API, data model, and how it scales.",
+      "Design the self-hosted deployment model supporting air-gapped enterprise customers. Cover the API, data model, and how it scales.",
+      "Walk through how you'd implement spreadsheet-like reactivity with correct dependency tracking."
+    ],
     "values": [],
     "other": [
       "Is Retool really engineering-heavy, or is it a thin wrapper over existing tools?",

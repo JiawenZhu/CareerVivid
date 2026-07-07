@@ -32,9 +32,27 @@
     "Customer empathy: \"Tell me about engaging with a data-analyst or application-developer user.\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Parse and evaluate a SQL-like expression tree with typing rules. Talk through your approach, complexity, and edge cases.",
+      "Implement a columnar operation (hash aggregation, sort, filter) with vectorization. Talk through your approach, complexity, and edge cases.",
+      "Given a query, determine optimal execution location. Talk through your approach, complexity, and edge cases.",
+      "Implement Parquet read / Arrow interop. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+    ],
+    "behavioral": [
+      "How do you operate when owning broad scope with limited infrastructure?",
+      "What drew you to database systems specifically?",
+      "Describe a trade-off between theoretical correctness and practical shipping.",
+      "Tell me about engaging with a data-analyst or application-developer user.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the hybrid-execution query planner deciding what operations run client-side vs cloud-side.",
+      "Design data-sharing between local DuckDB clients and MotherDuck cloud with consistency guarantees.",
+      "Design the extension-distribution system letting community-authored extensions load safely.",
+      "Design MotherDuck AI's text-to-SQL pipeline with schema-grounded prompts and evaluation. Cover the API, data model, and how it scales.",
+      "Walk through DuckDB's vectorized execution model."
+    ],
     "values": [],
     "other": [
       "What's the \"Big Data is Dead\" thesis?",

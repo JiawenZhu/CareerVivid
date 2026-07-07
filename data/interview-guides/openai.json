@@ -22,8 +22,20 @@
     "\"Walk me through a weekend or side project that excited you.\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Implement a specific data structure to meet tight complexity (LRU cache, token counter, rate limiter). Talk through your approach, complexity, and edge cases.",
+      "Implement process tokenized input with bounded memory, parse structured log lines. Talk through your approach, complexity, and edge cases.",
+      "Implement dependency resolution, shortest path with weights. Talk through your approach, complexity, and edge cases.",
+      "Implement a simple tool prompts: a mini regex, a tokenizer, a retry policy. Talk through your approach, complexity, and edge cases.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about the most impactful thing you built in the last year.",
+      "Describe a time you shipped something despite ambiguity or resistance.",
+      "What's a decision you made that turned out to be wrong? How did you notice?",
+      "Walk me through a weekend or side project that excited you.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
     "systemDesign": [],
     "values": [],
     "other": [

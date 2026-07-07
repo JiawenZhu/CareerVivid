@@ -31,10 +31,26 @@
     "Customer empathy: \"Tell me about engaging with a developer's database problem.\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Implement append-only log with recovery semantics. Talk through your approach, complexity, and edge cases.",
+      "Implement B-tree leaf or interior page. Talk through your approach, complexity, and edge cases.",
+      "Design a replication-stream consumer handling out-of-order arrivals. Talk through your approach, complexity, and edge cases.",
+      "Given local writes and remote updates, produce merged state. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+    ],
+    "behavioral": [
+      "What drew you to database systems or infrastructure?",
+      "How do you operate when owning broad scope with limited team size?",
+      "Describe your practices for effective async collaboration.",
+      "Tell me about engaging with a developer's database problem.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
     "systemDesign": [
-      "Reason about embedded-replica semantics &mdash; when do applications see stale data, how do you bound staleness?"
+      "Reason about embedded-replica semantics &mdash; when do applications see stale data, how do you bound staleness?",
+      "Design the edge-replication system with globally-distributed read replicas and a primary for writes.",
+      "Design the embedded-replica sync protocol for applications with intermittent connectivity. Cover the API, data model, and how it scales.",
+      "Design the vector-search integration inside libSQL with HNSW indexes and hybrid lexical-vector queries.",
+      "Design the multi-tenant management layer supporting thousands of customer databases across edge locations."
     ],
     "values": [],
     "other": [

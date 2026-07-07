@@ -32,9 +32,27 @@
     "Ownership: \"Tell me about a production incident you owned.\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Implement a task queue with priority, fair-share, and preemption. Talk through your approach, complexity, and edge cases.",
+      "Given GPU / CPU / memory constraints, allocate to incoming tasks with acceptance / rejection logic. Talk through your approach, complexity, and edge cases.",
+      "Implement an LRU cache with O(1) get and put. Then explain how you would make it thread-safe without serializing all access.",
+      "Implement implement a layer-cache with eviction, manage a small OCI-like image format. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+    ],
+    "behavioral": [
+      "How do you handle ambiguity and wearing multiple hats?",
+      "Describe a hard technical problem that required you to learn a new area.",
+      "Have you engaged directly with customers or users? How did it shape your engineering?",
+      "Tell me about a production incident you owned.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design a serverless GPU platform with sub-second cold-start on H100 / Blackwell instances. Cover the API, data model, and how it scales.",
+      "Design a distributed filesystem for user code and datasets with consistency across nodes. Cover the API, data model, and how it scales.",
+      "Design the billing / metering system for fractional GPU-second usage with audit-grade correctness.",
+      "Design a fair-share scheduler for multi-tenant GPU workloads preventing noisy-neighbor issues.",
+      "Walk through what happens when you invoke a Modal function &mdash; from SDK call through scheduler to container creation to execution."
+    ],
     "values": [],
     "other": [
       "Do I need GPU / ML infrastructure background to get hired?",

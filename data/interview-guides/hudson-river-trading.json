@@ -26,9 +26,16 @@
   "sampleQuestions": {
     "coding": [
       "Discuss lock-free data structures &mdash; when do they help, what are the costs, what's the difference from wait-free?",
-      "Reason about memory ordering: what does C++'s memory_order_acquire actually guarantee on x86 vs ARM?"
+      "Reason about memory ordering: what does C++'s memory_order_acquire actually guarantee on x86 vs ARM?",
+      "Implement shortest path with constraints, max-flow variants, min-cost matching. Talk through your approach, complexity, and edge cases.",
+      "Given a set of coin denominations, compute the minimum number of coins needed to reach a target amount. Compare the recursive and bottom-up approaches.",
+      "Implement a specific data structure with tight performance requirements (custom hash map, memory-pool allocator, ring buffer with specific concurrency semantics). Talk through your approach, complexity, and edge cases."
     ],
-    "behavioral": [],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
     "systemDesign": [],
     "values": [],
     "other": [

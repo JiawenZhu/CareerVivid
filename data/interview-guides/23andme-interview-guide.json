@@ -34,14 +34,21 @@
   "sampleQuestions": {
     "coding": [
       "Is 23andMe a stable employer in 2026?",
-      "Do I need genomics background?",
       "What is the privacy posture?",
-      "What happened in the restructuring?"
+      "What happened in the restructuring?",
+      "Compute polygenic risk scores at scale. Talk through your approach, complexity, and edge cases.",
+      "Implement an ancestry inference pipeline. Talk through your approach, complexity, and edge cases."
     ],
-    "behavioral": [],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
     "systemDesign": [],
     "values": [],
-    "other": []
+    "other": [
+      "Do I need genomics background?"
+    ]
   },
   "difficulty": null,
   "tips": [],

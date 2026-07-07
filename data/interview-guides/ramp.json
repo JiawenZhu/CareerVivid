@@ -31,9 +31,27 @@
     "AI pragmatism: \"Where have you been skeptical of an AI solution? Where have you been a strong advocate? What informed those positions?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Given transaction data, implement a deterministic categorization rule engine with overrides. Talk through your approach, complexity, and edge cases.",
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution."
+    ],
+    "behavioral": [
+      "Tell me about the fastest end-to-end feature you've shipped.",
+      "Describe a time you deeply understood a customer's finance workflow. How did it change what you built?",
+      "Tell me about a time a subtle bug could have cost money. How did you find and prevent it?",
+      "Where have you been skeptical of an AI solution? Where have you been a strong advocate? What informed those positions?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the spend-categorization pipeline handling 10M transactions/day with AI-assisted classification plus human review.",
+      "Design the approval-routing engine with policies that customers configure in their own UI. Cover the API, data model, and how it scales.",
+      "Design the accounting-sync pipeline to NetSuite / QuickBooks with eventual consistency and audit trails.",
+      "Design the Ramp Intelligence layer retrieving customer-specific context for spend anomaly detection.",
+      "Design the evaluation methodology for a new AI feature. What metrics? What thresholds for shipping?"
+    ],
     "values": [
       "How stable is equity value given the private-market valuation?"
     ],

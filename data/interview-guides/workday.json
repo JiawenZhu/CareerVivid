@@ -31,11 +31,26 @@
     "Fun: \"What do you do to make work enjoyable for yourself and others?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "Implement expense-approval chain, time-off balance calculation, tax bracket calculation. Talk through your approach, complexity, and edge cases.",
+      "Implement org hierarchy traversal, workflow DAG evaluation, dependency resolution. Talk through your approach, complexity, and edge cases.",
+      "Implement reconcile two data sources, deduplicate records, detect anomalies in a payroll run. Talk through your approach, complexity, and edge cases.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you helped a teammate grow or succeed.",
+      "Describe a situation where you deeply engaged with a customer problem.",
+      "Tell me about a creative solution you proposed for a hard problem.",
+      "Describe a time you made a difficult ethical choice at work.",
+      "What do you do to make work enjoyable for yourself and others?"
+    ],
     "systemDesign": [
       "How does Java generics type erasure affect runtime behavior?",
-      "When would you choose a ConcurrentHashMap vs Collections.synchronizedMap vs a read-write lock?"
+      "When would you choose a ConcurrentHashMap vs Collections.synchronizedMap vs a read-write lock?",
+      "Design the payroll-run system that processes bi-weekly runs for 30M employees across 10K customers with correctness guarantees.",
+      "Design the benefits-enrollment system handling annual open-enrollment spikes (1000x normal traffic).",
+      "Design the audit log that captures every field change across all Workday records for compliance."
     ],
     "values": [],
     "other": [

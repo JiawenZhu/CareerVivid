@@ -36,15 +36,23 @@
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Do I need biology / genomics background?",
-      "How does Tempus compare to other health AI firms?",
       "Is the work HIPAA-regulated?",
-      "What languages are used?"
+      "What languages are used?",
+      "Implement Python dominant for ML / data; Go and Java for backend. Talk through your approach, complexity, and edge cases.",
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "Implement variant calling from sequence data. Talk through your approach, complexity, and edge cases."
     ],
-    "behavioral": [],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
     "systemDesign": [],
     "values": [],
-    "other": []
+    "other": [
+      "Do I need biology / genomics background?",
+      "How does Tempus compare to other health AI firms?"
+    ]
   },
   "difficulty": null,
   "tips": [],

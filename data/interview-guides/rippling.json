@@ -30,9 +30,27 @@
     "Pace: \"How do you operate at a company with high growth and broad scope?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Design entities and operations for a specific HR / IT / finance scenario (benefit plan hierarchy, approval chain, device-assignment workflow). Talk through your approach, complexity, and edge cases.",
+      "Given an event, determine downstream actions with proper ordering and failure handling. Talk through your approach, complexity, and edge cases.",
+      "Build a client for a hypothetical third-party system with retries, rate limiting, webhook reliability. Talk through your approach, complexity, and edge cases.",
+      "Given conditions and actions, implement correct policy evaluation. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+    ],
+    "behavioral": [
+      "Tell me about the most ambitious project you've contributed to.",
+      "Describe understanding a workforce-management user's problem deeply.",
+      "Tell me about a project you owned end-to-end.",
+      "How do you operate at a company with high growth and broad scope?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the Employee Graph supporting unified queries across HR, IT, and finance modules with strict access controls.",
+      "Design global payroll execution for 1M employees across jurisdictions with regulatory compliance.",
+      "Design the cross-module workflow engine that terminates IT access and recovers devices when HR terminates an employee.",
+      "Design the spend-management system with custom policy rules per customer and real-time card authorization.",
+      "Compare Rippling's unified approach to best-of-breed stacks (Workday + Okta + Ramp). Where does each win?"
+    ],
     "values": [],
     "other": [
       "How does Rippling compare to Workday on interviews?",

@@ -81,9 +81,27 @@
     "Compensation below FAANG"
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Implement prefix trees for routing tables. Talk through your approach, complexity, and edge cases.",
+      "Design a data structure supporting insert, delete, and get-random in O(1). Explain your reasoning.",
+      "Given an array of integers, find the longest contiguous subarray whose sum equals a target. Discuss complexity and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you worked across teams to deliver something. How did you handle competing priorities?",
+      "Tell me about a time you engaged deeply with a customer or user problem. How did it change what you built?",
+      "Tell me about a time you debugged a complex systems issue.",
+      "How do you handle disagreements with team members?",
+      "Describe a project where you had to learn new technology."
+    ],
+    "systemDesign": [
+      "Design a load balancer. Cover the API, data model, and how it scales.",
+      "Design a CDN. Cover the API, data model, and how it scales.",
+      "Design a distributed firewall. Cover the API, data model, and how it scales.",
+      "Design a monitoring system for network devices. Cover the API, data model, and how it scales.",
+      "Explain how TCP congestion control works."
+    ],
     "values": [],
     "other": []
   },

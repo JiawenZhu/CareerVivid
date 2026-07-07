@@ -68,11 +68,23 @@ export const useCompanyQuest = (slug: string, company: string): UseCompanyQuestR
     const cleared = normalizedScore >= stage.passThreshold;
     const newlyCleared = cleared && !wasCleared;
 
+    // Coding and system-design stages: track which company-pool challenges the
+    // user has cleared, so the quest can serve a fresh one next time.
+    const artifact = analysis.questArtifact;
+    const prevSolved = prev?.clearedChallengeIds ?? [];
+    const solvedId = cleared && (artifact?.type === 'coding' || artifact?.type === 'system_design')
+      ? artifact.challengeId
+      : undefined;
+    const clearedChallengeIds = solvedId && !prevSolved.includes(solvedId)
+      ? [...prevSolved, solvedId]
+      : prevSolved;
+
     const nextResult: QuestStageResult = {
       bestScore: Math.max(prev?.bestScore ?? 0, normalizedScore),
       attempts: (prev?.attempts ?? 0) + 1,
       clearedAt: prev?.clearedAt ?? (cleared ? now : null),
       lastAnalysisId: analysis.id,
+      ...(clearedChallengeIds.length ? { clearedChallengeIds } : {}),
     };
 
     const nextStageResults = { ...(quest?.stageResults ?? {}), [stage.id]: nextResult };

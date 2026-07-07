@@ -31,9 +31,25 @@
   ],
   "behavioralTopics": [],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Design-document state: model a tree of design elements with operations (add, move, group, delete) and invariants. Talk through your approach, complexity, and edge cases.",
+      "Implement multi-select with bounding-box computation and constraint-based transforms. Talk through your approach, complexity, and edge cases.",
+      "Implement flex-box-like, grid-like, snapping to alignment guides. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [
+      "Design real-time collaborative editing for a complex design document with 20 simultaneous editors.",
+      "Design the asset library supporting 100M stock assets with sub-second filter / search. Cover the API, data model, and how it scales.",
+      "Design the rendering service that produces PNG / PDF / MP4 exports from design documents at scale.",
+      "Design Magic Studio's AI-generation pipeline with cost-bounded throughput and consistent UX.",
+      "Walk through React reconciliation and how you'd avoid unnecessary renders for a document with thousands of elements."
+    ],
     "values": [],
     "other": [
       "Is Sydney really the center of gravity?",

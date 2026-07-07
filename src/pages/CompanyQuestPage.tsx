@@ -3,6 +3,7 @@ import {
     ArrowLeft,
     BarChart3,
     Check,
+    ChevronDown,
     ChevronRight,
     Code2,
     Flame,
@@ -25,14 +26,19 @@ import {
 import {
     QuestStage,
     SystemDesignBrief,
+    SystemDesignPattern,
     buildQuestLine,
     buildQuestStagePrompt,
     buildSystemDesignBrief,
     getStageFallbackQuestions,
     getStageQuestionPool,
+    getSystemDesignPool,
     isStageCleared,
+    selectNextSystemDesignChallenge,
 } from '../lib/companyQuests';
-import { CodingBrief, buildCodingBrief } from '../lib/codingChallenges';
+import { CodingBrief, CodingChallenge, buildCodingBrief, getCodingPool, getPreferredCodingLanguage, selectNextCodingChallenge } from '../lib/codingChallenges';
+import CodingChallengePicker from '../components/Quest/CodingChallengePicker';
+import SystemDesignChallengePicker from '../components/Quest/SystemDesignChallengePicker';
 import { XP_RULES } from '../lib/gamification';
 import { generateInterviewQuestions } from '../services/geminiService';
 import {
@@ -154,6 +160,29 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
     const clearedCount = stageStates.filter((s) => s === 'cleared').length;
     const questComplete = stages.length > 0 && clearedCount === stages.length;
 
+    // Coding stage serves a pool of problems for the company; track the pool
+    // and which the user has solved so the card can show progress and let the
+    // user pick a problem to improve.
+    const codingPool = useMemo(() => (guide ? getCodingPool(guide) : []), [guide]);
+    const codingPoolSize = codingPool.length;
+    const codingSolvedIds = useMemo(
+        () => quest?.stageResults?.coding?.clearedChallengeIds ?? [],
+        [quest],
+    );
+    const codingSolvedCount = useMemo(() => new Set(codingSolvedIds).size, [codingSolvedIds]);
+    const [codingPickerStageId, setCodingPickerStageId] = useState<string | null>(null);
+    const systemDesignPool = useMemo(() => (guide ? getSystemDesignPool(guide) : []), [guide]);
+    const systemDesignPoolSize = systemDesignPool.length;
+    const systemDesignSolvedIds = useMemo(
+        () => quest?.stageResults?.system_design?.clearedChallengeIds ?? [],
+        [quest],
+    );
+    const systemDesignSolvedCount = useMemo(
+        () => new Set(systemDesignSolvedIds).size,
+        [systemDesignSolvedIds],
+    );
+    const [systemDesignPickerStageId, setSystemDesignPickerStageId] = useState<string | null>(null);
+
     const practiceEntriesByStageId = useMemo(() => {
         if (!guide) return new Map<string, PracticeHistoryEntry>();
 
@@ -178,7 +207,10 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
         }, new Map<string, PracticeHistoryEntry>());
     }, [guide, practiceHistory, quest, stages]);
 
-    const handleStartStage = async (stage: QuestStage) => {
+    const handleStartStage = async (
+        stage: QuestStage,
+        challengeOverride?: CodingChallenge | SystemDesignPattern,
+    ) => {
         if (!guide || !currentUser) return;
         const stageEntry = practiceEntriesByStageId.get(stage.id);
         const draft = getResumableDraft(stageEntry);
@@ -192,7 +224,14 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
             // Coding is played in the code editor with real test execution,
             // not as a voice interview.
             if (stage.id === 'coding') {
-                const brief = buildCodingBrief(guide);
+                // Use the problem the user picked, or serve the next unsolved
+                // one from the company pool so clearing one hands out a fresh
+                // problem to keep improving.
+                const clearedChallengeIds = quest?.stageResults?.[stage.id]?.clearedChallengeIds ?? [];
+                const challenge = challengeOverride && 'functionName' in challengeOverride
+                    ? challengeOverride
+                    : selectNextCodingChallenge(guide, clearedChallengeIds);
+                const brief = buildCodingBrief(guide, challenge);
                 const artifact = getAnalysisFromEntry(
                     practiceEntriesByStageId.get(stage.id),
                     quest?.stageResults?.[stage.id]?.lastAnalysisId,
@@ -215,11 +254,18 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
 
             // System design is played on the whiteboard, not as a voice interview.
             if (stage.id === 'system_design') {
-                const brief = buildSystemDesignBrief(guide);
+                const clearedChallengeIds = quest?.stageResults?.[stage.id]?.clearedChallengeIds ?? [];
+                const challenge = challengeOverride && !('functionName' in challengeOverride)
+                    ? challengeOverride
+                    : selectNextSystemDesignChallenge(guide, clearedChallengeIds);
+                const brief = buildSystemDesignBrief(guide, challenge);
                 const artifact = getAnalysisFromEntry(
                     practiceEntriesByStageId.get(stage.id),
                     quest?.stageResults?.[stage.id]?.lastAnalysisId,
                 )?.questArtifact;
+                const matchingArtifact = artifact?.type === 'system_design' && artifact.challengeId === brief.challengeId
+                    ? artifact
+                    : undefined;
                 const jobId = await addJob({
                     title: `${guide.company} quest — ${stage.title}`,
                     company: guide.company,
@@ -231,7 +277,7 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                     stage,
                     jobId,
                     brief,
-                    initialArtifact: artifact?.type === 'system_design' ? artifact : undefined,
+                    initialArtifact: matchingArtifact,
                 });
                 return;
             }
@@ -508,6 +554,12 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                                                     {result && (
                                                         <span> · Best score {Math.round(result.bestScore)} · {result.attempts} attempt{result.attempts === 1 ? '' : 's'}</span>
                                                     )}
+                                                    {stage.id === 'coding' && codingPoolSize > 0 && (
+                                                        <span> · {codingSolvedCount} of {codingPoolSize} problems solved</span>
+                                                    )}
+                                                    {stage.id === 'system_design' && systemDesignPoolSize > 0 && (
+                                                        <span> · {systemDesignSolvedCount} of {systemDesignPoolSize} prompts cleared</span>
+                                                    )}
                                                 </p>
                                             </div>
 
@@ -522,36 +574,83 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                                                         View report
                                                     </button>
                                                 )}
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleStartStage(stage)}
-                                                    disabled={isStarting || startingStageId !== null}
-                                                    className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-bold shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${state === 'cleared'
-                                                        ? 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800'
-                                                        : 'border border-transparent bg-[#625bd5] text-white hover:bg-[#514ac5] dark:bg-[#7069dc] dark:hover:bg-[#8d88e6]'
-                                                        }`}
-                                                >
-                                                    {isStarting
-                                                        ? <Loader2 size={14} className="animate-spin" />
-                                                        : draft
-                                                            ? <RotateCcw size={13} />
-                                                            : state === 'cleared'
-                                                            ? <RotateCcw size={13} />
-                                                            : stage.id === 'system_design'
-                                                                ? <PenTool size={13} />
-                                                                : stage.id === 'coding'
-                                                                    ? <Code2 size={13} />
-                                                                    : <ChevronRight size={14} />}
-                                                    {draft
-                                                        ? 'Resume session'
-                                                        : state === 'cleared'
-                                                        ? 'Improve score'
-                                                        : stage.id === 'system_design'
-                                                            ? 'Open whiteboard'
-                                                            : stage.id === 'coding'
-                                                                ? 'Open code editor'
-                                                                : 'Start stage'}
-                                                </button>
+                                                {(() => {
+                                                    // A cleared coding stage opens a picker so the user
+                                                    // chooses which pooled problem to improve.
+                                                    const opensCodingPicker = stage.id === 'coding' && state === 'cleared' && codingPoolSize > 0;
+                                                    const opensSystemDesignPicker = stage.id === 'system_design' && state === 'cleared' && systemDesignPoolSize > 0;
+                                                    const pickerOpen = codingPickerStageId === stage.id;
+                                                    const designPickerOpen = systemDesignPickerStageId === stage.id;
+                                                    return (
+                                                        <div className="relative">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    if (opensCodingPicker) {
+                                                                        setCodingPickerStageId(pickerOpen ? null : stage.id);
+                                                                    } else if (opensSystemDesignPicker) {
+                                                                        setSystemDesignPickerStageId(designPickerOpen ? null : stage.id);
+                                                                    } else {
+                                                                        handleStartStage(stage);
+                                                                    }
+                                                                }}
+                                                                disabled={isStarting || startingStageId !== null}
+                                                                aria-haspopup={opensCodingPicker || opensSystemDesignPicker ? 'menu' : undefined}
+                                                                aria-expanded={opensCodingPicker ? pickerOpen : opensSystemDesignPicker ? designPickerOpen : undefined}
+                                                                className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-bold shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${state === 'cleared'
+                                                                    ? 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800'
+                                                                    : 'border border-transparent bg-[#625bd5] text-white hover:bg-[#514ac5] dark:bg-[#7069dc] dark:hover:bg-[#8d88e6]'
+                                                                    }`}
+                                                            >
+                                                                {isStarting
+                                                                    ? <Loader2 size={14} className="animate-spin" />
+                                                                    : draft
+                                                                        ? <RotateCcw size={13} />
+                                                                        : state === 'cleared'
+                                                                        ? <RotateCcw size={13} />
+                                                                        : stage.id === 'system_design'
+                                                                            ? <PenTool size={13} />
+                                                                            : stage.id === 'coding'
+                                                                                ? <Code2 size={13} />
+                                                                                : <ChevronRight size={14} />}
+                                                                {draft
+                                                                    ? 'Resume session'
+                                                                    : state === 'cleared'
+                                                                    ? 'Improve score'
+                                                                    : stage.id === 'system_design'
+                                                                        ? 'Open whiteboard'
+                                                                        : stage.id === 'coding'
+                                                                            ? 'Open code editor'
+                                                                            : 'Start stage'}
+                                                                {(opensCodingPicker || opensSystemDesignPicker) && !isStarting && (
+                                                                    <ChevronDown size={13} className={`transition-transform ${pickerOpen || designPickerOpen ? 'rotate-180' : ''}`} />
+                                                                )}
+                                                            </button>
+                                                            {opensCodingPicker && pickerOpen && (
+                                                                <CodingChallengePicker
+                                                                    pool={codingPool}
+                                                                    solvedIds={codingSolvedIds}
+                                                                    onSelect={(challenge) => {
+                                                                        setCodingPickerStageId(null);
+                                                                        void handleStartStage(stage, challenge);
+                                                                    }}
+                                                                    onClose={() => setCodingPickerStageId(null)}
+                                                                />
+                                                            )}
+                                                            {opensSystemDesignPicker && designPickerOpen && (
+                                                                <SystemDesignChallengePicker
+                                                                    pool={systemDesignPool}
+                                                                    solvedIds={systemDesignSolvedIds}
+                                                                    onSelect={(challenge) => {
+                                                                        setSystemDesignPickerStageId(null);
+                                                                        void handleStartStage(stage, challenge);
+                                                                    }}
+                                                                    onClose={() => setSystemDesignPickerStageId(null)}
+                                                                />
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })()}
                                             </div>
                                         </div>
                                     </div>
@@ -591,6 +690,7 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                         company={guide.company}
                         stageTitle={codingBattle.stage.title}
                         brief={codingBattle.brief}
+                        preferredLanguage={getPreferredCodingLanguage(guide)}
                         initialArtifact={codingBattle.initialArtifact}
                         saveAnalysis={handleCodingAnalysis}
                         onAnalysisComplete={(analysis) => handleStageAnalysis(codingBattle.stage, analysis)}

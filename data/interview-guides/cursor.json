@@ -35,9 +35,27 @@
     "Customer empathy: \"Describe understanding a developer user's workflow deeply.\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Implement a text-buffer primitive with efficient edit operations (rope, piece table, or similar). Talk through your approach, complexity, and edge cases.",
+      "Given a cursor position in a codebase, select most relevant code snippets for an LLM prompt. Talk through your approach, complexity, and edge cases.",
+      "Handle incoming LLM tokens and apply them as real-time edits to a document. Talk through your approach, complexity, and edge cases.",
+      "Track changes across many files with consistency. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+    ],
+    "behavioral": [
+      "How do you think about hiring and team quality?",
+      "Describe operating through rapid product evolution.",
+      "Tell me about pushing for quality despite deadline pressure.",
+      "Describe understanding a developer user's workflow deeply.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the tab-prediction system with sub-100ms latency end-to-end for millions of users. Cover the API, data model, and how it scales.",
+      "Design Cursor's agent mode executing multi-file edits with verification and rollback. Cover the API, data model, and how it scales.",
+      "Design the privacy-preserving inference architecture letting enterprise customers keep code confidential.",
+      "Design the custom-model training pipeline producing coding-specialized variants from foundation models.",
+      "Explain inference-optimization choices for ultra-low-latency completions."
+    ],
     "values": [],
     "other": [
       "How does Cursor (Anysphere) compare to Windsurf (Codeium)?",

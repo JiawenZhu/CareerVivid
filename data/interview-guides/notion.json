@@ -31,9 +31,27 @@
     "Long-term thinking: \"What are you hoping to learn or build over the next 2&ndash;3 years?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Given a tree of blocks, implement move / delete / merge with invariants preserved under concurrent edits. Talk through your approach, complexity, and edge cases.",
+      "Given a set of derived views on block data, update efficiently when a block changes. Talk through your approach, complexity, and edge cases.",
+      "Implement implement a rope, piece table, or gap buffer with specific operations. Talk through your approach, complexity, and edge cases.",
+      "Implement sync conflict resolution, permission inheritance resolution, search scoring. Talk through your approach, complexity, and edge cases.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you had to push back on shipping to get something right.",
+      "Describe a project where the initial ambition felt unrealistic. What happened?",
+      "Tell me about a time you had to define the problem yourself before solving it.",
+      "What are you hoping to learn or build over the next 2&ndash;3 years?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the backend for a block-based editor supporting 100 concurrent editors per document with sub-200ms sync latency.",
+      "Design the sync protocol between mobile and cloud for offline-first document editing. Cover the API, data model, and how it scales.",
+      "Design the permissions model for workspaces with inherited access, custom roles, and per-block sharing.",
+      "Design search across a user's workspace content with permission-aware results and sub-second latency.",
+      "Walk me through a design decision you made where the engineering-optimal choice wasn't the best user-experience choice."
+    ],
     "values": [],
     "other": [
       "How selective is Notion compared to peers?",

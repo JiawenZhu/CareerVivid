@@ -31,9 +31,27 @@
     "Independent judgment: \"Tell me about a time you made a contrarian technical call that turned out right.\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Implement attention from scratch with appropriate efficiency (standard question for research engineering). Talk through your approach, complexity, and edge cases.",
+      "Implement a thread-safe bounded queue. How do you prevent race conditions and deadlocks?",
+      "Implement an LRU cache with O(1) get and put. Then explain how you would make it thread-safe without serializing all access.",
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about the fastest-shipped impactful project in your career.",
+      "Describe a production or research system you owned end-to-end.",
+      "What excites you about xAI specifically, given the intensity reputation?",
+      "Tell me about a time you made a contrarian technical call that turned out right.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the training cluster management for 100K H100 GPUs with fault tolerance and elastic-scaling.",
+      "Design the inference-serving system for Grok across X, API, and Grok.com with diverse latency requirements.",
+      "Design the data pipeline ingesting X content at petabyte scale for model training with safety filtering.",
+      "Design the checkpoint / resume system for a frontier model training run that can survive rack failures.",
+      "Design an experiment to test a specific architectural or data-mix hypothesis. Cover the API, data model, and how it scales."
+    ],
     "values": [],
     "other": [
       "Is the Musk-company intensity reputation accurate?",

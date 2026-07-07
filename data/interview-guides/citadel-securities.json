@@ -23,9 +23,25 @@
   ],
   "behavioralTopics": [],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Implement a simple matching engine or order book primitive. Talk through your approach, complexity, and edge cases.",
+      "Implement VWAP, time-weighted price, rolling volatility. Talk through your approach, complexity, and edge cases.",
+      "Detect arbitrage opportunities given prices on multiple venues. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [
+      "Design the market-data ingestion system for 50 exchanges with sub-microsecond latency requirements.",
+      "Design a risk-aggregation system that updates per-symbol exposure in real time across thousands of strategies.",
+      "Design the order-routing system that decides which venue gets each order based on liquidity, latency, and economics.",
+      "Design a service at Citadel Securities scale that shortens URLs. Cover the API, storage, and hot-key handling.",
+      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+    ],
     "values": [],
     "other": [
       "How is Citadel Securities different from Citadel (hedge fund)?",

@@ -26,9 +26,17 @@
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "Discuss memory ordering in modern CPUs: what does memory_order_acquire actually guarantee on x86, ARM, RISC-V?"
+      "Discuss memory ordering in modern CPUs: what does memory_order_acquire actually guarantee on x86, ARM, RISC-V?",
+      "Implement custom memory pool, lock-free queue, ring buffer with specific concurrency semantics. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Process market-data-like streams with strict latency / memory constraints. Talk through your approach, complexity, and edge cases.",
+      "Implement a small order book, position tracker, or risk-aggregation component. Talk through your approach, complexity, and edge cases."
     ],
-    "behavioral": [],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
     "systemDesign": [],
     "values": [],
     "other": [

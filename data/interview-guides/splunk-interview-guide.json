@@ -37,14 +37,23 @@
   "behavioralTopics": [],
   "sampleQuestions": {
     "coding": [
-      "How has Cisco acquisition changed Splunk?",
       "Is the work mostly Java?",
-      "How does Splunk compare to Datadog or Elastic?"
+      "Parse arbitrary log formats efficiently. Talk through your approach, complexity, and edge cases.",
+      "Implement a small SPL parser. Talk through your approach, complexity, and edge cases.",
+      "You need to deduplicate a very large dataset that does not fit in memory. Walk me through your approach and how you would verify correctness.",
+      "Process integration. Talk through your approach, complexity, and edge cases."
     ],
-    "behavioral": [],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
     "systemDesign": [],
     "values": [],
-    "other": []
+    "other": [
+      "How has Cisco acquisition changed Splunk?",
+      "How does Splunk compare to Datadog or Elastic?"
+    ]
   },
   "difficulty": null,
   "tips": [],

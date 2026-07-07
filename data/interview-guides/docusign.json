@@ -29,11 +29,26 @@
     "Ownership: \"Tell me about a production incident affecting customer agreements. How did you handle it?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "Given a stream of actions, generate cryptographically-verifiable audit entries. Talk through your approach, complexity, and edge cases.",
+      "Given two versions of an agreement, compute meaningful changes (ignoring whitespace-only changes). Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you engaged directly with a customer problem. How did it change what you built?",
+      "Describe a time you worked within regulatory constraints. How did they affect your design?",
+      "How do you think about shipping in a mature public SaaS company?",
+      "Tell me about a production incident affecting customer agreements. How did you handle it?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
     "systemDesign": [
       "How would you design audit-trail retention to meet both GDPR's right-to-erasure and eIDAS's long-term-evidence requirements?",
-      "What's the difference between a signature under eIDAS QES, AES, and SES? When is each legally sufficient?"
+      "What's the difference between a signature under eIDAS QES, AES, and SES? When is each legally sufficient?",
+      "Design the core e-signature service processing 10M envelopes per day with legal-audit compliance.",
+      "Design an envelope-routing engine supporting parallel and sequential signers, conditional routing, and scheduled reminders.",
+      "Design the audit trail: append-only, tamper-evident, and queryable for compliance investigations."
     ],
     "values": [],
     "other": [

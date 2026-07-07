@@ -30,9 +30,25 @@
   ],
   "behavioralTopics": [],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "You need to deduplicate a very large dataset that does not fit in memory. Walk me through your approach and how you would verify correctness.",
+      "Build a small Vue component with specific reactivity semantics and accessibility constraints. Talk through your approach, complexity, and edge cases.",
+      "Implement worker pool with cancellation, rate-limited fetcher with retries. Talk through your approach, complexity, and edge cases.",
+      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [
+      "Design the infrastructure for running 50K parallel CI pipelines across cloud providers. Cover the API, data model, and how it scales.",
+      "Design container registry storage with cross-region replication and bounded latency. Cover the API, data model, and how it scales.",
+      "Design incremental merge request validation that runs against partial diffs. Cover the API, data model, and how it scales.",
+      "Design audit logging for compliance with SOC 2 and FedRAMP requirements. Cover the API, data model, and how it scales.",
+      "Design a service at GitLab scale that shortens URLs. Cover the API, storage, and hot-key handling."
+    ],
     "values": [],
     "other": [
       "Do I really need to read the Handbook before interviewing?",

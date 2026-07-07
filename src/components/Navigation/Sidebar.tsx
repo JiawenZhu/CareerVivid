@@ -118,6 +118,34 @@ const Sidebar: React.FC = () => {
     const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
     const [editValue, setEditValue] = useState('');
     
+    // Visited tags tracking for navigation items
+    const [visitedTags, setVisitedTags] = useState<Record<string, boolean>>(() => {
+        const initial: Record<string, boolean> = {};
+        ['/interview-studio', '/learning'].forEach(path => {
+            initial[path] = localStorage.getItem(`visited_tag_${path}`) === 'true';
+        });
+        return initial;
+    });
+
+    useEffect(() => {
+        const path = currentPath;
+        if (['/interview-studio', '/learning'].includes(path)) {
+            localStorage.setItem(`visited_tag_${path}`, 'true');
+            setVisitedTags(prev => {
+                if (prev[path]) return prev;
+                return { ...prev, [path]: true };
+            });
+        }
+    }, [currentPath]);
+
+    const handleLinkClick = (path: string) => {
+        if (['/interview-studio', '/learning'].includes(path)) {
+            localStorage.setItem(`visited_tag_${path}`, 'true');
+            setVisitedTags(prev => ({ ...prev, [path]: true }));
+        }
+        navigate(path);
+    };
+    
     // Context Menu State
     const [contextMenu, setContextMenu] = useState<{ x: number, y: number, nodeId: string, text: string, type: string } | null>(null);
     
@@ -344,9 +372,9 @@ const Sidebar: React.FC = () => {
         { label: 'Quick Start', path: '/onboarding', icon: Sparkles },
         { label: 'Jobs', path: '/jobs/recommend', icon: Briefcase },
         { label: 'Community', path: '/community', icon: Users },
-        { label: 'Interview', path: '/interview-studio', icon: Mic },
+        { label: 'Interview', path: '/interview-studio', icon: Mic, tag: 'New' },
         { label: 'Job Tracker', path: '/job-tracker', icon: Briefcase },
-        { label: 'Course', path: '/learning', icon: GraduationCap },
+        { label: 'Course', path: '/learning', icon: GraduationCap, tag: 'New' },
     ];
 
     const accountLinks = [
@@ -393,41 +421,81 @@ const Sidebar: React.FC = () => {
             {/* Navigation main section */}
             <nav className={`min-h-0 flex-1 select-none ${isCollapsed ? 'flex flex-col items-center gap-2 px-2 py-4' : 'px-3 py-3'}`}>
                 {isCollapsed ? (
-                    quickLinks.map(({ label, path, icon: Icon }) => {
+                    quickLinks.map(({ label, path, icon: Icon, tag }) => {
                         const isActive = isActivePath(path);
+                        const isVisited = visitedTags[path] || isActive;
                         return (
                             <button
                                 key={path}
                                 type="button"
-                                onClick={() => navigate(path)}
+                                onClick={() => handleLinkClick(path)}
                                 title={label}
                                 aria-label={label}
-                                className={`flex h-11 w-11 items-center justify-center rounded-2xl border transition-all ${isActive ? 'border-[var(--cv-action-border)] bg-[var(--cv-action-soft-bg)] text-[var(--cv-action-primary)] shadow-sm' : 'border-transparent text-[var(--cv-text-muted)] hover:border-[var(--cv-border-subtle)] hover:bg-[var(--cv-surface-warm-card-strong)] hover:text-[var(--cv-text-heading)]'}`}
+                                className={`relative flex h-11 w-11 items-center justify-center rounded-2xl border transition-all ${isActive ? 'border-[var(--cv-action-border)] bg-[var(--cv-action-soft-bg)] text-[var(--cv-action-primary)] shadow-sm' : 'border-transparent text-[var(--cv-text-muted)] hover:border-[var(--cv-border-subtle)] hover:bg-[var(--cv-surface-warm-card-strong)] hover:text-[var(--cv-text-heading)]'}`}
                             >
                                 <Icon size={18} />
+                                {tag && (
+                                    <span className="absolute right-1.5 top-1.5 flex h-2 w-2">
+                                        {!isVisited && (
+                                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--cv-action-primary)] opacity-75"></span>
+                                        )}
+                                        <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--cv-action-primary)]"></span>
+                                    </span>
+                                )}
                             </button>
                         );
                     })
                 ) : (
-                    <SidebarDocumentList
-                        activeDocuments={activeDocuments}
-                        activeNodeId={activeNodeId}
-                        editingNodeId={editingNodeId}
-                        editValue={editValue}
-                        filterType={filterType}
-                        sortBy={sortBy}
-                        isFilterDropdownOpen={isFilterDropdownOpen}
-                        filterDropdownRef={filterDropdownRef}
-                        setActiveNode={setActiveNode}
-                        setEditValue={setEditValue}
-                        setEditingNodeId={setEditingNodeId}
-                        setContextMenu={setContextMenu}
-                        setFilterType={setFilterType}
-                        setSortBy={setSortBy}
-                        setIsFilterDropdownOpen={setIsFilterDropdownOpen}
-                        savePreference={savePreference}
-                        saveRename={saveRename}
-                    />
+                    <div className="flex h-full min-h-0 flex-col">
+                        {/* Primary navigation — first thing under the logo, one item per row */}
+                        <div className="shrink-0 pb-3">
+                            <span className="cv-design-eyebrow mb-1.5 block px-1 text-[10px]">Navigate</span>
+                            <div className="space-y-0.5">
+                                {quickLinks.map(({ label, path, icon: Icon, tag }) => {
+                                    const isActive = isActivePath(path);
+                                    const isVisited = visitedTags[path] || isActive;
+                                    return (
+                                        <button
+                                            key={path}
+                                            onClick={() => handleLinkClick(path)}
+                                            className={`flex w-full items-center gap-2.5 rounded-xl border px-2.5 py-2 text-left text-xs font-bold transition-all ${isActive ? 'border-[var(--cv-action-border)] bg-[var(--cv-action-soft-bg)] text-[var(--cv-action-primary)] shadow-sm' : 'border-transparent text-[var(--cv-text-muted)] hover:border-[var(--cv-border-subtle)] hover:bg-[var(--cv-surface-warm-card-strong)] hover:text-[var(--cv-text-heading)]'}`}
+                                        >
+                                            <Icon size={15} className="shrink-0" />
+                                            <span className="min-w-0 truncate">{label}</span>
+                                            {tag && (
+                                                <span className={`ml-auto inline-flex items-center rounded-md bg-[var(--cv-action-soft-bg)] px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[var(--cv-action-primary)] border border-[var(--cv-action-border)]/20 shadow-sm ${!isVisited ? 'animate-pulse' : ''}`}>
+                                                    {tag}
+                                                </span>
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Files — below navigation, scrolls independently */}
+                        <div className="min-h-0 flex-1 overflow-y-auto border-t border-[var(--cv-border-subtle)] pt-2">
+                            <SidebarDocumentList
+                                activeDocuments={activeDocuments}
+                                activeNodeId={activeNodeId}
+                                editingNodeId={editingNodeId}
+                                editValue={editValue}
+                                filterType={filterType}
+                                sortBy={sortBy}
+                                isFilterDropdownOpen={isFilterDropdownOpen}
+                                filterDropdownRef={filterDropdownRef}
+                                setActiveNode={setActiveNode}
+                                setEditValue={setEditValue}
+                                setEditingNodeId={setEditingNodeId}
+                                setContextMenu={setContextMenu}
+                                setFilterType={setFilterType}
+                                setSortBy={setSortBy}
+                                setIsFilterDropdownOpen={setIsFilterDropdownOpen}
+                                savePreference={savePreference}
+                                saveRename={saveRename}
+                            />
+                        </div>
+                    </div>
                 )}
             </nav>
 
@@ -475,27 +543,7 @@ const Sidebar: React.FC = () => {
                     </div>
                 ) : (
                 <>
-                <div className="mb-2">
-                    <div className="mb-1.5 flex items-center justify-between px-1">
-                        <span className="cv-design-eyebrow text-[10px]">Quick Access</span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-1.5">
-                        {quickLinks.map(({ label, path, icon: Icon }) => {
-                            const isActive = isActivePath(path);
-                            return (
-                                <button
-                                    key={path}
-                                    onClick={() => navigate(path)}
-                                    className={`flex min-h-[34px] items-center gap-2 rounded-xl border px-2 py-1.5 text-left text-[10px] font-bold transition-all ${isActive ? 'border-[var(--cv-action-border)] bg-[var(--cv-action-soft-bg)] text-[var(--cv-action-primary)] shadow-sm' : 'border-transparent text-[var(--cv-text-muted)] hover:border-[var(--cv-border-subtle)] hover:bg-[var(--cv-surface-warm-card-strong)] hover:text-[var(--cv-text-heading)]'}`}
-                                >
-                                    <Icon size={14} />
-                                    <span className="min-w-0 truncate">{label}</span>
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-
+                {/* Progress at a glance */}
                 <XpStatusCard onClick={() => navigate('/interview-studio')} />
 
                 {aiUsage && (
@@ -504,7 +552,8 @@ const Sidebar: React.FC = () => {
                     </div>
                 )}
 
-                <div className="mb-2 rounded-2xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-muted)] p-1">
+                {/* One settings group: account links, language, theme, sign out */}
+                <div className="rounded-2xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-muted)] p-1">
                     {accountLinks.map(({ label, path, icon: Icon }) => {
                         const isActive = isActivePath(path);
                         return (
@@ -518,54 +567,57 @@ const Sidebar: React.FC = () => {
                             </button>
                         );
                     })}
-                </div>
 
-                <div className="mb-1.5 flex items-center justify-between gap-3 rounded-2xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-muted)] px-2.5 py-1.5 text-xs">
-                    <label htmlFor="sidebar-language-select" className="cv-design-eyebrow shrink-0 text-[10px]">
-                        {t('resume_form.language', 'Language')}
-                    </label>
-                    <div className="group relative h-7 w-[88px] shrink-0">
-                        <span className="pointer-events-none flex h-full w-full items-center justify-end rounded-lg border border-transparent bg-transparent px-2 text-right text-[11px] font-extrabold text-[var(--cv-text-heading)] outline-none transition group-hover:border-[var(--cv-border-subtle)] group-hover:bg-[var(--cv-surface-warm-card-strong)] group-focus-within:border-[var(--cv-action-border)] group-focus-within:bg-[var(--cv-surface-warm-card-strong)] group-focus-within:ring-2 group-focus-within:ring-[var(--cv-action-border)]">
-                            <span className="truncate">{currentLanguageLabel}</span>
-                        </span>
-                        <select
-                            id="sidebar-language-select"
-                            aria-label={t('resume_form.language', 'Language')}
-                            value={currentLanguageCode}
-                            onChange={(event) => handleLanguageChange(event.target.value)}
-                            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                        >
-                            {SUPPORTED_LANGUAGES.map((language) => (
-                                <option key={language.code} value={language.code}>
-                                    {language.nativeName}
-                                </option>
+                    <div className="mx-1.5 my-1 border-t border-[var(--cv-border-subtle)]" />
+
+                    <div className="flex items-center justify-between gap-3 px-2.5 py-1">
+                        <label htmlFor="sidebar-language-select" className="cv-design-eyebrow shrink-0 text-[10px]">
+                            {t('resume_form.language', 'Language')}
+                        </label>
+                        <div className="group relative h-7 w-[88px] shrink-0">
+                            <span className="pointer-events-none flex h-full w-full items-center justify-end rounded-lg border border-transparent bg-transparent px-2 text-right text-[11px] font-extrabold text-[var(--cv-text-heading)] outline-none transition group-hover:border-[var(--cv-border-subtle)] group-hover:bg-[var(--cv-surface-warm-card-strong)] group-focus-within:border-[var(--cv-action-border)] group-focus-within:bg-[var(--cv-surface-warm-card-strong)] group-focus-within:ring-2 group-focus-within:ring-[var(--cv-action-border)]">
+                                <span className="truncate">{currentLanguageLabel}</span>
+                            </span>
+                            <select
+                                id="sidebar-language-select"
+                                aria-label={t('resume_form.language', 'Language')}
+                                value={currentLanguageCode}
+                                onChange={(event) => handleLanguageChange(event.target.value)}
+                                className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                            >
+                                {SUPPORTED_LANGUAGES.map((language) => (
+                                    <option key={language.code} value={language.code}>
+                                        {language.nativeName}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-between px-2.5 py-1">
+                        <span className="cv-design-eyebrow text-[10px]">Theme</span>
+                        <div className="flex items-center gap-0.5 rounded-xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card)] p-0.5">
+                            {themeOptions.map(opt => (
+                                <button key={opt.value} onClick={() => setTheme(opt.value)} title={opt.label}
+                                    className={`rounded-lg p-1 transition-all ${theme === opt.value ? 'border border-[var(--cv-action-border)] bg-[var(--cv-surface-warm-card-strong)] text-[var(--cv-action-primary)] shadow-sm' : 'text-[var(--cv-text-muted)] hover:text-[var(--cv-text-heading)]'}`}>
+                                    {opt.icon}
+                                </button>
                             ))}
-                        </select>
+                        </div>
                     </div>
-                </div>
 
-                {/* Theme Toggle */}
-                <div className="mb-1.5 flex items-center justify-between rounded-2xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-muted)] px-2.5 py-1.5 text-xs">
-                    <span className="cv-design-eyebrow text-[10px]">Theme</span>
-                    <div className="flex items-center gap-0.5 rounded-xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card)] p-0.5">
-                        {themeOptions.map(opt => (
-                            <button key={opt.value} onClick={() => setTheme(opt.value)} title={opt.label}
-                                className={`rounded-lg p-1 transition-all ${theme === opt.value ? 'border border-[var(--cv-action-border)] bg-[var(--cv-surface-warm-card-strong)] text-[var(--cv-action-primary)] shadow-sm' : 'text-[var(--cv-text-muted)] hover:text-[var(--cv-text-heading)]'}`}>
-                                {opt.icon}
-                            </button>
-                        ))}
-                    </div>
-                </div>
+                    <div className="mx-1.5 my-1 border-t border-[var(--cv-border-subtle)]" />
 
-                {currentUser ? (
-                    <button onClick={logOut} className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-[11px] font-semibold text-[var(--cv-text-muted)] transition-colors hover:bg-[var(--cv-danger-soft)] hover:text-[var(--cv-danger-text)]">
-                        <LogOut size={14} /><span>Sign out</span>
-                    </button>
-                ) : (
-                    <button onClick={() => navigate('/signin')} className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-[11px] font-bold text-[var(--cv-action-primary)] transition-colors hover:bg-[var(--cv-action-soft-bg)]">
-                        <LogIn size={14} /><span>Sign in / Sign up</span>
-                    </button>
-                )}
+                    {currentUser ? (
+                        <button onClick={logOut} className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-[11px] font-semibold text-[var(--cv-text-muted)] transition-colors hover:bg-[var(--cv-danger-soft)] hover:text-[var(--cv-danger-text)]">
+                            <LogOut size={14} /><span>Sign out</span>
+                        </button>
+                    ) : (
+                        <button onClick={() => navigate('/signin')} className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-[11px] font-bold text-[var(--cv-action-primary)] transition-colors hover:bg-[var(--cv-action-soft-bg)]">
+                            <LogIn size={14} /><span>Sign in / Sign up</span>
+                        </button>
+                    )}
+                </div>
                 </>
                 )}
             </div>

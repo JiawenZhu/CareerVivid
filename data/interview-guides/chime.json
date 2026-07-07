@@ -30,9 +30,27 @@
     "Post-IPO context: \"How do you think about shipping in a newly-public company vs a private-growth company?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Given this API request, implement the service handler with retry safety and correct error semantics. Talk through your approach, complexity, and edge cases.",
+      "Given this event stream, deliver notifications with per-user preferences and deduplication. Talk through your approach, complexity, and edge cases.",
+      "Given a stream of card events, compute rolling features for a real-time model with bounded memory. Talk through your approach, complexity, and edge cases.",
+      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Describe a time you deeply understood your users. How did it change what you built?",
+      "Tell me about a production incident affecting consumers. How did you own it?",
+      "Have you worked with compliance / risk / legal? What was that like?",
+      "How do you think about shipping in a newly-public company vs a private-growth company?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the transfer system for 8M users handling 50K TPS at peak with exactly-once semantics.",
+      "Design a real-time fraud detection pipeline: 10K events/sec, <50ms scoring latency. Cover the API, data model, and how it scales.",
+      "Design the notification system for deposits, transactions, and alerts across 20M devices. Cover the API, data model, and how it scales.",
+      "Design SpotMe overdraft decisioning inline with the authorization path. Cover the API, data model, and how it scales.",
+      "Design a service at Chime scale that shortens URLs. Cover the API, storage, and hot-key handling."
+    ],
     "values": [],
     "other": [
       "Know the partner-bank architecture conceptually. Who holds the deposits? Who issues the cards? Where does Chime fit?",

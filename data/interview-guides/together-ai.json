@@ -31,9 +31,27 @@
     "Customer empathy: \"Tell me about a time you engaged with an enterprise customer's AI-infrastructure problem.\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Implement attention from scratch with appropriate batching considerations. Talk through your approach, complexity, and edge cases.",
+      "Write a CUDA kernel for a specific operation (element-wise, reduction, softmax). Talk through your approach, complexity, and edge cases.",
+      "Design a batching scheduler matching incoming requests to available GPU capacity with fairness. Talk through your approach, complexity, and edge cases.",
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about the fastest meaningful improvement you've shipped to a production AI system.",
+      "How do you balance research-informed work with shipping production systems?",
+      "Describe a production ML system you owned end-to-end.",
+      "Tell me about a time you engaged with an enterprise customer's AI-infrastructure problem.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the inference-serving system supporting 100+ open-source models with shared GPU capacity.",
+      "Design the fine-tuning service with multi-tenant LoRA adapter management and per-customer isolation.",
+      "Design the speculative-decoding pipeline working across diverse model architectures. Cover the API, data model, and how it scales.",
+      "Design the custom-deployment offering for enterprise customers with dedicated capacity. Cover the API, data model, and how it scales.",
+      "Design an experiment to evaluate a new inference-optimization technique. Cover the API, data model, and how it scales."
+    ],
     "values": [],
     "other": [
       "Engage with open-source orientation. Why open over closed? What are the trade-offs?",

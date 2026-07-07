@@ -35,8 +35,18 @@
   "systemDesignTopics": [],
   "behavioralTopics": [],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Build a federated search index. Talk through your approach, complexity, and edge cases.",
+      "Implement permission-aware retrieval. Talk through your approach, complexity, and edge cases.",
+      "Design hybrid search. Talk through your approach, complexity, and edge cases.",
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
     "systemDesign": [],
     "values": [],
     "other": [

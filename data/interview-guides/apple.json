@@ -21,8 +21,18 @@
     "Apple Silicon &mdash; M-series and A-series chip design"
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Given an array of integers, find the longest contiguous subarray whose sum equals a target. Discuss complexity and edge cases.",
+      "Serialize and deserialize a binary tree. Walk through your encoding choices, complexity, and edge cases.",
+      "Reverse a linked list in groups of k nodes. Discuss the iterative versus recursive trade-offs.",
+      "Given a set of coin denominations, compute the minimum number of coins needed to reach a target amount. Compare the recursive and bottom-up approaches.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
     "systemDesign": [],
     "values": [],
     "other": [

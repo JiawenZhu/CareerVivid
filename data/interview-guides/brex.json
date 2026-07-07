@@ -31,9 +31,27 @@
     "Ownership through hard quarters: Brex went through a 2022&ndash;2023 rightsizing; interviewers value candidates who've persisted through hard company moments."
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Implement a payment-handler API endpoint with idempotency, retry safety, and transactional correctness. Talk through your approach, complexity, and edge cases.",
+      "Build a ledger-entry system that handles double-entry posting with consistency guarantees. Talk through your approach, complexity, and edge cases.",
+      "Implement timeout, network error, bank decline, duplicate. Talk through your approach, complexity, and edge cases.",
+      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Describe a time you had to make a call with incomplete information where the downside was significant.",
+      "Have you worked under compliance constraints? How did they shape your decisions?",
+      "Tell me about a project involving risk, legal, or finance stakeholders. How did you align with them?",
+      "Describe a production incident or project you owned end-to-end. What did you do, and what was the outcome?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the card-authorization path with a strict 100ms latency budget, handling 10K TPS at peak.",
+      "Design a ledger system with double-entry accounting, audit logging, and nightly reconciliation.",
+      "Design real-time fraud detection that blocks 80% of true fraud with <1% false positives. Cover the API, data model, and how it scales.",
+      "Design the expense-approval workflow engine for 5K enterprise customers with custom rules. Cover the API, data model, and how it scales.",
+      "Design a service at Brex scale that shortens URLs. Cover the API, storage, and hot-key handling."
+    ],
     "values": [],
     "other": [
       "Do I need Rails experience to get hired?",

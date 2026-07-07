@@ -27,9 +27,26 @@
     "Cycles: \"How do you think about working at a company with crypto-market-cycle volatility?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Why Coinbase specifically, and why crypto in 2026?",
+      "Tell me about a time you owned an incident where money or user funds were at risk.",
+      "Have you worked in regulated environments? How did compliance shape your engineering?",
+      "How do you think about working at a company with crypto-market-cycle volatility?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the matching engine for limit orders supporting 100K orders/sec with fairness guarantees.",
+      "Design a settlement system reconciling centralized-exchange trades with on-chain activity across 20 blockchains.",
+      "Design the deposit / withdrawal pipeline handling blockchain reorgs, failed transactions, and MEV front-running.",
+      "Design a self-custody key management system for 100M+ keys using MPC. Cover the API, data model, and how it scales.",
+      "Design a service at Coinbase scale that shortens URLs. Cover the API, storage, and hot-key handling."
+    ],
     "values": [],
     "other": [
       "Do I need crypto / blockchain background to get hired?",

@@ -34,18 +34,31 @@
   ],
   "behavioralTopics": [],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Design a high-throughput driver-rider matching service. Talk through your approach, complexity, and edge cases.",
+      "Implement an idempotent payment authorization flow. Talk through your approach, complexity, and edge cases.",
+      "You need to deduplicate a very large dataset that does not fit in memory. Walk me through your approach and how you would verify correctness.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
     "systemDesign": [
       "Grab interviews often probe whether the candidate understands the specific operating context of Southeast Asia. Common questions: how does ride-hailing work differently in Jakarta vs Singapore? What is the role of motorbike fleets (GrabBike) and how does it change the engineering problem? How does payments fragmentation (cash, e-wallet, bank transfer, BNPL) affect the platform's data model?",
       "Does Grab sponsor work visas?",
       "What languages should I know?",
-      "How does Grab compare to Sea / Shopee?"
+      "Design GrabFood for a city of 30 million people. Restaurants, real-time menu sync, ETA prediction, courier dispatch, and the platform-vs-merchant data trade-offs.",
+      "Design a multi-currency wallet (GrabPay) across SEA jurisdictions. Each country has different KYC, AML, and central-bank reporting requirements. Discuss how to architect a system where business rules vary by country but the core wallet state machine is shared."
     ],
     "values": [
       "What is the Grab 4H values round?"
     ],
-    "other": []
+    "other": [
+      "How does Grab compare to Sea / Shopee?"
+    ]
   },
   "difficulty": null,
   "tips": [],

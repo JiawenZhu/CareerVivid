@@ -670,6 +670,52 @@ export const generalChat = async (userId: string, history: { role: 'user' | 'mod
     }
 };
 
+/**
+ * "AI coding companion" for interactive lessons: answers questions about the
+ * current exercise and the learner's own code. Coaches toward the answer —
+ * explains concepts and points at the bug — rather than just handing over a
+ * finished solution.
+ */
+export const askCodingCompanion = async (
+    userId: string,
+    context: { exerciseTitle: string; exerciseContent: string; language: string; code: string },
+    history: { role: 'user' | 'model', parts: { text: string }[] }[],
+    question: string,
+): Promise<string> => {
+    const systemInstruction = `You are a friendly, encouraging coding tutor inside CareerVivid's interactive lessons.
+
+The learner is on this exercise: "${context.exerciseTitle}"
+
+Exercise instructions:
+---
+${context.exerciseContent}
+---
+
+Their current ${context.language} code:
+---
+${context.code || '(empty)'}
+---
+
+Answer their question. Explain the relevant concept and, if their code has a bug, point at what's wrong and why — but do NOT just hand them the complete corrected solution unless they explicitly ask for the answer. Keep responses short (2-5 sentences) and encouraging.`;
+
+    try {
+        const result = await callGeminiProxy({
+            modelName: DEFAULT_TEXT_MODEL,
+            contents: [...history, { role: 'user', parts: [{ text: question }] }],
+            systemInstruction,
+        });
+
+        const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
+        await trackUsage(userId, 'ai_assistant_query', { tokenUsage });
+
+        return result.text;
+    } catch (error) {
+        console.error('Error in coding companion chat:', error);
+        reportError(error as Error, { functionName: 'askCodingCompanion' });
+        return "Sorry, I couldn't answer that right now. Please try again.";
+    }
+};
+
 export const generateInterviewQuestions = async (userId: string, prompt: string): Promise<string[]> => {
     try {
         const fullPrompt = `You are a senior interviewer designing the question set for a real interview. Use the context below to write questions that a candidate would actually be asked in this specific interview.
@@ -736,23 +782,31 @@ export const analyzeInterviewTranscript = async (userId: string, transcript: Tra
 Role / interview context:
 ${prompt}
 
-Scoring rubric — all scores are 0 to 100. Calibrate honestly against a real hiring bar, do not inflate:
-- 85-100: strong hire — specific, structured, correct, with depth.
+## MANDATORY PROCEDURE — follow in order, write findings into rubricFindings first
+Step 1 — TALLY: list every question the interviewer asked. For each, note in one line: answered fully / answered partially / dodged or no answer, plus the strongest specific detail the candidate gave (metric, name, example) or "no specifics".
+Step 2 — RUBRIC: score each dimension from the tally using the bands below. A dimension score must be explainable purely from your tally lines.
+Step 3 — Write feedback bullets; every bullet must reference a specific question or quote from the transcript.
+
+Scoring bands — all scores 0 to 100. Calibrate against a real hiring bar; typical decent candidates land 60-80:
+- 85-100: strong hire — specific, structured, correct, with depth. Reserve 95+ for at most 1 in 20 candidates; NEVER give 100 if you list any improvement for that dimension.
 - 70-84: hire — solid answers with minor gaps.
 - 50-69: mixed — partially answered, vague, or shallow in places.
 - 30-49: weak — mostly vague, off-target, or missing key substance.
 - 0-29: no signal — barely answered, evasive, or empty transcript.
 
 Score each dimension:
-- overallScore: your holistic hire/no-hire read, weighted toward relevance and substance.
-- communicationScore: structure, clarity, and concision. Did they organize answers (e.g. STAR) and stay easy to follow?
+- communicationScore: structure, clarity, and concision. Did they organize answers (e.g. STAR) and stay easy to follow? Rambling or unstructured answers on 2+ questions caps this at 75.
 - confidenceScore: composure and conviction WITHOUT arrogance. Hedging, rambling, or "I don't know" with no attempt lowers this.
-- relevanceScore: did answers actually address the questions and the role, with concrete detail (metrics, examples, specifics) rather than generic filler?
+- relevanceScore: did answers actually address the questions and the role, with concrete detail (metrics, examples, specifics) rather than generic filler? Any question fully dodged caps this at 70; two or more cap it at 55.
+- overallScore: your holistic hire/no-hire read, weighted toward relevance and substance — it may not exceed the highest dimension score.
 
-If the transcript is empty or the candidate barely responded, score everything below 30 and say so plainly.
+Hard rules:
+- Empty transcript or barely-responding candidate → everything below 30, say so plainly.
+- One-line or single-word answers are NOT specific: they cannot earn above 60 on relevance no matter how correct.
+- Never credit knowledge the candidate did not state. Judge the words in the transcript, not plausible intent.
 
 Feedback rules:
-- strengths: 2-4 markdown bullets, each citing something specific the candidate actually said or did well. No generic praise.
+- strengths: 2-4 markdown bullets, each citing something specific the candidate actually said (quote or close paraphrase). No generic praise.
 - areasForImprovement: 2-4 markdown bullets, each an actionable fix tied to a concrete moment ("When asked about X, you said Y — instead, quantify the impact and name the trade-off"). Be direct and useful, not soft.
 
 **Transcript:**
@@ -767,14 +821,19 @@ Return ONLY a valid JSON object conforming to the schema.`;
             responseSchema: {
                 type: "OBJECT",
                 properties: {
-                    overallScore: { type: "NUMBER", description: "A weighted average score from 0 to 100." },
+                    // Generated FIRST so the weak model tallies every question
+                    // before committing to scores (structured chain-of-thought).
+                    rubricFindings: { type: "STRING", description: "Working notes: one tally line per interviewer question (answered fully/partially/dodged + strongest specific detail). Written before any score." },
                     communicationScore: { type: "NUMBER", description: "A score from 0 to 100 for communication skills." },
                     confidenceScore: { type: "NUMBER", description: "A score from 0 to 100 for confidence." },
                     relevanceScore: { type: "NUMBER", description: "A score from 0 to 100 for answer relevance." },
+                    overallScore: { type: "NUMBER", description: "Holistic hire read; may not exceed the highest dimension score." },
                     strengths: { type: "STRING", description: "A markdown-formatted string summarizing the candidate's strengths." },
                     areasForImprovement: { type: "STRING", description: "A markdown-formatted string with actionable tips for improvement." }
                 },
+                propertyOrdering: ['rubricFindings', 'communicationScore', 'confidenceScore', 'relevanceScore', 'overallScore', 'strengths', 'areasForImprovement'],
                 required: [
+                    'rubricFindings',
                     'overallScore',
                     'communicationScore',
                     'confidenceScore',
@@ -793,7 +852,9 @@ Return ONLY a valid JSON object conforming to the schema.`;
 
         await trackUsage(userId, 'interview_analysis', metadata);
 
-        return JSON.parse(result.text.trim());
+        // The scratchpad improved the scores; it is not part of the report.
+        const { rubricFindings: _rubricFindings, ...analysis } = JSON.parse(result.text.trim());
+        return analysis;
     } catch (error) {
         console.error("Error analyzing transcript:", error);
         reportError(error as Error, { functionName: 'analyzeInterviewTranscript' });
@@ -817,26 +878,49 @@ export const analyzeSystemDesignDiagram = async (
         const base64Data = imageDataUrl.includes(',') ? imageDataUrl.split(',')[1] : imageDataUrl;
         const mimeType = imageDataUrl.startsWith('data:image/jpeg') ? 'image/jpeg' : 'image/png';
 
-        const instruction = `You are a senior staff engineer conducting a system design interview. The candidate was given this brief:
+        const instruction = `You are a senior staff engineer grading a system design interview diagram. The candidate was given this brief:
 
 ---
 ${brief}
 ---
 
-The attached image is the candidate's hand-drawn system design diagram (whiteboard). Evaluate it as you would in a real onsite. Judge only what is actually shown in the diagram plus any labels. Be objective and constructive.
+The attached image is the candidate's whiteboard diagram. Judge ONLY what is visibly drawn and labeled. Never credit intentions — if it is not in the diagram, it does not exist.
 
-Scoring (all 0-100):
-- overallScore: weighted overall quality of the design.
-- communicationScore: clarity and readability of the diagram — are components labeled, is data flow clear, is it organized?
-- confidenceScore: requirement coverage — does the design address the core requirements in the brief (key components, data stores, APIs)?
-- relevanceScore: scalability and trade-offs — does it handle scale, bottlenecks, failure modes, and show sensible engineering trade-offs?
+## MANDATORY PROCEDURE — follow in order, write findings into rubricFindings first
+Step 1 — INVENTORY: list every labeled component, every arrow/connection, every data store, and every annotation you can actually read in the diagram.
+Step 2 — RUBRIC: score every checklist item below, citing the inventory. An item with no visible evidence scores 0.
+Step 3 — COMPUTE the three dimension scores by summing their items. Do not round up.
+Step 4 — Write feedback bullets, each citing a specific labeled element or a specific missing item.
 
-If the diagram is empty or unreadable, score everything low (under 30) and say so.
+## CHECKLIST
 
-strengths: markdown bullets on what the design does well.
-areasForImprovement: markdown bullets with specific, actionable gaps (missing components, scaling concerns, unclear flows).
+communicationScore (diagram clarity) = sum of:
+- [0-25] Components have specific labels (e.g. "order-router", "Postgres: tax lots") — generic boxes ("service", "DB") earn at most half.
+- [0-25] Directional arrows show request/data flow between components.
+- [0-25] Layout is organized in layers or groups (client → services → data); related parts are near each other.
+- [0-25] Readable as-is: no orphan boxes, no ambiguous crossings, a stranger could trace one request end-to-end.
 
-Return ONLY a JSON object matching the schema.`;
+confidenceScore (requirement coverage) — the brief lists explicit requirements. Score each of the 4 requirements [0-25] strictly on visible evidence: fully addressed = 20-25, partially = 8-15, mentioned in a label but not designed = 3-7, absent = 0.
+
+relevanceScore (scale & trade-offs) = sum of:
+- [0-30] A concrete scaling mechanism appropriate to the problem (caching, load balancing, partitioning/sharding, batch windows, queues) is drawn AND placed correctly.
+- [0-25] Storage choices fit the data (e.g. ledger in a transactional store, hot data in cache); the diagram shows WHAT each store holds.
+- [0-25] At least one bottleneck or failure mode is explicitly called out with a visible mitigation (retry, DLQ, replica, circuit breaker).
+- [0-20] Trade-off awareness visible (sync vs async boundaries, consistency notes, backpressure, idempotency).
+
+overallScore = round(0.25 × communicationScore + 0.40 × confidenceScore + 0.35 × relevanceScore).
+
+## HARD RULES — violations make the report worthless
+- Empty or unreadable diagram → all scores under 30, say so plainly.
+- Fewer than 4 labeled components → confidenceScore ≤ 40.
+- No directional arrows → communicationScore ≤ 50.
+- Nothing addressing scale → relevanceScore ≤ 40.
+- 90+ on any dimension requires every one of its checklist items at ≥90% credit with cited evidence. Scores of 95+ should occur for at most 1 in 20 real submissions. NEVER output 100 unless literally nothing could be added or improved — if you list ANY area for improvement touching a dimension, that dimension must be below 95.
+- Every strengths bullet MUST name a specific labeled element from the inventory. Every improvement bullet MUST name the missing/weak item, why it matters at this scale, and the concrete fix. No generic advice ("add monitoring" alone is banned; say what to monitor and where).
+
+strengths: 2-4 markdown bullets. areasForImprovement: 3-5 markdown bullets, ordered by impact.
+
+Return ONLY a JSON object matching the schema. Fill rubricFindings FIRST (inventory + per-item scores), then the score fields must equal the sums you computed there.`;
 
         const contents = {
             parts: [
@@ -850,14 +934,18 @@ Return ONLY a JSON object matching the schema.`;
             responseSchema: {
                 type: "OBJECT",
                 properties: {
-                    overallScore: { type: "NUMBER", description: "Weighted overall design quality, 0 to 100." },
-                    communicationScore: { type: "NUMBER", description: "Diagram clarity and readability, 0 to 100." },
-                    confidenceScore: { type: "NUMBER", description: "Requirement coverage, 0 to 100." },
-                    relevanceScore: { type: "NUMBER", description: "Scalability and trade-offs, 0 to 100." },
-                    strengths: { type: "STRING", description: "Markdown bullets on design strengths." },
-                    areasForImprovement: { type: "STRING", description: "Markdown bullets on actionable gaps." },
+                    // Generated FIRST so the weak model does its checklist work
+                    // before committing to scores (structured chain-of-thought).
+                    rubricFindings: { type: "STRING", description: "Working notes: diagram inventory, then every checklist item with its awarded points and the evidence. Written before any score." },
+                    communicationScore: { type: "NUMBER", description: "Sum of the 4 clarity checklist items, 0 to 100." },
+                    confidenceScore: { type: "NUMBER", description: "Sum of the per-requirement coverage scores, 0 to 100." },
+                    relevanceScore: { type: "NUMBER", description: "Sum of the scale & trade-off checklist items, 0 to 100." },
+                    overallScore: { type: "NUMBER", description: "round(0.25*communication + 0.40*confidence + 0.35*relevance)." },
+                    strengths: { type: "STRING", description: "Markdown bullets, each citing a specific labeled element." },
+                    areasForImprovement: { type: "STRING", description: "Markdown bullets: missing item, why it matters, concrete fix." },
                 },
-                required: ['overallScore', 'communicationScore', 'confidenceScore', 'relevanceScore', 'strengths', 'areasForImprovement'],
+                propertyOrdering: ['rubricFindings', 'communicationScore', 'confidenceScore', 'relevanceScore', 'overallScore', 'strengths', 'areasForImprovement'],
+                required: ['rubricFindings', 'overallScore', 'communicationScore', 'confidenceScore', 'relevanceScore', 'strengths', 'areasForImprovement'],
             },
         };
 
@@ -866,7 +954,9 @@ Return ONLY a JSON object matching the schema.`;
         const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
         await trackUsage(userId, 'interview_analysis', { tokenUsage });
 
-        return JSON.parse(result.text.trim());
+        // The scratchpad improved the scores; it is not part of the report.
+        const { rubricFindings: _rubricFindings, ...analysis } = JSON.parse(result.text.trim());
+        return analysis;
     } catch (error) {
         console.error("Error analyzing system design diagram:", error);
         reportError(error as Error, { functionName: 'analyzeSystemDesignDiagram' });
@@ -875,11 +965,11 @@ Return ONLY a JSON object matching the schema.`;
 };
 
 export interface CodingSubmissionInput {
-    language: 'javascript' | 'python';
+    language: 'javascript' | 'python' | 'cpp' | 'java' | 'csharp';
     code: string;
     /** Challenge brief text (problem, requirements). */
     brief: string;
-    /** Hidden + visible test outcomes from the in-browser runner. */
+    /** Hidden + visible test outcomes from the in-browser runner, when supported. */
     passed: number;
     total: number;
     /** Up to 5 failing cases as short strings. */
@@ -900,8 +990,9 @@ export const analyzeCodingSubmission = async (
     submission: CodingSubmissionInput,
 ): Promise<Omit<InterviewAnalysis, 'id' | 'timestamp' | 'transcript'>> => {
     try {
-        const passRate = submission.total > 0 ? Math.round((submission.passed / submission.total) * 100) : 0;
-        const instruction = `You are a senior engineer grading a coding-interview submission. The candidate was given this brief:
+        const hasSandboxResults = submission.total > 0;
+        const passRate = hasSandboxResults ? Math.round((submission.passed / submission.total) * 100) : 0;
+        const instruction = `You are a senior engineer grading a coding-interview submission against a strict rubric. The candidate was given this brief:
 
 ---
 ${submission.brief}
@@ -913,20 +1004,50 @@ The candidate submitted this ${submission.language} solution:
 ${submission.code}
 \`\`\`
 
-The solution was ALREADY EXECUTED against a hidden test suite in a sandbox. Ground truth (do not second-guess it):
+${hasSandboxResults ? `The solution was ALREADY EXECUTED against a hidden test suite in a sandbox. Ground truth (do not second-guess it):
 - Tests passed: ${submission.passed}/${submission.total} (${passRate}%)
-${submission.failures.length ? `- Failing cases:\n${submission.failures.map((f) => `  - ${f}`).join('\n')}` : '- All tests passed.'}
+${submission.failures.length ? `- Failing cases:\n${submission.failures.map((f) => `  - ${f}`).join('\n')}` : '- All tests passed.'}` : `This language is not sandbox-executed in the browser yet. There are no hidden test results. Grade correctness by careful code review against the brief, expected edge cases, complexity, and language semantics.`}
 
-Scoring (all 0-100):
-- confidenceScore: correctness — anchor this to the test pass rate above (${passRate}%). Adjust at most ±10 for near-miss issues like unhandled edge cases the suite did not cover.
-- communicationScore: code clarity — naming, structure, comments where they matter, idiomatic ${submission.language}.
-- relevanceScore: approach and efficiency — algorithm choice, time/space complexity versus the requirements, avoidance of brute force where the brief asks for better.
-- overallScore: weighted overall quality (correctness matters most).
+## MANDATORY PROCEDURE — follow in order, write findings into rubricFindings first
+Step 1 — READ the code line by line. In rubricFindings, state: the algorithm used, its actual time complexity and space complexity (as big-O), and the complexity the brief's requirements ask for.
+Step 2 — RUBRIC: score every checklist item below, quoting the exact identifier, expression, or line that justifies each award or deduction.
+Step 3 — COMPUTE the dimension scores by summing their items. Do not round up.
+Step 4 — Write feedback bullets; every bullet must quote a concrete construct from the code.
 
-strengths: markdown bullets on what the solution does well.
-areasForImprovement: markdown bullets with specific, actionable feedback (complexity, edge cases, readability). Reference concrete lines or constructs from the code.
+## CHECKLIST
 
-Return ONLY a JSON object matching the schema.`;
+confidenceScore (correctness) — anchored to ground truth:
+${hasSandboxResults ? `- Start at the pass rate: ${passRate}.
+- Subtract up to 10 ONLY if you identify a concrete input (outside the suite) that would fail, and name that input in rubricFindings.
+- Add up to 10 ONLY if pass rate < 100 and the failures are trivially fixable (e.g. off-by-one on an edge case) — name the fix.` : `- Start from your code-review estimate of functional correctness against the visible brief and examples.
+- Award 85-100 only when the code is complete, type-consistent, handles edge cases, and the algorithm clearly satisfies the requirements.
+- Award 50-84 for plausible but incomplete or edge-case-fragile code.
+- Award 0-49 for starter-code-only, non-compilable, or wrong-approach submissions.`}
+
+communicationScore (code clarity) = sum of:
+- [0-25] Naming: identifiers describe intent (deduct for single letters beyond loop indices, misleading names, inconsistent style).
+- [0-25] Structure: clean decomposition, no dead code, no duplicated logic, early returns over deep nesting (deduct per violation, cite it).
+- [0-25] Idiomatic ${submission.language}: uses the language's natural constructs (deduct for C-style loops where iterators fit, manual index bookkeeping where a map/set fits, reinvented builtins).
+- [0-25] Self-documentation: non-obvious logic has a WHY comment; obvious code is NOT commented (both over- and under-commenting deduct).
+
+relevanceScore (approach & efficiency) = sum of:
+- [0-40] Algorithm vs requirement: compare your Step-1 complexity against the brief's requirement. Meets it exactly = 32-40. Correct but one class worse (e.g. O(n log n) where O(n) asked) = 16-28. Brute force where better is explicitly required = 0-15.
+- [0-20] Data structure choice: the right structure for the access pattern, with justification.
+- [0-20] Edge cases handled IN CODE (empty input, single element, duplicates, negatives, boundaries) — credit only what the code visibly handles.
+- [0-20] No accidental inefficiency: deduct for O(n) lookups inside loops (includes/indexOf/in on arrays), repeated sorting, unnecessary copies, string concatenation in hot loops. Quote each offender.
+
+overallScore = round(0.45 × confidenceScore + 0.20 × communicationScore + 0.35 × relevanceScore).
+
+## HARD RULES — violations make the report worthless
+- Passing tests does NOT imply clean code: communicationScore and relevanceScore are judged from the source, and a 100% pass rate alone never justifies either being above 85.
+- 90+ on any dimension requires every one of its checklist items at ≥90% credit with quoted evidence. 95+ should occur for at most 1 in 20 real submissions. NEVER output 100 unless you can write, in rubricFindings, why not a single point could be deducted — and if you list ANY improvement touching a dimension, that dimension must be below 95.
+- The first improvement bullet MUST state the solution's actual time and space complexity and whether it meets the brief's requirement.
+- Every bullet quotes a concrete identifier, expression, or pattern from the submitted code. Generic advice ("consider edge cases", "improve naming") without a quoted example is banned.
+- Do not praise boilerplate or the starter scaffold; judge only what the candidate wrote.
+
+strengths: 2-4 markdown bullets. areasForImprovement: 3-5 markdown bullets, ordered by impact.
+
+Return ONLY a JSON object matching the schema. Fill rubricFindings FIRST; the score fields must equal the sums you computed there.`;
 
         const contents = { parts: [{ text: instruction }] };
 
@@ -935,14 +1056,18 @@ Return ONLY a JSON object matching the schema.`;
             responseSchema: {
                 type: "OBJECT",
                 properties: {
-                    overallScore: { type: "NUMBER", description: "Weighted overall solution quality, 0 to 100." },
-                    communicationScore: { type: "NUMBER", description: "Code clarity and readability, 0 to 100." },
-                    confidenceScore: { type: "NUMBER", description: "Correctness anchored to test pass rate, 0 to 100." },
-                    relevanceScore: { type: "NUMBER", description: "Approach and efficiency, 0 to 100." },
-                    strengths: { type: "STRING", description: "Markdown bullets on solution strengths." },
-                    areasForImprovement: { type: "STRING", description: "Markdown bullets on actionable gaps." },
+                    // Generated FIRST so the weak model does its checklist work
+                    // before committing to scores (structured chain-of-thought).
+                    rubricFindings: { type: "STRING", description: "Working notes: algorithm + actual big-O vs required, then every checklist item with awarded points and the quoted code evidence. Written before any score." },
+                    confidenceScore: { type: "NUMBER", description: "Pass rate with at most ±10 justified adjustment, 0 to 100." },
+                    communicationScore: { type: "NUMBER", description: "Sum of the 4 code-clarity checklist items, 0 to 100." },
+                    relevanceScore: { type: "NUMBER", description: "Sum of the approach & efficiency checklist items, 0 to 100." },
+                    overallScore: { type: "NUMBER", description: "round(0.45*confidence + 0.20*communication + 0.35*relevance)." },
+                    strengths: { type: "STRING", description: "Markdown bullets, each quoting a concrete construct from the code." },
+                    areasForImprovement: { type: "STRING", description: "Markdown bullets; first states actual time/space complexity vs requirement." },
                 },
-                required: ['overallScore', 'communicationScore', 'confidenceScore', 'relevanceScore', 'strengths', 'areasForImprovement'],
+                propertyOrdering: ['rubricFindings', 'confidenceScore', 'communicationScore', 'relevanceScore', 'overallScore', 'strengths', 'areasForImprovement'],
+                required: ['rubricFindings', 'overallScore', 'communicationScore', 'confidenceScore', 'relevanceScore', 'strengths', 'areasForImprovement'],
             },
         };
 
@@ -951,7 +1076,9 @@ Return ONLY a JSON object matching the schema.`;
         const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
         await trackUsage(userId, 'interview_analysis', { tokenUsage });
 
-        return JSON.parse(result.text.trim());
+        // The scratchpad improved the scores; it is not part of the report.
+        const { rubricFindings: _rubricFindings, ...analysis } = JSON.parse(result.text.trim());
+        return analysis;
     } catch (error) {
         console.error("Error analyzing coding submission:", error);
         reportError(error as Error, { functionName: 'analyzeCodingSubmission' });

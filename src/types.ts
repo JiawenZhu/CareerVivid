@@ -285,14 +285,22 @@ export interface TranscriptEntry {
 export interface QuestCodingArtifact {
   type: 'coding';
   challengeId: string;
-  language: 'javascript' | 'python';
+  language: 'javascript' | 'python' | 'cpp' | 'java' | 'csharp';
   code: string;
-  codeByLanguage?: Partial<Record<'javascript' | 'python', string>>;
+  codeByLanguage?: Partial<Record<'javascript' | 'python' | 'cpp' | 'java' | 'csharp', string>>;
 }
 
 export interface QuestSystemDesignArtifact {
   type: 'system_design';
-  elements: any[];
+  challengeId: string;
+  /**
+   * Firestore cannot persist deeply nested arrays inside arrayUnion payloads.
+   * Store whiteboard scene data as JSON strings for new reports, while keeping
+   * the array fields optional so older local/report records can still reopen.
+   */
+  elementsJson?: string;
+  filesJson?: string;
+  elements?: any[];
   files?: Record<string, any>;
 }
 
@@ -1125,12 +1133,27 @@ export interface QuestStageResult {
   attempts: number;
   clearedAt: number | null;
   lastAnalysisId: string;
+  /**
+   * Coding and system-design stages: ids of the challenges the user has
+   * already solved for this company. Lets the quest hand out a fresh problem
+   * or prompt from the company's pool each time the user comes back.
+   */
+  clearedChallengeIds?: string[];
 }
 
 export interface CompanyQuestProgress {
   slug: string;
   company: string;
   stageResults: Record<string, QuestStageResult>;
+  startedAt: number;
+  completedAt: number | null;
+  updatedAt: number;
+}
+
+// --- Learning Course Types ---
+
+export interface CourseProgress {
+  completedModuleIds: string[];
   startedAt: number;
   completedAt: number | null;
   updatedAt: number;

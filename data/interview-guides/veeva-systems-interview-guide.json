@@ -31,8 +31,18 @@
   "systemDesignTopics": [],
   "behavioralTopics": [],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Implement document version control with audit trails. Talk through your approach, complexity, and edge cases.",
+      "Implement role-based access control with delegation. Talk through your approach, complexity, and edge cases.",
+      "You need to deduplicate a very large dataset that does not fit in memory. Walk me through your approach and how you would verify correctness.",
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
     "systemDesign": [
       "Design a workflow engine. Pharmaceutical document approval flows have 5-15 steps with conditional routing, parallel approvals, and audit checkpoints. How would you model the state machine and persist it?"
     ],

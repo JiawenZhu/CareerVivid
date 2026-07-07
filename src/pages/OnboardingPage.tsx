@@ -1,15 +1,19 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
     ArrowRight,
     BadgeCheck,
     Briefcase,
+    Building2,
     CheckCircle2,
     Circle,
     ClipboardCheck,
+    ExternalLink,
     FileText,
     Import,
     LayoutDashboard,
+    Loader2,
+    MapPin,
     Mic,
     PlayCircle,
     Sparkles,
@@ -23,11 +27,33 @@ import { useAuth } from '../contexts/AuthContext';
 import { useJobTracker } from '../hooks/useJobTracker';
 import { usePracticeHistory } from '../hooks/useJobHistory';
 import { useResumes } from '../hooks/useResumes';
+import { getUserJobHistory } from '../services/jobHistoryService';
+import { JobApplicationData, JobPosting } from '../types';
 import { navigate } from '../utils/navigation';
 
 type StepState = 'complete' | 'active' | 'locked';
+type WelcomeJobSource = 'tracker' | 'saved';
 
-const primaryButtonClass = 'inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg bg-[#211b16] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#3a2d23] focus:outline-none focus:ring-4 focus:ring-[#7069dc]/15 dark:bg-[#f4f1e9] dark:text-[#211b16] dark:hover:bg-white';
+type WelcomeJob = {
+    id: string;
+    title: string;
+    company: string;
+    location: string;
+    description: string;
+    sourceUrl: string;
+    sourceLabel: WelcomeJobSource;
+};
+
+const confettiPieces = [
+    ['8%', '8%', '#a97935', 'square', '.1s', '6.1s'],
+    ['20%', '16%', '#625bd5', 'circle', '.4s', '6.5s'],
+    ['38%', '6%', '#15803d', 'outline', '.8s', '5.8s'],
+    ['56%', '14%', '#d97706', 'dash', '.2s', '6.2s'],
+    ['72%', '7%', '#625bd5', 'triangle', '.6s', '6.6s'],
+    ['88%', '18%', '#166534', 'circle', '.9s', '5.9s'],
+] as const;
+
+const primaryButtonClass = 'inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg bg-[#625bd5] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#514ac5] focus:outline-none focus:ring-4 focus:ring-[#625bd5]/20 dark:bg-[#7069dc] dark:hover:bg-[#8d88e6]';
 const secondaryButtonClass = 'inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg border border-[#d9c7ad] bg-[#fffaf1] px-4 py-2.5 text-sm font-bold text-[#211b16] shadow-sm transition hover:bg-[#f6ecd9] focus:outline-none focus:ring-4 focus:ring-[#7069dc]/15 dark:border-[#37332d] dark:bg-[#262522] dark:text-[#f4f1e9] dark:hover:bg-[#302e2a]';
 
 const statusCopy: Record<StepState, string> = {
@@ -36,10 +62,77 @@ const statusCopy: Record<StepState, string> = {
     locked: 'Next',
 };
 
+const cleanText = (value: string | undefined, fallback: string) => {
+    const trimmed = value?.trim();
+    return trimmed || fallback;
+};
+
+const normalizeTrackerJob = (job: JobApplicationData): WelcomeJob => ({
+    id: job.id,
+    title: cleanText(job.jobTitle, 'Saved role'),
+    company: cleanText(job.companyName, 'Company not specified'),
+    location: cleanText(job.location, 'Location not specified'),
+    description: cleanText(job.jobDescription || job.prep_RoleOverview, ''),
+    sourceUrl: cleanText(job.jobPostURL || job.applicationURL, ''),
+    sourceLabel: 'tracker',
+});
+
+const normalizeSavedJob = (job: JobPosting): WelcomeJob => ({
+    id: job.id,
+    title: cleanText(job.jobTitle, 'Saved role'),
+    company: cleanText(job.companyName, 'Company not specified'),
+    location: cleanText(job.location, 'Location not specified'),
+    description: cleanText(job.description, ''),
+    sourceUrl: cleanText(job.externalUrl || job.applyUrl || (job as JobPosting & { url?: string }).url, ''),
+    sourceLabel: 'saved',
+});
+
+const truncateDescription = (value: string) => {
+    const normalized = value.replace(/\s+/g, ' ').trim();
+    if (!normalized) return 'No description attached yet. Add the posting text to make tailoring, match review, and interview prep more specific.';
+    return normalized.length > 210 ? `${normalized.slice(0, 207)}...` : normalized;
+};
+
 const QuickMetric = ({ label, value }: { label: string; value: string | number }) => (
     <div className="rounded-lg border border-[#e4d3bc] bg-[#fffaf1]/82 px-4 py-3 shadow-sm dark:border-[#37332d] dark:bg-[#262522]/82">
         <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-[#8a6027] dark:text-[#caa26c]">{label}</p>
         <p className="mt-1 text-2xl font-black text-[#211b16] dark:text-[#f4f1e9]">{value}</p>
+    </div>
+);
+
+const WarmWelcomeAnimation = ({ firstName, hasJob }: { firstName: string; hasJob: boolean }) => (
+    <div className="cv-warm-card relative overflow-hidden p-5">
+        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+            {confettiPieces.map(([left, top, color, shape, delay, duration], index) => (
+                <span
+                    key={`${left}-${top}-${index}`}
+                    className={`cv-welcome-confetti-piece cv-welcome-confetti-${shape} motion-reduce:hidden`}
+                    style={{
+                        left,
+                        top,
+                        backgroundColor: shape === 'outline' || shape === 'triangle' ? 'transparent' : color,
+                        borderColor: shape === 'triangle' ? undefined : color,
+                        color,
+                        animationDelay: delay,
+                        animationDuration: duration,
+                    }}
+                />
+            ))}
+        </div>
+        <div className="relative z-10">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#d9c7ad] bg-[#fffaf1] px-3 py-1.5 text-xs font-bold text-[#8b5a16] shadow-sm dark:border-[#37332d] dark:bg-[#302e2a] dark:text-[#caa26c]">
+                <Sparkles size={14} />
+                Welcome back
+            </div>
+            <h2 className="mt-4 text-[22px] font-extrabold leading-tight tracking-normal text-[#211b16] dark:text-[#f4f1e9]">
+                Hi {firstName}.
+            </h2>
+            <p className="mt-3 max-w-xl text-[13px] font-medium leading-6 text-[#665a4a] dark:text-[#aaa39a]">
+                {hasJob
+                    ? 'Your saved role is attached to this workspace. Start from the job packet and keep every next step connected.'
+                    : 'Start with one real role, then use CareerVivid to build the application packet around it.'}
+            </p>
+        </div>
     </div>
 );
 
@@ -154,12 +247,17 @@ const OnboardingPage: React.FC = () => {
     const { resumes, isLoading: isLoadingResumes } = useResumes();
     const { jobApplications, isLoading: isLoadingJobs } = useJobTracker();
     const { practiceHistory, isLoading: isLoadingPractice } = usePracticeHistory();
+    const [savedJobs, setSavedJobs] = useState<JobPosting[]>([]);
+    const [isLoadingSavedJobs, setIsLoadingSavedJobs] = useState(false);
 
     const primaryResume = resumes[0];
     const hasResume = resumes.length > 0;
     const hasJob = jobApplications.length > 0;
     const hasPractice = practiceHistory.length > 0;
     const firstName = userProfile?.displayName?.split(' ')[0] || currentUser?.displayName?.split(' ')[0] || 'there';
+    const routeParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
+    const storedFocusedJobId = typeof window !== 'undefined' ? window.sessionStorage.getItem('cv_last_welcome_job_id') : '';
+    const focusedJobId = routeParams.get('jobId') || routeParams.get('job') || storedFocusedJobId || '';
 
     const resumeTarget = primaryResume?.id ? `/edit/${primaryResume.id}` : '/newresume?scrollTo=create-section';
     const tailorTarget = primaryResume?.id ? `/edit/${primaryResume.id}?source=onboarding_tailor` : '/newresume?scrollTo=create-section';
@@ -167,6 +265,74 @@ const OnboardingPage: React.FC = () => {
     const completedCount = [currentUser, hasResume, hasJob, hasPractice].filter(Boolean).length;
     const progressPercent = Math.round((completedCount / 4) * 100);
     const isLoadingWorkspace = isLoadingResumes || isLoadingJobs || isLoadingPractice;
+    const isLoadingJobContext = isLoadingJobs || isLoadingSavedJobs;
+
+    useEffect(() => {
+        let isMounted = true;
+
+        const loadSavedJobs = async () => {
+            if (!currentUser?.uid) {
+                setSavedJobs([]);
+                setIsLoadingSavedJobs(false);
+                return;
+            }
+
+            setIsLoadingSavedJobs(true);
+            try {
+                const history = await getUserJobHistory(currentUser.uid);
+                if (isMounted) setSavedJobs(history);
+            } catch (error) {
+                if (import.meta.env.DEV) {
+                    console.debug('Error loading onboarding saved job history:', error);
+                }
+                if (isMounted) setSavedJobs([]);
+            } finally {
+                if (isMounted) setIsLoadingSavedJobs(false);
+            }
+        };
+
+        loadSavedJobs();
+        return () => {
+            isMounted = false;
+        };
+    }, [currentUser?.uid]);
+
+    const featuredJob = useMemo(() => {
+        const focusedTrackerJob = focusedJobId ? jobApplications.find(job => job.id === focusedJobId) : undefined;
+        if (focusedTrackerJob) return normalizeTrackerJob(focusedTrackerJob);
+
+        const trackerJob = jobApplications[0];
+        if (trackerJob) return normalizeTrackerJob(trackerJob);
+
+        const savedJob = savedJobs[0];
+        if (savedJob) return normalizeSavedJob(savedJob);
+
+        return null;
+    }, [focusedJobId, jobApplications, savedJobs]);
+
+    const storeTailorTransit = () => {
+        if (!featuredJob) return;
+        sessionStorage.setItem('transit_resume_tailor', JSON.stringify({ scrapeId: '', fallbackDescription: '' }));
+        sessionStorage.setItem('transit_resume_tailor_data', JSON.stringify({ description: featuredJob.description }));
+        sessionStorage.setItem('jobTitleForOptimization', featuredJob.title);
+        sessionStorage.setItem('jobCompanyForOptimization', featuredJob.company);
+    };
+
+    const openTailoredResume = () => {
+        if (!featuredJob || !primaryResume) {
+            navigate('/newresume?scrollTo=create-section');
+            return;
+        }
+
+        storeTailorTransit();
+        navigate(`/edit/${primaryResume.id}?source=onboarding_tailor`);
+    };
+
+    const openSourceJob = () => {
+        if (featuredJob?.sourceUrl) {
+            window.open(featuredJob.sourceUrl, '_blank', 'noopener,noreferrer');
+        }
+    };
 
     const steps = useMemo(() => {
         return [
@@ -273,6 +439,88 @@ const OnboardingPage: React.FC = () => {
                                 ))}
                             </div>
                         </div>
+                    </section>
+
+                    <section className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,0.64fr)_minmax(360px,0.46fr)]">
+                        <WarmWelcomeAnimation firstName={firstName} hasJob={Boolean(featuredJob)} />
+
+                        <aside className="cv-warm-card p-5">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                <div>
+                                    <p className="cv-warm-eyebrow">Saved job attached</p>
+                                    <h2 className="mt-2 text-[18px] font-extrabold leading-snug tracking-normal text-[#211b16] dark:text-[#f4f1e9]">
+                                        {featuredJob ? featuredJob.title : 'Attach your first role'}
+                                    </h2>
+                                </div>
+                                {isLoadingJobContext && (
+                                    <span className="inline-flex items-center gap-2 rounded-full border border-[#d9c7ad] bg-[#fffaf1] px-3 py-1 text-xs font-bold text-[#8b5a16] dark:border-[#37332d] dark:bg-[#302e2a] dark:text-[#caa26c]">
+                                        <Loader2 size={13} className="animate-spin" />
+                                        Checking
+                                    </span>
+                                )}
+                            </div>
+
+                            {featuredJob ? (
+                                <>
+                                    <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold text-[#665a4a] dark:text-[#aaa39a]">
+                                        <span className="inline-flex items-center gap-1 rounded-full border border-[#e4d3bc] bg-[#fffaf1] px-3 py-1 dark:border-[#37332d] dark:bg-[#1f1f1d]">
+                                            <Building2 size={13} />
+                                            {featuredJob.company}
+                                        </span>
+                                        <span className="inline-flex items-center gap-1 rounded-full border border-[#e4d3bc] bg-[#fffaf1] px-3 py-1 dark:border-[#37332d] dark:bg-[#1f1f1d]">
+                                            <MapPin size={13} />
+                                            {featuredJob.location}
+                                        </span>
+                                        <span className="rounded-full border border-[#dfe2ff] bg-[#f3f2ff] px-3 py-1 text-[#625bd5] dark:border-[#484273] dark:bg-[#302e4c]/45 dark:text-[#c8c5ff]">
+                                            {featuredJob.sourceLabel === 'tracker' ? 'From job tracker' : 'From saved jobs'}
+                                        </span>
+                                    </div>
+                                    <p className="mt-4 rounded-lg border border-[#d9c7ad] bg-[#f9efe0]/72 p-4 text-sm leading-6 text-[#665a4a] dark:border-[#37332d] dark:bg-[#302e2a]/80 dark:text-[#aaa39a]">
+                                        {truncateDescription(featuredJob.description)}
+                                    </p>
+                                    <div className="mt-5 grid gap-2 sm:grid-cols-2">
+                                        <button type="button" onClick={() => navigate(featuredJob.sourceLabel === 'tracker' ? `/job-tracker?job=${featuredJob.id}` : '/job-tracker')} className={primaryButtonClass}>
+                                            <Briefcase size={16} />
+                                            Open packet
+                                        </button>
+                                        <button type="button" onClick={openTailoredResume} className={secondaryButtonClass}>
+                                            <Wand2 size={16} />
+                                            Tailor resume
+                                        </button>
+                                        <button type="button" onClick={() => navigate('/interview-studio')} className={secondaryButtonClass}>
+                                            <Mic size={16} />
+                                            Practice
+                                        </button>
+                                        {featuredJob.sourceUrl ? (
+                                            <button type="button" onClick={openSourceJob} className={secondaryButtonClass}>
+                                                Source job
+                                                <ExternalLink size={15} />
+                                            </button>
+                                        ) : (
+                                            <button type="button" onClick={() => navigate('/jobs/recommend')} className={secondaryButtonClass}>
+                                                Find roles
+                                                <ArrowRight size={15} />
+                                            </button>
+                                        )}
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="mt-4 rounded-lg border border-[#d9c7ad] bg-[#f9efe0]/72 p-4 dark:border-[#37332d] dark:bg-[#302e2a]/80">
+                                    <p className="text-sm leading-6 text-[#665a4a] dark:text-[#aaa39a]">
+                                        Save a role from the Chrome extension, paste a job URL, or find a recommended role. Once a role is attached, this welcome page will show the job packet here.
+                                    </p>
+                                    <div className="mt-4 flex flex-wrap gap-3">
+                                        <button type="button" onClick={() => navigate('/job-tracker')} className={primaryButtonClass}>
+                                            <Briefcase size={16} />
+                                            Add job
+                                        </button>
+                                        <button type="button" onClick={() => navigate('/jobs/recommend')} className={secondaryButtonClass}>
+                                            Find roles
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </aside>
                     </section>
 
                     <section className="mt-6 grid gap-4 lg:grid-cols-2">

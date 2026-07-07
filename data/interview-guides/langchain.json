@@ -34,10 +34,26 @@
     "Handling criticism: \"Describe navigating valid critique of a system you'd built.\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Given a set of tools, an LLM, and a question, execute tool-calls and return the final answer. Talk through your approach, complexity, and edge cases.",
+      "Handle token-level streaming output from an LLM with structured-event extraction. Talk through your approach, complexity, and edge cases.",
+      "Given a stream of log events, reconstruct a hierarchical trace. Talk through your approach, complexity, and edge cases.",
+      "Given a dataset and a chain / agent, run evaluations with programmatic and LLM-based metrics. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+    ],
+    "behavioral": [
+      "Have you worked on open-source projects? How do you balance community input with product direction?",
+      "How do you operate when technology (LLMs) evolves under you?",
+      "Tell me about engaging with developer users of a tool you built.",
+      "Describe navigating valid critique of a system you'd built.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
     "systemDesign": [
-      "Reason about evaluation for non-deterministic agents &mdash; what metrics, what datasets, what trade-offs?"
+      "Reason about evaluation for non-deterministic agents &mdash; what metrics, what datasets, what trade-offs?",
+      "Design LangSmith's trace-ingest system handling 1B+ traces/day with per-customer isolation.",
+      "Design the evaluation platform supporting async runs across thousands of datasets with LLM-graders.",
+      "Design LangGraph's persistence layer for stateful agents with human-in-the-loop interruption.",
+      "Design the playground enabling interactive prompt iteration with version control and cost tracking."
     ],
     "values": [],
     "other": [

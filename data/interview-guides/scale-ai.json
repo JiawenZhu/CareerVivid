@@ -27,13 +27,26 @@
     "Mission alignment: \"Why Scale specifically, and why now?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Implement given a stream of labeling tasks, route to labelers with agreement ≥ X, reject low-confidence submissions. Talk through your approach, complexity, and edge cases.",
+      "Implement cluster near-duplicate text examples, detect overlapping bounding boxes. Talk through your approach, complexity, and edge cases.",
+      "Implement compute rolling inter-annotator agreement, detect drift. Talk through your approach, complexity, and edge cases.",
+      "Implement call a labeling API for 10K items efficiently. Talk through your approach, complexity, and edge cases.",
+      "Implement graph traversal on a labeling workflow DAG, shortest path over task dependencies. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a project where the direction changed multiple times. How did you handle it?",
+      "Describe a time you took something from 'broken' to 'reliable.",
+      "What's the fastest you've shipped a material piece of functionality?",
+      "Why Scale specifically, and why now?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
     "systemDesign": [
       "RLHF: walk through the pipeline from preference collection through reward model training through policy optimization. What are the quality pitfalls at each stage? What does Constitutional AI change?",
       "Evaluation methodology: how do you design a benchmark that's hard to game? How do you handle contamination? What are the tradeoffs of LLM-as-a-judge vs human eval vs automated metrics?",
       "Data-quality reasoning: given this dataset and these quality signals, how do you improve label quality without increasing cost 10x?",
-      "Fine-tuning decisions: full fine-tune vs LoRA vs prompting &mdash; when does each make sense?"
+      "Fine-tuning decisions: full fine-tune vs LoRA vs prompting &mdash; when does each make sense?",
+      "Design an ingestion pipeline for 10TB/day of labeled data with deduplication and quality checks."
     ],
     "values": [
       "How is the equity valued post-deal?"

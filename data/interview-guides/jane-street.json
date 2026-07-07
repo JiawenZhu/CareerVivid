@@ -17,8 +17,18 @@
   "systemDesignTopics": [],
   "behavioralTopics": [],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Implement a simple order book with insert / cancel / match operations. Talk through your approach, complexity, and edge cases.",
+      "Compute a moving average / running statistic efficiently. Talk through your approach, complexity, and edge cases.",
+      "Implement financial data feed, log format. Talk through your approach, complexity, and edge cases.",
+      "Implement a card game or board game's rules and a simple AI. Talk through your approach, complexity, and edge cases.",
+      "Simulate a random walk or stochastic process. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
     "systemDesign": [],
     "values": [],
     "other": [

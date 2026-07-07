@@ -22,8 +22,18 @@
     "Activision Blizzard &mdash; part of Microsoft Gaming since 2023"
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Given an array of integers, find the longest contiguous subarray whose sum equals a target. Discuss complexity and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Given a set of coin denominations, compute the minimum number of coins needed to reach a target amount. Compare the recursive and bottom-up approaches.",
+      "Implement an LRU cache with O(1) get and put. Then explain how you would make it thread-safe without serializing all access.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
     "systemDesign": [],
     "values": [],
     "other": []

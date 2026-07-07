@@ -28,9 +28,27 @@
     "Mindfulness: \"Describe a time you noticed a pattern in yourself or a team that required conscious change.\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Implement task with status, dependencies, rollup logic for parent / child completion. Talk through your approach, complexity, and edge cases.",
+      "Implement given a base computation and a change to inputs, update only the minimum necessary outputs. Talk through your approach, complexity, and edge cases.",
+      "Implement compute project statistics from an audit log. Talk through your approach, complexity, and edge cases.",
+      "Implement task dependency DAG execution, subtask rollup, cycle detection in project hierarchies. Talk through your approach, complexity, and edge cases.",
+      "Implement permission model, custom-field type system, recurring-task engine. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you were told you had to choose between two things and found a third option.",
+      "Describe a situation where you gave or received direct feedback that felt uncomfortable.",
+      "Tell me about a project where the outcome was better because of co-creation with others.",
+      "Describe a time you noticed a pattern in yourself or a team that required conscious change.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the permissions model supporting teams, projects, custom roles, and inherited access.",
+      "Design a notification system that prevents overwhelm: per-user preferences, relevance scoring, delivery digests.",
+      "Design the real-time collaborative editing layer for a project view with 50 concurrent viewers.",
+      "Design the recurring-task engine that schedules millions of recurring tasks efficiently across timezones.",
+      "Design a service at Asana scale that shortens URLs. Cover the API, storage, and hot-key handling."
+    ],
     "values": [],
     "other": [
       "Do I need to know Luna or their specific reactive framework?",

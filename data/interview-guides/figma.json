@@ -23,14 +23,25 @@
     "Performance work &mdash; a time you made something measurably faster, with before/after numbers"
   ],
   "sampleQuestions": {
-    "coding": [],
+    "coding": [
+      "Implement range tree for selection, interval map for formatting, trie for autocomplete. Talk through your approach, complexity, and edge cases.",
+      "Implement command log, event sequence, expression tree. Talk through your approach, complexity, and edge cases.",
+      "Implement undo/redo, selection state, focus state. Talk through your approach, complexity, and edge cases.",
+      "Design a small sub-system with a clear API and write the implementation (text buffer, diff algorithm, presence tracker). Talk through your approach, complexity, and edge cases.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
     "behavioral": [
       "Ambiguity &mdash; how do you ship when the spec isn't clear?",
-      "Long-running technical debt &mdash; how do you decide when to pay it down?"
+      "Long-running technical debt &mdash; how do you decide when to pay it down?",
+      "Tell me about a time you worked across teams to deliver something. How did you handle competing priorities?",
+      "Describe a time you had to deliver under a tight deadline. What trade-offs did you make?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
     ],
     "systemDesign": [
       "Rendering pipeline: when does the browser layout, paint, composite? What triggers a reflow?",
-      "Memory profiling: how do you find a leak in a long-running SPA?"
+      "Memory profiling: how do you find a leak in a long-running SPA?",
+      "Design a service at Figma scale that shortens URLs. Cover the API, storage, and hot-key handling.",
+      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
     ],
     "values": [],
     "other": [

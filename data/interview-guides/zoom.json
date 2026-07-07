@@ -27,9 +27,27 @@
     "AI product collaboration: \"How would you approach integrating AI into an existing feature that users rely on for real-time communication?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Implement jitter buffer with bounded memory, reordering out-of-order packets. Talk through your approach, complexity, and edge cases.",
+      "Implement given this bandwidth estimate, pick the right layer combination. Talk through your approach, complexity, and edge cases.",
+      "Implement compute per-meeting statistics from a continuous event stream. Talk through your approach, complexity, and edge cases.",
+      "Implement model a meeting session, chat thread, or recording pipeline with clean interfaces. Talk through your approach, complexity, and edge cases.",
+      "Implement a fixed-size ring buffer for sensor readings with O(1) reads and writes and no dynamic allocation. Walk through the concurrency considerations."
+    ],
+    "behavioral": [
+      "Describe a production issue where latency or quality degraded. How did you diagnose and fix?",
+      "How do you work effectively with teammates in different timezones?",
+      "How do you think about shipping in a mature SaaS company versus a high-growth one?",
+      "How would you approach integrating AI into an existing feature that users rely on for real-time communication?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design a global video conferencing infrastructure supporting 100K concurrent meetings. Cover the API, data model, and how it scales.",
+      "Design the media routing layer with SFU nodes across 30 POPs. Cover the API, data model, and how it scales.",
+      "Design the recording pipeline with per-participant tracks and post-meeting AI analysis. Cover the API, data model, and how it scales.",
+      "Design the AI Companion summary pipeline with sub-minute end-of-meeting delivery. Cover the API, data model, and how it scales.",
+      "Design a service at Zoom scale that shortens URLs. Cover the API, storage, and hot-key handling."
+    ],
     "values": [],
     "other": [
       "Does Zoom use WebRTC?",

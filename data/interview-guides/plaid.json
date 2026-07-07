@@ -33,10 +33,26 @@
   ],
   "sampleQuestions": {
     "coding": [
-      "Two coding rounds, 60 minutes each, medium difficulty &mdash; Plaid's bar is slightly below Google L5 on pure algorithms but higher on applied engineering and domain reasoning. Interviewers probe edge cases hard: What if the same transaction comes through twice? What if the bank returns inconsistent balances? What if the API call times out after sending but before receiving a response?"
+      "Two coding rounds, 60 minutes each, medium difficulty &mdash; Plaid's bar is slightly below Google L5 on pure algorithms but higher on applied engineering and domain reasoning. Interviewers probe edge cases hard: What if the same transaction comes through twice? What if the bank returns inconsistent balances? What if the API call times out after sending but before receiving a response?",
+      "Implement given this stream of transactions, some duplicated, produce a correct aggregate. Talk through your approach, complexity, and edge cases.",
+      "Implement given two sets of account records, find likely matches across institutions. Talk through your approach, complexity, and edge cases.",
+      "Implement handle MFA, failed auth, expired token, institution-specific quirks. Talk through your approach, complexity, and edge cases.",
+      "Implement fill in plausible values, flag ambiguous ones. Talk through your approach, complexity, and edge cases."
     ],
-    "behavioral": [],
-    "systemDesign": [],
+    "behavioral": [
+      "Tell me about a project where the requirements kept changing. How did you manage it?",
+      "Describe a production incident you owned end-to-end.",
+      "Have you worked in a regulated environment? How did compliance constraints affect your architecture choices?",
+      "Why do you want to work on financial infrastructure? What do you think is broken about how money moves today?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the transaction-pull pipeline for 15K banks with varying reliability. Cover the API, data model, and how it scales.",
+      "Design a balance-check API with strong consistency guarantees across concurrent requests. Cover the API, data model, and how it scales.",
+      "Design a data reconciliation system that detects when your stored state drifts from the upstream bank.",
+      "Design the payment-initiation infrastructure with exactly-once semantics. Cover the API, data model, and how it scales.",
+      "Design a service at Plaid scale that shortens URLs. Cover the API, storage, and hot-key handling."
+    ],
     "values": [],
     "other": [
       "Do I need fintech background to get hired?",

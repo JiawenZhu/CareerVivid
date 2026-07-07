@@ -29,9 +29,27 @@
     "Scaling impact: \"How have you made others more effective? Mentorship, tooling, process?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "Implement a small rules engine or DSL evaluator with specific semantics. Talk through your approach, complexity, and edge cases.",
+      "Build a permissions-check system with role hierarchies and inheritance. Talk through your approach, complexity, and edge cases.",
+      "Parse and transform structured data (XML, JSON config, CSV) into a domain model. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+    ],
+    "behavioral": [
+      "Describe a time you deeply understood a customer problem. How did that change what you built?",
+      "Tell me about a production incident you led from detection through postmortem.",
+      "Describe a cross-functional project you contributed to. What was hard and how did you make it work?",
+      "How do you balance shipping fast vs shipping reliably? Give a specific example.",
+      "How have you made others more effective? Mentorship, tooling, process?"
+    ],
+    "systemDesign": [
+      "Design the workflow execution engine that runs 100M workflows per day across 8K tenants. Cover the API, data model, and how it scales.",
+      "Design the CMDB schema and query layer supporting 100M configuration items with complex relationships.",
+      "Design the incident-ticket subscription system with real-time updates for 500K agents. Cover the API, data model, and how it scales.",
+      "Design the audit logging pipeline meeting SOC 2, FedRAMP, and customer-specific compliance requirements.",
+      "Design a service at ServiceNow scale that shortens URLs. Cover the API, storage, and hot-key handling."
+    ],
     "values": [],
     "other": [
       "Do I need Now Platform experience to get hired?",

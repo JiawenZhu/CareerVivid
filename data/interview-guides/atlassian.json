@@ -27,9 +27,25 @@
   ],
   "behavioralTopics": [],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Implement e.g., booking system, permissions hierarchy, versioned document. Talk through your approach, complexity, and edge cases.",
+      "Implement a specific data structure with Java-idiomatic API design (concurrent queue with specific semantics, LRU cache, rate limiter). Talk through your approach, complexity, and edge cases.",
+      "Implement invalid input, missing fields, unicode. Talk through your approach, complexity, and edge cases.",
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "A function intermittently fails in production. Walk me through how you would reproduce, isolate, and fix the bug."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
+    "systemDesign": [
+      "Design the Jira issue permission model supporting 10K users, custom roles, and project-level overrides.",
+      "Design the real-time collaboration layer for a Confluence page with 50 simultaneous editors.",
+      "Design cross-product notifications with per-user preferences, batching, and delivery across email / Slack / in-product.",
+      "Design the search infrastructure for a single tenant with 10M issues and sub-second query latency.",
+      "Design a service at Atlassian scale that shortens URLs. Cover the API, storage, and hot-key handling."
+    ],
     "values": [],
     "other": [
       "Do I need Java / Kotlin to get hired at Atlassian?",

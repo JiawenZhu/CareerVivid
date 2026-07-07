@@ -39,15 +39,30 @@
   ],
   "behavioralTopics": [],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Implement an inverted index — accept a list of documents, build a map from term to posting list with positions. Talk through your approach, complexity, and edge cases.",
+      "Find the k most frequent elements in a stream. Which data structure do you use and why?",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution.",
+      "Design a data structure that supports insert, delete, and get-random in constant time. Explain your reasoning."
+    ],
+    "behavioral": [
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?",
+      "Describe a project that failed or fell short. What did you learn and change afterward?",
+      "Give me an example of when you took ownership of something outside your job description."
+    ],
     "systemDesign": [
-      "Do I need to know Lucene internally?",
       "Is Elastic mostly Java?",
-      "How does Elastic compare to Splunk or Datadog?"
+      "Design a search system over 1B documents. Sharding (number of primary shards, replicas), routing, query coordination across shards, scoring (BM25), aggregations, refresh interval trade-offs, and the cost model for Elastic Cloud.",
+      "Design log ingestion at 1M events/second. Beats / Elastic Agent → Logstash or ingest pipeline → Elasticsearch indices. Hot/warm/cold tier strategy, ILM policies, and what to do when ingestion exceeds capacity.",
+      "Design alerting on log streams. Watcher / Kibana alerts, throttling, deduplication, and the integration with downstream paging (PagerDuty).",
+      "Design a service at Elastic scale that shortens URLs. Cover the API, storage, and hot-key handling."
     ],
     "values": [],
-    "other": []
+    "other": [
+      "Do I need to know Lucene internally?",
+      "How does Elastic compare to Splunk or Datadog?"
+    ]
   },
   "difficulty": null,
   "tips": [],

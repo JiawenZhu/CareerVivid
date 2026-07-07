@@ -37,9 +37,25 @@
     "Conflicting the \"safety\" and \"alignment\" conversation with pure doomerism or pure dismissiveness. Both extremes signal bad fit."
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Implement a data structure with specified operations and tight complexity requirements (LRU cache, frequency counter, range tree). Talk through your approach, complexity, and edge cases.",
+      "Implement log lines, tokenized text, event stream. Talk through your approach, complexity, and edge cases.",
+      "Implement shortest path with edge weights, topological sort of dependency DAG. Talk through your approach, complexity, and edge cases.",
+      "Implement tokenize by BPE rules, implement regex-like matcher. Talk through your approach, complexity, and edge cases.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you changed your mind on something technical. What triggered it?",
+      "Describe a project where the initial framing was wrong. How did you notice? What did you do?",
+      "Walk me through a disagreement you had with someone senior. How did it resolve?",
+      "How do you balance research exploration with engineering delivery? Give a concrete example.",
+      "It'll be fine because we have RLHF."
+    ],
+    "systemDesign": [
+      "Design Anthropic's cost platform — cover latency percentiles, failure modes. Walk through the architecture, trade-offs, and failure modes.",
+      "Design a service at Anthropic scale that shortens URLs. Cover the API, storage, and hot-key handling.",
+      "Design a rate limiter for a public API. Discuss algorithms, distributed coordination, and failure modes."
+    ],
     "values": [
       "What's the values/safety round actually looking for?"
     ],

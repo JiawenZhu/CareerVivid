@@ -31,11 +31,26 @@
     "Post-UBS-deal context: \"How do you think about working at a fintech that's navigating independent growth vs eventual acquisition?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Given a sell order and a set of lots, select lots to minimize capital-gains impact. Talk through your approach, complexity, and edge cases.",
+      "Given target allocations and current portfolio, compute trades under constraints (tax, minimum trade size, wash-sale avoidance). Talk through your approach, complexity, and edge cases.",
+      "Implement rolling returns, drawdown, Sharpe ratio calculation from a daily-return stream. Talk through your approach, complexity, and edge cases.",
+      "Implement Monte Carlo simulation of portfolio outcomes with bounded memory. Talk through your approach, complexity, and edge cases.",
+      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?"
+    ],
+    "behavioral": [
+      "Tell me about a time you caught a subtle bug with significant financial impact.",
+      "Describe a production incident you owned end-to-end.",
+      "Have you worked under compliance constraints? How did it affect your engineering?",
+      "Tell me about a time you engaged with a customer problem directly.",
+      "How do you think about working at a fintech that's navigating independent growth vs eventual acquisition?"
+    ],
     "systemDesign": [
       "How would you design tax-aware rebalancing that respects both target allocations and wash-sale avoidance?",
-      "Given this portfolio of returns, calculate Sharpe ratio. What assumptions are you making?"
+      "Given this portfolio of returns, calculate Sharpe ratio. What assumptions are you making?",
+      "Design the daily rebalancing engine for 500K accounts, completing within a 4-hour batch window with correctness guarantees.",
+      "Design the order-routing system that places orders with multiple broker-dealer partners, respecting best-execution and wash-sale rules.",
+      "Design the tax-lot accounting system supporting FIFO, LIFO, specific-lot, and custom lot selection with audit-trail requirements."
     ],
     "values": [],
     "other": [

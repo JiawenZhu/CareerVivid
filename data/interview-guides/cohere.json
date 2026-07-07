@@ -31,9 +31,27 @@
     "Customization depth: \"How do you think about balancing model generality with customer-specific fine-tuning?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Given candidate documents and a query, produce ranked output with a scoring function. Talk through your approach, complexity, and edge cases.",
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "Compute metrics (MRR, NDCG) over relevance judgments. Talk through your approach, complexity, and edge cases.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases.",
+      "Given a string, find the length of the longest substring without repeating characters. Walk through your solution."
+    ],
+    "behavioral": [
+      "Tell me about working with a customer in a regulated industry.",
+      "How do you balance research work with production shipping?",
+      "Describe working across Toronto, London, SF, and NY offices.",
+      "How do you think about balancing model generality with customer-specific fine-tuning?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the on-premise deployment for a financial-services customer with regulatory requirements.",
+      "Design the retrieval + rerank pipeline for a healthcare customer's knowledge base with HIPAA compliance.",
+      "Design the North AI agent platform's execution layer supporting enterprise-grade audit and human-in-the-loop.",
+      "Design the multi-tenant serving system with strict per-customer isolation for Fortune 500 customers.",
+      "Design an experiment to evaluate a new retrieval approach against production baselines. Cover the API, data model, and how it scales."
+    ],
     "values": [],
     "other": [
       "How does Cohere compare to OpenAI / Anthropic / Mistral on interviews?",

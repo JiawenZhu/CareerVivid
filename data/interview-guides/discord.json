@@ -31,9 +31,27 @@
     "Ownership: \"Describe a production incident you owned end-to-end.\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Implement a publish / subscribe primitive with fan-out semantics. Talk through your approach, complexity, and edge cases.",
+      "Build a connection manager handling many concurrent WebSocket-like connections. Talk through your approach, complexity, and edge cases.",
+      "Parse a streaming event log with backpressure and ordering guarantees. Talk through your approach, complexity, and edge cases.",
+      "Implement a rate limiter or circuit breaker with per-user fairness. Talk through your approach, complexity, and edge cases.",
+      "Implement a fixed-size ring buffer for sensor readings with O(1) reads and writes and no dynamic allocation. Walk through the concurrency considerations."
+    ],
+    "behavioral": [
+      "Tell me about a high-scale real-time system you contributed to.",
+      "Describe a time you deeply understood a consumer user's problem.",
+      "Discord's work spans product, moderation, platform. Tell me about coordinating across multiple teams.",
+      "Describe a production incident you owned end-to-end.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the message-fanout system delivering messages across millions of channels to 200M users.",
+      "Design the voice-routing system for 10K concurrent multi-user voice calls per region with optimal latency.",
+      "Design the safety-moderation pipeline handling user reports and automated detection at scale.",
+      "Design the Activities platform letting third-party apps run embedded in Discord channels. Cover the API, data model, and how it scales.",
+      "Design a service at Discord scale that shortens URLs. Cover the API, storage, and hot-key handling."
+    ],
     "values": [],
     "other": [
       "Do I need Rust / Elixir to get hired?",

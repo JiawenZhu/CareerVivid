@@ -32,12 +32,26 @@
     "Technical taste: \"Show me something technically interesting you built recently and walk me through a design choice you made.\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Build a small stateful component or hook with specific async semantics (debounced search, cancellable fetcher, race-condition-safe pagination). Talk through your approach, complexity, and edge cases.",
+      "Implement SSR-like render output, log tail, event stream. Talk through your approach, complexity, and edge cases.",
+      "Implement retry with exponential backoff and jitter, TTL cache with swr semantics. Talk through your approach, complexity, and edge cases.",
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "Given an array of integers, find the two numbers that add up to a target value. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "What's the most you've shipped in a weekend or a week?",
+      "Have you contributed to a project you didn't author? Walk me through a specific PR.",
+      "How do you drive alignment on an async-first team?",
+      "Show me something technically interesting you built recently and walk me through a design choice you made.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
     "systemDesign": [
       "When would you use a Server Component vs a Client Component? What are the actual costs of each?",
       "Why might a CSS-in-JS library break with React 19 streaming SSR?",
-      "Acknowledge tradeoffs &mdash; what's the cost of each change?"
+      "Acknowledge tradeoffs &mdash; what's the cost of each change?",
+      "Design an ISR (Incremental Static Regeneration) system for a site with 1M pages. Cover the API, data model, and how it scales.",
+      "Design edge middleware for a multi-tenant serverless platform. Cover the API, data model, and how it scales."
     ],
     "values": [],
     "other": [

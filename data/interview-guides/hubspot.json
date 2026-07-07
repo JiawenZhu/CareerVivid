@@ -33,9 +33,27 @@
     "Customer focus: \"Describe a time you advocated for a user / customer even when it slowed a project.\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Implement workflow with triggers / actions / conditions, contact list with custom fields, sequence of emails with A/B variants. Talk through your approach, complexity, and edge cases.",
+      "Implement a rate limiter, retry client, or event aggregator with specific semantics. Talk through your approach, complexity, and edge cases.",
+      "Implement a streaming feature aggregator: given a stream of events, maintain rolling counts and averages per key with bounded memory. Discuss complexity and eviction.",
+      "Implement contact deduplication via fuzzy clustering, workflow DAG evaluation, dependency resolution. Talk through your approach, complexity, and edge cases.",
+      "Implement compute rolling engagement scores from an event stream. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "Tell me about a time you shared a mistake or difficult situation openly with stakeholders.",
+      "Describe a project you led from concept to ship.",
+      "Tell me about a time you changed your mind on something significant.",
+      "Describe a time you advocated for a user / customer even when it slowed a project.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the workflow / automation engine evaluating 10M events/day across 250K tenants. Cover the API, data model, and how it scales.",
+      "Design the transactional email pipeline with deliverability tracking and per-tenant throttling.",
+      "Design the CRM search supporting complex filter queries (AND/OR on custom properties) against 10M records per tenant.",
+      "Design the real-time engagement scoring pipeline feeding Breeze AI recommendations. Cover the API, data model, and how it scales.",
+      "Design a service at HubSpot scale that shortens URLs. Cover the API, storage, and hot-key handling."
+    ],
     "values": [],
     "other": [
       "Do I need to have read the Culture Code deck?",

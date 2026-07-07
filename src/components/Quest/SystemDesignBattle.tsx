@@ -32,6 +32,27 @@ const blobToDataUrl = (blob: Blob): Promise<string> =>
 const toSerializableScene = <T,>(value: T): T =>
     value == null ? value : JSON.parse(JSON.stringify(value));
 
+const parseSceneJson = <T,>(value: string | undefined, fallback: T): T => {
+    if (!value) return fallback;
+    try {
+        return JSON.parse(value) as T;
+    } catch {
+        return fallback;
+    }
+};
+
+const getArtifactElements = (artifact: QuestSystemDesignArtifact | undefined): any[] => {
+    if (!artifact) return [];
+    if (artifact.elementsJson) return parseSceneJson<any[]>(artifact.elementsJson, []);
+    return artifact.elements ?? [];
+};
+
+const getArtifactFiles = (artifact: QuestSystemDesignArtifact | undefined): Record<string, any> | undefined => {
+    if (!artifact) return undefined;
+    if (artifact.filesJson) return parseSceneJson<Record<string, any>>(artifact.filesJson, {});
+    return artifact.files;
+};
+
 const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
     userId,
     company,
@@ -47,11 +68,14 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [reportEntry, setReportEntry] = useState<InterviewAnalysis | null>(null);
+    const matchingInitialArtifact = initialArtifact?.type === 'system_design' && initialArtifact.challengeId === brief.challengeId
+        ? initialArtifact
+        : undefined;
     const initialData = useMemo(() => ({
-        elements: initialArtifact?.type === 'system_design' ? initialArtifact.elements : [],
+        elements: getArtifactElements(matchingInitialArtifact),
         appState: { viewBackgroundColor: resolvedTheme === 'dark' ? '#1f2937' : '#ffffff' },
-        files: initialArtifact?.type === 'system_design' ? initialArtifact.files : undefined,
-    }), [initialArtifact, resolvedTheme]);
+        files: getArtifactFiles(matchingInitialArtifact),
+    }), [matchingInitialArtifact, resolvedTheme]);
 
     const handleSubmit = async () => {
         const api = excalidrawAPIRef.current;
@@ -82,8 +106,9 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
 
             const questArtifact: QuestSystemDesignArtifact = {
                 type: 'system_design',
-                elements: serializedElements,
-                ...(Object.keys(serializedFiles).length ? { files: serializedFiles } : {}),
+                challengeId: brief.challengeId,
+                elementsJson: JSON.stringify(serializedElements),
+                ...(Object.keys(serializedFiles).length ? { filesJson: JSON.stringify(serializedFiles) } : {}),
             };
 
             const saved = await saveAnalysis({

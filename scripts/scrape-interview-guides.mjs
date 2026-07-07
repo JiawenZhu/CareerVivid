@@ -339,6 +339,8 @@ function sleep(ms) {
  */
 function classifyHeading(heading) {
   const h = heading.toLowerCase().replace(/:$/, '').trim();
+  // Old-format pages: "What <Company> Tests For" — subsection headings are topics.
+  if (h.match(/^what .+ tests? for$|^what .+ looks? for$|tests? for$/)) return 'testsFor';
   if (h.match(/interview process|interview structure|what to expect|hiring process|interview stage|interview loop|interview format|interview overview|the process|how it works|process overview|interview rounds?|interview flow/)) return 'stages';
   if (h.match(/coding|algorithm|data structure|technical round|oa$|online assessment|leet|focus area|technical focus|technical skill|technical requirement|knowledge|programming/)) return 'coding';
   if (h.match(/system design|architecture|scalab|design interview|infrastructure/)) return 'systemDesign';
@@ -346,6 +348,15 @@ function classifyHeading(heading) {
   if (h.match(/tip|preparation|how to prepare|key to success|study|advice|strategy|recommendation|prepare|success|cheat|hack/)) return 'tips';
   if (h.match(/compensation|salary|pay|total comp|equity|bonus|offer|tc |level|band/)) return 'compensation';
   if (h.match(/common question|sample question|example question|practice question|question example|types? of question/)) return 'questions';
+  return null;
+}
+
+/** Classify a "What X Tests For" subsection topic into a topic bucket. */
+function classifyTestsForTopic(text) {
+  const t = text.toLowerCase();
+  if (t.match(/communicat|writ|conviction|mission|culture|collaborat|behavior|values|ownership|regulat/)) return 'behavioralTopics';
+  if (t.match(/system design|architecture|scalab|distributed|infrastructure/)) return 'systemDesignTopics';
+  if (t.match(/coding|engineering|algorithm|technical|ml|model|data|debug|performance|systems? thinking/)) return 'codingTopics';
   return null;
 }
 
@@ -399,13 +410,17 @@ function parsePageContent(companyName, slug, rawText) {
     difficulty: null,
     tips: [],
     compensation: null,
-    rawSummary: rawText.slice(0, 5000),
+    rawSummary: rawText.slice(0, 30000),
   };
 
   let currentSection = null;
   let questionMode = false;
+  let pendingTestsForLabel = null;
 
-  for (const line of lines) {
+  for (let rawLine of lines) {
+    // Normalize markdown-style noise so both page formats parse identically.
+    const line = rawLine.replace(/^#+\s*/, '').replace(/\*\*/g, '').trim();
+    if (!line) continue;
     const lower = line.toLowerCase();
 
     // Detect difficulty rating anywhere in text
@@ -428,8 +443,11 @@ function parsePageContent(companyName, slug, rawText) {
     // Bullet items (dash/number prefix) — processed separately below
     const isBullet = line.startsWith('- ') || line.startsWith('• ') || /^\d+\.\s/.test(line);
 
-    // Heading lines: standalone short lines that don't start with bullet prefix
-    const isHeading = !isBullet && line.length < 140 && !line.endsWith('?') && (
+    // Heading lines: standalone short lines that don't start with bullet prefix.
+    // Real headings never end with sentence punctuation — this keeps paragraph
+    // text containing keywords ("... Coding (medium-hard), some depth.") from
+    // being misread as a section change.
+    const isHeading = !isBullet && line.length < 90 && !/[.?!]$/.test(line) && (
       classifyHeading(line) !== null
     );
 
@@ -466,10 +484,44 @@ function parsePageContent(companyName, slug, rawText) {
       }
     }
 
+    // "What X Tests For" subsections: short heading-like label followed by a
+    // descriptive paragraph → "{label}: {first sentence}" becomes a topic.
+    if (currentSection === 'testsFor' && !isBullet) {
+      const isSubheading = line.length < 90 && !/[.?!]$/.test(line) && /^[A-Z]/.test(line);
+      if (isSubheading) {
+        pendingTestsForLabel = line;
+        continue;
+      }
+      if (pendingTestsForLabel && line.length > 40) {
+        const detail = line.split(/(?<=[.?!])\s+/)[0];
+        const topic = `${pendingTestsForLabel}: ${detail}`;
+        const bucket = classifyTestsForTopic(topic);
+        if (bucket && !data[bucket].includes(topic)) data[bucket].push(topic);
+        pendingTestsForLabel = null;
+        continue;
+      }
+    }
+
     // Bullet-point content
     if (isBullet) {
       const content = line.replace(/^[-•\d.]+\s*/, '').trim();
       if (!content || content.length < 5) continue;
+
+      // Onsite round bullets carry the real focus areas in both page formats:
+      // "Coding (1–2 rounds) — practical engineering with fintech flavor"
+      // "System design (1 round) — fintech systems (loan servicing, ledgers)"
+      const codingRound = content.match(/^coding\b.*?\s[—–-]\s(.{10,})$/i);
+      if (codingRound && !data.codingTopics.includes(codingRound[1].trim())) {
+        data.codingTopics.push(codingRound[1].trim());
+      }
+      const designRound = content.match(/^system design\b.*?\s[—–-]\s(.{10,})$/i);
+      if (designRound && !data.systemDesignTopics.includes(designRound[1].trim())) {
+        data.systemDesignTopics.push(designRound[1].trim());
+      }
+      const behavioralRound = content.match(/^behavioral\b.*?\s[—–-]\s(.{10,})$/i);
+      if (behavioralRound && !data.behavioralTopics.includes(behavioralRound[1].trim())) {
+        data.behavioralTopics.push(behavioralRound[1].trim());
+      }
 
       // If the bullet itself is a question, classify it
       if (content.endsWith('?') && content.length > 15) {
@@ -488,13 +540,17 @@ function parsePageContent(companyName, slug, rawText) {
           }
           break;
         case 'coding':
-          if (!data.codingTopics.includes(content)) data.codingTopics.push(content);
+          // Round-label bullets for other rounds are routed above, not here.
+          if (!/^(system design|behavioral|domain depth|values|recruiter|hiring manager|final)\b/i.test(content)
+            && !data.codingTopics.includes(content)) data.codingTopics.push(content);
           break;
         case 'systemDesign':
-          if (!data.systemDesignTopics.includes(content)) data.systemDesignTopics.push(content);
+          if (!/^(coding|behavioral|domain depth|values|recruiter|hiring manager|final)\b/i.test(content)
+            && !data.systemDesignTopics.includes(content)) data.systemDesignTopics.push(content);
           break;
         case 'behavioral':
-          if (!data.behavioralTopics.includes(content)) data.behavioralTopics.push(content);
+          if (!/^(coding|system design|domain depth|recruiter|hiring manager|final)\b/i.test(content)
+            && !data.behavioralTopics.includes(content)) data.behavioralTopics.push(content);
           break;
         case 'tips':
           if (!data.tips.includes(content)) data.tips.push(content);
@@ -587,11 +643,11 @@ async function fetchCompanyPage(slug) {
   return text;
 }
 
-async function scrapeCompany(companyName, slug) {
+async function scrapeCompany(companyName, slug, { force = false } = {}) {
   const outputPath = path.join(OUTPUT_DIR, `${slug}.json`);
 
-  // Skip if already scraped (resume mode)
-  if (fs.existsSync(outputPath)) {
+  // Skip if already scraped (resume mode), unless forcing a refresh
+  if (!force && fs.existsSync(outputPath)) {
     const existing = JSON.parse(fs.readFileSync(outputPath, 'utf-8'));
     console.log(`  ⏭  ${companyName} already scraped (${existing.scrapedAt})`);
     return existing;
@@ -614,13 +670,29 @@ async function scrapeCompany(companyName, slug) {
 async function main() {
   const args = process.argv.slice(2);
   const singleCompany = args.find((a, i) => args[i - 1] === '--company');
-  const doAll = args.includes('--all') || !singleCompany;
+  const force = args.includes('--force');
+  const refreshSparse = args.includes('--refresh-sparse');
 
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
-  const toScrape = singleCompany
+  let toScrape = singleCompany
     ? Object.entries(COMPANIES).filter(([, slug]) => slug === singleCompany || singleCompany === slug)
     : Object.entries(COMPANIES);
+
+  // --refresh-sparse: re-scrape only guides with missing/empty codingTopics
+  // (old-format pages the previous parser could not extract topics from).
+  if (refreshSparse) {
+    toScrape = toScrape.filter(([, slug]) => {
+      const p = path.join(OUTPUT_DIR, `${slug}.json`);
+      if (!fs.existsSync(p)) return true;
+      try {
+        const existing = JSON.parse(fs.readFileSync(p, 'utf-8'));
+        return !(existing.codingTopics ?? []).length;
+      } catch {
+        return true;
+      }
+    });
+  }
 
   console.log(`\nScraping ${toScrape.length} companies → ${OUTPUT_DIR}\n`);
 
@@ -630,7 +702,7 @@ async function main() {
   let failed = 0;
 
   for (const [companyName, slug] of toScrape) {
-    const data = await scrapeCompany(companyName, slug);
+    const data = await scrapeCompany(companyName, slug, { force: force || refreshSparse });
     if (data) {
       index[slug] = {
         company: companyName,
@@ -655,4 +727,9 @@ async function main() {
   console.log(`📁 Index written to ${INDEX_FILE}`);
 }
 
-main().catch(console.error);
+export { parsePageContent, classifyHeading };
+
+// Only run when invoked directly (not when imported for testing).
+if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+  main().catch(console.error);
+}

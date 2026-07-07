@@ -30,9 +30,27 @@
     "Growth mindset: \"Tell me about something you were wrong about and how you updated.\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Given a stream of order updates from exchanges, maintain accurate order state with idempotency. Talk through your approach, complexity, and edge cases.",
+      "Implement FIFO / LIFO / specific-lot. Talk through your approach, complexity, and edge cases.",
+      "Implement consume from multiple feeds, produce single consistent view with timestamp ordering. Talk through your approach, complexity, and edge cases.",
+      "Implement given position updates and market-data updates, compute portfolio value with bounded latency. Talk through your approach, complexity, and edge cases.",
+      "Implement a double-entry ledger that processes a stream of transactions and detects imbalances. How do you guarantee idempotency when a transaction is delivered twice?"
+    ],
+    "behavioral": [
+      "Tell me about a high-pressure production incident. How did you handle it?",
+      "Describe a time you deeply understood a user impact. How did it change what you built?",
+      "Have you worked in regulated environments? How did compliance shape your engineering?",
+      "Tell me about something you were wrong about and how you updated.",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the order-routing system handling 1M orders/sec peak with best-execution requirements.",
+      "Design real-time portfolio valuation for 25M users with 1-second refresh during market hours.",
+      "Design notification delivery for an earnings announcement affecting 500K positions without overwhelming users.",
+      "Design the crypto-trading settlement layer with on-chain reconciliation across multiple chains.",
+      "Walk me through a production incident you owned that had customer-money impact."
+    ],
     "values": [],
     "other": [
       "Is Robinhood's engineering as hard as FAANG?",

@@ -36,9 +36,27 @@
     "Customer focus: \"How have you directly engaged with developer / customer feedback?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
-    "systemDesign": [],
+    "coding": [
+      "Given a tree of language tokens, implement queries like find all references to this identifier or find all matches of this pattern. Talk through your approach, complexity, and edge cases.",
+      "Implement find identifiers starting with X, ordered by relevance. Talk through your approach, complexity, and edge cases.",
+      "Given a set of candidate code snippets and a token budget, select the most relevant subset. Talk through your approach, complexity, and edge cases.",
+      "Process a large document corpus with bounded memory. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+    ],
+    "behavioral": [
+      "Describe your practices for working effectively in a fully-distributed team.",
+      "Tell me about a time written documentation changed a project outcome.",
+      "Describe a production incident you owned end-to-end.",
+      "How have you directly engaged with developer / customer feedback?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
+    "systemDesign": [
+      "Design the code-search index for 100K repositories with incremental updates and 200ms query latency.",
+      "Design Cody's context-retrieval system producing 8K tokens of relevant context within 500ms.",
+      "Design the batch-change system applying a refactor across 5K repositories with failure recovery.",
+      "Design the enterprise deployment model for air-gapped customers with self-managed Kubernetes clusters.",
+      "Walk through how you'd build \"find references\" for a specific language."
+    ],
     "values": [],
     "other": [
       "Do I need compiler / language-server background?",

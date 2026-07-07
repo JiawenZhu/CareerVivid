@@ -26,8 +26,20 @@
     "\"What do you think is the most underrated problem in your field?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Implement a specific data structure with tight performance requirements. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Process structured data with bounded memory or strict latency requirements. Talk through your approach, complexity, and edge cases.",
+      "Implement 5 min on unexpected results. Talk through your approach, complexity, and edge cases.",
+      "Implement 10 min on weaknesses, follow-up extensions. Talk through your approach, complexity, and edge cases."
+    ],
+    "behavioral": [
+      "What's a topic outside your professional area you've recently spent time learning?",
+      "Walk me through how you decided to apply to D. E. Shaw.",
+      "What's a book or paper you've recommended to others recently?",
+      "What do you think is the most underrated problem in your field?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
     "systemDesign": [],
     "values": [],
     "other": [

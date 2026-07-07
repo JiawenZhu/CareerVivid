@@ -26,8 +26,20 @@
     "Deliver Results: Focusing on key inputs and delivering quality outcomes"
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Given an array of integers, find the longest contiguous subarray whose sum equals a target. Discuss complexity and edge cases.",
+      "Serialize and deserialize a binary tree. Walk through your encoding choices, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph.",
+      "Given a set of coin denominations, compute the minimum number of coins needed to reach a target amount. Compare the recursive and bottom-up approaches.",
+      "Implement an LRU cache with O(1) get and put. Then explain how you would make it thread-safe without serializing all access."
+    ],
+    "behavioral": [
+      "Tell me about a time you engaged deeply with a customer or user problem. How did it change what you built?",
+      "Describe a production incident or project you owned end-to-end. What did you do, and what was the outcome?",
+      "Describe a time you had to deliver under a tight deadline. What trade-offs did you make?",
+      "Tell me about the piece of work you are most proud of. What was the measurable impact?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
     "systemDesign": [],
     "values": [],
     "other": []

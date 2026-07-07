@@ -31,10 +31,26 @@
     "Open-source orientation: \"Have you contributed to open source? How do you think about public engineering work?\""
   ],
   "sampleQuestions": {
-    "coding": [],
-    "behavioral": [],
+    "coding": [
+      "Implement a page-cache with LRU / LFU eviction and consistency guarantees. Talk through your approach, complexity, and edge cases.",
+      "Parse a Postgres-like binary format (page layout, WAL records). Talk through your approach, complexity, and edge cases.",
+      "Implement a log-structured storage layer with compaction. Talk through your approach, complexity, and edge cases.",
+      "Design a multi-tenant connection pool with fair allocation. Talk through your approach, complexity, and edge cases.",
+      "You are given a directed graph as an adjacency list. Detect whether it contains a cycle, and explain how your approach would change for an undirected graph."
+    ],
+    "behavioral": [
+      "Describe a systems-heavy project you owned end-to-end.",
+      "Tell me about engaging with a database-using customer's problem.",
+      "How do you think about working at a recently-acquired company through the integration period?",
+      "Have you contributed to open source? How do you think about public engineering work?",
+      "Tell me about a time you disagreed with a teammate or manager. How did it resolve?"
+    ],
     "systemDesign": [
-      "Reason about cold-start latency &mdash; what has to happen to go from zero to serving queries?"
+      "Reason about cold-start latency &mdash; what has to happen to go from zero to serving queries?",
+      "Design the pageserver storing Postgres pages in S3 with sub-10ms read latency. Cover the API, data model, and how it scales.",
+      "Design the branching system enabling copy-on-write database forks in seconds for 10K projects.",
+      "Design the autoscaler that spins up Postgres compute instances from cold in under 2 seconds.",
+      "Design the WAL-based logical replication for backup and analytics-export use cases. Cover the API, data model, and how it scales."
     ],
     "values": [],
     "other": [
