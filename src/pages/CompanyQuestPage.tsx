@@ -1,6 +1,7 @@
 import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import {
     ArrowLeft,
+    ArrowRight,
     BarChart3,
     Check,
     ChevronDown,
@@ -9,12 +10,15 @@ import {
     Flame,
     Loader2,
     PenTool,
-    RotateCcw,
+    Play,
     Swords,
+    RotateCcw,
     Trophy,
+    Zap,
 } from 'lucide-react';
 import AppLayout from '../components/Layout/AppLayout';
 import { useAuth } from '../contexts/AuthContext';
+import { useUserProgress } from '../hooks/useUserProgress';
 import { usePracticeHistory } from '../hooks/useJobHistory';
 import { useResumes } from '../hooks/useResumes';
 import { useAICreditCheck } from '../hooks/useAICreditCheck';
@@ -123,6 +127,7 @@ const getResumableDraft = (entry: PracticeHistoryEntry | undefined): InterviewSe
 
 const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
     const { currentUser } = useAuth();
+    const { levelInfo, isLoading: isLoadingLevel } = useUserProgress();
     const { practiceHistory, addJob, addAnalysisToJob, saveInterviewDraft } = usePracticeHistory();
     const { resumes } = useResumes();
     const { checkCredit, CreditLimitModal } = useAICreditCheck();
@@ -159,6 +164,8 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
 
     const clearedCount = stageStates.filter((s) => s === 'cleared').length;
     const questComplete = stages.length > 0 && clearedCount === stages.length;
+    const currentStageIndex = stageStates.findIndex((s) => s !== 'cleared');
+    const questProgressPct = stages.length ? Math.round((clearedCount / stages.length) * 100) : 0;
 
     // Coding stage serves a pool of problems for the company; track the pool
     // and which the user has solved so the card can show progress and let the
@@ -437,138 +444,138 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
 
     return (
         <AppLayout>
-            <div className="mx-auto max-w-3xl p-4 sm:p-6">
-                <button
-                    type="button"
-                    onClick={() => navigate('/interview-studio')}
-                    className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-                >
-                    <ArrowLeft size={15} /> Interview Studio
-                </button>
+            <div className="cv-design-page cv-design-grid relative min-h-screen pb-16 text-left">
+                <div className="@container/quest-page mx-auto max-w-screen-2xl px-4 py-6 text-left sm:px-6 lg:px-8 lg:py-8">
+                    <button
+                        type="button"
+                        onClick={() => navigate('/interview-studio')}
+                        className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--cv-text-muted)] transition-colors hover:text-[var(--cv-text-heading)]"
+                    >
+                        <ArrowLeft size={15} /> Back to Interview Studio
+                    </button>
 
-                {/* Quest header */}
-                <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-                    <div className="flex items-start justify-between gap-4">
-                        <div className="min-w-0">
-                            <div className="flex items-center gap-2">
-                                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#625bd5] text-white shadow-[0_4px_12px_rgba(98,91,213,0.25)] dark:bg-[#7069dc]">
-                                    <Swords size={17} />
-                                </span>
-                                <h1 className="truncate text-xl [font-family:var(--cv-font-heading)] font-extrabold tracking-normal text-gray-900 dark:text-gray-100">
-                                    {guide.company} quest
-                                </h1>
-                            </div>
-                            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                Practice the {guide.company} interview loop in any order. Score {stages[0]?.passThreshold ?? 75}+ on each stage to clear it and pass the full quest.
-                            </p>
-                        </div>
-                        {guide.difficulty && (
-                            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-700 dark:bg-gray-800 dark:text-gray-200">
-                                <BarChart3 size={12} /> {guide.difficulty}/10
-                            </span>
-                        )}
-                    </div>
-
-                    {/* Progress */}
-                    <div className="mt-4">
-                        <div className="flex items-center justify-between gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                            <span>{clearedCount} / {stages.length} stages cleared</span>
-                            {questComplete ? (
-                                <span className="inline-flex items-center gap-1 text-[#15803d] dark:text-emerald-400">
-                                    <Trophy size={13} /> Loop cleared
-                                </span>
-                            ) : (
-                                <span className="text-[11px] font-bold text-[#625bd5] dark:text-[#9b96ef]">
-                                    +{XP_RULES.quest_stage_cleared} XP per clear · +{XP_RULES.quest_completed} quest bonus
-                                </span>
-                            )}
-                        </div>
-                        <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#f3f4f6] dark:bg-gray-800">
-                            <div
-                                className="h-full rounded-full bg-[#625bd5] transition-[width] duration-500 dark:bg-[#8d88e6]"
-                                style={{ width: `${stages.length ? (clearedCount / stages.length) * 100 : 0}%` }}
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="mt-4">
-                    {renderOutcomeBanner()}
-                    {error && (
-                        <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
-                            {error}
-                        </div>
-                    )}
-                </div>
-
-                {/* Stage map */}
-                <ol className="mt-2">
-                    {stages.map((stage, index) => {
-                        const state = stageStates[index];
-                        const result = quest?.stageResults?.[stage.id];
-                        const stageEntry = practiceEntriesByStageId.get(stage.id);
-                        const reportEntry = (stageEntry?.interviewHistory?.length ?? 0) > 0 ? stageEntry : null;
-                        const draft = getResumableDraft(stageEntry);
-                        const isStarting = startingStageId === stage.id;
-                        const isLast = index === stages.length - 1;
-                        return (
-                            <li
-                                key={stage.id}
-                                className="flex gap-3 sm:gap-3.5"
-                            >
-                                <div className="flex shrink-0 flex-col items-center">
-                                    <span className={`relative z-[1] flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-extrabold ${state === 'cleared'
-                                        ? 'bg-[#15803d] text-white shadow-sm dark:bg-[#22c55e]/80'
-                                        : 'bg-[#625bd5] text-white shadow-[0_0_0_4px_rgba(243,242,255,0.95),0_6px_16px_rgba(98,91,213,0.18)] dark:bg-[#7069dc] dark:shadow-[0_0_0_4px_rgba(47,43,85,0.72)]'
-                                        }`}>
-                                        {stageIcon(state, index)}
-                                    </span>
-                                    {!isLast && (
-                                        <span
-                                            className={`min-h-5 w-0.5 flex-1 ${state === 'cleared'
-                                                ? 'bg-[#cfe8d5] dark:bg-emerald-900/70'
-                                                : 'bg-gray-200 dark:bg-gray-800'
-                                                }`}
-                                        />
+                    <div className="grid grid-cols-1 items-start gap-5 @[1080px]/quest-page:grid-cols-[minmax(0,1fr)_340px]">
+                        <main className="space-y-4">
+                            {/* Hero */}
+                            <section className="cv-design-card p-4 sm:p-6">
+                                <div className="flex flex-wrap items-start justify-between gap-4">
+                                    <div className="min-w-0">
+                                        <div className="cv-design-eyebrow mb-3 inline-flex items-center gap-2 rounded-full border border-[var(--cv-action-border)] bg-[var(--cv-action-soft-bg)] px-2.5 py-1 text-xs">
+                                            <Swords size={14} />
+                                            <span>Interview quest</span>
+                                            {guide.difficulty && (
+                                                <span className="inline-flex items-center gap-1 border-l border-[var(--cv-action-border)] pl-2">
+                                                    <BarChart3 size={11} /> {guide.difficulty}/10
+                                                </span>
+                                            )}
+                                        </div>
+                                        <h1 className="cv-design-title text-2xl sm:text-3xl">Beat the {guide.company} interview loop</h1>
+                                        <p className="cv-design-body mt-1.5 max-w-2xl text-sm">
+                                            Five real stages, playable in any order. Score {stages[0]?.passThreshold ?? 75}+ on each to clear it — clear all {stages.length} and the quest is yours.
+                                        </p>
+                                    </div>
+                                    {!questComplete && currentStageIndex >= 0 && stages[currentStageIndex] && (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleStartStage(stages[currentStageIndex])}
+                                            disabled={startingStageId !== null}
+                                            className="cv-design-button-primary inline-flex h-10 shrink-0 items-center gap-2 rounded-lg px-4 text-sm disabled:cursor-not-allowed disabled:opacity-60"
+                                        >
+                                            <Play size={15} />
+                                            {clearedCount > 0 ? 'Continue' : 'Start'} · {stages[currentStageIndex].title}
+                                            <ArrowRight size={15} />
+                                        </button>
                                     )}
                                 </div>
+                            </section>
 
-                                <div className={`min-w-0 flex-1 pb-3 ${isLast ? 'pb-0' : ''}`}>
-                                    <div className={`rounded-xl border p-4 transition-all ${state === 'cleared'
-                                        ? 'border-[#cfe8d5] bg-white shadow-[0_1px_2px_rgba(16,24,40,0.05)] dark:border-emerald-900/60 dark:bg-gray-900'
-                                        : 'border-[#dfe2ff] bg-white shadow-[0_8px_24px_rgba(98,91,213,0.08)] dark:border-[#625bd5]/40 dark:bg-gray-900'
-                                        }`}>
-                                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                            <div className="min-w-0 flex-1">
-                                                <div className="flex min-w-0 flex-wrap items-center gap-2">
-                                                    <h2 className="min-w-0 truncate text-sm font-bold text-gray-900 dark:text-gray-100">{stage.title}</h2>
-                                                    {state === 'available' && !result && (
-                                                        <span className="shrink-0 rounded-full border border-[#dfe2ff] bg-[#f3f2ff] px-2 py-0.5 text-[10px] font-bold text-[#625bd5] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff]">
-                                                            Available
+                            {renderOutcomeBanner()}
+                            {error && (
+                                <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
+                                    {error}
+                                </div>
+                            )}
+
+                            {/* Stage list — one row per stage, curriculum-page style */}
+                            <section className="cv-design-card overflow-hidden">
+                                <ol>
+                                    {stages.map((stage, index) => {
+                                        const state = stageStates[index];
+                                        const result = quest?.stageResults?.[stage.id];
+                                        const stageEntry = practiceEntriesByStageId.get(stage.id);
+                                        const reportEntry = (stageEntry?.interviewHistory?.length ?? 0) > 0 ? stageEntry : null;
+                                        const draft = getResumableDraft(stageEntry);
+                                        const isStarting = startingStageId === stage.id;
+                                        const isLast = index === stages.length - 1;
+                                        const isCurrent = index === currentStageIndex && !questComplete;
+                                        const bestPct = result ? Math.min(Math.round(result.bestScore), 100) : 0;
+                                        return (
+                                            <li key={stage.id} className={!isLast ? 'border-b border-[var(--cv-border-warm)]' : ''}>
+                                                <div className={`flex w-full flex-col gap-3 p-4 text-left transition-colors hover:bg-[var(--cv-surface-warm-muted,rgba(0,0,0,0.02))] sm:flex-row sm:items-center sm:p-5 ${isCurrent ? 'bg-[var(--cv-action-soft-bg,rgba(99,91,213,0.04))]' : ''}`}>
+                                                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                                                        <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-extrabold ${state === 'cleared'
+                                                            ? 'border border-[var(--cv-success-600)]/30 bg-[var(--cv-success-50)] text-[var(--cv-success-600)]'
+                                                            : 'cv-design-icon-well'
+                                                            }`}>
+                                                            {stageIcon(state, index)}
                                                         </span>
-                                                    )}
-                                                </div>
-                                                <p className="mt-1 text-xs font-medium leading-5 text-gray-500 dark:text-gray-400">{stage.description}</p>
-                                                <p className="mt-1 text-[11px] font-semibold text-gray-400 dark:text-gray-500">
-                                                    Pass ≥ {stage.passThreshold}
-                                                    {result && (
-                                                        <span> · Best score {Math.round(result.bestScore)} · {result.attempts} attempt{result.attempts === 1 ? '' : 's'}</span>
-                                                    )}
-                                                    {stage.id === 'coding' && codingPoolSize > 0 && (
-                                                        <span> · {codingSolvedCount} of {codingPoolSize} problems solved</span>
-                                                    )}
-                                                    {stage.id === 'system_design' && systemDesignPoolSize > 0 && (
-                                                        <span> · {systemDesignSolvedCount} of {systemDesignPoolSize} prompts cleared</span>
-                                                    )}
-                                                </p>
-                                            </div>
+                                                        <div className="min-w-0 flex-1">
+                                                            <div className="flex flex-wrap items-center gap-2">
+                                                                <h2 className="cv-design-title text-base sm:text-lg">{stage.title}</h2>
+                                                                {isCurrent && (
+                                                                    <span className="rounded-full bg-[var(--cv-action-primary)] px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-white">
+                                                                        Up next
+                                                                    </span>
+                                                                )}
+                                                                {draft && (
+                                                                    <span className="rounded-full border border-amber-300/60 bg-amber-50 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                                                                        In progress
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <p className="cv-design-body mt-0.5 text-xs sm:text-sm">{stage.description}</p>
+                                                            <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+                                                                <p className="flex items-center gap-x-2 text-[11px] font-bold text-[var(--cv-text-muted)]">
+                                                                    <span>Pass ≥ {stage.passThreshold}</span>
+                                                                    {result && (
+                                                                        <>
+                                                                            <span aria-hidden>·</span>
+                                                                            <span>Best {Math.round(result.bestScore)}</span>
+                                                                            <span aria-hidden>·</span>
+                                                                            <span>{result.attempts} attempt{result.attempts === 1 ? '' : 's'}</span>
+                                                                        </>
+                                                                    )}
+                                                                    {stage.id === 'coding' && codingPoolSize > 0 && (
+                                                                        <>
+                                                                            <span aria-hidden>·</span>
+                                                                            <span>{codingSolvedCount} / {codingPoolSize} problems</span>
+                                                                        </>
+                                                                    )}
+                                                                    {stage.id === 'system_design' && systemDesignPoolSize > 0 && (
+                                                                        <>
+                                                                            <span aria-hidden>·</span>
+                                                                            <span>{systemDesignSolvedCount} / {systemDesignPoolSize} prompts</span>
+                                                                        </>
+                                                                    )}
+                                                                </p>
+                                                                {result && (
+                                                                    <span className="h-1.5 w-24 overflow-hidden rounded-full bg-[var(--cv-border-warm)]">
+                                                                        <span
+                                                                            className={`block h-full rounded-full transition-[width] duration-500 ${state === 'cleared' ? 'bg-[var(--cv-success-600)]' : 'bg-[var(--cv-action-primary)]'}`}
+                                                                            style={{ width: `${Math.max(bestPct, 6)}%` }}
+                                                                        />
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
 
-                                            <div className="flex shrink-0 flex-wrap items-center justify-start gap-2 sm:justify-end">
+                                                    <div className="flex shrink-0 flex-wrap items-center justify-start gap-2 sm:justify-end">
                                                 {reportEntry && (
                                                     <button
                                                         type="button"
                                                         onClick={() => setSelectedReportEntry(reportEntry)}
-                                                        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-[#dfe2ff] bg-[#eef0ff] px-3 text-xs font-bold text-[#625bd5] shadow-sm transition-colors hover:bg-[#e6e8ff] hover:text-[#514ac5] dark:border-[#625bd5]/40 dark:bg-[#252244] dark:text-[#c9ccff] dark:hover:bg-[#312d6b]"
+                                                        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-[var(--cv-border-warm)] bg-[var(--cv-surface-warm-card)] px-3 text-xs font-bold text-[var(--cv-text-body)] transition-colors hover:border-[var(--cv-action-border)] hover:text-[var(--cv-action-primary)]"
                                                     >
                                                         <BarChart3 size={13} />
                                                         View report
@@ -597,9 +604,9 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                                                                 disabled={isStarting || startingStageId !== null}
                                                                 aria-haspopup={opensCodingPicker || opensSystemDesignPicker ? 'menu' : undefined}
                                                                 aria-expanded={opensCodingPicker ? pickerOpen : opensSystemDesignPicker ? designPickerOpen : undefined}
-                                                                className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-bold shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${state === 'cleared'
-                                                                    ? 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800'
-                                                                    : 'border border-transparent bg-[#625bd5] text-white hover:bg-[#514ac5] dark:bg-[#7069dc] dark:hover:bg-[#8d88e6]'
+                                                                className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${state === 'cleared'
+                                                                    ? 'border border-[var(--cv-action-border)] bg-[var(--cv-action-soft-bg)] text-[var(--cv-action-primary)] hover:border-[var(--cv-action-primary)]'
+                                                                    : 'cv-design-button-primary'
                                                                     }`}
                                                             >
                                                                 {isStarting
@@ -651,15 +658,85 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                                                         </div>
                                                     );
                                                 })()}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                        );
-                    })}
-                </ol>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        );
+                                    })}
+                                </ol>
+                            </section>
+                        </main>
 
+                        <aside className="space-y-4 @[1080px]/quest-page:sticky @[1080px]/quest-page:top-6">
+                            {currentUser && (
+                                <section className="cv-design-card p-4">
+                                    <div className="flex items-center justify-between gap-3">
+                                        <div>
+                                            <p className="cv-design-title text-base">Level {isLoadingLevel ? '—' : levelInfo.level}</p>
+                                            <p className="cv-design-body mt-0.5 text-xs">
+                                                {isLoadingLevel ? 'Loading…' : `${levelInfo.currentLevelXp} / ${levelInfo.nextLevelXp} XP to level ${levelInfo.level + 1}`}
+                                            </p>
+                                        </div>
+                                        <span className="cv-design-icon-well flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
+                                            <Zap size={16} />
+                                        </span>
+                                    </div>
+                                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-[var(--cv-border-warm)]">
+                                        <div
+                                            className="h-full rounded-full bg-[var(--cv-action-primary)] transition-[width] duration-500"
+                                            style={{ width: `${Math.max((isLoadingLevel ? 0 : levelInfo.progress) * 100, 2)}%` }}
+                                        />
+                                    </div>
+                                </section>
+                            )}
+
+                            <section className="cv-design-card p-4">
+                                <h2 className="cv-design-title text-base">Quest progress</h2>
+                                <p className="cv-design-body mt-0.5 text-xs">{clearedCount} / {stages.length} stages cleared</p>
+                                <div className="mt-3 h-2 overflow-hidden rounded-full bg-[var(--cv-border-warm)]">
+                                    <div
+                                        className="h-full rounded-full bg-[var(--cv-action-primary)] transition-[width] duration-500"
+                                        style={{ width: `${Math.max(questProgressPct, clearedCount > 0 ? 4 : 0)}%` }}
+                                    />
+                                </div>
+                                {questComplete ? (
+                                    <p className="mt-3 flex items-center gap-1.5 text-xs font-bold text-[var(--cv-success-600)]">
+                                        <Trophy size={14} /> Loop cleared — quest complete!
+                                    </p>
+                                ) : (
+                                    <p className="mt-3 flex items-center gap-1.5 text-xs font-bold text-[var(--cv-action-primary)]">
+                                        <Zap size={13} /> +{XP_RULES.quest_stage_cleared} XP per clear · +{XP_RULES.quest_completed} quest bonus
+                                    </p>
+                                )}
+                            </section>
+
+                            <section className="cv-design-card p-4">
+                                <div className="flex items-center justify-between gap-3">
+                                    <h2 className="cv-design-title text-base">Stage badges</h2>
+                                    <span className="cv-design-body text-xs">{clearedCount} / {stages.length}</span>
+                                </div>
+                                <p className="cv-design-body mt-0.5 text-xs">Clear a stage to earn its badge.</p>
+                                <div className="mt-3 grid grid-cols-5 gap-2">
+                                    {stages.map((stage, index) => {
+                                        const earned = stageStates[index] === 'cleared';
+                                        return (
+                                            <div
+                                                key={stage.id}
+                                                title={stage.title}
+                                                className={`flex aspect-square items-center justify-center rounded-lg border text-xs font-extrabold transition-colors ${earned
+                                                    ? 'border-[var(--cv-success-600)]/40 bg-[var(--cv-success-50)] text-[var(--cv-success-600)]'
+                                                    : 'border-[var(--cv-border-warm)] bg-[var(--cv-surface-warm-card)] text-[var(--cv-text-muted)]'
+                                                    }`}
+                                            >
+                                                {earned ? <Check size={16} strokeWidth={3} /> : index + 1}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </section>
+                        </aside>
+                    </div>
+                </div>
             </div>
 
             <CreditLimitModal />

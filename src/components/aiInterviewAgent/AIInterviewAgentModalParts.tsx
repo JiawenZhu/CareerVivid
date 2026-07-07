@@ -115,18 +115,20 @@ export const InterviewHeader: React.FC<{
   jobCompany?: string;
   onClose: () => void;
 }> = ({ interviewPrompt, jobTitle, jobCompany, onClose }) => (
-  <header className="flex items-start justify-between gap-4 border-b border-[#e7d8c5] bg-[#fffaf1] px-4 py-4 dark:border-[#3b3730] dark:bg-[#24231f] sm:px-5">
+  <header className="flex items-start justify-between gap-4 border-b border-[#e7d8c5] bg-[#fffaf1] px-5 py-4 dark:border-[#3b3730] dark:bg-[#24231f] sm:px-6">
     <div className="min-w-0 space-y-2">
       <div className="inline-flex items-center gap-2 rounded-full border border-[#e6d5bc] bg-white px-2.5 py-1 text-[11px] font-bold text-[#8a642f] dark:border-[#51483c] dark:bg-[#302e2a] dark:text-[#d6b57f]">
         <Radio size={13} aria-hidden="true" />
         Live interview encounter
       </div>
       <div>
-        <h2 id="ai-interview-modal-title" className="text-lg font-bold leading-tight text-[#211b16] dark:text-[#f4f1e9]">
+        <h2 id="ai-interview-modal-title" className="text-xl font-extrabold leading-tight tracking-tight text-[#211b16] dark:text-[#f4f1e9] sm:text-2xl">
           {jobTitle || 'Mock interview'}
         </h2>
-        <p id="ai-interview-modal-description" className="mt-1 max-w-3xl truncate text-sm text-[#665a4a] dark:text-[#aaa39a]">
-          {jobCompany && jobCompany !== 'Custom Practice' ? `${jobCompany} - ` : ''}{compactText(interviewPrompt, 160)}
+        <p id="ai-interview-modal-description" className="mt-1 max-w-3xl truncate text-sm font-medium text-[#665a4a] dark:text-[#aaa39a]">
+          {jobCompany && jobCompany !== 'Custom Practice'
+            ? `${jobCompany} · Live voice session — answer naturally, the interviewer adapts to you.`
+            : 'Live voice session — answer naturally, the interviewer adapts to you.'}
         </p>
       </div>
     </div>
@@ -519,9 +521,9 @@ export const InterviewControls: React.FC<{
             type="button"
             onClick={onStart}
             title="Start or restart the live microphone session."
-            className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+            className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-6 py-2.5 text-base font-bold text-white shadow-[0_6px_18px_rgba(22,163,74,0.35)] transition-all hover:-translate-y-0.5 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
           >
-            <Mic size={18} aria-hidden="true" /> Start Interview
+            <Mic size={19} aria-hidden="true" /> Start Interview
           </button>
         )}
         {status === 'ended' && hasTranscript && !hasAnalysisResult && (

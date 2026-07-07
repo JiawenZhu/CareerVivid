@@ -473,8 +473,8 @@ const Sidebar: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Files — below navigation, scrolls independently */}
-                        <div className="min-h-0 flex-1 overflow-y-auto border-t border-[var(--cv-border-subtle)] pt-2">
+                        {/* Files — below navigation; the list scrolls internally */}
+                        <div className="min-h-0 flex-1 border-t border-[var(--cv-border-subtle)] pt-2">
                             <SidebarDocumentList
                                 activeDocuments={activeDocuments}
                                 activeNodeId={activeNodeId}

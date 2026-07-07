@@ -89,13 +89,13 @@ const AIInterviewAgentModal: React.FC<AIInterviewAgentModalProps> = (props) => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#171411]/70 p-2 backdrop-blur-sm sm:p-4">
+    <div className="fixed inset-0 z-50 bg-[#171411]/70 p-1.5 backdrop-blur-sm sm:p-3">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="ai-interview-modal-title"
         aria-describedby="ai-interview-modal-description"
-        className="mx-auto flex h-[calc(100vh-1rem)] w-full max-w-7xl flex-col overflow-hidden rounded-2xl border border-[#e7d8c5] bg-[#f7f1e7] shadow-2xl dark:border-[#3b3730] dark:bg-[#1f1f1d] sm:h-[calc(100vh-2rem)]"
+        className="mx-auto flex h-[calc(100vh-0.75rem)] w-full flex-col overflow-hidden rounded-3xl border border-[#e7d8c5] bg-[#f7f1e7] shadow-2xl dark:border-[#3b3730] dark:bg-[#1f1f1d] sm:h-[calc(100vh-1.5rem)]"
       >
         <InterviewHeader
           interviewPrompt={interviewPrompt}
@@ -103,8 +103,8 @@ const AIInterviewAgentModal: React.FC<AIInterviewAgentModalProps> = (props) => {
           jobCompany={jobCompany}
           onClose={handleClose}
         />
-        <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4">
-          <div className="grid min-h-full gap-3 lg:grid-cols-[280px_minmax(0,1fr)_280px] xl:grid-cols-[310px_minmax(0,1fr)_310px]">
+        <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-5">
+          <div className="grid min-h-full gap-4 lg:grid-cols-[300px_minmax(0,1fr)_300px] xl:grid-cols-[350px_minmax(0,1fr)_350px]">
             <div className="space-y-3 lg:overflow-y-auto lg:pr-1">
               <EncounterBriefPanel
                 jobTitle={jobTitle}

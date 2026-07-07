@@ -148,17 +148,17 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex flex-col bg-[#171411]/70 p-2 backdrop-blur-sm sm:p-4">
-            <div className="mx-auto flex h-full w-full max-w-7xl flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_24px_70px_rgba(17,24,39,0.24)] dark:border-gray-700 dark:bg-gray-900">
+        <div className="fixed inset-0 z-50 flex flex-col bg-[#171411]/70 p-1.5 backdrop-blur-sm sm:p-3">
+            <div className="mx-auto flex h-full w-full max-w-[1800px] flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-[0_24px_70px_rgba(17,24,39,0.24)] dark:border-gray-700 dark:bg-gray-900">
                 {/* Header */}
-                <header className="flex shrink-0 items-center justify-between gap-3 border-b border-gray-200 px-4 py-3 dark:border-gray-800">
-                    <div className="flex min-w-0 items-center gap-2">
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#625bd5] text-white shadow-sm dark:bg-[#7069dc]">
-                            <Swords size={16} />
+                <header className="flex shrink-0 items-center justify-between gap-3 border-b border-gray-200 px-5 py-3.5 dark:border-gray-800">
+                    <div className="flex min-w-0 items-center gap-3">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#625bd5] text-white shadow-[0_4px_12px_rgba(98,91,213,0.25)] dark:bg-[#7069dc]">
+                            <Swords size={18} />
                         </span>
                         <div className="min-w-0">
-                            <h2 className="truncate text-sm font-bold text-gray-900 dark:text-gray-100">{company} · {stageTitle}</h2>
-                            <p className="truncate text-xs text-gray-500 dark:text-gray-400">Draw your architecture, then submit for AI review</p>
+                            <h2 className="truncate text-base font-extrabold tracking-tight text-gray-900 dark:text-gray-100">{company} · {stageTitle}</h2>
+                            <p className="truncate text-xs font-medium text-gray-500 dark:text-gray-400">Draw your architecture, then submit for AI review</p>
                         </div>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
@@ -191,16 +191,16 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
                 {/* Body: brief + canvas */}
                 <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
                     {/* Brief panel */}
-                    <aside className="shrink-0 overflow-y-auto border-b border-[#ececf4] bg-[#fbfbfe] p-4 dark:border-gray-800 dark:bg-gray-900/60 lg:w-72 lg:border-b-0 lg:border-r">
+                    <aside className="shrink-0 overflow-y-auto border-b border-[#ececf4] bg-[#fbfbfe] p-5 dark:border-gray-800 dark:bg-gray-900/60 lg:w-80 lg:border-b-0 lg:border-r xl:w-[360px]">
                         <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-[#625bd5] dark:text-[#9b96ef]">
                             <ClipboardList size={13} /> Design brief
                         </div>
-                        <p className="mt-2 text-sm font-semibold text-gray-900 dark:text-gray-100">{brief.challenge}</p>
-                        <p className="mt-4 text-[11px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">Requirements</p>
-                        <ul className="mt-1.5 space-y-1.5">
+                        <p className="mt-2.5 text-base font-bold leading-snug text-gray-900 dark:text-gray-100">{brief.challenge}</p>
+                        <p className="mt-5 text-[11px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">Requirements</p>
+                        <ul className="mt-2 space-y-2.5">
                             {brief.requirements.map((req, reqIndex) => (
-                                <li key={req} className="flex gap-2 text-xs text-gray-600 dark:text-gray-300">
-                                    <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-md bg-[#f3f2ff] text-[10px] font-extrabold text-[#625bd5] ring-1 ring-[#dfe2ff] dark:bg-[#312d6b]/50 dark:text-[#b8b4ff] dark:ring-[#625bd5]/40">
+                                <li key={req} className="flex gap-2.5 text-[13px] leading-relaxed text-gray-600 dark:text-gray-300">
+                                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[#f3f2ff] text-[11px] font-extrabold text-[#625bd5] ring-1 ring-[#dfe2ff] dark:bg-[#312d6b]/50 dark:text-[#b8b4ff] dark:ring-[#625bd5]/40">
                                         {reqIndex + 1}
                                     </span>
                                     {req}
@@ -221,7 +221,7 @@ const SystemDesignBattle: React.FC<SystemDesignBattleProps> = ({
                     </aside>
 
                     {/* Excalidraw canvas */}
-                    <div className="relative min-h-[380px] flex-1 bg-white">
+                    <div className="relative min-h-[480px] flex-1 bg-white">
                         <Excalidraw
                             excalidrawAPI={(api: any) => { excalidrawAPIRef.current = api; }}
                             theme={resolvedTheme === 'dark' ? 'dark' : 'light'}

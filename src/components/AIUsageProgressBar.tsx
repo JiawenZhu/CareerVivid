@@ -8,6 +8,8 @@ interface AIUsageProgressBarProps {
     isPremium: boolean;
     onUpgradeClick?: () => void;
     variant?: 'default' | 'minimal' | 'compact' | 'mobile-line';
+    /** Explicit plan name to display; falls back to inferring from the limit. */
+    planLabel?: string;
 }
 
 const AIUsageProgressBar: React.FC<AIUsageProgressBarProps> = ({
@@ -15,7 +17,8 @@ const AIUsageProgressBar: React.FC<AIUsageProgressBarProps> = ({
     limit,
     isPremium,
     onUpgradeClick,
-    variant = 'default'
+    variant = 'default',
+    planLabel
 }) => {
     const percentage = limit > 0 ? (used / limit) * 100 : 0;
     const remaining = limit - used;
@@ -35,6 +38,7 @@ const AIUsageProgressBar: React.FC<AIUsageProgressBarProps> = ({
 
     // Helper to get plan label using the same constants as AuthContext
     const getPlanLabel = () => {
+        if (planLabel) return planLabel;
         if (limit === PRO_MAX_PLAN_CREDIT_LIMIT) return 'Max';
         if (limit === PRO_PLAN_CREDIT_LIMIT) return 'Pro';
         if (limit >= ENTERPRISE_PLAN_CREDIT_LIMIT) return 'Enterprise';

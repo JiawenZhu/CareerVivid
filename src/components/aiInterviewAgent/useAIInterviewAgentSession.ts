@@ -497,23 +497,21 @@ export const useAIInterviewAgentSession = ({
       return Promise.resolve();
     }
 
-    setPrewarmStatus('preparing');
+    // The user should never wait on warm-up: mark the session ready
+    // immediately (the green Start button is available the moment the modal
+    // opens) and let the token prefetch run silently in the background.
+    // `startInterview` performs the full live setup regardless, so a slow or
+    // failed prewarm only loses the head start — never blocks the user.
+    setPrewarmStatus('ready');
     const functions = getFunctions(undefined, 'us-west1');
     const getVertexToken = httpsCallable(functions, 'getInterviewVertexToken');
 
     prewarmPromiseRef.current = getVertexToken({ role: jobTitle, prewarm: true })
-      .then(() => {
-        if (isMountedRef.current) {
-          setPrewarmStatus('ready');
-        }
-      })
       .catch((err) => {
         console.warn('[AI Interview] Agent prewarm failed; start will retry the live setup.', err);
-        if (isMountedRef.current) {
-          setPrewarmStatus('error');
-        }
         prewarmPromiseRef.current = null;
-      });
+      })
+      .then(() => undefined);
 
     return prewarmPromiseRef.current;
   }, [currentUser, isGuestMode, jobTitle, prewarmStatus, status]);
