@@ -255,11 +255,11 @@ export const ReportActions: React.FC<{
     onRateReport: () => void;
 }> = ({ isGuestMode, isDownloading, isExportingDocument, onDownloadTxt, onDownloadPdf, onExportGoogleDocs, onDownloadDocx, onRateReport }) => (
     <footer className="flex flex-shrink-0 flex-col gap-3 border-t p-4 dark:border-gray-700 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+        <div className="w-full sm:w-auto">
             {!isGuestMode && (
                 <button
                     onClick={onRateReport}
-                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                    className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                 >
                     <Star size={17} /> Rate this report
                 </button>
@@ -267,11 +267,11 @@ export const ReportActions: React.FC<{
         </div>
 
         {isGuestMode ? (
-            <a href="/signin" className="inline-flex items-center justify-center rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-primary-700">
+            <a href="/signin" className="inline-flex w-full sm:w-auto items-center justify-center rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-primary-700">
                 Sign Up to Save & Download Report
             </a>
         ) : (
-            <div className="flex flex-col gap-2 sm:flex-row">
+            <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:flex-row">
                 <button
                     onClick={onDownloadTxt}
                     disabled={isDownloading || isExportingDocument}
