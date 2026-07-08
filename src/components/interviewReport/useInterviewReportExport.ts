@@ -347,26 +347,254 @@ export const useInterviewReportExport = ({
         if (!currentAnalysis) return;
         setIsDownloading(true);
         try {
-            const rawHtml = buildGoogleDocsHtml(currentAnalysis);
-            const htmlContent = rawHtml
-                .replace('<!doctype html>', '')
-                .replace('<html>', '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">')
-                .replace('<head>', `
-                    <head>
-                        <!--[if gte mso 9]>
-                        <xml>
-                            <w:WordDocument>
-                                <w:View>Print</w:View>
-                                <w:Zoom>100</w:Zoom>
-                                <w:DoNotOptimizeForBrowser/>
-                            </w:WordDocument>
-                        </xml>
-                        <![endif]-->
-                `);
+            const {
+                Document,
+                Packer,
+                Paragraph,
+                TextRun,
+                HeadingLevel,
+                Table,
+                TableRow,
+                TableCell,
+                WidthType,
+                BorderStyle,
+            } = await import('docx');
 
-            const blob = new Blob(['\ufeff' + htmlContent], {
-                type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document;charset=utf-8',
+            const reportData = buildGoogleDocsReportData(currentAnalysis);
+
+            const doc = new Document({
+                sections: [
+                    {
+                        properties: {},
+                        children: [
+                            new Paragraph({
+                                heading: HeadingLevel.HEADING_1,
+                                children: [
+                                    new TextRun({
+                                        text: 'Interview Feedback Report',
+                                        bold: true,
+                                        size: 32, // 16pt
+                                        color: '111827',
+                                    }),
+                                ],
+                                spacing: { after: 12 },
+                            }),
+                            new Paragraph({
+                                children: [
+                                    new TextRun({
+                                        text: reportData.company ? `${reportData.title} at ${reportData.company}` : reportData.title,
+                                        bold: true,
+                                        size: 24, // 12pt
+                                        color: '4b5563',
+                                    }),
+                                ],
+                            }),
+                            new Paragraph({
+                                children: [
+                                    new TextRun({
+                                        text: `Date: ${reportData.date}`,
+                                        size: 20, // 10pt
+                                        color: '6b7280',
+                                    }),
+                                ],
+                                spacing: { after: 24 },
+                            }),
+
+                            // Table for Overall Score & Sub-scores
+                            new Paragraph({
+                                heading: HeadingLevel.HEADING_2,
+                                children: [
+                                    new TextRun({
+                                        text: 'Score Breakdown',
+                                        bold: true,
+                                        size: 28, // 14pt
+                                        color: '1f2937',
+                                    }),
+                                ],
+                                spacing: { before: 24, after: 12 },
+                            }),
+                            new Table({
+                                width: {
+                                    size: 100,
+                                    type: WidthType.PERCENTAGE,
+                                },
+                                borders: {
+                                    top: { style: BorderStyle.SINGLE, size: 4, color: 'e5e7eb' },
+                                    bottom: { style: BorderStyle.SINGLE, size: 4, color: 'e5e7eb' },
+                                    left: { style: BorderStyle.SINGLE, size: 4, color: 'e5e7eb' },
+                                    right: { style: BorderStyle.SINGLE, size: 4, color: 'e5e7eb' },
+                                    insideHorizontal: { style: BorderStyle.SINGLE, size: 4, color: 'e5e7eb' },
+                                    insideVertical: { style: BorderStyle.SINGLE, size: 4, color: 'e5e7eb' },
+                                },
+                                rows: [
+                                    new TableRow({
+                                        children: [
+                                            new TableCell({
+                                                children: [new Paragraph({ children: [new TextRun({ text: 'Overall Score', bold: true })] })],
+                                                width: { size: 50, type: WidthType.PERCENTAGE },
+                                            }),
+                                            new TableCell({
+                                                children: [new Paragraph({ children: [new TextRun({ text: `${Math.round(reportData.overallScore)}/100`, bold: true, color: '2563eb' })] })],
+                                                width: { size: 50, type: WidthType.PERCENTAGE },
+                                            }),
+                                        ],
+                                    }),
+                                    new TableRow({
+                                        children: [
+                                            new TableCell({
+                                                children: [new Paragraph({ children: [new TextRun({ text: 'Communication' })] })],
+                                            }),
+                                            new TableCell({
+                                                children: [new Paragraph({ children: [new TextRun({ text: `${Math.round(reportData.communicationScore)}%` })] })],
+                                            }),
+                                        ],
+                                    }),
+                                    new TableRow({
+                                        children: [
+                                            new TableCell({
+                                                children: [new Paragraph({ children: [new TextRun({ text: 'Confidence' })] })],
+                                            }),
+                                            new TableCell({
+                                                children: [new Paragraph({ children: [new TextRun({ text: `${Math.round(reportData.confidenceScore)}%` })] })],
+                                            }),
+                                        ],
+                                    }),
+                                    new TableRow({
+                                        children: [
+                                            new TableCell({
+                                                children: [new Paragraph({ children: [new TextRun({ text: 'Answer Relevance' })] })],
+                                            }),
+                                            new TableCell({
+                                                children: [new Paragraph({ children: [new TextRun({ text: `${Math.round(reportData.relevanceScore)}%` })] })],
+                                            }),
+                                        ],
+                                    }),
+                                ],
+                            }),
+
+                            // Top Summary
+                            new Paragraph({
+                                heading: HeadingLevel.HEADING_2,
+                                children: [
+                                    new TextRun({
+                                        text: 'Top Summary',
+                                        bold: true,
+                                        size: 28,
+                                        color: '1f2937',
+                                    }),
+                                ],
+                                spacing: { before: 24, after: 12 },
+                            }),
+                            new Paragraph({
+                                children: [
+                                    new TextRun({
+                                        text: reportData.summary,
+                                        size: 22,
+                                    }),
+                                ],
+                                spacing: { after: 12 },
+                            }),
+
+                            // What Went Well
+                            new Paragraph({
+                                heading: HeadingLevel.HEADING_2,
+                                children: [
+                                    new TextRun({
+                                        text: 'What Went Well',
+                                        bold: true,
+                                        size: 28,
+                                        color: '1f2937',
+                                    }),
+                                ],
+                                spacing: { before: 24, after: 12 },
+                            }),
+                            ...reportData.strengths.split('\n').map(para => new Paragraph({
+                                children: [
+                                    new TextRun({
+                                        text: para.trim(),
+                                        size: 22,
+                                    }),
+                                ],
+                                spacing: { after: 8 },
+                            })),
+
+                            // Practice Next
+                            new Paragraph({
+                                heading: HeadingLevel.HEADING_2,
+                                children: [
+                                    new TextRun({
+                                        text: 'Practice Next',
+                                        bold: true,
+                                        size: 28,
+                                        color: '1f2937',
+                                    }),
+                                ],
+                                spacing: { before: 24, after: 12 },
+                            }),
+                            ...reportData.practiceNext.split('\n').map(para => new Paragraph({
+                                children: [
+                                    new TextRun({
+                                        text: para.trim(),
+                                        size: 22,
+                                    }),
+                                ],
+                                spacing: { after: 8 },
+                            })),
+
+                            // Transcript
+                            new Paragraph({
+                                heading: HeadingLevel.HEADING_2,
+                                children: [
+                                    new TextRun({
+                                        text: `Transcript (${reportData.transcriptSourceLabel})`,
+                                        bold: true,
+                                        size: 28,
+                                        color: '1f2937',
+                                    }),
+                                ],
+                                spacing: { before: 24, after: 12 },
+                            }),
+                            ...(reportData.transcript.length
+                                ? reportData.transcript.flatMap(entry => [
+                                    new Paragraph({
+                                        children: [
+                                            new TextRun({
+                                                text: entry.speaker === 'ai' ? 'Interviewer' : 'You',
+                                                bold: true,
+                                                color: entry.speaker === 'ai' ? '4f46e5' : '16a34a',
+                                                size: 22,
+                                            }),
+                                        ],
+                                        spacing: { before: 12, after: 4 },
+                                    }),
+                                    new Paragraph({
+                                        children: [
+                                            new TextRun({
+                                                text: entry.text,
+                                                size: 22,
+                                            }),
+                                        ],
+                                        spacing: { after: 12 },
+                                    }),
+                                ])
+                                : [
+                                    new Paragraph({
+                                        children: [
+                                            new TextRun({
+                                                text: reportData.emptyTranscriptMessage,
+                                                italics: true,
+                                                size: 22,
+                                                color: '6b7280',
+                                            }),
+                                        ],
+                                    }),
+                                ]),
+                        ],
+                    },
+                ],
             });
+
+            const blob = await Packer.toBlob(doc);
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;

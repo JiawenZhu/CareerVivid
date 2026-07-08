@@ -47,6 +47,7 @@
     "careervivid": "^2.1.38",
     "compression": "^1.8.1",
     "date-fns": "^4.1.0",
+    "docx": "^9.7.1",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "fabric": "^7.2.0",
