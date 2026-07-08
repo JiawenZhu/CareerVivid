@@ -143,34 +143,141 @@ export const InterviewHeader: React.FC<{
   </header>
 );
 
+/**
+ * Doorway brief — medkit-style case card. The learner reads WHO they're
+ * meeting and gets a concrete YOUR TASK checklist whose items tick LIVE as
+ * the transcript shows them happening (answer coverage, metrics, impact).
+ */
 export const EncounterBriefPanel: React.FC<{
   jobTitle: string;
   jobCompany: string;
   interviewPrompt: string;
   questions: string[];
-}> = ({ jobTitle, jobCompany, interviewPrompt, questions }) => (
-  <aside className="space-y-3">
-    <section className="rounded-xl border border-[#e7d8c5] bg-white p-4 shadow-sm dark:border-[#3b3730] dark:bg-[#262522]">
-      <div className="flex items-center gap-2 text-[11px] font-bold text-[#9a6b2f] dark:text-[#d6b57f]">
-        <Briefcase size={14} aria-hidden="true" />
-        Role packet
-      </div>
-      <h3 className="mt-3 text-base font-bold leading-tight text-[#211b16] dark:text-[#f4f1e9]">{jobTitle || 'Mock interview'}</h3>
-      <p className="mt-1 text-xs font-semibold text-[#665a4a] dark:text-[#aaa39a]">{jobCompany || 'Custom Practice'}</p>
-      <p className="mt-3 text-xs leading-relaxed text-[#665a4a] dark:text-[#aaa39a]">{compactText(interviewPrompt)}</p>
-      <div className="mt-4 grid grid-cols-2 gap-2">
-        <div className="rounded-lg border border-[#efe1ce] bg-[#fffaf1] px-3 py-2 dark:border-[#3b3730] dark:bg-[#1f1f1d]">
-          <p className="text-[10px] font-bold text-[#9a6b2f] dark:text-[#d6b57f]">Questions</p>
-          <p className="text-lg font-bold text-[#211b16] dark:text-[#f4f1e9]">{questions.length}</p>
+  transcript: TranscriptEntry[];
+}> = ({ jobTitle, jobCompany, interviewPrompt, questions, transcript }) => {
+  const userTurns = getFinalTranscriptTurns(transcript, 'user');
+  const coveredCount = getQuestionFlowStates(questions, transcript).filter((state) => state === 'covered').length;
+  const usedMetric = userTurns.some((turn) => hasMetricSignal(turn.text));
+  const usedImpact = userTurns.some((turn) => hasImpactSignal(turn.text));
+
+  const tasks = [
+    {
+      label: questions.length
+        ? `Answer all ${questions.length} interviewer questions`
+        : 'Answer every interviewer question',
+      done: questions.length > 0 && coveredCount >= questions.length,
+      progress: questions.length ? `${coveredCount}/${questions.length}` : undefined,
+    },
+    { label: 'Back up an answer with a concrete number', done: usedMetric },
+    { label: 'Show impact — results you owned or shipped', done: usedImpact },
+  ];
+
+  return (
+    <aside className="space-y-3">
+      <section className="rounded-2xl border-2 border-[#211b16]/10 bg-white p-4 shadow-sm dark:border-[#3b3730] dark:bg-[#262522]">
+        <div className="flex items-center justify-between gap-2">
+          <span className="rounded-full bg-[#f9e8b8] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-[#8a642f] dark:bg-[#51483c] dark:text-[#f0d9a8]">
+            Doorway brief
+          </span>
+          <span className="flex items-center gap-1.5 text-[10px] font-bold text-[#9a6b2f] dark:text-[#d6b57f]">
+            <Briefcase size={12} aria-hidden="true" /> Realtime voice
+          </span>
         </div>
-        <div className="rounded-lg border border-[#ececf4] bg-[#f8f8fb] px-3 py-2 dark:border-[#3b3730] dark:bg-[#1f1f1d]">
-          <p className="text-[10px] font-bold text-[#625bd5] dark:text-[#a8a3ff]">Engine</p>
-          <p className="text-xs font-bold text-[#211b16] dark:text-[#f4f1e9]">Realtime</p>
+        <h3 className="mt-3 text-lg font-extrabold leading-tight tracking-tight text-[#211b16] dark:text-[#f4f1e9]">{jobTitle || 'Mock interview'}</h3>
+        <p className="mt-0.5 text-xs font-bold text-[#665a4a] dark:text-[#aaa39a]">{jobCompany || 'Custom Practice'}</p>
+
+        <div className="mt-3 rounded-xl border border-[#efe1ce] bg-[#fffaf1] p-3 dark:border-[#3b3730] dark:bg-[#1f1f1d]">
+          <p className="text-[10px] font-extrabold uppercase tracking-wide text-[#9a6b2f] dark:text-[#d6b57f]">The setup</p>
+          <p className="mt-1 text-xs leading-relaxed text-[#665a4a] dark:text-[#aaa39a]">{compactText(interviewPrompt)}</p>
+        </div>
+
+        {/* YOUR TASK — the medkit yellow card, items tick live */}
+        <div className="mt-3 rounded-xl border border-[#eeddc0] bg-[#fdf3d7] p-3 dark:border-[#51483c] dark:bg-[#39332a]">
+          <p className="text-[10px] font-extrabold uppercase tracking-wide text-[#8a642f] dark:text-[#f0d9a8]">Your task</p>
+          <ul className="mt-2 space-y-2">
+            {tasks.map((task, index) => (
+              <li key={task.label} className="flex items-start gap-2">
+                {task.done ? (
+                  <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-300" aria-hidden="true" />
+                ) : (
+                  <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-white text-[10px] font-extrabold text-[#8a642f] ring-1 ring-[#e0c893] dark:bg-[#51483c] dark:text-[#f0d9a8] dark:ring-[#6b5f4c]">
+                    {index + 1}
+                  </span>
+                )}
+                <span className={`text-xs font-semibold leading-snug ${task.done ? 'text-emerald-800 line-through decoration-emerald-500/60 dark:text-emerald-300' : 'text-[#211b16] dark:text-[#f4f1e9]'}`}>
+                  {task.label}
+                  {task.progress && !task.done && (
+                    <span className="ml-1.5 rounded-full bg-white px-1.5 py-0.5 text-[9px] font-extrabold text-[#8a642f] ring-1 ring-[#e0c893] dark:bg-[#51483c] dark:text-[#f0d9a8] dark:ring-[#6b5f4c]">
+                      {task.progress}
+                    </span>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    </aside>
+  );
+};
+
+/**
+ * Countdown timer — medkit's "YOUR TIME" pressure bar. Starts on the first
+ * live turn, drains segment by segment, and shifts amber → red as time runs
+ * out. Purely motivational: the session doesn't hard-stop at zero.
+ */
+export const SessionTimerPanel: React.FC<{
+  status: InterviewStatus;
+  totalMinutes?: number;
+}> = ({ status, totalMinutes = 15 }) => {
+  const totalSeconds = totalMinutes * 60;
+  const [elapsed, setElapsed] = React.useState(0);
+  const startedRef = React.useRef(false);
+
+  const isLive = status === 'listening' || status === 'speaking';
+  if (isLive) startedRef.current = true;
+  const running = startedRef.current && status !== 'ended' && status !== 'analyzing' && status !== 'error';
+
+  React.useEffect(() => {
+    if (!running) return;
+    const interval = window.setInterval(() => setElapsed((value) => value + 1), 1000);
+    return () => window.clearInterval(interval);
+  }, [running]);
+
+  const remaining = Math.max(totalSeconds - elapsed, 0);
+  const minutes = Math.floor(remaining / 60);
+  const seconds = remaining % 60;
+  const fraction = remaining / totalSeconds;
+  const SEGMENTS = 10;
+  const litSegments = Math.ceil(fraction * SEGMENTS);
+  const toneClass = fraction <= 0.1 ? 'text-rose-600 dark:text-rose-400' : fraction <= 0.25 ? 'text-amber-600 dark:text-amber-400' : 'text-[#211b16] dark:text-[#f4f1e9]';
+  const barClass = fraction <= 0.1 ? 'bg-rose-500' : fraction <= 0.25 ? 'bg-amber-500' : 'bg-emerald-500';
+
+  return (
+    <section className="rounded-2xl border-2 border-[#211b16]/10 bg-white p-4 shadow-sm dark:border-[#3b3730] dark:bg-[#262522]">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-extrabold uppercase tracking-wide text-[#9a6b2f] dark:text-[#d6b57f]">Your time</p>
+          <p className={`text-2xl font-black tabular-nums tracking-tight ${toneClass} ${fraction <= 0.1 && running ? 'motion-safe:animate-pulse' : ''}`}>
+            {startedRef.current ? `${minutes}:${String(seconds).padStart(2, '0')}` : `${totalMinutes}:00`}
+          </p>
+        </div>
+        <div className="flex items-end gap-1" aria-hidden="true">
+          {Array.from({ length: SEGMENTS }, (_, index) => (
+            <span
+              key={index}
+              className={`w-1.5 rounded-full transition-colors duration-500 ${index < litSegments ? barClass : 'bg-[#e7d8c5] dark:bg-[#3b3730]'}`}
+              style={{ height: `${14 + index * 2}px` }}
+            />
+          ))}
         </div>
       </div>
+      <p className="mt-2 text-[10px] font-semibold text-[#665a4a] dark:text-[#aaa39a]">
+        {startedRef.current ? 'Clock runs while the session is live — pace yourself.' : 'Starts with your first exchange.'}
+      </p>
     </section>
-  </aside>
-);
+  );
+};
 
 export const QuestionQueuePanel: React.FC<{
   questions: string[];
@@ -229,59 +336,53 @@ export const QuestionQueuePanel: React.FC<{
   );
 };
 
+/**
+ * Live vitals — medkit's triage-vitals treatment for interview signals.
+ * Colorful tiles with big cumulative numbers that tick up as the transcript
+ * shows metrics, impact language, and substantial answers.
+ */
 export const LiveObserverPanel: React.FC<{
   status: InterviewStatus;
   transcript: TranscriptEntry[];
 }> = ({ status, transcript }) => {
   const userTurns = getFinalTranscriptTurns(transcript, 'user');
-  const aiTurns = getFinalTranscriptTurns(transcript, 'ai');
+  const metricAnswers = userTurns.filter((turn) => hasMetricSignal(turn.text)).length;
+  const impactAnswers = userTurns.filter((turn) => hasImpactSignal(turn.text)).length;
+  const totalWords = userTurns.reduce((sum, turn) => sum + turn.text.split(/\s+/).filter(Boolean).length, 0);
+  const avgWords = userTurns.length ? Math.round(totalWords / userTurns.length) : 0;
   const latestAnswer = getLatestFinalUserAnswer(transcript);
-  const answerHasMetric = hasMetricSignal(latestAnswer);
-  const answerHasImpact = hasImpactSignal(latestAnswer);
-  const answerHasDepth = latestAnswer.length >= 160;
-  const signals = [
-    { label: 'Concrete metric', active: answerHasMetric },
-    { label: 'Impact language', active: answerHasImpact },
-    { label: 'Answer depth', active: answerHasDepth },
+  const latestDepth = latestAnswer.length >= 160;
+
+  const vitals = [
+    { label: 'Turns', value: String(userTurns.length), cls: 'border-[#f4b8c5] bg-[#fdeef1] text-[#b03a54] dark:border-[#7c3f50] dark:bg-[#3c2229] dark:text-[#f4a5b8]' },
+    { label: 'Metrics', value: String(metricAnswers), cls: 'border-[#f3cba5] bg-[#fdf1e3] text-[#a35410] dark:border-[#7c5a33] dark:bg-[#3a2c1c] dark:text-[#f0c08a]' },
+    { label: 'Impact', value: String(impactAnswers), cls: 'border-[#b9e3c8] bg-[#eef9f2] text-[#15803d] dark:border-[#336044] dark:bg-[#1d3226] dark:text-[#86e0a8]' },
+    { label: 'Words/ans', value: String(avgWords), cls: 'border-[#b8d8f4] bg-[#ecf4fd] text-[#1861a8] dark:border-[#33517c] dark:bg-[#1c2a3a] dark:text-[#8fc4f0]' },
+    { label: 'Depth', value: latestDepth ? '✓' : '—', cls: 'border-[#eeddc0] bg-[#fdf3d7] text-[#8a642f] dark:border-[#6b5f4c] dark:bg-[#39332a] dark:text-[#f0d9a8]' },
   ];
 
   return (
     <aside className="space-y-3">
-      <section className="rounded-xl border border-[#e7d8c5] bg-white p-4 shadow-sm dark:border-[#3b3730] dark:bg-[#262522]">
+      <section className="rounded-2xl border-2 border-[#211b16]/10 bg-white p-4 shadow-sm dark:border-[#3b3730] dark:bg-[#262522]">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-[11px] font-bold text-[#9a6b2f] dark:text-[#d6b57f]">
             <Sparkles size={14} aria-hidden="true" />
-            Live observer
+            Interview vitals
           </div>
           <span className="rounded-full bg-[#eef8f2] px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-[#213629] dark:text-emerald-300">
             {getLiveStatusCopy(status)}
           </span>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          <div className="rounded-lg border border-[#efe1ce] bg-[#fffaf1] px-3 py-2 dark:border-[#3b3730] dark:bg-[#1f1f1d]">
-            <p className="text-[10px] font-bold text-[#9a6b2f] dark:text-[#d6b57f]">Your turns</p>
-            <p className="text-lg font-bold text-[#211b16] dark:text-[#f4f1e9]">{userTurns.length}</p>
-          </div>
-          <div className="rounded-lg border border-[#efe1ce] bg-[#fffaf1] px-3 py-2 dark:border-[#3b3730] dark:bg-[#1f1f1d]">
-            <p className="text-[10px] font-bold text-[#9a6b2f] dark:text-[#d6b57f]">Vivid turns</p>
-            <p className="text-lg font-bold text-[#211b16] dark:text-[#f4f1e9]">{aiTurns.length}</p>
-          </div>
-        </div>
-        <div className="mt-4 space-y-2">
-          {signals.map(signal => (
-            <div key={signal.label} className="flex items-center justify-between gap-3 rounded-lg border border-[#efe1ce] bg-[#fffaf1] px-3 py-2 dark:border-[#3b3730] dark:bg-[#1f1f1d]">
-              <span className="text-xs font-semibold text-[#211b16] dark:text-[#f4f1e9]">{signal.label}</span>
-              <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${signal.active
-                ? 'bg-emerald-50 text-emerald-700 dark:bg-[#213629] dark:text-emerald-300'
-                : 'bg-[#f3f2ff] text-[#625bd5] dark:bg-[#34314e] dark:text-[#b7b2ff]'
-                }`}>
-                {signal.active ? 'Detected' : 'Watch'}
-              </span>
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          {vitals.map((vital) => (
+            <div key={vital.label} className={`rounded-xl border px-2 py-2.5 text-center transition-colors ${vital.cls}`}>
+              <p className="text-xl font-black tabular-nums leading-none">{vital.value}</p>
+              <p className="mt-1 text-[9px] font-extrabold uppercase tracking-wide opacity-80">{vital.label}</p>
             </div>
           ))}
         </div>
         <p className="mt-3 text-[11px] leading-relaxed text-[#665a4a] dark:text-[#aaa39a]">
-          Final scoring still uses the saved transcript and full feedback report.
+          Metrics and impact tick up when your answers include them. Final scoring uses the full transcript.
         </p>
       </section>
     </aside>

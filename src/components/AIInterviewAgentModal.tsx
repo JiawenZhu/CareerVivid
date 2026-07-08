@@ -9,6 +9,7 @@ import {
   LiveObserverPanel,
   QuestionQueuePanel,
   SessionMapPanel,
+  SessionTimerPanel,
   StatusPanel,
   TranscriptLog,
 } from './aiInterviewAgent/AIInterviewAgentModalParts';
@@ -111,6 +112,7 @@ const AIInterviewAgentModal: React.FC<AIInterviewAgentModalProps> = (props) => {
                 jobCompany={jobCompany}
                 interviewPrompt={interviewPrompt}
                 questions={questions}
+                transcript={transcript}
               />
               <QuestionQueuePanel questions={questions} transcript={transcript} />
             </div>
@@ -146,6 +148,10 @@ const AIInterviewAgentModal: React.FC<AIInterviewAgentModalProps> = (props) => {
             </main>
 
             <div className="space-y-3 lg:overflow-y-auto lg:pl-1">
+              <SessionTimerPanel
+                status={status}
+                totalMinutes={Number(interviewPrompt.match(/target duration:\s*(\d+)\s*min/i)?.[1]) || 15}
+              />
               <LiveObserverPanel status={status} transcript={transcript} />
               <SessionMapPanel status={status} hasTranscript={transcript.length > 0} />
             </div>

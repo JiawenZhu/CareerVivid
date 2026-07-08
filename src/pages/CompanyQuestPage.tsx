@@ -1,4 +1,5 @@
 import React, { Suspense, useEffect, useMemo, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import {
     ArrowLeft,
     ArrowRight,
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react';
 import AppLayout from '../components/Layout/AppLayout';
 import AuthGateModal from '../components/AuthGateModal';
+import CompanyLogo from '../components/CompanyLogo';
 import { useAuth } from '../contexts/AuthContext';
 import { useUserProgress } from '../hooks/useUserProgress';
 import { usePracticeHistory } from '../hooks/useJobHistory';
@@ -450,8 +452,38 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
         );
     }
 
+    const seoTitle = `${guide.company} Interview Practice — Mock the Real ${stages.length}-Stage Loop | CareerVivid`;
+    const seoDescription = `Practice ${guide.company}'s real interview loop free: ${stages.map((s) => s.title.toLowerCase()).join(', ')}. A voice AI interviews you, real code execution, whiteboard system design — scored on every attempt.`;
+
     return (
         <AppLayout>
+            <Helmet>
+                <title>{seoTitle}</title>
+                <meta name="description" content={seoDescription} />
+                <link rel="canonical" href={`https://careervivid.app/quest/${slug}`} />
+                <meta property="og:title" content={seoTitle} />
+                <meta property="og:description" content={seoDescription} />
+                <meta property="og:url" content={`https://careervivid.app/quest/${slug}`} />
+                <meta property="og:type" content="website" />
+                <script type="application/ld+json">{JSON.stringify({
+                    '@context': 'https://schema.org',
+                    '@type': 'WebPage',
+                    name: `${guide.company} interview practice`,
+                    url: `https://careervivid.app/quest/${slug}`,
+                    description: seoDescription,
+                    isPartOf: { '@id': 'https://careervivid.app/#website' },
+                    mainEntity: {
+                        '@type': 'ItemList',
+                        name: `${guide.company} interview loop stages`,
+                        numberOfItems: stages.length,
+                        itemListElement: stages.map((stage, index) => ({
+                            '@type': 'ListItem',
+                            position: index + 1,
+                            name: `${stage.title} — ${stage.description}`,
+                        })),
+                    },
+                })}</script>
+            </Helmet>
             {showAuthGate && (
                 <AuthGateModal
                     title={`Sign in to run the ${guide.company} stages`}
@@ -484,7 +516,10 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                                                 </span>
                                             )}
                                         </div>
-                                        <h1 className="cv-design-title text-2xl sm:text-3xl">Beat the {guide.company} interview loop</h1>
+                                        <div className="flex items-center gap-3">
+                                            <CompanyLogo company={guide.company} slug={slug} size={44} />
+                                            <h1 className="cv-design-title text-2xl sm:text-3xl">Beat the {guide.company} interview loop</h1>
+                                        </div>
                                         <p className="cv-design-body mt-1.5 max-w-2xl text-sm">
                                             Five real stages, playable in any order. Score {stages[0]?.passThreshold ?? 75}+ on each to clear it — clear all {stages.length} and the quest is yours.
                                         </p>

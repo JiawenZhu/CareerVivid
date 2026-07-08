@@ -13,12 +13,13 @@
 /** Courses anyone can open, signed in or not. */
 export const FREE_COURSE_IDS: ReadonlySet<string> = new Set(['ai-foundations-map']);
 
-/** Company quests guests can open without an account (the sampler set). */
-export const GUEST_QUEST_SLUGS: ReadonlySet<string> = new Set(['sap', 'figma', 'scale-ai']);
-
 export const isCourseFreeForGuests = (courseId: string): boolean => FREE_COURSE_IDS.has(courseId);
 
-export const isQuestOpenToGuests = (slug: string): boolean => GUEST_QUEST_SLUGS.has(slug);
+/**
+ * Company quests: every quest PAGE is browsable by guests (storefront view);
+ * RUNNING any stage requires an account — enforced in CompanyQuestPage via
+ * the auth gate, and server-side by the auth'd Cloud Functions + credits.
+ */
 
 /**
  * Course entitlement per account state:

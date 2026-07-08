@@ -117,7 +117,7 @@ const DndWorkspaceProvider = React.lazy(() => import('./components/DndWorkspaceP
 // Navigation utility
 import { navigate, getPathFromUrl } from './utils/navigation';
 import { getFirstExerciseId } from './lib/interactiveCourses';
-import { isCourseFreeForGuests, isQuestOpenToGuests } from './config/accessPolicy';
+import { isCourseFreeForGuests } from './config/accessPolicy';
 
 
 const LoadingFallback = () => (
@@ -512,16 +512,12 @@ const AppContent: React.FC = () => {
       );
     }
 
-    // Company Quest — sampler quests are open to guests, the rest need an account.
+    // Company Quest — every quest page is browsable by guests (the storefront);
+    // RUNNING a stage prompts the in-page auth gate, since attempts are scored
+    // and consume AI credits.
     else if (path.startsWith('/quest/')) {
       const slug = path.split('/')[2];
-      content = isQuestOpenToGuests(slug) ? (
-        <CompanyQuestPage slug={slug} />
-      ) : (
-        <ProtectedRoute>
-          <CompanyQuestPage slug={slug} />
-        </ProtectedRoute>
-      );
+      content = <CompanyQuestPage slug={slug} />;
     }
 
     // AI-agent learning curriculum / course catalog — browsable by guests.

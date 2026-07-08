@@ -73,7 +73,7 @@ const InterviewReportModal: React.FC<InterviewReportModalProps> = ({ jobHistoryE
     }, [currentAnalysis, jobHistoryEntry]);
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-0 md:p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#171411]/70 p-1.5 backdrop-blur-sm sm:p-3">
             {isFeedbackModalOpen && currentAnalysis && (
                 <FeedbackModal
                     isOpen={isFeedbackModalOpen}
@@ -87,7 +87,7 @@ const InterviewReportModal: React.FC<InterviewReportModalProps> = ({ jobHistoryE
                 />
             )}
 
-            <div className="flex h-full w-full flex-col rounded-none bg-white shadow-2xl dark:bg-gray-800 md:h-[90vh] md:max-w-6xl md:flex-row md:rounded-lg">
+            <div className="flex h-[calc(100vh-0.75rem)] w-full flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800 sm:h-[calc(100vh-1.5rem)] md:max-w-7xl md:flex-row">
                 <SessionSelector sortedHistory={sortedHistory} currentAnalysis={currentAnalysis} onSelect={setCurrentAnalysis} variant="sidebar" />
 
                 <div className="flex min-w-0 flex-grow flex-col overflow-hidden">

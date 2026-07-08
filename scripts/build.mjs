@@ -64,6 +64,10 @@ try {
         await $`cp -r dist/nextjs/_next dist/_next`
     }
 
+    // Prerender the company quest pages + /learning with real head meta
+    // (SEO/AEO): static files are served before the SPA rewrite.
+    await $`node scripts/prerender-quest-pages.mjs`
+
     console.log(chalk.green('\n✅ Build completed successfully!'))
 } catch (p) {
     console.error(chalk.red(`\n❌ Build failed with exit code: ${p?.exitCode ?? 'Unknown'}`))

@@ -22,6 +22,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useUserProgress } from '../hooks/useUserProgress';
 import { useCourseProgress } from '../hooks/useCourseProgress';
 import { useAllCourseProgress } from '../hooks/useAllCourseProgress';
+import { Helmet } from 'react-helmet-async';
 import AuthGateModal, { AuthGateModalProps } from '../components/AuthGateModal';
 import { canAccessCourse, isCourseFreeForGuests } from '../config/accessPolicy';
 import { InteractiveCourseCard } from '../components/Dashboard/InteractiveCourseCard';
@@ -128,6 +129,39 @@ const CoursePage: React.FC = () => {
 
     return (
         <AppLayout>
+            <Helmet>
+                <title>Free AI Courses — Learn Agents by Doing | CareerVivid</title>
+                <meta name="description" content={`${interactiveCourses.length} hands-on AI courses from LLM foundations to a shipped portfolio project. Interactive playgrounds, quizzes, and code labs — the Foundations course is free, no account needed.`} />
+                <link rel="canonical" href="https://careervivid.app/learning" />
+                <script type="application/ld+json">{JSON.stringify({
+                    '@context': 'https://schema.org',
+                    '@type': 'ItemList',
+                    name: 'CareerVivid AI-agent curriculum',
+                    numberOfItems: interactiveCourses.length,
+                    itemListElement: interactiveCourses.map((course, index) => ({
+                        '@type': 'ListItem',
+                        position: index + 1,
+                        item: {
+                            '@type': 'Course',
+                            name: course.title.replace(/^\d+\.\s*/, ''),
+                            description: course.tagline,
+                            provider: { '@type': 'Organization', name: 'CareerVivid', url: 'https://careervivid.app/' },
+                            isAccessibleForFree: isCourseFreeForGuests(course.id),
+                            hasCourseInstance: {
+                                '@type': 'CourseInstance',
+                                courseMode: 'online',
+                                courseWorkload: course.estimatedMinutes ? `PT${course.estimatedMinutes}M` : 'PT1H',
+                            },
+                            offers: {
+                                '@type': 'Offer',
+                                price: isCourseFreeForGuests(course.id) ? '0' : undefined,
+                                priceCurrency: 'USD',
+                                category: isCourseFreeForGuests(course.id) ? 'Free' : 'Subscription',
+                            },
+                        },
+                    })),
+                })}</script>
+            </Helmet>
             {authGate && <AuthGateModal {...authGate} onClose={() => setAuthGate(null)} />}
             <div className="cv-design-page cv-design-grid relative min-h-screen pb-16 text-left">
                 <div className="@container/course-page mx-auto max-w-screen-2xl px-4 py-6 text-left sm:px-6 lg:px-8 lg:py-8">

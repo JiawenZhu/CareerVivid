@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowRight, Mic, Swords } from 'lucide-react';
+import CompanyLogo from '../CompanyLogo';
 
 /**
  * Dynamic interview showcase — renders REAL company interview guides from
@@ -67,12 +68,15 @@ const InterviewShowcaseSection: React.FC = () => (
                         href={`/quest/${guide.slug}`}
                         className="group flex items-center justify-between gap-2 rounded-2xl border border-[#e4d3bc] bg-[#fffaf1] px-4 py-3.5 shadow-sm transition hover:-translate-y-0.5 hover:border-[#bfa782] hover:shadow-lg hover:shadow-[#8b5a16]/8 dark:border-[#37332d] dark:bg-[#262522]"
                     >
-                        <div className="min-w-0">
-                            <p className="truncate text-sm font-bold text-[#211b16] dark:text-[#f4f1e9]">{guide.company}</p>
-                            <p className="mt-0.5 truncate text-[11px] font-semibold text-[#8b6a3f] dark:text-[#caa26c]">
-                                {guide.stageCount ? `${guide.stageCount}-stage loop` : 'Full interview loop'}
-                                {guide.difficulty ? ` · ${guide.difficulty}/10` : ''}
-                            </p>
+                        <div className="flex min-w-0 items-center gap-2.5">
+                            <CompanyLogo company={guide.company} slug={guide.slug} size={36} />
+                            <div className="min-w-0">
+                                <p className="truncate text-sm font-bold text-[#211b16] dark:text-[#f4f1e9]">{guide.company}</p>
+                                <p className="mt-0.5 truncate text-[11px] font-semibold text-[#8b6a3f] dark:text-[#caa26c]">
+                                    {guide.stageCount ? `${guide.stageCount}-stage loop` : 'Full interview loop'}
+                                    {guide.difficulty ? ` · ${guide.difficulty}/10` : ''}
+                                </p>
+                            </div>
                         </div>
                         <ArrowRight size={15} className="shrink-0 text-[#bfa782] transition group-hover:translate-x-0.5 group-hover:text-[#8b5a16]" />
                     </a>

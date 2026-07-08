@@ -16,7 +16,7 @@ import { InterviewHistoryCardSkeleton } from '../components/Dashboard/DashboardS
 import ConfirmationModal from '../components/ConfirmationModal';
 import AppLayout from '../components/Layout/AppLayout';
 import AuthGateModal, { AuthGateModalProps } from '../components/AuthGateModal';
-import { isQuestOpenToGuests } from '../config/accessPolicy';
+import CompanyLogo from '../components/CompanyLogo';
 import { INTERVIEW_GUIDE_SUMMARIES, INTERVIEW_GUIDE_TOTALS, InterviewGuideSummary } from '../data/interviewGuideSummaries.generated';
 import {
     buildLocalInterviewGuidePrompt,
@@ -848,9 +848,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                 className="cv-design-card cv-design-card-hover group flex flex-col p-4 transition-all hover:-translate-y-0.5"
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold ring-1 shadow-sm ${getGuideAvatarTone(guide.company)} dark:bg-[#2f2b55]/70 dark:text-[#bbb8ff] dark:ring-[#484273]`}>
-                                        {guide.company.charAt(0).toUpperCase()}
-                                    </div>
+                                    <CompanyLogo company={guide.company} slug={guide.slug} size={40} />
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center justify-between gap-2">
                                             <h3 className="truncate text-sm font-bold text-[var(--cv-text-heading)]">{guide.company}</h3>
@@ -878,16 +876,7 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                 <div className="mt-auto flex items-center gap-2 pt-4">
                                     <button
                                         type="button"
-                                        onClick={() => {
-                                            if (!currentUser && !isQuestOpenToGuests(guide.slug)) {
-                                                setAuthGate({
-                                                    title: `Sign in to practice the ${guide.company} loop`,
-                                                    message: 'Guests can try the SAP, Figma, and Scale AI quests free — create an account to unlock all 300+ companies.',
-                                                });
-                                                return;
-                                            }
-                                            navigate(`/quest/${guide.slug}`);
-                                        }}
+                                        onClick={() => navigate(`/quest/${guide.slug}`)}
                                         className="cv-design-button-primary inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 text-xs"
                                     >
                                         <Swords size={14} />
