@@ -836,24 +836,32 @@ const revalidateListingIfNeeded = async (
         return job;
     }
 
-    const validation = await validateApplyUrl(job);
-    const active = validation.validationStatus === "valid";
-    const validatedJob: ScrapedJobListing = {
-        ...job,
-        ...validation,
-        active,
-        applyUrl: active && validation.finalUrl ? validation.finalUrl : job.applyUrl,
-        updatedAt: admin.firestore.Timestamp.now(),
-    };
+    try {
+        const validation = await validateApplyUrl(job);
+        const active = validation.validationStatus === "valid";
+        const validatedJob: ScrapedJobListing = {
+            ...job,
+            ...validation,
+            active,
+            applyUrl: active && validation.finalUrl ? validation.finalUrl : job.applyUrl,
+            updatedAt: admin.firestore.Timestamp.now(),
+        };
 
-    await updateJobValidation(job.id, {
-        validationStatus: validatedJob.validationStatus,
-        validatedAt: validatedJob.validatedAt,
-        finalUrl: validatedJob.finalUrl,
-        validationReason: validatedJob.validationReason,
-    }, active);
+        await updateJobValidation(job.id, {
+            validationStatus: validatedJob.validationStatus,
+            validatedAt: validatedJob.validatedAt,
+            finalUrl: validatedJob.finalUrl,
+            validationReason: validatedJob.validationReason,
+        }, active);
 
-    return validatedJob;
+        return validatedJob;
+    } catch (error) {
+        // If re-validation itself throws (network error, timeout, etc.),
+        // keep the job with its previous validation status instead of
+        // returning null — a transient ATS outage shouldn't nuke the feed.
+        console.warn(`[revalidateListingIfNeeded] ${job.id} re-validation threw; keeping previous status:`, error);
+        return job;
+    }
 };
 
 const fetchJson = async <T>(url: string): Promise<T> => {
@@ -1237,7 +1245,7 @@ export const findValidatedScrapedJobMatches = async (
 };
 
 export const getRecommendedScrapedJobs = functions.region("us-west1").runWith({
-    timeoutSeconds: 120,
+    timeoutSeconds: 30,
     memory: "256MB",
 }).https.onCall(async (data, context) => {
     if (!context.auth) {
@@ -1247,17 +1255,24 @@ export const getRecommendedScrapedJobs = functions.region("us-west1").runWith({
     const limit = Math.min(Math.max(Number(data?.limit || 40), 1), 120);
     const profileKeywords = normalizeProfileKeywordInput(data?.profileKeywords);
     const readLimit = Math.min(Math.max(limit * 3, 120), 300);
+
+    // Read path: trust the cron-validated status. Do NOT re-validate every
+    // listing on every user request — that causes mass failures when ATS
+    // sites rate-limit, timeout, or return Cloudflare challenges, which
+    // was the root cause of the intermittent empty feed.
     const snapshot = await db.collection("scrapedJobListings")
         .where("active", "==", true)
+        .where("validationStatus", "==", "valid")
         .orderBy("fetchedAt", "desc")
         .limit(readLimit)
         .get();
-    const revalidatedJobs = await Promise.all(
-        snapshot.docs.map((doc) => revalidateListingIfNeeded(doc, FEED_VALIDATION_STALE_MS))
-    );
-    const jobs = revalidatedJobs
-        .filter((job): job is ScrapedJobListing => Boolean(job && job.active && job.validationStatus === "valid"))
-        .map((job) => serializeScrapedJobListing(job))
+
+    const jobs = snapshot.docs
+        .map((doc) => {
+            const listing = listingFromDocument(doc);
+            return listing ? serializeScrapedJobListing(listing) : null;
+        })
+        .filter((job): job is NonNullable<typeof job> => Boolean(job && job.applyUrl))
         .sort((a, b) => {
             const aScore = scoreListingForProfileKeywords(a, profileKeywords);
             const bScore = scoreListingForProfileKeywords(b, profileKeywords);

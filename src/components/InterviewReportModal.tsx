@@ -35,6 +35,7 @@ const InterviewReportModal: React.FC<InterviewReportModalProps> = ({ jobHistoryE
         isExportingDocument,
         handleDownloadTxt,
         handleDownloadPdf,
+        handleDownloadDocx,
         handleGoogleDocsExport,
     } = useInterviewReportExport({
         currentAnalysis,
@@ -124,8 +125,8 @@ const InterviewReportModal: React.FC<InterviewReportModalProps> = ({ jobHistoryE
                                 isExportingDocument={isExportingDocument}
                                 onDownloadTxt={handleDownloadTxt}
                                 onDownloadPdf={handleDownloadPdf}
-                                onExportGoogleDocs={() => handleGoogleDocsExport('google-docs')}
-                                onDownloadDocx={() => handleGoogleDocsExport('docx')}
+                                onExportGoogleDocs={handleGoogleDocsExport}
+                                onDownloadDocx={handleDownloadDocx}
                                 onRateReport={() => setIsFeedbackModalOpen(true)}
                             />
                         </>

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
     ArrowUpRight,
@@ -445,8 +445,9 @@ const trackerJobToRecommended = (job: JobApplicationData): RecommendedJob => {
 
 const JobsRecommendPage: React.FC = () => {
     const { jobApplications, addJobApplication, updateJobApplication } = useJobTracker();
-    const { resumes } = useResumes();
-    const { portfolios } = usePortfolios();
+    const { resumes, isLoading: isLoadingResumes } = useResumes();
+    const { portfolios, isLoading: isLoadingPortfolios } = usePortfolios();
+    const profileDataReady = !isLoadingResumes && !isLoadingPortfolios;
     const [activeTab, setActiveTab] = useState<RecommendationTab>('recommended');
     const [searchQuery, setSearchQuery] = useState('');
     const [savingJobId, setSavingJobId] = useState<string | null>(null);
@@ -460,6 +461,8 @@ const JobsRecommendPage: React.FC = () => {
     const [isLoadingScrapedJobs, setIsLoadingScrapedJobs] = useState(true);
     const [scrapedJobsError, setScrapedJobsError] = useState('');
     const [isTargetJobModalOpen, setIsTargetJobModalOpen] = useState(false);
+    const lastSuccessfulJobsRef = useRef<ScrapedRecommendedJob[]>([]);
+    const [retryCounter, setRetryCounter] = useState(0);
 
     const profileKeywords = useMemo(
         () => extractRecommendationProfileKeywords({ resumes, portfolios }),
@@ -516,7 +519,15 @@ const JobsRecommendPage: React.FC = () => {
         [jobApplications]
     );
 
+    const retryLoadJobs = useCallback(() => setRetryCounter((c) => c + 1), []);
+
     useEffect(() => {
+        // Don't fetch until profile data (resumes/portfolios) has loaded from
+        // Firestore — otherwise we send an empty‐keywords request that returns
+        // a poorly ranked (or empty) feed, then re‐fetch moments later when
+        // the real profile data arrives.
+        if (!profileDataReady) return;
+
         let isMounted = true;
 
         const loadScrapedJobs = async () => {
@@ -524,10 +535,19 @@ const JobsRecommendPage: React.FC = () => {
             setScrapedJobsError('');
             try {
                 const jobs = await getRecommendedScrapedJobs(120, profileKeywords);
-                if (isMounted) setScrapedJobs(jobs);
+                if (isMounted) {
+                    setScrapedJobs(jobs);
+                    lastSuccessfulJobsRef.current = jobs;
+                }
             } catch (error) {
                 console.error('[JobsRecommendPage] Unable to load scraped jobs:', error);
-                if (isMounted) setScrapedJobsError('The verified job feed is unavailable, so unverified jobs are hidden for now.');
+                if (isMounted) {
+                    // Fall back to cached data so the page doesn't go blank
+                    if (lastSuccessfulJobsRef.current.length) {
+                        setScrapedJobs(lastSuccessfulJobsRef.current);
+                    }
+                    setScrapedJobsError('The verified job feed is temporarily unavailable. Showing cached results.');
+                }
             } finally {
                 if (isMounted) setIsLoadingScrapedJobs(false);
             }
@@ -538,7 +558,8 @@ const JobsRecommendPage: React.FC = () => {
         return () => {
             isMounted = false;
         };
-    }, [profileKeywordRequestKey, profileKeywords]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [profileDataReady, profileKeywordRequestKey, profileKeywords, retryCounter]);
 
     const visibleJobs = useMemo(
         () => filterVisibleRecommendedJobs({
@@ -837,9 +858,18 @@ const JobsRecommendPage: React.FC = () => {
                                     </button>
                                 </div>
                                 {!isLoadingScrapedJobs && scrapedJobsError && (
-                                    <p className="mt-2 text-xs font-bold text-amber-700 dark:text-amber-200">
-                                        {scrapedJobsError}
-                                    </p>
+                                    <div className="mt-2 flex items-center gap-2">
+                                        <p className="text-xs font-bold text-amber-700 dark:text-amber-200">
+                                            {scrapedJobsError}
+                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={retryLoadJobs}
+                                            className="shrink-0 rounded-lg bg-amber-100 px-2.5 py-1 text-[11px] font-bold text-amber-800 transition-colors hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-200 dark:hover:bg-amber-900/60"
+                                        >
+                                            Retry
+                                        </button>
+                                    </div>
                                 )}
                             </div>
 

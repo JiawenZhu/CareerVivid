@@ -343,20 +343,52 @@ export const useInterviewReportExport = ({
         }
     };
 
-    const handleGoogleDocsExport = async (format: 'google-docs' | 'docx') => {
+    const handleDownloadDocx = async () => {
+        if (!currentAnalysis) return;
+        setIsDownloading(true);
+        try {
+            const rawHtml = buildGoogleDocsHtml(currentAnalysis);
+            const htmlContent = rawHtml
+                .replace('<!doctype html>', '')
+                .replace('<html>', '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">')
+                .replace('<head>', `
+                    <head>
+                        <!--[if gte mso 9]>
+                        <xml>
+                            <w:WordDocument>
+                                <w:View>Print</w:View>
+                                <w:Zoom>100</w:Zoom>
+                                <w:DoNotOptimizeForBrowser/>
+                            </w:WordDocument>
+                        </xml>
+                        <![endif]-->
+                `);
+
+            const blob = new Blob(['\ufeff' + htmlContent], {
+                type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document;charset=utf-8',
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${jobHistoryEntry.job.title.replace(/[^a-zA-Z0-9]/g, '_')}_interview_report.docx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Failed to generate DOCX:', error);
+            alert('Sorry, an error occurred while generating the Word document.');
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
+    const handleGoogleDocsExport = async () => {
         if (!currentAnalysis) return;
         setIsExportingDocument(true);
         try {
             const accessToken = await getCachedGoogleAccessToken();
             const docUrl = await uploadInterviewReportGoogleDoc(currentAnalysis, accessToken);
-
-            if (format === 'docx') {
-                const docxUrl = getGoogleDocExportUrl(docUrl);
-                if (!docxUrl) throw new Error('Could not create the Word document download link.');
-                triggerDownloadUrl(docxUrl, `${jobHistoryEntry.job.title.replace(/[^a-zA-Z0-9]/g, '_')}_interview_report.docx`);
-                return;
-            }
-
             window.open(docUrl, '_blank', 'noopener,noreferrer');
         } catch (error: any) {
             console.error('Google Docs report export failed:', error);
@@ -375,6 +407,7 @@ export const useInterviewReportExport = ({
         isExportingDocument,
         handleDownloadTxt,
         handleDownloadPdf,
+        handleDownloadDocx,
         handleGoogleDocsExport,
     };
 };
