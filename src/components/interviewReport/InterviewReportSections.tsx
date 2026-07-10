@@ -1,5 +1,5 @@
 import React from 'react';
-import { Download, FileText, BarChart, Bot, User, Loader2, Star, TrendingUp, CheckCircle2, Target, FileType } from 'lucide-react';
+import { Code2, Download, FileText, BarChart, Bot, User, Loader2, Star, TrendingUp, CheckCircle2, Target, FileType } from 'lucide-react';
 import { InterviewAnalysis, TranscriptEntry } from '../../types';
 import {
     DashboardMetric,
@@ -253,9 +253,19 @@ export const ReportActions: React.FC<{
     onExportGoogleDocs: () => void;
     onDownloadDocx: () => void;
     onRateReport: () => void;
-}> = ({ isGuestMode, isDownloading, isExportingDocument, onDownloadTxt, onDownloadPdf, onExportGoogleDocs, onDownloadDocx, onRateReport }) => (
+    /** If provided, shows an "Improve my solution" button (coding challenges only). */
+    onImprove?: () => void;
+}> = ({ isGuestMode, isDownloading, isExportingDocument, onDownloadTxt, onDownloadPdf, onExportGoogleDocs, onDownloadDocx, onRateReport, onImprove }) => (
     <footer className="flex flex-shrink-0 flex-col gap-3 border-t p-4 dark:border-gray-700 sm:flex-row sm:items-center sm:justify-between">
-        <div className="w-full sm:w-auto">
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+            {onImprove && (
+                <button
+                    onClick={onImprove}
+                    className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-[#625bd5] bg-[#f3f2ff] px-4 py-2 text-sm font-semibold text-[#625bd5] shadow-sm transition-colors hover:bg-[#e8e6ff] dark:border-[#7069dc] dark:bg-[#312d6b]/50 dark:text-[#c8c5ff] dark:hover:bg-[#312d6b]"
+                >
+                    <Code2 size={16} /> Improve my solution
+                </button>
+            )}
             {!isGuestMode && (
                 <button
                     onClick={onRateReport}

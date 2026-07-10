@@ -80,7 +80,7 @@ export const cliJobsHunt = functions.region("us-west1").runWith({
         const user = await resolveAuth(req);
         if (!user) { res.status(401).json({ error: "Unauthorized. Invalid API key or missing authentication." }); return; }
 
-        const { resumeContent, role = "Software Engineer", location = "", count = 10, minScore = 0, targetOrgs } = req.body as {
+        const { resumeContent, role = "", location = "", count = 10, minScore = 0, targetOrgs } = req.body as {
             resumeContent?: string;
             role?: string;
             location?: string;

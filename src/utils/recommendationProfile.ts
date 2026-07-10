@@ -102,6 +102,14 @@ const collectResumeText = (resume: Partial<ResumeData>): string[] => {
     return parts;
 };
 
+const collectResumeRoleTerms = (resume: Partial<ResumeData>): string[] => {
+    const terms: string[] = [];
+    addText(terms, resume.title);
+    addText(terms, resume.personalDetails?.jobTitle);
+    resume.employmentHistory?.forEach((role) => addText(terms, role.jobTitle));
+    return terms;
+};
+
 const collectPortfolioText = (portfolio: Partial<PortfolioData>): string[] => {
     const parts: string[] = [];
     addText(parts, portfolio.title);
@@ -157,6 +165,7 @@ export const extractRecommendationProfileKeywords = ({
     const explicitSkillTerms = resumes.flatMap((resume) => resume.skills || [])
         .map((skill) => skill.name)
         .filter((skill): skill is string => Boolean(skill?.trim()));
+    const explicitRoleTerms = resumes.flatMap(collectResumeRoleTerms);
     const explicitPortfolioTerms = portfolios.flatMap((portfolio) => {
         const terms: string[] = [];
         addUnknownTextFields(terms, portfolio.techStack);
@@ -172,6 +181,7 @@ export const extractRecommendationProfileKeywords = ({
         return aliases.some((alias) => normalizedProfileText.includes(normalize(alias)));
     });
     const profileTerms = uniqueTerms([
+        ...explicitRoleTerms,
         ...explicitSkillTerms,
         ...explicitPortfolioTerms,
         ...matchedCoreTerms,
@@ -191,7 +201,8 @@ export const getProfileKeywordFit = (
     const normalizedJobText = normalize(jobText);
     const uniqueProfileKeywords = uniqueTerms(profileKeywords);
     const inferredJobTerms = CORE_RECOMMENDATION_TERMS.filter((term) => textContainsTerm(normalizedJobText, term));
-    const jobTerms = uniqueTerms([...jobKeywordCandidates, ...inferredJobTerms])
+    const profileTermsPresentInJob = uniqueProfileKeywords.filter((term) => textContainsTerm(normalizedJobText, term));
+    const jobTerms = uniqueTerms([...jobKeywordCandidates, ...inferredJobTerms, ...profileTermsPresentInJob])
         .filter((term) => normalize(term).length >= 2)
         .filter((term) => textContainsTerm(normalizedJobText, term) || jobKeywordCandidates.includes(term))
         .slice(0, 18);

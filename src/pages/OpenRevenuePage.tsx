@@ -1,16 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
+    ArrowDownRight,
     ArrowUpRight,
     BadgeCheck,
-    BarChart3,
+    CalendarDays,
     CreditCard,
     Eye,
     FileText,
     Lock,
-    RefreshCw,
+    Receipt,
     ShieldCheck,
-    Sparkles,
+    TrendingUp,
     Users,
 } from 'lucide-react';
 import PublicHeader from '../components/PublicHeader';
@@ -116,7 +117,7 @@ const formatMoney = (cents: number, currency: string, compact = false) => {
     return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency,
-        maximumFractionDigits: compact ? 1 : 0,
+        maximumFractionDigits: compact ? 1 : amount % 1 === 0 ? 0 : 2,
         notation: compact ? 'compact' : 'standard',
     }).format(amount);
 };
@@ -132,99 +133,238 @@ const formatDateTime = (isoDate: string) => {
     }).format(new Date(isoDate));
 };
 
-const calculateChange = (current: number, previous: number) => {
-    if (previous <= 0 && current > 0) return '+100%';
-    if (previous <= 0) return '0%';
+const formatFullDate = (isoDate: string) => {
+    return new Intl.DateTimeFormat('en-US', {
+        weekday: 'short',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+        timeZone: 'UTC',
+    }).format(new Date(`${isoDate}T00:00:00Z`));
+};
+
+const calculateChange = (current: number, previous: number): { text: string; up: boolean | null } => {
+    if (previous <= 0 && current > 0) return { text: 'New', up: true };
+    if (previous <= 0) return { text: '—', up: null };
     const change = ((current - previous) / previous) * 100;
-    const prefix = change > 0 ? '+' : '';
-    return `${prefix}${change.toFixed(1)}%`;
+    return { text: `${change > 0 ? '+' : ''}${change.toFixed(1)}%`, up: change >= 0 };
 };
 
-const MetricCard: React.FC<{
+/** Shimmering placeholder sized like a number — shown while Stripe data loads
+ * so visitors never see a misleading $0. Inherits text color at low opacity. */
+const NumberShimmer: React.FC<{ wide?: boolean }> = ({ wide = false }) => (
+    <span
+        className={`inline-block h-[0.85em] ${wide ? 'w-28' : 'w-14'} animate-pulse rounded-lg bg-current opacity-[0.18] align-middle`}
+        aria-label="Loading"
+        role="status"
+    />
+);
+
+/* ------------------------------------------------------------------ */
+/* KPI tile                                                            */
+/* ------------------------------------------------------------------ */
+
+const KpiTile: React.FC<{
     label: string;
-    value: string;
-    detail: string;
+    value: React.ReactNode;
+    sub?: React.ReactNode;
     icon: React.ReactNode;
-    tone?: 'dark' | 'default' | 'green' | 'blue';
-}> = ({ label, value, detail, icon, tone = 'default' }) => {
-    const toneClasses = {
-        dark: 'border-[#211b16] bg-[#211b16] text-[#fffaf1] shadow-[#211b16]/10 dark:border-[#f3ead9] dark:bg-[#f3ead9] dark:text-[#211b16]',
-        default: 'border-[#e4d3bc] bg-[#fffaf1] text-[#211b16] dark:border-[#37332d] dark:bg-[#262522] dark:text-[#f4f1e9]',
-        green: 'border-[#b9dec7] bg-[#effaf1] text-[#16351f] dark:border-[#2b5c39] dark:bg-[#18251c] dark:text-[#dbf4df]',
-        blue: 'border-[#c9d8f4] bg-[#f1f5ff] text-[#17284a] dark:border-[#31466a] dark:bg-[#1b2231] dark:text-[#dfe9ff]',
-    }[tone];
-
-    return (
-        <div className={`rounded-[28px] border p-5 shadow-sm ${toneClasses}`}>
-            <div className="flex items-start justify-between gap-4">
-                <p className="text-[11px] font-black uppercase tracking-[0.24em] opacity-70">{label}</p>
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-current/10 bg-white/45">
-                    {icon}
-                </div>
-            </div>
-            <p className="mt-6 text-4xl font-black tracking-tight sm:text-5xl">{value}</p>
-            <p className="mt-3 text-sm font-semibold leading-relaxed opacity-75">{detail}</p>
+    delta?: { text: string; up: boolean | null };
+}> = ({ label, value, sub, icon, delta }) => (
+    <div className="rounded-2xl border border-[#e4d3bc] bg-[#fffaf1] p-4 shadow-sm dark:border-[#37332d] dark:bg-[#262522]">
+        <div className="flex items-center justify-between gap-2">
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9a651f] dark:text-[#caa26c]">{label}</p>
+            <span className="text-[#9a651f]/70 dark:text-[#caa26c]/70">{icon}</span>
         </div>
-    );
-};
+        <p className="mt-2.5 text-2xl font-black tabular-nums tracking-tight text-[#211b16] dark:text-[#f4f1e9] xl:text-3xl">{value}</p>
+        <div className="mt-1.5 flex items-center gap-1.5">
+            {delta && delta.up !== null && (
+                <span className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-black ${delta.up
+                    ? 'bg-[#eef9f2] text-[#15803d] dark:bg-[#1d3226] dark:text-[#86e0a8]'
+                    : 'bg-[#fdeef1] text-[#b03a54] dark:bg-[#3c2229] dark:text-[#f4a5b8]'}`}>
+                    {delta.up ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
+                    {delta.text}
+                </span>
+            )}
+            {sub && <p className="truncate text-[11px] font-semibold text-[#8a7a66] dark:text-[#aaa39a]">{sub}</p>}
+        </div>
+    </div>
+);
 
-const RevenueBars: React.FC<{
-    points: RevenuePoint[];
+/* ------------------------------------------------------------------ */
+/* Interactive chart — click a bar to inspect the actual numbers       */
+/* ------------------------------------------------------------------ */
+
+const InteractiveRevenueChart: React.FC<{
+    daily: RevenuePoint[];
+    monthly: RevenuePoint[];
     currency: string;
-    mode: 'daily' | 'monthly';
-}> = ({ points, currency, mode }) => {
-    const maxValue = Math.max(...points.map((point) => Math.max(point.grossRevenueCents, 0)), 1);
-    const visibleLabels = mode === 'daily'
-        ? [0, 7, 14, 21, 29]
-        : [0, 3, 6, 9, 11];
+    loading: boolean;
+}> = ({ daily, monthly, currency, loading }) => {
+    const [range, setRange] = useState<'daily' | 'monthly'>('daily');
+    const [measure, setMeasure] = useState<'gross' | 'net'>('gross');
+    const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+    const points = range === 'daily' ? daily : monthly;
+    const valueOf = (point: RevenuePoint) =>
+        Math.max(measure === 'gross' ? point.grossRevenueCents : point.netRevenueCents, 0);
+    const maxValue = Math.max(...points.map(valueOf), 1);
+
+    const totals = useMemo(() => {
+        const sum = points.reduce((acc, point) => acc + valueOf(point), 0);
+        const transactions = points.reduce((acc, point) => acc + point.chargeCount, 0);
+        const best = points.reduce((acc, point) => (valueOf(point) > valueOf(acc) ? point : acc), points[0]);
+        const activePeriods = points.filter((point) => valueOf(point) > 0).length;
+        return { sum, transactions, best, activePeriods };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [points, measure]);
+
+    const selected = selectedIndex !== null ? points[selectedIndex] : null;
+    const placeholderHeight = (index: number) => 18 + ((index * 37) % 61);
+    const visibleLabels = range === 'daily' ? [0, 7, 14, 21, 29] : [0, 3, 6, 9, 11];
+
+    const switchRange = (next: 'daily' | 'monthly') => {
+        setRange(next);
+        setSelectedIndex(null);
+    };
 
     return (
-        <div className="rounded-[28px] border border-[#e4d3bc] bg-[#fffaf1] p-5 shadow-sm dark:border-[#37332d] dark:bg-[#262522]">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="rounded-2xl border border-[#e4d3bc] bg-[#fffaf1] p-5 shadow-sm dark:border-[#37332d] dark:bg-[#262522] sm:p-6">
+            {/* Controls */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.26em] text-[#9a651f] dark:text-[#caa26c]">
-                        {mode === 'daily' ? 'Last 30 days' : 'Last 12 months'}
+                    <h2 className="text-xl font-black tracking-tight text-[#211b16] dark:text-[#f4f1e9]">Verified revenue</h2>
+                    <p className="mt-0.5 text-xs font-semibold text-[#8a7a66] dark:text-[#aaa39a]">
+                        Click any bar to inspect that {range === 'daily' ? 'day' : 'month'}.
                     </p>
-                    <h2 className="mt-2 text-2xl font-black tracking-tight text-[#211b16] dark:text-[#f4f1e9]">
-                        {mode === 'daily' ? 'Daily verified revenue' : 'Monthly revenue history'}
-                    </h2>
                 </div>
-                <div className="rounded-2xl border border-[#e4d3bc] bg-white px-4 py-2 text-sm font-black text-[#211b16] dark:border-[#37332d] dark:bg-[#1f1f1d] dark:text-[#f4f1e9]">
-                    Gross, after refunds
+                <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex rounded-xl border border-[#e4d3bc] bg-white p-0.5 dark:border-[#37332d] dark:bg-[#1f1f1d]">
+                        {(['daily', 'monthly'] as const).map((option) => (
+                            <button
+                                key={option}
+                                type="button"
+                                onClick={() => switchRange(option)}
+                                className={`rounded-[10px] px-3 py-1.5 text-xs font-black transition ${range === option
+                                    ? 'bg-[#211b16] text-[#fffaf1] dark:bg-[#f4f1e9] dark:text-[#211b16]'
+                                    : 'text-[#8a7a66] hover:text-[#211b16] dark:text-[#aaa39a] dark:hover:text-[#f4f1e9]'}`}
+                            >
+                                {option === 'daily' ? '30 days' : '12 months'}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="flex rounded-xl border border-[#e4d3bc] bg-white p-0.5 dark:border-[#37332d] dark:bg-[#1f1f1d]">
+                        {(['gross', 'net'] as const).map((option) => (
+                            <button
+                                key={option}
+                                type="button"
+                                onClick={() => setMeasure(option)}
+                                className={`rounded-[10px] px-3 py-1.5 text-xs font-black capitalize transition ${measure === option
+                                    ? 'bg-[#6557d2] text-white'
+                                    : 'text-[#8a7a66] hover:text-[#211b16] dark:text-[#aaa39a] dark:hover:text-[#f4f1e9]'}`}
+                            >
+                                {option}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
 
-            <div className="mt-8 grid h-72 grid-cols-[44px_1fr] gap-4">
-                <div className="flex flex-col justify-between text-right text-[11px] font-bold text-[#8a7a66] dark:text-[#aaa39a]">
+            {/* Chart */}
+            <div className="mt-6 grid grid-cols-[44px_1fr] gap-3">
+                <div className="flex h-64 flex-col justify-between text-right text-[10px] font-bold text-[#8a7a66] dark:text-[#aaa39a]">
                     <span>{formatMoney(maxValue, currency, true)}</span>
                     <span>{formatMoney(maxValue / 2, currency, true)}</span>
-                    <span>{formatMoney(0, currency, true)}</span>
+                    <span>$0</span>
                 </div>
-                <div className="relative flex items-end gap-1 border-b border-l border-[#e4d3bc] bg-[linear-gradient(to_bottom,rgba(148,116,70,0.12)_1px,transparent_1px)] bg-[length:100%_33.333%] px-2 dark:border-[#37332d] dark:bg-[linear-gradient(to_bottom,rgba(202,162,108,0.13)_1px,transparent_1px)]">
+                <div className="relative flex h-64 items-end gap-[3px] border-b border-l border-[#e4d3bc] bg-[linear-gradient(to_bottom,rgba(148,116,70,0.1)_1px,transparent_1px)] bg-[length:100%_25%] px-1 dark:border-[#37332d] dark:bg-[linear-gradient(to_bottom,rgba(202,162,108,0.12)_1px,transparent_1px)]">
                     {points.map((point, index) => {
-                        const height = Math.max(4, (Math.max(point.grossRevenueCents, 0) / maxValue) * 100);
+                        const value = valueOf(point);
+                        const height = loading ? placeholderHeight(index) : Math.max(value > 0 ? 6 : 2, (value / maxValue) * 100);
+                        const isSelected = selectedIndex === index;
                         const showLabel = visibleLabels.includes(index);
 
                         return (
-                            <div key={`${point.date}-${index}`} className="group relative flex h-full min-w-0 flex-1 items-end justify-center">
-                                <div
-                                    className="w-full max-w-[22px] rounded-t-lg bg-[#6557d2] transition-colors group-hover:bg-[#211b16] dark:bg-[#8d83f6] dark:group-hover:bg-[#f4f1e9]"
-                                    style={{ height: `${height}%` }}
-                                    title={`${point.label}: ${formatMoney(point.grossRevenueCents, currency)}`}
+                            <div key={`${point.date}-${index}`} className="relative flex h-full min-w-0 flex-1 items-end justify-center">
+                                <button
+                                    type="button"
+                                    disabled={loading}
+                                    onClick={() => setSelectedIndex(isSelected ? null : index)}
+                                    aria-label={`${point.label}: ${formatMoney(value, currency)} ${measure}`}
+                                    aria-pressed={isSelected}
+                                    className={`w-full max-w-[26px] rounded-t-md transition-all duration-200 ${loading
+                                        ? 'animate-pulse bg-[#d9cdbb] dark:bg-[#3f3a33]'
+                                        : isSelected
+                                            ? 'bg-[#211b16] ring-2 ring-[#211b16]/30 dark:bg-[#f4f1e9] dark:ring-[#f4f1e9]/30'
+                                            : 'bg-[#6557d2] hover:bg-[#544ac2] dark:bg-[#8d83f6] dark:hover:bg-[#a39af8]'}`}
+                                    style={{ height: `${height}%`, animationDelay: loading ? `${(index % 10) * 90}ms` : undefined }}
                                 />
                                 {showLabel && (
-                                    <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-bold text-[#8a7a66] dark:text-[#aaa39a]">
+                                    <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-bold text-[#8a7a66] dark:text-[#aaa39a]">
                                         {point.label}
                                     </span>
                                 )}
                             </div>
                         );
                     })}
+                    {loading && (
+                        <span className="absolute inset-x-0 top-3 mx-auto w-fit rounded-full border border-[#e4d3bc] bg-white/90 px-3 py-1 text-[11px] font-black text-[#9a651f] shadow-sm dark:border-[#37332d] dark:bg-[#1f1f1d]/90 dark:text-[#caa26c]">
+                            Fetching live Stripe data…
+                        </span>
+                    )}
                 </div>
+            </div>
+
+            {/* Inspector: real numbers for the clicked point */}
+            <div className="mt-9 rounded-2xl border border-[#e4d3bc] bg-white p-4 dark:border-[#37332d] dark:bg-[#1f1f1d]">
+                {selected ? (
+                    <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto_auto_auto] sm:items-center">
+                        <div>
+                            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9a651f] dark:text-[#caa26c]">
+                                {range === 'daily' ? formatFullDate(selected.date) : selected.label}
+                            </p>
+                            <p className="text-xs font-semibold text-[#8a7a66] dark:text-[#aaa39a]">Verified Stripe aggregate for this {range === 'daily' ? 'day' : 'month'}</p>
+                        </div>
+                        {[
+                            ['Gross', formatMoney(selected.grossRevenueCents, currency)],
+                            ['Net', formatMoney(selected.netRevenueCents, currency)],
+                            ['Transactions', String(selected.chargeCount)],
+                        ].map(([label, value]) => (
+                            <div key={label} className="text-right sm:pl-6">
+                                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#8a7a66] dark:text-[#aaa39a]">{label}</p>
+                                <p className="text-lg font-black tabular-nums text-[#211b16] dark:text-[#f4f1e9]">{value}</p>
+                            </div>
+                        ))}
+                        <button
+                            type="button"
+                            onClick={() => setSelectedIndex(null)}
+                            className="justify-self-end rounded-lg border border-[#e4d3bc] px-2.5 py-1.5 text-[11px] font-black text-[#8a7a66] transition hover:text-[#211b16] dark:border-[#37332d] dark:text-[#aaa39a] dark:hover:text-[#f4f1e9]"
+                        >
+                            Clear
+                        </button>
+                    </div>
+                ) : (
+                    <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-bold text-[#8a7a66] dark:text-[#aaa39a]">
+                        <span>
+                            {loading ? 'Loading period summary…' : (
+                                <>Period total <span className="text-[#211b16] dark:text-[#f4f1e9]">{formatMoney(totals.sum, currency)}</span> · {totals.transactions} transactions · {totals.activePeriods} active {range === 'daily' ? 'days' : 'months'}</>
+                            )}
+                        </span>
+                        {!loading && totals.best && valueOf(totals.best) > 0 && (
+                            <span>
+                                Best {range === 'daily' ? 'day' : 'month'}: <span className="text-[#211b16] dark:text-[#f4f1e9]">{totals.best.label} · {formatMoney(valueOf(totals.best), currency)}</span>
+                            </span>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );
 };
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
 
 const OpenRevenuePage: React.FC = () => {
     const [stats, setStats] = useState<OpenRevenueStats>(fallbackStats);
@@ -280,9 +420,16 @@ const OpenRevenuePage: React.FC = () => {
         };
     }, []);
 
-    const revenueChange = useMemo(() => {
-        return calculateChange(stats.last30Days.grossRevenueCents, stats.previous30Days.grossRevenueCents);
-    }, [stats.last30Days.grossRevenueCents, stats.previous30Days.grossRevenueCents]);
+    const revenueDelta = useMemo(
+        () => calculateChange(stats.last30Days.grossRevenueCents, stats.previous30Days.grossRevenueCents),
+        [stats.last30Days.grossRevenueCents, stats.previous30Days.grossRevenueCents],
+    );
+
+    const avgTransactionCents = stats.allTime.chargeCount > 0
+        ? Math.round(stats.allTime.grossRevenueCents / stats.allTime.chargeCount)
+        : 0;
+
+    const money = (cents: number) => (loading ? <NumberShimmer wide /> : formatMoney(cents, stats.currency));
 
     const structuredData = {
         '@context': 'https://schema.org',
@@ -318,205 +465,186 @@ const OpenRevenuePage: React.FC = () => {
 
             <PublicHeader variant="editorial" />
 
-            <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-                <section className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-stretch">
-                    <div className="rounded-[36px] border border-[#e4d3bc] bg-[#fffaf1] p-6 shadow-sm dark:border-[#37332d] dark:bg-[#262522] sm:p-8 lg:p-10">
-                        <div className="inline-flex items-center gap-2 rounded-full border border-[#d9c6ab] bg-white px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.22em] text-[#9a651f] dark:border-[#37332d] dark:bg-[#1f1f1d] dark:text-[#caa26c]">
+            <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+                {/* Compact professional header */}
+                <section className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                    <div>
+                        <div className="inline-flex items-center gap-2 rounded-full border border-[#d9c6ab] bg-white px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.2em] text-[#9a651f] dark:border-[#37332d] dark:bg-[#262522] dark:text-[#caa26c]">
                             <Eye className="h-3.5 w-3.5" />
                             Open startup
                         </div>
-                        <h1 className="mt-6 max-w-3xl text-5xl font-black leading-[0.96] tracking-tight text-[#211b16] dark:text-[#f4f1e9] sm:text-6xl lg:text-7xl">
-                            CareerVivid income, public by default.
+                        <h1 className="mt-4 text-4xl font-black leading-none tracking-tight sm:text-5xl">
+                            Open metrics
                         </h1>
-                        <p className="mt-6 max-w-2xl text-lg font-semibold leading-8 text-[#665a4a] dark:text-[#aaa39a]">
-                            This page shares aggregate revenue from Stripe in read-only form. It shows the business signal behind CareerVivid without exposing customers, invoices, cards, emails, or private workspace data.
+                        <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-[#665a4a] dark:text-[#aaa39a]">
+                            Aggregate revenue straight from Stripe, read-only and public by default. No customer names, invoices, cards, or emails — just the business signal.
                         </p>
-                        <div className="mt-8 flex flex-wrap gap-3">
-                            <a
-                                href="/signup"
-                                className="inline-flex items-center gap-2 rounded-2xl bg-[#211b16] px-5 py-3 text-sm font-black text-[#fffaf1] shadow-sm transition hover:bg-[#3a3128] dark:bg-[#f4f1e9] dark:text-[#211b16]"
-                            >
-                                Start CareerVivid
-                                <ArrowUpRight className="h-4 w-4" />
-                            </a>
-                            <a
-                                href="/pricing"
-                                className="inline-flex items-center gap-2 rounded-2xl border border-[#d8c7ad] bg-white px-5 py-3 text-sm font-black text-[#211b16] transition hover:bg-[#f6ecd9] dark:border-[#37332d] dark:bg-[#1f1f1d] dark:text-[#f4f1e9] dark:hover:bg-[#302e2a]"
-                            >
-                                View pricing
-                            </a>
-                        </div>
-                        <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                            {[
-                                ['Stripe verified', stats.verified ? 'Live aggregate feed' : 'Waiting for secret'],
-                                ['Read-only', 'No write access from this page'],
-                                ['Privacy first', 'No customer data shown'],
-                            ].map(([title, detail]) => (
-                                <div key={title} className="rounded-2xl border border-[#eadcc7] bg-white/70 p-4 dark:border-[#37332d] dark:bg-[#1f1f1d]/70">
-                                    <p className="text-sm font-black text-[#211b16] dark:text-[#f4f1e9]">{title}</p>
-                                    <p className="mt-1 text-xs font-semibold leading-5 text-[#7b6d5b] dark:text-[#aaa39a]">{detail}</p>
-                                </div>
-                            ))}
-                        </div>
                     </div>
-
-                    <div className="rounded-[36px] border border-[#211b16] bg-[#211b16] p-6 text-[#fffaf1] shadow-sm dark:border-[#f4f1e9] dark:bg-[#f4f1e9] dark:text-[#211b16] sm:p-8">
-                        <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <p className="text-[11px] font-black uppercase tracking-[0.24em] opacity-70">Read-only status</p>
-                                <h2 className="mt-3 text-3xl font-black tracking-tight">Verified public numbers</h2>
-                            </div>
-                            <div className="rounded-2xl border border-current/20 bg-white/10 p-3">
-                                <BadgeCheck className="h-6 w-6" />
-                            </div>
-                        </div>
-                        <div className="mt-8 space-y-4">
-                            <div className="rounded-3xl border border-white/15 bg-white/10 p-5">
-                                <p className="text-sm font-bold opacity-75">Last 30 days</p>
-                                <p className="mt-2 text-5xl font-black tracking-tight">
-                                    {formatMoney(stats.last30Days.grossRevenueCents, stats.currency)}
-                                </p>
-                                <p className="mt-2 text-sm font-bold opacity-75">
-                                    {revenueChange} vs. previous 30 days
-                                </p>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="rounded-3xl border border-white/15 bg-white/10 p-5">
-                                    <p className="text-xs font-black uppercase tracking-[0.2em] opacity-60">All time</p>
-                                    <p className="mt-3 text-2xl font-black">{formatMoney(stats.allTime.grossRevenueCents, stats.currency)}</p>
-                                </div>
-                                <div className="rounded-3xl border border-white/15 bg-white/10 p-5">
-                                    <p className="text-xs font-black uppercase tracking-[0.2em] opacity-60">Subscribers</p>
-                                    <p className="mt-3 text-2xl font-black">{stats.activeSubscriptions}</p>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-3 rounded-3xl border border-white/15 bg-white/10 p-5">
-                                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0" />
-                                <p className="text-sm font-semibold leading-6 opacity-80">
-                                    {loading
-                                        ? 'Loading the latest aggregate Stripe numbers.'
-                                        : stats.verified
-                                            ? `Verified with Stripe. Last updated ${formatDateTime(stats.lastUpdated)}.`
-                                            : 'Connect the Firebase secret to publish live Stripe-verified revenue.'}
-                                </p>
-                            </div>
-                        </div>
+                    <div className="flex flex-col items-start gap-2 lg:items-end">
+                        <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black ${stats.verified
+                            ? 'bg-[#eef9f2] text-[#15803d] dark:bg-[#1d3226] dark:text-[#86e0a8]'
+                            : 'bg-[#fdf3d7] text-[#8a642f] dark:bg-[#39332a] dark:text-[#f0d9a8]'}`}>
+                            <BadgeCheck size={14} />
+                            {loading ? 'Verifying with Stripe…' : stats.verified ? 'Stripe verified' : 'Awaiting Stripe connection'}
+                        </span>
+                        <span className="text-[11px] font-bold text-[#8a7a66] dark:text-[#aaa39a]">
+                            {loading ? 'Updating…' : `Last updated ${formatDateTime(stats.lastUpdated)}`}
+                        </span>
                     </div>
                 </section>
 
                 {error && (
-                    <div className="mt-6 rounded-3xl border border-[#e4d3bc] bg-[#fffaf1] p-4 text-sm font-bold text-[#8a5a18] dark:border-[#37332d] dark:bg-[#262522] dark:text-[#caa26c]">
+                    <div className="mt-6 rounded-2xl border border-[#eeddc0] bg-[#fdf3d7] p-4 text-sm font-bold text-[#8a642f] dark:border-[#51483c] dark:bg-[#39332a] dark:text-[#f0d9a8]">
                         {error}
                     </div>
                 )}
 
-                <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                    <MetricCard
+                {/* KPI row */}
+                <section className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+                    <KpiTile
+                        label="Last 30 days"
+                        value={money(stats.last30Days.grossRevenueCents)}
+                        icon={<TrendingUp size={15} />}
+                        delta={loading ? undefined : revenueDelta}
+                        sub={loading ? 'vs previous 30 days' : 'vs previous 30 days'}
+                    />
+                    <KpiTile
                         label="Month to date"
-                        value={formatMoney(stats.monthToDate.grossRevenueCents, stats.currency)}
-                        detail={`${stats.monthToDate.chargeCount} successful revenue transactions this month.`}
-                        icon={<BarChart3 className="h-5 w-5" />}
-                        tone="green"
+                        value={money(stats.monthToDate.grossRevenueCents)}
+                        icon={<CalendarDays size={15} />}
+                        sub={loading ? '…' : `${stats.monthToDate.chargeCount} transactions`}
                     />
-                    <MetricCard
-                        label={stats.netRevenueIncludesStripeFees ? 'Net after fees' : 'Reported net'}
-                        value={formatMoney(stats.last30Days.netRevenueCents, stats.currency)}
-                        detail={stats.netRevenueIncludesStripeFees
-                            ? `${formatMoney(stats.last30Days.stripeFeesCents, stats.currency)} in Stripe fees over the last 30 days.`
-                            : 'Current key exposes charge totals, but not Stripe fee detail.'}
-                        icon={<CreditCard className="h-5 w-5" />}
-                        tone="default"
+                    <KpiTile
+                        label="All-time gross"
+                        value={money(stats.allTime.grossRevenueCents)}
+                        icon={<Receipt size={15} />}
+                        sub={loading ? '…' : `${stats.allTime.chargeCount} transactions`}
                     />
-                    <MetricCard
-                        label="All-time revenue"
-                        value={formatMoney(stats.allTime.grossRevenueCents, stats.currency)}
-                        detail={`${stats.allTime.chargeCount} aggregate revenue transactions inspected.`}
-                        icon={<Sparkles className="h-5 w-5" />}
-                        tone="blue"
+                    <KpiTile
+                        label="Net (30 days)"
+                        value={money(stats.last30Days.netRevenueCents)}
+                        icon={<CreditCard size={15} />}
+                        sub={stats.netRevenueIncludesStripeFees ? 'after Stripe fees' : 'before fee detail'}
                     />
-                    <MetricCard
-                        label="Active subscriptions"
-                        value={String(stats.activeSubscriptions)}
-                        detail="Subscription count only. Subscriber identities stay private."
-                        icon={<Users className="h-5 w-5" />}
-                        tone="dark"
+                    <KpiTile
+                        label="Avg transaction"
+                        value={loading ? <NumberShimmer /> : formatMoney(avgTransactionCents, stats.currency)}
+                        icon={<Receipt size={15} />}
+                        sub="all-time average"
+                    />
+                    <KpiTile
+                        label="Subscriptions"
+                        value={loading ? <NumberShimmer /> : String(stats.activeSubscriptions)}
+                        icon={<Users size={15} />}
+                        sub="active now · identities private"
                     />
                 </section>
 
-                <section className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
-                    <RevenueBars points={stats.dailyRevenue} currency={stats.currency} mode="daily" />
+                {/* Interactive chart */}
+                <section className="mt-8">
+                    <InteractiveRevenueChart
+                        daily={stats.dailyRevenue}
+                        monthly={stats.monthlyRevenue}
+                        currency={stats.currency}
+                        loading={loading}
+                    />
+                </section>
 
-                    <div className="space-y-5">
-                        <div className="rounded-[28px] border border-[#e4d3bc] bg-[#fffaf1] p-5 shadow-sm dark:border-[#37332d] dark:bg-[#262522]">
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#effaf1] text-[#1d7a3f] dark:bg-[#18311f] dark:text-[#87dda4]">
-                                    <ShieldCheck className="h-5 w-5" />
+                {/* Breakdown + policy */}
+                <section className="mt-8 grid gap-4 lg:grid-cols-3">
+                    <div className="rounded-2xl border border-[#e4d3bc] bg-[#fffaf1] p-5 shadow-sm dark:border-[#37332d] dark:bg-[#262522]">
+                        <h2 className="text-sm font-black uppercase tracking-[0.18em] text-[#9a651f] dark:text-[#caa26c]">30-day breakdown</h2>
+                        <dl className="mt-4 space-y-3">
+                            {[
+                                ['Gross revenue', stats.last30Days.grossRevenueCents, false],
+                                ['Refunds', -stats.last30Days.refundedCents, true],
+                                ['Stripe fees', -stats.last30Days.stripeFeesCents, true],
+                                ['Net revenue', stats.last30Days.netRevenueCents, false],
+                            ].map(([label, cents, negative], index, list) => (
+                                <div
+                                    key={label as string}
+                                    className={`flex items-center justify-between gap-3 ${index === list.length - 1 ? 'border-t border-[#e4d3bc] pt-3 dark:border-[#37332d]' : ''}`}
+                                >
+                                    <dt className={`text-sm font-bold ${index === list.length - 1 ? 'text-[#211b16] dark:text-[#f4f1e9]' : 'text-[#665a4a] dark:text-[#aaa39a]'}`}>{label as string}</dt>
+                                    <dd className={`text-sm font-black tabular-nums ${negative ? 'text-[#b03a54] dark:text-[#f4a5b8]' : 'text-[#211b16] dark:text-[#f4f1e9]'}`}>
+                                        {loading ? <NumberShimmer /> : `${(negative as boolean) && (cents as number) !== 0 ? '−' : ''}${formatMoney(Math.abs(cents as number), stats.currency)}`}
+                                    </dd>
                                 </div>
-                                <div>
-                                    <p className="text-sm font-black text-[#211b16] dark:text-[#f4f1e9]">Revenue source</p>
-                                    <p className="text-xs font-semibold text-[#7b6d5b] dark:text-[#aaa39a]">
-                                        {stats.sourceMode === 'balance_transactions' ? 'Stripe aggregate balance data' : 'Stripe charge and subscription data'}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="mt-5 space-y-3 text-sm font-semibold leading-6 text-[#665a4a] dark:text-[#aaa39a]">
-                                <p>This dashboard is generated from a restricted Stripe key configured on Firebase Functions.</p>
-                                <p>Only totals, counts, dates, and currency are returned to the browser.</p>
-                            </div>
-                        </div>
+                            ))}
+                        </dl>
+                        <p className="mt-4 text-[11px] font-semibold leading-5 text-[#8a7a66] dark:text-[#aaa39a]">
+                            {stats.netRevenueIncludesStripeFees
+                                ? 'Net = gross − refunds − Stripe fees.'
+                                : 'The current key exposes charge totals; fee detail requires a broader read scope.'}
+                        </p>
+                    </div>
 
-                        <div className="rounded-[28px] border border-[#e4d3bc] bg-[#fffaf1] p-5 shadow-sm dark:border-[#37332d] dark:bg-[#262522]">
-                            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9a651f] dark:text-[#caa26c]">Public policy</p>
-                            <div className="mt-5 space-y-4">
-                                {[
-                                    [Eye, 'Public', 'Revenue totals, transaction counts, active subscription count, update time.'],
-                                    [Lock, 'Private', 'Customer names, emails, payment methods, invoices, receipts, workspace data.'],
-                                    [FileText, 'Read-only', 'The page cannot create charges, edit products, or access private Stripe records.'],
-                                ].map(([Icon, title, detail]) => {
-                                    const PolicyIcon = Icon as typeof Eye;
-                                    return (
-                                        <div key={title as string} className="flex gap-3 rounded-2xl border border-[#eadcc7] bg-white/70 p-4 dark:border-[#37332d] dark:bg-[#1f1f1d]/70">
-                                            <PolicyIcon className="mt-0.5 h-5 w-5 shrink-0 text-[#6557d2]" />
-                                            <div>
-                                                <p className="text-sm font-black text-[#211b16] dark:text-[#f4f1e9]">{title as string}</p>
-                                                <p className="mt-1 text-xs font-semibold leading-5 text-[#7b6d5b] dark:text-[#aaa39a]">{detail as string}</p>
-                                            </div>
+                    <div className="rounded-2xl border border-[#e4d3bc] bg-[#fffaf1] p-5 shadow-sm dark:border-[#37332d] dark:bg-[#262522]">
+                        <h2 className="text-sm font-black uppercase tracking-[0.18em] text-[#9a651f] dark:text-[#caa26c]">What's public</h2>
+                        <div className="mt-4 space-y-3">
+                            {[
+                                [Eye, 'Public', 'Revenue totals, transaction counts, subscription count, update time.'],
+                                [Lock, 'Private', 'Customer names, emails, payment methods, invoices, workspace data.'],
+                                [FileText, 'Read-only', 'This page cannot create charges or reach private Stripe records.'],
+                            ].map(([Icon, title, detail]) => {
+                                const PolicyIcon = Icon as typeof Eye;
+                                return (
+                                    <div key={title as string} className="flex gap-3">
+                                        <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#f3f2ff] text-[#6557d2] dark:bg-[#34314e] dark:text-[#b7b2ff]">
+                                            <PolicyIcon className="h-4 w-4" />
+                                        </span>
+                                        <div>
+                                            <p className="text-sm font-black text-[#211b16] dark:text-[#f4f1e9]">{title as string}</p>
+                                            <p className="mt-0.5 text-xs font-semibold leading-5 text-[#7b6d5b] dark:text-[#aaa39a]">{detail as string}</p>
                                         </div>
-                                    );
-                                })}
-                            </div>
+                                    </div>
+                                );
+                            })}
                         </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-[#e4d3bc] bg-[#fffaf1] p-5 shadow-sm dark:border-[#37332d] dark:bg-[#262522]">
+                        <h2 className="text-sm font-black uppercase tracking-[0.18em] text-[#9a651f] dark:text-[#caa26c]">Source & method</h2>
+                        <div className="mt-4 flex items-start gap-3">
+                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#eef9f2] text-[#15803d] dark:bg-[#1d3226] dark:text-[#86e0a8]">
+                                <ShieldCheck className="h-4 w-4" />
+                            </span>
+                            <p className="text-xs font-semibold leading-5 text-[#665a4a] dark:text-[#aaa39a]">
+                                Generated from a restricted Stripe key on Firebase Functions — {stats.sourceMode === 'balance_transactions' ? 'aggregate balance transactions' : 'charge and subscription data'}. Only totals, counts, dates, and currency reach the browser.
+                            </p>
+                        </div>
+                        <dl className="mt-4 grid grid-cols-2 gap-3">
+                            <div className="rounded-xl border border-[#eadcc7] bg-white/70 p-3 dark:border-[#37332d] dark:bg-[#1f1f1d]/70">
+                                <dt className="text-[10px] font-black uppercase tracking-[0.16em] text-[#8a7a66] dark:text-[#aaa39a]">Data inspected</dt>
+                                <dd className="mt-1 text-xl font-black tabular-nums">{loading ? <NumberShimmer /> : stats.inspectedTransactionCount}</dd>
+                            </div>
+                            <div className="rounded-xl border border-[#eadcc7] bg-white/70 p-3 dark:border-[#37332d] dark:bg-[#1f1f1d]/70">
+                                <dt className="text-[10px] font-black uppercase tracking-[0.16em] text-[#8a7a66] dark:text-[#aaa39a]">Page cap</dt>
+                                <dd className="mt-1 text-xl font-black">{loading ? <NumberShimmer /> : stats.isLimitedByPageCap ? 'Hit' : 'Clear'}</dd>
+                            </div>
+                        </dl>
                     </div>
                 </section>
 
-                <section className="mt-8 grid gap-8 lg:grid-cols-2">
-                    <RevenueBars points={stats.monthlyRevenue} currency={stats.currency} mode="monthly" />
-                    <div className="rounded-[28px] border border-[#e4d3bc] bg-[#fffaf1] p-6 shadow-sm dark:border-[#37332d] dark:bg-[#262522]">
-                        <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9a651f] dark:text-[#caa26c]">Build in public</p>
-                                <h2 className="mt-2 text-3xl font-black tracking-tight text-[#211b16] dark:text-[#f4f1e9]">
-                                    Why share this?
-                                </h2>
-                            </div>
-                            <RefreshCw className={`h-5 w-5 text-[#6557d2] ${loading ? 'animate-spin' : ''}`} />
-                        </div>
-                        <div className="mt-6 space-y-4 text-base font-semibold leading-8 text-[#665a4a] dark:text-[#aaa39a]">
-                            <p>CareerVivid helps people make better job-search decisions. Sharing the business numbers keeps the company accountable to the same standard: clear context, visible progress, and fewer vague claims.</p>
-                            <p>As the product grows, this page can add more open metrics such as free signups, paid conversion, extension installs, and refund rate. The principle stays the same: useful transparency without leaking private user data.</p>
-                        </div>
-                        <div className="mt-8 grid gap-3 sm:grid-cols-2">
-                            <div className="rounded-2xl border border-[#eadcc7] bg-white/70 p-4 dark:border-[#37332d] dark:bg-[#1f1f1d]/70">
-                                <p className="text-sm font-black">Data inspected</p>
-                                <p className="mt-2 text-3xl font-black">{stats.inspectedTransactionCount}</p>
-                                <p className="mt-1 text-xs font-semibold text-[#7b6d5b] dark:text-[#aaa39a]">Aggregate Stripe balance transactions</p>
-                            </div>
-                            <div className="rounded-2xl border border-[#eadcc7] bg-white/70 p-4 dark:border-[#37332d] dark:bg-[#1f1f1d]/70">
-                                <p className="text-sm font-black">Page cap</p>
-                                <p className="mt-2 text-3xl font-black">{stats.isLimitedByPageCap ? 'On' : 'Clear'}</p>
-                                <p className="mt-1 text-xs font-semibold text-[#7b6d5b] dark:text-[#aaa39a]">Shows if the backend hit its transaction page limit</p>
-                            </div>
-                        </div>
+                {/* CTA strip */}
+                <section className="mt-10 flex flex-col items-center justify-between gap-4 rounded-2xl border border-[#211b16] bg-[#211b16] p-6 text-[#fffaf1] sm:flex-row dark:border-[#37332d]">
+                    <div>
+                        <p className="text-lg font-black tracking-tight">Built in public. Priced in public.</p>
+                        <p className="mt-1 text-sm font-semibold opacity-75">Every dollar above comes from job seekers we helped get hired.</p>
+                    </div>
+                    <div className="flex gap-3">
+                        <a
+                            href="/signup"
+                            className="inline-flex items-center gap-2 rounded-xl bg-[#6557d2] px-5 py-2.5 text-sm font-black !text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#544ac2]"
+                        >
+                            Start CareerVivid <ArrowUpRight className="h-4 w-4" />
+                        </a>
+                        <a
+                            href="/pricing"
+                            className="inline-flex items-center gap-2 rounded-xl border border-white/25 px-5 py-2.5 text-sm font-black !text-[#fffaf1] transition hover:-translate-y-0.5 hover:bg-white/10"
+                        >
+                            View pricing
+                        </a>
                     </div>
                 </section>
             </main>

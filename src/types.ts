@@ -228,7 +228,7 @@ export interface UserProfile {
   academicPartnerId?: string; // For students: ID of their professor
   referralStats?: {
     totalReferred: number;      // Count of successful referrals
-    maxReferrals: number;        // Maximum allowed (5 for premium users)
+    maxReferrals: number;        // Maximum allowed (15 for premium users)
     referredUsers: string[];     // UIDs of referred users
   };
 
@@ -290,6 +290,14 @@ export interface QuestCodingArtifact {
   codeByLanguage?: Partial<Record<'javascript' | 'python' | 'cpp' | 'java' | 'csharp', string>>;
 }
 
+export interface QuestCodingDraft {
+  challengeId: string;
+  language: 'javascript' | 'python' | 'cpp' | 'java' | 'csharp';
+  code: string;
+  codeByLanguage?: Partial<Record<'javascript' | 'python' | 'cpp' | 'java' | 'csharp', string>>;
+  updatedAt: number;
+}
+
 export interface QuestSystemDesignArtifact {
   type: 'system_design';
   challengeId: string;
@@ -338,6 +346,8 @@ export interface PracticeHistoryEntry {
   section?: string;
   transcript?: TranscriptEntry[];
   activeInterviewDraft?: InterviewSessionDraft | null;
+  /** Coding work is keyed by challenge so changing problems never replaces another draft. */
+  activeCodingDrafts?: Record<string, QuestCodingDraft>;
 }
 
 // --- Job Tracker Types ---

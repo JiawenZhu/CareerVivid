@@ -351,13 +351,18 @@ export const generateResumePdfHttp = functions
 
       if (userData) {
         const plan = userData.plan || 'free';
+        const expiresAtMillis = userData.expiresAt
+          ? (typeof userData.expiresAt.toMillis === 'function' ? userData.expiresAt.toMillis() : userData.expiresAt._seconds * 1000)
+          : null;
+        const hasValidExpiry = expiresAtMillis === null || expiresAtMillis > Date.now();
         const isSprintValid = plan === 'pro_sprint' && userData.expiresAt
           ? (typeof userData.expiresAt.toMillis === 'function' ? userData.expiresAt.toMillis() : userData.expiresAt._seconds * 1000) > Date.now()
           : false;
         const isMonthlyActive = plan === 'pro_monthly' &&
+          hasValidExpiry &&
           (userData.stripeSubscriptionStatus === 'active' || userData.stripeSubscriptionStatus === 'trialing');
-        const isCurrentPaidPlan = ['pro', 'max', 'pro_max', 'enterprise', 'premium'].includes(plan);
-        const hasLegacyPremium = userData.promotions?.isPremium === true;
+        const isCurrentPaidPlan = hasValidExpiry && ['pro', 'max', 'pro_max', 'enterprise', 'premium'].includes(plan);
+        const hasLegacyPremium = hasValidExpiry && userData.promotions?.isPremium === true;
 
         isPremium = isCurrentPaidPlan || isSprintValid || isMonthlyActive || hasLegacyPremium;
         hasDownloadCredit = Number(userData.downloadCredits || 0) > 0;
@@ -584,6 +589,10 @@ export const getPublicResume = functions.region('us-west1').runWith({ timeoutSec
 
           if (ownerDoc.exists) {
             const ownerData = ownerDoc.data();
+            const ownerExpiresAtMillis = ownerData?.expiresAt
+              ? (typeof ownerData.expiresAt.toMillis === 'function' ? ownerData.expiresAt.toMillis() : ownerData.expiresAt._seconds * 1000)
+              : null;
+            const ownerHasValidExpiry = ownerExpiresAtMillis === null || ownerExpiresAtMillis > Date.now();
 
             // Check pro_sprint plan validity
             const isSprintValid = ownerData?.plan === 'pro_sprint' && ownerData?.expiresAt
@@ -592,11 +601,12 @@ export const getPublicResume = functions.region('us-west1').runWith({ timeoutSec
 
             // Check pro_monthly subscription status
             const isMonthlyActive = ownerData?.plan === 'pro_monthly' &&
+              ownerHasValidExpiry &&
               (ownerData?.stripeSubscriptionStatus === 'active' ||
                 ownerData?.stripeSubscriptionStatus === 'trialing');
 
             // Check legacy premium flag (backward compatibility)
-            const hasLegacyPremium = ownerData?.promotions?.isPremium === true;
+            const hasLegacyPremium = ownerHasValidExpiry && ownerData?.promotions?.isPremium === true;
 
             // Owner is premium if they have any valid premium status
             ownerIsPremium = isSprintValid || isMonthlyActive || hasLegacyPremium;

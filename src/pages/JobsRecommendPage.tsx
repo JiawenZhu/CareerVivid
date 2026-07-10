@@ -12,6 +12,7 @@ import {
     Gauge,
     Heart,
     LayoutDashboard,
+    ListChecks,
     MapPin,
     PlusCircle,
     Search,
@@ -23,9 +24,9 @@ import {
 import AppLayout from '../components/Layout/AppLayout';
 import AddJobModal from '../components/JobTracker/AddJobUrlModal';
 import { useJobTracker } from '../hooks/useJobTracker';
-import { usePortfolios } from '../hooks/usePortfolios';
+import { useApplicationProfile } from '../hooks/useApplicationProfile';
 import { useResumes } from '../hooks/useResumes';
-import { ApplicationStatus, JobApplicationData, JobLinkValidationStatus, NO_NEXT_ACTION, ResumeMatchAnalysis, WorkModel } from '../types';
+import { ApplicationStatus, JobApplicationData, JobLinkValidationStatus, NO_NEXT_ACTION, WorkModel } from '../types';
 import { navigate } from '../utils/navigation';
 import { getRecommendedScrapedJobs, ScrapedRecommendedJob, validateRecommendedJobOpen } from '../services/scrapedJobsService';
 import { isConfirmedBrokenJobLinkError } from '../utils/verifiedJobLink';
@@ -37,7 +38,20 @@ import {
     type RecommendationSource,
     type RecommendationTab,
 } from '../utils/recommendedJobs';
-import { extractRecommendationProfileKeywords, getProfileKeywordFit } from '../utils/recommendationProfile';
+import { extractRecommendationProfileKeywords } from '../utils/recommendationProfile';
+import {
+    describeJobRecommendationPreferences,
+    deriveJobRecommendationPreferences,
+    getJobLocationFit,
+    type JobRecommendationPreferences,
+} from '../utils/jobRecommendationPreferences';
+import {
+    assessJobMatch,
+    buildJobMatchProfile,
+    type ComprehensiveJobMatch,
+    type ComprehensiveMatchLabel,
+    type JobMatchProfile,
+} from '../utils/jobMatchScoring';
 
 type RecommendedJob = {
     id: string;
@@ -56,11 +70,12 @@ type RecommendedJob = {
     /** Full cleaned job description — what gets saved to the tracker (the card shows the short `description`). */
     fullDescription?: string;
     matchScore: number;
-    matchLabel: 'Strong match' | 'Good match' | 'Partial match';
+    matchLabel: ComprehensiveMatchLabel;
     matchReasons: string[];
     missingKeywords: string[];
     matchedKeywords: string[];
     signals: string[];
+    matchAssessment?: ComprehensiveJobMatch;
     sourceListingId?: string;
     validationStatus?: ScrapedRecommendedJob['validationStatus'];
     validatedAt?: number | null;
@@ -91,9 +106,10 @@ type ApplyValidationError = {
 };
 
 const scoreTone = (score: number) => {
-    if (score >= 88) return 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-200';
-    if (score >= 75) return 'border-cyan-200 bg-cyan-50 text-cyan-800 dark:border-cyan-900/60 dark:bg-cyan-950/40 dark:text-cyan-200';
-    return 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200';
+    if (score >= 85) return 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-200';
+    if (score >= 70) return 'border-cyan-200 bg-cyan-50 text-cyan-800 dark:border-cyan-900/60 dark:bg-cyan-950/40 dark:text-cyan-200';
+    if (score >= 55) return 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200';
+    return 'border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/30 dark:text-rose-200';
 };
 
 const sourceLabel = (source: RecommendationSource) => {
@@ -147,7 +163,7 @@ const buildRecommendationPrepFields = (job: RecommendedJob): RecommendationPrepF
     const matched = compactList(job.matchedKeywords.slice(0, 6), 'general software delivery');
     const gaps = compactList(job.missingKeywords.slice(0, 6), 'no major gaps listed');
     const proof = compactList(job.matchReasons.slice(0, 3), 'CareerVivid profile and tracker signals match this role');
-    const nextAction = job.missingKeywords.length || job.matchScore < 88
+    const nextAction = job.missingKeywords.length || job.matchScore < 85
         ? `Tailor resume for ${job.missingKeywords.slice(0, 2).join(', ') || job.title}`
         : 'Verify apply link and send tailored application';
     const suggestedResumeAngle = `Position the resume around ${matched}, then address ${gaps}.`;
@@ -200,7 +216,7 @@ const buildRecommendationPrepFields = (job: RecommendedJob): RecommendationPrepF
                 strongMatches: job.matchReasons,
                 experienceGaps: job.missingKeywords.map((keyword) => `Address ${keyword} with supported resume evidence or a concrete learning plan.`),
                 suggestedResumeAngle,
-                recommendedAction: job.matchScore >= 88 && !job.missingKeywords.length ? 'apply_now' : 'tailor_first',
+                recommendedAction: job.matchScore >= 85 && !job.missingKeywords.length ? 'apply_now' : 'tailor_first',
             },
         },
     };
@@ -310,36 +326,21 @@ const formatPostedAt = (value: string | number | null | undefined): string => {
     return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 };
 
-const scoreScrapedJob = (
+const scrapedJobToRecommended = (
     job: ScrapedRecommendedJob,
-    profileMatchedKeywords: string[],
-    profileKeywordCount: number,
-    profileMissingKeywords: string[]
-): number => {
-    const keywordScore = Math.min(46, profileMatchedKeywords.length * 8);
-    const sourceScore = job.applyUrl ? 18 : 0;
-    const freshnessScore = job.fetchedAt && Date.now() - job.fetchedAt < 7 * 24 * 60 * 60 * 1000 ? 12 : 6;
-    const profileScore = profileKeywordCount
-        ? Math.min(10, Math.round((profileMatchedKeywords.length / profileKeywordCount) * 10))
-        : 0;
-    const remoteScore = job.workModel === 'Remote' ? 8 : job.workModel === 'Hybrid' ? 5 : 3;
-    const gapPenalty = Math.min(18, profileMissingKeywords.length * 4);
-    return Math.max(35, Math.min(97, keywordScore + sourceScore + freshnessScore + profileScore + remoteScore - gapPenalty));
-};
-
-const scrapedJobToRecommended = (job: ScrapedRecommendedJob, profileKeywords: string[]): RecommendedJob => {
-    const jobText = `${job.title} ${job.company} ${job.description} ${(job.matchedKeywords || []).join(' ')} ${(job.signals || []).join(' ')}`;
-    const profileFit = getProfileKeywordFit(
-        jobText,
-        profileKeywords,
-        [
-            ...(job.matchedKeywords || []),
-            ...(job.missingKeywords || []),
-        ]
-    );
-    const matchedKeywords = profileFit.matchedKeywords.slice(0, 10);
-    const missingKeywords = profileFit.missingKeywords.slice(0, 6);
-    const score = scoreScrapedJob(job, matchedKeywords, profileKeywords.length, missingKeywords);
+    matchProfile: JobMatchProfile
+): RecommendedJob => {
+    const assessment = assessJobMatch({
+        title: job.title,
+        description: job.description,
+        location: job.location,
+        workModel: job.workModel,
+        salary: job.salary,
+        jobType: job.jobType,
+        seniority: job.seniority,
+        jobFunction: job.jobFunction,
+        signals: job.signals,
+    }, matchProfile);
     return {
         id: `scraped-${job.id}`,
         title: job.title,
@@ -355,16 +356,13 @@ const scrapedJobToRecommended = (job: ScrapedRecommendedJob, profileKeywords: st
         applyUrl: job.finalUrl || job.applyUrl,
         description: summarizeDescription(job.description, 'Verified job listing from a public company career source.'),
         fullDescription: stripEscapedHtml(job.description || '').replace(/\s+/g, ' ').trim(),
-        matchScore: score,
-        matchLabel: score >= 88 ? 'Strong match' : score >= 75 ? 'Good match' : 'Partial match',
-        matchReasons: [
-            `${profileFit.matchedKeywords.length} profile signals found`,
-            job.provider ? `${job.provider} career board verified` : 'Career source verified',
-            job.workModel,
-        ],
-        missingKeywords,
-        matchedKeywords,
+        matchScore: assessment.score,
+        matchLabel: assessment.label,
+        matchReasons: assessment.strengths.length ? assessment.strengths : ['Limited matching evidence is available in the resume and listing.'],
+        missingKeywords: assessment.missingSkills.slice(0, 8),
+        matchedKeywords: assessment.matchedSkills.slice(0, 10),
         signals: job.signals?.length ? ['Link validated', ...job.signals].slice(0, 4) : [job.workModel, 'Scraped source', 'Link validated'],
+        matchAssessment: assessment,
         sourceListingId: job.id,
         validationStatus: job.validationStatus,
         validatedAt: job.validatedAt,
@@ -407,15 +405,49 @@ const JobCardSkeleton: React.FC = () => (
     </div>
 );
 
-const getAnalysisForJob = (job: JobApplicationData): ResumeMatchAnalysis | undefined => {
-    const analyses = Object.values(job.matchAnalyses || {});
-    return analyses[0];
-};
+const MatchScoreBreakdown: React.FC<{ assessment: ComprehensiveJobMatch }> = ({ assessment }) => (
+    <details className="group mt-4 border-t border-[var(--cv-border-subtle)] pt-3">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-xs font-black text-[var(--cv-text-heading)] marker:content-none">
+            <span className="flex items-center gap-2">
+                <ListChecks size={15} className="text-[var(--cv-action-primary)]" />
+                Score breakdown
+            </span>
+            <span className="rounded-full border border-[var(--cv-action-border)] bg-[var(--cv-action-soft-bg)] px-2.5 py-1 text-[10px] uppercase text-[var(--cv-action-primary)]">
+                {assessment.confidence}
+            </span>
+        </summary>
+        <div className="mt-3 grid gap-x-5 gap-y-3 sm:grid-cols-2">
+            {assessment.factors.map((item) => (
+                <div key={item.key} className="min-w-0">
+                    <div className="flex items-center justify-between gap-3 text-[11px] font-extrabold text-[var(--cv-text-heading)]">
+                        <span>{item.label}</span>
+                        <span className="tabular-nums text-[var(--cv-action-primary)]">{item.score}/{item.maxScore}</span>
+                    </div>
+                    <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[var(--cv-border-subtle)]">
+                        <div
+                            className="h-full rounded-full bg-[var(--cv-action-primary)]"
+                            style={{ width: `${(item.score / item.maxScore) * 100}%` }}
+                        />
+                    </div>
+                    <p className="mt-1.5 text-[11px] font-medium leading-4 text-[var(--cv-text-muted)]">{item.evidence}</p>
+                </div>
+            ))}
+        </div>
+    </details>
+);
 
-const trackerJobToRecommended = (job: JobApplicationData): RecommendedJob => {
-    const analysis = getAnalysisForJob(job);
-    const score = Math.max(0, Math.min(100, Math.round(analysis?.matchPercentage || 72)));
+const trackerJobToRecommended = (job: JobApplicationData, matchProfile: JobMatchProfile): RecommendedJob => {
     const workModel = job.workModel || (job.location?.toLowerCase().includes('remote') ? 'Remote' : 'On-site');
+    const assessment = assessJobMatch({
+        title: job.jobTitle || 'Saved job',
+        description: job.jobDescription || job.notes || '',
+        location: job.location || 'Location not listed',
+        workModel: job.workModel || '',
+        salary: job.salaryRange || 'Not listed',
+        jobType: 'Not listed',
+        seniority: job.interviewStage || '',
+        signals: [],
+    }, matchProfile);
 
     return {
         id: `tracker-${job.id}`,
@@ -431,12 +463,13 @@ const trackerJobToRecommended = (job: JobApplicationData): RecommendedJob => {
         sourceLabel: 'CareerVivid tracker',
         applyUrl: job.applicationURL || job.jobPostURL || '/job-tracker',
         description: summarizeDescription(job.jobDescription || job.notes, 'Saved from your CareerVivid workspace.'),
-        matchScore: score,
-        matchLabel: score >= 88 ? 'Strong match' : score >= 75 ? 'Good match' : 'Partial match',
-        matchReasons: analysis?.strongMatches?.slice(0, 3) || ['Already in your CareerVivid pipeline', 'Ready for resume tailoring'],
-        missingKeywords: analysis?.missingKeywords?.slice(0, 6) || [],
-        matchedKeywords: analysis?.matchedKeywords?.slice(0, 6) || [],
+        matchScore: assessment.score,
+        matchLabel: assessment.label,
+        matchReasons: assessment.strengths.length ? assessment.strengths : ['Limited matching evidence is available in the resume and listing.'],
+        missingKeywords: assessment.missingSkills.slice(0, 8),
+        matchedKeywords: assessment.matchedSkills.slice(0, 10),
         signals: [job.applicationStatus || 'Tracked', workModel, job.priority ? `${job.priority} priority` : 'Application workspace ready'],
+        matchAssessment: assessment,
         validationStatus: job.externalLinkValidationStatus,
         validationReason: job.externalLinkValidationReason,
         validatedAt: job.externalLinkValidatedAt,
@@ -446,8 +479,8 @@ const trackerJobToRecommended = (job: JobApplicationData): RecommendedJob => {
 const JobsRecommendPage: React.FC = () => {
     const { jobApplications, addJobApplication, updateJobApplication } = useJobTracker();
     const { resumes, isLoading: isLoadingResumes } = useResumes();
-    const { portfolios, isLoading: isLoadingPortfolios } = usePortfolios();
-    const profileDataReady = !isLoadingResumes && !isLoadingPortfolios;
+    const { profile: applicationProfile } = useApplicationProfile();
+    const profileDataReady = !isLoadingResumes;
     const [activeTab, setActiveTab] = useState<RecommendationTab>('recommended');
     const [searchQuery, setSearchQuery] = useState('');
     const [savingJobId, setSavingJobId] = useState<string | null>(null);
@@ -464,21 +497,39 @@ const JobsRecommendPage: React.FC = () => {
     const lastSuccessfulJobsRef = useRef<ScrapedRecommendedJob[]>([]);
     const [retryCounter, setRetryCounter] = useState(0);
 
-    const profileKeywords = useMemo(
-        () => extractRecommendationProfileKeywords({ resumes, portfolios }),
-        [portfolios, resumes]
+    const targetResume = useMemo(
+        () => resumes.find((resume) => resume.isDefault) || resumes[0] || null,
+        [resumes]
     );
-    const profileAssetCount = resumes.length + portfolios.length;
-    const profileSignalCount = profileKeywords.length;
+    const profileKeywords = useMemo(
+        () => extractRecommendationProfileKeywords({ resumes: targetResume ? [targetResume] : [] }),
+        [targetResume]
+    );
+    const locationPreferences = useMemo(
+        () => deriveJobRecommendationPreferences(targetResume, applicationProfile),
+        [applicationProfile, targetResume]
+    );
+    const locationPreferenceRequestKey = useMemo(
+        () => JSON.stringify(locationPreferences),
+        [locationPreferences]
+    );
+    const matchProfile = useMemo(
+        () => buildJobMatchProfile(targetResume, applicationProfile, locationPreferences),
+        [applicationProfile, locationPreferences, targetResume]
+    );
+    const profileAssetCount = targetResume ? 1 : 0;
     const profileKeywordRequestKey = useMemo(
         () => profileKeywords.slice(0, 40).join('|'),
         [profileKeywords]
     );
 
-    const trackerJobs = useMemo(() => jobApplications.map(trackerJobToRecommended), [jobApplications]);
+    const trackerJobs = useMemo(
+        () => jobApplications.map((job) => trackerJobToRecommended(job, matchProfile)),
+        [jobApplications, matchProfile]
+    );
     const scrapedRecommendedJobs = useMemo(
-        () => scrapedJobs.map((job) => scrapedJobToRecommended(job, profileKeywords)),
-        [profileKeywords, scrapedJobs]
+        () => scrapedJobs.map((job) => scrapedJobToRecommended(job, matchProfile)),
+        [matchProfile, scrapedJobs]
     );
     const jobCollections = useMemo(
         () => buildRecommendedJobCollections({
@@ -522,10 +573,10 @@ const JobsRecommendPage: React.FC = () => {
     const retryLoadJobs = useCallback(() => setRetryCounter((c) => c + 1), []);
 
     useEffect(() => {
-        // Don't fetch until profile data (resumes/portfolios) has loaded from
-        // Firestore — otherwise we send an empty‐keywords request that returns
+        // Don't fetch until the target resume has loaded from Firestore —
+        // otherwise we send an empty-keywords request that returns
         // a poorly ranked (or empty) feed, then re‐fetch moments later when
-        // the real profile data arrives.
+        // the selected resume arrives.
         if (!profileDataReady) return;
 
         let isMounted = true;
@@ -534,7 +585,7 @@ const JobsRecommendPage: React.FC = () => {
             setIsLoadingScrapedJobs(true);
             setScrapedJobsError('');
             try {
-                const jobs = await getRecommendedScrapedJobs(120, profileKeywords);
+                const jobs = await getRecommendedScrapedJobs(120, profileKeywords, locationPreferences);
                 if (isMounted) {
                     setScrapedJobs(jobs);
                     lastSuccessfulJobsRef.current = jobs;
@@ -559,7 +610,7 @@ const JobsRecommendPage: React.FC = () => {
             isMounted = false;
         };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [profileDataReady, profileKeywordRequestKey, profileKeywords, retryCounter]);
+    }, [locationPreferenceRequestKey, locationPreferences, profileDataReady, profileKeywordRequestKey, profileKeywords, retryCounter]);
 
     const visibleJobs = useMemo(
         () => filterVisibleRecommendedJobs({
@@ -678,7 +729,7 @@ const JobsRecommendPage: React.FC = () => {
                 applicationStatus: 'To Apply' as ApplicationStatus,
                 workModel: verifiedJob.workModel,
                 salaryRange: verifiedJob.salary,
-                priority: verifiedJob.matchScore >= 88 ? 'High' : 'Medium',
+                priority: verifiedJob.matchScore >= 85 ? 'High' : 'Medium',
                 ...recommendationFields,
             });
             setSavedSeedJobIds((current) => new Set(current).add(job.id));
@@ -820,7 +871,7 @@ const JobsRecommendPage: React.FC = () => {
                 <title>Recommended Jobs</title>
                 <meta
                     name="description"
-                    content="CareerVivid recommended jobs matched to your resume, portfolio, and saved application workspace."
+                    content="CareerVivid recommended jobs matched to the resume selected for your applications."
                 />
             </Helmet>
 
@@ -834,10 +885,10 @@ const JobsRecommendPage: React.FC = () => {
                                     {recommendedFeedJobs.length ? 'Apply-ready recommendations' : 'Recommended jobs'}
                                 </div>
                                 <h1 className="cv-design-title text-2xl sm:text-3xl">
-                                    Jobs matched to your CareerVivid profile
+                                    Jobs matched to your target resume
                                 </h1>
                                 <p className="cv-design-body mt-2 max-w-3xl text-sm">
-                                    Every job here has a validated, apply-ready link — pulled directly from company career boards. Save the ones you like and they flow into your tracker pipeline.
+                                    Scores compare role, required skills, experience, education, location, work preferences, and compensation using your Application Profile and selected resume.
                                 </p>
                                 <div className="mt-4 flex flex-wrap gap-2">
                                     <button
@@ -857,6 +908,9 @@ const JobsRecommendPage: React.FC = () => {
                                         Open tracker
                                     </button>
                                 </div>
+                                <p className="mt-4 text-xs font-bold text-[var(--cv-text-muted)]">
+                                    Prioritizing: {describeJobRecommendationPreferences(locationPreferences)}
+                                </p>
                                 {!isLoadingScrapedJobs && scrapedJobsError && (
                                     <div className="mt-2 flex items-center gap-2">
                                         <p className="text-xs font-bold text-amber-700 dark:text-amber-200">
@@ -879,7 +933,7 @@ const JobsRecommendPage: React.FC = () => {
                                     <div className="mt-1 flex items-end gap-1 text-2xl font-black text-[var(--cv-text-heading)]">{topScore}<span className="pb-1 text-xs text-[var(--cv-text-muted)]">%</span></div>
                                 </div>
                                 <div className="cv-design-card rounded-2xl p-3">
-                                    <div className="cv-design-eyebrow text-[11px]">Profile assets</div>
+                                    <div className="cv-design-eyebrow text-[11px]">Target resume</div>
                                     <div className="mt-1 text-2xl font-black text-[var(--cv-text-heading)]">{profileAssetCount}</div>
                                 </div>
                                 <button
@@ -1017,29 +1071,36 @@ const JobsRecommendPage: React.FC = () => {
                                             <p className="text-sm font-medium leading-6 text-[var(--cv-text-body)]">{job.description}</p>
                                         </div>
 
-                                        <div className="mt-4 grid gap-3 xl:grid-cols-2">
-                                            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-3 dark:border-emerald-900/50 dark:bg-emerald-950/25">
+                                        <div className="mt-4 grid gap-4 border-y border-[var(--cv-border-subtle)] py-3 xl:grid-cols-2">
+                                            <section>
                                                 <div className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.12em] text-emerald-700 dark:text-emerald-200">
                                                     <CheckCircle2 size={14} /> Match reasons
                                                 </div>
-                                                <div className="flex flex-wrap gap-1.5">
+                                                <div className="space-y-1.5">
                                                     {job.matchReasons.map((reason) => (
-                                                        <span key={reason} className="rounded-full bg-[var(--cv-surface-warm-card-strong)] px-2.5 py-1 text-[11px] font-bold text-emerald-800 dark:text-emerald-100">{reason}</span>
+                                                        <p key={reason} className="text-[11px] font-semibold leading-4 text-[var(--cv-text-body)]">{reason}</p>
                                                     ))}
                                                 </div>
-                                            </div>
+                                            </section>
 
-                                            <div className="rounded-2xl border border-rose-100 bg-rose-50/60 p-3 dark:border-rose-900/50 dark:bg-rose-950/20">
+                                            <section>
                                                 <div className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.12em] text-rose-700 dark:text-rose-200">
-                                                    <XCircle size={14} /> Missing keywords
+                                                    <XCircle size={14} /> Gaps to review
                                                 </div>
-                                                <div className="flex flex-wrap gap-1.5">
-                                                    {(job.missingKeywords.length ? job.missingKeywords : ['No major gaps listed']).map((keyword) => (
-                                                        <span key={keyword} className="rounded-full bg-[var(--cv-surface-warm-card-strong)] px-2.5 py-1 text-[11px] font-bold text-rose-800 dark:text-rose-100">{keyword}</span>
+                                                <div className="space-y-1.5">
+                                                    {(job.matchAssessment?.gaps.length
+                                                        ? job.matchAssessment.gaps
+                                                        : job.missingKeywords.length
+                                                            ? [`Missing detected skills: ${job.missingKeywords.join(', ')}.`]
+                                                            : ['No material gap was detected from the available evidence.']
+                                                    ).map((gap) => (
+                                                        <p key={gap} className="text-[11px] font-semibold leading-4 text-[var(--cv-text-body)]">{gap}</p>
                                                     ))}
                                                 </div>
-                                            </div>
+                                            </section>
                                         </div>
+
+                                        {job.matchAssessment && <MatchScoreBreakdown assessment={job.matchAssessment} />}
                                     </div>
 
                                     <aside className="cv-design-card flex flex-col gap-3 rounded-2xl p-3">

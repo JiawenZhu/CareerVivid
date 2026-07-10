@@ -11,6 +11,7 @@ import { resolveAuth } from "./utils/authUtils.js";
 
 const corsHandler = secureCorsHandler;
 const db = admin.firestore();
+const PERSONAL_REFERRAL_LIMIT = 15;
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -56,7 +57,7 @@ async function ensureUniqueReferralCode(userId: string): Promise<string> {
                 userId,
                 createdAt: admin.firestore.FieldValue.serverTimestamp(),
                 usedCount: 0,
-                maxUses: 5,
+                maxUses: PERSONAL_REFERRAL_LIMIT,
                 referredUsers: []
             });
 
@@ -65,7 +66,7 @@ async function ensureUniqueReferralCode(userId: string): Promise<string> {
                 referralCode: code,
                 referralStats: {
                     totalReferred: 0,
-                    maxReferrals: 5,
+                    maxReferrals: PERSONAL_REFERRAL_LIMIT,
                     referredUsers: []
                 }
             }, { merge: true });
@@ -106,16 +107,21 @@ export const cliReferralStats = functions.region("us-west1").runWith({
                 // Also initialize their referral stats locally to match what we just created
                 userData.referralStats = {
                     totalReferred: 0,
-                    maxReferrals: 5,
+                    maxReferrals: PERSONAL_REFERRAL_LIMIT,
                     referredUsers: []
                 };
             }
 
-            const stats = userData.referralStats || {
+            let stats = userData.referralStats || {
                 totalReferred: 0,
-                maxReferrals: 5,
+                maxReferrals: PERSONAL_REFERRAL_LIMIT,
                 referredUsers: []
             };
+
+            if (Number(stats.maxReferrals || 0) < PERSONAL_REFERRAL_LIMIT) {
+                stats = { ...stats, maxReferrals: PERSONAL_REFERRAL_LIMIT };
+                await userDoc.ref.set({ referralStats: stats }, { merge: true });
+            }
 
             // Get detailed referred users info from referralCodes collection
             let referredUsers: ReferredUser[] = [];
@@ -123,6 +129,12 @@ export const cliReferralStats = functions.region("us-west1").runWith({
                 const codeDoc = await db.collection('referralCodes').doc(code).get();
                 if (codeDoc.exists) {
                     const data = codeDoc.data();
+                    if (Number(data?.maxUses || 0) < PERSONAL_REFERRAL_LIMIT) {
+                        await codeDoc.ref.set({
+                            maxUses: PERSONAL_REFERRAL_LIMIT,
+                            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                        }, { merge: true });
+                    }
                     referredUsers = data?.referredUsers || [];
 
                     // Format dates for CLI consumption
@@ -136,7 +148,7 @@ export const cliReferralStats = functions.region("us-west1").runWith({
             const result: ReferralStatsResult = {
                 code,
                 totalReferred: stats.totalReferred || 0,
-                maxReferrals: stats.maxReferrals || 5,
+                maxReferrals: Math.max(Number(stats.maxReferrals || 0), PERSONAL_REFERRAL_LIMIT),
                 referredUsers
             };
 

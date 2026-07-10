@@ -15,6 +15,7 @@ import { resolveSignedInWorkspace } from '../services/authAccountLinkingService'
 import { navigate } from '../utils/navigation';
 import { getSafeRelativeRedirect } from '../utils/security';
 import { getEmailDisplayName } from '../utils/userDisplayName';
+import { waitForReferralEntitlement } from '../services/referralService';
 
 const AuthPage: React.FC = () => {
     const { t } = useTranslation();
@@ -117,6 +118,10 @@ const AuthPage: React.FC = () => {
                     status: 'active',
                     ...(referredBy ? { referredBy } : {})
                 });
+                if (referredBy) {
+                    const referralApplied = await waitForReferralEntitlement(cred.user.uid);
+                    if (referralApplied) localStorage.removeItem('careervivid_referral');
+                }
                 trackUsage(cred.user.uid, 'sign_in', { signup: true });
             }
 
@@ -157,6 +162,10 @@ const AuthPage: React.FC = () => {
                     status: 'active',
                     ...(referredBy ? { referredBy } : {})
                 });
+                if (referredBy) {
+                    const referralApplied = await waitForReferralEntitlement(user.uid);
+                    if (referralApplied) localStorage.removeItem('careervivid_referral');
+                }
                 trackUsage(user.uid, 'sign_in', {
                     signup: true,
                     provider: 'google',

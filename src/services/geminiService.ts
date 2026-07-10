@@ -3,6 +3,12 @@ import { generateSafeUUID } from '../constants';
 import { trackUsage } from './trackingService';
 import { reportError } from './errorService';
 import { AI_CREDIT_COSTS } from '../config/creditCosts';
+import {
+    createFallbackSystemDesignPlan,
+    normalizeSystemDesignPlan,
+    type SystemDesignDiagramPlan,
+    type SystemDesignDiagramStyle,
+} from '../lib/systemDesignDiagram';
 
 // --- Configuration ---
 const PROXY_URL = import.meta.env.VITE_GEMINI_PROXY_URL || 'https://us-west1-jastalk-firebase.cloudfunctions.net/geminiProxy';
@@ -1412,4 +1418,376 @@ Generate 6-15 nodes for a meaningful diagram. Keep IDs strictly 20 alphanumeric 
         reportError(error as Error, { functionName: 'generateExcalidrawDiagram' });
         throw new Error("Failed to generate diagram with AI. Please try a different prompt.");
     }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Voice-to-Code + Socratic Coach
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface VoiceCoachMessage {
+    role: 'user' | 'coach';
+    text: string;
+}
+
+export interface VoiceToCodeResult {
+    convertedCode: string;
+    coachingMessage: string;
+    /** The most important algorithm, correctness, or complexity topic to revisit next. */
+    focusArea: string;
+    /** Why that topic matters for the candidate's current approach. */
+    whyItMatters: string;
+    /** A small next coding or testing action, not a finished solution. */
+    nextAction: string;
+    /** Comma-separated test cases the candidate should consider next. */
+    suggestedTests: string;
+    /** Whether the coach thinks the current direction is correct. */
+    isOnRightTrack: boolean;
+}
+
+const normalizeVoiceToCodeResult = (value: unknown, currentCode: string): VoiceToCodeResult => {
+    const result = value && typeof value === 'object' ? value as Partial<VoiceToCodeResult> : {};
+    const text = (candidate: unknown, fallback: string) =>
+        typeof candidate === 'string' && candidate.trim() ? candidate.trim() : fallback;
+
+    return {
+        convertedCode: text(result.convertedCode, currentCode),
+        coachingMessage: text(result.coachingMessage, 'What input would most clearly test the assumption in your approach?'),
+        focusArea: text(result.focusArea, 'Validate the core algorithm'),
+        whyItMatters: text(result.whyItMatters, 'A focused test exposes whether the implementation matches the approach you described.'),
+        nextAction: text(result.nextAction, 'Review the generated code, then run the visible tests before you submit.'),
+        suggestedTests: typeof result.suggestedTests === 'string' ? result.suggestedTests.trim() : '',
+        isOnRightTrack: result.isOnRightTrack === true,
+    };
+};
+
+/**
+ * Takes the user's verbal description of their approach and the current state
+ * of the editor, then returns:
+ *   1. `convertedCode`   — the code that faithfully reflects what the user
+ *                          described (not necessarily a correct solution).
+ *   2. `coachingMessage` — a Socratic nudge that guides rather than solves.
+ *   3. `isOnRightTrack`  — true when the described approach is sound.
+ */
+export const voiceToCode = async (params: {
+    problem: string;
+    language: string;
+    userDescription: string;
+    currentCode: string;
+    conversationHistory: VoiceCoachMessage[];
+}): Promise<VoiceToCodeResult> => {
+    const { problem, language, userDescription, currentCode, conversationHistory } = params;
+
+    const historyText = conversationHistory.length
+        ? conversationHistory
+              .map((m) => `${m.role === 'user' ? 'Candidate' : 'Coach'}: ${m.text}`)
+              .join('\n')
+        : 'None yet.';
+
+    const systemInstruction = `You are an expert technical interview coach who helps candidates practise coding interviews using the Socratic method.
+
+## Your two jobs
+1. **Code Transcription** — Convert the candidate's verbal description into ${language} code that faithfully implements what THEY described, even if their idea is flawed or incomplete. Do not fix their logic silently; reflect it.
+2. **Socratic Coaching** — Guide the candidate toward the correct solution with ONE targeted question or hint. Never hand them the answer. Ask leading questions, surface edge cases they haven't considered, or nudge them toward a better data structure or algorithm. Keep it under 3 sentences.
+
+## Rules
+- If the candidate's approach is correct, praise it briefly and then challenge them on complexity or edge cases.
+- If the approach is wrong or inefficient, point out the flaw through a question ("What happens when the input is empty?" / "What's the time complexity of your inner loop?"), then help them discover the fix.
+- The converted code must compile, run, and use conventional indentation and line breaks. Fill in obvious syntactic boilerplate the user implied but didn't state. Use ${language} idioms.
+- Identify one next focus, explain why it matters specifically for this approach, give one small next action, and list at most three useful test cases. Do not provide the complete ideal solution in the coaching fields.
+- Return ONLY valid JSON matching the schema — no markdown fences.`;
+
+    const userPrompt = `## Problem
+${problem}
+
+## Current code in the editor
+\`\`\`${language}
+${currentCode || '(empty)'}
+\`\`\`
+
+## Conversation so far
+${historyText}
+
+## Candidate's latest verbal description
+"${userDescription}"
+
+Respond with JSON:
+{
+  "convertedCode": "<full ${language} solution reflecting candidate's description>",
+  "coachingMessage": "<your Socratic reply — question or nudge, max 3 sentences>",
+  "focusArea": "<one short coding topic, e.g. Duplicate handling>",
+  "whyItMatters": "<one sentence tied to this approach>",
+  "nextAction": "<one concrete coding or testing action>",
+  "suggestedTests": "<comma-separated test cases, or empty string>",
+  "isOnRightTrack": <true|false>
+}`;
+
+    const contents = [{ role: 'user', parts: [{ text: userPrompt }] }];
+
+    const config = {
+        responseMimeType: 'application/json',
+        responseSchema: {
+            type: 'OBJECT',
+            properties: {
+                convertedCode:    { type: 'STRING' },
+                coachingMessage:  { type: 'STRING' },
+                focusArea:        { type: 'STRING' },
+                whyItMatters:     { type: 'STRING' },
+                nextAction:       { type: 'STRING' },
+                suggestedTests:   { type: 'STRING' },
+                isOnRightTrack:   { type: 'BOOLEAN' },
+            },
+            required: ['convertedCode', 'coachingMessage', 'focusArea', 'whyItMatters', 'nextAction', 'suggestedTests', 'isOnRightTrack'],
+        },
+    };
+
+    try {
+        const result = await callGeminiProxy({
+            modelName: DEFAULT_TEXT_MODEL,
+            contents,
+            config,
+            systemInstruction,
+        });
+        return normalizeVoiceToCodeResult(JSON.parse(result.text.trim()), currentCode);
+    } catch (error) {
+        console.error('Error in voiceToCode:', error);
+        reportError(error as Error, { functionName: 'voiceToCode' });
+        throw new Error('Voice-to-code failed. Please try again.');
+    }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// System Design Voice Coach (Socratic)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface SystemDesignCoachResult {
+    coachingMessage: string;
+    /** The single system-design area the candidate should work on next. */
+    focusArea: string;
+    /** Why this gap matters in the design under discussion. */
+    whyItMatters: string;
+    /** A short action the candidate can take on the canvas before the next response. */
+    nextAction: string;
+    /** Comma-separated component names the coach suggests adding next, e.g. "Load Balancer, Redis Cache" */
+    suggestedComponents: string;
+    isOnRightTrack: boolean;
+}
+
+const normalizeSystemDesignCoachResult = (value: unknown): SystemDesignCoachResult => {
+    const result = value && typeof value === 'object' ? value as Partial<SystemDesignCoachResult> : {};
+    const text = (candidate: unknown, fallback: string) =>
+        typeof candidate === 'string' && candidate.trim() ? candidate.trim() : fallback;
+
+    return {
+        coachingMessage: text(result.coachingMessage, 'What would you draw next to make the request path more explicit?'),
+        focusArea: text(result.focusArea, 'Clarify one missing system boundary'),
+        whyItMatters: text(result.whyItMatters, 'A clear boundary lets an interviewer see how the system behaves as it scales.'),
+        nextAction: text(result.nextAction, 'Add one component or connection that makes this boundary visible.'),
+        suggestedComponents: typeof result.suggestedComponents === 'string' ? result.suggestedComponents.trim() : '',
+        isOnRightTrack: result.isOnRightTrack === true,
+    };
+};
+
+/**
+ * Takes the user's verbal description of their system design approach and
+ * returns Socratic coaching guidance (questions + hints, never the full answer).
+ */
+export const voiceSystemDesignCoach = async (params: {
+    problem: string;
+    requirements: string[];
+    userDescription: string;
+    /** Names of components already drawn on the canvas, if extractable. */
+    existingComponents: string[];
+    conversationHistory: VoiceCoachMessage[];
+}): Promise<SystemDesignCoachResult> => {
+    const { problem, requirements, userDescription, existingComponents, conversationHistory } = params;
+
+    const historyText = conversationHistory.length
+        ? conversationHistory
+              .map((m) => `${m.role === 'user' ? 'Candidate' : 'Coach'}: ${m.text}`)
+              .join('\n')
+        : 'None yet.';
+
+    const componentsText = existingComponents.length
+        ? existingComponents.join(', ')
+        : 'Canvas is empty';
+
+    const systemInstruction = `You are a senior staff engineer coaching a candidate through a system design interview using the Socratic method.
+
+## Your goal
+Guide the candidate toward a correct, scalable architecture — but NEVER design it for them.
+Ask ONE targeted question or give ONE specific hint per turn. Max 3 sentences.
+
+## What to focus on (in order of impact):
+1. Missing critical components (load balancer, caching, queues, databases suited to workload)
+2. Scale bottlenecks not yet addressed
+3. Data flow gaps (no arrows showing how components connect)
+4. Failure modes not called out (no retry, DLQ, replica, or circuit breaker)
+5. Trade-off awareness (sync vs async, consistency vs availability)
+
+## Rules
+- If the approach is correct, push deeper: ask about edge cases, failure modes, or complexity at 10× scale.
+- Suggest no more than three component names the candidate should add next (be specific: "Redis cache", not just "cache").
+- Never write a complete architecture for them.
+- Return ONLY valid JSON matching the schema.`;
+
+    const userPrompt = `## Design problem
+${problem}
+
+## Requirements
+${requirements.map((r, i) => `${i + 1}. ${r}`).join('\n')}
+
+## Components already on the canvas
+${componentsText}
+
+## Conversation so far
+${historyText}
+
+## Candidate's latest verbal description
+"${userDescription}"
+
+Respond with JSON:
+{
+  "coachingMessage": "<Socratic question or nudge, max 3 sentences>",
+  "focusArea": "<one short topic, e.g. Session ownership>",
+  "whyItMatters": "<one sentence tied to this candidate's design>",
+  "nextAction": "<one concrete canvas action, not a full solution>",
+  "suggestedComponents": "<comma-separated specific component names to add next, or empty string>",
+  "isOnRightTrack": <true|false>
+}`;
+
+    const config = {
+        responseMimeType: 'application/json',
+        responseSchema: {
+            type: 'OBJECT',
+            properties: {
+                coachingMessage:     { type: 'STRING' },
+                focusArea:           { type: 'STRING' },
+                whyItMatters:        { type: 'STRING' },
+                nextAction:          { type: 'STRING' },
+                suggestedComponents: { type: 'STRING' },
+                isOnRightTrack:      { type: 'BOOLEAN' },
+            },
+            required: ['coachingMessage', 'focusArea', 'whyItMatters', 'nextAction', 'suggestedComponents', 'isOnRightTrack'],
+        },
+    };
+
+    try {
+        const result = await callGeminiProxy({
+            modelName: DEFAULT_TEXT_MODEL,
+            contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+            config,
+            systemInstruction,
+        });
+        return normalizeSystemDesignCoachResult(JSON.parse(result.text.trim()));
+    } catch (error) {
+        console.error('Error in voiceSystemDesignCoach:', error);
+        reportError(error as Error, { functionName: 'voiceSystemDesignCoach' });
+        throw new Error('Voice coaching failed. Please try again.');
+    }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Diagram Style Types (for output picker)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type DiagramStyle = SystemDesignDiagramStyle;
+
+export const DIAGRAM_STYLE_LABELS: Record<DiagramStyle, string> = {
+    auto:     'Auto (AI decides)',
+    flow:     'Flow diagram',
+    layered:  'Layered architecture',
+    sequence: 'Sequence diagram',
+};
+
+export const DIAGRAM_STYLE_DESCRIPTIONS: Record<DiagramStyle, string> = {
+    auto:     'AI picks the best layout for the problem',
+    flow:     'Left-to-right request path: client → services → data',
+    layered:  'Top-down swim lanes: Presentation / API / Services / Data',
+    sequence: 'Time-based: components as columns, messages as arrows',
+};
+
+export interface GeneratedSystemDesignDiagram {
+    plan: SystemDesignDiagramPlan;
+    usedFallback: boolean;
+}
+
+const extractDiagramPlanJson = (value: string): unknown => {
+    const cleaned = value.trim()
+        .replace(/^```json\s*/i, '')
+        .replace(/^```\s*/i, '')
+        .replace(/\s*```$/, '');
+    try {
+        return JSON.parse(cleaned);
+    } catch {
+        const start = cleaned.indexOf('{');
+        const end = cleaned.lastIndexOf('}');
+        if (start === -1 || end <= start) return null;
+        try {
+            return JSON.parse(cleaned.slice(start, end + 1));
+        } catch {
+            return null;
+        }
+    }
+};
+
+/**
+ * Generate a semantic architecture plan. Excalidraw elements are created on
+ * the client from this plan, so malformed AI geometry can never break the canvas.
+ */
+export const generateStyledExcalidrawDiagram = async (
+    userId: string,
+    prompt: string,
+    style: DiagramStyle,
+): Promise<GeneratedSystemDesignDiagram> => {
+    const styleHint: Record<DiagramStyle, string> = {
+        auto: 'Choose the clearest style for the problem: flow, layered, or sequence.',
+        flow: 'Use a LEFT-TO-RIGHT flow layout. Client(s) on the far left, databases on the far right. Arrows show the request path.',
+        layered: 'Use a TOP-TO-DOWN layered layout: Client, Edge/API, Services, Events, Data.',
+        sequence: 'Use a LEFT-TO-RIGHT column layout where each column is a participant/component. Draw horizontal arrows between columns to show message passing. Time flows top-to-bottom. Label each arrow with the message name.',
+    };
+
+    const systemInstruction = `You are an expert system-design interviewer. Return one JSON object only, with this exact shape:
+{"recommendedStyle":"flow|layered|sequence","nodes":[{"id":"short-stable-id","label":"specific component","layer":"client|edge|service|event|data"}],"connections":[{"from":"node-id","to":"node-id","label":"short action"}]}
+
+The candidate needs an editable starting point, not a complete answer. Include 5-8 distinct components and 4-10 directed connections. Every connection must reference a node id. Use concise labels such as "validate token", "publish event", or "persist document". Do not include coordinates, drawing instructions, markdown, or any fields beyond this JSON shape.
+
+Requested presentation: ${styleHint[style]}`;
+
+    if (prompt.length > 1000) throw new Error('Prompt is too long.');
+
+    try {
+        const result = await callGeminiProxy({
+            modelName: DEFAULT_TEXT_MODEL,
+            contents: `Create an editable system-design starter diagram for: "${prompt.slice(0, 1000)}"`,
+            systemInstruction,
+            config: {
+                responseMimeType: 'application/json',
+                responseSchema: {
+                    type: 'OBJECT',
+                    properties: {
+                        recommendedStyle: { type: 'STRING' },
+                        nodes: { type: 'ARRAY', items: { type: 'OBJECT' } },
+                        connections: { type: 'ARRAY', items: { type: 'OBJECT' } },
+                    },
+                    required: ['nodes', 'connections'],
+                },
+            },
+        });
+
+        const plan = normalizeSystemDesignPlan(extractDiagramPlanJson(result.text));
+        if (plan) {
+            const tokenUsage = result.response?.usageMetadata?.totalTokenCount || 0;
+            try {
+                await trackUsage(userId, 'diagram_generation', { tokenUsage });
+            } catch (trackingError) {
+                console.warn('Diagram generation succeeded, but usage tracking did not.', trackingError);
+            }
+            return { plan, usedFallback: false };
+        }
+    } catch (error) {
+        console.warn('System design diagram plan generation failed; using the editable starter diagram.', error);
+        reportError(error as Error, { functionName: 'generateStyledExcalidrawDiagram' });
+    }
+
+    return { plan: createFallbackSystemDesignPlan(prompt), usedFallback: true };
 };

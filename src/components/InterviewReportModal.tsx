@@ -17,9 +17,11 @@ interface InterviewReportModalProps {
     jobHistoryEntry: PracticeHistoryEntry;
     onClose: () => void;
     isGuestMode?: boolean;
+    /** If provided, shows an "Improve my solution" button (coding quests only). */
+    onImprove?: () => void;
 }
 
-const InterviewReportModal: React.FC<InterviewReportModalProps> = ({ jobHistoryEntry, onClose, isGuestMode = false }) => {
+const InterviewReportModal: React.FC<InterviewReportModalProps> = ({ jobHistoryEntry, onClose, isGuestMode = false, onImprove }) => {
     const { currentUser } = useAuth();
     const [activeTab, setActiveTab] = useState<ReportTab>('feedback');
     const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
@@ -128,6 +130,7 @@ const InterviewReportModal: React.FC<InterviewReportModalProps> = ({ jobHistoryE
                                 onExportGoogleDocs={handleGoogleDocsExport}
                                 onDownloadDocx={handleDownloadDocx}
                                 onRateReport={() => setIsFeedbackModalOpen(true)}
+                                onImprove={onImprove}
                             />
                         </>
                     ) : (

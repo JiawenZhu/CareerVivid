@@ -44,6 +44,7 @@ type ScrapedJobListing = {
     workModel: "Remote" | "Hybrid" | "On-site";
     salary: string;
     jobType: string;
+    jobFunction: string;
     seniority: string;
     postedAt: string;
     source: "scraped";
@@ -93,6 +94,7 @@ export type ValidatedScrapedJobMatch = {
     sourceJobId: string;
     workModel: "Remote" | "Hybrid" | "On-site";
     jobType: string;
+    jobFunction: string;
     seniority: string;
     matchedKeywords: string[];
     missingKeywords: string[];
@@ -143,40 +145,31 @@ const ATS_SOURCES: AtsSource[] = (() => {
     return merged;
 })();
 
-const ROLE_KEYWORDS = [
-    "software",
-    "frontend",
-    "front end",
-    "full stack",
-    "fullstack",
-    "react",
-    "typescript",
-    "javascript",
-    "developer",
-    "engineer",
-    "web",
-    "platform",
-    "product engineer",
-    "devops",
-];
+type JobFunction =
+    | "Engineering"
+    | "Data & AI"
+    | "Product"
+    | "Design"
+    | "Marketing"
+    | "Sales & Partnerships"
+    | "Customer Success"
+    | "People & Recruiting"
+    | "Finance & Legal"
+    | "Operations"
+    | "Other";
 
-const ROLE_EXCLUSION_KEYWORDS = [
-    "account executive",
-    "account manager",
-    "business development",
-    "customer success",
-    "developer advocate",
-    "developer relations",
-    "engineering manager",
-    "marketing",
-    "partner manager",
-    "product manager",
-    "program manager",
-    "recruiter",
-    "sales",
-    "solutions consultant",
-    "support engineer",
-    "technical account manager",
+const JOB_FUNCTION_ORDER: JobFunction[] = [
+    "Engineering",
+    "Data & AI",
+    "Product",
+    "Design",
+    "Marketing",
+    "Sales & Partnerships",
+    "Customer Success",
+    "People & Recruiting",
+    "Finance & Legal",
+    "Operations",
+    "Other",
 ];
 
 const PRIMARY_PROFILE_KEYWORDS = [
@@ -201,7 +194,9 @@ const APPLY_PAGE_PATTERN = /\b(apply|apply for this job|submit application|job a
 const CLOSED_JOB_PATTERN = /\b(no longer accepting|job is closed|position has been filled|position is closed|job no longer available|not accepting applications|this job has expired|404|not found)\b/i;
 const BLOCKED_PAGE_PATTERN = /\b(access denied|captcha|cloudflare|verify you are human|too many requests|temporarily blocked)\b/i;
 const LINK_VALIDATION_CONCURRENCY = 8;
-const MAX_RELEVANT_JOBS_PER_SOURCE = 40;
+// Keep the validation workload bounded while reserving room for every job
+// function. The prior title filter only retained technical roles.
+const MAX_JOBS_PER_SOURCE = 40;
 const FEED_VALIDATION_STALE_MS = 6 * 60 * 60 * 1000;
 const OPEN_VALIDATION_STALE_MS = 30 * 60 * 1000;
 const CLI_JOB_VALIDATION_STALE_MS = 2 * 60 * 60 * 1000;
@@ -275,17 +270,48 @@ const detectSeniority = (title: string, text: string): string => {
     return "Mid Level";
 };
 
-const isRelevantRole = (title: string): boolean => {
-    const lower = title.toLowerCase();
-    if (ROLE_EXCLUSION_KEYWORDS.some((keyword) => lower.includes(keyword))) return false;
-    return ROLE_KEYWORDS.some((keyword) => lower.includes(keyword));
+const detectJobFunction = (title: string, context = ""): JobFunction => {
+    const text = `${title} ${context}`.toLowerCase();
+    if (/\b(recruit|talent|people|human resources|hr)\b/.test(text)) return "People & Recruiting";
+    if (/\b(marketing|brand|content|communications|public relations|growth)\b/.test(text)) return "Marketing";
+    if (/\b(account executive|sales|business development|partnership|revenue)\b/.test(text)) return "Sales & Partnerships";
+    if (/\b(customer success|customer support|support|implementation|solutions consultant|technical account)\b/.test(text)) return "Customer Success";
+    if (/\b(product manager|product management|product operations|product owner)\b/.test(text)) return "Product";
+    if (/\b(design|ux|ui|creative|researcher)\b/.test(text)) return "Design";
+    if (/\b(finance|accounting|legal|counsel|compliance|tax|audit)\b/.test(text)) return "Finance & Legal";
+    if (/\b(operations|program manager|project manager|workplace|business operations)\b/.test(text)) return "Operations";
+    if (/\b(data|analytics|machine learning|artificial intelligence| ai |research scientist)\b/.test(` ${text} `)) return "Data & AI";
+    if (/\b(engineer|developer|software|devops|site reliability|security|infrastructure|it )\b/.test(text)) return "Engineering";
+    return "Other";
+};
+
+const selectDiverseJobs = <T>(
+    jobs: T[],
+    getJobFunction: (job: T) => JobFunction
+): T[] => {
+    const buckets = new Map<JobFunction, T[]>();
+    JOB_FUNCTION_ORDER.forEach((jobFunction) => buckets.set(jobFunction, []));
+    jobs.forEach((job) => buckets.get(getJobFunction(job))?.push(job));
+
+    const selected: T[] = [];
+    while (selected.length < MAX_JOBS_PER_SOURCE) {
+        let selectedThisPass = false;
+        for (const jobFunction of JOB_FUNCTION_ORDER) {
+            const nextJob = buckets.get(jobFunction)?.shift();
+            if (!nextJob) continue;
+            selected.push(nextJob);
+            selectedThisPass = true;
+            if (selected.length >= MAX_JOBS_PER_SOURCE) break;
+        }
+        if (!selectedThisPass) break;
+    }
+    return selected;
 };
 
 const keywordFit = (title: string, description: string) => {
     const text = `${title} ${description}`.toLowerCase();
     const matched = PRIMARY_PROFILE_KEYWORDS.filter((keyword) => text.includes(keyword.toLowerCase()));
-    const missing = PRIMARY_PROFILE_KEYWORDS.filter((keyword) => !matched.includes(keyword)).slice(0, 6);
-    return { matchedKeywords: matched.slice(0, 8), missingKeywords: missing };
+    return { matchedKeywords: matched.slice(0, 8), missingKeywords: [] };
 };
 
 const normalizeSalary = (text: string): string => {
@@ -322,6 +348,13 @@ const normalizeProfileKeywordInput = (value: unknown): string[] => {
 };
 
 type ProfileScorableListing = Pick<ScrapedJobListing, "title" | "company" | "description" | "matchedKeywords" | "signals">;
+type RecommendationScorableListing = ProfileScorableListing & Pick<ScrapedJobListing, "location" | "workModel">;
+
+type RecommendationLocationPreferences = {
+    country: string;
+    locations: string[];
+    workModelPreference: "remote" | "hybrid" | "onsite" | "flexible";
+};
 
 const scoreListingForProfileKeywords = (job: ProfileScorableListing, profileKeywords: string[]): number => {
     if (!profileKeywords.length) return 0;
@@ -338,6 +371,65 @@ const scoreListingForProfileKeywords = (job: ProfileScorableListing, profileKeyw
 };
 
 const normalizeComparable = (value: string): string => value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+
+const normalizeLocationPreferences = (data: unknown): RecommendationLocationPreferences => {
+    const candidate = data && typeof data === "object" ? data as Record<string, unknown> : {};
+    const workModel = String(candidate.workModelPreference || "flexible").toLowerCase();
+    const locations = Array.isArray(candidate.locations)
+        ? candidate.locations
+            .map((location) => String(location || "").trim())
+            .filter(Boolean)
+            .slice(0, 8)
+        : [];
+
+    return {
+        country: String(candidate.country || "").trim(),
+        locations: Array.from(new Set(locations)),
+        workModelPreference: ["remote", "hybrid", "onsite", "flexible"].includes(workModel)
+            ? workModel as RecommendationLocationPreferences["workModelPreference"]
+            : "flexible",
+    };
+};
+
+const countryAliases = (country: string): string[] => {
+    const normalized = normalizeComparable(country);
+    if (["united states", "usa", "us"].includes(normalized)) return ["united states", "usa", "us"];
+    if (["united kingdom", "uk", "great britain"].includes(normalized)) return ["united kingdom", "uk", "great britain"];
+    return normalized ? [normalized] : [];
+};
+
+const locationIncludes = (jobLocation: string, preference: string): boolean => {
+    const normalizedPreference = normalizeComparable(preference);
+    if (!normalizedPreference) return false;
+    if (jobLocation.includes(normalizedPreference)) return true;
+
+    const tokens = normalizedPreference.split(" ").filter((token) => token.length > 2);
+    if (tokens.length > 0 && tokens.every((token) => jobLocation.includes(token))) return true;
+    return tokens.length > 1 && jobLocation.includes(tokens[0]);
+};
+
+const scoreListingForLocationPreferences = (
+    job: Pick<ScrapedJobListing, "location" | "workModel">,
+    preferences: RecommendationLocationPreferences
+): number => {
+    const jobLocation = normalizeComparable(`${job.location} ${job.workModel}`);
+    if (preferences.locations.some((location) => locationIncludes(jobLocation, location))) return 34;
+    if (countryAliases(preferences.country).some((country) => locationIncludes(jobLocation, country))) return 22;
+
+    const isRemote = job.workModel === "Remote" || jobLocation.includes("remote");
+    if (isRemote && preferences.workModelPreference === "remote") return 18;
+    if (isRemote && preferences.workModelPreference === "flexible") return 8;
+    if (job.workModel === "Hybrid" && preferences.workModelPreference === "hybrid") return 12;
+    if (job.workModel === "On-site" && preferences.workModelPreference === "onsite") return 12;
+    return 0;
+};
+
+const scoreListingForRecommendation = (
+    job: RecommendationScorableListing,
+    profileKeywords: string[],
+    locationPreferences: RecommendationLocationPreferences
+): number => scoreListingForProfileKeywords(job, profileKeywords)
+    + scoreListingForLocationPreferences(job, locationPreferences);
 
 const requestedCompanyMatch = (job: ScrapedJobListing, targetOrgs?: string[]): boolean => {
     if (!Array.isArray(targetOrgs) || targetOrgs.length === 0) return false;
@@ -375,9 +467,8 @@ const scoreValidatedJob = (
     job: ScrapedJobListing,
     input: ValidatedScrapedJobSearchInput
 ): number => {
-    const roleTokens = tokenizeSearchText(input.role || "software engineer");
-    const resumeTokens = tokenizeSearchText(input.resumeContent || "")
-        .filter((token) => PRIMARY_PROFILE_KEYWORDS.some((keyword) => keyword.toLowerCase().includes(token) || token.includes(keyword.toLowerCase())));
+    const roleTokens = tokenizeSearchText(input.role || "");
+    const resumeTokens = tokenizeSearchText(input.resumeContent || "");
     const searchableJobText = `${job.title} ${job.company} ${job.description} ${job.signals.join(" ")} ${job.matchedKeywords.join(" ")}`.toLowerCase();
 
     const roleHits = roleTokens.filter((token) => searchableJobText.includes(token)).length;
@@ -430,6 +521,7 @@ const toValidatedJobMatch = (
         sourceJobId: job.sourceJobId,
         workModel: job.workModel,
         jobType: job.jobType,
+        jobFunction: job.jobFunction,
         seniority: job.seniority,
         matchedKeywords: job.matchedKeywords,
         missingKeywords: job.missingKeywords,
@@ -631,7 +723,8 @@ const finalUrlLooksGenericCareerHub = (finalUrl: string): boolean => {
 
 export const __scrapedJobsTestInternals = {
     finalUrlLooksGenericCareerHub,
-    isRelevantRole,
+    detectJobFunction,
+    selectDiverseJobs,
     normalizeProfileKeywordInput,
     scoreListingForProfileKeywords,
 };
@@ -900,13 +993,14 @@ const fetchLeverJobs = async (source: AtsSource): Promise<ScrapedJobListing[]> =
         `https://api.lever.co/v0/postings/${encodeURIComponent(source.boardToken)}?mode=json`
     );
 
-    return postings
-        .filter((posting) => isRelevantRole(posting.text))
-        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
-        .slice(0, MAX_RELEVANT_JOBS_PER_SOURCE)
+    return selectDiverseJobs(
+        postings.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)),
+        (posting) => detectJobFunction(posting.text, posting.categories?.team || "")
+    )
         .map((posting) => {
             const description = stripHtml(`${posting.descriptionPlain || posting.description || ""} ${posting.additionalPlain || ""}`);
             const location = posting.categories?.location || "Location not listed";
+            const jobFunction = detectJobFunction(posting.text, `${posting.categories?.team || ""} ${description}`);
             const { matchedKeywords, missingKeywords } = keywordFit(posting.text, description);
             const createdAt = posting.createdAt ? new Date(posting.createdAt) : null;
             const sourceJobId = posting.id || stableId([source.provider, source.boardToken, posting.text, location]);
@@ -919,6 +1013,7 @@ const fetchLeverJobs = async (source: AtsSource): Promise<ScrapedJobListing[]> =
                 workModel: detectWorkModel(location, description),
                 salary: normalizeSalary(description),
                 jobType: posting.categories?.commitment || "Full-time",
+                jobFunction,
                 seniority: detectSeniority(posting.text, description),
                 postedAt: createdAt ? createdAt.toISOString() : "Recently",
                 source: "scraped" as const,
@@ -927,7 +1022,7 @@ const fetchLeverJobs = async (source: AtsSource): Promise<ScrapedJobListing[]> =
                 description: description.slice(0, 1200),
                 matchedKeywords,
                 missingKeywords,
-                signals: [posting.categories?.team || "Software", detectWorkModel(location, description), "ATS verified"].filter(Boolean),
+                signals: [jobFunction, posting.categories?.team, detectWorkModel(location, description), "ATS verified"].filter((signal): signal is string => Boolean(signal)),
                 provider: source.provider,
                 sourceKey: source.boardToken,
                 sourceJobId,
@@ -954,17 +1049,22 @@ const fetchGreenhouseJobs = async (source: AtsSource): Promise<ScrapedJobListing
         `https://boards-api.greenhouse.io/v1/boards/${encodeURIComponent(source.boardToken)}/jobs?content=true`
     );
 
-    return (data.jobs || [])
-        .filter((job) => isRelevantRole(job.title))
+    const sortedJobs = (data.jobs || [])
         .sort((a, b) => {
             const bUpdated = b.updated_at ? Date.parse(b.updated_at) || 0 : 0;
             const aUpdated = a.updated_at ? Date.parse(a.updated_at) || 0 : 0;
             return bUpdated - aUpdated;
-        })
-        .slice(0, MAX_RELEVANT_JOBS_PER_SOURCE)
+        });
+
+    return selectDiverseJobs(
+        sortedJobs,
+        (job) => detectJobFunction(job.title, job.departments?.map((department) => department.name || "").join(" ") || "")
+    )
         .map((job) => {
             const description = stripHtml(job.content || "");
             const location = job.location?.name || "Location not listed";
+            const department = job.departments?.[0]?.name || "";
+            const jobFunction = detectJobFunction(job.title, `${department} ${description}`);
             const { matchedKeywords, missingKeywords } = keywordFit(job.title, description);
             const sourceJobId = String(job.id);
 
@@ -976,6 +1076,7 @@ const fetchGreenhouseJobs = async (source: AtsSource): Promise<ScrapedJobListing
                 workModel: detectWorkModel(location, description),
                 salary: normalizeSalary(description),
                 jobType: "Full-time",
+                jobFunction,
                 seniority: detectSeniority(job.title, description),
                 postedAt: job.updated_at || "Recently",
                 source: "scraped" as const,
@@ -984,7 +1085,7 @@ const fetchGreenhouseJobs = async (source: AtsSource): Promise<ScrapedJobListing
                 description: description.slice(0, 1200),
                 matchedKeywords,
                 missingKeywords,
-                signals: [job.departments?.[0]?.name || "Software", detectWorkModel(location, description), "ATS verified"].filter(Boolean),
+                signals: [jobFunction, department, detectWorkModel(location, description), "ATS verified"].filter((signal): signal is string => Boolean(signal)),
                 provider: source.provider,
                 sourceKey: source.boardToken,
                 sourceJobId,
@@ -1054,15 +1155,18 @@ const fetchAshbyJobs = async (source: AtsSource): Promise<ScrapedJobListing[]> =
         return normalized === "Full Time" ? "Full-time" : normalized || "Full-time";
     };
 
-    return (data.jobs || [])
+    const sortedJobs = (data.jobs || [])
         .filter((job) => job.isListed !== false)
-        .filter((job) => isRelevantRole(job.title))
         .sort((a, b) => {
             const bPublished = b.publishedAt ? Date.parse(b.publishedAt) || 0 : 0;
             const aPublished = a.publishedAt ? Date.parse(a.publishedAt) || 0 : 0;
             return bPublished - aPublished;
-        })
-        .slice(0, MAX_RELEVANT_JOBS_PER_SOURCE)
+        });
+
+    return selectDiverseJobs(
+        sortedJobs,
+        (job) => detectJobFunction(job.title, `${job.team || ""} ${job.department || ""}`)
+    )
         .map((job) => {
             const description = stripHtml(job.descriptionHtml || "");
             const location = formatAshbyLocation(job);
@@ -1072,6 +1176,7 @@ const fetchAshbyJobs = async (source: AtsSource): Promise<ScrapedJobListing[]> =
                 : /hybrid/i.test(workplaceText)
                     ? "Hybrid"
                     : detectWorkModel(location, `${description} ${workplaceText}`);
+            const jobFunction = detectJobFunction(job.title, `${job.team || ""} ${job.department || ""} ${description}`);
             const { matchedKeywords, missingKeywords } = keywordFit(job.title, description);
             const sourceJobId = job.id || stableId([source.provider, source.boardToken, job.title, location]);
 
@@ -1083,6 +1188,7 @@ const fetchAshbyJobs = async (source: AtsSource): Promise<ScrapedJobListing[]> =
                 workModel,
                 salary: normalizeSalary(description),
                 jobType: normalizeEmploymentType(job.employmentType),
+                jobFunction,
                 seniority: detectSeniority(job.title, description),
                 postedAt: job.publishedAt || "Recently",
                 source: "scraped" as const,
@@ -1091,7 +1197,7 @@ const fetchAshbyJobs = async (source: AtsSource): Promise<ScrapedJobListing[]> =
                 description: description.slice(0, 1200),
                 matchedKeywords,
                 missingKeywords,
-                signals: [job.team || job.department || "Software", workModel, "ATS verified"].filter(Boolean),
+                signals: [jobFunction, job.team || job.department, workModel, "ATS verified"].filter((signal): signal is string => Boolean(signal)),
                 provider: source.provider,
                 sourceKey: source.boardToken,
                 sourceJobId,
@@ -1254,7 +1360,10 @@ export const getRecommendedScrapedJobs = functions.region("us-west1").runWith({
 
     const limit = Math.min(Math.max(Number(data?.limit || 40), 1), 120);
     const profileKeywords = normalizeProfileKeywordInput(data?.profileKeywords);
-    const readLimit = Math.min(Math.max(limit * 3, 120), 300);
+    const locationPreferences = normalizeLocationPreferences(data?.locationPreferences);
+    // Read a broader validated pool before ranking so country and city
+    // preferences can surface matching roles across more than the newest ATS boards.
+    const readLimit = Math.min(Math.max(limit * 5, 300), 600);
 
     // Read path: trust the cron-validated status. Do NOT re-validate every
     // listing on every user request — that causes mass failures when ATS
@@ -1274,8 +1383,8 @@ export const getRecommendedScrapedJobs = functions.region("us-west1").runWith({
         })
         .filter((job): job is NonNullable<typeof job> => Boolean(job && job.applyUrl))
         .sort((a, b) => {
-            const aScore = scoreListingForProfileKeywords(a, profileKeywords);
-            const bScore = scoreListingForProfileKeywords(b, profileKeywords);
+            const aScore = scoreListingForRecommendation(a, profileKeywords, locationPreferences);
+            const bScore = scoreListingForRecommendation(b, profileKeywords, locationPreferences);
             if (aScore !== bScore) return bScore - aScore;
             return (b.fetchedAt || 0) - (a.fetchedAt || 0);
         })

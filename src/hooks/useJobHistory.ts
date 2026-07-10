@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase';
-import { collection, query, onSnapshot, doc, setDoc, updateDoc, arrayUnion, serverTimestamp, orderBy, getDoc, deleteDoc, getDocs, writeBatch } from 'firebase/firestore';
-import { Job, PracticeHistoryEntry, InterviewAnalysis, InterviewSessionDraft } from '../types';
+import { collection, query, onSnapshot, doc, setDoc, updateDoc, arrayUnion, serverTimestamp, orderBy, getDoc, deleteDoc, deleteField, getDocs, writeBatch } from 'firebase/firestore';
+import { Job, PracticeHistoryEntry, InterviewAnalysis, InterviewSessionDraft, QuestCodingDraft } from '../types';
 import { awardInterviewCompletion } from '../services/progressService';
 
 // Creates a stable, URL-safe ID from the job title and company.
@@ -41,6 +41,7 @@ export const usePracticeHistory = () => {
                     timestamp: data.timestamp?.toMillis() || Date.now(),
                     section: data.section || 'interviews', // Default to 'interviews'
                     activeInterviewDraft: data.activeInterviewDraft || null,
+                    activeCodingDrafts: data.activeCodingDrafts || {},
                 } as PracticeHistoryEntry
             });
             setPracticeHistory(historyFromDb);
@@ -95,10 +96,15 @@ export const usePracticeHistory = () => {
             timestamp: Date.now(),
         };
 
+        const codingDraftCleanup = analysisData.questArtifact?.type === 'coding'
+            ? { [`activeCodingDrafts.${analysisData.questArtifact.challengeId}`]: deleteField() }
+            : {};
+
         await updateDoc(historyRef, {
             interviewHistory: arrayUnion(newAnalysis),
             activeInterviewDraft: null,
-            timestamp: serverTimestamp() // Also update the main timestamp for recency sorting
+            timestamp: serverTimestamp(), // Also update the main timestamp for recency sorting
+            ...codingDraftCleanup,
         });
 
         // Gamification: award XP for the completed interview. Idempotent per
@@ -120,6 +126,19 @@ export const usePracticeHistory = () => {
             });
         } catch (error) {
             console.error("Error saving interview draft:", error);
+        }
+    }, [currentUser]);
+
+    const saveCodingDraft = useCallback(async (jobId: string, draft: QuestCodingDraft) => {
+        if (!currentUser) return;
+        try {
+            const historyRef = doc(db, 'users', currentUser.uid, 'practiceHistory', jobId);
+            await updateDoc(historyRef, {
+                [`activeCodingDrafts.${draft.challengeId}`]: draft,
+                timestamp: serverTimestamp(),
+            });
+        } catch (error) {
+            console.error('Error saving coding draft:', error);
         }
     }, [currentUser]);
 
@@ -183,5 +202,5 @@ export const usePracticeHistory = () => {
     }, [currentUser]);
 
 
-    return { practiceHistory, isLoading, addJob, addAnalysisToJob, addCompletedPractice, deletePracticeHistory, deleteAllPracticeHistory, updatePracticeHistory, saveInterviewDraft };
+    return { practiceHistory, isLoading, addJob, addAnalysisToJob, addCompletedPractice, deletePracticeHistory, deleteAllPracticeHistory, updatePracticeHistory, saveInterviewDraft, saveCodingDraft };
 };

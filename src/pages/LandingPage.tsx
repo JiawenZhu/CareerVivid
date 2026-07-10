@@ -196,11 +196,11 @@ const LandingPage: React.FC = () => (
         </Helmet>
         <PublicHeader variant="editorial" />
         <main>
-            {/* Slim narrative: hero → journey → real courses → real interview loops → demo → proof → pricing → FAQ → CTA */}
+            {/* Slim narrative: hero → journey → real interview loops → real courses → demo → proof → pricing → FAQ → CTA */}
             <CommunityShowcaseHero />
             <LearnPracticeHiredSection />
-            <CourseShowcaseSection />
             <InterviewShowcaseSection />
+            <CourseShowcaseSection />
             <DemoVideoSection />
             <UserStoriesSection />
             <PricingPreviewSection />

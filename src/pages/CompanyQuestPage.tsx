@@ -48,11 +48,13 @@ import CodingChallengePicker from '../components/Quest/CodingChallengePicker';
 import SystemDesignChallengePicker from '../components/Quest/SystemDesignChallengePicker';
 import { XP_RULES } from '../lib/gamification';
 import { generateInterviewQuestions } from '../services/geminiService';
+import { canGuestUseLocalQuestStage } from '../config/accessPolicy';
 import {
     InterviewAnalysis,
     InterviewSessionDraft,
     PracticeHistoryEntry,
     QuestCodingArtifact,
+    QuestCodingDraft,
     QuestSystemDesignArtifact,
     ResumeData,
     TranscriptEntry,
@@ -92,16 +94,19 @@ interface BattleState {
 
 interface DesignBattleState {
     stage: QuestStage;
-    jobId: string;
+    jobId?: string;
     brief: SystemDesignBrief;
+    isGuestPractice?: boolean;
     initialArtifact?: QuestSystemDesignArtifact;
 }
 
 interface CodingBattleState {
     stage: QuestStage;
-    jobId: string;
+    jobId?: string;
     brief: CodingBrief;
+    isGuestPractice?: boolean;
     initialArtifact?: QuestCodingArtifact;
+    initialDraft?: QuestCodingDraft;
 }
 
 interface CompanyQuestPageProps {
@@ -120,6 +125,22 @@ const getAnalysisFromEntry = (
     return history[history.length - 1];
 };
 
+const getCodingArtifactForChallenge = (
+    entry: PracticeHistoryEntry | undefined,
+    challengeId: string,
+): QuestCodingArtifact | undefined => {
+    for (const analysis of [...(entry?.interviewHistory ?? [])].reverse()) {
+        const artifact = analysis.questArtifact;
+        if (artifact?.type === 'coding' && artifact.challengeId === challengeId) return artifact;
+    }
+    return undefined;
+};
+
+const getLatestCodingDraft = (
+    entry: PracticeHistoryEntry | undefined,
+): QuestCodingDraft | undefined => Object.values(entry?.activeCodingDrafts ?? {})
+    .sort((a, b) => b.updatedAt - a.updatedAt)[0];
+
 const getResumableDraft = (entry: PracticeHistoryEntry | undefined): InterviewSessionDraft | null => {
     const draft = entry?.activeInterviewDraft;
     const draftQuestions = draft?.questions?.length ? draft.questions : entry?.questions;
@@ -131,7 +152,7 @@ const getResumableDraft = (entry: PracticeHistoryEntry | undefined): InterviewSe
 const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
     const { currentUser } = useAuth();
     const { levelInfo, isLoading: isLoadingLevel } = useUserProgress();
-    const { practiceHistory, addJob, addAnalysisToJob, saveInterviewDraft } = usePracticeHistory();
+    const { practiceHistory, addJob, addAnalysisToJob, saveInterviewDraft, saveCodingDraft } = usePracticeHistory();
     const { resumes } = useResumes();
     const { checkCredit, CreditLimitModal } = useAICreditCheck();
 
@@ -141,6 +162,8 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
     const [battle, setBattle] = useState<BattleState | null>(null);
     const [designBattle, setDesignBattle] = useState<DesignBattleState | null>(null);
     const [codingBattle, setCodingBattle] = useState<CodingBattleState | null>(null);
+    const [guestCodingSolvedIds, setGuestCodingSolvedIds] = useState<string[]>([]);
+    const [guestSystemDesignSolvedIds, setGuestSystemDesignSolvedIds] = useState<string[]>([]);
     const [selectedReportEntry, setSelectedReportEntry] = useState<PracticeHistoryEntry | null>(null);
     const [lastOutcome, setLastOutcome] = useState<(StageAttemptOutcome & { stageTitle: string }) | null>(null);
     const [error, setError] = useState('');
@@ -154,6 +177,11 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
             .catch(() => { if (!cancelled) setGuide(null); })
             .finally(() => { if (!cancelled) setIsLoadingGuide(false); });
         return () => { cancelled = true; };
+    }, [slug]);
+
+    useEffect(() => {
+        setGuestCodingSolvedIds([]);
+        setGuestSystemDesignSolvedIds([]);
     }, [slug]);
 
     const stages = useMemo(() => (guide ? buildQuestLine(guide) : []), [guide]);
@@ -177,16 +205,20 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
     const codingPool = useMemo(() => (guide ? getCodingPool(guide) : []), [guide]);
     const codingPoolSize = codingPool.length;
     const codingSolvedIds = useMemo(
-        () => quest?.stageResults?.coding?.clearedChallengeIds ?? [],
-        [quest],
+        () => currentUser
+            ? quest?.stageResults?.coding?.clearedChallengeIds ?? []
+            : guestCodingSolvedIds,
+        [currentUser, guestCodingSolvedIds, quest],
     );
     const codingSolvedCount = useMemo(() => new Set(codingSolvedIds).size, [codingSolvedIds]);
     const [codingPickerStageId, setCodingPickerStageId] = useState<string | null>(null);
     const systemDesignPool = useMemo(() => (guide ? getSystemDesignPool(guide) : []), [guide]);
     const systemDesignPoolSize = systemDesignPool.length;
     const systemDesignSolvedIds = useMemo(
-        () => quest?.stageResults?.system_design?.clearedChallengeIds ?? [],
-        [quest],
+        () => currentUser
+            ? quest?.stageResults?.system_design?.clearedChallengeIds ?? []
+            : guestSystemDesignSolvedIds,
+        [currentUser, guestSystemDesignSolvedIds, quest],
     );
     const systemDesignSolvedCount = useMemo(
         () => new Set(systemDesignSolvedIds).size,
@@ -209,7 +241,9 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
             const entryByStageTitle = practiceHistory.find((entry) =>
                 entry.job?.company === guide.company
                 && entry.job?.title === `${guide.company} quest — ${stage.title}`
-                && ((entry.interviewHistory?.length ?? 0) > 0 || !!getResumableDraft(entry)),
+                && ((entry.interviewHistory?.length ?? 0) > 0
+                    || !!getResumableDraft(entry)
+                    || (stage.id === 'coding' && Object.keys(entry.activeCodingDrafts ?? {}).length > 0)),
             );
 
             const entry = entryByAnalysisId || entryByStageTitle;
@@ -223,15 +257,16 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
         challengeOverride?: CodingChallenge | SystemDesignPattern,
     ) => {
         if (!guide) return;
-        if (!currentUser) {
-            // Guests can inspect sampler quests; running a stage needs an
-            // account (stages consume AI credits and save scored attempts).
+        const isGuestLocalPractice = !currentUser && canGuestUseLocalQuestStage(slug, stage.id);
+        if (!currentUser && !isGuestLocalPractice) {
+            // Only the featured quests' local coding and whiteboard stages are
+            // playable without an account. Every AI-assisted stage stays gated.
             setShowAuthGate(true);
             return;
         }
         const stageEntry = practiceEntriesByStageId.get(stage.id);
         const draft = getResumableDraft(stageEntry);
-        if (!draft && !checkCredit()) return;
+        if (currentUser && !draft && !checkCredit()) return;
 
         setStartingStageId(stage.id);
         setError('');
@@ -244,34 +279,45 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                 // Use the problem the user picked, or serve the next unsolved
                 // one from the company pool so clearing one hands out a fresh
                 // problem to keep improving.
-                const clearedChallengeIds = quest?.stageResults?.[stage.id]?.clearedChallengeIds ?? [];
+                const clearedChallengeIds = currentUser
+                    ? quest?.stageResults?.[stage.id]?.clearedChallengeIds ?? []
+                    : guestCodingSolvedIds;
+                const stageEntry = practiceEntriesByStageId.get(stage.id);
+                const latestCodingDraft = getLatestCodingDraft(stageEntry);
                 const challenge = challengeOverride && 'functionName' in challengeOverride
                     ? challengeOverride
-                    : selectNextCodingChallenge(guide, clearedChallengeIds);
+                    : latestCodingDraft
+                        ? codingPool.find((candidate) => candidate.id === latestCodingDraft.challengeId)
+                            ?? selectNextCodingChallenge(guide, clearedChallengeIds)
+                        : selectNextCodingChallenge(guide, clearedChallengeIds);
                 const brief = buildCodingBrief(guide, challenge);
-                const artifact = getAnalysisFromEntry(
-                    practiceEntriesByStageId.get(stage.id),
-                    quest?.stageResults?.[stage.id]?.lastAnalysisId,
-                )?.questArtifact;
-                const jobId = await addJob({
-                    title: `${guide.company} quest — ${stage.title}`,
-                    company: guide.company,
-                    location: '',
-                    description: brief.prompt,
-                    url: guide.url,
-                }, []);
+                const artifact = getCodingArtifactForChallenge(stageEntry, brief.challenge.id);
+                const draft = stageEntry?.activeCodingDrafts?.[brief.challenge.id];
+                const jobId = currentUser
+                    ? await addJob({
+                        title: `${guide.company} quest — ${stage.title}`,
+                        company: guide.company,
+                        location: '',
+                        description: brief.prompt,
+                        url: guide.url,
+                    }, [])
+                    : undefined;
                 setCodingBattle({
                     stage,
                     jobId,
                     brief,
+                    isGuestPractice: isGuestLocalPractice,
                     initialArtifact: artifact?.type === 'coding' ? artifact : undefined,
+                    initialDraft: draft,
                 });
                 return;
             }
 
             // System design is played on the whiteboard, not as a voice interview.
             if (stage.id === 'system_design') {
-                const clearedChallengeIds = quest?.stageResults?.[stage.id]?.clearedChallengeIds ?? [];
+                const clearedChallengeIds = currentUser
+                    ? quest?.stageResults?.[stage.id]?.clearedChallengeIds ?? []
+                    : guestSystemDesignSolvedIds;
                 const challenge = challengeOverride && !('functionName' in challengeOverride)
                     ? challengeOverride
                     : selectNextSystemDesignChallenge(guide, clearedChallengeIds);
@@ -283,17 +329,20 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                 const matchingArtifact = artifact?.type === 'system_design' && artifact.challengeId === brief.challengeId
                     ? artifact
                     : undefined;
-                const jobId = await addJob({
-                    title: `${guide.company} quest — ${stage.title}`,
-                    company: guide.company,
-                    location: '',
-                    description: brief.prompt,
-                    url: guide.url,
-                }, []);
+                const jobId = currentUser
+                    ? await addJob({
+                        title: `${guide.company} quest — ${stage.title}`,
+                        company: guide.company,
+                        location: '',
+                        description: brief.prompt,
+                        url: guide.url,
+                    }, [])
+                    : undefined;
                 setDesignBattle({
                     stage,
                     jobId,
                     brief,
+                    isGuestPractice: isGuestLocalPractice,
                     initialArtifact: matchingArtifact,
                 });
                 return;
@@ -369,7 +418,7 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
     const handleDesignAnalysis = async (
         analysisData: Omit<InterviewAnalysis, 'id' | 'timestamp'>,
     ): Promise<InterviewAnalysis> => {
-        if (!designBattle) throw new Error('No active design stage');
+        if (!designBattle?.jobId) throw new Error('No active signed-in design stage');
         return addAnalysisToJob(designBattle.jobId, analysisData);
     };
 
@@ -377,8 +426,45 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
     const handleCodingAnalysis = async (
         analysisData: Omit<InterviewAnalysis, 'id' | 'timestamp'>,
     ): Promise<InterviewAnalysis> => {
-        if (!codingBattle) throw new Error('No active coding stage');
+        if (!codingBattle?.jobId) throw new Error('No active signed-in coding stage');
         return addAnalysisToJob(codingBattle.jobId, analysisData);
+    };
+
+    const handleGuestCodingSubmissionComplete = (challengeId: string) => {
+        setGuestCodingSolvedIds((previous) => previous.includes(challengeId) ? previous : [...previous, challengeId]);
+    };
+
+    const handleGuestNextCodingChallenge = () => {
+        if (!guide || !codingBattle?.isGuestPractice) return;
+        const solvedIds = new Set([...guestCodingSolvedIds, codingBattle.brief.challenge.id]);
+        const nextChallenge = selectNextCodingChallenge(guide, solvedIds);
+        setGuestCodingSolvedIds([...solvedIds]);
+        setCodingBattle((current) => current
+            ? {
+                ...current,
+                brief: buildCodingBrief(guide, nextChallenge),
+                initialArtifact: undefined,
+                initialDraft: undefined,
+            }
+            : current);
+    };
+
+    const handleGuestSystemDesignSubmissionComplete = (challengeId: string) => {
+        setGuestSystemDesignSolvedIds((previous) => previous.includes(challengeId) ? previous : [...previous, challengeId]);
+    };
+
+    const handleGuestNextSystemDesignChallenge = () => {
+        if (!guide || !designBattle?.isGuestPractice) return;
+        const solvedIds = new Set([...guestSystemDesignSolvedIds, designBattle.brief.challengeId]);
+        const nextChallenge = selectNextSystemDesignChallenge(guide, solvedIds);
+        setGuestSystemDesignSolvedIds([...solvedIds]);
+        setDesignBattle((current) => current
+            ? {
+                ...current,
+                brief: buildSystemDesignBrief(guide, nextChallenge),
+                initialArtifact: undefined,
+            }
+            : current);
     };
 
     const stageIcon = (state: StageState, index: number) => {
@@ -555,6 +641,8 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                                         const stageEntry = practiceEntriesByStageId.get(stage.id);
                                         const reportEntry = (stageEntry?.interviewHistory?.length ?? 0) > 0 ? stageEntry : null;
                                         const draft = getResumableDraft(stageEntry);
+                                        const hasCodingDraft = stage.id === 'coding' && Object.keys(stageEntry?.activeCodingDrafts ?? {}).length > 0;
+                                        const hasGuestLocalPractice = !currentUser && canGuestUseLocalQuestStage(slug, stage.id);
                                         const isStarting = startingStageId === stage.id;
                                         const isLast = index === stages.length - 1;
                                         const isCurrent = index === currentStageIndex && !questComplete;
@@ -577,9 +665,14 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                                                                         Up next
                                                                     </span>
                                                                 )}
-                                                                {draft && (
+                                                                {(draft || hasCodingDraft) && (
                                                                     <span className="rounded-full border border-amber-300/60 bg-amber-50 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-amber-700 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
                                                                         In progress
+                                                                    </span>
+                                                                )}
+                                                                {hasGuestLocalPractice && (
+                                                                    <span className="rounded-full border border-[var(--cv-success-600)]/30 bg-[var(--cv-success-50)] px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-[var(--cv-success-600)]">
+                                                                        Practice free
                                                                     </span>
                                                                 )}
                                                             </div>
@@ -663,6 +756,8 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                                                                     ? <Loader2 size={14} className="animate-spin" />
                                                                     : draft
                                                                         ? <RotateCcw size={13} />
+                                                                        : hasCodingDraft
+                                                                            ? <RotateCcw size={13} />
                                                                         : state === 'cleared'
                                                                         ? <RotateCcw size={13} />
                                                                         : stage.id === 'system_design'
@@ -672,6 +767,8 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                                                                                 : <ChevronRight size={14} />}
                                                                 {draft
                                                                     ? 'Resume session'
+                                                                    : hasCodingDraft
+                                                                        ? 'Resume coding'
                                                                     : state === 'cleared'
                                                                     ? 'Improve score'
                                                                     : stage.id === 'system_design'
@@ -737,6 +834,13 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                                             style={{ width: `${Math.max((isLoadingLevel ? 0 : levelInfo.progress) * 100, 2)}%` }}
                                         />
                                     </div>
+                                </section>
+                            )}
+
+                            {!currentUser && canGuestUseLocalQuestStage(slug, 'coding') && (
+                                <section className="cv-design-card p-4">
+                                    <h2 className="cv-design-title text-base">Try the technical stages free</h2>
+                                    <p className="cv-design-body mt-1.5 text-xs">Use the code editor and whiteboard in this company quest without signing in. Sign in when you want AI review, coaching, saved progress, and XP.</p>
                                 </section>
                             )}
 
@@ -810,32 +914,42 @@ const CompanyQuestPage: React.FC<CompanyQuestPageProps> = ({ slug }) => {
                 </Suspense>
             )}
 
-            {codingBattle && currentUser && (
+            {codingBattle && (
                 <Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"><Loader2 className="animate-spin text-white" size={28} /></div>}>
                     <CodingBattle
-                        userId={currentUser.uid}
+                        key={`${codingBattle.brief.challenge.id}-${codingBattle.isGuestPractice ? 'guest' : 'signed'}`}
+                        userId={currentUser?.uid}
                         company={guide.company}
                         stageTitle={codingBattle.stage.title}
                         brief={codingBattle.brief}
                         preferredLanguage={getPreferredCodingLanguage(guide)}
+                        isGuestPractice={Boolean(codingBattle.isGuestPractice)}
                         initialArtifact={codingBattle.initialArtifact}
+                        initialDraft={codingBattle.initialDraft}
+                        saveDraft={codingBattle.jobId ? (draft) => saveCodingDraft(codingBattle.jobId!, draft) : undefined}
                         saveAnalysis={handleCodingAnalysis}
                         onAnalysisComplete={(analysis) => handleStageAnalysis(codingBattle.stage, analysis)}
+                        onGuestSubmissionComplete={handleGuestCodingSubmissionComplete}
+                        onGuestNextChallenge={handleGuestNextCodingChallenge}
                         onClose={() => setCodingBattle(null)}
                     />
                 </Suspense>
             )}
 
-            {designBattle && currentUser && (
+            {designBattle && (
                 <Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"><Loader2 className="animate-spin text-white" size={28} /></div>}>
                     <SystemDesignBattle
-                        userId={currentUser.uid}
+                        key={`${designBattle.brief.challengeId}-${designBattle.isGuestPractice ? 'guest' : 'signed'}`}
+                        userId={currentUser?.uid}
                         company={guide.company}
                         stageTitle={designBattle.stage.title}
                         brief={designBattle.brief}
+                        isGuestPractice={Boolean(designBattle.isGuestPractice)}
                         initialArtifact={designBattle.initialArtifact}
                         saveAnalysis={handleDesignAnalysis}
                         onAnalysisComplete={(analysis) => handleStageAnalysis(designBattle.stage, analysis)}
+                        onGuestSubmissionComplete={handleGuestSystemDesignSubmissionComplete}
+                        onGuestNextChallenge={handleGuestNextSystemDesignChallenge}
                         onClose={() => setDesignBattle(null)}
                     />
                 </Suspense>

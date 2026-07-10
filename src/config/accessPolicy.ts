@@ -3,7 +3,7 @@
  *
  * The product is browsable like a storefront:
  *  - Guests (signed out) can VIEW /learning, /interview-studio, /community.
- *  - Guests can OPEN the free course and the sampler quests below.
+ *  - Guests can OPEN the free course and company quest pages.
  *  - Everything else prompts the auth gate; paid tiers unlock the catalog.
  *
  * Keep every rule here — pages import these helpers instead of hard-coding
@@ -16,10 +16,15 @@ export const FREE_COURSE_IDS: ReadonlySet<string> = new Set(['ai-foundations-map
 export const isCourseFreeForGuests = (courseId: string): boolean => FREE_COURSE_IDS.has(courseId);
 
 /**
- * Company quests: every quest PAGE is browsable by guests (storefront view);
- * RUNNING any stage requires an account — enforced in CompanyQuestPage via
- * the auth gate, and server-side by the auth'd Cloud Functions + credits.
+ * Company quests: every quest PAGE is browsable by guests. Local coding and
+ * whiteboard practice are also available without an account for every company.
+ * AI review, voice coaching, diagram generation, persistence, XP, and all
+ * real-time API work remain authenticated features.
  */
+
+/** Only local, browser-executed technical stages are available to guests. */
+export const canGuestUseLocalQuestStage = (_slug: string, stageId: string): boolean =>
+    stageId === 'coding' || stageId === 'system_design';
 
 /**
  * Course entitlement per account state:

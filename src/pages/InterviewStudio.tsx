@@ -758,11 +758,12 @@ const InterviewStudio: React.FC<InterviewStudioProps> = ({ jobId }) => {
                                 <Building2 size={16} />
                             </span>
                             <h2 className="cv-design-title text-lg">
-                                Practice from real company guides
+                                Know exactly what to expect
                             </h2>
                         </div>
                         <p className="cv-design-body mt-1.5 text-sm">
-                            Verified stages, topics, and sample questions — turned into a company-style mock interview.
+                            Interview stages, key topics, and sample questions sourced from real engineers at each company — powered by{' '}
+                            <a href="https://www.techinterview.org/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:opacity-80">techinterview.org</a>.
                         </p>
                     </div>
                     <div className="flex shrink-0 items-center divide-x divide-[var(--cv-border-subtle)] rounded-xl border border-[var(--cv-border-subtle)] bg-[var(--cv-surface-warm-card-strong)] shadow-sm backdrop-blur">

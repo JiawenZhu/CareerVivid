@@ -22,11 +22,11 @@ const PILLARS = [
     {
         step: '02',
         icon: Swords,
-        title: 'Practice for real',
-        tagline: 'Company interview loops with a live AI interviewer',
+        title: 'Know exactly what to expect',
+        tagline: 'The real interview loop for 300+ companies — run by a voice AI',
         description:
-            'Pick a company and run its actual interview loop — recruiter screen, live coding with real test execution, system design on a whiteboard, behavioral rounds. A voice AI interviews you and scores every attempt.',
-        stats: ['300+ company guides', 'Voice interviews', 'Coding + whiteboard rounds'],
+            'Choose a company and step through its actual interview process — recruiter screen, live coding with real test execution, system design on a whiteboard, and behavioral rounds. A voice AI interviews and scores each attempt, so nothing catches you off guard.',
+        stats: ['300+ company guides', 'Voice AI interviewer', 'Coding + whiteboard rounds'],
         href: '/interview-studio',
         cta: 'Start a mock interview',
     },

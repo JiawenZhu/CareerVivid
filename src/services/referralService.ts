@@ -1,5 +1,5 @@
 import { db, auth } from '../firebase';
-import { doc, getDoc, setDoc, updateDoc, serverTimestamp, increment, arrayUnion, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp, increment, arrayUnion, Timestamp, onSnapshot } from 'firebase/firestore';
 
 const FUNCTIONS_URL = 'https://us-west1-jastalk-firebase.cloudfunctions.net';
 
@@ -32,7 +32,7 @@ export async function ensureUniqueReferralCode(userId: string): Promise<string> 
                 userId,
                 createdAt: serverTimestamp(),
                 usedCount: 0,
-                maxUses: 5,
+                maxUses: 15,
                 referredUsers: []
             });
 
@@ -41,7 +41,7 @@ export async function ensureUniqueReferralCode(userId: string): Promise<string> 
                 referralCode: code,
                 referralStats: {
                     totalReferred: 0,
-                    maxReferrals: 5,
+                    maxReferrals: 15,
                     referredUsers: []
                 }
             }, { merge: true });
@@ -142,6 +142,35 @@ export async function applyReferralRewards(
             email: newUserEmail,
             signupDate: serverTimestamp()
         })
+    });
+}
+
+/**
+ * Wait for the server-side referral trigger to publish the new user's trial.
+ * This prevents an immediate redirect to the editor from racing the trigger
+ * and showing the free-plan PDF paywall to a freshly referred user.
+ */
+export function waitForReferralEntitlement(userId: string, timeoutMs = 8000): Promise<boolean> {
+    return new Promise((resolve) => {
+        let settled = false;
+        let unsubscribe: () => void = () => undefined;
+        let timeoutId = 0;
+        const finish = (value: boolean) => {
+            if (settled) return;
+            settled = true;
+            unsubscribe();
+            window.clearTimeout(timeoutId);
+            resolve(value);
+        };
+
+        unsubscribe = onSnapshot(doc(db, 'users', userId), (snapshot) => {
+            const data = snapshot.data() as any;
+            const expiresAtMillis = data?.expiresAt?.toMillis?.() || 0;
+            const hasReferralTrial = data?.plan === 'pro_monthly' && expiresAtMillis > Date.now();
+            if (hasReferralTrial) finish(true);
+        }, () => finish(false));
+
+        timeoutId = window.setTimeout(() => finish(false), timeoutMs);
     });
 }
 

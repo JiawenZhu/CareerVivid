@@ -6,15 +6,14 @@ import { queueHydratedLifecycleEmail } from "./emailDataBinding";
 import { defineSecret } from "firebase-functions/params";
 
 const INITIAL_PARTNER_PASSWORD = defineSecret("INITIAL_PARTNER_PASSWORD");
+const PERSONAL_REFERRAL_LIMIT = 15;
 
 /**
  * Trigger: On User Created
  * Logic:
- * 1. Check if user has `referredBy` code.
- * 2. If yes, find the Academic Partner who owns that code.
- * 3. Verify Partner exists.
- * 4. Grant Student 30-day Premium Trial.
- * 5. Link Student to Partner via `academicPartnerId`.
+ * 1. Check if user has a `referredBy` code.
+ * 2. Resolve normal referral codes first and grant the referral trial atomically.
+ * 3. Fall back to academic-partner referral codes for the partner workflow.
  */
 export const onUserCreated = functions
     .region('us-west1')
@@ -65,6 +64,87 @@ export const onUserCreated = functions
         console.log(`Processing referral ${referralCode} for user ${userId}`);
 
         try {
+            // Personal referral codes are stored in /referralCodes/{code}. The
+            // signup client only records the code; entitlements must be granted
+            // here so users cannot write their own premium fields.
+            const referralCodeRef = admin.firestore().collection('referralCodes').doc(referralCode);
+            const referralCodeSnapshot = await referralCodeRef.get();
+
+            if (referralCodeSnapshot.exists) {
+                const referralData = referralCodeSnapshot.data() || {};
+                const referrerId = typeof referralData.userId === 'string' ? referralData.userId : '';
+
+                if (!referrerId || referrerId === userId) {
+                    console.warn(`Referral code ${referralCode} has no valid referrer or refers to the new user.`);
+                    return null;
+                }
+
+                const userRef = admin.firestore().collection('users').doc(userId);
+                const referrerRef = admin.firestore().collection('users').doc(referrerId);
+                const referralExpiresAt = admin.firestore.Timestamp.fromDate(new Date(Date.now() + 60 * 24 * 60 * 60 * 1000));
+
+                await admin.firestore().runTransaction(async (transaction) => {
+                    const [freshReferralSnapshot, referrerSnapshot] = await Promise.all([
+                        transaction.get(referralCodeRef),
+                        transaction.get(referrerRef),
+                    ]);
+
+                    const freshReferralData = freshReferralSnapshot.data() || {};
+                    const usedCount = Number(freshReferralData.usedCount || 0);
+                    const maxUses = Math.max(Number(freshReferralData.maxUses || 0), PERSONAL_REFERRAL_LIMIT);
+                    const referredUsers = Array.isArray(freshReferralData.referredUsers)
+                        ? freshReferralData.referredUsers
+                        : [];
+
+                    if (usedCount >= maxUses || referredUsers.some((entry: any) => entry?.uid === userId)) {
+                        console.warn(`Referral code ${referralCode} is exhausted or already applied to ${userId}.`);
+                        return;
+                    }
+
+                    const referrerData = referrerSnapshot.data() || {};
+                    const currentReferrerExpiry = referrerData.expiresAt?.toMillis?.() || Date.now();
+                    const referrerExpiresAt = admin.firestore.Timestamp.fromMillis(
+                        Math.max(currentReferrerExpiry, Date.now()) + 30 * 24 * 60 * 60 * 1000
+                    );
+
+                    transaction.update(userRef, {
+                        plan: 'pro_monthly',
+                        stripeSubscriptionStatus: 'trialing',
+                        expiresAt: referralExpiresAt,
+                        referredByUid: referrerId,
+                        promotions: {
+                            ...(newUser.promotions || {}),
+                            isPremium: true,
+                            trialSource: 'referral'
+                        },
+                        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    transaction.update(referrerRef, {
+                        plan: 'pro_monthly',
+                        expiresAt: referrerExpiresAt,
+                        'referralStats.totalReferred': admin.firestore.FieldValue.increment(1),
+                        'referralStats.maxReferrals': maxUses,
+                        'referralStats.referredUsers': admin.firestore.FieldValue.arrayUnion(userId),
+                        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    transaction.update(referralCodeRef, {
+                        maxUses,
+                        usedCount: admin.firestore.FieldValue.increment(1),
+                        referredUsers: admin.firestore.FieldValue.arrayUnion({
+                            uid: userId,
+                            email: newUser.email || '',
+                            signupDate: admin.firestore.Timestamp.now()
+                        }),
+                        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+
+                console.log(`User ${userId} granted 60-day Premium access via referral code ${referralCode}.`);
+                return null;
+            }
+
             // Find Academic Partner with this code
             const partnersSnapshot = await admin.firestore()
                 .collection('users')
