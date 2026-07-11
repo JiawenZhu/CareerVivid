@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Shared shell for algorithm step-player animations.
@@ -49,6 +50,7 @@ const StepPlayerShell: React.FC<StepPlayerShellProps> = ({
   todoText,
   children,
 }) => {
+  const { t } = useTranslation();
   const [step, setStep] = useState(0);
   const [reachedEnd, setReachedEnd] = useState(false);
 
@@ -61,6 +63,11 @@ const StepPlayerShell: React.FC<StepPlayerShellProps> = ({
     }
   };
 
+  const getTranslatedLabel = (label: string) => {
+    const key = `courses.viz.${label.toLowerCase().replace(/\s+/g, '_')}`;
+    return t(key, label);
+  };
+
   return (
     <div className="rounded-2xl border border-[var(--cv-border-warm)] bg-[var(--cv-surface-warm-card)] p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -68,7 +75,7 @@ const StepPlayerShell: React.FC<StepPlayerShellProps> = ({
           <Icon size={13} /> {title}
         </p>
         <span className="text-[11px] font-bold tabular-nums text-[var(--cv-text-muted)]">
-          Step {step + 1} / {totalSteps}
+          {t('courses.step_counter', { index: step + 1, total: totalSteps, defaultValue: 'Step {{index}} / {{total}}' })}
         </span>
       </div>
 
@@ -98,7 +105,7 @@ const StepPlayerShell: React.FC<StepPlayerShellProps> = ({
           disabled={step === 0}
           className="inline-flex h-9 items-center gap-1 rounded-lg border border-[var(--cv-border-warm)] px-3 text-xs font-bold text-[var(--cv-text-body)] hover:border-[var(--cv-action-border)] disabled:opacity-40"
         >
-          <ChevronLeft size={14} /> Prev
+          <ChevronLeft size={14} /> {t('courses.prev_step', 'Prev')}
         </button>
         <button
           type="button"
@@ -106,14 +113,14 @@ const StepPlayerShell: React.FC<StepPlayerShellProps> = ({
           disabled={step === totalSteps - 1}
           className="cv-design-button-primary inline-flex h-9 items-center gap-1 rounded-lg px-4 text-xs disabled:opacity-40"
         >
-          {nextLabel} <ChevronRight size={14} />
+          {getTranslatedLabel(nextLabel)} <ChevronRight size={14} />
         </button>
         <button
           type="button"
           onClick={() => setStep(0)}
           className="inline-flex h-9 items-center gap-1 rounded-lg border border-[var(--cv-border-warm)] px-3 text-xs font-bold text-[var(--cv-text-body)] hover:border-[var(--cv-action-border)]"
         >
-          <RotateCcw size={13} /> Reset
+          <RotateCcw size={13} /> {t('courses.reset', 'Reset')}
         </button>
       </div>
 

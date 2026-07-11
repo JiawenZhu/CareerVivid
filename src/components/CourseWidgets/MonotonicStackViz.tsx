@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Layers, RotateCcw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { CourseWidgetProps } from './types';
 
 /**
@@ -36,6 +37,7 @@ const buildSteps = (): StackStep[] => {
 const STEPS = buildSteps();
 
 const MonotonicStackViz: React.FC<CourseWidgetProps> = ({ completed, onComplete }) => {
+  const { t } = useTranslation();
   const [step, setStep] = useState(0);
   const [reachedEnd, setReachedEnd] = useState(false);
   const current = STEPS[step];
@@ -58,7 +60,7 @@ const MonotonicStackViz: React.FC<CourseWidgetProps> = ({ completed, onComplete 
           <Layers size={13} /> Monotonic stack · keep it increasing, bottom → top
         </p>
         <span className="text-[11px] font-bold tabular-nums text-[var(--cv-text-muted)]">
-          Step {step + 1} / {STEPS.length}
+          {t('courses.step_counter', { index: step + 1, total: STEPS.length, defaultValue: 'Step {{index}} / {{total}}' })}
         </span>
       </div>
 
@@ -145,13 +147,13 @@ const MonotonicStackViz: React.FC<CourseWidgetProps> = ({ completed, onComplete 
       {/* Controls */}
       <div className="mt-4 flex items-center justify-center gap-2">
         <button type="button" onClick={() => go(step - 1)} disabled={step === 0} className="inline-flex h-9 items-center gap-1 rounded-lg border border-[var(--cv-border-warm)] px-3 text-xs font-bold text-[var(--cv-text-body)] hover:border-[var(--cv-action-border)] disabled:opacity-40">
-          <ChevronLeft size={14} /> Prev
+          <ChevronLeft size={14} /> {t('courses.prev_step', 'Prev')}
         </button>
         <button type="button" onClick={() => go(step + 1)} disabled={step === STEPS.length - 1} className="cv-design-button-primary inline-flex h-9 items-center gap-1 rounded-lg px-4 text-xs disabled:opacity-40">
-          Next element <ChevronRight size={14} />
+          {t('courses.viz.next_element', 'Next element')} <ChevronRight size={14} />
         </button>
         <button type="button" onClick={() => setStep(0)} className="inline-flex h-9 items-center gap-1 rounded-lg border border-[var(--cv-border-warm)] px-3 text-xs font-bold text-[var(--cv-text-body)] hover:border-[var(--cv-action-border)]">
-          <RotateCcw size={13} /> Reset
+          <RotateCcw size={13} /> {t('courses.reset', 'Reset')}
         </button>
       </div>
 

@@ -9646,6 +9646,19 @@
           "content": "# 代码实验室：爬楼梯\n\n实现 `climbStairs(n)` 函数 — 你每次可以爬 **1 级或 2 级**台阶；返回到达第 `n` 级台阶有多少种不同的方法。\n\n状态定义：`dp[i]` = 到达第 `i` 级台阶的方法数。转移方程：`dp[i] = dp[i-1] + dp[i-2]`。\n\n### 示例\n- `climbStairs(2)` → `2` (1+1, 2)\n- `climbStairs(5)` → `8`\n- `climbStairs(10)` → `89`"
         }
       }
+    },
+    "prev_step": "上一页",
+    "reset": "重置",
+    "step_counter": "第 {{index}} 步，共 {{total}} 步",
+    "viz": {
+      "expand_wave": "扩张波浪",
+      "halve_it": "折半",
+      "fill_next_cell": "填充下一格",
+      "advance_both": "推进指针",
+      "take_next_interval": "处理下一个区间",
+      "move_pointer": "移动指针",
+      "next_element": "下一个元素",
+      "next_step": "下一步"
     }
   }
 }
