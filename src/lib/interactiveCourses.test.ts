@@ -3,13 +3,16 @@ import {
   evaluateCheck,
   getCourseExerciseCount,
   getCourseExercises,
+  getCoursesByTrack,
+  getCurriculumCourses,
+  getInteractiveCourse,
   getInteractiveCourses,
 } from './interactiveCourses';
 import { validateCourseDefinition } from '../types/course';
 
 describe('interactiveCourses', () => {
   it('provides one AI lab for each module in the 10-step curriculum', () => {
-    const courses = getInteractiveCourses();
+    const courses = getCurriculumCourses();
 
     expect(courses).toHaveLength(10);
     expect(courses.map((course) => course.title.slice(0, 3))).toEqual([
@@ -26,6 +29,24 @@ describe('interactiveCourses', () => {
     ]);
     expect(courses.every((course) => course.category === 'AI')).toBe(true);
     expect(courses.every((course) => getCourseExerciseCount(course) >= 1)).toBe(true);
+  });
+
+  it('ships the Coding Interview Patterns course on its own track, animated end to end', () => {
+    const patterns = getInteractiveCourse('coding-interview-patterns')!;
+
+    expect(patterns).toBeTruthy();
+    expect(patterns.track).toBe('coding-patterns');
+    expect(getCoursesByTrack('coding-patterns')).toContain(patterns);
+    // Track filtering keeps it OUT of the curriculum's order-based module map.
+    expect(getCurriculumCourses()).not.toContain(patterns);
+
+    // Every pattern chapter carries its own animation (interactive lesson).
+    for (const chapter of patterns.chapters) {
+      const kinds = chapter.exercises.map((e) => e.kind ?? 'code');
+      expect(kinds).toContain('interactive');
+      expect(kinds).toContain('reading');
+    }
+    expect(patterns.chapters.length).toBeGreaterThanOrEqual(9);
   });
 
   it('does not expose the old placeholder coding and system-design demos', () => {

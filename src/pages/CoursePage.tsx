@@ -3,14 +3,13 @@ import {
     ArrowLeft,
     ArrowRight,
     BookOpen,
-    ChevronRight,
+    Braces,
     CheckCircle2,
     ChevronDown,
     Clock3,
     ExternalLink,
     GraduationCap,
     Layers3,
-    ListChecks,
     Loader2,
     Lock,
     Play,
@@ -22,7 +21,15 @@ import {
 } from 'lucide-react';
 import AppLayout from '../components/Layout/AppLayout';
 import { navigate } from '../utils/navigation';
-import { getInteractiveCourses, getCourseExerciseCount, getCourseExercises } from '../lib/interactiveCourses';
+import {
+    getInteractiveCourses,
+    getCurriculumCourses,
+    getInteractiveCourse,
+    getCourseExerciseCount,
+    getCourseExercises,
+    type InteractiveCourse,
+} from '../lib/interactiveCourses';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { useUserProgress } from '../hooks/useUserProgress';
 import { useCourseProgress } from '../hooks/useCourseProgress';
@@ -51,6 +58,7 @@ const STATE_ICON_WELL: Record<CourseModuleWithState['state'], string> = {
  * the row reveals the details.
  */
 const CoursePage: React.FC = () => {
+    const { t, i18n } = useTranslation();
     const { currentUser, isPremium } = useAuth();
     const [authGate, setAuthGate] = useState<Pick<AuthGateModalProps, 'title' | 'message' | 'variant'> | null>(null);
 
@@ -84,10 +92,14 @@ const CoursePage: React.FC = () => {
     const [expandedId, setExpandedId] = useState<string | null>(null);
     const [completingId, setCompletingId] = useState<string | null>(null);
 
-    const interactiveCourses = useMemo(() => getInteractiveCourses(), []);
+    const interactiveCourses = useMemo(() => getInteractiveCourses(), [i18n.language]);
+    // The curriculum path only maps its OWN track's modules to steps 1..10 —
+    // other courses (e.g. Coding Interview Patterns) live in separate tracks.
+    const curriculumCourses = useMemo(() => getCurriculumCourses(), [i18n.language]);
+    const patternsCourse = useMemo(() => getInteractiveCourse('coding-interview-patterns'), [i18n.language]);
     const labByModuleOrder = useMemo(
-        () => new Map(interactiveCourses.map((course, index) => [index + 1, course])),
-        [interactiveCourses],
+        () => new Map(curriculumCourses.map((course, index) => [index + 1, course])),
+        [curriculumCourses],
     );
     const completedIds = progress?.completedModuleIds ?? [];
     const modules = useMemo(() => getCourseModulesWithState(completedIds), [completedIds]);
@@ -112,6 +124,17 @@ const CoursePage: React.FC = () => {
         [interactiveCourses, progressByCourse],
     );
     const activeLessonCount = activeLab ? getCourseExerciseCount(activeLab) : 0;
+
+    /** Lessons finished inside one course JSON (per-exercise progress). */
+    const lessonsDoneFor = (course: InteractiveCourse) => {
+        const done = new Set(progressByCourse[course.id]?.completedModuleIds ?? []);
+        return getCourseExercises(course).filter((exercise) => done.has(exercise.id)).length;
+    };
+    const curriculumLessonTotal = curriculumCourses.reduce((t, c) => t + getCourseExerciseCount(c), 0);
+    const curriculumLessonsDone = curriculumCourses.reduce((t, c) => t + lessonsDoneFor(c), 0);
+    const curriculumMinutes = curriculumCourses.reduce((t, c) => t + (c.estimatedMinutes ?? 0), 0);
+    const patternsLessonTotal = patternsCourse ? getCourseExerciseCount(patternsCourse) : 0;
+    const patternsLessonsDone = patternsCourse ? lessonsDoneFor(patternsCourse) : 0;
 
     const toggleExpand = (module: CourseModuleWithState) => {
         if (module.state === 'locked') {
@@ -148,211 +171,209 @@ const CoursePage: React.FC = () => {
     return (
         <AppLayout>
             <Helmet>
-                <title>Free AI Courses — Learn Agents by Doing | CareerVivid</title>
-                <meta name="description" content={`${interactiveCourses.length} hands-on AI courses from LLM foundations to a shipped portfolio project. Interactive playgrounds, quizzes, and code labs — the Foundations course is free, no account needed.`} />
+                <title>Interactive Courses — AI Agents & Coding Interview Patterns | CareerVivid</title>
+                <meta name="description" content="Learn by doing: a 10-module AI Agent Builder Curriculum and a Coding Interview Patterns course where every algorithm has its own step-through animation. Free to start, no account needed." />
                 <link rel="canonical" href="https://careervivid.app/learning" />
                 <script type="application/ld+json">{JSON.stringify({
                     '@context': 'https://schema.org',
                     '@type': 'ItemList',
-                    name: 'CareerVivid AI-agent curriculum',
-                    numberOfItems: interactiveCourses.length,
-                    itemListElement: interactiveCourses.map((course, index) => ({
+                    name: 'CareerVivid interactive courses',
+                    numberOfItems: 2,
+                    itemListElement: [
+                        {
+                            name: 'AI Agent Builder Curriculum',
+                            description: `${curriculumCourses.length} modules from LLM foundations to a shipped agent portfolio project — readings, animated playgrounds, quizzes, and code labs.`,
+                            minutes: curriculumMinutes,
+                            free: true,
+                        },
+                        {
+                            name: 'Coding Interview Patterns',
+                            description: patternsCourse?.description ?? 'Every algorithm gets its own animation — master the nine patterns behind most coding interview questions.',
+                            minutes: patternsCourse?.estimatedMinutes ?? 240,
+                            free: true,
+                        },
+                    ].map((course, index) => ({
                         '@type': 'ListItem',
                         position: index + 1,
                         item: {
                             '@type': 'Course',
-                            name: course.title.replace(/^\d+\.\s*/, ''),
-                            description: course.tagline,
+                            name: course.name,
+                            description: course.description,
                             provider: { '@type': 'Organization', name: 'CareerVivid', url: 'https://careervivid.app/' },
-                            isAccessibleForFree: isCourseFreeForGuests(course.id),
+                            isAccessibleForFree: course.free,
                             hasCourseInstance: {
                                 '@type': 'CourseInstance',
                                 courseMode: 'online',
-                                courseWorkload: course.estimatedMinutes ? `PT${course.estimatedMinutes}M` : 'PT1H',
+                                courseWorkload: `PT${course.minutes}M`,
                             },
-                            offers: {
-                                '@type': 'Offer',
-                                price: isCourseFreeForGuests(course.id) ? '0' : undefined,
-                                priceCurrency: 'USD',
-                                category: isCourseFreeForGuests(course.id) ? 'Free' : 'Subscription',
-                            },
+                            offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD', category: 'Free' },
                         },
                     })),
                 })}</script>
             </Helmet>
             {authGate && <AuthGateModal {...authGate} onClose={() => setAuthGate(null)} />}
-            <div className={`${selectedCourseId ? 'cv-design-page cv-design-grid' : 'bg-[var(--cv-bg-product)] text-[var(--cv-text-heading-product)]'} relative min-h-screen pb-16 text-left`}>
+            {/* Same warm background as every other page — the catalog no longer swaps design systems. */}
+            <div className="cv-design-page cv-design-grid relative min-h-screen pb-16 text-left">
                 <div className="@container/course-page mx-auto max-w-screen-2xl px-4 py-6 text-left sm:px-6 lg:px-8 lg:py-8">
                     {!selectedCourseId ? (
-                        <div className="mx-auto max-w-6xl space-y-6 pb-8">
-                            <header className="flex flex-col gap-5 border-b border-[var(--cv-border-product)] pb-6 lg:flex-row lg:items-end lg:justify-between">
-                                <div className="min-w-0">
-                                    <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--cv-text-accent)]">Learning studio</p>
-                                    <h1 className="max-w-2xl font-[var(--cv-font-heading)] text-2xl font-extrabold leading-tight text-[var(--cv-text-heading-product)] sm:text-3xl">Build skills you can apply in real interviews.</h1>
-                                    <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-[var(--cv-text-body-product)]">
-                                        Work through practical AI engineering lessons, then carry the same systems thinking into your projects and interview practice.
-                                    </p>
-                                </div>
-                                <div className="grid shrink-0 grid-cols-3 divide-x divide-[var(--cv-border-product)] border-y border-[var(--cv-border-product)] bg-[var(--cv-surface)] py-3 text-center shadow-[0_1px_2px_rgba(16,24,40,0.05)] lg:min-w-[328px]">
-                                    <div className="px-3">
-                                        <p className="text-lg font-extrabold text-[var(--cv-text-heading-product)]">{totalCount}</p>
-                                        <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--cv-text-muted)]">Modules</p>
-                                    </div>
-                                    <div className="px-3">
-                                        <p className="text-lg font-extrabold text-[var(--cv-text-heading-product)]">{totalLessonCount}</p>
-                                        <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--cv-text-muted)]">Hands-on labs</p>
-                                    </div>
-                                    <div className="px-3">
-                                        <p className="text-lg font-extrabold text-[var(--cv-text-heading-product)]">{completedCount}</p>
-                                        <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--cv-text-muted)]">Completed</p>
-                                    </div>
-                                </div>
-                            </header>
-
-                            <section className="border border-[var(--cv-border-product)] bg-[var(--cv-surface)] shadow-[0_1px_2px_rgba(16,24,40,0.05)]" aria-labelledby="continue-learning-heading">
-                                <div className="grid divide-y divide-[var(--cv-border-product)] lg:grid-cols-[minmax(0,1.35fr)_minmax(240px,0.8fr)_auto] lg:divide-x lg:divide-y-0">
-                                    <div className="p-5 sm:p-6">
-                                        <div className="flex items-start gap-4">
-                                            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[var(--cv-border-accent)] bg-[var(--cv-purple-50)] text-[var(--cv-text-accent)]">
-                                                <GraduationCap size={21} />
-                                            </span>
-                                            <div className="min-w-0">
-                                                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--cv-text-accent)]">Active curriculum</p>
-                                                <h2 id="continue-learning-heading" className="mt-1 font-[var(--cv-font-heading)] text-lg font-extrabold leading-tight text-[var(--cv-text-heading-product)]">AI Agent Builder Curriculum</h2>
-                                                <p className="mt-1.5 max-w-xl text-sm leading-6 text-[var(--cv-text-body-product)]">10 guided steps from LLM foundations to a portfolio-ready AI project, with readings, playgrounds, quizzes, and code labs.</p>
-                                            </div>
+                        <div className="mx-auto max-w-6xl space-y-5">
+                            {/* Hero */}
+                            <section className="cv-design-card p-4 sm:p-6">
+                                <div className="flex flex-wrap items-end justify-between gap-4">
+                                    <div className="min-w-0">
+                                        <div className="cv-design-eyebrow mb-3 inline-flex items-center gap-2 rounded-full border border-[var(--cv-action-border)] bg-[var(--cv-action-soft-bg)] px-2.5 py-1 text-xs">
+                                            <GraduationCap size={14} />
+                                            <span>{t('courses.title_catalog', 'Course catalog')}</span>
                                         </div>
+                                        <h1 className="cv-design-title text-2xl sm:text-3xl">{t('courses.pick_course', 'Pick a course — learn by doing.')}</h1>
+                                        <p className="cv-design-body mt-1.5 max-w-2xl text-sm">
+                                            {t('courses.desc_catalog', 'Interactive courses built around animations, playgrounds, quizzes, and code labs. Open a course to see its modules and start learning.')}
+                                        </p>
+                                        <p className="cv-design-body mt-3 text-xs font-bold">
+                                            {t('courses.lessons_finished', { completed: completedLessonCount, total: totalLessonCount, defaultValue: '{{completed}} / {{total}} lessons finished across all courses' })}
+                                        </p>
                                     </div>
-
-                                    <div className="p-5 sm:p-6">
-                                        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--cv-text-muted)]">{courseComplete ? 'Curriculum complete' : 'Up next'}</p>
-                                        <p className="mt-1 font-[var(--cv-font-heading)] text-sm font-extrabold leading-5 text-[var(--cv-text-heading-product)]">{activeModule?.title ?? 'AI Agent Builder Curriculum'}</p>
-                                        <div className="mt-3 flex items-center gap-2 text-xs font-semibold text-[var(--cv-text-body-product)]">
-                                            <BookOpen size={14} className="text-[var(--cv-text-accent)]" />
-                                            <span>Step {activeModule?.order ?? totalCount} of {totalCount}</span>
-                                            <span aria-hidden>·</span>
-                                            <span>{activeLessonCount} lessons</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex min-w-[220px] flex-col justify-between gap-5 p-5 sm:p-6">
-                                        <div>
-                                            <div className="flex items-end justify-between gap-3">
-                                                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--cv-text-muted)]">Your progress</p>
-                                                <p className="text-sm font-extrabold text-[var(--cv-text-accent)]">{progressPct}%</p>
-                                            </div>
-                                            <div className="mt-2 h-2 overflow-hidden rounded-full bg-[var(--cv-neutral-100)]">
-                                                <div className="h-full rounded-full bg-[var(--cv-action-primary)] transition-[width] duration-500" style={{ width: `${Math.max(progressPct, completedCount > 0 ? 4 : 0)}%` }} />
-                                            </div>
-                                            <p className="mt-2 text-xs font-medium text-[var(--cv-text-body-product)]">{isLoadingCourse ? 'Loading progress...' : `${completedCount} of ${totalCount} modules complete`}</p>
-                                        </div>
-                                        <div className="flex flex-wrap gap-2">
-                                            {activeLab && !courseComplete && (
-                                                <button type="button" onClick={() => openCourse(activeLab.id)} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[var(--cv-action-primary)] px-3 text-xs font-bold text-white transition-colors hover:bg-[var(--cv-action-primary-hover)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--cv-focus-ring)]">
-                                                    <Play size={13} /> Continue learning
-                                                </button>
-                                            )}
-                                            <button type="button" onClick={() => navigate('/learning/ai-agent-curriculum')} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-[var(--cv-action-soft-border)] bg-[var(--cv-action-soft-bg)] px-3 text-xs font-bold text-[var(--cv-action-soft-text)] transition-colors hover:bg-[var(--cv-action-soft-hover)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--cv-focus-ring)]">
-                                                View plan <ChevronRight size={13} />
+                                    <div className="flex shrink-0 flex-wrap gap-2">
+                                        {activeLab && !courseComplete && (
+                                            <button
+                                                type="button"
+                                                onClick={() => openCourse(activeLab.id)}
+                                                className="cv-design-button-primary inline-flex h-10 items-center gap-2 rounded-lg px-4 text-sm"
+                                            >
+                                                <Play size={15} /> {t('courses.continue_learning', 'Continue learning')}
                                             </button>
-                                        </div>
+                                        )}
                                     </div>
                                 </div>
                             </section>
 
-                            <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
-                                <section className="border border-[var(--cv-border-product)] bg-[var(--cv-surface)] shadow-[0_1px_2px_rgba(16,24,40,0.05)]" aria-labelledby="learning-path-heading">
-                                    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--cv-border-product)] px-5 py-4 sm:px-6">
-                                        <div>
-                                            <h2 id="learning-path-heading" className="font-[var(--cv-font-heading)] text-base font-extrabold text-[var(--cv-text-heading-product)]">Your 10-step learning path</h2>
-                                            <p className="mt-0.5 text-xs font-medium text-[var(--cv-text-body-product)]">Each module opens into an applied lab with clear evidence of progress.</p>
-                                        </div>
-                                        <button type="button" onClick={() => navigate('/learning/ai-agent-curriculum')} className="inline-flex items-center gap-1 text-xs font-bold text-[var(--cv-text-accent)] hover:text-[var(--cv-action-primary-hover)]">
-                                            Explore curriculum <ArrowRight size={13} />
-                                        </button>
-                                    </div>
-                                    <ol className="grid grid-cols-1 divide-y divide-[var(--cv-border-product)] sm:grid-cols-2 sm:divide-x sm:divide-y-0">
-                                        {modules.map((module, index) => {
-                                            const isCurrent = module.id === activeModule?.id && !courseComplete;
-                                            const isCompleted = module.state === 'completed';
-                                            const lab = labByModuleOrder.get(module.order);
-                                            return (
-                                                <li key={module.id} className={`${index >= 2 ? 'sm:border-t sm:border-[var(--cv-border-product)]' : ''}`}>
-                                                    <button type="button" onClick={() => navigate('/learning/ai-agent-curriculum')} className={`flex w-full items-start gap-3 px-5 py-4 text-left transition-colors hover:bg-[var(--cv-neutral-25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--cv-border-focus)] sm:px-6 ${isCurrent ? 'bg-[var(--cv-purple-25)]' : ''}`}>
-                                                        <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-extrabold ${isCompleted ? 'bg-[var(--cv-success-50)] text-[var(--cv-success-600)]' : isCurrent ? 'bg-[var(--cv-action-primary)] text-white' : 'bg-[var(--cv-neutral-100)] text-[var(--cv-text-muted)]'}`}>
-                                                            {isCompleted ? <CheckCircle2 size={14} /> : module.order}
-                                                        </span>
-                                                        <span className="min-w-0">
-                                                            <span className="block text-sm font-bold leading-5 text-[var(--cv-text-heading-product)]">{module.title}</span>
-                                                            <span className="mt-0.5 block line-clamp-2 text-xs font-medium leading-5 text-[var(--cv-text-body-product)]">{module.objective}</span>
-                                                            <span className={`mt-2 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide ${isCompleted ? 'text-[var(--cv-success-600)]' : isCurrent ? 'text-[var(--cv-text-accent)]' : 'text-[var(--cv-text-muted)]'}`}>
-                                                                {isCompleted ? 'Completed' : isCurrent ? `Up next${lab ? ` · ${getCourseExerciseCount(lab)} lessons` : ''}` : 'Locked in sequence'}
-                                                            </span>
-                                                        </span>
-                                                    </button>
-                                                </li>
-                                            );
-                                        })}
-                                    </ol>
-                                </section>
-
-                                <aside className="space-y-4 lg:sticky lg:top-6">
-                                    <section className="border border-[var(--cv-border-product)] bg-[var(--cv-surface)] p-5 shadow-[0_1px_2px_rgba(16,24,40,0.05)]">
-                                        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--cv-purple-50)] text-[var(--cv-text-accent)]">
-                                            <ListChecks size={18} />
+                            {/* Course-level cards — each card is a whole course; its modules live on the course page */}
+                            <div className="grid gap-4 md:grid-cols-2">
+                                {/* AI Agent Builder Curriculum */}
+                                <button
+                                    type="button"
+                                    onClick={() => navigate('/learning/ai-agent-curriculum')}
+                                    className="cv-design-card cv-design-card-hover group flex flex-col p-6 text-left transition-all hover:-translate-y-1"
+                                >
+                                    <div className="flex items-start justify-between gap-3">
+                                        <span className="cv-design-icon-well flex h-11 w-11 shrink-0 items-center justify-center rounded-xl">
+                                            <GraduationCap size={20} />
                                         </span>
-                                        <h2 className="mt-4 font-[var(--cv-font-heading)] text-base font-extrabold text-[var(--cv-text-heading-product)]">Practice with proof</h2>
-                                        <p className="mt-1.5 text-xs font-medium leading-5 text-[var(--cv-text-body-product)]">Every completed lesson becomes a durable signal: a lab, quiz, or exercise you can revisit before an interview.</p>
-                                        <div className="mt-4 border-t border-[var(--cv-border-product)] pt-4">
-                                            <p className="text-xl font-extrabold text-[var(--cv-text-heading-product)]">{completedLessonCount}<span className="text-sm text-[var(--cv-text-muted)]"> / {totalLessonCount}</span></p>
-                                            <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--cv-text-muted)]">Hands-on lessons finished</p>
+                                        <div className="flex flex-wrap justify-end gap-1.5">
+                                            <span className="rounded-full border border-[var(--cv-border-warm)] bg-[var(--cv-surface-warm-card-strong,transparent)] px-2.5 py-0.5 text-[10px] font-bold uppercase text-[var(--cv-text-muted)]">
+                                                {t('courses.difficulty_beginner', 'Beginner → Advanced')}
+                                            </span>
+                                            <span className="rounded-full border border-[var(--cv-success-600)]/30 bg-[var(--cv-success-50)] px-2.5 py-0.5 text-[10px] font-bold uppercase text-[var(--cv-success-600)]">
+                                                {t('courses.module_1_free', 'Module 1 free')}
+                                            </span>
                                         </div>
-                                    </section>
-
-                                    <section className="border border-[var(--cv-border-product)] bg-[var(--cv-surface)] p-5 shadow-[0_1px_2px_rgba(16,24,40,0.05)]">
-                                        <div className="flex items-center gap-2 text-[var(--cv-text-accent)]">
-                                            <Clock3 size={15} />
-                                            <p className="text-[11px] font-bold uppercase tracking-[0.14em]">Study rhythm</p>
-                                        </div>
-                                        <p className="mt-2 font-[var(--cv-font-heading)] text-sm font-extrabold leading-5 text-[var(--cv-text-heading-product)]">Keep the next session focused.</p>
-                                        <p className="mt-1 text-xs font-medium leading-5 text-[var(--cv-text-body-product)]">Finish one lab, then use its takeaway to explain a technical decision out loud.</p>
-                                    </section>
-                                </aside>
-                            </div>
-
-                            <section className="border-t border-[var(--cv-border-product)] pt-6" aria-labelledby="coming-next-heading">
-                                <div className="flex flex-wrap items-end justify-between gap-3">
-                                    <div>
-                                        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--cv-text-muted)]">Coming next</p>
-                                        <h2 id="coming-next-heading" className="mt-1 font-[var(--cv-font-heading)] text-lg font-extrabold text-[var(--cv-text-heading-product)]">Specialized paths are on the roadmap.</h2>
                                     </div>
-                                    <p className="text-xs font-medium text-[var(--cv-text-body-product)]">Complete the foundations path first.</p>
-                                </div>
-                                <div className="mt-4 grid gap-3 lg:grid-cols-2">
-                                    <article className="flex items-start gap-4 border border-[var(--cv-border-product)] bg-[var(--cv-surface)] p-5 opacity-80 shadow-[0_1px_2px_rgba(16,24,40,0.05)]">
-                                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--cv-blue-50)] text-[var(--cv-blue-600)]"><Layers3 size={19} /></span>
-                                        <div className="min-w-0 flex-1">
-                                            <div className="flex flex-wrap items-center gap-2">
-                                                <h3 className="font-[var(--cv-font-heading)] text-sm font-extrabold text-[var(--cv-text-heading-product)]">Advanced RAG &amp; Vector Databases</h3>
-                                                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-[var(--cv-text-muted)]"><Lock size={11} /> Coming soon</span>
-                                            </div>
-                                            <p className="mt-1 text-xs font-medium leading-5 text-[var(--cv-text-body-product)]">Semantic search, hybrid retrieval, query translation, and metadata filtering with Qdrant and PgVector.</p>
-                                            <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--cv-text-muted)]">Intermediate · 8 steps</p>
+                                    <h2 className="cv-design-title mt-4 text-xl leading-snug">AI Agent Builder Curriculum</h2>
+                                    <p className="cv-design-body mt-1.5 flex-1 text-sm">
+                                        {curriculumCourses.length} modules from LLM foundations to a shipped agent portfolio project — readings, animated playgrounds, quizzes, and code labs curated from Microsoft, OpenAI, Anthropic, Google, and Hugging Face's open courses.
+                                    </p>
+                                    <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-[var(--cv-border-warm)] pt-3 text-xs font-bold text-[var(--cv-text-muted)]">
+                                        <span className="inline-flex items-center gap-1.5">
+                                            <Layers3 size={13} /> {t('courses.modules_count', { count: curriculumCourses.length, defaultValue: '{{count}} modules' })}
+                                        </span>
+                                        <span className="inline-flex items-center gap-1.5">
+                                            <BookOpen size={13} /> {t('courses.lessons_count', { count: curriculumLessonTotal, defaultValue: '{{count}} lessons' })}
+                                        </span>
+                                        <span className="inline-flex items-center gap-1.5">
+                                            <Clock3 size={13} /> ~{t('courses.hours_approx', { count: Math.max(1, Math.round(curriculumMinutes / 60)), defaultValue: '~{{count}} h' })}
+                                        </span>
+                                        <span className="ml-auto inline-flex items-center gap-1 text-[var(--cv-action-primary)] transition-all group-hover:gap-2">
+                                            {curriculumLessonsDone >= curriculumLessonTotal && curriculumLessonTotal > 0 ? t('courses.review', 'Review') : curriculumLessonsDone > 0 ? t('courses.continue', 'Continue') : t('courses.start', 'Start')} <ArrowRight size={13} />
+                                        </span>
+                                    </div>
+                                    <div className="mt-3 flex items-center gap-2">
+                                        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--cv-border-warm)]">
+                                            <div
+                                                className={`h-full rounded-full transition-[width] duration-500 ${curriculumLessonTotal > 0 && curriculumLessonsDone >= curriculumLessonTotal ? 'bg-[var(--cv-success-600)]' : 'bg-[var(--cv-action-primary)]'}`}
+                                                style={{ width: `${Math.max(curriculumLessonTotal ? Math.round((curriculumLessonsDone / curriculumLessonTotal) * 100) : 0, curriculumLessonsDone > 0 ? 6 : 0)}%` }}
+                                            />
                                         </div>
-                                    </article>
-                                    <article className="flex items-start gap-4 border border-[var(--cv-border-product)] bg-[var(--cv-surface)] p-5 opacity-80 shadow-[0_1px_2px_rgba(16,24,40,0.05)]">
-                                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--cv-success-50)] text-[var(--cv-success-600)]"><ShieldCheck size={19} /></span>
-                                        <div className="min-w-0 flex-1">
-                                            <div className="flex flex-wrap items-center gap-2">
-                                                <h3 className="font-[var(--cv-font-heading)] text-sm font-extrabold text-[var(--cv-text-heading-product)]">Agent Security &amp; Guardrails</h3>
-                                                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-[var(--cv-text-muted)]"><Lock size={11} /> Coming soon</span>
+                                        <span className="text-[10px] font-bold tabular-nums text-[var(--cv-text-muted)]">{curriculumLessonsDone}/{curriculumLessonTotal}</span>
+                                    </div>
+                                </button>
+
+                                {/* Coding Interview Patterns */}
+                                {patternsCourse && (
+                                    <button
+                                        type="button"
+                                        onClick={() => openCourse(patternsCourse.id)}
+                                        className="cv-design-card cv-design-card-hover group flex flex-col p-6 text-left transition-all hover:-translate-y-1"
+                                    >
+                                        <div className="flex items-start justify-between gap-3">
+                                            <span className="cv-design-icon-well flex h-11 w-11 shrink-0 items-center justify-center rounded-xl">
+                                                <Braces size={20} />
+                                            </span>
+                                            <div className="flex flex-wrap justify-end gap-1.5">
+                                                <span className="rounded-full border border-[var(--cv-border-warm)] bg-[var(--cv-surface-warm-card-strong,transparent)] px-2.5 py-0.5 text-[10px] font-bold uppercase text-[var(--cv-text-muted)]">
+                                                    {patternsCourse.difficulty}
+                                                </span>
+                                                {isCourseFreeForGuests(patternsCourse.id) && (
+                                                    <span className="rounded-full border border-[var(--cv-success-600)]/30 bg-[var(--cv-success-50)] px-2.5 py-0.5 text-[10px] font-bold uppercase text-[var(--cv-success-600)]">
+                                                        {t('courses.free', 'Free')}
+                                                    </span>
+                                                )}
                                             </div>
-                                            <p className="mt-1 text-xs font-medium leading-5 text-[var(--cv-text-body-product)]">Prompt injection, jailbreaks, data leakage, adversarial inputs, and layered guardrails for production AI systems.</p>
-                                            <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--cv-text-muted)]">Advanced · 6 steps</p>
                                         </div>
-                                    </article>
-                                </div>
-                            </section>
+                                        <h2 className="cv-design-title mt-4 text-xl leading-snug">Coding Interview Patterns</h2>
+                                        <p className="cv-design-body mt-1.5 flex-1 text-sm">{patternsCourse.tagline}</p>
+                                        <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-[var(--cv-action-primary)]">
+                                            <Sparkles size={13} /> {t('courses.patterns_desc', { count: patternsCourse.chapters.length, defaultValue: '{{count}} patterns, each with its own step-through animation' })}
+                                        </p>
+                                        <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-[var(--cv-border-warm)] pt-3 text-xs font-bold text-[var(--cv-text-muted)]">
+                                            <span className="inline-flex items-center gap-1.5">
+                                                <Layers3 size={13} /> {t('courses.patterns_count', { count: patternsCourse.chapters.length, defaultValue: '{{count}} patterns' })}
+                                            </span>
+                                            <span className="inline-flex items-center gap-1.5">
+                                                <BookOpen size={13} /> {t('courses.lessons_count', { count: patternsLessonTotal, defaultValue: '{{count}} lessons' })}
+                                            </span>
+                                            {patternsCourse.estimatedMinutes && (
+                                                <span className="inline-flex items-center gap-1.5">
+                                                    <Clock3 size={13} /> ~{t('courses.hours_approx', { count: Math.max(1, Math.round(patternsCourse.estimatedMinutes / 60)), defaultValue: '~{{count}} h' })}
+                                                </span>
+                                            )}
+                                            <span className="ml-auto inline-flex items-center gap-1 text-[var(--cv-action-primary)] transition-all group-hover:gap-2">
+                                                {patternsLessonsDone >= patternsLessonTotal && patternsLessonTotal > 0 ? t('courses.review', 'Review') : patternsLessonsDone > 0 ? t('courses.continue', 'Continue') : t('courses.start', 'Start')} <ArrowRight size={13} />
+                                            </span>
+                                        </div>
+                                        <div className="mt-3 flex items-center gap-2">
+                                            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--cv-border-warm)]">
+                                                <div
+                                                    className={`h-full rounded-full transition-[width] duration-500 ${patternsLessonTotal > 0 && patternsLessonsDone >= patternsLessonTotal ? 'bg-[var(--cv-success-600)]' : 'bg-[var(--cv-action-primary)]'}`}
+                                                    style={{ width: `${Math.max(patternsLessonTotal ? Math.round((patternsLessonsDone / patternsLessonTotal) * 100) : 0, patternsLessonsDone > 0 ? 6 : 0)}%` }}
+                                                />
+                                            </div>
+                                            <span className="text-[10px] font-bold tabular-nums text-[var(--cv-text-muted)]">{patternsLessonsDone}/{patternsLessonTotal}</span>
+                                        </div>
+                                    </button>
+                                )}
+
+                                {/* Coming soon */}
+                                {[
+                                    { id: 'advanced-rag', icon: Layers3, title: 'Advanced RAG & Vector Databases', tagline: 'Chunking strategies, hybrid search, re-ranking, and production retrieval pipelines.' },
+                                    { id: 'agent-security', icon: ShieldCheck, title: 'Agent Security & Guardrails', tagline: 'Prompt injection defense, sandboxing, permissions, and evaluation for safe agents.' },
+                                ].map(({ id, icon: Icon, title, tagline }) => (
+                                    <div key={id} className="cv-design-card flex flex-col p-6 text-left opacity-70">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--cv-border-warm)] bg-[var(--cv-surface-warm-muted,transparent)] text-[var(--cv-text-muted)]">
+                                                <Icon size={20} />
+                                            </span>
+                                            <span className="rounded-full border border-[var(--cv-border-warm)] bg-[var(--cv-surface-warm-card-strong,transparent)] px-2.5 py-0.5 text-[10px] font-bold uppercase text-[var(--cv-text-muted)]">
+                                                {t('courses.coming_soon', 'Coming soon')}
+                                            </span>
+                                        </div>
+                                        <h2 className="cv-design-title mt-4 text-xl leading-snug">{title}</h2>
+                                        <p className="cv-design-body mt-1.5 flex-1 text-sm">{tagline}</p>
+                                        <div className="mt-4 border-t border-[var(--cv-border-warm)] pt-3 text-xs font-bold text-[var(--cv-text-muted)]">
+                                            {t('courses.in_development', 'In development — follow along in the community.')}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     ) : (
                         <div className="space-y-4">
@@ -361,7 +382,7 @@ const CoursePage: React.FC = () => {
                                 onClick={() => navigate('/learning')}
                                 className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--cv-text-muted)] hover:text-[var(--cv-text-heading)] transition-colors"
                             >
-                                <ArrowLeft size={14} /> Back to courses
+                                <ArrowLeft size={14} /> {t('courses.back_to_courses', 'Back to courses')}
                             </button>
 
                             <div className="grid grid-cols-1 items-start gap-5 @[1080px]/course-page:grid-cols-[minmax(0,1fr)_340px]">

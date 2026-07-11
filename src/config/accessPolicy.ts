@@ -10,8 +10,16 @@
  * ids, so pricing changes are one-file edits.
  */
 
-/** Courses anyone can open, signed in or not. */
-export const FREE_COURSE_IDS: ReadonlySet<string> = new Set(['ai-foundations-map']);
+/**
+ * Courses anyone can open, signed in or not.
+ * - ai-foundations-map: module 1 of the AI Agent Builder Curriculum.
+ * - coding-interview-patterns: launch promo — free while the course grows;
+ *   move it behind Pro by removing it from this set (one-line change).
+ */
+export const FREE_COURSE_IDS: ReadonlySet<string> = new Set([
+    'ai-foundations-map',
+    'coding-interview-patterns',
+]);
 
 export const isCourseFreeForGuests = (courseId: string): boolean => FREE_COURSE_IDS.has(courseId);
 

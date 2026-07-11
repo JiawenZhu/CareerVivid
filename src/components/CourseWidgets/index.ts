@@ -25,6 +25,16 @@ export const courseWidgetRegistry: Record<string, LazyExoticComponent<ComponentT
   'eval-grader': lazy(() => import('./EvalGraderWidget')),
   'injection-defender': lazy(() => import('./InjectionDefenderWidget')),
   'traffic-control': lazy(() => import('./TrafficControlWidget')),
+  // Coding Interview Patterns — every algorithm gets its own animation.
+  'sliding-window-viz': lazy(() => import('./SlidingWindowViz')),
+  'monotonic-stack-viz': lazy(() => import('./MonotonicStackViz')),
+  'backtracking-viz': lazy(() => import('./BacktrackingViz')),
+  'two-pointers-viz': lazy(() => import('./TwoPointersViz')),
+  'binary-search-viz': lazy(() => import('./BinarySearchViz')),
+  'bfs-grid-viz': lazy(() => import('./BfsGridViz')),
+  'dp-grid-viz': lazy(() => import('./DpGridViz')),
+  'fast-slow-viz': lazy(() => import('./FastSlowViz')),
+  'merge-intervals-viz': lazy(() => import('./MergeIntervalsViz')),
 };
 
 export const getCourseWidget = (widgetId: string | undefined) =>

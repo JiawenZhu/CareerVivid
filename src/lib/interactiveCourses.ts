@@ -1,3 +1,4 @@
+import i18n from '../i18n';
 import type { RunnerResponse } from '../workers/questCodeRunner.worker';
 import {
   validateCourseDefinition,
@@ -50,10 +51,114 @@ if (import.meta.env?.DEV) {
 
 const COURSES: InteractiveCourse[] = ALL_COURSES.filter((c) => c.status === 'published');
 
-export const getInteractiveCourses = (): InteractiveCourse[] => COURSES;
+const translate = (key: string, defaultValue: string): string => {
+  return i18n.t(key, { defaultValue });
+};
 
-export const getInteractiveCourse = (courseId: string): InteractiveCourse | undefined =>
-  COURSES.find((c) => c.id === courseId);
+const localizeCourse = (course: InteractiveCourse): InteractiveCourse => {
+  const courseKey = `courses.${course.id}`;
+  
+  return {
+    ...course,
+    title: translate(`${courseKey}.title`, course.title),
+    tagline: translate(`${courseKey}.tagline`, course.tagline),
+    description: translate(`${courseKey}.description`, course.description),
+    difficulty: translate(`${courseKey}.difficulty`, course.difficulty),
+    chapters: course.chapters.map((chapter) => {
+      const chapterKey = `${courseKey}.chapters.${chapter.id}`;
+      return {
+        ...chapter,
+        title: translate(`${chapterKey}.title`, chapter.title),
+        exercises: chapter.exercises.map((exercise) => {
+          const exerciseKey = `${courseKey}.exercises.${exercise.id}`;
+          return {
+            ...exercise,
+            title: translate(`${exerciseKey}.title`, exercise.title),
+            content: translate(`${exerciseKey}.content`, exercise.content),
+            instructions: exercise.instructions ? translate(`${exerciseKey}.instructions`, exercise.instructions) : undefined,
+            reading: exercise.reading ? translate(`${exerciseKey}.reading`, exercise.reading) : undefined,
+            hint: exercise.hint ? translate(`${exerciseKey}.hint`, exercise.hint) : undefined,
+            whiteboardBrief: exercise.whiteboardBrief ? {
+              requirements: exercise.whiteboardBrief.requirements.map((req, idx) =>
+                translate(`${exerciseKey}.whiteboardBrief.requirements.${idx}`, req)
+              ),
+            } : undefined,
+            quiz: exercise.quiz ? exercise.quiz.map((q) => {
+              const qKey = `${exerciseKey}.quiz.${q.id}`;
+              return {
+                ...q,
+                prompt: translate(`${qKey}.prompt`, q.prompt),
+                explanation: q.explanation ? translate(`${qKey}.explanation`, q.explanation) : undefined,
+                options: q.options.map((opt, idx) =>
+                  translate(`${qKey}.options.${idx}`, opt)
+                ),
+              };
+            }) : undefined,
+          };
+        }),
+      };
+    }),
+  };
+};
+
+let cachedLang: string | null = null;
+let cachedCourses: InteractiveCourse[] = [];
+let cachedCurriculumCourses: InteractiveCourse[] = [];
+let cachedCoursesByTrack = new Map<string, InteractiveCourse[]>();
+let cachedCourseMap = new Map<string, InteractiveCourse>();
+
+const getLocalizedData = () => {
+  const currentLang = i18n.language || 'en';
+  if (currentLang === cachedLang) {
+    return {
+      courses: cachedCourses,
+      curriculumCourses: cachedCurriculumCourses,
+      coursesByTrack: cachedCoursesByTrack,
+      courseMap: cachedCourseMap,
+    };
+  }
+
+  // Language changed or first run: Clear cache and rebuild
+  cachedLang = currentLang;
+  cachedCourses = COURSES.map(localizeCourse);
+  cachedCurriculumCourses = cachedCourses.filter((c) => (c.track ?? 'ai-agent') === 'ai-agent');
+  
+  cachedCoursesByTrack.clear();
+  cachedCourseMap.clear();
+  for (const course of cachedCourses) {
+    cachedCourseMap.set(course.id, course);
+    const track = course.track ?? 'ai-agent';
+    if (!cachedCoursesByTrack.has(track)) {
+      cachedCoursesByTrack.set(track, []);
+    }
+    cachedCoursesByTrack.get(track)!.push(course);
+  }
+
+  return {
+    courses: cachedCourses,
+    curriculumCourses: cachedCurriculumCourses,
+    coursesByTrack: cachedCoursesByTrack,
+    courseMap: cachedCourseMap,
+  };
+};
+
+export const getInteractiveCourses = (): InteractiveCourse[] => {
+  return getLocalizedData().courses;
+};
+
+/** Modules belonging to one track ('ai-agent' when the JSON omits `track`). */
+export const getCoursesByTrack = (track: string): InteractiveCourse[] => {
+  return getLocalizedData().coursesByTrack.get(track) ?? [];
+};
+
+/** The 10 modules of the AI Agent Builder Curriculum (order preserved). */
+export const getCurriculumCourses = (): InteractiveCourse[] => {
+  return getLocalizedData().curriculumCourses;
+};
+
+export const getInteractiveCourse = (courseId: string): InteractiveCourse | undefined => {
+  return getLocalizedData().courseMap.get(courseId);
+};
 
 export const getCourseExercises = (course: InteractiveCourse): InteractiveExercise[] =>
   course.chapters.flatMap((chapter) => chapter.exercises);

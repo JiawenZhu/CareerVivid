@@ -117,7 +117,13 @@ export interface CourseDefinition {
   schemaVersion: number;
   /** Stable unique id; doubles as the route param and progress doc key. */
   id: string;
-  /** Sort position in the catalog (ascending). */
+  /**
+   * Which top-level course (track) this module belongs to.
+   * 'ai-agent' (default when omitted) = the AI Agent Builder Curriculum;
+   * 'coding-patterns' = the Coding Interview Patterns course.
+   */
+  track?: string;
+  /** Sort position within its track (ascending). */
   order: number;
   title: string;
   language: LessonLanguage;

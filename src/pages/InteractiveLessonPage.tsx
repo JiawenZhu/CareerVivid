@@ -22,6 +22,7 @@ import {
     XCircle,
     Zap,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useQuestCodeRunner } from '../hooks/useQuestCodeRunner';
@@ -79,14 +80,14 @@ const loadWhiteboardScene = (courseId: string, exerciseId: string, background: s
         files: {},
     };
 };
-
 const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId, exerciseId }) => {
+    const { t, i18n } = useTranslation();
     const { resolvedTheme } = useTheme();
     const { currentUser } = useAuth();
     const { run } = useQuestCodeRunner();
     const excalidrawAPIRef = useRef<any>(null);
 
-    const location = useMemo(() => locateExercise(courseId, exerciseId), [courseId, exerciseId]);
+    const location = useMemo(() => locateExercise(courseId, exerciseId), [courseId, exerciseId, i18n.language]);
     const initialWhiteboardData = useMemo(
         () => loadWhiteboardScene(courseId, exerciseId, resolvedTheme === 'dark' ? '#1f2937' : '#ffffff'),
         [courseId, exerciseId, resolvedTheme],
@@ -94,6 +95,7 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
     const totalCount = location ? getCourseExerciseCount(location.course) : 0;
     const { progress, complete } = useCourseProgress(courseId, totalCount);
     const { complete: completeCurriculumModule } = useCourseProgress('ai-agent-curriculum', getCourseTotalCount());
+    const backRoute = courseId === 'coding-interview-patterns' ? '/learning' : `/learning/${courseId}`;
 
     const [code, setCode] = useState<string>(() => {
         if (typeof window !== 'undefined' && location) {
@@ -113,9 +115,9 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
     if (!location) {
         return (
             <div className="cv-design-page flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center">
-                <p className="cv-design-title text-xl">Lesson not found</p>
-                <button onClick={() => navigate(`/learning/${courseId}`)} className="cv-design-button-secondary rounded-lg px-4 py-2 text-sm">
-                    Back to course
+                <p className="cv-design-title text-xl">{t('courses.lesson_not_found', 'Lesson not found')}</p>
+                <button onClick={() => navigate(backRoute)} className="cv-design-button-secondary rounded-lg px-4 py-2 text-sm">
+                    {t('courses.back_to_course', 'Back to course')}
                 </button>
             </div>
         );
@@ -274,7 +276,7 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
         }
         
         // 3. Navigate back to curriculum dashboard
-        navigate(`/learning/${courseId}`);
+        navigate(backRoute);
     };
 
     const busy = isRunning || isSubmitting;
@@ -291,7 +293,7 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
             {/* Top bar */}
             <header className="flex shrink-0 items-center gap-3 border-b border-[var(--cv-border-warm)] px-3 py-2.5 sm:px-4">
                 <button
-                    onClick={() => navigate(`/learning/${courseId}`)}
+                    onClick={() => navigate(backRoute)}
                     className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--cv-text-muted)] transition-colors hover:bg-[var(--cv-surface-warm-muted,rgba(0,0,0,0.04))] hover:text-[var(--cv-text-heading)]"
                     aria-label="Back to course"
                 >
@@ -314,7 +316,7 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
             {isStandaloneLesson ? (
                 <div className="min-h-0 flex-1 overflow-y-auto">
                     <div className="mx-auto max-w-3xl p-5 pb-10 lg:p-8">
-                        <div className="cv-design-eyebrow mb-2 text-[11px]">Lesson {index} of {total}</div>
+                        <div className="cv-design-eyebrow mb-2 text-[11px]">{t('courses.lesson_counter', { index, total, defaultValue: 'Lesson {{index}} of {{total}}' })}</div>
 
                         {kind === 'video' && exercise.videoUrl && (
                             <div className="mb-5 overflow-hidden rounded-2xl border border-[var(--cv-border-warm)] bg-black">
@@ -574,7 +576,7 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
                         )}
 
                         {!error && !result && logs.length === 0 && (
-                            <p className="mt-2 font-mono text-[12px] text-gray-500">Click <span className="text-gray-300">Run</span> to see your output here.</p>
+                            <p className="mt-2 font-mono text-[12px] text-gray-500">{t('courses.click_run_hint', 'Click ')}<span className="text-gray-300">{t('courses.run', 'Run')}</span>{t('courses.click_run_hint_end', ' to see your output here.')}</p>
                         )}
                     </div>
                     </section>
@@ -591,7 +593,7 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
                     </span>
                     {isCompleted && (
                         <span className="hidden shrink-0 items-center gap-1 text-[11px] font-bold text-[var(--cv-success-600)] sm:inline-flex">
-                            <CheckCircle2 size={12} /> Done
+                            <CheckCircle2 size={12} /> {t('courses.done', 'Done')}
                         </span>
                     )}
                 </div>
@@ -601,21 +603,21 @@ const InteractiveLessonPage: React.FC<InteractiveLessonPageProps> = ({ courseId,
                         disabled={!prevExerciseId}
                         className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-[var(--cv-border-warm)] bg-[var(--cv-surface-warm-card)] px-3 text-xs font-bold text-[var(--cv-text-body)] transition-colors hover:border-[var(--cv-action-border)] disabled:cursor-not-allowed disabled:opacity-40"
                     >
-                        <ArrowLeft size={14} /> Back
+                        <ArrowLeft size={14} /> {t('courses.back', 'Back')}
                     </button>
                     {nextExerciseId ? (
                         <button
                             onClick={() => goTo(nextExerciseId)}
                             className="cv-design-button-primary inline-flex h-9 items-center gap-1.5 rounded-lg px-3.5 text-xs"
                         >
-                            Next <ArrowRight size={14} />
+                            {t('courses.next', 'Next')} <ArrowRight size={14} />
                         </button>
                     ) : (
                         <button
                             onClick={handleFinishCourse}
                             className="cv-design-button-primary inline-flex h-9 items-center gap-1.5 rounded-lg px-3.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-700 dark:hover:bg-emerald-800"
                         >
-                            Finish Course <CheckCircle2 size={14} />
+                            {t('courses.finish_course', 'Finish Course')} <CheckCircle2 size={14} />
                         </button>
                     )}
                 </div>
